@@ -22,12 +22,12 @@ Content-Type: application/json
 
 ### 请求参数
 
-| 参数 | 类型 | 必填 | 描述 |
-|------|------|------|------|
-| username | string | 是 | 用户名（唯一）|
-| email | string | 是 | 邮箱（唯一）|
-| password | string | 是 | 密码（明文，服务端会加密）|
-| full_name | string | 否 | 用户全名 |
+| 参数      | 类型   | 必填 | 描述                       |
+| --------- | ------ | ---- | -------------------------- |
+| username  | string | 是   | 用户名（唯一）             |
+| email     | string | 是   | 邮箱（唯一）               |
+| password  | string | 是   | 密码（明文，服务端会加密） |
+| full_name | string | 否   | 用户全名                   |
 
 ### 响应
 
@@ -60,6 +60,7 @@ Content-Type: application/json
 ```
 
 **可能的错误：**
+
 - `username already exists` - 用户名已存在
 - `email already exists` - 邮箱已存在
 - `invalid request` - 请求参数无效
@@ -84,10 +85,10 @@ Content-Type: application/json
 
 ### 请求参数
 
-| 参数 | 类型 | 必填 | 描述 |
-|------|------|------|------|
-| login | string | 是 | 用户名或邮箱 |
-| password | string | 是 | 密码 |
+| 参数     | 类型   | 必填 | 描述         |
+| -------- | ------ | ---- | ------------ |
+| login    | string | 是   | 用户名或邮箱 |
+| password | string | 是   | 密码         |
 
 ### 响应
 
@@ -120,6 +121,7 @@ Content-Type: application/json
 ```
 
 **可能的错误：**
+
 - `invalid credentials` - 用户名/邮箱或密码错误
 - `user not found` - 用户不存在
 - `user is not active` - 用户账号未激活
@@ -143,9 +145,9 @@ Content-Type: application/json
 
 ### 请求参数
 
-| 参数 | 类型 | 必填 | 描述 |
-|------|------|------|------|
-| refresh_token | string | 是 | 刷新令牌 |
+| 参数          | 类型   | 必填 | 描述     |
+| ------------- | ------ | ---- | -------- |
+| refresh_token | string | 是   | 刷新令牌 |
 
 ### 响应
 
@@ -167,6 +169,7 @@ Content-Type: application/json
 ```
 
 **可能的错误：**
+
 - `invalid or expired token` - 令牌无效或已过期
 - `user not found` - 用户不存在
 - `user is not active` - 用户账号未激活
@@ -207,6 +210,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIs...
 ```
 
 **可能的错误：**
+
 - `unauthorized` - 未提供有效的访问令牌
 - `user not found` - 用户不存在
 
@@ -262,36 +266,36 @@ curl http://localhost:8080/api/auth/me \
 ```javascript
 // 注册
 const register = async () => {
-  const response = await fetch('http://localhost:8080/api/auth/register', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+  const response = await fetch("http://localhost:8080/api/auth/register", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      username: 'testuser',
-      email: 'test@example.com',
-      password: 'password123',
-      full_name: 'Test User'
-    })
+      username: "testuser",
+      email: "test@example.com",
+      password: "password123",
+      full_name: "Test User",
+    }),
   });
   return response.json();
 };
 
 // 登录
 const login = async () => {
-  const response = await fetch('http://localhost:8080/api/auth/login', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+  const response = await fetch("http://localhost:8080/api/auth/login", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      login: 'testuser',
-      password: 'password123'
-    })
+      login: "testuser",
+      password: "password123",
+    }),
   });
   return response.json();
 };
 
 // 获取当前用户
 const getCurrentUser = async (accessToken) => {
-  const response = await fetch('http://localhost:8080/api/auth/me', {
-    headers: { 'Authorization': `Bearer ${accessToken}` }
+  const response = await fetch("http://localhost:8080/api/auth/me", {
+    headers: { Authorization: `Bearer ${accessToken}` },
   });
   return response.json();
 };
@@ -302,10 +306,12 @@ const getCurrentUser = async (accessToken) => {
 ## Token 管理最佳实践
 
 1. **存储 Token**：
+
    - 前端：存储在 `localStorage` 或 `sessionStorage`
    - 移动端：使用安全存储（Keychain/KeyStore）
 
 2. **Token 过期处理**：
+
    - 访问令牌过期时，使用刷新令牌自动获取新令牌
    - 刷新令牌过期时，需要重新登录
 

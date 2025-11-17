@@ -15,10 +15,10 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIs...
 
 ### 查询参数
 
-| 参数 | 类型 | 必填 | 默认值 | 描述 |
-|------|------|------|--------|------|
-| page | int | 否 | 1 | 页码（从 1 开始）|
-| page_size | int | 否 | 10 | 每页数量 |
+| 参数      | 类型 | 必填 | 默认值 | 描述              |
+| --------- | ---- | ---- | ------ | ----------------- |
+| page      | int  | 否   | 1      | 页码（从 1 开始） |
+| page_size | int  | 否   | 10     | 每页数量          |
 
 ### 响应
 
@@ -56,9 +56,9 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIs...
 
 ### 路径参数
 
-| 参数 | 类型 | 描述 |
-|------|------|------|
-| id | int | 用户 ID |
+| 参数 | 类型 | 描述    |
+| ---- | ---- | ------- |
+| id   | int  | 用户 ID |
 
 ### 响应
 
@@ -104,19 +104,20 @@ Content-Type: application/json
 
 ### 路径参数
 
-| 参数 | 类型 | 描述 |
-|------|------|------|
-| id | int | 用户 ID |
+| 参数 | 类型 | 描述    |
+| ---- | ---- | ------- |
+| id   | int  | 用户 ID |
 
 ### 请求体参数
 
-| 参数 | 类型 | 必填 | 描述 |
-|------|------|------|------|
-| email | string | 否 | 新邮箱 |
-| full_name | string | 否 | 新全名 |
-| status | string | 否 | 用户状态（active/inactive/suspended）|
+| 参数      | 类型   | 必填 | 描述                                  |
+| --------- | ------ | ---- | ------------------------------------- |
+| email     | string | 否   | 新邮箱                                |
+| full_name | string | 否   | 新全名                                |
+| status    | string | 否   | 用户状态（active/inactive/suspended） |
 
 **注意：**
+
 - `username` 不可修改
 - `password` 需要通过专门的修改密码接口（未实现）
 - 只能更新提供的字段
@@ -144,6 +145,7 @@ Content-Type: application/json
 ```
 
 **可能的错误：**
+
 - `user not found` - 用户不存在
 - `email already exists` - 邮箱已被其他用户使用
 - `invalid request` - 请求参数无效
@@ -163,9 +165,9 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIs...
 
 ### 路径参数
 
-| 参数 | 类型 | 描述 |
-|------|------|------|
-| id | int | 用户 ID |
+| 参数 | 类型 | 描述    |
+| ---- | ---- | ------- |
+| id   | int  | 用户 ID |
 
 ### 响应
 
@@ -182,6 +184,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIs...
 ```
 
 **注意：**
+
 - 这是软删除，用户数据会保留在数据库中
 - 已删除的用户无法登录
 - 已删除的用户不会出现在用户列表中
@@ -190,11 +193,11 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIs...
 
 ## 用户状态说明
 
-| 状态 | 描述 |
-|------|------|
-| active | 激活状态，可以正常登录和使用 |
-| inactive | 未激活状态，可能需要邮箱验证等 |
-| suspended | 暂停状态，已被管理员封禁 |
+| 状态      | 描述                           |
+| --------- | ------------------------------ |
+| active    | 激活状态，可以正常登录和使用   |
+| inactive  | 未激活状态，可能需要邮箱验证等 |
+| suspended | 暂停状态，已被管理员封禁       |
 
 ---
 
@@ -243,7 +246,7 @@ const getUsers = async (accessToken, page = 1, pageSize = 10) => {
   const response = await fetch(
     `http://localhost:8080/api/users?page=${page}&page_size=${pageSize}`,
     {
-      headers: { 'Authorization': `Bearer ${accessToken}` }
+      headers: { Authorization: `Bearer ${accessToken}` },
     }
   );
   return response.json();
@@ -251,40 +254,31 @@ const getUsers = async (accessToken, page = 1, pageSize = 10) => {
 
 // 获取用户详情
 const getUser = async (accessToken, userId) => {
-  const response = await fetch(
-    `http://localhost:8080/api/users/${userId}`,
-    {
-      headers: { 'Authorization': `Bearer ${accessToken}` }
-    }
-  );
+  const response = await fetch(`http://localhost:8080/api/users/${userId}`, {
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
   return response.json();
 };
 
 // 更新用户
 const updateUser = async (accessToken, userId, data) => {
-  const response = await fetch(
-    `http://localhost:8080/api/users/${userId}`,
-    {
-      method: 'PUT',
-      headers: {
-        'Authorization': `Bearer ${accessToken}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(data)
-    }
-  );
+  const response = await fetch(`http://localhost:8080/api/users/${userId}`, {
+    method: "PUT",
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
   return response.json();
 };
 
 // 删除用户
 const deleteUser = async (accessToken, userId) => {
-  const response = await fetch(
-    `http://localhost:8080/api/users/${userId}`,
-    {
-      method: 'DELETE',
-      headers: { 'Authorization': `Bearer ${accessToken}` }
-    }
-  );
+  const response = await fetch(`http://localhost:8080/api/users/${userId}`, {
+    method: "DELETE",
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
   return response.status === 204;
 };
 ```
@@ -360,12 +354,14 @@ success = api.delete_user(1)
 ## 权限说明
 
 当前版本所有已认证用户都可以：
+
 - 查看所有用户列表
 - 查看任意用户详情
 - 更新任意用户信息
 - 删除任意用户
 
 **生产环境建议：**
+
 - 实现基于角色的访问控制（RBAC）
 - 普通用户只能查看和修改自己的信息
 - 管理员可以管理所有用户

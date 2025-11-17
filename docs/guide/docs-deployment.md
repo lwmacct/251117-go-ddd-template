@@ -1,12 +1,14 @@
 # GitHub Pages 部署指南
 
-本文档说明如何将 VitePress 文档部署到 GitHub Pages。
+本文档说明如何将 VitePress 文档部署到 GitHub Pages（**快速操作指南**）。
+
+> 💡 **技术细节**：如需了解多环境部署的技术原理和自动化方案，请查看 [VitePress 多环境部署指南](/development/vitepress-deployment)
 
 ## 前提条件
 
 - GitHub 仓库：`lwmacct/251117-go-ddd-template`
 - 已配置 GitHub Actions workflow（`.github/workflows/deploy-docs.yml`）
-- 已配置 VitePress base 路径（`base: '/251117-go-ddd-template/'`）
+- VitePress base 路径自动配置（无需手动设置）
 
 ## 部署步骤
 
@@ -29,8 +31,7 @@ GitHub Actions workflow 会在以下情况自动触发：
 
 - 推送到 `main` 分支时
 - 修改了 `docs/**` 目录下的文件
-- 修改了 `package.json` 或 `pnpm-lock.yaml`
-- 修改了 workflow 文件本身
+- 修改了 workflow 文件本身（`.github/workflows/deploy-docs.yml`）
 
 #### 首次部署
 
@@ -81,8 +82,6 @@ on:
     branches: [main]
     paths:
       - "docs/**" # 文档文件变更
-      - "package.json" # 依赖变更
-      - "package-lock.json" # 锁定文件变更
       - ".github/workflows/deploy-docs.yml" # workflow 自身变更
   workflow_dispatch: # 手动触发
 ```
@@ -103,21 +102,24 @@ on:
 
 ### VitePress Base 路径
 
-在 `docs/.vitepress/config.ts` 中配置：
+本项目使用**环境变量**自动管理不同部署环境的 base 路径：
 
 ```typescript
+// docs/.vitepress/config.ts
 export default defineConfig({
-  // GitHub Pages 项目页面需要设置 base 为仓库名
-  base: "/251117-go-ddd-template/",
+  // 自动适配：本地 /docs/，GitHub Pages /仓库名/
+  base: process.env.VITEPRESS_BASE || "/docs/",
   // ...
 });
 ```
 
-**重要提示：**
+**工作原理：**
 
-- 如果部署到用户/组织主页（`username.github.io`），设置 `base: '/'`
-- 如果部署到项目页面（`username.github.io/repo/`），设置 `base: '/repo/'`
-- base 路径必须以 `/` 开头和结尾
+- **本地开发/Go 服务器**：使用默认值 `/docs/`
+- **GitHub Pages**：GitHub Actions 自动设置 `VITEPRESS_BASE` 为仓库名
+- **零配置**：无需手动修改配置文件
+
+> 📖 **详细技术说明**：查看 [VitePress 多环境部署指南](/development/vitepress-deployment) 了解自动化方案的完整原理
 
 ### 权限配置
 

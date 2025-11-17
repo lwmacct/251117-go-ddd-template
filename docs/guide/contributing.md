@@ -310,10 +310,8 @@ go test -v ./...
 
 推送到 `main` 分支时，如果修改了以下文件，会自动触发部署：
 
-- `docs/**`
-- `package.json`
-- `package-lock.json`
-- `.github/workflows/deploy-docs.yml`
+- `docs/**` - 任何文档文件变更
+- `.github/workflows/deploy-docs.yml` - 部署流程配置变更
 
 ### 手动触发
 
