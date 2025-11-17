@@ -1,0 +1,30 @@
+# 示例配置文件
+# 复制此文件为 config.yaml 并根据需要修改
+#
+# 此文件与 internal/infrastructure/config/config.go 中的 defaultConfig() 保持同步
+# 所有配置项都可以通过环境变量覆盖（前缀 APP_，如 APP_SERVER_ADDR）
+
+# 服务器配置
+server:
+  addr: "0.0.0.0:8080" # 监听地址，格式: host:port，例如 "0.0.0.0:8080" 或 ":8080"
+  env: "development" # 运行环境: development, production
+  static_dir: "web/dist" # 静态资源目录路径，用于提供前端文件服务（如 SPA 应用）
+
+# 数据源配置
+data:
+  # PostgreSQL 数据库连接 URL
+  # 格式: postgresql://user:password@host:port/dbname?sslmode=disable
+  # 环境变量: APP_DATA_PGSQL_URL
+  pgsql_url: "postgresql://postgres@localhost:5432/myapp?sslmode=disable"
+
+  # Redis 连接 URL
+  # 格式: redis://:password@host:port/db (无密码时省略 :password)
+  # 环境变量: APP_DATA_REDIS_URL
+  redis_url: "redis://localhost:6379/0"
+
+# JWT 配置
+jwt:
+  secret: "change-me-in-production" # 生产环境务必修改！建议通过环境变量 APP_JWT_SECRET 设置
+  access_token_expiry: "15m" # 访问令牌过期时间
+  refresh_token_expiry: "168h" # 刷新令牌过期时间 (7天)
+
