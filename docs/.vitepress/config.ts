@@ -3,9 +3,13 @@ import { defineConfig } from "vitepress";
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
   // 文档基础路径
-  // - 通过 Go API 服务器访问时使用 '/docs/'
-  // - GitHub Pages 部署时使用 '/251117-go-ddd-template/'
-  base: "/docs/",
+  // - 本地开发和 Go API 服务器: '/docs/' (默认)
+  // - GitHub Pages 部署: '/251117-go-ddd-template/'
+  //
+  // 使用方式：
+  //   本地/Go服务器: npm run docs:build
+  //   GitHub Pages:  npm run docs:build:github
+  base: process.env.VITE_BASE_PATH || "/docs/",
 
   title: "Go DDD Template",
   description: "基于 Go 的领域驱动设计（DDD）模板应用文档",

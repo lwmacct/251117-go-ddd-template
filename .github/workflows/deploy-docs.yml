@@ -50,8 +50,8 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build with VitePress
-        run: npm run docs:build
+      - name: Build with VitePress for GitHub Pages
+        run: npm run docs:build:github
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
