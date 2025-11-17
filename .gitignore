@@ -12,7 +12,10 @@
 **/temp/**
 **/cache/**
 
-# python
+# 后缀匹配
+**/*.log
+
+## python
 __pycache__/
 *.pyc
 *.pyo
@@ -29,20 +32,6 @@ main
 /build/
 /dist/
 
-vmalert
-
 # 配置文件（保留示例）
 config.yaml
 /configs/config.yaml
-
-# Node.js
-node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-.pnpm-store/
-
-# VitePress
-docs/.vitepress/dist/
-docs/.vitepress/cache/

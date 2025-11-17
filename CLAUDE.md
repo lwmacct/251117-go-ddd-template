@@ -44,6 +44,19 @@ APP_SERVER_ADDR=:8080 .local/bin/<app-name> api
 - `task go:release` - 构建并推送所有架构的 Docker 镜像
 - `task go:release:x86_64` - 专门构建 x86_64 架构
 
+### 文档
+
+本项目使用 VitePress 2.0 构建文档，文档源文件位于 `docs/` 目录，拥有独立的 `package.json`。
+
+- `cd docs && npm run dev` - 启动文档开发服务器（http://localhost:5173/docs/）
+- `cd docs && npm run build` - 构建文档静态文件到 `docs/.vitepress/dist/`
+- `cd docs && npm run preview` - 预览构建后的文档
+
+**重要提示**：
+- docs/ 目录有自己的 package.json 和 node_modules/
+- 文档依赖独立于后端和前端项目
+- GitHub Actions 会自动部署文档到 GitHub Pages
+
 ## 架构
 
 ### 分层结构
@@ -241,7 +254,28 @@ APP_JWT_REFRESH_TOKEN_EXPIRY=168h
 - Docker Compose（`docker-compose.yml`）：PostgreSQL + Redis
 - 模块路径：`github.com/lwmacct/251117-go-ddd-template`
 
+### 项目结构
+
+本项目是一个 Monorepo，包含三个子项目：
+
+1. **根目录（后端）** - Go DDD 应用
+   - 依赖管理：`go.mod`、`go.sum`
+   - 主入口：`main.go`
+   - 核心代码：`internal/`
+
+2. **web/** - 前端项目（Vue 3）
+   - 依赖管理：`web/package.json`
+   - 独立的 `node_modules/`
+   - 构建产物：`web/dist/`（被后端作为静态文件服务）
+
+3. **docs/** - VitePress 文档
+   - 依赖管理：`docs/package.json`
+   - 独立的 `node_modules/`
+   - 构建产物：`docs/.vitepress/dist/`（部署到 GitHub Pages）
+
 ### 启动开发环境
+
+#### 后端开发
 
 ```bash
 # 1. 启动数据库和 Redis
@@ -277,6 +311,26 @@ curl http://localhost:8080/api/auth/me \
   -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
 ```
 
+#### 文档开发
+
+```bash
+# 进入文档目录
+cd docs
+
+# 首次安装依赖
+npm install
+
+# 启动开发服务器（热重载）
+npm run dev
+# 访问 http://localhost:5173/docs/
+
+# 构建文档
+npm run build
+
+# 预览构建结果
+npm run preview
+```
+
 ## 模块信息
 
 - Go 版本：1.25.4
@@ -296,6 +350,7 @@ curl http://localhost:8080/api/auth/me \
 - ✅ 仓储模式（Repository Pattern）- 接口驱动设计
 - ✅ 依赖注入容器 - 集中管理所有依赖
 - ✅ Docker Compose - PostgreSQL + Redis 开发环境
+- ✅ VitePress 文档 - 独立的文档项目 + 自动部署到 GitHub Pages
 
 ## 待实现功能
 
@@ -303,6 +358,6 @@ curl http://localhost:8080/api/auth/me \
 - 权限和角色管理（RBAC）- 基于角色的访问控制
 - 结构化日志系统 - 使用 zap 或 zerolog
 - 单元测试和集成测试 - 完整的测试覆盖
-- API 文档 - Swagger/OpenAPI 规范
+- API 自动文档 - Swagger/OpenAPI 规范自动生成
 - 分布式追踪 - OpenTelemetry 集成
 - 监控和指标 - Prometheus + Grafana
