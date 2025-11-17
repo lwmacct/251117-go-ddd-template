@@ -8,8 +8,8 @@ export default defineConfig({
   //
   // 使用方式：
   //   本地/Go服务器: npm run docs:build
-  //   GitHub Pages:  npm run docs:build:github
-  base: process.env.VITE_BASE_PATH || "/docs/",
+  //   GitHub Pages:  由 GitHub Actions 自动设置 VITEPRESS_BASE
+  base: process.env.VITEPRESS_BASE || "/docs/",
 
   title: "Go DDD Template",
   description: "基于 Go 的领域驱动设计（DDD）模板应用文档",
@@ -21,6 +21,7 @@ export default defineConfig({
       { text: "首页", link: "/" },
       { text: "指南", link: "/guide/getting-started" },
       { text: "API 文档", link: "/api/" },
+      { text: "开发文档", link: "/development/" },
     ],
 
     sidebar: {
@@ -51,6 +52,21 @@ export default defineConfig({
             { text: "概览", link: "/api/" },
             { text: "认证接口", link: "/api/auth" },
             { text: "用户接口", link: "/api/users" },
+          ],
+        },
+      ],
+      "/development/": [
+        {
+          text: "VitePress 文档系统",
+          items: [
+            { text: "概览", link: "/development/" },
+            {
+              text: "快速参考",
+              link: "/development/vitepress-quick-reference",
+            },
+            { text: "部署指南", link: "/development/vitepress-deployment" },
+            { text: "文档集成", link: "/development/docs-integration" },
+            { text: "升级记录", link: "/development/vitepress-upgrade" },
           ],
         },
       ],

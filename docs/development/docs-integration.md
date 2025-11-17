@@ -75,9 +75,9 @@ if cfg.Server.DocsDir != "" {
 
 ```typescript
 export default defineConfig({
-  base: "/docs/",  // 通过 Go API 服务器访问时使用 '/docs/'
+  base: "/docs/", // 通过 Go API 服务器访问时使用 '/docs/'
   // ...其他配置
-})
+});
 ```
 
 ## 使用方法
@@ -104,9 +104,11 @@ task go:run -- api
 
 打开浏览器访问：
 
-- **文档首页**: http://localhost:8080/docs/
-- **指南页面**: http://localhost:8080/docs/guide/getting-started
-- **API 文档**: http://localhost:8080/docs/api/
+```
+http://localhost:8080/docs/                  # 文档首页
+http://localhost:8080/docs/guide/getting-started  # 指南页面
+http://localhost:8080/docs/api/              # API 文档
+```
 
 ## 路由结构
 
@@ -149,7 +151,7 @@ server:
   addr: "0.0.0.0:8080"
   env: "development"
   static_dir: "web/dist"
-  docs_dir: "docs/.vitepress/dist"  # 文档目录
+  docs_dir: "docs/.vitepress/dist" # 文档目录
 ```
 
 ## 部署建议
@@ -208,11 +210,13 @@ task go:build
 ### 文档返回 404
 
 1. 检查文档是否已构建：
+
    ```bash
    ls docs/.vitepress/dist/
    ```
 
 2. 检查配置：
+
    ```bash
    # 查看当前配置
    cat configs/config.example.yaml
@@ -230,8 +234,8 @@ task go:build
 ```typescript
 // docs/.vitepress/config.ts
 export default defineConfig({
-  base: "/docs/",  // 必须以 / 开头和结尾
-})
+  base: "/docs/", // 必须以 / 开头和结尾
+});
 ```
 
 ### CSS/JS 文件路径错误

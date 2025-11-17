@@ -38,6 +38,7 @@ curl -X POST http://localhost:8080/api/auth/register \
 ```
 
 **响应示例：**
+
 ```json
 {
   "user": {
@@ -185,7 +186,7 @@ type Claims struct {
 ```yaml
 jwt:
   secret: "your-secret-key-change-in-production"
-  access_token_expiry: "15m"   # 访问令牌过期时间
+  access_token_expiry: "15m" # 访问令牌过期时间
   refresh_token_expiry: "168h" # 刷新令牌过期时间（7天）
 ```
 
@@ -200,6 +201,7 @@ export APP_JWT_REFRESH_TOKEN_EXPIRY="168h"
 **重要提示：** 生产环境必须使用强密钥！建议使用至少 32 字节的随机字符串。
 
 生成强密钥：
+
 ```bash
 # 使用 openssl 生成随机密钥
 openssl rand -base64 32
@@ -209,51 +211,57 @@ openssl rand -base64 32
 
 ### 公开端点（无需认证）
 
-| 方法 | 路径 | 说明 |
-|------|------|------|
-| POST | `/api/auth/register` | 注册新用户 |
-| POST | `/api/auth/login` | 用户登录 |
-| POST | `/api/auth/refresh` | 刷新访问令牌 |
+| 方法 | 路径                 | 说明         |
+| ---- | -------------------- | ------------ |
+| POST | `/api/auth/register` | 注册新用户   |
+| POST | `/api/auth/login`    | 用户登录     |
+| POST | `/api/auth/refresh`  | 刷新访问令牌 |
 
 ### 受保护端点（需要认证）
 
-| 方法 | 路径 | 说明 |
-|------|------|------|
-| GET | `/api/auth/me` | 获取当前用户信息 |
-| GET | `/api/users` | 获取用户列表 |
-| GET | `/api/users/:id` | 获取用户详情 |
-| PUT | `/api/users/:id` | 更新用户 |
-| DELETE | `/api/users/:id` | 删除用户 |
+| 方法   | 路径             | 说明             |
+| ------ | ---------------- | ---------------- |
+| GET    | `/api/auth/me`   | 获取当前用户信息 |
+| GET    | `/api/users`     | 获取用户列表     |
+| GET    | `/api/users/:id` | 获取用户详情     |
+| PUT    | `/api/users/:id` | 更新用户         |
+| DELETE | `/api/users/:id` | 删除用户         |
 
 详细的 API 文档请参考 [认证接口](/api/auth) 和 [用户接口](/api/users)。
 
 ## 安全特性
 
 1. **密码加密**
+
    - 使用 bcrypt 加密存储密码
    - 成本因子：10（默认）
    - 密码字段在响应中自动隐藏
 
 2. **Token 签名**
+
    - 使用 HMAC-SHA256 算法签名
    - Secret 密钥从配置读取
    - Token 包含过期时间
 
 3. **Token 过期控制**
+
    - 访问令牌：15 分钟（短期）
    - 刷新令牌：7 天（长期）
    - 可通过配置调整
 
 4. **用户状态检查**
+
    - 只有 `active` 状态的用户可以登录
    - 支持 `inactive`、`suspended` 等状态
 
 5. **唯一性约束**
+
    - 用户名唯一
    - 邮箱唯一
    - 数据库层面强制约束
 
 6. **参数验证**
+
    - 使用 Gin binding 验证请求参数
    - 邮箱格式验证
    - 密码最小长度验证
@@ -334,10 +342,12 @@ tokens, err = authService.RefreshToken(ctx, refreshToken)
 ### 1. Token 存储
 
 **前端应用：**
+
 - 推荐使用 `localStorage` 或 `sessionStorage`
 - 避免在 Cookie 中存储（如果不需要）
 
 **移动应用：**
+
 - iOS: 使用 Keychain
 - Android: 使用 KeyStore
 
@@ -350,29 +360,29 @@ async function apiCall(url, options) {
     const response = await fetch(url, {
       ...options,
       headers: {
-        'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-        ...options.headers
-      }
+        Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+        ...options.headers,
+      },
     });
 
     if (response.status === 401) {
       // Token 过期，尝试刷新
       const newTokens = await refreshToken();
-      localStorage.setItem('access_token', newTokens.access_token);
+      localStorage.setItem("access_token", newTokens.access_token);
 
       // 重试原请求
       return fetch(url, {
         ...options,
         headers: {
-          'Authorization': `Bearer ${newTokens.access_token}`,
-          ...options.headers
-        }
+          Authorization: `Bearer ${newTokens.access_token}`,
+          ...options.headers,
+        },
       });
     }
 
     return response;
   } catch (error) {
-    console.error('API call failed:', error);
+    console.error("API call failed:", error);
     throw error;
   }
 }

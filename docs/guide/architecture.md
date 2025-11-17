@@ -29,6 +29,7 @@ commands/
 ```
 
 **职责：**
+
 - 解析命令行参数
 - 初始化应用容器
 - 启动服务器
@@ -53,6 +54,7 @@ adapters/
 ```
 
 **职责：**
+
 - 接收和解析 HTTP 请求
 - 调用领域服务或仓储
 - 构造 HTTP 响应
@@ -70,12 +72,14 @@ domain/
 ```
 
 **职责：**
+
 - 定义领域模型（实体、值对象）
 - 定义仓储接口
 - 实现业务规则和验证
 - 不依赖任何外部框架
 
 **特点：**
+
 - 用户模型包含业务逻辑（如密码加密）
 - DTO 用于数据传输
 - 仓储接口定义数据访问契约
@@ -102,6 +106,7 @@ infrastructure/
 ```
 
 **职责：**
+
 - 实现领域层定义的仓储接口
 - 提供数据库连接和管理
 - 提供外部服务集成
@@ -117,12 +122,14 @@ bootstrap/
 ```
 
 **职责：**
+
 - 初始化所有依赖
 - 配置依赖关系
 - 提供统一的容器接口
 - 管理资源生命周期
 
 **Container 包含：**
+
 - Config（配置）
 - DB（数据库连接）
 - RedisClient（Redis 客户端）
@@ -142,6 +149,7 @@ shared/
 ```
 
 **职责：**
+
 - 提供通用错误类型
 - 提供工具函数
 - 提供常量定义
@@ -179,6 +187,7 @@ Commands → Bootstrap → Infrastructure → Domain
 ```
 
 **依赖原则：**
+
 - 外层依赖内层
 - Domain 层不依赖任何外层
 - Infrastructure 实现 Domain 定义的接口
@@ -201,6 +210,7 @@ type Repository interface {
 **实现：**在 `internal/infrastructure/persistence/user_repository.go`
 
 **优点：**
+
 - 解耦业务逻辑和数据访问
 - 易于测试（可 Mock）
 - 可以轻松切换数据源
@@ -222,6 +232,7 @@ type Container struct {
 ```
 
 **优点：**
+
 - 松耦合
 - 易于测试
 - 便于管理生命周期

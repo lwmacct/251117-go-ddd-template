@@ -51,7 +51,9 @@ jobs:
         run: npm ci
 
       - name: Build with VitePress for GitHub Pages
-        run: npm run docs:build:github
+        env:
+          VITEPRESS_BASE: /${{ github.event.repository.name }}/
+        run: npm run docs:build
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3

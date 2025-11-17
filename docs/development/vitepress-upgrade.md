@@ -1,13 +1,16 @@
 # VitePress 2.0 升级总结
 
 ## 升级日期
+
 2025-11-18
 
 ## 版本变更
+
 - **旧版本**: VitePress 1.6.4
 - **新版本**: VitePress 2.0.0-alpha.13
 
 ## 升级原因
+
 - 使用最新的 Vite 7 构建工具链
 - 体验 VitePress 2.0 的新特性和性能优化
 - 改进的 CJK（中日韩）语言支持
@@ -16,15 +19,17 @@
 ## 环境要求
 
 ### Node.js 版本
+
 - **最低要求**: Node.js 20.19.0 或 22.12.0+
 - **当前环境**: Node.js 24.11.1 ✅
 
 ### 依赖包变更
+
 ```json
 {
   "devDependencies": {
-    "vitepress": "^2.0.0-alpha.13",  // 从 ^1.6.4 升级
-    "vue": "^3.5.24"                  // 保持不变
+    "vitepress": "^2.0.0-alpha.13", // 从 ^1.6.4 升级
+    "vue": "^3.5.24" // 保持不变
   }
 }
 ```
@@ -34,6 +39,7 @@
 ### 1. 配置文件更新 (`docs/.vitepress/config.ts`)
 
 #### 新增配置项
+
 ```typescript
 markdown: {
   lineNumbers: true,
@@ -52,6 +58,7 @@ vite: {
 ```
 
 #### 配置说明
+
 - `cjkFriendlyEmphasis`: 改进中文、日文、韩文的强调语法处理（原 `cjkFriendly` 重命名）
 - `image.lazyLoading`: 启用图片懒加载，优化页面性能
 - `vite`: 可以直接配置 Vite 7 选项
@@ -59,13 +66,15 @@ vite: {
 ### 2. package.json 更新
 
 #### 版本号升级
+
 ```json
 {
-  "version": "2.0.0"  // 从 1.0.0 升级
+  "version": "2.0.0" // 从 1.0.0 升级
 }
 ```
 
 #### 新增 engines 字段
+
 ```json
 {
   "engines": {
@@ -75,12 +84,13 @@ vite: {
 ```
 
 #### 描述和关键词更新
+
 ```json
 {
   "description": "基于 Go 的 DDD 模板应用文档 - VitePress 2.0",
   "keywords": [
     "vitepress",
-    "vitepress-2.0",  // 新增
+    "vitepress-2.0", // 新增
     "documentation",
     "go",
     "ddd"
@@ -91,20 +101,24 @@ vite: {
 ## VitePress 2.0 新特性
 
 ### 1. 性能优化
+
 - **Git 时间戳批量获取**: 单次 git 调用获取所有文件时间戳（原来是每个文件单独调用）
 - **改进的 HMR**: 主题和配置文件的热更新更快速
 
 ### 2. Markdown 增强
+
 - **CJK 友好**: 默认启用 `markdown-it-cjk-friendly` 插件
 - **图片懒加载**: 支持原生的 `lazyLoading` 配置
 - **代码块增强**: 支持自定义 display-name 和 Shell 符号保护
 
 ### 3. API 变更
+
 - **配置重命名**: `cjkFriendly` → `cjkFriendlyEmphasis`
 - **代码块属性**: 禁用 `markdown-it-attrs`，改用 Shiki transformers
 - **PostCSS 样式隔离**: `postcssIsolateStyles` 默认值变更
 
 ### 4. 依赖更新
+
 - **Vite 7**: 使用最新的 Vite 构建工具
 - **ESM Only**: 仅支持 ESM 模块系统
 - **DocSearch v4 Beta**: 更现代的搜索体验（如果使用 Algolia）
@@ -112,34 +126,40 @@ vite: {
 ## 破坏性变更
 
 ### 1. Node.js 版本要求
+
 - ❌ **不再支持**: Node.js 18.x
 - ✅ **最低要求**: Node.js 20.19.0 或 22.12.0+
 
 ### 2. 配置重命名
+
 ```typescript
 // ❌ 旧配置（不再支持）
 markdown: {
-  cjkFriendly: true
+  cjkFriendly: true;
 }
 
 // ✅ 新配置
 markdown: {
-  cjkFriendlyEmphasis: true
+  cjkFriendlyEmphasis: true;
 }
 ```
 
 ### 3. PostCSS 配置
+
 - `postcssIsolateStyles` 的 `transform` 和 `exclude` 选项不再支持
 
 ## 测试结果
 
 ### 构建测试
+
 ```bash
 npm run docs:build
 ```
+
 **结果**: ✅ 成功（2.98 秒）
 
 ### 构建输出
+
 ```
 vitepress v2.0.0-alpha.13
 build complete in 2.98s.
@@ -150,28 +170,35 @@ build complete in 2.98s.
 ## 后续建议
 
 ### 1. 开发服务器测试
+
 ```bash
 npm run docs:dev
 ```
+
 测试热更新和开发体验
 
 ### 2. 预览构建结果
+
 ```bash
 npm run docs:preview
 ```
+
 测试生产构建的输出
 
 ### 3. 性能对比
+
 - 对比 1.6.4 和 2.0.0-alpha.13 的构建速度
 - 测试 Git 时间戳获取的性能提升
 - 验证图片懒加载的效果
 
 ### 4. 探索新特性
+
 - 尝试使用 Shiki transformers 自定义代码块
 - 测试改进的 CJK 语言支持
 - 体验更快的 HMR
 
 ### 5. 监控稳定性
+
 - 2.0.0-alpha.13 是测试版本
 - 关注 GitHub Issues: https://github.com/vuejs/vitepress/issues
 - 关注稳定版发布: https://github.com/vuejs/vitepress/releases

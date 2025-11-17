@@ -9,40 +9,47 @@ VitePress 的 `base` 配置在不同部署环境中需要不同的值：
 
 ## 解决方案（推荐）
 
-✅ **自动化方式**：GitHub Actions 自动使用正确的构建脚本
+✅ **自动化方式**：GitHub Actions 自动获取仓库名
 
-- 本地开发和 Go 服务器：使用默认配置 `npm run docs:build`
-- GitHub Pages 部署：由 `.github/workflows/deploy-docs.yml` 自动调用 `npm run docs:build:github`
+- 本地开发和 Go 服务器：使用 `npm run docs:build`（默认 base="/docs/"）
+- GitHub Pages 部署：GitHub Actions 自动设置环境变量 `VITEPRESS_BASE`（值为仓库名）
 
 ### 工作原理
 
 1. **VitePress 配置** 支持环境变量：
+
    ```typescript
-   // docs/.vitepress/config.ts
-   base: process.env.VITE_BASE_PATH || "/docs/",
+   // docs/.vitepress/config.ts:12
+   base: process.env.VITEPRESS_BASE || "/docs/",
    ```
 
-2. **npm 脚本** 提供两个构建命令：
+2. **统一的构建命令**：
+
    ```json
    {
      "scripts": {
-       "docs:build": "vitepress build docs",              // base="/docs/"
-       "docs:build:github": "VITE_BASE_PATH=/251117-go-ddd-template/ vitepress build docs"
+       "docs:build": "vitepress build docs" // 唯一的构建命令
      }
    }
    ```
 
-3. **GitHub Actions** 自动使用 GitHub 版本：
+3. **GitHub Actions** 自动设置仓库名：
    ```yaml
-   # .github/workflows/deploy-docs.yml:54
+   # .github/workflows/deploy-docs.yml:54-56
    - name: Build with VitePress for GitHub Pages
-     run: npm run docs:build:github
+     env:
+       # 使用 GitHub Actions 上下文自动获取仓库名
+       VITEPRESS_BASE: /仓库名/
+     run: npm run docs:build
    ```
 
 ### 优势
 
-- ✅ **开发者友好**：本地只需 `npm run docs:build`，无需关心 GitHub Pages
-- ✅ **自动化**：推送代码后自动部署到 GitHub Pages，使用正确的 base
+- ✅ **零硬编码**：仓库名自动从 GitHub 获取，无需手动配置
+- ✅ **统一命令**：本地和 CI 使用相同的 `npm run docs:build`
+- ✅ **可移植性**：Fork 项目后无需修改任何配置
+- ✅ **开发者友好**：本地开发只需 `npm run docs:build`
+- ✅ **自动化**：推送代码后自动部署到 GitHub Pages
 - ✅ **不易出错**：环境自动匹配，不会混淆
 
 ## 使用方法
@@ -59,23 +66,32 @@ npm run docs:build
 # 生成到 docs/.vitepress/dist/，base="/docs/"
 ```
 
-### 2. GitHub Pages 部署
+### 2. GitHub Pages 部署（自动）
+
+**无需特殊命令！** 推送代码后 GitHub Actions 自动处理：
 
 ```bash
-# 专用构建脚本
-npm run docs:build:github
-# 生成到 docs/.vitepress/dist/，base="/251117-go-ddd-template/"
+# 推送代码
+git push origin main
+
+# GitHub Actions 自动：
+# 1. 检测到 docs/** 变更
+# 2. 设置 VITEPRESS_BASE=/仓库名/
+# 3. 运行 npm run docs:build
+# 4. 部署到 GitHub Pages
 ```
 
-### 3. 自定义 base 路径
+### 3. 本地测试 GitHub Pages 构建
+
+如果需要在本地测试 GitHub Pages 的构建结果：
 
 ```bash
-# 临时设置
-VITE_BASE_PATH=/custom-path/ npm run docs:build
+# 使用仓库名
+VITEPRESS_BASE=/your-repo-name/ npm run docs:build
 
-# 或在 .env 文件中设置
-echo 'VITE_BASE_PATH=/custom-path/' > .env.local
-npm run docs:build
+# 检查输出
+cat docs/.vitepress/dist/index.html | grep '<base'
+# 应该看到: <base href="/your-repo-name/">
 ```
 
 ## 部署流程
@@ -135,6 +151,7 @@ npm run docs:build:github
 ### 工作流配置说明
 
 当前配置会在以下情况触发：
+
 - 推送到 `main` 分支
 - 修改了 `docs/**` 目录下的文件
 - 修改了 `package.json` 或 `package-lock.json`
@@ -148,7 +165,10 @@ jobs:
   build:
     steps:
       - name: Build with VitePress for GitHub Pages
-        run: npm run docs:build:github  # ← 使用正确的 base 路径
+        env:
+          # GitHub Actions 上下文：自动获取仓库名
+          VITEPRESS_BASE: /仓库名/
+        run: npm run docs:build # ← 使用统一的构建命令
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
@@ -161,6 +181,12 @@ jobs:
       - name: Deploy to GitHub Pages
         uses: actions/deploy-pages@v4
 ```
+
+**关键改进**：
+
+- ✅ 使用 GitHub Actions 上下文自动获取仓库名
+- ✅ 统一使用 `npm run docs:build` 命令
+- ✅ Fork 项目后无需修改任何配置
 
 ### 启用 GitHub Pages
 
@@ -188,18 +214,22 @@ jobs:
   "scripts": {
     "docs:dev": "vitepress dev docs",
     "docs:build": "vitepress build docs",
-    "docs:build:github": "VITE_BASE_PATH=/251117-go-ddd-template/ vitepress build docs",
     "docs:preview": "vitepress preview docs"
   }
 }
 ```
 
-| 脚本 | base 路径 | 用途 |
-|------|-----------|------|
-| `docs:dev` | `/docs/` | 本地开发 |
-| `docs:build` | `/docs/` | Go 服务器部署 |
-| `docs:build:github` | `/251117-go-ddd-template/` | GitHub Pages 部署 |
-| `docs:preview` | 根据上次构建 | 预览构建结果 |
+| 脚本           | base 路径                  | 用途                                    |
+| -------------- | -------------------------- | --------------------------------------- |
+| `docs:dev`     | `/docs/`                   | 本地开发服务器                          |
+| `docs:build`   | `/docs/`（默认）或环境变量 | 本地构建 & GitHub Pages（通过 Actions） |
+| `docs:preview` | 根据上次构建               | 预览构建结果                            |
+
+**简化优势**：
+
+- ✅ 只需一个构建命令 `docs:build`
+- ✅ base 路径通过环境变量自动配置
+- ✅ 本地和 CI 使用相同的构建逻辑
 
 ## 验证部署
 
@@ -224,15 +254,15 @@ open http://localhost:8080/docs/
 ### 验证 GitHub Pages 部署
 
 ```bash
-# 构建
-npm run docs:build:github
+# 本地模拟 GitHub Pages 构建
+VITEPRESS_BASE=/your-repo-name/ npm run docs:build
 
 # 检查输出文件
 cat docs/.vitepress/dist/index.html | grep '<base'
-# 应该包含: <base href="/251117-go-ddd-template/">
+# 应该包含: <base href="/your-repo-name/">
 
-# 部署后访问
-open https://你的用户名.github.io/251117-go-ddd-template/
+# 部署后访问（GitHub Actions 会自动使用正确的仓库名）
+open https://你的用户名.github.io/你的仓库名/
 ```
 
 ## 常见问题
@@ -260,7 +290,7 @@ A: 不能在同一次构建中同时支持。需要针对不同环境分别构�
 A: 使用环境变量临时设置：
 
 ```bash
-VITE_BASE_PATH=/251117-go-ddd-template/ npm run docs:dev
+VITEPRESS_BASE=/your-repo-name/ npm run docs:dev
 ```
 
 ### Q: Windows 环境如何设置环境变量？
@@ -270,23 +300,32 @@ A: 使用 cross-env 或直接在 PowerShell 中设置：
 ```bash
 # 方式 1: 使用 cross-env
 npm install -D cross-env
-# 修改 package.json:
-# "docs:build:github": "cross-env VITE_BASE_PATH=/251117-go-ddd-template/ vitepress build docs"
+
+# 临时在 package.json 添加测试脚本:
+# "docs:build:test": "cross-env VITEPRESS_BASE=/test-repo/ vitepress build docs"
 
 # 方式 2: PowerShell
-$env:VITE_BASE_PATH="/251117-go-ddd-template/"; npm run docs:build
+$env:VITEPRESS_BASE="/your-repo-name/"; npm run docs:build
 ```
 
 ## 总结
 
-| 环境 | base 路径 | 构建命令 | 访问 URL |
-|------|-----------|----------|----------|
-| 本地开发 | `/docs/` | `npm run docs:dev` | `http://localhost:5173` |
-| Go 服务器 | `/docs/` | `npm run docs:build` | `http://localhost:8080/docs/` |
-| GitHub Pages | `/251117-go-ddd-template/` | `npm run docs:build:github` | `https://用户名.github.io/251117-go-ddd-template/` |
+| 环境         | base 路径          | 构建命令                                | 访问 URL                           |
+| ------------ | ------------------ | --------------------------------------- | ---------------------------------- |
+| 本地开发     | `/docs/`           | `npm run docs:dev`                      | `http://localhost:5173`            |
+| Go 服务器    | `/docs/`           | `npm run docs:build`                    | `http://localhost:8080/docs/`      |
+| GitHub Pages | `/仓库名/`（自动） | `npm run docs:build`（由 Actions 调用） | `https://用户名.github.io/仓库名/` |
+
+**核心优势**：
+
+- ✅ **零硬编码**: 仓库名自动从 GitHub 获取
+- ✅ **统一命令**: 所有环境使用相同的 `npm run docs:build`
+- ✅ **可移植**: Fork 项目后无需修改配置
+- ✅ **自动化**: 推送代码自动部署到 GitHub Pages
 
 ## 相关文件
 
-- VitePress 配置: `docs/.vitepress/config.ts:12`
-- package.json 脚本: `package.json:12`
-- Go 路由配置: `internal/adapters/http/router.go:71-107`
+- VitePress 配置: `docs/.vitepress/config.ts:12` - 支持 `VITEPRESS_BASE` 环境变量
+- package.json 脚本: `package.json:11` - 统一的 `docs:build` 命令
+- GitHub Actions: `.github/workflows/deploy-docs.yml:54-56` - 自动获取仓库名
+- Go 路由配置: `internal/adapters/http/router.go:71-107` - `/docs` 路由实现
