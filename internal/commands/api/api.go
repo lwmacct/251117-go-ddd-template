@@ -70,6 +70,12 @@ func runAPIServer(ctx context.Context, cmd *cli.Command) error {
 		slog.Error("Failed to initialize container", "error", err)
 		os.Exit(1)
 	}
+	// 确保在退出时关闭所有资源
+	defer func() {
+		if err := container.Close(); err != nil {
+			slog.Error("Failed to close container resources", "error", err)
+		}
+	}()
 
 	slog.Info("Configuration loaded",
 		"server_addr", cfg.Server.Addr,

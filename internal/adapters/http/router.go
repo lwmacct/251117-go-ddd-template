@@ -5,22 +5,67 @@ import (
 	"path/filepath"
 
 	"github.com/gin-gonic/gin"
+	"github.com/lwmacct/251117-bd-vmalert/internal/adapters/http/handler"
 	"github.com/lwmacct/251117-bd-vmalert/internal/adapters/http/middleware"
+	"github.com/lwmacct/251117-bd-vmalert/internal/domain/user"
+	infraauth "github.com/lwmacct/251117-bd-vmalert/internal/infrastructure/auth"
 	"github.com/lwmacct/251117-bd-vmalert/internal/infrastructure/config"
+	"github.com/redis/go-redis/v9"
+	"gorm.io/gorm"
 )
 
 // SetupRouter 配置路由
-func SetupRouter(cfg *config.Config) *gin.Engine {
+func SetupRouter(
+	cfg *config.Config,
+	db *gorm.DB,
+	redisClient *redis.Client,
+	userRepo user.Repository,
+	jwtManager *infraauth.JWTManager,
+	authService *infraauth.Service,
+) *gin.Engine {
 	r := gin.New()
 
 	// 全局中间件
 	r.Use(gin.Recovery())
 	r.Use(middleware.CORS())
 
-	// 健康检查
-	r.GET("/health", func(c *gin.Context) {
-		c.JSON(200, gin.H{"status": "ok"})
-	})
+	// 健康检查（包含数据库和 Redis 连接检查）
+	healthHandler := handler.NewHealthHandler(db, redisClient)
+	r.GET("/health", healthHandler.Check)
+
+	// API 路由组
+	api := r.Group("/api")
+	{
+		// 认证路由（公开）
+		authHandler := handler.NewAuthHandler(authService)
+		auth := api.Group("/auth")
+		{
+			auth.POST("/register", authHandler.Register)
+			auth.POST("/login", authHandler.Login)
+			auth.POST("/refresh", authHandler.RefreshToken)
+		}
+
+		// 需要认证的路由
+		authenticated := api.Group("")
+		authenticated.Use(middleware.JWTAuth(jwtManager))
+		{
+			// 当前用户信息
+			authenticated.GET("/auth/me", authHandler.Me)
+
+			// 用户管理（需要认证）
+			userHandler := handler.NewUserHandler(userRepo)
+			authenticated.GET("/users", userHandler.List)
+			authenticated.GET("/users/:id", userHandler.GetByID)
+			authenticated.PUT("/users/:id", userHandler.Update)
+			authenticated.DELETE("/users/:id", userHandler.Delete)
+		}
+
+		// 缓存操作示例（公开，仅用于演示）
+		cacheHandler := handler.NewCacheHandler(redisClient)
+		api.POST("/cache", cacheHandler.SetCache)
+		api.GET("/cache/:key", cacheHandler.GetCache)
+		api.DELETE("/cache/:key", cacheHandler.DeleteCache)
+	}
 
 	// 提供静态文件服务（使用 NoRoute 避免与 API 路由冲突）
 	if cfg.Server.StaticDir != "" {
