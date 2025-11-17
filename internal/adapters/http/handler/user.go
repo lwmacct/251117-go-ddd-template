@@ -4,7 +4,7 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"github.com/lwmacct/251117-bd-vmalert/internal/domain/user"
+	"github.com/lwmacct/251117-go-ddd-template/internal/domain/user"
 	"golang.org/x/crypto/bcrypt"
 )
 

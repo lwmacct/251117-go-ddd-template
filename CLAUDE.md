@@ -11,12 +11,14 @@
 本项目使用 [Taskfile](https://taskfile.dev) 进行任务自动化。使用 `task -a` 查看所有可用任务。
 
 ### 开发
+
 - `task go:build` - 构建应用程序二进制文件到 `.local/bin/`
 - `task go:run -- api` - 构建并运行 API 服务器
 - `air` - 使用热重载进行开发（使用 `.air.toml` 配置）
 - `docker-compose up -d` - 启动 PostgreSQL 和 Redis 服务
 
 ### 运行应用
+
 ```bash
 # 使用 task
 task go:run -- api
@@ -32,11 +34,13 @@ APP_SERVER_ADDR=:8080 .local/bin/<app-name> api
 ```
 
 ### Git 操作
+
 - `task git:push` - 推送代码到远程仓库
 - `task git:tag:next` - 创建下一个版本标签
 - `task git:clear` - 清除提交历史（谨慎使用）
 
 ### 发布
+
 - `task go:release` - 构建并推送所有架构的 Docker 镜像
 - `task go:release:x86_64` - 专门构建 x86_64 架构
 
@@ -85,6 +89,7 @@ internal/
 ### 关键设计模式
 
 1. **依赖注入容器** (`internal/bootstrap/container.go`)
+
    - 在一个地方初始化所有依赖
    - 当前包含：Config、DB、RedisClient、UserRepository、JWTManager、AuthService、Router
    - 添加新服务时扩展此处
@@ -92,6 +97,7 @@ internal/
    - 启动时自动执行数据库迁移
 
 2. **配置系统** (基于 Koanf，见 `internal/infrastructure/config/`)
+
    - 多层优先级：默认值 → 配置文件 → 环境变量 → 命令行参数
    - 环境变量格式：`APP_<SECTION>_<KEY>`（例如：`APP_SERVER_ADDR`）
    - 配置文件搜索路径：`config.yaml`、`configs/config.yaml`
@@ -134,7 +140,7 @@ internal/
 - 连接管理：`internal/infrastructure/database/connection.go`
 - 迁移支持：`internal/infrastructure/database/migrator.go`
 - 功能：
-  - 连接池管理（最大25，空闲10，生命周期5分钟）
+  - 连接池管理（最大 25，空闲 10，生命周期 5 分钟）
   - 自动迁移（应用启动时）
   - 健康检查和连接池统计
   - 优雅关闭
@@ -186,6 +192,7 @@ internal/
 ## API 端点快速参考
 
 ### 公开端点（无需认证）
+
 - `POST /api/auth/register` - 注册新用户
 - `POST /api/auth/login` - 用户登录
 - `POST /api/auth/refresh` - 刷新访问令牌
@@ -193,6 +200,7 @@ internal/
 - `POST/GET/DELETE /api/cache/*` - 缓存操作
 
 ### 受保护端点（需要 JWT）
+
 - `GET /api/auth/me` - 获取当前用户信息
 - `GET /api/users` - 获取用户列表（分页）
 - `GET /api/users/:id` - 获取用户详情
@@ -200,6 +208,7 @@ internal/
 - `DELETE /api/users/:id` - 删除用户（软删除）
 
 详细文档：
+
 - 认证 API：`docs/authentication.md`
 - PostgreSQL 使用：`docs/postgresql.md`
 - Redis 使用：`docs/redis.md`
@@ -207,12 +216,14 @@ internal/
 ## 配置
 
 配置优先级（从低到高）：
+
 1. 默认值（`internal/infrastructure/config/config.go:defaultConfig()`）
 2. 配置文件（`config.yaml` 或 `configs/config.yaml`）
 3. 环境变量（前缀：`APP_`）
 4. 命令行参数
 
 环境变量示例：
+
 ```bash
 APP_SERVER_ADDR=:8080
 APP_SERVER_ENV=production
@@ -228,7 +239,7 @@ APP_JWT_REFRESH_TOKEN_EXPIRY=168h
 - 支持 Dev Container（`.devcontainer/`）
 - Air 热重载（`.air.toml`）
 - Docker Compose（`docker-compose.yml`）：PostgreSQL + Redis
-- 模块路径：`github.com/lwmacct/251117-bd-vmalert`
+- 模块路径：`github.com/lwmacct/251117-go-ddd-template`
 
 ### 启动开发环境
 
@@ -270,7 +281,7 @@ curl http://localhost:8080/api/auth/me \
 
 - Go 版本：1.25.4
 - 主要依赖：Gin、Koanf、urfave/cli/v3、GORM、go-redis/v9、golang-jwt/jwt/v5、bcrypt
-- 模块路径：`github.com/lwmacct/251117-bd-vmalert`
+- 模块路径：`github.com/lwmacct/251117-go-ddd-template`
 
 ## 已实现功能
 

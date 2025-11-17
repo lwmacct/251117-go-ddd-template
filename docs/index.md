@@ -11,7 +11,7 @@ hero:
       link: /guide/getting-started
     - theme: alt
       text: 查看 GitHub
-      link: https://github.com/lwmacct/251117-bd-vmalert
+      link: https://github.com/lwmacct/251117-go-ddd-template
 
 features:
   - icon: 🏗️
@@ -38,8 +38,8 @@ features:
 
 ```bash
 # 克隆项目
-git clone https://github.com/lwmacct/251117-bd-vmalert.git
-cd 251117-bd-vmalert
+git clone https://github.com/lwmacct/251117-go-ddd-template.git
+cd 251117-go-ddd-template
 
 # 启动数据库和 Redis
 docker-compose up -d

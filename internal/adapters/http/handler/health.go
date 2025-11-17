@@ -5,8 +5,8 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/lwmacct/251117-bd-vmalert/internal/infrastructure/database"
-	redisinfra "github.com/lwmacct/251117-bd-vmalert/internal/infrastructure/redis"
+	"github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/database"
+	redisinfra "github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/redis"
 	"github.com/redis/go-redis/v9"
 	"gorm.io/gorm"
 )

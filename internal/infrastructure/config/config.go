@@ -35,6 +35,7 @@ type ServerConfig struct {
 	Addr      string `koanf:"addr"`       // 监听地址，格式: host:port，例如 "0.0.0.0:8080" 或 ":8080"
 	Env       string `koanf:"env"`        // 运行环境: development, production
 	StaticDir string `koanf:"static_dir"` // 静态资源目录路径，用于提供前端文件服务（如 SPA 应用）
+	DocsDir   string `koanf:"docs_dir"`   // 文档目录路径，用于提供 VitePress 构建的文档服务，通过 /docs 路由访问
 }
 
 // DataConfig 数据源配置
@@ -57,6 +58,7 @@ func defaultConfig() Config {
 			Addr:      "0.0.0.0:8080",
 			Env:       "development",
 			StaticDir: "web/dist",
+			DocsDir:   "docs/.vitepress/dist",
 		},
 		Data: DataConfig{
 			PgsqlURL: "postgresql://postgres@localhost:5432/myapp?sslmode=disable",

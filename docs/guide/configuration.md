@@ -80,10 +80,10 @@ export APP_JWT_REFRESH_TOKEN_EXPIRY="168h"
 
 ```bash
 # 指定监听地址
-.local/bin/251117-bd-vmalert api --addr :9000
+.local/bin/251117-go-ddd-template api --addr :9000
 
 # 使用环境变量和命令行参数组合
-APP_JWT_SECRET="secret" .local/bin/251117-bd-vmalert api --addr :9000
+APP_JWT_SECRET="secret" .local/bin/251117-go-ddd-template api --addr :9000
 ```
 
 ## 配置结构

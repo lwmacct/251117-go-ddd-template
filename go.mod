@@ -1,4 +1,4 @@
-module github.com/lwmacct/251117-bd-vmalert
+module github.com/lwmacct/251117-go-ddd-template
 
 go 1.25.4
 

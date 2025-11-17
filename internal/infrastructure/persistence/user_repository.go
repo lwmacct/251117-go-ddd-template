@@ -5,7 +5,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/lwmacct/251117-bd-vmalert/internal/domain/user"
+	"github.com/lwmacct/251117-go-ddd-template/internal/domain/user"
 	"gorm.io/gorm"
 )
 

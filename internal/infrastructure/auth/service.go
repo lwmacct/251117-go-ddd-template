@@ -5,7 +5,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/lwmacct/251117-bd-vmalert/internal/domain/user"
+	"github.com/lwmacct/251117-go-ddd-template/internal/domain/user"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -33,7 +33,7 @@ type RegisterRequest struct {
 
 // LoginRequest 登录请求
 type LoginRequest struct {
-	Login    string `json:"login" binding:"required"`    // 用户名或邮箱
+	Login    string `json:"login" binding:"required"` // 用户名或邮箱
 	Password string `json:"password" binding:"required"`
 }
 

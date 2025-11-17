@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	redisinfra "github.com/lwmacct/251117-bd-vmalert/internal/infrastructure/redis"
+	redisinfra "github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/redis"
 	"github.com/redis/go-redis/v9"
 )
 

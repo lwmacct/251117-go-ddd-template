@@ -9,6 +9,7 @@ server:
   addr: "0.0.0.0:8080" # 监听地址，格式: host:port，例如 "0.0.0.0:8080" 或 ":8080"
   env: "development" # 运行环境: development, production
   static_dir: "web/dist" # 静态资源目录路径，用于提供前端文件服务（如 SPA 应用）
+  docs_dir: "docs/.vitepress/dist" # 文档目录路径，用于提供 VitePress 构建的文档服务，通过 /docs 路由访问
 
 # 数据源配置
 data:

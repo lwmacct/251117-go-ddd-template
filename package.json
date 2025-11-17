@@ -1,8 +1,11 @@
 {
   "name": "go-ddd-template-docs",
-  "version": "1.0.0",
-  "description": "基于 Go 的 DDD 模板应用文档",
+  "version": "2.0.0",
+  "description": "基于 Go 的 DDD 模板应用文档 - VitePress 2.0",
   "type": "module",
+  "engines": {
+    "node": ">=20.19.0"
+  },
   "scripts": {
     "docs:dev": "vitepress dev docs",
     "docs:build": "vitepress build docs",
@@ -10,6 +13,7 @@
   },
   "keywords": [
     "vitepress",
+    "vitepress-2.0",
     "documentation",
     "go",
     "ddd"
@@ -17,7 +21,7 @@
   "author": "",
   "license": "MIT",
   "devDependencies": {
-    "vitepress": "^1.5.0",
-    "vue": "^3.5.13"
+    "vitepress": "^2.0.0-alpha.13",
+    "vue": "^3.5.24"
   }
 }

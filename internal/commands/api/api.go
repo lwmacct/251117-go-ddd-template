@@ -9,9 +9,9 @@ import (
 	"syscall"
 	"time"
 
-	httpserver "github.com/lwmacct/251117-bd-vmalert/internal/adapters/http"
-	"github.com/lwmacct/251117-bd-vmalert/internal/bootstrap"
-	"github.com/lwmacct/251117-bd-vmalert/internal/infrastructure/config"
+	httpserver "github.com/lwmacct/251117-go-ddd-template/internal/adapters/http"
+	"github.com/lwmacct/251117-go-ddd-template/internal/bootstrap"
+	"github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/config"
 	"github.com/urfave/cli/v3"
 )
 

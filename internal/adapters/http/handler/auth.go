@@ -2,7 +2,7 @@ package handler
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/lwmacct/251117-bd-vmalert/internal/infrastructure/auth"
+	"github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/auth"
 )
 
 // AuthHandler 认证处理器

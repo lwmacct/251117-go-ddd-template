@@ -13,8 +13,8 @@
 ### 1. 克隆项目
 
 ```bash
-git clone https://github.com/lwmacct/251117-bd-vmalert.git
-cd 251117-bd-vmalert
+git clone https://github.com/lwmacct/251117-go-ddd-template.git
+cd 251117-go-ddd-template
 ```
 
 ### 2. 启动依赖服务
@@ -26,6 +26,7 @@ docker-compose up -d
 ```
 
 这将启动：
+
 - PostgreSQL（端口 5432）
 - Redis（端口 6379）
 
@@ -78,7 +79,7 @@ task go:run -- api
 task go:build
 
 # 运行
-.local/bin/251117-bd-vmalert api
+.local/bin/251117-go-ddd-template api
 ```
 
 或使用开发热重载：

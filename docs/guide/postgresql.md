@@ -57,7 +57,7 @@ export APP_DATA_PGSQL_URL="postgresql://postgres:postgres@localhost:5432/app?ssl
 task go:run -- api
 
 # 或直接运行
-.local/bin/251117-bd-vmalert api
+.local/bin/251117-go-ddd-template api
 ```
 
 应用启动时会**自动执行数据库迁移**，创建必要的表结构。
@@ -103,6 +103,7 @@ type User struct {
 ```
 
 **模型特点：**
+
 - `ID` - 主键，自增
 - `CreatedAt/UpdatedAt` - GORM 自动维护
 - `DeletedAt` - 软删除标记
@@ -147,6 +148,7 @@ sqlDB.SetConnMaxLifetime(5 * time.Minute)  // 连接最大生命周期
 ```
 
 **推荐配置：**
+
 - **开发环境**: MaxOpenConns=10, MaxIdleConns=5
 - **生产环境**: 根据负载调整，建议 MaxOpenConns=25-100
 
@@ -159,6 +161,7 @@ curl http://localhost:8080/health
 ```
 
 **响应示例：**
+
 ```json
 {
   "status": "ok",
@@ -178,6 +181,7 @@ curl http://localhost:8080/health
 详细的 API 文档请参考 [用户接口文档](/api/users)。
 
 **创建用户：**
+
 ```bash
 curl -X POST http://localhost:8080/api/auth/register \
   -H "Content-Type: application/json" \
@@ -190,18 +194,21 @@ curl -X POST http://localhost:8080/api/auth/register \
 ```
 
 **获取用户列表（分页）：**
+
 ```bash
 curl "http://localhost:8080/api/users?page=1&page_size=10" \
   -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
 ```
 
 **获取用户详情：**
+
 ```bash
 curl http://localhost:8080/api/users/1 \
   -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
 ```
 
 **更新用户：**
+
 ```bash
 curl -X PUT http://localhost:8080/api/users/1 \
   -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
@@ -213,6 +220,7 @@ curl -X PUT http://localhost:8080/api/users/1 \
 ```
 
 **删除用户（软删除）：**
+
 ```bash
 curl -X DELETE http://localhost:8080/api/users/1 \
   -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
@@ -225,7 +233,7 @@ curl -X DELETE http://localhost:8080/api/users/1 \
 ```go
 import (
     "context"
-    "github.com/lwmacct/251117-bd-vmalert/internal/domain/user"
+    "github.com/lwmacct/251117-go-ddd-template/internal/domain/user"
 )
 
 // 从容器获取仓储
@@ -278,6 +286,7 @@ if err := migrator.AutoMigrate(); err != nil {
 ```
 
 **迁移规则：**
+
 - 自动创建表（如果不存在）
 - 自动添加缺失的列
 - 自动添加索引和约束
@@ -458,11 +467,13 @@ psql "postgresql://postgres:postgres@localhost:5432/app"
 ### 迁移失败
 
 **常见原因：**
+
 1. 模型定义有误
 2. 数据库权限不足
 3. 表已存在且结构冲突
 
 **解决方法：**
+
 ```bash
 # 查看应用日志
 tail -f logs/app.log
@@ -476,11 +487,13 @@ docker exec -it go-ddd-postgres psql -U postgres -d app
 ### 性能问题
 
 **检查连接池状态：**
+
 ```bash
 curl http://localhost:8080/health | jq '.db_stats'
 ```
 
 **优化建议：**
+
 1. 添加合适的索引
 2. 调整连接池参数
 3. 使用 GORM 日志查看慢查询
@@ -488,6 +501,7 @@ curl http://localhost:8080/health | jq '.db_stats'
 5. 使用 `Select` 只查询需要的字段
 
 **启用 GORM 日志：**
+
 ```go
 db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
     Logger: logger.Default.LogMode(logger.Info),

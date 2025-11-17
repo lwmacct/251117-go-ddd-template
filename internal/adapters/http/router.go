@@ -3,13 +3,14 @@ package http
 import (
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/gin-gonic/gin"
-	"github.com/lwmacct/251117-bd-vmalert/internal/adapters/http/handler"
-	"github.com/lwmacct/251117-bd-vmalert/internal/adapters/http/middleware"
-	"github.com/lwmacct/251117-bd-vmalert/internal/domain/user"
-	infraauth "github.com/lwmacct/251117-bd-vmalert/internal/infrastructure/auth"
-	"github.com/lwmacct/251117-bd-vmalert/internal/infrastructure/config"
+	"github.com/lwmacct/251117-go-ddd-template/internal/adapters/http/handler"
+	"github.com/lwmacct/251117-go-ddd-template/internal/adapters/http/middleware"
+	"github.com/lwmacct/251117-go-ddd-template/internal/domain/user"
+	infraauth "github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/auth"
+	"github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/config"
 	"github.com/redis/go-redis/v9"
 	"gorm.io/gorm"
 )
@@ -65,6 +66,44 @@ func SetupRouter(
 		api.POST("/cache", cacheHandler.SetCache)
 		api.GET("/cache/:key", cacheHandler.GetCache)
 		api.DELETE("/cache/:key", cacheHandler.DeleteCache)
+	}
+
+	// 提供 VitePress 文档服务（通过 /docs 路由访问）
+	if cfg.Server.DocsDir != "" {
+		docs := r.Group("/docs")
+		docs.GET("/*filepath", func(c *gin.Context) {
+			// 获取请求的文件路径（已经移除了 /docs 前缀）
+			reqPath := c.Param("filepath")
+			if reqPath == "/" || reqPath == "" {
+				reqPath = "/index.html"
+			}
+
+			// 构建完整文件路径
+			fullPath := filepath.Join(cfg.Server.DocsDir, reqPath)
+
+			// 检查文件是否存在
+			if _, err := os.Stat(fullPath); err == nil {
+				c.File(fullPath)
+				return
+			}
+
+			// 如果路径不存在，尝试添加 .html 扩展名（VitePress 清洁 URL）
+			if !strings.HasSuffix(reqPath, ".html") && !strings.Contains(reqPath, ".") {
+				htmlPath := filepath.Join(cfg.Server.DocsDir, reqPath+".html")
+				if _, err := os.Stat(htmlPath); err == nil {
+					c.File(htmlPath)
+					return
+				}
+			}
+
+			// 文件不存在，返回 index.html（用于 SPA 路由）
+			indexPath := filepath.Join(cfg.Server.DocsDir, "index.html")
+			if _, err := os.Stat(indexPath); err == nil {
+				c.File(indexPath)
+			} else {
+				c.Status(404)
+			}
+		})
 	}
 
 	// 提供静态文件服务（使用 NoRoute 避免与 API 路由冲突）

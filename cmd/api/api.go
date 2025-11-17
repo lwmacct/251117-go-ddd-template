@@ -5,7 +5,7 @@ import (
 	"log/slog"
 	"os"
 
-	"github.com/lwmacct/251117-bd-vmalert/internal/commands/api"
+	"github.com/lwmacct/251117-go-ddd-template/internal/commands/api"
 	"github.com/urfave/cli/v3"
 )
 

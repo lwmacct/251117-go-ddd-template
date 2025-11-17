@@ -4,18 +4,19 @@
 
 ## 前提条件
 
-- GitHub 仓库：`lwmacct/251117-bd-vmalert`
+- GitHub 仓库：`lwmacct/251117-go-ddd-template`
 - 已配置 GitHub Actions workflow（`.github/workflows/deploy-docs.yml`）
-- 已配置 VitePress base 路径（`base: '/251117-bd-vmalert/'`）
+- 已配置 VitePress base 路径（`base: '/251117-go-ddd-template/'`）
 
 ## 部署步骤
 
 ### 1. 在 GitHub 仓库中启用 GitHub Pages
 
-1. 访问你的 GitHub 仓库：https://github.com/lwmacct/251117-bd-vmalert
+1. 访问你的 GitHub 仓库：https://github.com/lwmacct/251117-go-ddd-template
 2. 点击 **Settings** （设置）
 3. 在左侧菜单中找到 **Pages**
 4. 在 **Source** 下拉菜单中选择：
+
    - **Source**: GitHub Actions
 
    ![GitHub Pages 设置](https://docs.github.com/assets/cb-47267/images/help/pages/publishing-source-drop-down.png)
@@ -58,7 +59,7 @@ git push origin main
 
 部署成功后，文档将发布到：
 
-**https://lwmacct.github.io/251117-bd-vmalert/**
+**https://lwmacct.github.io/251117-go-ddd-template/**
 
 ## 手动触发部署
 
@@ -79,11 +80,11 @@ on:
   push:
     branches: [main]
     paths:
-      - 'docs/**'          # 文档文件变更
-      - 'package.json'      # 依赖变更
-      - 'package-lock.json' # 锁定文件变更
-      - '.github/workflows/deploy-docs.yml'  # workflow 自身变更
-  workflow_dispatch:        # 手动触发
+      - "docs/**" # 文档文件变更
+      - "package.json" # 依赖变更
+      - "package-lock.json" # 锁定文件变更
+      - ".github/workflows/deploy-docs.yml" # workflow 自身变更
+  workflow_dispatch: # 手动触发
 ```
 
 ### 构建流程
@@ -107,12 +108,13 @@ on:
 ```typescript
 export default defineConfig({
   // GitHub Pages 项目页面需要设置 base 为仓库名
-  base: '/251117-bd-vmalert/',
+  base: "/251117-go-ddd-template/",
   // ...
-})
+});
 ```
 
 **重要提示：**
+
 - 如果部署到用户/组织主页（`username.github.io`），设置 `base: '/'`
 - 如果部署到项目页面（`username.github.io/repo/`），设置 `base: '/repo/'`
 - base 路径必须以 `/` 开头和结尾
@@ -123,9 +125,9 @@ Workflow 需要以下权限：
 
 ```yaml
 permissions:
-  contents: read    # 读取仓库内容
-  pages: write      # 写入 Pages
-  id-token: write   # 写入 ID Token（用于部署验证）
+  contents: read # 读取仓库内容
+  pages: write # 写入 Pages
+  id-token: write # 写入 ID Token（用于部署验证）
 ```
 
 ## 本地预览
@@ -207,6 +209,7 @@ git push origin main
 4. 在 GitHub Pages 设置中验证域名
 
 示例 `CNAME` 文件：
+
 ```
 docs.example.com
 ```
@@ -238,7 +241,7 @@ layout: page
   uses: actions/setup-node@v4
   with:
     node-version: 20
-    cache: npm  # 已启用
+    cache: npm # 已启用
 ```
 
 ### 部署预览环境
@@ -281,8 +284,8 @@ git push
 - [VitePress 官方文档](https://vitepress.dev/)
 - [GitHub Pages 文档](https://docs.github.com/en/pages)
 - [GitHub Actions 文档](https://docs.github.com/en/actions)
-- [本项目仓库](https://github.com/lwmacct/251117-bd-vmalert)
-- [文档站点](https://lwmacct.github.io/251117-bd-vmalert/)
+- [本项目仓库](https://github.com/lwmacct/251117-go-ddd-template)
+- [文档站点](https://lwmacct.github.io/251117-go-ddd-template/)
 
 ## 下一步
 
