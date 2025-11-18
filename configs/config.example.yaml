@@ -17,6 +17,7 @@ data:
   pgsql_url: "postgresql://postgres@localhost:5432/myapp?sslmode=disable"  # PostgreSQL 连接 URL，格式: postgresql://user:password@host:port/dbname?sslmode=disable
   redis_url: "redis://localhost:6379/0"  # Redis 连接 URL，格式: redis://:password@host:port/db
   redis_key_prefix: "myapp:"  # Redis key 前缀，所有 key 读写都会自动拼接此前缀，例如 "myapp:"
+  auto_migrate: false         # 是否在应用启动时自动执行数据库迁移（仅推荐在开发环境使用，生产环境应使用 migrate 命令）
 
 # JWT 认证配置
 jwt:

@@ -40,9 +40,10 @@ type ServerConfig struct {
 
 // DataConfig 数据源配置
 type DataConfig struct {
-	PgsqlURL      string `koanf:"pgsql_url"`       // PostgreSQL 连接 URL，格式: postgresql://user:password@host:port/dbname?sslmode=disable
-	RedisURL      string `koanf:"redis_url"`       // Redis 连接 URL，格式: redis://:password@host:port/db
+	PgsqlURL       string `koanf:"pgsql_url"`       // PostgreSQL 连接 URL，格式: postgresql://user:password@host:port/dbname?sslmode=disable
+	RedisURL       string `koanf:"redis_url"`       // Redis 连接 URL，格式: redis://:password@host:port/db
 	RedisKeyPrefix string `koanf:"redis_key_prefix"` // Redis key 前缀，所有 key 读写都会自动拼接此前缀，例如 "myapp:"
+	AutoMigrate    bool   `koanf:"auto_migrate"`    // 是否在应用启动时自动执行数据库迁移（仅推荐在开发环境使用，生产环境应使用 migrate 命令）
 }
 
 // JWTConfig JWT配置
@@ -62,9 +63,10 @@ func defaultConfig() Config {
 			DocsDir:   "docs/.vitepress/dist",
 		},
 		Data: DataConfig{
-			PgsqlURL:      "postgresql://postgres@localhost:5432/myapp?sslmode=disable",
-			RedisURL:      "redis://localhost:6379/0",
+			PgsqlURL:       "postgresql://postgres@localhost:5432/myapp?sslmode=disable",
+			RedisURL:       "redis://localhost:6379/0",
 			RedisKeyPrefix: "myapp:",
+			AutoMigrate:    false, // 默认关闭自动迁移，生产环境使用 migrate 命令
 		},
 		JWT: JWTConfig{
 			Secret:             "change-me-in-production",

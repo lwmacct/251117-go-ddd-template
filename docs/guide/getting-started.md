@@ -36,17 +36,19 @@ docker-compose up -d
 
 ```yaml
 server:
-  addr: ":8080"
+  addr: "0.0.0.0:8080"
   env: "development"
+  static_dir: "web/dist"
+  docs_dir: "docs/.vitepress/dist"
 
 data:
-  pgsql:
-    url: "postgresql://postgres:postgres@localhost:5432/app?sslmode=disable"
-  redis:
-    url: "redis://localhost:6379/0"
+  pgsql_url: "postgresql://postgres@localhost:5432/myapp?sslmode=disable"
+  redis_url: "redis://localhost:6379/0"
+  redis_key_prefix: "myapp:"
+  auto_migrate: false # 生产环境应为 false，使用 migrate 命令
 
 jwt:
-  secret: "your-secret-key-change-in-production"
+  secret: "change-me-in-production"
   access_token_expiry: "15m"
   refresh_token_expiry: "168h"
 ```
@@ -54,13 +56,51 @@ jwt:
 或使用环境变量：
 
 ```bash
-export APP_SERVER_ADDR=":8080"
-export APP_DATA_PGSQL_URL="postgresql://postgres:postgres@localhost:5432/app?sslmode=disable"
+export APP_SERVER_ADDR="0.0.0.0:8080"
+export APP_DATA_PGSQL_URL="postgresql://postgres@localhost:5432/myapp?sslmode=disable"
 export APP_DATA_REDIS_URL="redis://localhost:6379/0"
 export APP_JWT_SECRET="your-secret-key"
 ```
 
-### 4. 运行应用
+### 4. 数据库迁移
+
+执行数据库迁移（创建表结构）：
+
+```bash
+# 构建应用
+task go:build
+
+# 执行迁移
+.local/bin/251117-go-ddd-template migrate up
+```
+
+或使用 Go 运行：
+
+```bash
+go run main.go migrate up
+```
+
+查看迁移状态：
+
+```bash
+go run main.go migrate status
+```
+
+### 5. 填充种子数据（可选）
+
+填充示例用户数据：
+
+```bash
+go run main.go seed
+```
+
+这将创建以下用户（密码均为 `password123`）：
+
+- `admin` / `admin@example.com`
+- `testuser` / `test@example.com`
+- `demo` / `demo@example.com`
+
+### 6. 运行应用
 
 使用 Task（推荐）：
 
@@ -125,11 +165,13 @@ curl -X POST http://localhost:8080/api/auth/register \
 
 ### 登录获取 Token
 
+使用种子数据中的用户登录：
+
 ```bash
 curl -X POST http://localhost:8080/api/auth/login \
   -H "Content-Type: application/json" \
   -d '{
-    "login": "testuser",
+    "login": "admin",
     "password": "password123"
   }'
 ```
@@ -145,6 +187,7 @@ curl http://localhost:8080/api/auth/me \
 
 - 了解[项目架构](/guide/architecture)
 - 查看[配置系统](/guide/configuration)
+- 学习[CLI 命令](/guide/cli-commands)
 - 学习[认证授权](/guide/authentication)
 - 探索 [API 文档](/api/)
 

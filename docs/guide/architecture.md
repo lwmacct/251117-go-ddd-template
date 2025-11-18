@@ -24,16 +24,29 @@ internal/
 
 ```
 commands/
-└── api/              # API 服务器命令
-    └── command.go    # 启动 HTTP 服务器
+├── api/              # API 服务器命令
+│   └── api.go        # 启动 HTTP 服务器
+├── migrate/          # 数据库迁移命令
+│   └── migrate.go    # 迁移管理（up/status/fresh）
+├── seed/             # 数据库种子命令
+│   └── seed.go       # 种子数据填充
+└── worker/           # 后台任务处理器
+    └── worker.go     # 队列任务处理
 ```
 
 **职责：**
 
 - 解析命令行参数
 - 初始化应用容器
-- 启动服务器
+- 启动服务器或执行特定任务
 - 处理信号和优雅关闭
+
+**可用命令：**
+
+- `api` - 启动 REST API 服务器
+- `migrate` - 数据库迁移管理
+- `seed` - 填充种子数据
+- `worker` - 启动后台任务处理器
 
 ### 2. Adapters 层（适配器）
 
@@ -97,9 +110,16 @@ infrastructure/
 │   └── config.go     # Koanf 配置
 ├── database/         # 数据库
 │   ├── connection.go # PostgreSQL 连接
-│   └── migrator.go   # 数据库迁移
+│   ├── migrator.go   # 基础迁移器
+│   ├── migration_manager.go  # 迁移管理器
+│   ├── seeder.go     # 种子管理器
+│   └── seeds/        # 种子数据
+│       └── user_seeder.go  # 用户种子
 ├── persistence/      # 持久化
 │   └── user_repository.go  # 用户仓储实现
+├── queue/            # 队列系统
+│   ├── redis_queue.go   # Redis 队列
+│   └── processor.go     # 任务处理器
 └── redis/            # Redis
     ├── client.go     # Redis 客户端
     └── cache_repository.go  # 缓存仓储
@@ -111,6 +131,7 @@ infrastructure/
 - 提供数据库连接和管理
 - 提供外部服务集成
 - 实现认证授权机制
+- 提供队列和后台任务处理
 
 ### 5. Bootstrap 层（引导）
 
@@ -127,6 +148,7 @@ bootstrap/
 - 配置依赖关系
 - 提供统一的容器接口
 - 管理资源生命周期
+- 条件性执行数据库迁移
 
 **Container 包含：**
 
@@ -137,6 +159,18 @@ bootstrap/
 - JWTManager（JWT 管理器）
 - AuthService（认证服务）
 - Router（HTTP 路由器）
+
+**ContainerOptions：**
+
+```go
+type ContainerOptions struct {
+    AutoMigrate bool  // 是否自动执行数据库迁移
+}
+```
+
+- 默认不自动迁移（生产环境安全）
+- 可通过配置 `data.auto_migrate` 开启（开发环境便利）
+- 通过 `GetAllModels()` 获取所有需要迁移的模型
 
 ### 6. Shared 层（共享）
 

@@ -65,7 +65,10 @@ func runAPIServer(ctx context.Context, cmd *cli.Command) error {
 	}
 
 	// 初始化容器（依赖注入）
-	container, err := bootstrap.NewContainer(cfg)
+	opts := &bootstrap.ContainerOptions{
+		AutoMigrate: cfg.Data.AutoMigrate, // 从配置读取是否自动迁移
+	}
+	container, err := bootstrap.NewContainer(cfg, opts)
 	if err != nil {
 		slog.Error("Failed to initialize container", "error", err)
 		os.Exit(1)

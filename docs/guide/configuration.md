@@ -28,18 +28,19 @@
 
 ```yaml
 server:
-  addr: ":8080"
+  addr: "0.0.0.0:8080"
   env: "development"
   static_dir: "web/dist"
+  docs_dir: "docs/.vitepress/dist"
 
 data:
-  pgsql:
-    url: "postgresql://postgres:postgres@localhost:5432/app?sslmode=disable"
-  redis:
-    url: "redis://localhost:6379/0"
+  pgsql_url: "postgresql://postgres@localhost:5432/myapp?sslmode=disable"
+  redis_url: "redis://localhost:6379/0"
+  redis_key_prefix: "myapp:"
+  auto_migrate: false  # 是否在启动时自动迁移（仅推荐开发环境）
 
 jwt:
-  secret: "your-secret-key-change-in-production"
+  secret: "change-me-in-production"
   access_token_expiry: "15m"
   refresh_token_expiry: "168h"
 ```
@@ -58,15 +59,16 @@ jwt:
 
 ```bash
 # 服务器配置
-export APP_SERVER_ADDR=":8080"
+export APP_SERVER_ADDR="0.0.0.0:8080"
 export APP_SERVER_ENV="production"
 export APP_SERVER_STATIC_DIR="web/dist"
+export APP_SERVER_DOCS_DIR="docs/.vitepress/dist"
 
 # 数据库配置
 export APP_DATA_PGSQL_URL="postgresql://user:pass@localhost:5432/db?sslmode=disable"
-
-# Redis 配置
 export APP_DATA_REDIS_URL="redis://localhost:6379/0"
+export APP_DATA_REDIS_KEY_PREFIX="myapp:"
+export APP_DATA_AUTO_MIGRATE="false"
 
 # JWT 配置
 export APP_JWT_SECRET="your-secret-key"
@@ -98,28 +100,23 @@ type Config struct {
 }
 
 type ServerConfig struct {
-    Addr      string `koanf:"addr"`
-    Env       string `koanf:"env"`
-    StaticDir string `koanf:"static_dir"`
+    Addr      string `koanf:"addr"`        // 监听地址
+    Env       string `koanf:"env"`         // 运行环境
+    StaticDir string `koanf:"static_dir"`  // 静态资源目录
+    DocsDir   string `koanf:"docs_dir"`    // 文档目录
 }
 
 type DataConfig struct {
-    PgSQL PgSQLConfig `koanf:"pgsql"`
-    Redis RedisConfig `koanf:"redis"`
-}
-
-type PgSQLConfig struct {
-    URL string `koanf:"url"`
-}
-
-type RedisConfig struct {
-    URL string `koanf:"url"`
+    PgsqlURL       string `koanf:"pgsql_url"`        // PostgreSQL 连接 URL
+    RedisURL       string `koanf:"redis_url"`        // Redis 连接 URL
+    RedisKeyPrefix string `koanf:"redis_key_prefix"` // Redis key 前缀
+    AutoMigrate    bool   `koanf:"auto_migrate"`     // 自动迁移（仅开发环境）
 }
 
 type JWTConfig struct {
-    Secret              string `koanf:"secret"`
-    AccessTokenExpiry   string `koanf:"access_token_expiry"`
-    RefreshTokenExpiry  string `koanf:"refresh_token_expiry"`
+    Secret             string        `koanf:"secret"`
+    AccessTokenExpiry  time.Duration `koanf:"access_token_expiry"`
+    RefreshTokenExpiry time.Duration `koanf:"refresh_token_expiry"`
 }
 ```
 
@@ -127,22 +124,23 @@ type JWTConfig struct {
 
 如果没有提供配置文件，系统会使用以下默认值：
 
-```go
+```yaml
 server:
-  addr: ":8080"
+  addr: "0.0.0.0:8080"
   env: "development"
   static_dir: "web/dist"
+  docs_dir: "docs/.vitepress/dist"
 
 data:
-  pgsql:
-    url: "postgresql://postgres:postgres@localhost:5432/app?sslmode=disable"
-  redis:
-    url: "redis://localhost:6379/0"
+  pgsql_url: "postgresql://postgres@localhost:5432/myapp?sslmode=disable"
+  redis_url: "redis://localhost:6379/0"
+  redis_key_prefix: "myapp:"
+  auto_migrate: false
 
 jwt:
   secret: "change-me-in-production"
   access_token_expiry: "15m"
-  refresh_token_expiry: "168h"
+  refresh_token_expiry: "168h"  # 7 天
 ```
 
 ## 配置加载流程
@@ -162,8 +160,10 @@ config := container.Config
 
 // 访问配置值
 addr := config.Server.Addr
-dbURL := config.Data.PgSQL.URL
+dbURL := config.Data.PgsqlURL
+redisURL := config.Data.RedisURL
 jwtSecret := config.JWT.Secret
+autoMigrate := config.Data.AutoMigrate
 ```
 
 ## 生产环境配置
@@ -174,9 +174,10 @@ jwtSecret := config.JWT.Secret
 
 ```bash
 APP_SERVER_ENV=production
-APP_SERVER_ADDR=:8080
+APP_SERVER_ADDR=0.0.0.0:8080
 APP_DATA_PGSQL_URL=postgresql://user:pass@postgres:5432/db
 APP_DATA_REDIS_URL=redis://redis:6379/0
+APP_DATA_AUTO_MIGRATE=false
 APP_JWT_SECRET=your-production-secret-key
 ```
 

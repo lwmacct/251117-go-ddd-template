@@ -2,6 +2,7 @@ package bootstrap
 
 import (
 	"context"
+	"log/slog"
 
 	"github.com/gin-gonic/gin"
 	"github.com/lwmacct/251117-go-ddd-template/internal/adapters/http"
@@ -15,6 +16,18 @@ import (
 	"gorm.io/gorm"
 )
 
+// ContainerOptions 容器初始化选项
+type ContainerOptions struct {
+	AutoMigrate bool // 是否自动执行数据库迁移（仅开发环境推荐）
+}
+
+// DefaultOptions 返回默认选项
+func DefaultOptions() *ContainerOptions {
+	return &ContainerOptions{
+		AutoMigrate: false, // 生产环境默认不自动迁移
+	}
+}
+
 // Container 依赖注入容器
 type Container struct {
 	Config         *config.Config
@@ -27,7 +40,11 @@ type Container struct {
 }
 
 // NewContainer 创建并初始化依赖注入容器
-func NewContainer(cfg *config.Config) (*Container, error) {
+func NewContainer(cfg *config.Config, opts *ContainerOptions) (*Container, error) {
+	if opts == nil {
+		opts = DefaultOptions()
+	}
+
 	ctx := context.Background()
 
 	// 1. 初始化数据库连接
@@ -37,10 +54,16 @@ func NewContainer(cfg *config.Config) (*Container, error) {
 		return nil, err
 	}
 
-	// 2. 自动迁移数据库表
-	migrator := database.NewMigrator(db)
-	if err := migrator.AutoMigrate(&user.User{}); err != nil {
-		return nil, err
+	// 2. 条件性执行自动迁移
+	if opts.AutoMigrate {
+		slog.Info("Auto-migration enabled, migrating database...")
+		migrator := database.NewMigrator(db)
+		if err := migrator.AutoMigrate(GetAllModels()...); err != nil {
+			return nil, err
+		}
+		slog.Info("Database migration completed")
+	} else {
+		slog.Info("Auto-migration disabled, skipping database migration")
 	}
 
 	// 3. 初始化 Redis 客户端
@@ -89,4 +112,13 @@ func (c *Container) Close() error {
 	}
 
 	return nil
+}
+
+// GetAllModels 返回所有需要迁移的领域模型
+// 当添加新的领域模型时，需要在这里注册
+func GetAllModels() []any {
+	return []any{
+		&user.User{},
+		// 未来添加其他模型...
+	}
 }

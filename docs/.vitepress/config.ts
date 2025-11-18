@@ -32,6 +32,7 @@ export default defineConfig({
             { text: "快速开始", link: "/guide/getting-started" },
             { text: "项目架构", link: "/guide/architecture" },
             { text: "配置系统", link: "/guide/configuration" },
+            { text: "CLI 命令", link: "/guide/cli-commands" },
             { text: "应用部署", link: "/guide/application-deployment" },
             { text: "文档部署", link: "/guide/docs-deployment" },
             { text: "测试指南", link: "/guide/testing" },
