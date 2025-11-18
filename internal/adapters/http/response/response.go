@@ -6,7 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// ErrorResponse 错误响应（符合 RFC 7807 Problem Details）
+// ErrorResponse 错误响应 (符合 RFC 7807 Problem Details)
 type ErrorResponse struct {
 	Error ErrorDetail `json:"error"`
 }
@@ -15,10 +15,10 @@ type ErrorResponse struct {
 type ErrorDetail struct {
 	Code    string      `json:"code"`              // 业务错误码
 	Message string      `json:"message"`           // 错误消息
-	Details interface{} `json:"details,omitempty"` // 额外详情（如验证错误列表）
+	Details interface{} `json:"details,omitempty"` // 额外详情 (如验证错误列表)
 }
 
-// ListResponse 列表响应（带分页信息）
+// ListResponse 列表响应 (带分页信息)
 type ListResponse struct {
 	Data interface{}     `json:"data"`
 	Meta *PaginationMeta `json:"meta,omitempty"`
@@ -33,12 +33,12 @@ type PaginationMeta struct {
 	HasMore    bool `json:"has_more,omitempty"`    // 是否有下一页
 }
 
-// JSON 通用 JSON 响应（成功时直接返回数据）
+// JSON 通用 JSON 响应 (成功时直接返回数据)
 func JSON(c *gin.Context, statusCode int, data interface{}) {
 	c.JSON(statusCode, data)
 }
 
-// OK 200 成功响应（返回单个资源）
+// OK 200 成功响应 (返回单个资源)
 func OK(c *gin.Context, data interface{}) {
 	c.JSON(http.StatusOK, data)
 }
@@ -48,12 +48,12 @@ func Created(c *gin.Context, data interface{}) {
 	c.JSON(http.StatusCreated, data)
 }
 
-// NoContent 204 无内容响应（删除、更新成功等）
+// NoContent 204 无内容响应 (删除、更新成功等)
 func NoContent(c *gin.Context) {
 	c.Status(http.StatusNoContent)
 }
 
-// List 200 列表响应（带可选分页）
+// List 200 列表响应 (带可选分页)
 func List(c *gin.Context, data interface{}, meta *PaginationMeta) {
 	c.JSON(http.StatusOK, ListResponse{
 		Data: data,

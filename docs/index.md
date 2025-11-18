@@ -28,7 +28,7 @@ features:
     details: 高性能缓存系统，JSON 自动序列化，分布式锁，健康检查
   - icon: ⚙️
     title: 灵活配置
-    details: Koanf 配置管理，多层优先级支持（默认值/文件/环境变量/CLI）
+    details: Koanf 配置管理，多层优先级支持 (默认值/文件/环境变量/CLI)
   - icon: 🚀
     title: 生产就绪
     details: Docker 支持，优雅关闭，健康检查，连接池管理，开发热重载
@@ -53,7 +53,7 @@ curl http://localhost:8080/health
 
 ## 技术栈
 
-- **框架**: Gin（HTTP 服务器）
+- **框架**: Gin (HTTP 服务器)
 - **数据库**: PostgreSQL + GORM
 - **缓存**: Redis
 - **认证**: JWT (golang-jwt/jwt/v5)

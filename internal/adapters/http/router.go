@@ -30,14 +30,14 @@ func SetupRouter(
 	r.Use(gin.Recovery())
 	r.Use(middleware.CORS())
 
-	// 健康检查（包含数据库和 Redis 连接检查）
+	// 健康检查 (包含数据库和 Redis 连接检查)
 	healthHandler := handler.NewHealthHandler(db, redisClient)
 	r.GET("/health", healthHandler.Check)
 
 	// API 路由组
 	api := r.Group("/api")
 	{
-		// 认证路由（公开）
+		// 认证路由 (公开)
 		authHandler := handler.NewAuthHandler(authService)
 		auth := api.Group("/auth")
 		{
@@ -53,7 +53,7 @@ func SetupRouter(
 			// 当前用户信息
 			authenticated.GET("/auth/me", authHandler.Me)
 
-			// 用户管理（需要认证）
+			// 用户管理 (需要认证)
 			userHandler := handler.NewUserHandler(userRepo)
 			authenticated.GET("/users", userHandler.List)
 			authenticated.GET("/users/:id", userHandler.GetByID)
@@ -61,18 +61,18 @@ func SetupRouter(
 			authenticated.DELETE("/users/:id", userHandler.Delete)
 		}
 
-		// 缓存操作示例（公开，仅用于演示）
+		// 缓存操作示例 (公开，仅用于演示)
 		cacheHandler := handler.NewCacheHandler(redisClient, cfg.Data.RedisKeyPrefix)
 		api.POST("/cache", cacheHandler.SetCache)
 		api.GET("/cache/:key", cacheHandler.GetCache)
 		api.DELETE("/cache/:key", cacheHandler.DeleteCache)
 	}
 
-	// 提供 VitePress 文档服务（通过 /docs 路由访问）
+	// 提供 VitePress 文档服务 (通过 /docs 路由访问)
 	if cfg.Server.DocsDir != "" {
 		docs := r.Group("/docs")
 		docs.GET("/*filepath", func(c *gin.Context) {
-			// 获取请求的文件路径（已经移除了 /docs 前缀）
+			// 获取请求的文件路径 (已经移除了 /docs 前缀)
 			reqPath := c.Param("filepath")
 			if reqPath == "/" || reqPath == "" {
 				reqPath = "/index.html"
@@ -87,7 +87,7 @@ func SetupRouter(
 				return
 			}
 
-			// 如果路径不存在，尝试添加 .html 扩展名（VitePress 清洁 URL）
+			// 如果路径不存在，尝试添加 .html 扩展名 (VitePress 清洁 URL)
 			if !strings.HasSuffix(reqPath, ".html") && !strings.Contains(reqPath, ".") {
 				htmlPath := filepath.Join(cfg.Server.DocsDir, reqPath+".html")
 				if _, err := os.Stat(htmlPath); err == nil {
@@ -96,7 +96,7 @@ func SetupRouter(
 				}
 			}
 
-			// 文件不存在，返回 index.html（用于 SPA 路由）
+			// 文件不存在，返回 index.html (用于 SPA 路由)
 			indexPath := filepath.Join(cfg.Server.DocsDir, "index.html")
 			if _, err := os.Stat(indexPath); err == nil {
 				c.File(indexPath)
@@ -106,7 +106,7 @@ func SetupRouter(
 		})
 	}
 
-	// 提供静态文件服务（使用 NoRoute 避免与 API 路由冲突）
+	// 提供静态文件服务 (使用 NoRoute 避免与 API 路由冲突)
 	if cfg.Server.StaticDir != "" {
 		r.NoRoute(func(c *gin.Context) {
 			// 构建文件路径
@@ -118,7 +118,7 @@ func SetupRouter(
 				return
 			}
 
-			// 文件不存在，返回 index.html（用于 SPA 路由）
+			// 文件不存在，返回 index.html (用于 SPA 路由)
 			indexPath := filepath.Join(cfg.Server.StaticDir, "index.html")
 			if _, err := os.Stat(indexPath); err == nil {
 				c.File(indexPath)

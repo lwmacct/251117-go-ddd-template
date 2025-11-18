@@ -13,7 +13,7 @@
 
 - 使用最新的 Vite 7 构建工具链
 - 体验 VitePress 2.0 的新特性和性能优化
-- 改进的 CJK（中日韩）语言支持
+- 改进的 CJK (中日韩) 语言支持
 - 更好的开发体验和 HMR 支持
 
 ## 环境要求
@@ -43,7 +43,7 @@
 ```typescript
 markdown: {
   lineNumbers: true,
-  // VitePress 2.0 新增：CJK 友好的强调语法（默认启用）
+  // VitePress 2.0 新增：CJK 友好的强调语法 (默认启用)
   cjkFriendlyEmphasis: true,
   // 图片懒加载
   image: {
@@ -51,7 +51,7 @@ markdown: {
   },
 },
 
-// Vite 配置（如需自定义）
+// Vite 配置 (如需自定义)
 vite: {
   // Vite 7 配置选项
 },
@@ -59,7 +59,7 @@ vite: {
 
 #### 配置说明
 
-- `cjkFriendlyEmphasis`: 改进中文、日文、韩文的强调语法处理（原 `cjkFriendly` 重命名）
+- `cjkFriendlyEmphasis`: 改进中文、日文、韩文的强调语法处理 (原 `cjkFriendly` 重命名)
 - `image.lazyLoading`: 启用图片懒加载，优化页面性能
 - `vite`: 可以直接配置 Vite 7 选项
 
@@ -102,7 +102,7 @@ vite: {
 
 ### 1. 性能优化
 
-- **Git 时间戳批量获取**: 单次 git 调用获取所有文件时间戳（原来是每个文件单独调用）
+- **Git 时间戳批量获取**: 单次 git 调用获取所有文件时间戳 (原来是每个文件单独调用)
 - **改进的 HMR**: 主题和配置文件的热更新更快速
 
 ### 2. Markdown 增强
@@ -121,7 +121,7 @@ vite: {
 
 - **Vite 7**: 使用最新的 Vite 构建工具
 - **ESM Only**: 仅支持 ESM 模块系统
-- **DocSearch v4 Beta**: 更现代的搜索体验（如果使用 Algolia）
+- **DocSearch v4 Beta**: 更现代的搜索体验 (如果使用 Algolia)
 
 ## 破坏性变更
 
@@ -133,7 +133,7 @@ vite: {
 ### 2. 配置重命名
 
 ```typescript
-// ❌ 旧配置（不再支持）
+// ❌ 旧配置 (不再支持)
 markdown: {
   cjkFriendly: true;
 }
@@ -156,7 +156,7 @@ markdown: {
 npm run docs:build
 ```
 
-**结果**: ✅ 成功（2.98 秒）
+**结果**: ✅ 成功 (2.98 秒)
 
 ### 构建输出
 
@@ -230,13 +230,13 @@ npm install
 
 ## 升级清单
 
-- [x] 检查 Node.js 版本（>= 20.19.0）
+- [x] 检查 Node.js 版本 (>= 20.19.0)
 - [x] 升级 VitePress 到 2.0.0-alpha.13
-- [x] 更新配置文件（cjkFriendlyEmphasis、lazyLoading）
-- [x] 更新 package.json（engines、version、description）
-- [x] 测试构建（docs:build）
-- [ ] 测试开发服务器（docs:dev）
-- [ ] 测试预览服务器（docs:preview）
+- [x] 更新配置文件 (cjkFriendlyEmphasis、lazyLoading)
+- [x] 更新 package.json (engines、version、description)
+- [x] 测试构建 (docs:build)
+- [ ] 测试开发服务器 (docs:dev)
+- [ ] 测试预览服务器 (docs:preview)
 - [ ] 性能测试和对比
 - [ ] 文档部署测试
 

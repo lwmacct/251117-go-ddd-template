@@ -22,7 +22,7 @@ var Command = &cli.Command{
    子命令：
    - up     执行数据库迁移
    - status 查看迁移状态
-   - fresh  删除所有表并重新迁移（危险！仅开发环境使用）
+   - fresh  删除所有表并重新迁移 (危险！仅开发环境使用) 
 	`,
 	Commands: []*cli.Command{
 		upCommand,
@@ -52,7 +52,7 @@ var statusCommand = &cli.Command{
 
 var freshCommand = &cli.Command{
 	Name:  "fresh",
-	Usage: "删除所有表并重新迁移（危险操作！）",
+	Usage: "删除所有表并重新迁移 (危险操作！) ",
 	Description: `
    删除所有表并重新执行迁移。
    警告：此操作会删除所有数据，仅适用于开发环境！
@@ -60,7 +60,7 @@ var freshCommand = &cli.Command{
 	Flags: []cli.Flag{
 		&cli.BoolFlag{
 			Name:  "force",
-			Usage: "强制执行（不询问确认）",
+			Usage: "强制执行 (不询问确认) ",
 		},
 	},
 	Action: runFresh,

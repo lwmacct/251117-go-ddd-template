@@ -19,13 +19,13 @@ type Repository interface {
 	// GetByEmail 根据邮箱获取用户
 	GetByEmail(ctx context.Context, email string) (*User, error)
 
-	// List 获取用户列表（分页）
+	// List 获取用户列表 (分页)
 	List(ctx context.Context, offset, limit int) ([]*User, error)
 
 	// Update 更新用户
 	Update(ctx context.Context, user *User) error
 
-	// Delete 删除用户（软删除）
+	// Delete 删除用户 (软删除)
 	Delete(ctx context.Context, id uint) error
 
 	// Count 统计用户数量

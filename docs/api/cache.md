@@ -32,11 +32,11 @@
 
 #### 请求参数
 
-| 参数  | 类型    | 必填 | 默认值 | 说明                         |
-| ----- | ------- | ---- | ------ | ---------------------------- |
-| key   | string  | 是   | -      | 缓存键名                     |
-| value | any     | 是   | -      | 缓存值（支持任意 JSON 类型） |
-| ttl   | integer | 否   | 60     | 过期时间（秒）               |
+| 参数  | 类型    | 必填 | 默认值 | 说明                        |
+| ----- | ------- | ---- | ------ | --------------------------- |
+| key   | string  | 是   | -      | 缓存键名                    |
+| value | any     | 是   | -      | 缓存值 (支持任意 JSON 类型) |
+| ttl   | integer | 否   | 60     | 过期时间 (秒)               |
 
 #### 请求示例
 
@@ -369,7 +369,7 @@ DELETE /api/cache/greeting
 ```
 
 ::: info 说明
-即使键不存在，删除操作也会返回成功（幂等操作）。
+即使键不存在，删除操作也会返回成功 (幂等操作) 。
 :::
 
 #### 错误响应 (400)
@@ -471,7 +471,7 @@ curl -X POST http://localhost:8080/api/cache \
 # 获取会话
 curl http://localhost:8080/api/cache/session:abc123
 
-# 删除会话（登出）
+# 删除会话 (登出)
 curl -X DELETE http://localhost:8080/api/cache/session:abc123
 ```
 
@@ -491,7 +491,7 @@ curl -X POST http://localhost:8080/api/cache \
 ### 3. 限流计数器
 
 ```bash
-# 记录请求次数（配合 TTL 实现滑动窗口）
+# 记录请求次数 (配合 TTL 实现滑动窗口)
 curl -X POST http://localhost:8080/api/cache \
   -H "Content-Type: application/json" \
   -d '{
@@ -543,7 +543,7 @@ curl -X POST http://localhost:8080/api/cache \
 {
   "key": "user:1001:full",
   "value": {
-    // 避免存储大量数据（>1MB）
+    // 避免存储大量数据 (>1MB)
   }
 }
 ```
@@ -586,7 +586,7 @@ async function getCacheWithFallback(key) {
 对于高频访问的缓存键：
 
 - 设置合理的 TTL，避免频繁更新
-- 考虑使用本地内存缓存（双层缓存）
+- 考虑使用本地内存缓存 (双层缓存)
 - 使用 Redis 集群分散压力
 
 ## 相关链接

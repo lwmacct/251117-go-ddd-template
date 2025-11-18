@@ -12,7 +12,7 @@ export default defineConfig({
   base: process.env.VITEPRESS_BASE || "/docs/",
 
   title: "Go DDD Template",
-  description: "基于 Go 的领域驱动设计（DDD）模板应用文档",
+  description: "基于 Go 的领域驱动设计 (DDD) 模板应用文档",
 
   // 主题配置
   themeConfig: {
@@ -213,7 +213,7 @@ export default defineConfig({
   // Markdown 配置
   markdown: {
     lineNumbers: true,
-    // VitePress 2.0 新增：CJK 友好的强调语法（默认启用）
+    // VitePress 2.0 新增：CJK 友好的强调语法 (默认启用)
     cjkFriendlyEmphasis: true,
     // 图片懒加载
     image: {
@@ -242,7 +242,7 @@ export default defineConfig({
   // 语言配置
   lang: "zh-CN",
 
-  // Vite 配置（如需自定义）
+  // Vite 配置 (如需自定义)
   vite: {
     // Vite 7 配置选项
   },

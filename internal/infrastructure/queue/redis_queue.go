@@ -38,7 +38,7 @@ func (q *RedisQueue) Enqueue(ctx context.Context, job any) error {
 	return nil
 }
 
-// Dequeue 从队列中取出一个任务（阻塞式）
+// Dequeue 从队列中取出一个任务 (阻塞式)
 func (q *RedisQueue) Dequeue(ctx context.Context, timeout time.Duration) ([]byte, error) {
 	result, err := q.client.BRPop(ctx, timeout, q.queueName).Result()
 	if err != nil {

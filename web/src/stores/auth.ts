@@ -44,14 +44,14 @@ export const useAuthStore = defineStore("auth", () => {
   }
 
   /**
-   * 登录（基础版）
+   * 登录 (基础版)
    */
   async function login(credentials: LoginRequest | PlatformLoginRequest): Promise<LoginResult> {
     try {
       isLoading.value = true;
       error.value = null;
 
-      // 检查是否是平台登录请求（带验证码）
+      // 检查是否是平台登录请求 (带验证码)
       if ("captcha_id" in credentials) {
         // 使用平台 API
         const response = await PlatformAuthAPI.login(credentials);

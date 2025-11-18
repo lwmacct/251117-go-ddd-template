@@ -36,7 +36,7 @@ func (m *Migrator) AutoMigrate(models ...interface{}) error {
 	return nil
 }
 
-// DropTables 删除表（谨慎使用！）
+// DropTables 删除表 (谨慎使用！)
 func (m *Migrator) DropTables(models ...interface{}) error {
 	if len(models) == 0 {
 		return nil

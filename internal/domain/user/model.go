@@ -50,7 +50,7 @@ type UserUpdateDTO struct {
 	Status   *string `json:"status" binding:"omitempty,oneof=active inactive banned"`
 }
 
-// UserResponse 用户响应 DTO（不包含敏感信息）
+// UserResponse 用户响应 DTO (不包含敏感信息)
 type UserResponse struct {
 	ID        uint      `json:"id"`
 	Username  string    `json:"username"`

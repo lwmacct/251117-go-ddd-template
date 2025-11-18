@@ -4,12 +4,12 @@
 
 ## 功能特性
 
-- ✅ 用户注册（用户名/邮箱唯一性验证）
-- ✅ 用户登录（支持用户名或邮箱登录）
-- ✅ Token 刷新机制（访问令牌 15 分钟，刷新令牌 7 天）
+- ✅ 用户注册 (用户名/邮箱唯一性验证)
+- ✅ 用户登录 (支持用户名或邮箱登录)
+- ✅ Token 刷新机制 (访问令牌 15 分钟，刷新令牌 7 天)
 - ✅ JWT 认证中间件
 - ✅ bcrypt 密码加密
-- ✅ 用户状态检查（仅 active 用户可登录）
+- ✅ 用户状态检查 (仅 active 用户可登录)
 - ✅ 受保护的 API 端点
 
 ## 快速开始
@@ -87,7 +87,7 @@ internal/
 ├── infrastructure/
 │   └── auth/
 │       ├── jwt.go         # JWT token 生成和验证
-│       └── service.go     # 认证服务（注册、登录、刷新）
+│       └── service.go     # 认证服务 (注册、登录、刷新)
 ├── adapters/
 │   └── http/
 │       ├── handler/
@@ -120,9 +120,9 @@ type Claims struct {
     ↓
 密码 bcrypt 加密
     ↓
-创建用户记录（状态：active）
+创建用户记录 (状态：active)
     ↓
-生成 JWT token 对（access + refresh）
+生成 JWT token 对 (access + refresh)
     ↓
 返回 token 和用户信息
 ```
@@ -132,11 +132,11 @@ type Claims struct {
 ```
 用户提交用户名/邮箱和密码
     ↓
-查找用户（支持用户名或邮箱）
+查找用户 (支持用户名或邮箱)
     ↓
-验证密码（bcrypt.CompareHashAndPassword）
+验证密码 (bcrypt.CompareHashAndPassword)
     ↓
-检查用户状态（必须是 active）
+检查用户状态 (必须是 active)
     ↓
 生成 JWT token 对
     ↓
@@ -152,7 +152,7 @@ type Claims struct {
     ↓
 解析和验证 JWT token
     ↓
-提取用户信息（UserID, Username, Email）
+提取用户信息 (UserID, Username, Email)
     ↓
 将用户信息存入 Gin Context
     ↓
@@ -187,7 +187,7 @@ type Claims struct {
 jwt:
   secret: "your-secret-key-change-in-production"
   access_token_expiry: "15m" # 访问令牌过期时间
-  refresh_token_expiry: "168h" # 刷新令牌过期时间（7天）
+  refresh_token_expiry: "168h" # 刷新令牌过期时间 (7天)
 ```
 
 ### 环境变量
@@ -209,7 +209,7 @@ openssl rand -base64 32
 
 ## API 端点
 
-### 公开端点（无需认证）
+### 公开端点 (无需认证)
 
 | 方法 | 路径                 | 说明         |
 | ---- | -------------------- | ------------ |
@@ -217,7 +217,7 @@ openssl rand -base64 32
 | POST | `/api/auth/login`    | 用户登录     |
 | POST | `/api/auth/refresh`  | 刷新访问令牌 |
 
-### 受保护端点（需要认证）
+### 受保护端点 (需要认证)
 
 | 方法   | 路径             | 说明             |
 | ------ | ---------------- | ---------------- |
@@ -233,7 +233,7 @@ openssl rand -base64 32
 
 1. **密码加密**
    - 使用 bcrypt 加密存储密码
-   - 成本因子：10（默认）
+   - 成本因子：10 (默认)
    - 密码字段在响应中自动隐藏
 
 2. **Token 签名**
@@ -242,8 +242,8 @@ openssl rand -base64 32
    - Token 包含过期时间
 
 3. **Token 过期控制**
-   - 访问令牌：15 分钟（短期）
-   - 刷新令牌：7 天（长期）
+   - 访问令牌：15 分钟 (短期)
+   - 刷新令牌：7 天 (长期)
    - 可通过配置调整
 
 4. **用户状态检查**
@@ -338,7 +338,7 @@ tokens, err = authService.RefreshToken(ctx, refreshToken)
 **前端应用：**
 
 - 推荐使用 `localStorage` 或 `sessionStorage`
-- 避免在 Cookie 中存储（如果不需要）
+- 避免在 Cookie 中存储 (如果不需要)
 
 **移动应用：**
 
@@ -391,7 +391,7 @@ async function apiCall(url, options) {
 - ✅ 生产环境使用强密钥
 - ✅ 监控异常登录行为
 
-### 4. Token 黑名单（可选）
+### 4. Token 黑名单 (可选)
 
 对于需要支持"注销"功能的场景，可以实现 Token 黑名单：
 
@@ -402,7 +402,7 @@ func (s *Service) Logout(ctx context.Context, token string) error {
     claims, _ := s.jwtManager.ValidateToken(token)
     expiration := time.Until(claims.ExpiresAt.Time)
 
-    // 将 token 加入黑名单（设置 TTL 为剩余有效期）
+    // 将 token 加入黑名单 (设置 TTL 为剩余有效期)
     return s.redis.Set(ctx, "blacklist:"+token, "1", expiration).Err()
 }
 
@@ -449,7 +449,7 @@ func (s *Service) ResetPassword(token, newPassword string) {
 }
 ```
 
-### 3. 双因素认证（2FA）
+### 3. 双因素认证 (2FA)
 
 ```go
 // 启用 2FA
@@ -493,7 +493,7 @@ env | grep APP_JWT_SECRET
 
 ### 用户无法登录
 
-- 检查用户状态（必须是 `active`）
+- 检查用户状态 (必须是 `active`)
 - 确认用户名/邮箱正确
 - 验证密码正确性
 

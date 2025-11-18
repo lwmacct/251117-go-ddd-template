@@ -86,7 +86,7 @@ func (h *AuthHandler) RefreshToken(c *gin.Context) {
 // Me 获取当前用户信息
 // GET /api/auth/me
 func (h *AuthHandler) Me(c *gin.Context) {
-	// 从上下文获取用户信息（由 JWT 中间件设置）
+	// 从上下文获取用户信息 (由 JWT 中间件设置)
 	userID, exists := c.Get("user_id")
 	if !exists {
 		c.JSON(401, gin.H{"error": "unauthorized"})

@@ -7,12 +7,12 @@ VitePress 的 `base` 配置在不同部署环境中需要不同的值：
 - **本地 Go 服务器**: `base: "/docs/"` - 文档通过 `http://localhost:8080/docs/` 访问
 - **GitHub Pages**: `base: "/251117-go-ddd-template/"` - 仓库名作为路径
 
-## 解决方案（推荐）
+## 解决方案 (推荐)
 
 ✅ **自动化方式**：GitHub Actions 自动获取仓库名
 
-- 本地开发和 Go 服务器：使用 `npm run docs:build`（默认 base="/docs/"）
-- GitHub Pages 部署：GitHub Actions 自动设置环境变量 `VITEPRESS_BASE`（值为仓库名）
+- 本地开发和 Go 服务器：使用 `npm run docs:build` (默认 base="/docs/")
+- GitHub Pages 部署：GitHub Actions 自动设置环境变量 `VITEPRESS_BASE` (值为仓库名)
 
 ### 工作原理
 
@@ -54,19 +54,19 @@ VitePress 的 `base` 配置在不同部署环境中需要不同的值：
 
 ## 使用方法
 
-### 1. 本地开发（默认）
+### 1. 本地开发 (默认)
 
 ```bash
 # 开发服务器
 npm run docs:dev
 # 访问 http://localhost:5173
 
-# 构建（用于 Go 服务器）
+# 构建 (用于 Go 服务器)
 npm run docs:build
 # 生成到 docs/.vitepress/dist/，base="/docs/"
 ```
 
-### 2. GitHub Pages 部署（自动）
+### 2. GitHub Pages 部署 (自动)
 
 **无需特殊命令！** 推送代码后 GitHub Actions 自动处理：
 
@@ -99,7 +99,7 @@ cat docs/.vitepress/dist/index.html | grep '<base'
 ### 部署到 Go API 服务器
 
 ```bash
-# 1. 构建文档（默认 base="/docs/"）
+# 1. 构建文档 (默认 base="/docs/")
 npm run docs:build
 
 # 2. 构建 Go 应用
@@ -112,7 +112,7 @@ task go:build
 open http://localhost:8080/docs/
 ```
 
-### 部署到 GitHub Pages（自动化）✨
+### 部署到 GitHub Pages (自动化) ✨
 
 **推荐方式：推送代码自动部署**
 
@@ -130,17 +130,17 @@ git push origin main
 # - 自动运行 npm run docs:build:github
 # - 自动部署到 GitHub Pages
 
-# 4. 访问部署的文档（几分钟后）
+# 4. 访问部署的文档 (几分钟后)
 open https://你的用户名.github.io/251117-go-ddd-template/
 ```
 
-**手动方式（不推荐）：**
+**手动方式 (不推荐) ：**
 
 ```bash
 # 1. 使用 GitHub base 构建
 npm run docs:build:github
 
-# 2. 手动部署（通常不需要，GitHub Actions 会自动处理）
+# 2. 手动部署 (通常不需要，GitHub Actions 会自动处理)
 # ...
 ```
 
@@ -219,11 +219,11 @@ jobs:
 }
 ```
 
-| 脚本           | base 路径                  | 用途                                    |
-| -------------- | -------------------------- | --------------------------------------- |
-| `docs:dev`     | `/docs/`                   | 本地开发服务器                          |
-| `docs:build`   | `/docs/`（默认）或环境变量 | 本地构建 & GitHub Pages（通过 Actions） |
-| `docs:preview` | 根据上次构建               | 预览构建结果                            |
+| 脚本           | base 路径                  | 用途                                   |
+| -------------- | -------------------------- | -------------------------------------- |
+| `docs:dev`     | `/docs/`                   | 本地开发服务器                         |
+| `docs:build`   | `/docs/` (默认) 或环境变量 | 本地构建 & GitHub Pages (通过 Actions) |
+| `docs:preview` | 根据上次构建               | 预览构建结果                           |
 
 **简化优势**：
 
@@ -261,7 +261,7 @@ VITEPRESS_BASE=/your-repo-name/ npm run docs:build
 cat docs/.vitepress/dist/index.html | grep '<base'
 # 应该包含: <base href="/your-repo-name/">
 
-# 部署后访问（GitHub Actions 会自动使用正确的仓库名）
+# 部署后访问 (GitHub Actions 会自动使用正确的仓库名)
 open https://你的用户名.github.io/你的仓库名/
 ```
 
@@ -276,7 +276,7 @@ A: 检查 base 路径是否正确：
 cat docs/.vitepress/dist/index.html | grep -E '(href|src)='
 ```
 
-所有资源路径应该以 base 路径开头（如 `/docs/assets/` 或 `/251117-go-ddd-template/assets/`）。
+所有资源路径应该以 base 路径开头 (如 `/docs/assets/` 或 `/251117-go-ddd-template/assets/`) 。
 
 ### Q: 可以同时支持两个环境吗？
 
@@ -310,11 +310,11 @@ $env:VITEPRESS_BASE="/your-repo-name/"; npm run docs:build
 
 ## 总结
 
-| 环境         | base 路径          | 构建命令                                | 访问 URL                           |
-| ------------ | ------------------ | --------------------------------------- | ---------------------------------- |
-| 本地开发     | `/docs/`           | `npm run docs:dev`                      | `http://localhost:5173`            |
-| Go 服务器    | `/docs/`           | `npm run docs:build`                    | `http://localhost:8080/docs/`      |
-| GitHub Pages | `/仓库名/`（自动） | `npm run docs:build`（由 Actions 调用） | `https://用户名.github.io/仓库名/` |
+| 环境         | base 路径         | 构建命令                               | 访问 URL                           |
+| ------------ | ----------------- | -------------------------------------- | ---------------------------------- |
+| 本地开发     | `/docs/`          | `npm run docs:dev`                     | `http://localhost:5173`            |
+| Go 服务器    | `/docs/`          | `npm run docs:build`                   | `http://localhost:8080/docs/`      |
+| GitHub Pages | `/仓库名/` (自动) | `npm run docs:build` (由 Actions 调用) | `https://用户名.github.io/仓库名/` |
 
 **核心优势**：
 

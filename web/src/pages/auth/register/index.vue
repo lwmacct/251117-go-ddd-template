@@ -3,8 +3,8 @@
  * Register 主页面
  *
  * 用户注册页面，支持：
- * - 用户注册（邮箱 + 密码 + 验证码）
- * - 邮箱验证（完成注册）
+ * - 用户注册 (邮箱 + 密码 + 验证码)
+ * - 邮箱验证 (完成注册)
  */
 
 import { ref, onMounted } from "vue";
@@ -15,7 +15,7 @@ import VerifyEmailForm from "./components/VerifyEmailForm.vue";
 const route = useRoute();
 const router = useRouter();
 
-// 是否显示邮箱验证页面（如果 URL 中有验证码，直接显示验证页面）
+// 是否显示邮箱验证页面 (如果 URL 中有验证码，直接显示验证页面)
 const showVerification = ref(false);
 
 // 检查 URL 参数，如果是独立访问验证页面，直接显示验证表单
@@ -23,7 +23,7 @@ onMounted(() => {
   const emailParam = route.query.email as string;
   const codeParam = route.query.code as string;
 
-  // 如果 URL 中有邮箱或验证码，直接显示验证页面（独立访问场景）
+  // 如果 URL 中有邮箱或验证码，直接显示验证页面 (独立访问场景)
   if (emailParam || codeParam) {
     showVerification.value = true;
   }

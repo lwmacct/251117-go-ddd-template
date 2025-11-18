@@ -74,11 +74,11 @@ func runWorker(ctx context.Context, cmd *cli.Command) error {
 	// 创建队列
 	q := queue.NewRedisQueue(redisClient, queueName)
 
-	// 创建处理器（使用默认 handler，实际使用时应该实现自定义的 JobHandler）
+	// 创建处理器 (使用默认 handler，实际使用时应该实现自定义的 JobHandler)
 	handler := &queue.DefaultJobHandler{}
 	processor := queue.NewProcessor(q, handler, concurrency)
 
-	// 启动处理器（在 goroutine 中）
+	// 启动处理器 (在 goroutine 中)
 	go processor.Start(ctx)
 
 	// 优雅关闭

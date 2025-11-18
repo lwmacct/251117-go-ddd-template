@@ -6,13 +6,13 @@
 
 本项目推荐使用以下测试工具：
 
-| 工具                                             | 用途               | 安装                                             |
-| ------------------------------------------------ | ------------------ | ------------------------------------------------ |
-| Go 标准库 `testing`                              | 基础测试框架       | 内置                                             |
-| [Testify](https://github.com/stretchr/testify)   | 断言和 Mock        | `go get github.com/stretchr/testify`             |
-| [Mockery](https://github.com/vektra/mockery)     | Mock 生成          | `go install github.com/vektra/mockery/v2@latest` |
-| [Dockertest](https://github.com/ory/dockertest)  | 集成测试（Docker） | `go get github.com/ory/dockertest/v3`            |
-| [httptest](https://pkg.go.dev/net/http/httptest) | HTTP 测试          | 内置                                             |
+| 工具                                             | 用途              | 安装                                             |
+| ------------------------------------------------ | ----------------- | ------------------------------------------------ |
+| Go 标准库 `testing`                              | 基础测试框架      | 内置                                             |
+| [Testify](https://github.com/stretchr/testify)   | 断言和 Mock       | `go get github.com/stretchr/testify`             |
+| [Mockery](https://github.com/vektra/mockery)     | Mock 生成         | `go install github.com/vektra/mockery/v2@latest` |
+| [Dockertest](https://github.com/ory/dockertest)  | 集成测试 (Docker) | `go get github.com/ory/dockertest/v3`            |
+| [httptest](https://pkg.go.dev/net/http/httptest) | HTTP 测试         | 内置                                             |
 
 ## 安装依赖
 
@@ -22,10 +22,10 @@ go get github.com/stretchr/testify/assert
 go get github.com/stretchr/testify/mock
 go get github.com/stretchr/testify/suite
 
-# 安装 Dockertest（集成测试）
+# 安装 Dockertest (集成测试)
 go get github.com/ory/dockertest/v3
 
-# 安装 Mockery（可选，用于生成 Mock）
+# 安装 Mockery (可选，用于生成 Mock)
 go install github.com/vektra/mockery/v2@latest
 ```
 
@@ -545,13 +545,13 @@ func (suite *UserRepositoryTestSuite) TestDelete() {
 	}
 	suite.repo.Create(ctx, newUser)
 
-	// 删除用户（软删除）
+	// 删除用户 (软删除)
 	err := suite.repo.Delete(ctx, newUser.ID)
 	assert.NoError(suite.T(), err)
 
-	// 验证已删除（软删除，仍能查到 DeletedAt）
+	// 验证已删除 (软删除，仍能查到 DeletedAt)
 	foundUser, err := suite.repo.FindByID(ctx, newUser.ID)
-	assert.Error(suite.T(), err) // 应该找不到（因为软删除）
+	assert.Error(suite.T(), err) // 应该找不到 (因为软删除)
 }
 
 func TestUserRepositoryTestSuite(t *testing.T) {
@@ -654,7 +654,7 @@ go tool cover -html=coverage.out -o coverage.html
 # 运行详细输出
 go test -v ./...
 
-# 跳过集成测试（仅单元测试）
+# 跳过集成测试 (仅单元测试)
 go test -short ./...
 
 # 运行特定测试
@@ -832,7 +832,7 @@ for _, tt := range tests {
 
 ### 4. Mock 最佳实践
 
-- 只 Mock 外部依赖（数据库、API）
+- 只 Mock 外部依赖 (数据库、API)
 - 不要 Mock 领域模型
 - 使用接口而不是具体实现
 
@@ -859,7 +859,7 @@ func TestIntegration(t *testing.T) {
 
 ### Q: 如何测试私有函数？
 
-不要测试私有函数，应该通过公有接口测试。如果确实需要，将测试文件放在同一包内（不使用 `_test` 后缀）。
+不要测试私有函数，应该通过公有接口测试。如果确实需要，将测试文件放在同一包内 (不使用 `_test` 后缀) 。
 
 ### Q: 如何处理时间依赖？
 

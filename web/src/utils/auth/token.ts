@@ -4,8 +4,8 @@
 
 /**
  * 检查 token 是否即将过期
- * @param expiresIn - 过期时间（秒）
- * @param threshold - 阈值（秒），默认 5 分钟
+ * @param expiresIn - 过期时间 (秒)
+ * @param threshold - 阈值 (秒) ，默认 5 分钟
  * @returns 是否即将过期
  */
 export function isTokenExpiringSoon(expiresIn: number, threshold: number = 300): boolean {

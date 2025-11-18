@@ -18,7 +18,7 @@ import (
 
 // ContainerOptions 容器初始化选项
 type ContainerOptions struct {
-	AutoMigrate bool // 是否自动执行数据库迁移（仅开发环境推荐）
+	AutoMigrate bool // 是否自动执行数据库迁移 (仅开发环境推荐)
 }
 
 // DefaultOptions 返回默认选项
@@ -85,7 +85,7 @@ func NewContainer(cfg *config.Config, opts *ContainerOptions) (*Container, error
 	// 6. 初始化认证服务
 	authService := infraauth.NewService(userRepo, jwtManager)
 
-	// 7. 初始化路由（传入依赖）
+	// 7. 初始化路由 (传入依赖)
 	router := http.SetupRouter(cfg, db, redisClient, userRepo, jwtManager, authService)
 
 	return &Container{

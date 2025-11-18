@@ -14,7 +14,7 @@ type UserSeeder struct{}
 
 // Seed 执行用户种子数据填充
 func (s *UserSeeder) Seed(ctx context.Context, db *gorm.DB) error {
-	// 生成密码哈希（默认密码：password123）
+	// 生成密码哈希 (默认密码：password123)
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte("password123"), bcrypt.DefaultCost)
 	if err != nil {
 		return err

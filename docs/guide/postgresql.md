@@ -6,18 +6,18 @@
 
 - ✅ 数据库连接管理和连接池配置
 - ✅ 自动迁移支持
-- ✅ 用户领域模型（示例）
+- ✅ 用户领域模型 (示例)
 - ✅ 用户仓储接口和 GORM 实现
 - ✅ 完整的用户 CRUD API
 - ✅ 软删除支持
-- ✅ 健康检查（包含连接池统计）
+- ✅ 健康检查 (包含连接池统计)
 - ✅ bcrypt 密码加密
 
 ## 快速开始
 
 ### 1. 启动 PostgreSQL
 
-使用 Docker Compose（推荐）：
+使用 Docker Compose (推荐) ：
 
 ```bash
 docker-compose up -d postgres
@@ -122,13 +122,13 @@ type Repository interface {
     FindByUsername(ctx context.Context, username string) (*User, error)
     FindByEmail(ctx context.Context, email string) (*User, error)
 
-    // 列表查询（分页）
+    // 列表查询 (分页)
     List(ctx context.Context, page, pageSize int) (*PaginatedUsers, error)
 
     // 更新用户
     Update(ctx context.Context, user *User) error
 
-    // 删除用户（软删除）
+    // 删除用户 (软删除)
     Delete(ctx context.Context, id uint) error
 
     // 统计数量
@@ -176,7 +176,7 @@ curl http://localhost:8080/health
 }
 ```
 
-### 用户 CRUD（需要认证）
+### 用户 CRUD (需要认证)
 
 详细的 API 文档请参考 [用户接口文档](/api/users)。
 
@@ -193,7 +193,7 @@ curl -X POST http://localhost:8080/api/auth/register \
   }'
 ```
 
-**获取用户列表（分页）：**
+**获取用户列表 (分页) ：**
 
 ```bash
 curl "http://localhost:8080/api/users?page=1&page_size=10" \
@@ -219,7 +219,7 @@ curl -X PUT http://localhost:8080/api/users/1 \
   }'
 ```
 
-**删除用户（软删除）：**
+**删除用户 (软删除) ：**
 
 ```bash
 curl -X DELETE http://localhost:8080/api/users/1 \
@@ -264,7 +264,7 @@ fmt.Printf("Total: %d, Page: %d/%d\n",
 u.FullName = "李四丰"
 err = userRepo.Update(ctx, u)
 
-// 删除用户（软删除）
+// 删除用户 (软删除)
 err = userRepo.Delete(ctx, 1)
 
 // 统计数量
@@ -287,7 +287,7 @@ if err := migrator.AutoMigrate(); err != nil {
 
 **迁移规则：**
 
-- 自动创建表（如果不存在）
+- 自动创建表 (如果不存在)
 - 自动添加缺失的列
 - 自动添加索引和约束
 - 不会删除已存在的列
@@ -360,10 +360,10 @@ postgresql://[用户名]:[密码]@[主机]:[端口]/[数据库]?[参数]
 **示例：**
 
 ```bash
-# 本地开发（禁用 SSL）
+# 本地开发 (禁用 SSL)
 postgresql://postgres:postgres@localhost:5432/app?sslmode=disable
 
-# 生产环境（启用 SSL）
+# 生产环境 (启用 SSL)
 postgresql://user:pass@db.example.com:5432/prod_db?sslmode=require
 
 # 使用 Unix Socket

@@ -38,7 +38,7 @@ markdown: {
 
 ### 2. Mermaid Vue 组件 (`.vitepress/theme/components/Mermaid.vue`)
 
-- 读取 slot 中的 Mermaid 代码（已转义的 HTML 实体）
+- 读取 slot 中的 Mermaid 代码 (已转义的 HTML 实体)
 - 使用 `innerHTML` 自动解码 HTML 实体
 - 调用 `mermaid.render()` 渲染图表
 - 自动适配亮色/暗色主题
@@ -81,7 +81,7 @@ flowchart LR
 
 ## 特性
 
-- ✅ 自动主题切换（亮色/暗色）
+- ✅ 自动主题切换 (亮色/暗色)
 - ✅ 响应式设计
 - ✅ 标准 Markdown 语法
 - ✅ 无需第三方插件

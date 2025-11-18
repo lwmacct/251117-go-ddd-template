@@ -86,7 +86,7 @@ func (p *Processor) worker(ctx context.Context, workerID int) {
 
 // processOne 处理一个任务
 func (p *Processor) processOne(ctx context.Context, workerID int) {
-	// 从队列中取出任务（超时 5 秒）
+	// 从队列中取出任务 (超时 5 秒)
 	data, err := p.queue.Dequeue(ctx, 5*time.Second)
 	if err != nil {
 		slog.Error("Failed to dequeue job", "worker_id", workerID, "error", err)
@@ -110,7 +110,7 @@ func (p *Processor) processOne(ctx context.Context, workerID int) {
 	slog.Info("Job processed successfully", "worker_id", workerID)
 }
 
-// DefaultJobHandler 默认任务处理器（仅记录日志）
+// DefaultJobHandler 默认任务处理器 (仅记录日志)
 type DefaultJobHandler struct{}
 
 // Handle 处理任务

@@ -38,7 +38,7 @@ const renderDiagram = async () => {
       return;
     }
 
-    // 使用 textContent 获取纯文本（会自动解码 HTML 实体并保留换行符）
+    // 使用 textContent 获取纯文本 (会自动解码 HTML 实体并保留换行符)
     const code = preElement.textContent?.trim() || "";
 
     if (!code) {

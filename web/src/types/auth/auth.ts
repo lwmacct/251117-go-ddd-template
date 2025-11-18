@@ -3,13 +3,13 @@
  */
 import type { User } from "./user";
 
-/** 登录请求（基础） */
+/** 登录请求 (基础)  */
 export interface LoginRequest {
   login: string; // 用户名或邮箱
   password: string;
 }
 
-/** 登录请求（平台版，带验证码） */
+/** 登录请求 (平台版，带验证码)  */
 export interface PlatformLoginRequest {
   account: string; // 手机号/用户名/邮箱
   password: string;
@@ -17,7 +17,7 @@ export interface PlatformLoginRequest {
   captcha: string;
 }
 
-/** 注册请求（基础） */
+/** 注册请求 (基础)  */
 export interface RegisterRequest {
   username: string;
   email: string;
@@ -25,7 +25,7 @@ export interface RegisterRequest {
   full_name?: string;
 }
 
-/** 注册请求（平台版，带验证码） */
+/** 注册请求 (平台版，带验证码)  */
 export interface PlatformRegisterRequest {
   email: string;
   password: string;
@@ -48,7 +48,7 @@ export interface AuthResponse {
   user: User;
 }
 
-/** 登录结果（支持 2FA） */
+/** 登录结果 (支持 2FA)  */
 export interface LoginResult {
   success: boolean;
   message?: string;

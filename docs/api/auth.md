@@ -22,12 +22,12 @@ Content-Type: application/json
 
 ### 请求参数
 
-| 参数      | 类型   | 必填 | 描述                       |
-| --------- | ------ | ---- | -------------------------- |
-| username  | string | 是   | 用户名（唯一）             |
-| email     | string | 是   | 邮箱（唯一）               |
-| password  | string | 是   | 密码（明文，服务端会加密） |
-| full_name | string | 否   | 用户全名                   |
+| 参数      | 类型   | 必填 | 描述                      |
+| --------- | ------ | ---- | ------------------------- |
+| username  | string | 是   | 用户名 (唯一)             |
+| email     | string | 是   | 邮箱 (唯一)               |
+| password  | string | 是   | 密码 (明文，服务端会加密) |
+| full_name | string | 否   | 用户全名                  |
 
 ### 响应
 
@@ -178,7 +178,7 @@ Content-Type: application/json
 
 ## 获取当前用户信息
 
-获取已登录用户的信息（需要认证）。
+获取已登录用户的信息 (需要认证) 。
 
 ### 请求
 
@@ -313,7 +313,7 @@ const getCurrentUser = async (accessToken) => {
 
 1. **存储 Token**：
    - 前端：存储在 `localStorage` 或 `sessionStorage`
-   - 移动端：使用安全存储（Keychain/KeyStore）
+   - 移动端：使用安全存储 (Keychain/KeyStore)
 
 2. **Token 过期处理**：
    - 访问令牌过期时，使用刷新令牌自动获取新令牌

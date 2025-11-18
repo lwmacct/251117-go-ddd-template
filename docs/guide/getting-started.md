@@ -5,8 +5,8 @@
 ## 环境要求
 
 - Go 1.25.4 或更高版本
-- Docker 和 Docker Compose（用于运行 PostgreSQL 和 Redis）
-- Task（可选，用于任务自动化）
+- Docker 和 Docker Compose (用于运行 PostgreSQL 和 Redis)
+- Task (可选，用于任务自动化)
 
 ## 安装
 
@@ -27,12 +27,12 @@ docker-compose up -d
 
 这将启动：
 
-- PostgreSQL（端口 5432）
-- Redis（端口 6379）
+- PostgreSQL (端口 5432)
+- Redis (端口 6379)
 
 ### 3. 配置应用
 
-创建配置文件 `config.yaml`（可选）：
+创建配置文件 `config.yaml` (可选) ：
 
 ```yaml
 server:
@@ -64,7 +64,7 @@ export APP_JWT_SECRET="your-secret-key"
 
 ### 4. 数据库迁移
 
-执行数据库迁移（创建表结构）：
+执行数据库迁移 (创建表结构) ：
 
 ```bash
 # 构建应用
@@ -86,7 +86,7 @@ go run main.go migrate up
 go run main.go migrate status
 ```
 
-### 5. 填充种子数据（可选）
+### 5. 填充种子数据 (可选)
 
 填充示例用户数据：
 
@@ -94,7 +94,7 @@ go run main.go migrate status
 go run main.go seed
 ```
 
-这将创建以下用户（密码均为 `password123`）：
+这将创建以下用户 (密码均为 `password123`) ：
 
 - `admin` / `admin@example.com`
 - `testuser` / `test@example.com`
@@ -102,10 +102,10 @@ go run main.go seed
 
 ### 6. 运行应用
 
-使用 Task（推荐）：
+使用 Task (推荐) ：
 
 ```bash
-# 安装 Task（如果还没安装）
+# 安装 Task (如果还没安装)
 go install github.com/go-task/task/v3/cmd/task@latest
 
 # 构建并运行
@@ -128,7 +128,7 @@ task go:build
 # 安装 air
 go install github.com/air-verse/air@latest
 
-# 使用 air 运行（支持热重载）
+# 使用 air 运行 (支持热重载)
 air
 ```
 

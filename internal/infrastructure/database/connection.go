@@ -47,7 +47,7 @@ func NewConnection(ctx context.Context, cfg *Config) (*gorm.DB, error) {
 		NowFunc: func() time.Time {
 			return time.Now().UTC()
 		},
-		// 禁用外键约束（在应用层处理）
+		// 禁用外键约束 (在应用层处理)
 		DisableForeignKeyConstraintWhenMigrating: true,
 	})
 	if err != nil {

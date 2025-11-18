@@ -1,6 +1,6 @@
 # 项目架构
 
-本项目采用领域驱动设计（DDD）和整洁架构原则，确保代码的可维护性、可测试性和可扩展性。
+本项目采用领域驱动设计 (DDD) 和整洁架构原则，确保代码的可维护性、可测试性和可扩展性。
 
 ## 架构概览
 
@@ -8,17 +8,17 @@
 
 ```
 internal/
-├── commands/          # CLI 命令层（入口点）
-├── adapters/         # 适配器层（外部接口）
-├── domain/           # 领域层（核心业务逻辑）
-├── infrastructure/   # 基础设施层（技术实现）
-├── bootstrap/        # 引导层（依赖注入）
+├── commands/          # CLI 命令层 (入口点)
+├── adapters/         # 适配器层 (外部接口)
+├── domain/           # 领域层 (核心业务逻辑)
+├── infrastructure/   # 基础设施层 (技术实现)
+├── bootstrap/        # 引导层 (依赖注入)
 └── shared/          # 共享工具层
 ```
 
 ## 分层说明
 
-### 1. Commands 层（CLI 命令）
+### 1. Commands 层 (CLI 命令)
 
 位于 `internal/commands/`，负责定义应用的入口点。
 
@@ -27,7 +27,7 @@ commands/
 ├── api/              # API 服务器命令
 │   └── api.go        # 启动 HTTP 服务器
 ├── migrate/          # 数据库迁移命令
-│   └── migrate.go    # 迁移管理（up/status/fresh）
+│   └── migrate.go    # 迁移管理 (up/status/fresh)
 ├── seed/             # 数据库种子命令
 │   └── seed.go       # 种子数据填充
 └── worker/           # 后台任务处理器
@@ -48,7 +48,7 @@ commands/
 - `seed` - 填充种子数据
 - `worker` - 启动后台任务处理器
 
-### 2. Adapters 层（适配器）
+### 2. Adapters 层 (适配器)
 
 位于 `internal/adapters/`，负责处理外部通信。
 
@@ -71,9 +71,9 @@ adapters/
 - 接收和解析 HTTP 请求
 - 调用领域服务或仓储
 - 构造 HTTP 响应
-- 中间件处理（认证、日志等）
+- 中间件处理 (认证、日志等)
 
-### 3. Domain 层（领域）
+### 3. Domain 层 (领域)
 
 位于 `internal/domain/`，包含核心业务逻辑和规则。
 
@@ -86,18 +86,18 @@ domain/
 
 **职责：**
 
-- 定义领域模型（实体、值对象）
+- 定义领域模型 (实体、值对象)
 - 定义仓储接口
 - 实现业务规则和验证
 - 不依赖任何外部框架
 
 **特点：**
 
-- 用户模型包含业务逻辑（如密码加密）
+- 用户模型包含业务逻辑 (如密码加密)
 - DTO 用于数据传输
 - 仓储接口定义数据访问契约
 
-### 4. Infrastructure 层（基础设施）
+### 4. Infrastructure 层 (基础设施)
 
 位于 `internal/infrastructure/`，提供技术实现。
 
@@ -133,7 +133,7 @@ infrastructure/
 - 实现认证授权机制
 - 提供队列和后台任务处理
 
-### 5. Bootstrap 层（引导）
+### 5. Bootstrap 层 (引导)
 
 位于 `internal/bootstrap/`，负责依赖注入和初始化。
 
@@ -152,13 +152,13 @@ bootstrap/
 
 **Container 包含：**
 
-- Config（配置）
-- DB（数据库连接）
-- RedisClient（Redis 客户端）
-- UserRepository（用户仓储）
-- JWTManager（JWT 管理器）
-- AuthService（认证服务）
-- Router（HTTP 路由器）
+- Config (配置)
+- DB (数据库连接)
+- RedisClient (Redis 客户端)
+- UserRepository (用户仓储)
+- JWTManager (JWT 管理器)
+- AuthService (认证服务)
+- Router (HTTP 路由器)
 
 **ContainerOptions：**
 
@@ -168,11 +168,11 @@ type ContainerOptions struct {
 }
 ```
 
-- 默认不自动迁移（生产环境安全）
-- 可通过配置 `data.auto_migrate` 开启（开发环境便利）
+- 默认不自动迁移 (生产环境安全)
+- 可通过配置 `data.auto_migrate` 开启 (开发环境便利)
 - 通过 `GetAllModels()` 获取所有需要迁移的模型
 
-### 6. Shared 层（共享）
+### 6. Shared 层 (共享)
 
 位于 `internal/shared/`，提供通用工具。
 
@@ -197,11 +197,11 @@ HTTP 请求
     ↓
 [Router] 路由匹配
     ↓
-[Middleware] JWT 验证（如需要）
+[Middleware] JWT 验证 (如需要)
     ↓
 [Handler] 解析请求
     ↓
-[Domain Service] 业务逻辑（可选）
+[Domain Service] 业务逻辑 (可选)
     ↓
 [Repository] 数据访问
     ↓
@@ -229,7 +229,7 @@ Commands → Bootstrap → Infrastructure → Domain
 
 ## 设计模式
 
-### 1. 仓储模式（Repository Pattern）
+### 1. 仓储模式 (Repository Pattern)
 
 **定义：**在 `internal/domain/user/repository.go`
 
@@ -246,10 +246,10 @@ type Repository interface {
 **优点：**
 
 - 解耦业务逻辑和数据访问
-- 易于测试（可 Mock）
+- 易于测试 (可 Mock)
 - 可以轻松切换数据源
 
-### 2. 依赖注入（Dependency Injection）
+### 2. 依赖注入 (Dependency Injection)
 
 使用 `bootstrap.Container` 集中管理依赖：
 
@@ -271,7 +271,7 @@ type Container struct {
 - 易于测试
 - 便于管理生命周期
 
-### 3. 适配器模式（Adapter Pattern）
+### 3. 适配器模式 (Adapter Pattern)
 
 HTTP 层作为适配器，将外部请求转换为领域操作：
 
@@ -305,7 +305,7 @@ func (h *AuthHandler) Register(c *gin.Context) {
 
 ### 添加新的外部接口
 
-1. 在 `internal/adapters/` 创建新的适配器（如 gRPC、GraphQL）
+1. 在 `internal/adapters/` 创建新的适配器 (如 gRPC、GraphQL)
 2. 复用 Domain 层和 Infrastructure 层
 3. 在 `internal/commands/` 添加新的命令
 

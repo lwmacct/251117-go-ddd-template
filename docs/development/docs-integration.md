@@ -6,7 +6,7 @@ Go API 服务器现在可以同时提供 VitePress 构建的文档服务，通�
 
 - **REST API** - `/api/*` 路由
 - **在线文档** - `/docs` 路由
-- **静态文件** - `/` 其他路由（可选）
+- **静态文件** - `/` 其他路由 (可选)
 
 ## 实现方式
 
@@ -30,7 +30,7 @@ type ServerConfig struct {
 在 `internal/adapters/http/router.go:70-106` 添加了文档服务路由：
 
 ```go
-// 提供 VitePress 文档服务（通过 /docs 路由访问）
+// 提供 VitePress 文档服务 (通过 /docs 路由访问)
 if cfg.Server.DocsDir != "" {
     docsGroup := r.Group("/docs")
     docsGroup.Use(func(c *gin.Context) {
@@ -49,7 +49,7 @@ if cfg.Server.DocsDir != "" {
             return
         }
 
-        // 如果路径不存在，尝试添加 .html 扩展名（VitePress 清洁 URL）
+        // 如果路径不存在，尝试添加 .html 扩展名 (VitePress 清洁 URL)
         if !strings.HasSuffix(path, ".html") && !strings.Contains(path, ".") {
             htmlPath := filepath.Join(cfg.Server.DocsDir, path+".html")
             if _, err := os.Stat(htmlPath); err == nil {
@@ -58,7 +58,7 @@ if cfg.Server.DocsDir != "" {
             }
         }
 
-        // 文件不存在，返回 index.html（用于 SPA 路由）
+        // 文件不存在，返回 index.html (用于 SPA 路由)
         indexPath := filepath.Join(cfg.Server.DocsDir, "index.html")
         if _, err := os.Stat(indexPath); err == nil {
             c.File(indexPath)
@@ -125,7 +125,7 @@ http://localhost:8080/
 │   ├── /docs/guide/           # 指南
 │   ├── /docs/api/             # API 文档
 │   └── /docs/assets/          # 静态资源
-└── /*                         # 其他静态文件（如果配置了 StaticDir）
+└── /*                         # 其他静态文件 (如果配置了 StaticDir)
 ```
 
 ## 配置选项
@@ -138,7 +138,7 @@ http://localhost:8080/
 # 使用自定义文档目录
 APP_SERVER_DOCS_DIR=/path/to/docs .local/bin/go-ddd-template api
 
-# 禁用文档服务（留空）
+# 禁用文档服务 (留空)
 APP_SERVER_DOCS_DIR="" .local/bin/go-ddd-template api
 ```
 
@@ -158,7 +158,7 @@ server:
 
 ### 开发环境
 
-开发时推荐使用 VitePress 自带的开发服务器（支持热更新）：
+开发时推荐使用 VitePress 自带的开发服务器 (支持热更新) ：
 
 ```bash
 # 终端 1: 启动 VitePress 开发服务器
@@ -181,7 +181,7 @@ npm run docs:build
 # 2. 构建 Go 应用
 task go:build
 
-# 3. 启动服务（包含 API + 文档）
+# 3. 启动服务 (包含 API + 文档)
 .local/bin/go-ddd-template api
 ```
 
@@ -202,8 +202,8 @@ task go:build
 ### 性能优化
 
 - 文件直接由 Gin 的 `c.File()` 方法提供，避免额外的内存拷贝
-- 支持浏览器缓存（HTTP 标准头）
-- 静态文件不经过任何中间件处理（除了 CORS）
+- 支持浏览器缓存 (HTTP 标准头)
+- 静态文件不经过任何中间件处理 (除了 CORS)
 
 ## 故障排除
 
@@ -277,8 +277,8 @@ curl http://localhost:8080/docs/
 
 ## 后续改进
 
-- [ ] 添加文档访问权限控制（JWT 认证）
+- [ ] 添加文档访问权限控制 (JWT 认证)
 - [ ] 支持多版本文档
 - [ ] 添加文档搜索 API
-- [ ] 集成 API 文档自动生成（Swagger/OpenAPI）
+- [ ] 集成 API 文档自动生成 (Swagger/OpenAPI)
 - [ ] 添加文档缓存策略

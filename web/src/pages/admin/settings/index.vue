@@ -104,7 +104,7 @@ const saveSettings = () => {
               <v-tabs-window-item value="security">
                 <v-alert type="info" variant="tonal" class="mb-4"> 配置系统安全相关参数 </v-alert>
                 <v-form>
-                  <v-text-field label="会话超时时间（分钟）" type="number" variant="outlined" class="mb-4"></v-text-field>
+                  <v-text-field label="会话超时时间 (分钟) " type="number" variant="outlined" class="mb-4"></v-text-field>
                   <v-text-field label="密码最小长度" type="number" variant="outlined" class="mb-4"></v-text-field>
                   <v-switch label="启用两步验证" color="primary" class="mb-4"></v-switch>
                 </v-form>
@@ -119,7 +119,7 @@ const saveSettings = () => {
               <!-- 备份设置 -->
               <v-tabs-window-item value="backup">
                 <v-switch v-model="settings.enableBackup" label="启用自动备份" color="primary" class="mb-4"></v-switch>
-                <v-text-field label="备份频率（小时）" type="number" variant="outlined" :disabled="!settings.enableBackup"></v-text-field>
+                <v-text-field label="备份频率 (小时) " type="number" variant="outlined" :disabled="!settings.enableBackup"></v-text-field>
               </v-tabs-window-item>
             </v-tabs-window>
           </v-card-text>

@@ -24,7 +24,7 @@ var Command = &cli.Command{
    启动 HTTP API 服务器，提供 RESTful API 接口。
    服务器支持优雅关闭，会等待正在处理的请求完成后再退出。
 
-   配置优先级（从低到高）：
+   配置优先级 (从低到高) ：
    1. 默认值
    2. 配置文件 (config.yaml)
    3. 环境变量 (APP_SERVER_ADDR)
@@ -47,7 +47,7 @@ var Command = &cli.Command{
 
 // runAPIServer 执行 API 服务器启动逻辑
 func runAPIServer(ctx context.Context, cmd *cli.Command) error {
-	// 加载配置（优先级：默认值 -> 配置文件 -> 环境变量）
+	// 加载配置 (优先级：默认值 -> 配置文件 -> 环境变量)
 	cfg, err := config.LoadWithDefaults()
 	if err != nil {
 		slog.Error("Failed to load config", "error", err)
@@ -64,7 +64,7 @@ func runAPIServer(ctx context.Context, cmd *cli.Command) error {
 		cfg.Server.StaticDir = cmd.String("static")
 	}
 
-	// 初始化容器（依赖注入）
+	// 初始化容器 (依赖注入)
 	opts := &bootstrap.ContainerOptions{
 		AutoMigrate: cfg.Data.AutoMigrate, // 从配置读取是否自动迁移
 	}
@@ -88,7 +88,7 @@ func runAPIServer(ctx context.Context, cmd *cli.Command) error {
 	// 创建并启动 HTTP 服务器
 	server := httpserver.NewServer(container.Router, cfg.Server.Addr)
 
-	// 启动服务器（在goroutine中）
+	// 启动服务器 (在goroutine中)
 	go func() {
 		slog.Info("Starting API server", "address", cfg.Server.Addr)
 		if err := server.Start(); err != nil && err != http.ErrServerClosed {

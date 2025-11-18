@@ -24,7 +24,7 @@ npm install
 #### 3. 本地运行文档
 
 ```bash
-# 启动开发服务器（支持热重载）
+# 启动开发服务器 (支持热重载)
 npm run docs:dev
 ```
 
@@ -187,10 +187,10 @@ git push origin docs/update-guide
 
 #### 标题层级
 
-- 一级标题（`#`）：页面标题，每页只有一个
-- 二级标题（`##`）：主要章节
-- 三级标题（`###`）：子章节
-- 四级标题（`####`）：细节说明
+- 一级标题 (`#`) ：页面标题，每页只有一个
+- 二级标题 (`##`) ：主要章节
+- 三级标题 (`###`) ：子章节
+- 四级标题 (`####`) ：细节说明
 
 #### 代码示例
 
@@ -199,12 +199,12 @@ git push origin docs/update-guide
 - 保持代码简洁易懂
 
 ```bash
-# ✅ 好的示例（有注释，清晰）
+# ✅ 好的示例 (有注释，清晰)
 docker-compose up -d  # 启动服务
 ```
 
 ```bash
-# ❌ 不好的示例（无注释，冗长）
+# ❌ 不好的示例 (无注释，冗长)
 docker-compose -f docker-compose.yml up --detach
 ```
 
@@ -224,7 +224,7 @@ docker-compose -f docker-compose.yml up --detach
 
 - Go 1.25.4+
 - Docker & Docker Compose
-- Task（可选）
+- Task (可选)
 
 #### 设置开发环境
 
@@ -269,12 +269,12 @@ golangci-lint run
 <footer>
 ```
 
-**类型（type）**：
+**类型 (type) **：
 
 - `feat`: 新功能
 - `fix`: 修复 bug
 - `docs`: 文档更新
-- `style`: 代码格式（不影响功能）
+- `style`: 代码格式 (不影响功能)
 - `refactor`: 重构
 - `test`: 测试
 - `chore`: 构建/工具配置
@@ -342,7 +342,7 @@ go test -v ./...
 - 复现步骤
 - 预期行为
 - 实际行为
-- 环境信息（Go 版本、操作系统等）
+- 环境信息 (Go 版本、操作系统等)
 
 ### 功能建议
 

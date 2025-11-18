@@ -104,7 +104,7 @@ const toggleView = () => {
           <v-form>
             <v-text-field label="菜单名称" variant="outlined" class="mb-4"></v-text-field>
             <v-text-field label="路径" variant="outlined" class="mb-4"></v-text-field>
-            <v-text-field label="图标（MDI）" placeholder="mdi-home" variant="outlined" class="mb-4"></v-text-field>
+            <v-text-field label="图标 (MDI) " placeholder="mdi-home" variant="outlined" class="mb-4"></v-text-field>
             <v-select label="父级菜单" :items="['无', '系统管理', '用户中心']" variant="outlined" class="mb-4"></v-select>
             <v-text-field label="排序" type="number" variant="outlined" class="mb-4"></v-text-field>
             <v-switch label="是否可见" color="primary"></v-switch>

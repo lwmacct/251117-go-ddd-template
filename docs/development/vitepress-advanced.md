@@ -74,7 +74,7 @@ description="获取用户详情"
 <ApiEndpoint
 method="DELETE"
 path="/api/users/:id"
-description="删除用户（此接口已废弃）"
+description="删除用户 (此接口已废弃) "
 deprecated
 
 >
@@ -183,9 +183,9 @@ const setupSteps = [
 
 - `method`: HTTP 方法 (`GET` | `POST` | `PUT` | `PATCH` | `DELETE`)
 - `path`: API 路径
-- `description`: 描述（可选）
-- `version`: 版本标记（可选）
-- `deprecated`: 是否废弃（可选）
+- `description`: 描述 (可选)
+- `version`: 版本标记 (可选)
+- `deprecated`: 是否废弃 (可选)
 
 ### FeatureCard 组件
 
@@ -198,9 +198,9 @@ const setupSteps = [
 **Props**:
 
 - `title`: 功能标题
-- `description`: 功能描述（可选）
-- `icon`: Emoji 图标（可选）
-- `highlighted`: 是否高亮（可选）
+- `description`: 功能描述 (可选)
+- `icon`: Emoji 图标 (可选)
+- `highlighted`: 是否高亮 (可选)
 
 ### StepsGuide 组件
 

@@ -15,7 +15,7 @@ const showTwoFactor = ref(false);
 const handleLoginSuccess = async () => {
   console.log("🎉 登录成功，正在跳转...");
 
-  // 获取重定向目标（从 query 参数）
+  // 获取重定向目标 (从 query 参数)
   const redirectTo = (router.currentRoute.value.query.redirect as string) || null;
 
   if (redirectTo && redirectTo !== "/auth/login" && redirectTo !== "/auth/register") {

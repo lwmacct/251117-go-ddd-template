@@ -4,15 +4,15 @@ import { useTheme } from "vuetify";
 
 const theme = useTheme();
 
-/** 获取当前主题名称（最可靠的状态源） */
+/** 获取当前主题名称 (最可靠的状态源)  */
 const currentThemeName = computed(() => theme.global.name.value);
 
-/** 判断是否为暗色主题（基于主题名称） */
+/** 判断是否为暗色主题 (基于主题名称)  */
 const isDark = computed(() => currentThemeName.value === "dark");
 
 /** 主题切换函数 - 使用 Vuetify 3.9+ 新 API */
 const toggleTheme = () => {
-  // 基于当前主题名称直接切换（避免依赖 current.value.dark 的延迟更新）
+  // 基于当前主题名称直接切换 (避免依赖 current.value.dark 的延迟更新)
   const newTheme = currentThemeName.value === "dark" ? "light" : "dark";
 
   // 使用 Vuetify 3.9+ 推荐的 change API

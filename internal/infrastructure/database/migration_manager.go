@@ -75,7 +75,7 @@ func (m *MigrationManager) Status() ([]Migration, error) {
 	return migrations, nil
 }
 
-// Fresh 删除所有表并重新迁移（危险！仅开发环境使用）
+// Fresh 删除所有表并重新迁移 (危险！仅开发环境使用)
 func (m *MigrationManager) Fresh() error {
 	migrator := m.db.Migrator()
 

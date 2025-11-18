@@ -5,19 +5,19 @@
 ## 功能特性
 
 - ✅ Redis 客户端初始化和连接管理
-- ✅ 缓存仓储接口（CacheRepository）
+- ✅ 缓存仓储接口 (CacheRepository)
 - ✅ 自动 JSON 序列化/反序列化
 - ✅ 支持 TTL 过期时间
-- ✅ 分布式锁（SetNX）
+- ✅ 分布式锁 (SetNX)
 - ✅ 健康检查端点
-- ✅ RESTful API 示例（缓存 CRUD 操作）
+- ✅ RESTful API 示例 (缓存 CRUD 操作)
 - ✅ 优雅关闭
 
 ## 快速开始
 
 ### 1. 启动 Redis 服务
 
-使用 Docker Compose（推荐）：
+使用 Docker Compose (推荐) ：
 
 ```bash
 docker-compose up -d redis
@@ -108,7 +108,7 @@ type CacheRepository interface {
     // Exists 检查键是否存在
     Exists(ctx context.Context, key string) (bool, error)
 
-    // SetNX 仅当键不存在时设置值（用于分布式锁）
+    // SetNX 仅当键不存在时设置值 (用于分布式锁)
     SetNX(ctx context.Context, key string, value interface{}, expiration time.Duration) (bool, error)
 }
 ```
@@ -246,7 +246,7 @@ if locked {
 
 ### 缓存更新模式
 
-#### 1. Cache-Aside（旁路缓存）
+#### 1. Cache-Aside (旁路缓存)
 
 ```go
 func GetUser(ctx context.Context, userID uint) (*User, error) {
@@ -278,7 +278,7 @@ func UpdateUser(ctx context.Context, user *User) error {
         return err
     }
 
-    // 2. 删除缓存（下次查询时重新加载）
+    // 2. 删除缓存 (下次查询时重新加载)
     cacheKey := fmt.Sprintf("user:%d", user.ID)
     cacheRepo.Delete(ctx, cacheKey)
 
@@ -286,7 +286,7 @@ func UpdateUser(ctx context.Context, user *User) error {
 }
 ```
 
-#### 2. Write-Through（写穿）
+#### 2. Write-Through (写穿)
 
 ```go
 func UpdateUser(ctx context.Context, user *User) error {
@@ -322,7 +322,7 @@ err := cacheRepo.Set(ctx, "session:"+sessionID, session, 24*time.Hour)
 var session map[string]interface{}
 err = cacheRepo.Get(ctx, "session:"+sessionID, &session)
 
-// 删除会话（登出）
+// 删除会话 (登出)
 err = cacheRepo.Delete(ctx, "session:"+sessionID)
 ```
 
@@ -417,7 +417,7 @@ func GetUserWithJitter(ctx context.Context, userID uint) (*User, error) {
 }
 ```
 
-### 5. 排行榜（Sorted Set）
+### 5. 排行榜 (Sorted Set)
 
 虽然 CacheRepository 不直接支持 Sorted Set，但可以直接使用 Redis 客户端：
 
@@ -439,7 +439,7 @@ top10, _ := redisClient.ZRevRangeWithScores(ctx, "leaderboard", 0, 9).Result()
 
 ## 性能优化
 
-### 1. Pipeline（批量操作）
+### 1. Pipeline (批量操作)
 
 ```go
 // 使用 Pipeline 批量执行命令
@@ -509,7 +509,7 @@ redis-cli MONITOR
 # 检查键的 TTL
 redis-cli TTL key_name
 
-# 查看所有键（小心，生产环境慎用）
+# 查看所有键 (小心，生产环境慎用)
 redis-cli KEYS *
 
 # 更好的方式：使用 SCAN
@@ -519,9 +519,9 @@ redis-cli SCAN 0 MATCH user:* COUNT 100
 ## 最佳实践
 
 1. **合理设置 TTL**
-   - 热点数据：较长 TTL（如 1 小时）
-   - 一般数据：中等 TTL（如 10 分钟）
-   - 冷数据：较短 TTL（如 1 分钟）
+   - 热点数据：较长 TTL (如 1 小时)
+   - 一般数据：中等 TTL (如 10 分钟)
+   - 冷数据：较短 TTL (如 1 分钟)
 
 2. **键命名规范**
    - 使用冒号分隔：`user:123`、`session:abc`
@@ -531,7 +531,7 @@ redis-cli SCAN 0 MATCH user:* COUNT 100
 3. **避免大 Value**
    - 单个值不超过 10MB
    - 大对象拆分存储
-   - 使用压缩（如 JSON → MessagePack）
+   - 使用压缩 (如 JSON → MessagePack)
 
 4. **监控和告警**
    - 监控内存使用率
@@ -622,7 +622,7 @@ result, err := script.Run(ctx, redisClient, []string{"balance:user:1"}, 100).Res
 
 5. **内存管理**
    - 设置 maxmemory 限制
-   - 配置淘汰策略（如 allkeys-lru）
+   - 配置淘汰策略 (如 allkeys-lru)
 
 ## 下一步
 

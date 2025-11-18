@@ -11,19 +11,19 @@ export interface MenuItem {
    */
   path: string;
   /**
-   * 图标（MDI 图标名称）
+   * 图标 (MDI 图标名称)
    */
   icon?: string;
   /**
-   * 是否精确匹配路由（默认 false，使用 startsWith）
+   * 是否精确匹配路由 (默认 false，使用 startsWith)
    */
   exact?: boolean;
   /**
-   * 徽章内容（可选）
+   * 徽章内容 (可选)
    */
   badge?: string | number;
   /**
-   * 徽章颜色（可选）
+   * 徽章颜色 (可选)
    */
   badgeColor?: string;
   /**

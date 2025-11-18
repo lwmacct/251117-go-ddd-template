@@ -26,10 +26,10 @@ const isCodeValid = computed(() => {
   return twoFactorCode.value.length >= 6;
 });
 
-// 监听验证码输入，自动提交（如果长度足够）
+// 监听验证码输入，自动提交 (如果长度足够)
 watch(twoFactorCode, (newVal) => {
   if (newVal.length === 6) {
-    // 自动验证TOTP码（如果是6位数字）
+    // 自动验证TOTP码 (如果是6位数字)
     const totpPattern = /^\d{6}$/;
     if (totpPattern.test(newVal)) {
       handleVerify();
@@ -96,8 +96,8 @@ function goBack() {
         <v-alert type="info" variant="tonal" density="compact" class="mb-6">
           <div class="text-body-2">
             <div class="font-weight-bold mb-2">请输入您的双因素认证验证码：</div>
-            <div>• 6位数字验证码（TOTP）</div>
-            <div>• 或使用恢复码（Recovery Code）</div>
+            <div>• 6位数字验证码 (TOTP)</div>
+            <div>• 或使用恢复码 (Recovery Code)</div>
           </div>
         </v-alert>
 

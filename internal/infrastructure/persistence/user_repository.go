@@ -63,7 +63,7 @@ func (r *userRepository) GetByEmail(ctx context.Context, email string) (*user.Us
 	return &u, nil
 }
 
-// List 获取用户列表（分页）
+// List 获取用户列表 (分页)
 func (r *userRepository) List(ctx context.Context, offset, limit int) ([]*user.User, error) {
 	var users []*user.User
 	query := r.db.WithContext(ctx).Offset(offset).Limit(limit)
@@ -83,7 +83,7 @@ func (r *userRepository) Update(ctx context.Context, u *user.User) error {
 	return nil
 }
 
-// Delete 删除用户（软删除）
+// Delete 删除用户 (软删除)
 func (r *userRepository) Delete(ctx context.Context, id uint) error {
 	if err := r.db.WithContext(ctx).Delete(&user.User{}, id).Error; err != nil {
 		return fmt.Errorf("failed to delete user: %w", err)

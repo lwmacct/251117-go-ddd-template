@@ -2,10 +2,10 @@
  * Login 页面状态管理 Composable
  *
  * 管理登录表单状态，包括：
- * - 登录表单数据（账号、密码、验证码）
+ * - 登录表单数据 (账号、密码、验证码)
  * - 验证码获取和显示
  * - 错误消息管理
- * - Session token（用于2FA验证流程）
+ * - Session token (用于2FA验证流程)
  */
 
 import { ref, computed } from "vue";
@@ -17,7 +17,7 @@ import type { LoginResult } from "@/types";
 /**
  * Login 页面状态管理 Composable
  *
- * 管理登录表单状态（支持手机号/用户名/邮箱登录）
+ * 管理登录表单状态 (支持手机号/用户名/邮箱登录)
  */
 export function useLogin() {
   const authStore = useAuthStore();
@@ -30,7 +30,7 @@ export function useLogin() {
   const captchaData = ref<CaptchaData | null>(null);
   const captchaCode = ref("");
   const loadingCaptcha = ref(false);
-  const sessionToken = ref<string>(""); // 临时会话token（用于2FA验证）
+  const sessionToken = ref<string>(""); // 临时会话token (用于2FA验证)
 
   // 错误提示自动消失定时器
   let errorTimer: ReturnType<typeof setTimeout> | null = null;
@@ -42,13 +42,13 @@ export function useLogin() {
 
   const isLoading = computed(() => authStore.isLoading);
 
-  // 验证码图片（用于模板，避免类型错误）
+  // 验证码图片 (用于模板，避免类型错误)
   const captchaImage = computed(() => captchaData.value?.image || "");
 
   // === 方法 ===
 
   /**
-   * 显示错误消息（5秒后自动消失）
+   * 显示错误消息 (5秒后自动消失)
    */
   const showErrorMessage = (message: string, duration = 5000) => {
     // 清除之前的定时器

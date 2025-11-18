@@ -57,7 +57,7 @@ APP_JWT_SECRET="secret" go run main.go api --addr :9000
 服务器支持优雅关闭。接收到 `SIGINT` 或 `SIGTERM` 信号时：
 
 1. 停止接受新请求
-2. 等待现有请求处理完成（最多 30 秒）
+2. 等待现有请求处理完成 (最多 30 秒)
 3. 关闭数据库和 Redis 连接
 4. 退出进程
 
@@ -130,7 +130,7 @@ Are you sure you want to continue? (yes/no):
 
 输入 `yes` 确认执行。
 
-**跳过确认（生产环境需要 --force）：**
+**跳过确认 (生产环境需要 --force) ：**
 
 ```bash
 # 开发环境可以直接强制执行
@@ -176,7 +176,7 @@ go run main.go seed
 ### 功能
 
 - 填充示例用户数据
-- 自动跳过已存在的记录（幂等性）
+- 自动跳过已存在的记录 (幂等性)
 - 使用 bcrypt 加密密码
 
 ### 默认用户
@@ -375,7 +375,7 @@ go run main.go seed
 go run main.go api
 ```
 
-### 开发环境（自动迁移）
+### 开发环境 (自动迁移)
 
 如果希望在开发环境自动执行迁移，可以在配置中启用：
 
@@ -394,13 +394,13 @@ APP_DATA_AUTO_MIGRATE=true go run main.go api
 ### 生产部署流程
 
 ```bash
-# 1. 执行迁移（生产环境应该独立执行，不要自动迁移）
+# 1. 执行迁移 (生产环境应该独立执行，不要自动迁移)
 ./app migrate up
 
 # 2. 启动 API 服务器
 ./app api
 
-# 3. 启动 Worker（如果需要）
+# 3. 启动 Worker (如果需要)
 ./app worker --queue jobs --concurrency 20
 ```
 
@@ -423,7 +423,7 @@ APP_DATA_AUTO_MIGRATE=true go run main.go api
 **解决**：
 
 - GORM 的 AutoMigrate 是安全的，会自动更新表结构而不是覆盖
-- 如需重置，使用 `migrate fresh`（仅开发环境）
+- 如需重置，使用 `migrate fresh` (仅开发环境)
 
 ### Worker 无法启动
 

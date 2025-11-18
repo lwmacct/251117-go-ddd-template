@@ -47,7 +47,7 @@
 
 Go API 服务器如何集成 VitePress 文档：
 
-- 路由配置（`/docs/*`）
+- 路由配置 (`/docs/*`)
 - 清洁 URL 支持
 - SPA 路由回退
 - 性能优化建议
@@ -66,8 +66,8 @@ Go API 服务器如何集成 VitePress 文档：
 VitePress 中使用 Mermaid 图表的完整说明：
 
 - 技术方案：markdown-it + Vue 组件
-- 支持 10+ 种图表类型（流程图、时序图、类图等）
-- 自动主题切换（亮色/暗色）
+- 支持 10+ 种图表类型 (流程图、时序图、类图等)
+- 自动主题切换 (亮色/暗色)
 - 标准 Markdown 代码块语法
 
 ### 功能展示
@@ -84,8 +84,8 @@ VitePress 2.0 原生功能完整示例：
 VitePress 高级功能和自定义组件：
 
 - Medium Zoom 图片缩放
-- 自定义 Vue 组件（ApiEndpoint、FeatureCard、StepsGuide）
-- 主题自定义（品牌颜色、UI 增强）
+- 自定义 Vue 组件 (ApiEndpoint、FeatureCard、StepsGuide)
+- 主题自定义 (品牌颜色、UI 增强)
 - 实用组件库，可直接在文档中使用
 
 ## 相关链接

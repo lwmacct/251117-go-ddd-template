@@ -13,7 +13,7 @@ interface Props {
    */
   width?: number | string;
   /**
-   * Rail 模式宽度（折叠后宽度）
+   * Rail 模式宽度 (折叠后宽度)
    */
   railWidth?: number;
   /**
@@ -95,7 +95,7 @@ const activeItem = computed(() => {
       </v-list-item>
     </v-list>
 
-    <!-- 折叠/展开按钮（底部） -->
+    <!-- 折叠/展开按钮 (底部)  -->
     <template #append>
       <div class="pa-2">
         <v-btn :icon="rail ? 'mdi-chevron-right' : 'mdi-chevron-left'" variant="text" block @click="toggleRail" />

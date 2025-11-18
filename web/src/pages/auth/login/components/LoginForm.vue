@@ -16,7 +16,7 @@ const emit = defineEmits<{
 const handleLogin = async () => {
   const result = await loginStore.login();
 
-  // 检查是否需要2FA验证（优先检查，无论success状态）
+  // 检查是否需要2FA验证 (优先检查，无论success状态)
   if (result.requiresTwoFactor) {
     emit("requiresTwoFactor");
     return;

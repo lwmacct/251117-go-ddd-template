@@ -46,9 +46,9 @@ description: 当修改 internal/infrastructure/config/config.go 中的 Config �
 **配置内容：**
 
 - 按结构体层级组织为 YAML 嵌套结构
-- 每个配置段添加分组注释（如：`# 服务器配置`）
+- 每个配置段添加分组注释 (如：`# 服务器配置`)
 - 每个字段添加行内注释说明用途、可选值等
-- 敏感字段（password、secret 等）添加环境变量建议
+- 敏感字段 (password、secret 等) 添加环境变量建议
 - 使用 2 空格缩进，保持格式整洁
 
 ### 4. 处理特殊类型
@@ -66,12 +66,12 @@ description: 当修改 internal/infrastructure/config/config.go 中的 Config �
 
 **敏感字段处理：**
 
-- 密码类字段（password）：值为空字符串，添加环境变量建议
-- 密钥类字段（secret、key）：使用占位符值，添加安全警告
+- 密码类字段 (password) ：值为空字符串，添加环境变量建议
+- 密钥类字段 (secret、key) ：使用占位符值，添加安全警告
 
 ### 5. 写入文件
 
-- 完全重写 `configs/config.example.yaml`（不保留原有内容）
+- 完全重写 `configs/config.example.yaml` (不保留原有内容)
 - 确保 YAML 语法正确
 - 文件使用 UTF-8 编码
 - 文件末尾保留空行
@@ -107,19 +107,19 @@ server:
 
 ### 类型转换
 
-| Go 类型         | YAML 格式            | 示例             |
-| --------------- | -------------------- | ---------------- |
-| `string`        | 字符串（建议加引号） | `"localhost"`    |
-| `int`/`int64`   | 整数                 | `5432`           |
-| `time.Duration` | 时间字符串           | `"15m"`, `"24h"` |
-| `bool`          | 布尔值               | `true`, `false`  |
+| Go 类型         | YAML 格式           | 示例             |
+| --------------- | ------------------- | ---------------- |
+| `string`        | 字符串 (建议加引号) | `"localhost"`    |
+| `int`/`int64`   | 整数                | `5432`           |
+| `time.Duration` | 时间字符串          | `"15m"`, `"24h"` |
+| `bool`          | 布尔值              | `true`, `false`  |
 
 ## 注释生成规范
 
 ### 1. 文件头注释
 
-- 说明文件用途（示例配置）
-- 说明如何使用（复制为 config.yaml）
+- 说明文件用途 (示例配置)
+- 说明如何使用 (复制为 config.yaml)
 - 说明与代码的同步关系
 - 说明环境变量覆盖机制
 
@@ -136,8 +136,8 @@ section_name:
 ### 3. 字段注释
 
 - 优先使用 Go 代码中的字段注释
-- 对于枚举值，列出所有可选项（如：`development | production`）
-- 对于格式要求，说明格式（如：`格式: host:port`）
+- 对于枚举值，列出所有可选项 (如：`development | production`)
+- 对于格式要求，说明格式 (如：`格式: host:port`)
 - 对于默认值，解释其含义
 
 ### 4. 安全提示
@@ -153,7 +153,7 @@ secret: "change-me-in-production" # 生产环境务必修改!
 
 生成文件后，自动验证以下内容：
 
-- [ ] YAML 语法正确（可解析）
+- [ ] YAML 语法正确 (可解析)
 - [ ] 所有 defaultConfig() 中的字段都已包含
 - [ ] Duration 类型正确转换为字符串格式
 - [ ] 敏感字段有安全提示注释
@@ -174,7 +174,7 @@ secret: "change-me-in-production" # 生产环境务必修改!
 1. 读取 `internal/infrastructure/config/config.go`
 2. 解析 `defaultConfig()` 函数和相关结构体
 3. 提取所有默认值和字段信息
-4. 转换特殊类型（Duration、敏感字段等）
+4. 转换特殊类型 (Duration、敏感字段等)
 5. 生成完整的 YAML 内容
 6. 写入 `configs/config.example.yaml`
 7. 报告完成情况
@@ -205,4 +205,4 @@ secret: "change-me-in-production" # 生产环境务必修改!
 - **代码优先**：以 Go 代码中的 defaultConfig() 为唯一数据源
 - **仅作示例**：生成的文件仅供参考，不包含敏感信息的实际值
 - **需要审查**：建议同步后检查生成的文件，确认注释和格式符合预期
-- **环境变量**：确保文件头注释中正确说明环境变量前缀（通常为 `APP_`）
+- **环境变量**：确保文件头注释中正确说明环境变量前缀 (通常为 `APP_`)

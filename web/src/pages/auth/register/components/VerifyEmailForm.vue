@@ -1,7 +1,7 @@
 <script setup lang="ts">
 /**
  * VerifyEmailForm 子组件
- * 邮箱验证表单，支持从 URL 参数初始化（用于独立访问场景）
+ * 邮箱验证表单，支持从 URL 参数初始化 (用于独立访问场景)
  */
 
 import { ref, computed, watch, onMounted } from "vue";
@@ -31,12 +31,12 @@ const isCodeValid = computed(() => {
   return verificationCode.value.length === 6;
 });
 
-// 从 URL 参数获取邮箱和验证码（独立访问场景）
+// 从 URL 参数获取邮箱和验证码 (独立访问场景)
 onMounted(() => {
   const emailParam = route.query.email as string;
   const codeParam = route.query.code as string;
 
-  // 如果 URL 中有邮箱，设置到 store（用于显示）
+  // 如果 URL 中有邮箱，设置到 store (用于显示)
   if (emailParam && !registerStore.email.value) {
     registerStore.email.value = emailParam;
   }
@@ -52,10 +52,10 @@ onMounted(() => {
   }
 });
 
-// 监听验证码输入，自动提交（如果长度足够）
+// 监听验证码输入，自动提交 (如果长度足够)
 watch(verificationCode, (newVal) => {
   if (newVal.length === 6 && !isVerified.value) {
-    // 自动验证（如果是6位数字）
+    // 自动验证 (如果是6位数字)
     const codePattern = /^\d{6}$/;
     if (codePattern.test(newVal)) {
       handleVerify();
@@ -77,7 +77,7 @@ async function handleVerify() {
   successMessage.value = "";
 
   try {
-    // 优先使用 session token（注册流程），如果没有则使用邮箱（独立访问）
+    // 优先使用 session token (注册流程) ，如果没有则使用邮箱 (独立访问)
     if (registerStore.sessionToken.value) {
       // 注册流程：使用 session token
       await PlatformAuthAPI.verifyEmail({
@@ -98,7 +98,7 @@ async function handleVerify() {
     isVerified.value = true;
     successMessage.value = "邮箱验证成功！您现在可以登录使用";
 
-    // 3秒后触发 verified 事件（如果是注册流程）或直接跳转（独立访问）
+    // 3秒后触发 verified 事件 (如果是注册流程) 或直接跳转 (独立访问)
     setTimeout(() => {
       if (registerStore.sessionToken.value) {
         // 注册流程：触发事件让父组件处理

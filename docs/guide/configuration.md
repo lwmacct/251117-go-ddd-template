@@ -4,7 +4,7 @@
 
 ## 配置优先级
 
-配置按以下优先级加载（从低到高）：
+配置按以下优先级加载 (从低到高) ：
 
 1. **默认值** - 在代码中定义的默认配置
 2. **配置文件** - `config.yaml` 或 `configs/config.yaml`
@@ -37,7 +37,7 @@ data:
   pgsql_url: "postgresql://postgres@localhost:5432/myapp?sslmode=disable"
   redis_url: "redis://localhost:6379/0"
   redis_key_prefix: "myapp:"
-  auto_migrate: false # 是否在启动时自动迁移（仅推荐开发环境）
+  auto_migrate: false # 是否在启动时自动迁移 (仅推荐开发环境)
 
 jwt:
   secret: "change-me-in-production"
@@ -52,7 +52,7 @@ jwt:
 ### 格式规则
 
 - 前缀：`APP_`
-- 层级分隔：使用 `_`（下划线）
+- 层级分隔：使用 `_` (下划线)
 - 大小写：不敏感，但推荐全大写
 
 ### 示例
@@ -110,7 +110,7 @@ type DataConfig struct {
     PgsqlURL       string `koanf:"pgsql_url"`        // PostgreSQL 连接 URL
     RedisURL       string `koanf:"redis_url"`        // Redis 连接 URL
     RedisKeyPrefix string `koanf:"redis_key_prefix"` // Redis key 前缀
-    AutoMigrate    bool   `koanf:"auto_migrate"`     // 自动迁移（仅开发环境）
+    AutoMigrate    bool   `koanf:"auto_migrate"`     // 自动迁移 (仅开发环境)
 }
 
 type JWTConfig struct {
@@ -220,7 +220,7 @@ stringData:
 
 - 数据库连接字符串有效性
 - Redis 连接字符串有效性
-- JWT Secret 不为空（生产环境）
+- JWT Secret 不为空 (生产环境)
 
 ## 添加新配置
 
@@ -268,9 +268,9 @@ claude skill sync-config-example
 
 ### 敏感信息处理
 
-- ❌ **不要**将敏感信息（如密码、密钥）提交到 Git
+- ❌ **不要**将敏感信息 (如密码、密钥) 提交到 Git
 - ✅ 使用环境变量或密钥管理服务
-- ✅ 使用 `.env` 文件（添加到 `.gitignore`）
+- ✅ 使用 `.env` 文件 (添加到 `.gitignore`)
 - ✅ 在生产环境使用 Kubernetes Secrets 或类似服务
 
 ### 配置文件安全

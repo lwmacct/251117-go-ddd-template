@@ -2,10 +2,10 @@
  * Register 页面状态管理 Composable
  *
  * 管理注册表单状态，包括：
- * - 注册表单数据（邮箱、密码、确认密码、验证码）
+ * - 注册表单数据 (邮箱、密码、确认密码、验证码)
  * - 验证码获取和显示
  * - 错误和成功消息管理
- * - Session token（用于邮箱验证流程）
+ * - Session token (用于邮箱验证流程)
  */
 
 import { ref, computed } from "vue";
@@ -15,7 +15,7 @@ import type { CaptchaData, PlatformRegisterRequest } from "@/api";
 /**
  * Register 页面状态管理 Composable
  *
- * 管理注册表单状态（支持邮箱+密码+验证码注册）
+ * 管理注册表单状态 (支持邮箱+密码+验证码注册)
  */
 export function useRegister() {
   // === 状态 ===
@@ -28,7 +28,7 @@ export function useRegister() {
   const captchaData = ref<CaptchaData | null>(null); // 验证码数据
   const captchaCode = ref(""); // 验证码输入
   const loadingCaptcha = ref(false); // 验证码加载状态
-  const sessionToken = ref<string>(""); // 临时会话token（用于邮箱验证流程）
+  const sessionToken = ref<string>(""); // 临时会话token (用于邮箱验证流程)
 
   // 错误提示自动消失定时器
   let errorTimer: ReturnType<typeof setTimeout> | null = null;
@@ -44,13 +44,13 @@ export function useRegister() {
     return password.value === confirmPassword.value;
   });
 
-  // 验证码图片（用于模板，避免类型错误）
+  // 验证码图片 (用于模板，避免类型错误)
   const captchaImage = computed(() => captchaData.value?.image || "");
 
   // === 方法 ===
 
   /**
-   * 显示错误消息（5秒后自动消失）
+   * 显示错误消息 (5秒后自动消失)
    */
   const showErrorMessage = (message: string, duration = 5000) => {
     if (errorTimer) {
@@ -156,7 +156,7 @@ export function useRegister() {
       const response = await PlatformAuthAPI.register(requestData);
 
       if (response.code === 200) {
-        // 保存session token（用于邮箱验证）
+        // 保存session token (用于邮箱验证)
         if (response.data?.session_token) {
           sessionToken.value = response.data.session_token;
         }

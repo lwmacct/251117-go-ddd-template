@@ -20,7 +20,7 @@ type CacheRepository interface {
 	Delete(ctx context.Context, key string) error
 	// Exists 检查键是否存在
 	Exists(ctx context.Context, key string) (bool, error)
-	// SetNX 仅当键不存在时设置值（分布式锁）
+	// SetNX 仅当键不存在时设置值 (分布式锁)
 	SetNX(ctx context.Context, key string, value interface{}, expiration time.Duration) (bool, error)
 }
 
@@ -96,7 +96,7 @@ func (r *cacheRepository) Exists(ctx context.Context, key string) (bool, error) 
 	return n > 0, nil
 }
 
-// SetNX 仅当键不存在时设置值（用于分布式锁）
+// SetNX 仅当键不存在时设置值 (用于分布式锁)
 func (r *cacheRepository) SetNX(ctx context.Context, key string, value interface{}, expiration time.Duration) (bool, error) {
 	fullKey := r.buildKey(key)
 	data, err := json.Marshal(value)

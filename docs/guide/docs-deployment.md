@@ -1,28 +1,28 @@
 # GitHub Pages 部署指南
 
-本文档说明如何将 VitePress 文档部署到 GitHub Pages（**快速操作指南**）。
+本文档说明如何将 VitePress 文档部署到 GitHub Pages (**快速操作指南**) 。
 
 > 💡 **技术细节**：如需了解多环境部署的技术原理和自动化方案，请查看 [VitePress 多环境部署指南](/development/vitepress-deployment)
 
 ## 前提条件
 
 - GitHub 仓库：`lwmacct/251117-go-ddd-template`
-- 已配置 GitHub Actions workflow（`.github/workflows/deploy-docs.yml`）
-- VitePress base 路径自动配置（无需手动设置）
+- 已配置 GitHub Actions workflow (`.github/workflows/deploy-docs.yml`)
+- VitePress base 路径自动配置 (无需手动设置)
 
 ## 部署步骤
 
 ### 1. 在 GitHub 仓库中启用 GitHub Pages
 
 1. 访问你的 GitHub 仓库：https://github.com/lwmacct/251117-go-ddd-template
-2. 点击 **Settings** （设置）
+2. 点击 **Settings** (设置)
 3. 在左侧菜单中找到 **Pages**
 4. 在 **Source** 下拉菜单中选择：
    - **Source**: GitHub Actions
 
    ![GitHub Pages 设置](https://docs.github.com/assets/cb-47267/images/help/pages/publishing-source-drop-down.png)
 
-5. 点击 **Save**（保存）
+5. 点击 **Save** (保存)
 
 ### 2. 推送代码触发部署
 
@@ -30,7 +30,7 @@ GitHub Actions workflow 会在以下情况自动触发：
 
 - 推送到 `main` 分支时
 - 修改了 `docs/**` 目录下的文件
-- 修改了 workflow 文件本身（`.github/workflows/deploy-docs.yml`）
+- 修改了 workflow 文件本身 (`.github/workflows/deploy-docs.yml`)
 
 #### 首次部署
 
@@ -53,7 +53,7 @@ git push origin main
 
 1. 访问仓库的 **Actions** 标签页
 2. 查看 "Deploy VitePress Docs to Pages" workflow 的运行状态
-3. 等待构建和部署完成（通常需要 1-3 分钟）
+3. 等待构建和部署完成 (通常需要 1-3 分钟)
 
 ### 4. 访问文档站点
 
@@ -68,7 +68,7 @@ git push origin main
 1. 访问仓库的 **Actions** 标签页
 2. 选择 "Deploy VitePress Docs to Pages" workflow
 3. 点击 **Run workflow** 按钮
-4. 选择分支（通常是 `main`）
+4. 选择分支 (通常是 `main`)
 5. 点击绿色的 **Run workflow** 按钮
 
 ## Workflow 说明
@@ -87,9 +87,9 @@ on:
 
 ### 构建流程
 
-1. **Checkout** - 检出代码（包含完整历史记录）
-2. **Setup Node** - 安装 Node.js（v20）
-3. **Install dependencies** - 安装项目依赖（使用 npm）
+1. **Checkout** - 检出代码 (包含完整历史记录)
+2. **Setup Node** - 安装 Node.js (v20)
+3. **Install dependencies** - 安装项目依赖 (使用 npm)
 4. **Build** - 构建 VitePress 站点
 5. **Upload artifact** - 上传构建产物
 
@@ -128,7 +128,7 @@ Workflow 需要以下权限：
 permissions:
   contents: read # 读取仓库内容
   pages: write # 写入 Pages
-  id-token: write # 写入 ID Token（用于部署验证）
+  id-token: write # 写入 ID Token (用于部署验证)
 ```
 
 ## 本地预览
@@ -200,12 +200,12 @@ git push origin main
 2. **检查 base 路径**：确保生产环境的 base 路径正确
 3. **检查链接**：确保所有链接都是相对路径或包含 base 路径
 
-## 自定义域名（可选）
+## 自定义域名 (可选)
 
 如果你想使用自定义域名：
 
 1. 在 `docs/public/` 目录下创建 `CNAME` 文件
-2. 在文件中写入你的域名（如 `docs.example.com`）
+2. 在文件中写入你的域名 (如 `docs.example.com`)
 3. 在 DNS 提供商处配置 CNAME 记录指向 `lwmacct.github.io`
 4. 在 GitHub Pages 设置中验证域名
 

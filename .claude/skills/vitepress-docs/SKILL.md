@@ -40,7 +40,7 @@ description: 在 docs 目录下创建或更新符合 VitePress 2.0 规范的 Mar
 - ❌ `Getting_Started.md`
 - ❌ `快速开始.md`
 
-#### Frontmatter（可选）
+#### Frontmatter (可选)
 
 ```yaml
 ---
@@ -54,17 +54,17 @@ outline: [2, 3] # 目录层级
 
 **必须遵循**：
 
-- 使用清晰的标题层级（# H1、## H2、### H3）
-- 代码块指定语言（\`\`\`typescript、\`\`\`bash）
+- 使用清晰的标题层级 (# H1、## H2、### H3)
+- 代码块指定语言 (\`\`\`typescript、\`\`\`bash)
 - 使用相对链接引用其他文档
-- 避免使用绝对 URL（本地服务器地址）
-- 避免使用 `${{ }}` GitHub Actions 语法（会导致 Vue 编译错误）
+- 避免使用绝对 URL (本地服务器地址)
+- 避免使用 `${{ }}` GitHub Actions 语法 (会导致 Vue 编译错误)
 
 ### 3. 更新 VitePress 配置
 
 编辑 `docs/.vitepress/config.ts`：
 
-#### 添加顶部导航（如需新分类）
+#### 添加顶部导航 (如需新分类)
 
 ```typescript
 nav: [
@@ -74,7 +74,7 @@ nav: [
 ],
 ```
 
-#### 添加侧边栏链接（必须）
+#### 添加侧边栏链接 (必须)
 
 ```typescript
 sidebar: {
@@ -96,7 +96,7 @@ sidebar: {
 # 开发模式预览
 npm run docs:dev
 
-# 构建验证（检查死链接）
+# 构建验证 (检查死链接)
 npm run docs:build
 ```
 
@@ -146,7 +146,7 @@ export default defineConfig({
 
 ### 链接规范
 
-**内部链接**（推荐）：
+**内部链接** (推荐) ：
 
 ```markdown
 [快速开始](./getting-started)
@@ -207,9 +207,9 @@ docs/guide/getting-started.md
 完成后提供以下信息：
 
 - [x] 创建/更新的文件路径
-- [x] 修改的配置文件（如果有）
+- [x] 修改的配置文件 (如果有)
 - [x] 预览命令
-- [x] 访问 URL（本地、Go 服务器、GitHub Pages）
+- [x] 访问 URL (本地、Go 服务器、GitHub Pages)
 
 ## 示例
 
@@ -224,7 +224,7 @@ docs/guide/getting-started.md
 **执行步骤**：
 
 1. 在 `docs/guide/` 创建 `database-migration.md`
-2. 编写内容（包含迁移步骤、示例）
+2. 编写内容 (包含迁移步骤、示例)
 3. 更新 `docs/.vitepress/config.ts` 侧边栏：
    ```typescript
    { text: "数据库迁移", link: "/guide/database-migration" }
@@ -254,7 +254,7 @@ docs/guide/getting-started.md
 
 **执行步骤**：
 
-1. 读取 `docs/api/cache.md`（如不存在则创建）
+1. 读取 `docs/api/cache.md` (如不存在则创建)
 2. 添加分布式锁部分
 3. 添加代码示例和参数说明
 4. 验证构建
@@ -303,7 +303,7 @@ docs/guide/getting-started.md
 ````markdown
 # 文档标题
 
-简短介绍（1-2 句话说明这个功能是什么）
+简短介绍 (1-2 句话说明这个功能是什么)
 
 ## 前提条件
 
@@ -388,7 +388,7 @@ A: 解答...
 
 当前项目 VitePress 配置：
 - 版本：2.0.0-alpha.13
-- 环境变量：`VITEPRESS_BASE`（控制 base 路径）
+- 环境变量：`VITEPRESS_BASE` (控制 base 路径)
 - 本地 base：`/docs/`
 - GitHub Pages base：自动从仓库名获取
 

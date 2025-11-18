@@ -1,5 +1,5 @@
 /**
- * 平台认证 API（支持验证码和 2FA）
+ * 平台认证 API (支持验证码和 2FA)
  */
 
 import { apiClient } from "./client";
@@ -82,7 +82,7 @@ export class PlatformAuthAPI {
   }
 
   /**
-   * 验证 2FA（双因素认证）
+   * 验证 2FA (双因素认证)
    */
   static async verify2FA(params: { session_token: string; code: string }): Promise<PlatformApiResponse<any>> {
     try {
