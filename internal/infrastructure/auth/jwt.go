@@ -18,9 +18,9 @@ type Claims struct {
 
 // JWTManager JWT 管理器
 type JWTManager struct {
-	secretKey             string
-	accessTokenDuration   time.Duration
-	refreshTokenDuration  time.Duration
+	secretKey            string
+	accessTokenDuration  time.Duration
+	refreshTokenDuration time.Duration
 }
 
 // NewJWTManager 创建 JWT 管理器
