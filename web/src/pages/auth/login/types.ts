@@ -1,20 +1,35 @@
 /**
- * 登录页面专用类型定义
+ * Login 页面相关的类型定义
  */
 
 /**
- * 双因素认证请求
- * (预留，用于未来实现 2FA)
+ * 登录表单接口
  */
-export interface TwoFactorRequest {
-  code: string
-  user_id: number
+export interface LoginForm {
+  email: string
+  password: string
+  rememberMe: boolean
 }
 
 /**
- * 双因素认证响应
+ * 登录响应接口
  */
-export interface TwoFactorResponse {
+export interface LoginResponse {
   success: boolean
+  token?: string
   message?: string
+  user?: {
+    id: string
+    email: string
+    name: string
+  }
+}
+
+/**
+ * Login 页面数据接口
+ */
+export interface LoginPageData {
+  pageTitle: string
+  pageIcon: string
+  backgroundGradient: string
 }

@@ -1,4 +1,5 @@
 /**
- * Register composables 统一导出
+ * Register Composables 统一导出
  */
-export * from './useRegister'
+
+export { useRegister } from './useRegister'

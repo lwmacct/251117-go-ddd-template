@@ -1,4 +1,5 @@
 /**
- * Login composables 统一导出
+ * Login Composables 统一导出
  */
-export * from './useLogin'
+
+export { useLogin } from './useLogin'

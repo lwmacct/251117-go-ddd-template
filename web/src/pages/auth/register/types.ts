@@ -1,20 +1,39 @@
 /**
- * 注册页面专用类型定义
+ * Register 页面相关的类型定义
  */
 
 /**
- * 邮箱验证请求
- * (预留，用于未来实现邮箱验证)
+ * 注册表单接口
  */
-export interface VerifyEmailRequest {
-  code: string
+export interface RegisterForm {
+  username: string
   email: string
+  password: string
+  confirmPassword: string
+  nickname?: string
+  captcha_id: string
+  captcha: string
 }
 
 /**
- * 邮箱验证响应
+ * 注册响应接口
  */
-export interface VerifyEmailResponse {
+export interface RegisterResponse {
   success: boolean
   message?: string
+  user?: {
+    id: number
+    username: string
+    email: string
+    nickname: string
+  }
+}
+
+/**
+ * Register 页面数据接口
+ */
+export interface RegisterPageData {
+  pageTitle: string
+  pageIcon: string
+  backgroundGradient: string
 }
