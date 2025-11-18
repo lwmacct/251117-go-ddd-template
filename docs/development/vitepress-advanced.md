@@ -9,6 +9,7 @@
 ![Go Logo](https://go.dev/blog/go-brand/Go-Logo/PNG/Go-Logo_Blue.png)
 
 **特性**：
+
 - ✅ 点击图片放大
 - ✅ 背景自适应主题
 - ✅ 响应式设计
@@ -19,10 +20,11 @@
 使用自定义 `ApiEndpoint` 组件展示 API：
 
 <ApiEndpoint
-  method="POST"
-  path="/api/auth/login"
-  description="用户登录接口"
-  version="v2.0"
+method="POST"
+path="/api/auth/login"
+description="用户登录接口"
+version="v2.0"
+
 >
 
 **请求体**：
@@ -46,12 +48,14 @@
 </ApiEndpoint>
 
 <ApiEndpoint
-  method="GET"
-  path="/api/users/:id"
-  description="获取用户详情"
+method="GET"
+path="/api/users/:id"
+description="获取用户详情"
+
 >
 
 **路径参数**：
+
 - `id` (required): 用户 ID
 
 **响应**：
@@ -68,10 +72,11 @@
 </ApiEndpoint>
 
 <ApiEndpoint
-  method="DELETE"
-  path="/api/users/:id"
-  description="删除用户（此接口已废弃）"
-  deprecated
+method="DELETE"
+path="/api/users/:id"
+description="删除用户（此接口已废弃）"
+deprecated
+
 >
 
 请使用 `PUT /api/users/:id` 并设置 `status: inactive`。
@@ -81,9 +86,10 @@
 ## 🎯 功能卡片
 
 <FeatureCard
-  title="JWT 认证"
-  description="基于 JWT 的用户认证系统"
-  icon="🔐"
+title="JWT 认证"
+description="基于 JWT 的用户认证系统"
+icon="🔐"
+
 >
 
 - 支持 Token 刷新
@@ -93,10 +99,11 @@
 </FeatureCard>
 
 <FeatureCard
-  title="PostgreSQL 集成"
-  description="使用 GORM 进行数据库操作"
-  icon="🗄️"
-  highlighted
+title="PostgreSQL 集成"
+description="使用 GORM 进行数据库操作"
+icon="🗄️"
+highlighted
+
 >
 
 - 自动迁移
@@ -107,9 +114,10 @@
 </FeatureCard>
 
 <FeatureCard
-  title="Redis 缓存"
-  description="高性能缓存和分布式锁"
-  icon="⚡"
+title="Redis 缓存"
+description="高性能缓存和分布式锁"
+icon="⚡"
+
 >
 
 - 缓存策略
@@ -166,17 +174,13 @@ const setupSteps = [
 ### ApiEndpoint 组件
 
 ```vue
-<ApiEndpoint
-  method="POST"
-  path="/api/users"
-  description="创建新用户"
-  version="v2.0"
->
+<ApiEndpoint method="POST" path="/api/users" description="创建新用户" version="v2.0">
   <!-- 你的内容 -->
 </ApiEndpoint>
 ```
 
 **Props**:
+
 - `method`: HTTP 方法 (`GET` | `POST` | `PUT` | `PATCH` | `DELETE`)
 - `path`: API 路径
 - `description`: 描述（可选）
@@ -186,17 +190,13 @@ const setupSteps = [
 ### FeatureCard 组件
 
 ```vue
-<FeatureCard
-  title="功能标题"
-  description="功能描述"
-  icon="🎯"
-  highlighted
->
+<FeatureCard title="功能标题" description="功能描述" icon="🎯" highlighted>
   <!-- 详细内容 -->
 </FeatureCard>
 ```
 
 **Props**:
+
 - `title`: 功能标题
 - `description`: 功能描述（可选）
 - `icon`: Emoji 图标（可选）
@@ -207,15 +207,22 @@ const setupSteps = [
 ```vue
 <script setup>
 const steps = [
-  { title: '步骤 1', description: '描述 1' },
-  { title: '步骤 2', description: '描述 2' }
-]
+  {
+    title: "步骤 1",
+    description: "描述 1",
+  },
+  {
+    title: "步骤 2",
+    description: "描述 2",
+  },
+];
 </script>
 
 <StepsGuide :steps="steps" />
 ```
 
 **Props**:
+
 - `steps`: 步骤数组，每个步骤包含 `title` 和 `description`
 
 ## 📚 扩展阅读

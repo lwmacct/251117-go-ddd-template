@@ -9,6 +9,7 @@ go run main.go [command] [options]
 ```
 
 可用命令：
+
 - `api` - 启动 REST API 服务器
 - `migrate` - 数据库迁移管理
 - `seed` - 填充数据库种子数据
@@ -33,10 +34,10 @@ go run main.go server
 
 ### 选项
 
-| 选项 | 说明 | 默认值 |
-|------|------|--------|
-| `--addr` | 监听地址 | `0.0.0.0:8080` |
-| `--static` | 静态资源目录 | `web/dist` |
+| 选项       | 说明         | 默认值         |
+| ---------- | ------------ | -------------- |
+| `--addr`   | 监听地址     | `0.0.0.0:8080` |
+| `--static` | 静态资源目录 | `web/dist`     |
 
 ### 示例
 
@@ -54,6 +55,7 @@ APP_JWT_SECRET="secret" go run main.go api --addr :9000
 ### 优雅关闭
 
 服务器支持优雅关闭。接收到 `SIGINT` 或 `SIGTERM` 信号时：
+
 1. 停止接受新请求
 2. 等待现有请求处理完成（最多 30 秒）
 3. 关闭数据库和 Redis 连接
@@ -76,11 +78,13 @@ go run main.go migrate up
 ```
 
 **功能：**
+
 - 自动创建 `migrations` 表记录迁移历史
 - 执行所有已注册模型的迁移
 - 记录迁移版本和时间
 
 **输出：**
+
 ```
 INFO Running database migration...
 INFO Database migration completed
@@ -95,6 +99,7 @@ go run main.go migrate status
 ```
 
 **输出示例：**
+
 ```
 INFO Migration history:
 
@@ -117,6 +122,7 @@ go run main.go migrate fresh
 ```
 
 **交互式确认：**
+
 ```
 ⚠️  WARNING: This will delete ALL data in the database!
 Are you sure you want to continue? (yes/no):
@@ -175,11 +181,11 @@ go run main.go seed
 
 ### 默认用户
 
-| 用户名 | 邮箱 | 密码 | 角色 |
-|--------|------|------|------|
-| `admin` | admin@example.com | password123 | 管理员 |
-| `testuser` | test@example.com | password123 | 普通用户 |
-| `demo` | demo@example.com | password123 | 演示用户 |
+| 用户名     | 邮箱              | 密码        | 角色     |
+| ---------- | ----------------- | ----------- | -------- |
+| `admin`    | admin@example.com | password123 | 管理员   |
+| `testuser` | test@example.com  | password123 | 普通用户 |
+| `demo`     | demo@example.com  | password123 | 演示用户 |
 
 ### 添加自定义种子
 
@@ -247,10 +253,10 @@ go run main.go worker
 
 ### 选项
 
-| 选项 | 短选项 | 说明 | 默认值 |
-|------|--------|------|--------|
-| `--queue` | `-q` | 队列名称 | `default` |
-| `--concurrency` | `-c` | 并发处理数 | `5` |
+| 选项            | 短选项 | 说明       | 默认值    |
+| --------------- | ------ | ---------- | --------- |
+| `--queue`       | `-q`   | 队列名称   | `default` |
+| `--concurrency` | `-c`   | 并发处理数 | `5`       |
 
 ### 示例
 
@@ -268,15 +274,18 @@ go run main.go worker -q jobs -c 10
 ### 功能特性
 
 **并发处理**：
+
 - 支持多个 worker 并发处理任务
 - 每个 worker 独立处理任务，互不干扰
 
 **优雅关闭**：
+
 - 接收到终止信号后停止接受新任务
 - 等待当前处理中的任务完成
 - 清理资源后退出
 
 **错误处理**：
+
 - 任务处理失败会记录错误日志
 - 可扩展实现重试逻辑或死信队列
 
@@ -373,7 +382,7 @@ go run main.go api
 ```yaml
 # config.yaml
 data:
-  auto_migrate: true  # 仅开发环境推荐
+  auto_migrate: true # 仅开发环境推荐
 ```
 
 或使用环境变量：
@@ -404,6 +413,7 @@ APP_DATA_AUTO_MIGRATE=true go run main.go api
 **问题**：数据库连接失败
 
 **解决**：
+
 1. 检查数据库是否运行：`docker-compose ps`
 2. 验证连接字符串：检查环境变量或配置文件
 3. 检查网络连接
@@ -411,6 +421,7 @@ APP_DATA_AUTO_MIGRATE=true go run main.go api
 **问题**：表已存在
 
 **解决**：
+
 - GORM 的 AutoMigrate 是安全的，会自动更新表结构而不是覆盖
 - 如需重置，使用 `migrate fresh`（仅开发环境）
 
@@ -419,6 +430,7 @@ APP_DATA_AUTO_MIGRATE=true go run main.go api
 **问题**：Redis 连接失败
 
 **解决**：
+
 1. 确保 Redis 正在运行
 2. 检查连接字符串格式：`redis://localhost:6379/0`
 3. 验证网络连接
@@ -426,9 +438,11 @@ APP_DATA_AUTO_MIGRATE=true go run main.go api
 ### 性能优化
 
 **数据库连接池**：
+
 - 在 `internal/infrastructure/database/connection.go` 配置连接池大小
 
 **Worker 并发数**：
+
 - 根据 CPU 核心数和任务类型调整 `--concurrency`
 - I/O 密集型任务可以设置更高的并发数
 - CPU 密集型任务建议不超过 CPU 核心数

@@ -8,8 +8,8 @@ on:
   push:
     branches: [main]
     paths:
-      - 'docs/**'
-      - '.github/workflows/deploy-docs.yml'
+      - "docs/**"
+      - ".github/workflows/deploy-docs.yml"
 
   # 允许手动触发
   workflow_dispatch:

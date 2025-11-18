@@ -1,31 +1,31 @@
 <script setup lang="ts">
-import { onMounted } from 'vue'
-import { useRouter } from 'vue-router'
-import { useRegister } from '../composables'
+import { onMounted } from "vue";
+import { useRouter } from "vue-router";
+import { useRegister } from "../composables";
 
-const router = useRouter()
-const registerStore = useRegister()
+const router = useRouter();
+const registerStore = useRegister();
 
 // 定义事件
 const emit = defineEmits<{
-  registerSuccess: []
-  requiresVerification: []
-}>()
+  registerSuccess: [];
+  requiresVerification: [];
+}>();
 
 // 处理注册
 const handleRegister = async () => {
-  const result = await registerStore.register()
+  const result = await registerStore.register();
 
   if (result.success) {
     // 注册成功，需要邮箱验证
-    emit('requiresVerification')
+    emit("requiresVerification");
   }
-}
+};
 
 // 组件挂载时获取验证码
 onMounted(() => {
-  registerStore.fetchCaptcha()
-})
+  registerStore.fetchCaptcha();
+});
 </script>
 
 <template>
@@ -33,9 +33,7 @@ onMounted(() => {
     <v-card class="register-card" elevation="12">
       <!-- 返回首页按钮 -->
       <div class="pa-4 pb-0">
-        <v-btn variant="text" prepend-icon="mdi-arrow-left" size="small" @click="router.push('/')">
-          返回首页
-        </v-btn>
+        <v-btn variant="text" prepend-icon="mdi-arrow-left" size="small" @click="router.push('/')"> 返回首页 </v-btn>
       </div>
 
       <v-card-title class="text-h4 text-center pt-4 pb-6">
@@ -45,49 +43,77 @@ onMounted(() => {
 
       <v-card-text class="px-8 pb-8">
         <v-form @submit.prevent="handleRegister">
-          <v-text-field v-model="registerStore.email.value" label="邮箱" prepend-inner-icon="mdi-email" variant="outlined"
-            type="email" name="email" autocomplete="email" required class="mb-4"
+          <v-text-field
+            v-model="registerStore.email.value"
+            label="邮箱"
+            prepend-inner-icon="mdi-email"
+            variant="outlined"
+            type="email"
+            name="email"
+            autocomplete="email"
+            required
+            class="mb-4"
             :disabled="registerStore.isLoading.value"
-            :error="registerStore.email.value.length > 0 && !registerStore.email.value.includes('@')" :error-messages="registerStore.email.value.length > 0 && !registerStore.email.value.includes('@')
-              ? '请输入有效的邮箱地址'
-              : ''
-              " hint="用户名将自动从邮箱生成 (可修改)" persistent-hint></v-text-field>
+            :error="registerStore.email.value.length > 0 && !registerStore.email.value.includes('@')"
+            :error-messages="registerStore.email.value.length > 0 && !registerStore.email.value.includes('@') ? '请输入有效的邮箱地址' : ''"
+            hint="用户名将自动从邮箱生成 (可修改)"
+            persistent-hint
+          ></v-text-field>
 
           <!-- 密码和确认密码在同一行 -->
           <v-row dense class="mb-3">
             <v-col cols="12" sm="6">
-              <v-text-field v-model="registerStore.password.value" label="密码" prepend-inner-icon="mdi-lock"
-                variant="outlined" type="password" name="password" autocomplete="new-password" required
+              <v-text-field
+                v-model="registerStore.password.value"
+                label="密码"
+                prepend-inner-icon="mdi-lock"
+                variant="outlined"
+                type="password"
+                name="password"
+                autocomplete="new-password"
+                required
                 :disabled="registerStore.isLoading.value"
                 :error="registerStore.password.value.length > 0 && registerStore.password.value.length < 6"
-                :error-messages="registerStore.password.value.length > 0 && registerStore.password.value.length < 6
-                  ? '密码至少6个字符'
-                  : ''
-                  "></v-text-field>
+                :error-messages="registerStore.password.value.length > 0 && registerStore.password.value.length < 6 ? '密码至少6个字符' : ''"
+              ></v-text-field>
             </v-col>
 
             <v-col cols="12" sm="6">
-              <v-text-field v-model="registerStore.confirmPassword.value" label="确认密码"
-                prepend-inner-icon="mdi-lock-check" variant="outlined" type="password" name="confirm-password"
-                autocomplete="new-password" required :disabled="registerStore.isLoading.value"
+              <v-text-field
+                v-model="registerStore.confirmPassword.value"
+                label="确认密码"
+                prepend-inner-icon="mdi-lock-check"
+                variant="outlined"
+                type="password"
+                name="confirm-password"
+                autocomplete="new-password"
+                required
+                :disabled="registerStore.isLoading.value"
                 :error="registerStore.confirmPassword.value.length > 0 && !registerStore.passwordMatch.value"
-                :error-messages="registerStore.confirmPassword.value.length > 0 && !registerStore.passwordMatch.value
-                  ? '两次输入的密码不一致'
-                  : ''
-                  "></v-text-field>
+                :error-messages="registerStore.confirmPassword.value.length > 0 && !registerStore.passwordMatch.value ? '两次输入的密码不一致' : ''"
+              ></v-text-field>
             </v-col>
           </v-row>
 
           <!-- 验证码 -->
           <div class="mb-4">
             <div class="d-flex align-start gap-3">
-              <v-text-field v-model="registerStore.captchaCode.value" label="验证码" prepend-inner-icon="mdi-shield-check"
-                variant="outlined" name="captcha" autocomplete="off" required :disabled="registerStore.isLoading.value"
-                placeholder="请输入验证码(不区分大小写)" maxlength="4" style="flex: 1"></v-text-field>
+              <v-text-field
+                v-model="registerStore.captchaCode.value"
+                label="验证码"
+                prepend-inner-icon="mdi-shield-check"
+                variant="outlined"
+                name="captcha"
+                autocomplete="off"
+                required
+                :disabled="registerStore.isLoading.value"
+                placeholder="请输入验证码(不区分大小写)"
+                maxlength="4"
+                style="flex: 1"
+              ></v-text-field>
 
               <!-- 验证码图片 -->
-              <div v-if="registerStore.captchaData" class="captcha-image" @click="registerStore.fetchCaptcha"
-                title="点击刷新验证码">
+              <div v-if="registerStore.captchaData" class="captcha-image" @click="registerStore.fetchCaptcha" title="点击刷新验证码">
                 <img :src="registerStore.captchaImage.value" alt="验证码" />
               </div>
 
@@ -98,23 +124,20 @@ onMounted(() => {
             </div>
           </div>
 
-          <v-btn color="primary" variant="elevated" prepend-icon="mdi-account-plus" block size="large" type="submit"
-            :loading="registerStore.isLoading.value" :disabled="!registerStore.isFormValid.value" class="mt-2">
-            {{ registerStore.isLoading.value ? '注册中...' : '注册' }}
+          <v-btn color="primary" variant="elevated" prepend-icon="mdi-account-plus" block size="large" type="submit" :loading="registerStore.isLoading.value" :disabled="!registerStore.isFormValid.value" class="mt-2">
+            {{ registerStore.isLoading.value ? "注册中..." : "注册" }}
           </v-btn>
 
           <!-- 消息提示区域 - 预留固定空间 -->
           <div class="message-area mt-3">
             <v-fade-transition>
-              <v-alert v-if="registerStore.errorMessage.value" type="error" density="compact" variant="tonal" closable
-                @click:close="registerStore.errorMessage.value = ''">
+              <v-alert v-if="registerStore.errorMessage.value" type="error" density="compact" variant="tonal" closable @click:close="registerStore.errorMessage.value = ''">
                 {{ registerStore.errorMessage.value }}
               </v-alert>
             </v-fade-transition>
 
             <v-fade-transition>
-              <v-alert v-if="registerStore.successMessage.value" type="success" density="compact" variant="tonal"
-                closable @click:close="registerStore.successMessage.value = ''">
+              <v-alert v-if="registerStore.successMessage.value" type="success" density="compact" variant="tonal" closable @click:close="registerStore.successMessage.value = ''">
                 {{ registerStore.successMessage.value }}
               </v-alert>
             </v-fade-transition>
@@ -129,9 +152,7 @@ onMounted(() => {
       </v-card-text>
 
       <v-card-actions class="justify-center pb-6 flex-column gap-2">
-        <v-btn @click="router.push('/auth/login')" variant="text" prepend-icon="mdi-login">
-          已有账号？去登录
-        </v-btn>
+        <v-btn @click="router.push('/auth/login')" variant="text" prepend-icon="mdi-login"> 已有账号？去登录 </v-btn>
       </v-card-actions>
     </v-card>
   </div>

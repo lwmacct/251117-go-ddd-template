@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div ref="codeContainer" style="display: none;">
+    <div ref="codeContainer" style="display: none">
       <slot />
     </div>
     <div ref="mermaidContainer" class="mermaid-container"></div>

@@ -243,19 +243,20 @@ curl -X DELETE http://localhost:8080/api/users/1 \
 ```javascript
 // 获取用户列表
 const getUsers = async (accessToken, page = 1, pageSize = 10) => {
-  const response = await fetch(
-    `http://localhost:8080/api/users?page=${page}&page_size=${pageSize}`,
-    {
-      headers: { Authorization: `Bearer ${accessToken}` },
-    }
-  );
+  const response = await fetch(`http://localhost:8080/api/users?page=${page}&page_size=${pageSize}`, {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
   return response.json();
 };
 
 // 获取用户详情
 const getUser = async (accessToken, userId) => {
   const response = await fetch(`http://localhost:8080/api/users/${userId}`, {
-    headers: { Authorization: `Bearer ${accessToken}` },
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
   });
   return response.json();
 };
@@ -277,7 +278,9 @@ const updateUser = async (accessToken, userId, data) => {
 const deleteUser = async (accessToken, userId) => {
   const response = await fetch(`http://localhost:8080/api/users/${userId}`, {
     method: "DELETE",
-    headers: { Authorization: `Bearer ${accessToken}` },
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
   });
   return response.status === 204;
 };

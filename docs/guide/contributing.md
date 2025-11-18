@@ -124,8 +124,14 @@ export default defineConfig({
   // 导航栏
   themeConfig: {
     nav: [
-      { text: "首页", link: "/" },
-      { text: "指南", link: "/guide/getting-started" },
+      {
+        text: "首页",
+        link: "/",
+      },
+      {
+        text: "指南",
+        link: "/guide/getting-started",
+      },
     ],
 
     // 侧边栏
@@ -133,7 +139,12 @@ export default defineConfig({
       "/guide/": [
         {
           text: "指南",
-          items: [{ text: "快速开始", link: "/guide/getting-started" }],
+          items: [
+            {
+              text: "快速开始",
+              link: "/guide/getting-started",
+            },
+          ],
         },
       ],
     },

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted } from "vue";
 
 /**
  * 数据概览页面
@@ -7,31 +7,51 @@ import { ref, onMounted } from 'vue'
  */
 
 interface NodeItem {
-  name: string
-  status: string
-  ip: string
-  updatedAt: string
+  name: string;
+  status: string;
+  ip: string;
+  updatedAt: string;
 }
 
 // 示例统计数据
 const statistics = ref([
-  { title: '总节点数', value: 0, icon: 'mdi-server', color: 'primary' },
-  { title: '在线节点', value: 0, icon: 'mdi-server-network', color: 'success' },
-  { title: '离线节点', value: 0, icon: 'mdi-server-off', color: 'error' },
-  { title: '告警数量', value: 0, icon: 'mdi-alert', color: 'warning' },
-])
+  {
+    title: "总节点数",
+    value: 0,
+    icon: "mdi-server",
+    color: "primary",
+  },
+  {
+    title: "在线节点",
+    value: 0,
+    icon: "mdi-server-network",
+    color: "success",
+  },
+  {
+    title: "离线节点",
+    value: 0,
+    icon: "mdi-server-off",
+    color: "error",
+  },
+  {
+    title: "告警数量",
+    value: 0,
+    icon: "mdi-alert",
+    color: "warning",
+  },
+]);
 
-const nodes = ref<NodeItem[]>([])
+const nodes = ref<NodeItem[]>([]);
 
 // 加载数据
 const loadData = async () => {
   // TODO: 实现数据加载逻辑
-  console.log('Loading overview data...')
-}
+  console.log("Loading overview data...");
+};
 
 onMounted(() => {
-  loadData()
-})
+  loadData();
+});
 </script>
 
 <template>
@@ -50,8 +70,12 @@ onMounted(() => {
             <div class="d-flex align-center">
               <v-icon :color="stat.color" size="48" class="mr-4">{{ stat.icon }}</v-icon>
               <div>
-                <div class="text-h5">{{ stat.value }}</div>
-                <div class="text-body-2 text-medium-emphasis">{{ stat.title }}</div>
+                <div class="text-h5">
+                  {{ stat.value }}
+                </div>
+                <div class="text-body-2 text-medium-emphasis">
+                  {{ stat.title }}
+                </div>
               </div>
             </div>
           </v-card-text>
@@ -67,18 +91,34 @@ onMounted(() => {
           <v-card-text>
             <v-data-table
               :headers="[
-                { title: '节点名称', key: 'name' },
-                { title: '状态', key: 'status' },
-                { title: 'IP 地址', key: 'ip' },
-                { title: '最后更新', key: 'updatedAt' },
-                { title: '操作', key: 'actions', sortable: false },
+                {
+                  title: '节点名称',
+                  key: 'name',
+                },
+                {
+                  title: '状态',
+                  key: 'status',
+                },
+                {
+                  title: 'IP 地址',
+                  key: 'ip',
+                },
+                {
+                  title: '最后更新',
+                  key: 'updatedAt',
+                },
+                {
+                  title: '操作',
+                  key: 'actions',
+                  sortable: false,
+                },
               ]"
               :items="nodes"
               no-data-text="暂无数据"
             >
               <template #item.status="{ item }">
                 <v-chip :color="item.status === 'online' ? 'success' : 'error'" size="small">
-                  {{ item.status === 'online' ? '在线' : '离线' }}
+                  {{ item.status === "online" ? "在线" : "离线" }}
                 </v-chip>
               </template>
               <template #item.actions>

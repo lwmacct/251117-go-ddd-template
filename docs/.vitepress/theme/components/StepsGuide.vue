@@ -2,7 +2,9 @@
   <ol class="vp-raw steps-guide">
     <li v-for="(step, index) in steps" :key="index">
       <strong>{{ step.title }}</strong>
-      <p>{{ step.description }}</p>
+      <p>
+        {{ step.description }}
+      </p>
     </li>
   </ol>
 </template>

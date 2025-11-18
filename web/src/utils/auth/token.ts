@@ -8,11 +8,8 @@
  * @param threshold - 阈值（秒），默认 5 分钟
  * @returns 是否即将过期
  */
-export function isTokenExpiringSoon(
-  expiresIn: number,
-  threshold: number = 300
-): boolean {
-  return expiresIn <= threshold
+export function isTokenExpiringSoon(expiresIn: number, threshold: number = 300): boolean {
+  return expiresIn <= threshold;
 }
 
 /**
@@ -22,22 +19,22 @@ export function isTokenExpiringSoon(
  */
 export function parseJwtToken(token: string): any {
   try {
-    const parts = token.split('.')
+    const parts = token.split(".");
     if (parts.length !== 3 || !parts[1]) {
-      throw new Error('Invalid JWT token format')
+      throw new Error("Invalid JWT token format");
     }
 
-    const base64Url = parts[1]!
-    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/')
+    const base64Url = parts[1]!;
+    const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
     const jsonPayload = decodeURIComponent(
       atob(base64)
-        .split('')
-        .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
-        .join('')
-    )
-    return JSON.parse(jsonPayload)
+        .split("")
+        .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
+        .join(""),
+    );
+    return JSON.parse(jsonPayload);
   } catch (error) {
-    console.error('Failed to parse JWT token:', error)
-    return null
+    console.error("Failed to parse JWT token:", error);
+    return null;
   }
 }

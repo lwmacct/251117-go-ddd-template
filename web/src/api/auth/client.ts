@@ -2,13 +2,7 @@
  * API 客户端配置
  */
 import axios from "axios";
-import {
-  getAccessToken,
-  getRefreshToken,
-  saveAccessToken,
-  saveRefreshToken,
-  clearAuthTokens,
-} from "@/utils/auth";
+import { getAccessToken, getRefreshToken, saveAccessToken, saveRefreshToken, clearAuthTokens } from "@/utils/auth";
 import type { ApiResponse, AuthResponse } from "@/types/auth";
 
 const API_BASE_URL = "/api/auth";
@@ -30,7 +24,7 @@ apiClient.interceptors.request.use(
   },
   (error) => {
     return Promise.reject(error);
-  }
+  },
 );
 
 // 响应拦截器 - 处理错误
@@ -46,10 +40,9 @@ apiClient.interceptors.response.use(
       try {
         const refreshToken = getRefreshToken();
         if (refreshToken) {
-          const { data } = await axios.post<ApiResponse<AuthResponse>>(
-            `${API_BASE_URL}/refresh`,
-            { refresh_token: refreshToken }
-          );
+          const { data } = await axios.post<ApiResponse<AuthResponse>>(`${API_BASE_URL}/refresh`, {
+            refresh_token: refreshToken,
+          });
 
           if (data.data) {
             // 保存新 token
@@ -70,5 +63,5 @@ apiClient.interceptors.response.use(
     }
 
     return Promise.reject(error);
-  }
+  },
 );

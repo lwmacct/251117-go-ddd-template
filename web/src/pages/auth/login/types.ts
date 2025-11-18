@@ -6,30 +6,30 @@
  * 登录表单接口
  */
 export interface LoginForm {
-  email: string
-  password: string
-  rememberMe: boolean
+  email: string;
+  password: string;
+  rememberMe: boolean;
 }
 
 /**
  * 登录响应接口
  */
 export interface LoginResponse {
-  success: boolean
-  token?: string
-  message?: string
+  success: boolean;
+  token?: string;
+  message?: string;
   user?: {
-    id: string
-    email: string
-    name: string
-  }
+    id: string;
+    email: string;
+    name: string;
+  };
 }
 
 /**
  * Login 页面数据接口
  */
 export interface LoginPageData {
-  pageTitle: string
-  pageIcon: string
-  backgroundGradient: string
+  pageTitle: string;
+  pageIcon: string;
+  backgroundGradient: string;
 }

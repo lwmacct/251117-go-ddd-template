@@ -18,7 +18,6 @@
 2. 点击 **Settings** （设置）
 3. 在左侧菜单中找到 **Pages**
 4. 在 **Source** 下拉菜单中选择：
-
    - **Source**: GitHub Actions
 
    ![GitHub Pages 设置](https://docs.github.com/assets/cb-47267/images/help/pages/publishing-source-drop-down.png)

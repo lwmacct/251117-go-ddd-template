@@ -22,12 +22,12 @@ description: 在 docs 目录下创建或更新符合 VitePress 2.0 规范的 Mar
 
 询问或推断文档类型，选择合适目录：
 
-| 文档类型 | 目录 | 示例 |
-|---------|------|------|
-| 用户指南 | `docs/guide/` | 快速开始、配置说明、部署指南 |
-| API 文档 | `docs/api/` | 接口文档、参数说明、示例 |
+| 文档类型 | 目录                | 示例                         |
+| -------- | ------------------- | ---------------------------- |
+| 用户指南 | `docs/guide/`       | 快速开始、配置说明、部署指南 |
+| API 文档 | `docs/api/`         | 接口文档、参数说明、示例     |
 | 开发文档 | `docs/development/` | 技术方案、升级记录、最佳实践 |
-| 首页内容 | `docs/` | index.md |
+| 首页内容 | `docs/`             | index.md                     |
 
 ### 2. 创建或更新 Markdown 文件
 
@@ -46,13 +46,14 @@ description: 在 docs 目录下创建或更新符合 VitePress 2.0 规范的 Mar
 ---
 title: 文档标题
 description: 文档描述
-outline: [2, 3]  # 目录层级
+outline: [2, 3] # 目录层级
 ---
 ```
 
 #### 内容规范
 
 **必须遵循**：
+
 - 使用清晰的标题层级（# H1、## H2、### H3）
 - 代码块指定语言（\`\`\`typescript、\`\`\`bash）
 - 使用相对链接引用其他文档
@@ -104,6 +105,7 @@ npm run docs:build
 ### 代码块增强
 
 **语法高亮**：
+
 ````markdown
 ```typescript
 const config = defineConfig({
@@ -113,6 +115,7 @@ const config = defineConfig({
 ````
 
 **行高亮**：
+
 ````markdown
 ```typescript{2}
 export default defineConfig({
@@ -144,6 +147,7 @@ export default defineConfig({
 ### 链接规范
 
 **内部链接**（推荐）：
+
 ```markdown
 [快速开始](./getting-started)
 [API 文档](/api/)
@@ -151,6 +155,7 @@ export default defineConfig({
 ```
 
 **外部链接**：
+
 ```markdown
 [VitePress 官网](https://vitepress.dev/)
 ```
@@ -161,9 +166,11 @@ export default defineConfig({
 
 ```markdown
 <!-- ❌ 错误 - 会被标记为死链接 -->
+
 [文档](http://localhost:8080/docs/guide/getting-started)
 
 <!-- ✅ 正确 -->
+
 [文档](../guide/getting-started)
 ```
 
@@ -171,9 +178,11 @@ export default defineConfig({
 
 ```markdown
 <!-- ❌ 错误 - 会导致 Vue 编译错误 -->
+
 环境变量：${{ github.event.repository.name }}
 
 <!-- ✅ 正确 -->
+
 环境变量：通过 GitHub Actions 上下文获取仓库名
 ```
 
@@ -185,9 +194,11 @@ export default defineConfig({
 
 ```markdown
 <!-- ❌ 错误 -->
+
 docs/guide/快速开始.md
 
 <!-- ✅ 正确 -->
+
 docs/guide/getting-started.md
 ```
 
@@ -205,11 +216,13 @@ docs/guide/getting-started.md
 ### 示例 1：创建用户指南
 
 **用户请求**：
+
 ```
 创建一个关于数据库迁移的指南文档
 ```
 
 **执行步骤**：
+
 1. 在 `docs/guide/` 创建 `database-migration.md`
 2. 编写内容（包含迁移步骤、示例）
 3. 更新 `docs/.vitepress/config.ts` 侧边栏：
@@ -219,6 +232,7 @@ docs/guide/getting-started.md
 4. 运行 `npm run docs:build` 验证
 
 **输出**：
+
 ```
 ✅ 已创建：docs/guide/database-migration.md
 ✅ 已更新：docs/.vitepress/config.ts
@@ -233,17 +247,20 @@ docs/guide/getting-started.md
 ### 示例 2：更新 API 文档
 
 **用户请求**：
+
 ```
 更新缓存接口的 API 文档，添加分布式锁示例
 ```
 
 **执行步骤**：
+
 1. 读取 `docs/api/cache.md`（如不存在则创建）
 2. 添加分布式锁部分
 3. 添加代码示例和参数说明
 4. 验证构建
 
 **输出**：
+
 ```
 ✅ 已更新：docs/api/cache.md
    - 新增"分布式锁"章节
@@ -256,17 +273,20 @@ docs/guide/getting-started.md
 ### 示例 3：创建开发文档
 
 **用户请求**：
+
 ```
 写一个关于 Docker 部署的开发文档
 ```
 
 **执行步骤**：
+
 1. 在 `docs/development/` 创建 `docker-deployment.md`
 2. 编写 Dockerfile、docker-compose.yml 说明
 3. 更新侧边栏配置
 4. 验证构建
 
 **输出**：
+
 ```
 ✅ 已创建：docs/development/docker-deployment.md
 ✅ 已更新：docs/.vitepress/config.ts
@@ -280,7 +300,7 @@ docs/guide/getting-started.md
 
 ### 用户指南模板
 
-```markdown
+````markdown
 # 文档标题
 
 简短介绍（1-2 句话说明这个功能是什么）
@@ -300,6 +320,7 @@ docs/guide/getting-started.md
 # 示例命令
 command here
 ```
+````
 
 ### 2. 第二步
 
@@ -315,7 +336,8 @@ A: 解答...
 
 - [相关文档](./related-doc)
 - [外部资源](https://example.com)
-```
+
+````
 
 ### API 文档模板
 
@@ -342,23 +364,24 @@ A: 解答...
 {
   "name": "example"
 }
-```
+````
 
 **响应示例**：
 
 ```json
 {
   "success": true,
-  "data": { }
+  "data": {}
 }
 ```
 
 **错误码**：
 
-| 错误码 | 说明 |
-|--------|------|
-| 400 | 参数错误 |
-| 401 | 未授权 |
+| 错误码 | 说明     |
+| ------ | -------- |
+| 400    | 参数错误 |
+| 401    | 未授权   |
+
 ```
 
 ## 项目配置
@@ -374,3 +397,4 @@ A: 解答...
 - `docs/.vitepress/config.ts` - 导航和侧边栏配置
 - `docs/.vitepress/dist/` - 构建输出目录
 - `.github/workflows/deploy-docs.yml` - GitHub Pages 自动部署
+```

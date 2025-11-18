@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref } from "vue";
 
 /**
  * 菜单管理页面
@@ -7,39 +7,39 @@ import { ref } from 'vue'
  */
 
 interface MenuItem {
-  id: number
-  title: string
-  path: string
-  icon: string
-  parent?: number
-  order: number
-  visible: boolean
+  id: number;
+  title: string;
+  path: string;
+  icon: string;
+  parent?: number;
+  order: number;
+  visible: boolean;
 }
 
-const menus = ref<MenuItem[]>([])
-const dialog = ref(false)
-const search = ref('')
-const treeView = ref(true)
+const menus = ref<MenuItem[]>([]);
+const dialog = ref(false);
+const search = ref("");
+const treeView = ref(true);
 
 // 表头配置
 const headers = [
-  { title: '菜单名称', key: 'title' },
-  { title: '路径', key: 'path' },
-  { title: '图标', key: 'icon' },
-  { title: '排序', key: 'order' },
-  { title: '可见', key: 'visible' },
-  { title: '操作', key: 'actions', sortable: false },
-]
+  { title: "菜单名称", key: "title" },
+  { title: "路径", key: "path" },
+  { title: "图标", key: "icon" },
+  { title: "排序", key: "order" },
+  { title: "可见", key: "visible" },
+  { title: "操作", key: "actions", sortable: false },
+];
 
 // 添加/编辑菜单
 const openDialog = () => {
-  dialog.value = true
-}
+  dialog.value = true;
+};
 
 // 切换视图模式
 const toggleView = () => {
-  treeView.value = !treeView.value
-}
+  treeView.value = !treeView.value;
+};
 </script>
 
 <template>
@@ -56,8 +56,7 @@ const toggleView = () => {
           <v-card-title>
             <v-row align="center">
               <v-col cols="12" md="4">
-                <v-text-field v-model="search" prepend-inner-icon="mdi-magnify" label="搜索菜单" single-line hide-details
-                  variant="outlined" density="compact"></v-text-field>
+                <v-text-field v-model="search" prepend-inner-icon="mdi-magnify" label="搜索菜单" single-line hide-details variant="outlined" density="compact"></v-text-field>
               </v-col>
               <v-col cols="12" md="8" class="text-right">
                 <v-btn-toggle v-model="treeView" mandatory class="mr-4">
@@ -74,9 +73,7 @@ const toggleView = () => {
           <v-card-text>
             <!-- 树形视图 -->
             <div v-if="treeView">
-              <v-alert type="info" variant="tonal">
-                树形视图功能开发中...
-              </v-alert>
+              <v-alert type="info" variant="tonal"> 树形视图功能开发中... </v-alert>
             </div>
 
             <!-- 表格视图 -->
@@ -86,7 +83,7 @@ const toggleView = () => {
               </template>
               <template #item.visible="{ item }">
                 <v-chip :color="item.visible ? 'success' : 'error'" size="small">
-                  {{ item.visible ? '显示' : '隐藏' }}
+                  {{ item.visible ? "显示" : "隐藏" }}
                 </v-chip>
               </template>
               <template #item.actions>

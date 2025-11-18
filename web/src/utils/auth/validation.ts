@@ -28,9 +28,7 @@ export function isValidUsername(username: string): boolean {
  * @param password - 密码
  * @returns 强度等级 (weak, medium, strong)
  */
-export function checkPasswordStrength(
-  password: string
-): "weak" | "medium" | "strong" {
+export function checkPasswordStrength(password: string): "weak" | "medium" | "strong" {
   if (password.length < 6) {
     return "weak";
   }

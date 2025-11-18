@@ -3,26 +3,14 @@
  */
 
 import { apiClient } from "./client";
-import {
-  saveAccessToken,
-  saveRefreshToken,
-  clearAuthTokens,
-} from "@/utils/auth";
-import type {
-  LoginRequest,
-  RegisterRequest,
-  AuthResponse,
-  ApiResponse,
-} from "@/types/auth";
+import { saveAccessToken, saveRefreshToken, clearAuthTokens } from "@/utils/auth";
+import type { LoginRequest, RegisterRequest, AuthResponse, ApiResponse } from "@/types/auth";
 
 /**
  * 用户登录
  */
 export const login = async (req: LoginRequest): Promise<AuthResponse> => {
-  const { data } = await apiClient.post<ApiResponse<AuthResponse>>(
-    "/login",
-    req
-  );
+  const { data } = await apiClient.post<ApiResponse<AuthResponse>>("/login", req);
 
   if (data.data) {
     // 保存 token
@@ -38,10 +26,7 @@ export const login = async (req: LoginRequest): Promise<AuthResponse> => {
  * 用户注册
  */
 export const register = async (req: RegisterRequest): Promise<AuthResponse> => {
-  const { data } = await apiClient.post<ApiResponse<AuthResponse>>(
-    "/register",
-    req
-  );
+  const { data } = await apiClient.post<ApiResponse<AuthResponse>>("/register", req);
 
   if (data.data) {
     // 保存 token
@@ -56,9 +41,7 @@ export const register = async (req: RegisterRequest): Promise<AuthResponse> => {
 /**
  * 刷新访问令牌
  */
-export const refreshToken = async (
-  refreshToken: string
-): Promise<AuthResponse> => {
+export const refreshToken = async (refreshToken: string): Promise<AuthResponse> => {
   const { data } = await apiClient.post<ApiResponse<AuthResponse>>("/refresh", {
     refresh_token: refreshToken,
   });

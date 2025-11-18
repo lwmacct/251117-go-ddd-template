@@ -519,25 +519,21 @@ redis-cli SCAN 0 MATCH user:* COUNT 100
 ## 最佳实践
 
 1. **合理设置 TTL**
-
    - 热点数据：较长 TTL（如 1 小时）
    - 一般数据：中等 TTL（如 10 分钟）
    - 冷数据：较短 TTL（如 1 分钟）
 
 2. **键命名规范**
-
    - 使用冒号分隔：`user:123`、`session:abc`
    - 包含类型信息：`cache:user:123`
    - 避免过长的键名
 
 3. **避免大 Value**
-
    - 单个值不超过 10MB
    - 大对象拆分存储
    - 使用压缩（如 JSON → MessagePack）
 
 4. **监控和告警**
-
    - 监控内存使用率
    - 监控命中率
    - 设置内存淘汰策略
@@ -608,23 +604,19 @@ result, err := script.Run(ctx, redisClient, []string{"balance:user:1"}, 100).Res
 ## 注意事项
 
 1. **自动 JSON 序列化**
-
    - CacheRepository 自动将值序列化为 JSON
    - 读取时自动反序列化
    - 确保类型匹配
 
 2. **上下文超时**
-
    - 所有操作都支持 context
    - 建议设置超时：`ctx, cancel := context.WithTimeout(ctx, 2*time.Second)`
 
 3. **优雅关闭**
-
    - 应用退出时自动关闭 Redis 连接
    - 在 `container.Close()` 中处理
 
 4. **错误处理**
-
    - 缓存失败不应影响主流程
    - 降级处理：缓存失败时直接查数据库
 

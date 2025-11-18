@@ -37,7 +37,7 @@ data:
   pgsql_url: "postgresql://postgres@localhost:5432/myapp?sslmode=disable"
   redis_url: "redis://localhost:6379/0"
   redis_key_prefix: "myapp:"
-  auto_migrate: false  # 是否在启动时自动迁移（仅推荐开发环境）
+  auto_migrate: false # 是否在启动时自动迁移（仅推荐开发环境）
 
 jwt:
   secret: "change-me-in-production"
@@ -140,7 +140,7 @@ data:
 jwt:
   secret: "change-me-in-production"
   access_token_expiry: "15m"
-  refresh_token_expiry: "168h"  # 7 天
+  refresh_token_expiry: "168h" # 7 天
 ```
 
 ## 配置加载流程

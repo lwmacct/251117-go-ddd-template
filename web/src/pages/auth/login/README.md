@@ -109,11 +109,11 @@ stateDiagram-v2
 ### 使用方式
 
 ```typescript
-import { useLogin } from '@/views/Auth/Login/composables'
+import { useLogin } from "@/views/Auth/Login/composables";
 
-const login = useLogin()
-await login.fetchCaptcha()
-const result = await login.login()
+const login = useLogin();
+await login.fetchCaptcha();
+const result = await login.login();
 ```
 
 ## 🔄 数据流

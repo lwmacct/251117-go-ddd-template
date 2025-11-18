@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref } from "vue";
 
 /**
  * 用户管理页面
@@ -7,31 +7,50 @@ import { ref } from 'vue'
  */
 
 interface UserItem {
-  username: string
-  email: string
-  role: string
-  status: string
-  lastLogin: string
+  username: string;
+  email: string;
+  role: string;
+  status: string;
+  lastLogin: string;
 }
 
-const users = ref<UserItem[]>([])
-const dialog = ref(false)
-const search = ref('')
+const users = ref<UserItem[]>([]);
+const dialog = ref(false);
+const search = ref("");
 
 // 表头配置
 const headers = [
-  { title: '用户名', key: 'username' },
-  { title: '邮箱', key: 'email' },
-  { title: '角色', key: 'role' },
-  { title: '状态', key: 'status' },
-  { title: '最后登录', key: 'lastLogin' },
-  { title: '操作', key: 'actions', sortable: false },
-]
+  {
+    title: "用户名",
+    key: "username",
+  },
+  {
+    title: "邮箱",
+    key: "email",
+  },
+  {
+    title: "角色",
+    key: "role",
+  },
+  {
+    title: "状态",
+    key: "status",
+  },
+  {
+    title: "最后登录",
+    key: "lastLogin",
+  },
+  {
+    title: "操作",
+    key: "actions",
+    sortable: false,
+  },
+];
 
 // 添加/编辑用户
 const openDialog = () => {
-  dialog.value = true
-}
+  dialog.value = true;
+};
 </script>
 
 <template>
@@ -48,15 +67,7 @@ const openDialog = () => {
           <v-card-title>
             <v-row align="center">
               <v-col cols="12" md="6">
-                <v-text-field
-                  v-model="search"
-                  prepend-inner-icon="mdi-magnify"
-                  label="搜索用户"
-                  single-line
-                  hide-details
-                  variant="outlined"
-                  density="compact"
-                ></v-text-field>
+                <v-text-field v-model="search" prepend-inner-icon="mdi-magnify" label="搜索用户" single-line hide-details variant="outlined" density="compact"></v-text-field>
               </v-col>
               <v-col cols="12" md="6" class="text-right">
                 <v-btn color="primary" @click="openDialog">
@@ -67,15 +78,10 @@ const openDialog = () => {
             </v-row>
           </v-card-title>
           <v-card-text>
-            <v-data-table
-              :headers="headers"
-              :items="users"
-              :search="search"
-              no-data-text="暂无用户数据"
-            >
+            <v-data-table :headers="headers" :items="users" :search="search" no-data-text="暂无用户数据">
               <template #item.status="{ item }">
                 <v-chip :color="item.status === 'active' ? 'success' : 'error'" size="small">
-                  {{ item.status === 'active' ? '启用' : '禁用' }}
+                  {{ item.status === "active" ? "启用" : "禁用" }}
                 </v-chip>
               </template>
               <template #item.actions>
@@ -97,11 +103,7 @@ const openDialog = () => {
             <v-text-field label="用户名" variant="outlined" class="mb-4"></v-text-field>
             <v-text-field label="邮箱" type="email" variant="outlined" class="mb-4"></v-text-field>
             <v-text-field label="密码" type="password" variant="outlined" class="mb-4"></v-text-field>
-            <v-select
-              label="角色"
-              :items="['管理员', '普通用户', '访客']"
-              variant="outlined"
-            ></v-select>
+            <v-select label="角色" :items="['管理员', '普通用户', '访客']" variant="outlined"></v-select>
           </v-form>
         </v-card-text>
         <v-card-actions>

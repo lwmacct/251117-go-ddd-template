@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref } from "vue";
 
 /**
  * 角色管理页面
@@ -7,31 +7,50 @@ import { ref } from 'vue'
  */
 
 interface RoleItem {
-  name: string
-  code: string
-  description: string
-  status: string
-  createdAt: string
+  name: string;
+  code: string;
+  description: string;
+  status: string;
+  createdAt: string;
 }
 
-const roles = ref<RoleItem[]>([])
-const dialog = ref(false)
-const search = ref('')
+const roles = ref<RoleItem[]>([]);
+const dialog = ref(false);
+const search = ref("");
 
 // 表头配置
 const headers = [
-  { title: '角色名称', key: 'name' },
-  { title: '角色代码', key: 'code' },
-  { title: '描述', key: 'description' },
-  { title: '状态', key: 'status' },
-  { title: '创建时间', key: 'createdAt' },
-  { title: '操作', key: 'actions', sortable: false },
-]
+  {
+    title: "角色名称",
+    key: "name",
+  },
+  {
+    title: "角色代码",
+    key: "code",
+  },
+  {
+    title: "描述",
+    key: "description",
+  },
+  {
+    title: "状态",
+    key: "status",
+  },
+  {
+    title: "创建时间",
+    key: "createdAt",
+  },
+  {
+    title: "操作",
+    key: "actions",
+    sortable: false,
+  },
+];
 
 // 添加/编辑角色
 const openDialog = () => {
-  dialog.value = true
-}
+  dialog.value = true;
+};
 </script>
 
 <template>
@@ -48,15 +67,7 @@ const openDialog = () => {
           <v-card-title>
             <v-row align="center">
               <v-col cols="12" md="6">
-                <v-text-field
-                  v-model="search"
-                  prepend-inner-icon="mdi-magnify"
-                  label="搜索角色"
-                  single-line
-                  hide-details
-                  variant="outlined"
-                  density="compact"
-                ></v-text-field>
+                <v-text-field v-model="search" prepend-inner-icon="mdi-magnify" label="搜索角色" single-line hide-details variant="outlined" density="compact"></v-text-field>
               </v-col>
               <v-col cols="12" md="6" class="text-right">
                 <v-btn color="primary" @click="openDialog">
@@ -67,15 +78,10 @@ const openDialog = () => {
             </v-row>
           </v-card-title>
           <v-card-text>
-            <v-data-table
-              :headers="headers"
-              :items="roles"
-              :search="search"
-              no-data-text="暂无角色数据"
-            >
+            <v-data-table :headers="headers" :items="roles" :search="search" no-data-text="暂无角色数据">
               <template #item.status="{ item }">
                 <v-chip :color="item.status === 'active' ? 'success' : 'error'" size="small">
-                  {{ item.status === 'active' ? '启用' : '禁用' }}
+                  {{ item.status === "active" ? "启用" : "禁用" }}
                 </v-chip>
               </template>
               <template #item.actions>

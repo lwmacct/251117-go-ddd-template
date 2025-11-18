@@ -1,42 +1,39 @@
 <script setup lang="ts">
-import AppBars from '@/views/AppBars/index.vue'
-import Navigation from '@/views/Navigation/index.vue'
-import type { MenuItem } from '@/views/Navigation/types'
-
+import AppBars from "@/views/AppBars/index.vue";
+import Navigation from "@/views/Navigation/index.vue";
+import type { MenuItem } from "@/views/Navigation/types";
 
 /**
  * 管理后台菜单配置
  */
 const menuItems: MenuItem[] = [
   {
-    title: '数据概览',
-    path: '/admin/overview',
-    icon: 'mdi-speedometer',
+    title: "数据概览",
+    path: "/admin/overview",
+    icon: "mdi-speedometer",
   },
   {
-    title: '角色管理',
-    path: '/admin/roles',
-    icon: 'mdi-account-group',
+    title: "角色管理",
+    path: "/admin/roles",
+    icon: "mdi-account-group",
   },
   {
-    title: '用户管理',
-    path: '/admin/users',
-    icon: 'mdi-account',
+    title: "用户管理",
+    path: "/admin/users",
+    icon: "mdi-account",
   },
   {
-    title: '菜单管理',
-    path: '/admin/menus',
-    icon: 'mdi-menu',
+    title: "菜单管理",
+    path: "/admin/menus",
+    icon: "mdi-menu",
   },
   {
-    title: '系统设置',
-    path: '/admin/settings',
-    icon: 'mdi-cog',
+    title: "系统设置",
+    path: "/admin/settings",
+    icon: "mdi-cog",
   },
-]
+];
 </script>
-
-
 
 <template>
   <!-- 顶部导航栏 -->

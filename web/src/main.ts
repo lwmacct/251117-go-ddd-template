@@ -19,9 +19,7 @@ function getDefaultTheme(): string {
   const storedTheme = localStorage.getItem("theme") || "light";
   if (storedTheme === "auto") {
     // 如果是 'auto'，根据系统主题偏好选择
-    const prefersDark = window.matchMedia(
-      "(prefers-color-scheme: dark)"
-    ).matches;
+    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
     return prefersDark ? "dark" : "light";
   }
   // 确保只有 'light' 或 'dark'

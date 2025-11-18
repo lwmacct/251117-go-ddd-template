@@ -6,14 +6,16 @@
       <span v-if="version" class="vp-badge tip">{{ version }}</span>
       <span v-if="deprecated" class="vp-badge warning">已废弃</span>
     </p>
-    <p v-if="description" class="api-description">{{ description }}</p>
+    <p v-if="description" class="api-description">
+      {{ description }}
+    </p>
     <slot />
   </div>
 </template>
 
 <script setup lang="ts">
 defineProps<{
-  method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
+  method: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
   path: string;
   description?: string;
   version?: string;
@@ -39,11 +41,26 @@ defineProps<{
   border-radius: 4px;
 }
 
-.method-get { background: #61affe; color: white; }
-.method-post { background: #49cc90; color: white; }
-.method-put { background: #fca130; color: white; }
-.method-patch { background: #50e3c2; color: white; }
-.method-delete { background: #f93e3e; color: white; }
+.method-get {
+  background: #61affe;
+  color: white;
+}
+.method-post {
+  background: #49cc90;
+  color: white;
+}
+.method-put {
+  background: #fca130;
+  color: white;
+}
+.method-patch {
+  background: #50e3c2;
+  color: white;
+}
+.method-delete {
+  background: #f93e3e;
+  color: white;
+}
 
 .api-description {
   color: var(--vp-c-text-2);

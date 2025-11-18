@@ -1,10 +1,17 @@
 <template>
-  <div class="vp-raw feature-card" :class="{ highlighted }">
+  <div
+    class="vp-raw feature-card"
+    :class="{
+      highlighted,
+    }"
+  >
     <h3 v-if="icon || title">
       <span v-if="icon" class="feature-icon">{{ icon }}</span>
       {{ title }}
     </h3>
-    <p v-if="description">{{ description }}</p>
+    <p v-if="description">
+      {{ description }}
+    </p>
     <slot />
   </div>
 </template>
@@ -25,7 +32,9 @@ defineProps<{
   padding: 20px;
   margin: 16px 0;
   background: var(--vp-c-bg-soft);
-  transition: border-color 0.25s, box-shadow 0.25s;
+  transition:
+    border-color 0.25s,
+    box-shadow 0.25s;
 }
 
 .feature-card:hover {

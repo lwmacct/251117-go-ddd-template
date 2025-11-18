@@ -3,21 +3,9 @@
  */
 import { defineStore } from "pinia";
 import { ref, computed } from "vue";
-import {
-  login as apiLogin,
-  register as apiRegister,
-  logout as apiLogout,
-  getCurrentUser,
-  PlatformAuthAPI,
-} from "@/api/auth";
+import { login as apiLogin, register as apiRegister, logout as apiLogout, getCurrentUser, PlatformAuthAPI } from "@/api/auth";
 import { getAccessToken, clearAuthTokens } from "@/utils/auth";
-import type {
-  LoginRequest,
-  RegisterRequest,
-  PlatformLoginRequest,
-  User,
-  LoginResult,
-} from "@/types/auth";
+import type { LoginRequest, RegisterRequest, PlatformLoginRequest, User, LoginResult } from "@/types/auth";
 
 export const useAuthStore = defineStore("auth", () => {
   // 状态
@@ -58,9 +46,7 @@ export const useAuthStore = defineStore("auth", () => {
   /**
    * 登录（基础版）
    */
-  async function login(
-    credentials: LoginRequest | PlatformLoginRequest
-  ): Promise<LoginResult> {
+  async function login(credentials: LoginRequest | PlatformLoginRequest): Promise<LoginResult> {
     try {
       isLoading.value = true;
       error.value = null;
@@ -109,8 +95,7 @@ export const useAuthStore = defineStore("auth", () => {
         };
       }
     } catch (err: any) {
-      const message =
-        err.response?.data?.error || err.message || "Login failed";
+      const message = err.response?.data?.error || err.message || "Login failed";
       error.value = message;
       return {
         success: false,
@@ -133,8 +118,7 @@ export const useAuthStore = defineStore("auth", () => {
       currentUser.value = response.user;
       return response;
     } catch (err: any) {
-      error.value =
-        err.response?.data?.error || err.message || "Registration failed";
+      error.value = err.response?.data?.error || err.message || "Registration failed";
       throw err;
     } finally {
       isLoading.value = false;

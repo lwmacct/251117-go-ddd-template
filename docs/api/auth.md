@@ -268,7 +268,9 @@ curl http://localhost:8080/api/auth/me \
 const register = async () => {
   const response = await fetch("http://localhost:8080/api/auth/register", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+    },
     body: JSON.stringify({
       username: "testuser",
       email: "test@example.com",
@@ -283,7 +285,9 @@ const register = async () => {
 const login = async () => {
   const response = await fetch("http://localhost:8080/api/auth/login", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+    },
     body: JSON.stringify({
       login: "testuser",
       password: "password123",
@@ -295,7 +299,9 @@ const login = async () => {
 // 获取当前用户
 const getCurrentUser = async (accessToken) => {
   const response = await fetch("http://localhost:8080/api/auth/me", {
-    headers: { Authorization: `Bearer ${accessToken}` },
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
   });
   return response.json();
 };
@@ -306,12 +312,10 @@ const getCurrentUser = async (accessToken) => {
 ## Token 管理最佳实践
 
 1. **存储 Token**：
-
    - 前端：存储在 `localStorage` 或 `sessionStorage`
    - 移动端：使用安全存储（Keychain/KeyStore）
 
 2. **Token 过期处理**：
-
    - 访问令牌过期时，使用刷新令牌自动获取新令牌
    - 刷新令牌过期时，需要重新登录
 

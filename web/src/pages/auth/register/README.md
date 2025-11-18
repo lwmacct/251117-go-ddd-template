@@ -140,11 +140,11 @@ stateDiagram-v2
 ### 使用方式
 
 ```typescript
-import { useRegister } from '@/views/Auth/Register/composables'
+import { useRegister } from "@/views/Auth/Register/composables";
 
-const register = useRegister()
-await register.fetchCaptcha()
-const result = await register.register()
+const register = useRegister();
+await register.fetchCaptcha();
+const result = await register.register();
 ```
 
 ## 🔄 数据流

@@ -46,11 +46,12 @@ func CreateUser(user *User) error {
 ```typescript
 export default defineConfig({
   themeConfig: {
-    search: { // [!code focus]
-      provider: 'local' // [!code focus]
-    } // [!code focus]
-  }
-})
+    search: {
+      // [!code focus]
+      provider: "local", // [!code focus]
+    }, // [!code focus]
+  },
+});
 ```
 
 ### 代码差异
@@ -143,18 +144,18 @@ type User struct {
 ```typescript [.vitepress/config.ts]
 export default defineConfig({
   title: "Go DDD Template",
-  description: "基于 Go 的 DDD 模板应用"
-})
+  description: "基于 Go 的 DDD 模板应用",
+});
 ```
 
 ## 📊 表格对齐
 
-| 功能 | 状态 | 优先级 |
-| :--- | :---: | ---: |
-| 用户认证 | ✅ 已完成 | 高 |
-| 权限管理 | 🚧 进行中 | 高 |
-| 日志系统 | 📋 计划中 | 中 |
-| 监控告警 | 💭 待定 | 低 |
+| 功能     |   状态    | 优先级 |
+| :------- | :-------: | -----: |
+| 用户认证 | ✅ 已完成 |     高 |
+| 权限管理 | 🚧 进行中 |     高 |
+| 日志系统 | 📋 计划中 |     中 |
+| 监控告警 |  💭 待定  |     低 |
 
 ## 🎯 任务列表
 

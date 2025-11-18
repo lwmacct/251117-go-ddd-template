@@ -18,10 +18,22 @@ export default defineConfig({
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
     nav: [
-      { text: "首页", link: "/" },
-      { text: "指南", link: "/guide/getting-started" },
-      { text: "API 文档", link: "/api/" },
-      { text: "开发文档", link: "/development/" },
+      {
+        text: "首页",
+        link: "/",
+      },
+      {
+        text: "指南",
+        link: "/guide/getting-started",
+      },
+      {
+        text: "API 文档",
+        link: "/api/",
+      },
+      {
+        text: "开发文档",
+        link: "/development/",
+      },
     ],
 
     sidebar: {
@@ -29,24 +41,63 @@ export default defineConfig({
         {
           text: "指南",
           items: [
-            { text: "快速开始", link: "/guide/getting-started" },
-            { text: "项目架构", link: "/guide/architecture" },
-            { text: "配置系统", link: "/guide/configuration" },
-            { text: "CLI 命令", link: "/guide/cli-commands" },
-            { text: "应用部署", link: "/guide/application-deployment" },
-            { text: "文档部署", link: "/guide/docs-deployment" },
-            { text: "测试指南", link: "/guide/testing" },
-            { text: "贡献指南", link: "/guide/contributing" },
-            { text: "Mermaid 图表", link: "/guide/mermaid-examples" },
-            { text: "任务列表示例", link: "/guide/task-list-examples" },
+            {
+              text: "快速开始",
+              link: "/guide/getting-started",
+            },
+            {
+              text: "项目架构",
+              link: "/guide/architecture",
+            },
+            {
+              text: "配置系统",
+              link: "/guide/configuration",
+            },
+            {
+              text: "CLI 命令",
+              link: "/guide/cli-commands",
+            },
+            {
+              text: "应用部署",
+              link: "/guide/application-deployment",
+            },
+            {
+              text: "文档部署",
+              link: "/guide/docs-deployment",
+            },
+            {
+              text: "测试指南",
+              link: "/guide/testing",
+            },
+            {
+              text: "贡献指南",
+              link: "/guide/contributing",
+            },
+            {
+              text: "Mermaid 图表",
+              link: "/guide/mermaid-examples",
+            },
+            {
+              text: "任务列表示例",
+              link: "/guide/task-list-examples",
+            },
           ],
         },
         {
           text: "核心功能",
           items: [
-            { text: "认证授权", link: "/guide/authentication" },
-            { text: "PostgreSQL", link: "/guide/postgresql" },
-            { text: "Redis", link: "/guide/redis" },
+            {
+              text: "认证授权",
+              link: "/guide/authentication",
+            },
+            {
+              text: "PostgreSQL",
+              link: "/guide/postgresql",
+            },
+            {
+              text: "Redis",
+              link: "/guide/redis",
+            },
           ],
         },
       ],
@@ -54,10 +105,22 @@ export default defineConfig({
         {
           text: "API 参考",
           items: [
-            { text: "概览", link: "/api/" },
-            { text: "认证接口", link: "/api/auth" },
-            { text: "用户接口", link: "/api/users" },
-            { text: "缓存接口", link: "/api/cache" },
+            {
+              text: "概览",
+              link: "/api/",
+            },
+            {
+              text: "认证接口",
+              link: "/api/auth",
+            },
+            {
+              text: "用户接口",
+              link: "/api/users",
+            },
+            {
+              text: "缓存接口",
+              link: "/api/cache",
+            },
           ],
         },
       ],
@@ -65,7 +128,10 @@ export default defineConfig({
         {
           text: "开发文档",
           items: [
-            { text: "概览", link: "/development/" },
+            {
+              text: "概览",
+              link: "/development/",
+            },
           ],
         },
         {
@@ -76,18 +142,36 @@ export default defineConfig({
               text: "快速参考",
               link: "/development/vitepress-quick-reference",
             },
-            { text: "部署指南", link: "/development/vitepress-deployment" },
-            { text: "文档集成", link: "/development/docs-integration" },
-            { text: "升级记录", link: "/development/vitepress-upgrade" },
+            {
+              text: "部署指南",
+              link: "/development/vitepress-deployment",
+            },
+            {
+              text: "文档集成",
+              link: "/development/docs-integration",
+            },
+            {
+              text: "升级记录",
+              link: "/development/vitepress-upgrade",
+            },
           ],
         },
         {
           text: "VitePress 功能扩展",
           collapsed: false,
           items: [
-            { text: "Mermaid 图表", link: "/development/mermaid-integration" },
-            { text: "功能展示", link: "/development/vitepress-features" },
-            { text: "高级功能", link: "/development/vitepress-advanced" },
+            {
+              text: "Mermaid 图表",
+              link: "/development/mermaid-integration",
+            },
+            {
+              text: "功能展示",
+              link: "/development/vitepress-features",
+            },
+            {
+              text: "高级功能",
+              link: "/development/vitepress-advanced",
+            },
           ],
         },
       ],
@@ -112,8 +196,7 @@ export default defineConfig({
 
     // 编辑链接
     editLink: {
-      pattern:
-        "https://github.com/lwmacct/251117-go-ddd-template/edit/main/docs/:path",
+      pattern: "https://github.com/lwmacct/251117-go-ddd-template/edit/main/docs/:path",
       text: "在 GitHub 上编辑此页",
     },
 
