@@ -45,7 +45,11 @@ func runSeed(ctx context.Context, cmd *cli.Command) error {
 		slog.Error("Failed to connect to database", "error", err)
 		return err
 	}
-	defer database.Close(db)
+	defer func() {
+		if err := database.Close(db); err != nil {
+			slog.Error("Failed to close database connection", "error", err)
+		}
+	}()
 
 	// 创建种子管理器
 	manager := database.NewSeederManager(db, getAllSeeders())

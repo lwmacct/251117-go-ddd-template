@@ -65,7 +65,11 @@ func runWorker(ctx context.Context, cmd *cli.Command) error {
 		slog.Error("Failed to connect to Redis", "error", err)
 		return err
 	}
-	defer redisinfra.Close(redisClient)
+	defer func() {
+		if err := redisinfra.Close(redisClient); err != nil {
+			slog.Error("Failed to close Redis connection", "error", err)
+		}
+	}()
 
 	// 创建队列
 	q := queue.NewRedisQueue(redisClient, queueName)
