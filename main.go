@@ -38,8 +38,8 @@ func main() {
 		Commands:    buildCommands(),
 		Authors: []any{
 			map[string]string{
-				"name":  "Your Name",
-				"email": "your.email@example.com",
+				"name":  "lwmacct",
+				"email": "lwmacct@icloud.com",
 			},
 		},
 	}
