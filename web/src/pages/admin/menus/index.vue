@@ -56,15 +56,8 @@ const toggleView = () => {
           <v-card-title>
             <v-row align="center">
               <v-col cols="12" md="4">
-                <v-text-field
-                  v-model="search"
-                  prepend-inner-icon="mdi-magnify"
-                  label="搜索菜单"
-                  single-line
-                  hide-details
-                  variant="outlined"
-                  density="compact"
-                ></v-text-field>
+                <v-text-field v-model="search" prepend-inner-icon="mdi-magnify" label="搜索菜单" single-line hide-details
+                  variant="outlined" density="compact"></v-text-field>
               </v-col>
               <v-col cols="12" md="8" class="text-right">
                 <v-btn-toggle v-model="treeView" mandatory class="mr-4">
@@ -87,13 +80,7 @@ const toggleView = () => {
             </div>
 
             <!-- 表格视图 -->
-            <v-data-table
-              v-else
-              :headers="headers"
-              :items="menus"
-              :search="search"
-              no-data-text="暂无菜单数据"
-            >
+            <v-data-table v-else :headers="headers" :items="menus" :search="search" no-data-text="暂无菜单数据">
               <template #item.icon="{ item }">
                 <v-icon>{{ item.icon }}</v-icon>
               </template>
@@ -120,24 +107,9 @@ const toggleView = () => {
           <v-form>
             <v-text-field label="菜单名称" variant="outlined" class="mb-4"></v-text-field>
             <v-text-field label="路径" variant="outlined" class="mb-4"></v-text-field>
-            <v-text-field
-              label="图标（MDI）"
-              placeholder="mdi-home"
-              variant="outlined"
-              class="mb-4"
-            ></v-text-field>
-            <v-select
-              label="父级菜单"
-              :items="['无', '系统管理', '用户中心']"
-              variant="outlined"
-              class="mb-4"
-            ></v-select>
-            <v-text-field
-              label="排序"
-              type="number"
-              variant="outlined"
-              class="mb-4"
-            ></v-text-field>
+            <v-text-field label="图标（MDI）" placeholder="mdi-home" variant="outlined" class="mb-4"></v-text-field>
+            <v-select label="父级菜单" :items="['无', '系统管理', '用户中心']" variant="outlined" class="mb-4"></v-select>
+            <v-text-field label="排序" type="number" variant="outlined" class="mb-4"></v-text-field>
             <v-switch label="是否可见" color="primary"></v-switch>
           </v-form>
         </v-card-text>
