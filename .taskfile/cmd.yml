@@ -10,3 +10,8 @@ tasks:
     desc: 默认任务
     cmds:
       - echo "${GREETING}"
+
+  prettier:
+    desc: 运行 Prettier 进行代码格式化
+    cmds:
+      - npx prettier --write docs web

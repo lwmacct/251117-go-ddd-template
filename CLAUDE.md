@@ -83,16 +83,19 @@ APP_JWT_SECRET=your-secret-key
 添加新功能的快速参考：
 
 1. **新 HTTP 端点**：
+
    - 创建 handler：`internal/adapters/http/handler/<name>.go`
    - 注册路由：`internal/adapters/http/router.go`
 
 2. **新领域模型**：
+
    - 创建模型：`internal/domain/<name>/model.go`
    - 定义仓储接口：`internal/domain/<name>/repository.go`
    - 实现仓储：`internal/infrastructure/persistence/<name>_repository.go`
    - 注入依赖：`internal/bootstrap/container.go`
 
 3. **新配置项**：
+
    - 更新：`internal/infrastructure/config/config.go`
    - 运行：`sync-config-example` 技能
 
