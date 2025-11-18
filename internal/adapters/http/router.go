@@ -62,7 +62,7 @@ func SetupRouter(
 		}
 
 		// 缓存操作示例（公开，仅用于演示）
-		cacheHandler := handler.NewCacheHandler(redisClient)
+		cacheHandler := handler.NewCacheHandler(redisClient, cfg.Data.RedisKeyPrefix)
 		api.POST("/cache", cacheHandler.SetCache)
 		api.GET("/cache/:key", cacheHandler.GetCache)
 		api.DELETE("/cache/:key", cacheHandler.DeleteCache)

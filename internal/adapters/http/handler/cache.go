@@ -14,9 +14,10 @@ type CacheHandler struct {
 }
 
 // NewCacheHandler 创建缓存处理器
-func NewCacheHandler(redisClient *redis.Client) *CacheHandler {
+// keyPrefix: Redis key 前缀，例如 "myapp:"
+func NewCacheHandler(redisClient *redis.Client, keyPrefix string) *CacheHandler {
 	return &CacheHandler{
-		cacheRepo: redisinfra.NewCacheRepository(redisClient),
+		cacheRepo: redisinfra.NewCacheRepository(redisClient, keyPrefix),
 	}
 }
 
