@@ -36,6 +36,8 @@ export default defineConfig({
             { text: "文档部署", link: "/guide/docs-deployment" },
             { text: "测试指南", link: "/guide/testing" },
             { text: "贡献指南", link: "/guide/contributing" },
+            { text: "Mermaid 图表", link: "/guide/mermaid-examples" },
+            { text: "任务列表示例", link: "/guide/task-list-examples" },
           ],
         },
         {
@@ -60,9 +62,15 @@ export default defineConfig({
       ],
       "/development/": [
         {
-          text: "VitePress 文档系统",
+          text: "开发文档",
           items: [
             { text: "概览", link: "/development/" },
+          ],
+        },
+        {
+          text: "VitePress 文档系统",
+          collapsed: false,
+          items: [
             {
               text: "快速参考",
               link: "/development/vitepress-quick-reference",
@@ -70,6 +78,15 @@ export default defineConfig({
             { text: "部署指南", link: "/development/vitepress-deployment" },
             { text: "文档集成", link: "/development/docs-integration" },
             { text: "升级记录", link: "/development/vitepress-upgrade" },
+          ],
+        },
+        {
+          text: "VitePress 功能扩展",
+          collapsed: false,
+          items: [
+            { text: "Mermaid 图表", link: "/development/mermaid-integration" },
+            { text: "功能展示", link: "/development/vitepress-features" },
+            { text: "高级功能", link: "/development/vitepress-advanced" },
           ],
         },
       ],
@@ -117,6 +134,24 @@ export default defineConfig({
     // 图片懒加载
     image: {
       lazyLoading: true,
+    },
+    // 自定义 markdown-it 配置
+    config: (md) => {
+      // 自定义渲染 mermaid 代码块
+      const fence = md.renderer.rules.fence!;
+      md.renderer.rules.fence = (...args) => {
+        const [tokens, idx] = args;
+        const token = tokens[idx];
+        const lang = token.info.trim();
+
+        if (lang === "mermaid") {
+          // 转换为 Mermaid 组件，使用 pre 标签保留换行符
+          const code = md.utils.escapeHtml(token.content.trim());
+          return `<Mermaid><pre style="display:none;">${code}</pre></Mermaid>\n`;
+        }
+
+        return fence(...args);
+      };
     },
   },
 

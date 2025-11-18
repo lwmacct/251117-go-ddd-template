@@ -15,7 +15,9 @@
 
 ### 本地开发 + Go 服务器
 
-```bash
+::: code-group
+
+```bash [使用 npm]
 # 1. 构建文档
 npm run docs:build
 
@@ -25,6 +27,19 @@ task go:run -- api
 # 3. 访问
 open http://localhost:8080/docs/
 ```
+
+```bash [使用 task]
+# 1. 构建文档
+task docs:build
+
+# 2. 启动 Go 服务器
+task go:run -- api
+
+# 3. 访问
+open http://localhost:8080/docs/
+```
+
+:::
 
 ### GitHub Pages（自动部署）
 
@@ -130,6 +145,61 @@ grep '/your-repo-name/assets' docs/.vitepress/dist/index.html
 ✅ **统一命令**: 本地和 CI 使用相同的 `npm run docs:build`
 ✅ **可移植**: Fork 项目后无需修改任何配置
 ✅ **类型安全**: `@types/node` 提供完整的类型支持
+
+## 🎨 Mermaid 图表支持
+
+VitePress 已集成 Mermaid 支持，可直接在 Markdown 中使用图表：
+
+### 快速使用
+
+::: code-group
+
+````markdown [基础语法]
+```mermaid
+flowchart LR
+    A[开始] --> B[处理]
+    B --> C[结束]
+```
+````
+
+````markdown [时序图]
+```mermaid
+sequenceDiagram
+    用户->>后端: 登录请求
+    后端->>数据库: 验证用户
+    数据库-->>后端: 返回结果
+    后端-->>用户: 返回Token
+```
+````
+
+````markdown [流程图]
+```mermaid
+flowchart TD
+    A[开始] --> B{判断条件}
+    B -->|是| C[执行操作A]
+    B -->|否| D[执行操作B]
+    C --> E[结束]
+    D --> E
+```
+````
+
+:::
+
+### 支持的图表类型
+
+- ✅ 流程图 (Flowchart)
+- ✅ 时序图 (Sequence Diagram)
+- ✅ 类图 (Class Diagram)
+- ✅ 状态图 (State Diagram)
+- ✅ ER 图、甘特图、饼图等 10+ 种
+
+### 特性
+
+- 自动适配亮色/暗色主题
+- 标准 Markdown 代码块语法
+- 无需第三方插件
+
+**详细文档**: [Mermaid 集成说明](./mermaid-integration) | [完整示例](/guide/mermaid-examples)
 
 ## 📚 详细文档
 

@@ -12,6 +12,8 @@
 
 - **[VitePress 部署指南](./vitepress-deployment)** - 完整的多环境部署文档
 - **[文档集成说明](./docs-integration)** - Go API 服务器集成 VitePress 文档服务
+- **[Mermaid 集成](./mermaid-integration)** - VitePress 中使用 Mermaid 图表的技术实现
+- **[功能展示](./vitepress-features)** - VitePress 2.0 原生功能完整示例
 
 ### 升级记录
 
@@ -58,6 +60,33 @@ Go API 服务器如何集成 VitePress 文档：
 - Vite 7 + Node.js 20.19+ 要求
 - 新特性：CJK 支持、图片懒加载
 - 破坏性变更和迁移指南
+
+### Mermaid 集成
+
+VitePress 中使用 Mermaid 图表的完整说明：
+
+- 技术方案：markdown-it + Vue 组件
+- 支持 10+ 种图表类型（流程图、时序图、类图等）
+- 自动主题切换（亮色/暗色）
+- 标准 Markdown 代码块语法
+
+### 功能展示
+
+VitePress 2.0 原生功能完整示例：
+
+- Badge 徽章、代码高亮、代码差异
+- 自定义容器、任务列表、Emoji
+- 代码组、文件名显示、表格对齐
+- 所有功能无需安装任何插件
+
+### 高级功能
+
+VitePress 高级功能和自定义组件：
+
+- Medium Zoom 图片缩放
+- 自定义 Vue 组件（ApiEndpoint、FeatureCard、StepsGuide）
+- 主题自定义（品牌颜色、UI 增强）
+- 实用组件库，可直接在文档中使用
 
 ## 相关链接
 
