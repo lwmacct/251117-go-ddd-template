@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import AppBars from '@/views/AppBars/index.vue'
 import Navigation from '@/views/Navigation/index.vue'
-import type { MenuItem } from '@/views/Navigation/types.ts'
+import type { MenuItem } from '@/views/Navigation/types'
 
 
 /**

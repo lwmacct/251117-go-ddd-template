@@ -12,7 +12,7 @@ import type { RouteRecordRaw } from "vue-router";
 export const adminRoutes: RouteRecordRaw = {
   path: "/admin",
   name: "AdminLayout",
-  component: () => import("./index.vue"),
+  component: () => import("@/layout/AdminLayout.vue"),
   redirect: "/admin/overview",
   meta: {
     title: "管理后台",
@@ -22,7 +22,7 @@ export const adminRoutes: RouteRecordRaw = {
     {
       path: "overview",
       name: "AdminOverview",
-      component: () => import("./views/overview/index.vue"),
+      component: () => import("@/pages/admin/overview/index.vue"),
       meta: {
         title: "数据概览",
         icon: "mdi-speedometer",
@@ -31,7 +31,7 @@ export const adminRoutes: RouteRecordRaw = {
     {
       path: "roles",
       name: "AdminRoles",
-      component: () => import("./views/roles/index.vue"),
+      component: () => import("@/pages/admin/roles/index.vue"),
       meta: {
         title: "角色管理",
         icon: "mdi-account-group",
@@ -40,7 +40,7 @@ export const adminRoutes: RouteRecordRaw = {
     {
       path: "users",
       name: "AdminUsers",
-      component: () => import("./views/users/index.vue"),
+      component: () => import("@/pages/admin/users/index.vue"),
       meta: {
         title: "用户管理",
         icon: "mdi-account",
@@ -49,7 +49,7 @@ export const adminRoutes: RouteRecordRaw = {
     {
       path: "settings",
       name: "AdminSettings",
-      component: () => import("./views/settings/index.vue"),
+      component: () => import("@/pages/admin/settings/index.vue"),
       meta: {
         title: "系统设置",
         icon: "mdi-cog",
@@ -58,7 +58,7 @@ export const adminRoutes: RouteRecordRaw = {
     {
       path: "menus",
       name: "AdminMenus",
-      component: () => import("./views/menus/index.vue"),
+      component: () => import("@/pages/admin/menus/index.vue"),
       meta: {
         title: "菜单管理",
         icon: "mdi-menu",
