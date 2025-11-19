@@ -5,25 +5,28 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	userdto "github.com/lwmacct/251117-go-ddd-template/internal/application/user"
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/user"
 	"golang.org/x/crypto/bcrypt"
 )
 
 // AdminUserHandler handles admin user management operations
 type AdminUserHandler struct {
-	userRepo user.Repository
+	userCommandRepo user.CommandRepository
+	userQueryRepo   user.QueryRepository
 }
 
 // NewAdminUserHandler creates a new AdminUserHandler instance
-func NewAdminUserHandler(userRepo user.Repository) *AdminUserHandler {
+func NewAdminUserHandler(userCommandRepo user.CommandRepository, userQueryRepo user.QueryRepository) *AdminUserHandler {
 	return &AdminUserHandler{
-		userRepo: userRepo,
+		userCommandRepo: userCommandRepo,
+		userQueryRepo:   userQueryRepo,
 	}
 }
 
 // CreateUser creates a new user (admin only)
 func (h *AdminUserHandler) CreateUser(c *gin.Context) {
-	var dto user.UserCreateDTO
+	var dto userdto.CreateUserDTO
 	if err := c.ShouldBindJSON(&dto); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -43,14 +46,14 @@ func (h *AdminUserHandler) CreateUser(c *gin.Context) {
 		Status:   "active",
 	}
 
-	if err := h.userRepo.Create(c.Request.Context(), newUser); err != nil {
+	if err := h.userCommandRepo.Create(c.Request.Context(), newUser); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to create user"})
 		return
 	}
 
 	c.JSON(http.StatusCreated, gin.H{
 		"message": "user created successfully",
-		"user":    newUser.ToResponse(),
+		"user":    userdto.ToUserResponse(newUser),
 	})
 }
 
@@ -67,21 +70,21 @@ func (h *AdminUserHandler) ListUsers(c *gin.Context) {
 	}
 
 	offset := (page - 1) * limit
-	users, err := h.userRepo.List(c.Request.Context(), offset, limit)
+	users, err := h.userQueryRepo.List(c.Request.Context(), offset, limit)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to list users"})
 		return
 	}
 
-	total, err := h.userRepo.Count(c.Request.Context())
+	total, err := h.userQueryRepo.Count(c.Request.Context())
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to count users"})
 		return
 	}
 
-	responses := make([]*user.UserResponse, 0, len(users))
+	responses := make([]*userdto.UserResponse, 0, len(users))
 	for _, u := range users {
-		responses = append(responses, u.ToResponse())
+		responses = append(responses, userdto.ToUserResponse(u))
 	}
 
 	c.JSON(http.StatusOK, gin.H{
@@ -102,13 +105,13 @@ func (h *AdminUserHandler) GetUser(c *gin.Context) {
 		return
 	}
 
-	u, err := h.userRepo.GetByIDWithRoles(c.Request.Context(), uint(id))
+	u, err := h.userQueryRepo.GetByIDWithRoles(c.Request.Context(), uint(id))
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "user not found"})
 		return
 	}
 
-	c.JSON(http.StatusOK, u.ToResponse())
+	c.JSON(http.StatusOK, userdto.ToUserWithRolesResponse(u))
 }
 
 // UpdateUser updates a user (admin only)
@@ -119,13 +122,13 @@ func (h *AdminUserHandler) UpdateUser(c *gin.Context) {
 		return
 	}
 
-	var dto user.UserUpdateDTO
+	var dto userdto.UpdateUserDTO
 	if err := c.ShouldBindJSON(&dto); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	u, err := h.userRepo.GetByID(c.Request.Context(), uint(id))
+	u, err := h.userQueryRepo.GetByID(c.Request.Context(), uint(id))
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "user not found"})
 		return
@@ -144,14 +147,14 @@ func (h *AdminUserHandler) UpdateUser(c *gin.Context) {
 		u.Status = *dto.Status
 	}
 
-	if err := h.userRepo.Update(c.Request.Context(), u); err != nil {
+	if err := h.userCommandRepo.Update(c.Request.Context(), u); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to update user"})
 		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{
 		"message": "user updated successfully",
-		"user":    u.ToResponse(),
+		"user":    userdto.ToUserResponse(u),
 	})
 }
 
@@ -163,7 +166,7 @@ func (h *AdminUserHandler) DeleteUser(c *gin.Context) {
 		return
 	}
 
-	if err := h.userRepo.Delete(c.Request.Context(), uint(id)); err != nil {
+	if err := h.userCommandRepo.Delete(c.Request.Context(), uint(id)); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to delete user"})
 		return
 	}
@@ -188,7 +191,7 @@ func (h *AdminUserHandler) AssignRoles(c *gin.Context) {
 		return
 	}
 
-	if err := h.userRepo.AssignRoles(c.Request.Context(), uint(id), req.RoleIDs); err != nil {
+	if err := h.userCommandRepo.AssignRoles(c.Request.Context(), uint(id), req.RoleIDs); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to assign roles"})
 		return
 	}

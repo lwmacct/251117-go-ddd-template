@@ -6,6 +6,11 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/lwmacct/251117-go-ddd-template/internal/adapters/http"
+	"github.com/lwmacct/251117-go-ddd-template/internal/adapters/http/handler"
+	authCommand "github.com/lwmacct/251117-go-ddd-template/internal/application/auth/command"
+	userCommand "github.com/lwmacct/251117-go-ddd-template/internal/application/user/command"
+	userQuery "github.com/lwmacct/251117-go-ddd-template/internal/application/user/query"
+	domainAuth "github.com/lwmacct/251117-go-ddd-template/internal/domain/auth"
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/auditlog"
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/captcha"
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/menu"
@@ -37,31 +42,58 @@ func DefaultOptions() *ContainerOptions {
 	}
 }
 
-// Container 依赖注入容器
+// Container DDD+CQRS 架构的依赖注入容器
 type Container struct {
-	Config               *config.Config
-	DB                   *gorm.DB
-	RedisClient          *redis.Client
-	UserRepository       user.Repository
+	Config      *config.Config
+	DB          *gorm.DB
+	RedisClient *redis.Client
+
+	// CQRS Repositories
+	UserCommandRepo      user.CommandRepository
+	UserQueryRepo        user.QueryRepository
+	AuditLogCommandRepo  auditlog.CommandRepository
+	AuditLogQueryRepo    auditlog.QueryRepository
+
+	// Legacy Repositories (待迁移)
 	RoleRepository       role.RoleRepository
 	PermissionRepository role.PermissionRepository
-	AuditLogRepository   auditlog.Repository
 	PATRepository        pat.Repository
 	CaptchaRepository    captcha.Repository
 	TwoFARepository      twofa.Repository
 	MenuRepository       menu.Repository
 	SettingRepository    setting.Repository
-	JWTManager           *infraauth.JWTManager
-	TokenGenerator       *infraauth.TokenGenerator
-	LoginSessionService  *infraauth.LoginSessionService
-	PATService           *infraauth.PATService
-	AuthService          *infraauth.Service
-	CaptchaService       *infracaptcha.Service
-	TwoFAService         *infratwofa.Service
-	Router               *gin.Engine
+
+	// Domain Services
+	AuthService domainAuth.Service
+
+	// Infrastructure Services
+	JWTManager          *infraauth.JWTManager
+	TokenGenerator      *infraauth.TokenGenerator
+	LoginSessionService *infraauth.LoginSessionService
+	PATService          *infraauth.PATService
+	CaptchaService      *infracaptcha.Service
+	TwoFAService        *infratwofa.Service
+
+	// Use Case Handlers - Auth
+	LoginHandler        *authCommand.LoginHandler
+	RegisterHandler     *authCommand.RegisterHandler
+	RefreshTokenHandler *authCommand.RefreshTokenHandler
+
+	// Use Case Handlers - User
+	CreateUserHandler *userCommand.CreateUserHandler
+	UpdateUserHandler *userCommand.UpdateUserHandler
+	DeleteUserHandler *userCommand.DeleteUserHandler
+	GetUserHandler    *userQuery.GetUserHandler
+	ListUsersHandler  *userQuery.ListUsersHandler
+
+	// HTTP Handlers
+	AuthHandler *handler.AuthHandlerNew
+	UserHandler *handler.UserHandlerNew
+
+	Router *gin.Engine
 }
 
-// NewContainer 创建并初始化依赖注入容器
+// NewContainerNew 创建并初始化新架构的依赖注入容器
 func NewContainer(cfg *config.Config, opts *ContainerOptions) (*Container, error) {
 	if opts == nil {
 		opts = DefaultOptions()
@@ -94,18 +126,28 @@ func NewContainer(cfg *config.Config, opts *ContainerOptions) (*Container, error
 		return nil, err
 	}
 
-	// 4. 初始化仓储
-	userRepo := persistence.NewUserRepository(db)
+	// =================================================================
+	// 4. 初始化 CQRS Repositories（新架构）
+	// =================================================================
+	userCommandRepo := persistence.NewUserCommandRepository(db)
+	userQueryRepo := persistence.NewUserQueryRepository(db)
+	auditLogCommandRepo := persistence.NewAuditLogCommandRepository(db)
+	auditLogQueryRepo := persistence.NewAuditLogQueryRepository(db)
+	twofaCommandRepo := persistence.NewTwoFACommandRepository(db)
+	twofaQueryRepo := persistence.NewTwoFAQueryRepository(db)
+
+	// Legacy Repositories (待迁移)
 	roleRepo := persistence.NewRoleRepository(db)
 	permissionRepo := persistence.NewPermissionRepository(db)
-	auditLogRepo := persistence.NewAuditLogRepository(db)
 	patRepo := persistence.NewPATRepository(db)
 	captchaRepo := persistence.NewCaptchaMemoryRepository()
 	twofaRepo := persistence.NewTwoFARepository(db)
 	menuRepo := persistence.NewMenuRepository(db)
 	settingRepo := persistence.NewSettingRepository(db)
 
-	// 5. 初始化 JWT 管理器和 Token 生成器
+	// =================================================================
+	// 5. 初始化 Infrastructure 组件（技术实现）
+	// =================================================================
 	jwtManager := infraauth.NewJWTManager(
 		cfg.JWT.Secret,
 		cfg.JWT.AccessTokenExpiry,
@@ -114,64 +156,173 @@ func NewContainer(cfg *config.Config, opts *ContainerOptions) (*Container, error
 	tokenGenerator := infraauth.NewTokenGenerator()
 	loginSessionService := infraauth.NewLoginSessionService()
 
-	// 6. 初始化 PAT 服务
-	patService := infraauth.NewPATService(patRepo, userRepo, tokenGenerator)
+	// =================================================================
+	// 6. 初始化 Domain Services（领域服务）
+	// =================================================================
+	passwordPolicy := domainAuth.DefaultPasswordPolicy()
+	authService := infraauth.NewAuthService(jwtManager, tokenGenerator, passwordPolicy)
 
-	// 7. 初始化认证服务（集成验证码和2FA）
-	authService := infraauth.NewService(
-		userRepo,
-		twofaRepo,
+	// =================================================================
+	// 7. 初始化 Use Case Handlers - Auth
+	// =================================================================
+	loginHandler := authCommand.NewLoginHandler(
+		userQueryRepo,
+		captchaRepo,
+		twofaQueryRepo,
+		authService,
+	)
+
+	registerHandler := authCommand.NewRegisterHandler(
+		userCommandRepo,
+		userQueryRepo,
+		authService,
+	)
+
+	refreshTokenHandler := authCommand.NewRefreshTokenHandler(
+		userQueryRepo,
+		authService,
+	)
+
+	// =================================================================
+	// 8. 初始化 Use Case Handlers - User
+	// =================================================================
+	createUserHandler := userCommand.NewCreateUserHandler(
+		userCommandRepo,
+		userQueryRepo,
+		authService,
+	)
+
+	updateUserHandler := userCommand.NewUpdateUserHandler(
+		userCommandRepo,
+		userQueryRepo,
+	)
+
+	deleteUserHandler := userCommand.NewDeleteUserHandler(
+		userCommandRepo,
+		userQueryRepo,
+	)
+
+	getUserHandler := userQuery.NewGetUserHandler(userQueryRepo)
+	listUsersHandler := userQuery.NewListUsersHandler(userQueryRepo)
+
+	// =================================================================
+	// 9. 初始化 HTTP Handlers（适配器层）
+	// =================================================================
+	authHandler := handler.NewAuthHandlerNew(
+		loginHandler,
+		registerHandler,
+		refreshTokenHandler,
+		getUserHandler,
+	)
+
+	userHandler := handler.NewUserHandlerNew(
+		createUserHandler,
+		updateUserHandler,
+		deleteUserHandler,
+		getUserHandler,
+		listUsersHandler,
+	)
+
+	// =================================================================
+	// 10. 初始化 Legacy Services（待迁移）
+	// =================================================================
+	patCommandRepo := persistence.NewPATCommandRepository(db)
+	patQueryRepo := persistence.NewPATQueryRepository(db)
+
+	patService := infraauth.NewPATService(patCommandRepo, patQueryRepo, userQueryRepo, tokenGenerator)
+	captchaService := infracaptcha.NewService()
+	userQueryRepoForTwoFA := persistence.NewUserQueryRepository(db)
+	twofaService := infratwofa.NewService(twofaCommandRepo, twofaQueryRepo, userQueryRepoForTwoFA, cfg.Auth.TwoFAIssuer)
+
+	// =================================================================
+	// 11. 初始化路由（使用新的 Handlers）
+	// =================================================================
+	// TODO: 更新 SetupRouter 来使用新的 Handlers
+	authServiceForRouter := infraauth.NewService(
+		userCommandRepo,
+		userQueryRepo,
+		twofaCommandRepo,
+		twofaQueryRepo,
 		captchaRepo,
 		jwtManager,
 		loginSessionService,
 	)
 
-	// 8. 初始化验证码和2FA服务
-	captchaService := infracaptcha.NewService()
-	twofaService := infratwofa.NewService(twofaRepo, userRepo, cfg.Auth.TwoFAIssuer)
+	menuCommandRepo := persistence.NewMenuCommandRepository(db)
+	menuQueryRepo := persistence.NewMenuQueryRepository(db)
+	settingCommandRepo := persistence.NewSettingCommandRepository(db)
+	settingQueryRepo := persistence.NewSettingQueryRepository(db)
 
-	// 9. 初始化路由 (传入依赖)
 	router := http.SetupRouter(
 		cfg,
 		db,
 		redisClient,
-		userRepo,
+		userCommandRepo,
+		userQueryRepo,
 		roleRepo,
 		permissionRepo,
-		auditLogRepo,
-		patRepo,
+		persistence.NewAuditLogRepository(db), // Legacy
 		captchaRepo,
-		menuRepo,
-		settingRepo,
+		menuCommandRepo,
+		menuQueryRepo,
+		settingCommandRepo,
+		settingQueryRepo,
 		jwtManager,
 		tokenGenerator,
 		patService,
-		authService,
+		authServiceForRouter,
 		captchaService,
 		twofaService,
 	)
 
 	return &Container{
-		Config:               cfg,
-		DB:                   db,
-		RedisClient:          redisClient,
-		UserRepository:       userRepo,
+		Config:      cfg,
+		DB:          db,
+		RedisClient: redisClient,
+
+		// CQRS Repositories
+		UserCommandRepo:     userCommandRepo,
+		UserQueryRepo:       userQueryRepo,
+		AuditLogCommandRepo: auditLogCommandRepo,
+		AuditLogQueryRepo:   auditLogQueryRepo,
+
+		// Legacy Repositories
 		RoleRepository:       roleRepo,
 		PermissionRepository: permissionRepo,
-		AuditLogRepository:   auditLogRepo,
 		PATRepository:        patRepo,
 		CaptchaRepository:    captchaRepo,
 		TwoFARepository:      twofaRepo,
 		MenuRepository:       menuRepo,
 		SettingRepository:    settingRepo,
-		JWTManager:           jwtManager,
-		TokenGenerator:       tokenGenerator,
-		LoginSessionService:  loginSessionService,
-		PATService:           patService,
-		AuthService:          authService,
-		CaptchaService:       captchaService,
-		TwoFAService:         twofaService,
-		Router:               router,
+
+		// Domain Services
+		AuthService: authService,
+
+		// Infrastructure Services
+		JWTManager:          jwtManager,
+		TokenGenerator:      tokenGenerator,
+		LoginSessionService: loginSessionService,
+		PATService:          patService,
+		CaptchaService:      captchaService,
+		TwoFAService:        twofaService,
+
+		// Use Case Handlers - Auth
+		LoginHandler:        loginHandler,
+		RegisterHandler:     registerHandler,
+		RefreshTokenHandler: refreshTokenHandler,
+
+		// Use Case Handlers - User
+		CreateUserHandler: createUserHandler,
+		UpdateUserHandler: updateUserHandler,
+		DeleteUserHandler: deleteUserHandler,
+		GetUserHandler:    getUserHandler,
+		ListUsersHandler:  listUsersHandler,
+
+		// HTTP Handlers
+		AuthHandler: authHandler,
+		UserHandler: userHandler,
+
+		Router: router,
 	}, nil
 }
 
@@ -199,8 +350,8 @@ func GetAllModels() []any {
 		&role.Permission{},
 		&auditlog.AuditLog{},
 		&pat.PersonalAccessToken{},
-		&twofa.TwoFA{},   // 2FA 配置表
-		&menu.Menu{},     // 菜单表
+		&twofa.TwoFA{},     // 2FA 配置表
+		&menu.Menu{},       // 菜单表
 		&setting.Setting{}, // 系统配置表
 	}
 }

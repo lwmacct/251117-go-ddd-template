@@ -64,7 +64,7 @@ func runAPIServer(ctx context.Context, cmd *cli.Command) error {
 		cfg.Server.StaticDir = cmd.String("static")
 	}
 
-	// 初始化容器 (依赖注入)
+	// 初始化容器 (依赖注入) - 使用 DDD+CQRS 架构容器
 	opts := &bootstrap.ContainerOptions{
 		AutoMigrate: cfg.Data.AutoMigrate, // 从配置读取是否自动迁移
 	}

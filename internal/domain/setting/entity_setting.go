@@ -4,7 +4,7 @@ import (
 	"time"
 )
 
-// Setting 系统配置
+// Setting 系统配置实体
 type Setting struct {
 	ID        uint      `gorm:"primarykey" json:"id"`
 	Key       string    `gorm:"uniqueIndex;size:100;not null" json:"key"`

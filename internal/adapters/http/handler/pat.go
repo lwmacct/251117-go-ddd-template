@@ -5,7 +5,7 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"github.com/lwmacct/251117-go-ddd-template/internal/domain/pat"
+	patdto "github.com/lwmacct/251117-go-ddd-template/internal/application/pat"
 	"github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/auth"
 )
 
@@ -28,13 +28,13 @@ func NewPATHandler(patService *auth.PATService) *PATHandler {
 //	@Tags			tokens
 //	@Accept			json
 //	@Produce		json
-//	@Param			request	body		pat.CreateTokenRequest	true	"Token creation request"
-//	@Success		201		{object}	pat.TokenResponse
+//	@Param			request	body		patdto.CreateTokenRequest	true	"Token creation request"
+//	@Success		201		{object}	patdto.TokenResponse
 //	@Failure		400		{object}	map[string]interface{}
 //	@Failure		401		{object}	map[string]interface{}
 //	@Router			/user/tokens [post]
 func (h *PATHandler) CreateToken(c *gin.Context) {
-	var req pat.CreateTokenRequest
+	var req patdto.CreateTokenRequest
 
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -52,10 +52,8 @@ func (h *PATHandler) CreateToken(c *gin.Context) {
 		return
 	}
 
-	req.UserID = userID.(uint)
-
 	// Create token
-	resp, err := h.patService.CreateToken(c.Request.Context(), &req)
+	resp, err := h.patService.CreateToken(c.Request.Context(), &req, userID.(uint))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": "failed to create token: " + err.Error(),

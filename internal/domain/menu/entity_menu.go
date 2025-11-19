@@ -4,7 +4,7 @@ import (
 	"time"
 )
 
-// Menu 菜单模型
+// Menu 菜单实体
 type Menu struct {
 	ID        uint       `json:"id" gorm:"primarykey"`
 	Title     string     `json:"title" gorm:"type:varchar(100);not null"`

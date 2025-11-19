@@ -4,19 +4,22 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	userdto "github.com/lwmacct/251117-go-ddd-template/internal/application/user"
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/user"
 	"golang.org/x/crypto/bcrypt"
 )
 
 // UserProfileHandler handles user profile operations
 type UserProfileHandler struct {
-	userRepo user.Repository
+	userCommandRepo user.CommandRepository
+	userQueryRepo   user.QueryRepository
 }
 
 // NewUserProfileHandler creates a new UserProfileHandler instance
-func NewUserProfileHandler(userRepo user.Repository) *UserProfileHandler {
+func NewUserProfileHandler(userCommandRepo user.CommandRepository, userQueryRepo user.QueryRepository) *UserProfileHandler {
 	return &UserProfileHandler{
-		userRepo: userRepo,
+		userCommandRepo: userCommandRepo,
+		userQueryRepo:   userQueryRepo,
 	}
 }
 
@@ -34,13 +37,13 @@ func (h *UserProfileHandler) GetProfile(c *gin.Context) {
 		return
 	}
 
-	u, err := h.userRepo.GetByIDWithRoles(c.Request.Context(), uid)
+	u, err := h.userQueryRepo.GetByIDWithRoles(c.Request.Context(), uid)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "user not found"})
 		return
 	}
 
-	c.JSON(http.StatusOK, u.ToResponse())
+	c.JSON(http.StatusOK, userdto.ToUserWithRolesResponse(u))
 }
 
 // UpdateProfile updates the current user's profile
@@ -68,7 +71,7 @@ func (h *UserProfileHandler) UpdateProfile(c *gin.Context) {
 		return
 	}
 
-	u, err := h.userRepo.GetByID(c.Request.Context(), uid)
+	u, err := h.userQueryRepo.GetByID(c.Request.Context(), uid)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "user not found"})
 		return
@@ -84,14 +87,14 @@ func (h *UserProfileHandler) UpdateProfile(c *gin.Context) {
 		u.Bio = *req.Bio
 	}
 
-	if err := h.userRepo.Update(c.Request.Context(), u); err != nil {
+	if err := h.userCommandRepo.Update(c.Request.Context(), u); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to update profile"})
 		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{
 		"message": "profile updated successfully",
-		"user":    u.ToResponse(),
+		"user":    userdto.ToUserResponse(u),
 	})
 }
 
@@ -119,7 +122,7 @@ func (h *UserProfileHandler) ChangePassword(c *gin.Context) {
 		return
 	}
 
-	u, err := h.userRepo.GetByID(c.Request.Context(), uid)
+	u, err := h.userQueryRepo.GetByID(c.Request.Context(), uid)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "user not found"})
 		return
@@ -137,7 +140,7 @@ func (h *UserProfileHandler) ChangePassword(c *gin.Context) {
 	}
 
 	u.Password = string(hashedPassword)
-	if err := h.userRepo.Update(c.Request.Context(), u); err != nil {
+	if err := h.userCommandRepo.Update(c.Request.Context(), u); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to update password"})
 		return
 	}
@@ -159,7 +162,7 @@ func (h *UserProfileHandler) DeleteAccount(c *gin.Context) {
 		return
 	}
 
-	if err := h.userRepo.Delete(c.Request.Context(), uid); err != nil {
+	if err := h.userCommandRepo.Delete(c.Request.Context(), uid); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to delete account"})
 		return
 	}

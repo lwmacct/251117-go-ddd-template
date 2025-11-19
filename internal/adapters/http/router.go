@@ -11,7 +11,6 @@ import (
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/auditlog"
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/captcha"
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/menu"
-	"github.com/lwmacct/251117-go-ddd-template/internal/domain/pat"
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/role"
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/setting"
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/user"
@@ -28,20 +27,23 @@ func SetupRouter(
 	cfg *config.Config,
 	db *gorm.DB,
 	redisClient *redis.Client,
-	userRepo user.Repository,
+	userCommandRepo user.CommandRepository,
+	userQueryRepo user.QueryRepository,
 	roleRepo role.RoleRepository,
 	permissionRepo role.PermissionRepository,
 	auditLogRepo auditlog.Repository,
-	patRepo pat.Repository,
 	captchaRepo captcha.Repository,
-	menuRepo menu.Repository,
-	settingRepo setting.Repository,
+	menuCommandRepo menu.CommandRepository,
+	menuQueryRepo menu.QueryRepository,
+	settingCommandRepo setting.CommandRepository,
+	settingQueryRepo setting.QueryRepository,
 	jwtManager *infraauth.JWTManager,
 	tokenGenerator *infraauth.TokenGenerator,
 	patService *infraauth.PATService,
 	authService *infraauth.Service,
 	captchaService *infracaptcha.Service,
 	twofaService *infratwofa.Service,
+	authHandler *handler.AuthHandlerNew,
 ) *gin.Engine {
 	r := gin.New()
 
@@ -57,7 +59,6 @@ func SetupRouter(
 	api := r.Group("/api")
 	{
 		// 认证路由 (公开)
-		authHandler := handler.NewAuthHandler(authService)
 		captchaHandler := handler.NewCaptchaHandler(captchaRepo, captchaService, cfg.Auth.DevSecret)
 		auth := api.Group("/auth")
 		{
@@ -67,10 +68,17 @@ func SetupRouter(
 			auth.GET("/captcha", captchaHandler.GetCaptcha) // 获取验证码（公开）
 		}
 
+		// 认证用户路由
+		authUser := api.Group("/auth")
+		authUser.Use(middleware.Auth(jwtManager, patService, userQueryRepo))
+		{
+			authUser.GET("/me", authHandler.Me) // 获取当前用户信息
+		}
+
 		// 2FA 路由（需要认证）
 		twofaHandler := handler.NewTwoFAHandler(twofaService)
 		twofa := api.Group("/auth/2fa")
-		twofa.Use(middleware.Auth(jwtManager, patService, userRepo))
+		twofa.Use(middleware.Auth(jwtManager, patService, userQueryRepo))
 		{
 			twofa.POST("/setup", twofaHandler.Setup)               // 设置 2FA
 			twofa.POST("/verify", twofaHandler.VerifyAndEnable)    // 验证并启用 2FA
@@ -80,12 +88,12 @@ func SetupRouter(
 
 		// 管理员路由 (/api/admin/*) - 使用三段式权限控制
 		admin := api.Group("/admin")
-		admin.Use(middleware.Auth(jwtManager, patService, userRepo))
+		admin.Use(middleware.Auth(jwtManager, patService, userQueryRepo))
 		admin.Use(middleware.AuditMiddleware(auditLogRepo))
 		admin.Use(middleware.RequireRole("admin"))
 		{
 			// 用户管理
-			adminUserHandler := handler.NewAdminUserHandler(userRepo)
+			adminUserHandler := handler.NewAdminUserHandler(userCommandRepo, userQueryRepo)
 			admin.POST("/users", middleware.RequirePermission("admin:users:create"), adminUserHandler.CreateUser)
 			admin.GET("/users", middleware.RequirePermission("admin:users:read"), adminUserHandler.ListUsers)
 			admin.GET("/users/:id", middleware.RequirePermission("admin:users:read"), adminUserHandler.GetUser)
@@ -111,7 +119,7 @@ func SetupRouter(
 			admin.GET("/audit-logs/:id", middleware.RequirePermission("admin:audit_logs:read"), auditLogHandler.GetLog)
 
 			// 菜单管理
-			menuHandler := handler.NewMenuHandler(menuRepo)
+			menuHandler := handler.NewMenuHandler(menuCommandRepo, menuQueryRepo)
 			admin.POST("/menus", middleware.RequirePermission("admin:menus:create"), menuHandler.Create)
 			admin.GET("/menus", middleware.RequirePermission("admin:menus:read"), menuHandler.List)
 			admin.GET("/menus/:id", middleware.RequirePermission("admin:menus:read"), menuHandler.Get)
@@ -124,7 +132,7 @@ func SetupRouter(
 			admin.GET("/overview/stats", middleware.RequirePermission("admin:overview:read"), overviewHandler.GetStats)
 
 			// 系统配置
-			settingHandler := handler.NewSettingHandler(settingRepo)
+			settingHandler := handler.NewSettingHandler(settingCommandRepo, settingQueryRepo)
 			admin.GET("/settings", middleware.RequirePermission("admin:settings:read"), settingHandler.GetSettings)
 			admin.GET("/settings/:key", middleware.RequirePermission("admin:settings:read"), settingHandler.GetSetting)
 			admin.POST("/settings", middleware.RequirePermission("admin:settings:create"), settingHandler.CreateSetting)
@@ -135,10 +143,10 @@ func SetupRouter(
 
 		// 用户路由 (/api/user/*) - 使用三段式权限控制
 		userGroup := api.Group("/user")
-		userGroup.Use(middleware.Auth(jwtManager, patService, userRepo))
+		userGroup.Use(middleware.Auth(jwtManager, patService, userQueryRepo))
 		{
 			// 个人资料管理
-			userProfileHandler := handler.NewUserProfileHandler(userRepo)
+			userProfileHandler := handler.NewUserProfileHandler(userCommandRepo, userQueryRepo)
 			userGroup.GET("/me", middleware.RequirePermission("user:profile:read"), userProfileHandler.GetProfile)
 			userGroup.PUT("/me", middleware.RequirePermission("user:profile:update"), userProfileHandler.UpdateProfile)
 			userGroup.PUT("/me/password", middleware.RequirePermission("user:password:update"), userProfileHandler.ChangePassword)

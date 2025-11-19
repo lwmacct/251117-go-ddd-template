@@ -11,8 +11,18 @@ type menuRepository struct {
 	db *gorm.DB
 }
 
-// NewMenuRepository 创建菜单仓储实例
+// NewMenuRepository 创建菜单仓储实例（deprecated，使用 NewMenuCommandRepository/NewMenuQueryRepository）
 func NewMenuRepository(db *gorm.DB) menu.Repository {
+	return &menuRepository{db: db}
+}
+
+// NewMenuCommandRepository 创建菜单写操作仓储实例
+func NewMenuCommandRepository(db *gorm.DB) menu.CommandRepository {
+	return &menuRepository{db: db}
+}
+
+// NewMenuQueryRepository 创建菜单读操作仓储实例
+func NewMenuQueryRepository(db *gorm.DB) menu.QueryRepository {
 	return &menuRepository{db: db}
 }
 

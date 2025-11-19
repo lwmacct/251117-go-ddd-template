@@ -15,8 +15,8 @@ hero:
 
 features:
   - icon: 🏗️
-    title: 整洁架构
-    details: 遵循 DDD 原则，清晰的分层架构，职责分离明确，易于维护和扩展
+    title: DDD 四层架构 + CQRS
+    details: 完整实现领域驱动设计，读写分离的 CQRS 模式，清晰的分层架构和职责分离
   - icon: 🔐
     title: JWT 认证
     details: 完整的用户认证授权系统，支持 Token 刷新、密码加密、用户状态管理
@@ -63,13 +63,16 @@ curl http://localhost:8080/health
 
 ## 项目特性
 
-- ✅ DDD 领域驱动设计
-- ✅ 整洁架构分层
+- ✅ DDD 四层架构 (Adapters → Application → Domain ← Infrastructure)
+- ✅ CQRS 模式 (CommandRepository / QueryRepository)
+- ✅ Use Case Pattern (业务编排集中在 Application 层)
+- ✅ 富领域模型 (业务逻辑封装在 Domain 实体中)
 - ✅ 依赖注入容器
-- ✅ 仓储模式
-- ✅ 用户认证授权
-- ✅ 数据库迁移
-- ✅ Redis 缓存
+- ✅ 用户认证授权 (JWT + PAT 双重认证)
+- ✅ RBAC 权限系统 (三段式细粒度权限)
+- ✅ 数据库迁移 (PostgreSQL + GORM)
+- ✅ Redis 缓存 (查询优化 + 分布式锁)
+- ✅ 审计日志系统
 - ✅ 健康检查
 - ✅ 优雅关闭
 - ✅ 开发热重载

@@ -8,7 +8,7 @@ import (
 	"gorm.io/gorm"
 )
 
-// User 用户模型
+// User 用户实体
 type User struct {
 	ID        uint           `gorm:"primarykey" json:"id"`
 	CreatedAt time.Time      `json:"created_at"`
@@ -36,50 +36,6 @@ func (User) TableName() string {
 func (u *User) BeforeCreate(tx *gorm.DB) error {
 	// 这里可以添加创建前的逻辑，例如密码加密
 	return nil
-}
-
-// UserCreateDTO 创建用户 DTO
-type UserCreateDTO struct {
-	Username string `json:"username" binding:"required,min=3,max=50"`
-	Email    string `json:"email" binding:"required,email"`
-	Password string `json:"password" binding:"required,min=6"`
-	FullName string `json:"full_name" binding:"max=100"`
-}
-
-// UserUpdateDTO 更新用户 DTO
-type UserUpdateDTO struct {
-	FullName *string `json:"full_name" binding:"omitempty,max=100"`
-	Avatar   *string `json:"avatar" binding:"omitempty,max=255"`
-	Bio      *string `json:"bio"`
-	Status   *string `json:"status" binding:"omitempty,oneof=active inactive banned"`
-}
-
-// UserResponse 用户响应 DTO (不包含敏感信息)
-type UserResponse struct {
-	ID        uint      `json:"id"`
-	Username  string    `json:"username"`
-	Email     string    `json:"email"`
-	FullName  string    `json:"full_name"`
-	Avatar    string    `json:"avatar"`
-	Bio       string    `json:"bio"`
-	Status    string    `json:"status"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
-}
-
-// ToResponse 转换为响应 DTO
-func (u *User) ToResponse() *UserResponse {
-	return &UserResponse{
-		ID:        u.ID,
-		Username:  u.Username,
-		Email:     u.Email,
-		FullName:  u.FullName,
-		Avatar:    u.Avatar,
-		Bio:       u.Bio,
-		Status:    u.Status,
-		CreatedAt: u.CreatedAt,
-		UpdatedAt: u.UpdatedAt,
-	}
 }
 
 // HasRole checks if the user has a specific role
@@ -152,4 +108,70 @@ func (u *User) GetPermissionCodes() []string {
 // IsAdmin checks if the user has admin role
 func (u *User) IsAdmin() bool {
 	return u.HasRole("admin")
+}
+
+// CanLogin 检查用户是否可以登录
+func (u *User) CanLogin() bool {
+	return u.Status == "active"
+}
+
+// IsBanned 检查用户是否被禁用
+func (u *User) IsBanned() bool {
+	return u.Status == "banned"
+}
+
+// IsInactive 检查用户是否未激活
+func (u *User) IsInactive() bool {
+	return u.Status == "inactive"
+}
+
+// Activate 激活用户
+func (u *User) Activate() {
+	u.Status = "active"
+}
+
+// Deactivate 停用用户
+func (u *User) Deactivate() {
+	u.Status = "inactive"
+}
+
+// Ban 禁用用户
+func (u *User) Ban() {
+	u.Status = "banned"
+}
+
+// AssignRole 分配角色（领域行为）
+func (u *User) AssignRole(r role.Role) error {
+	if u.HasRole(r.Name) {
+		return ErrRoleAlreadyAssigned
+	}
+	u.Roles = append(u.Roles, r)
+	return nil
+}
+
+// RemoveRole 移除角色（领域行为）
+func (u *User) RemoveRole(roleName string) error {
+	for i, r := range u.Roles {
+		if r.Name == roleName {
+			u.Roles = append(u.Roles[:i], u.Roles[i+1:]...)
+			return nil
+		}
+	}
+	return ErrRoleNotFound
+}
+
+// ClearRoles 清空所有角色
+func (u *User) ClearRoles() {
+	u.Roles = []role.Role{}
+}
+
+// UpdateProfile 更新用户资料（领域行为）
+func (u *User) UpdateProfile(fullName, avatar, bio string) {
+	if fullName != "" {
+		u.FullName = fullName
+	}
+	if avatar != "" {
+		u.Avatar = avatar
+	}
+	u.Bio = bio // Bio can be empty
 }

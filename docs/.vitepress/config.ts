@@ -116,8 +116,16 @@ export default defineConfig({
               link: "/architecture/",
             },
             {
-              text: "架构设计",
+              text: "三层架构（遗留）",
               link: "/architecture/overview",
+            },
+            {
+              text: "DDD + CQRS 架构",
+              link: "/architecture/ddd-cqrs",
+            },
+            {
+              text: "架构迁移指南",
+              link: "/architecture/migration-guide",
             },
           ],
         },

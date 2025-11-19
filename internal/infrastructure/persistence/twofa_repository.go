@@ -14,8 +14,18 @@ type twofaRepository struct {
 	db *gorm.DB
 }
 
-// NewTwoFARepository 创建 2FA 仓储
+// NewTwoFARepository 创建 2FA 仓储（deprecated，使用 NewTwoFACommandRepository/NewTwoFAQueryRepository）
 func NewTwoFARepository(db *gorm.DB) twofa.Repository {
+	return &twofaRepository{db: db}
+}
+
+// NewTwoFACommandRepository 创建 2FA 写操作仓储
+func NewTwoFACommandRepository(db *gorm.DB) twofa.CommandRepository {
+	return &twofaRepository{db: db}
+}
+
+// NewTwoFAQueryRepository 创建 2FA 读操作仓储
+func NewTwoFAQueryRepository(db *gorm.DB) twofa.QueryRepository {
 	return &twofaRepository{db: db}
 }
 

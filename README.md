@@ -4,7 +4,7 @@
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Documentation](https://img.shields.io/badge/docs-vitepress-3eaf7c.svg)](https://lwmacct.github.io/251117-go-ddd-template/)
 
-基于 Go 的领域驱动设计 (DDD) 模板应用，采用整洁架构原则，提供用户认证、数据持久化等生产级特性。
+基于 Go 的领域驱动设计 (DDD) 模板应用，采用 DDD 四层架构 + CQRS 模式，提供认证授权、RBAC 权限、审计日志等企业级特性。
 
 ## 📚 完整文档
 

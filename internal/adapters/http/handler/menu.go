@@ -9,12 +9,14 @@ import (
 )
 
 type MenuHandler struct {
-	menuRepo menu.Repository
+	menuCommandRepo menu.CommandRepository
+	menuQueryRepo   menu.QueryRepository
 }
 
-func NewMenuHandler(menuRepo menu.Repository) *MenuHandler {
+func NewMenuHandler(menuCommandRepo menu.CommandRepository, menuQueryRepo menu.QueryRepository) *MenuHandler {
 	return &MenuHandler{
-		menuRepo: menuRepo,
+		menuCommandRepo: menuCommandRepo,
+		menuQueryRepo:   menuQueryRepo,
 	}
 }
 
@@ -69,7 +71,7 @@ func (h *MenuHandler) Create(c *gin.Context) {
 		Visible:  visible,
 	}
 
-	if err := h.menuRepo.Create(c.Request.Context(), m); err != nil {
+	if err := h.menuCommandRepo.Create(c.Request.Context(), m); err != nil {
 		response.InternalError(c, "Failed to create menu")
 		return
 	}
@@ -79,7 +81,7 @@ func (h *MenuHandler) Create(c *gin.Context) {
 
 // List 获取菜单列表（树形结构）
 func (h *MenuHandler) List(c *gin.Context) {
-	menus, err := h.menuRepo.FindAll(c.Request.Context())
+	menus, err := h.menuQueryRepo.FindAll(c.Request.Context())
 	if err != nil {
 		response.InternalError(c, "Failed to fetch menus")
 		return
@@ -96,7 +98,7 @@ func (h *MenuHandler) Get(c *gin.Context) {
 		return
 	}
 
-	m, err := h.menuRepo.FindByID(c.Request.Context(), uint(id))
+	m, err := h.menuQueryRepo.FindByID(c.Request.Context(), uint(id))
 	if err != nil {
 		response.NotFound(c, "Menu")
 		return
@@ -119,7 +121,7 @@ func (h *MenuHandler) Update(c *gin.Context) {
 		return
 	}
 
-	m, err := h.menuRepo.FindByID(c.Request.Context(), uint(id))
+	m, err := h.menuQueryRepo.FindByID(c.Request.Context(), uint(id))
 	if err != nil {
 		response.NotFound(c, "Menu")
 		return
@@ -145,7 +147,7 @@ func (h *MenuHandler) Update(c *gin.Context) {
 		m.Visible = *req.Visible
 	}
 
-	if err := h.menuRepo.Update(c.Request.Context(), m); err != nil {
+	if err := h.menuCommandRepo.Update(c.Request.Context(), m); err != nil {
 		response.InternalError(c, "Failed to update menu")
 		return
 	}
@@ -162,7 +164,7 @@ func (h *MenuHandler) Delete(c *gin.Context) {
 	}
 
 	// 检查是否有子菜单
-	children, err := h.menuRepo.FindByParentID(c.Request.Context(), ptrUint(uint(id)))
+	children, err := h.menuQueryRepo.FindByParentID(c.Request.Context(), ptrUint(uint(id)))
 	if err != nil {
 		response.InternalError(c, "Failed to check children")
 		return
@@ -173,7 +175,7 @@ func (h *MenuHandler) Delete(c *gin.Context) {
 		return
 	}
 
-	if err := h.menuRepo.Delete(c.Request.Context(), uint(id)); err != nil {
+	if err := h.menuCommandRepo.Delete(c.Request.Context(), uint(id)); err != nil {
 		response.InternalError(c, "Failed to delete menu")
 		return
 	}
@@ -202,7 +204,7 @@ func (h *MenuHandler) Reorder(c *gin.Context) {
 		menus[i].ParentID = m.ParentID
 	}
 
-	if err := h.menuRepo.UpdateOrder(c.Request.Context(), menus); err != nil {
+	if err := h.menuCommandRepo.UpdateOrder(c.Request.Context(), menus); err != nil {
 		response.InternalError(c, "Failed to update menu order")
 		return
 	}

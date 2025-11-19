@@ -4,7 +4,9 @@
       "WebSearch",
       "Bash(go get:*)",
       "Bash(find:*)",
-      "Bash(go build:*)"
+      "Bash(go build:*)",
+      "Bash(xargs:*)",
+      "Bash(done)"
     ],
     "deny": [],
     "defaultMode": "bypassPermissions"

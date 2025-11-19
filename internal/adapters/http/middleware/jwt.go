@@ -9,7 +9,7 @@ import (
 )
 
 // Auth 统一认证中间件 - 支持 JWT 和 PAT
-func Auth(jwtManager *auth.JWTManager, patService *auth.PATService, userRepo user.Repository) gin.HandlerFunc {
+func Auth(jwtManager *auth.JWTManager, patService *auth.PATService, userQueryRepo user.QueryRepository) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// 从请求头获取 Authorization
 		authHeader := c.GetHeader("Authorization")
@@ -32,7 +32,7 @@ func Auth(jwtManager *auth.JWTManager, patService *auth.PATService, userRepo use
 		// 判断 token 类型: PAT 以 "pat_" 开头
 		if strings.HasPrefix(tokenString, "pat_") {
 			// Personal Access Token 认证
-			if err := authenticateWithPAT(c, patService, userRepo, tokenString); err != nil {
+			if err := authenticateWithPAT(c, patService, userQueryRepo, tokenString); err != nil{
 				c.JSON(401, gin.H{"error": err.Error()})
 				c.Abort()
 				return
@@ -98,7 +98,7 @@ func authenticateWithJWT(c *gin.Context, jwtManager *auth.JWTManager, tokenStrin
 }
 
 // authenticateWithPAT 使用 Personal Access Token 进行认证
-func authenticateWithPAT(c *gin.Context, patService *auth.PATService, userRepo user.Repository, tokenString string) error {
+func authenticateWithPAT(c *gin.Context, patService *auth.PATService, userQueryRepo user.QueryRepository, tokenString string) error {
 	// 验证 PAT (包含 IP 白名单检查)
 	clientIP := c.ClientIP()
 	pat, err := patService.ValidateTokenWithIP(c.Request.Context(), tokenString, clientIP)
@@ -107,7 +107,7 @@ func authenticateWithPAT(c *gin.Context, patService *auth.PATService, userRepo u
 	}
 
 	// 获取用户信息 (包含角色)
-	u, err := userRepo.GetByIDWithRoles(c.Request.Context(), pat.UserID)
+	u, err := userQueryRepo.GetByIDWithRoles(c.Request.Context(), pat.UserID)
 	if err != nil {
 		return err
 	}

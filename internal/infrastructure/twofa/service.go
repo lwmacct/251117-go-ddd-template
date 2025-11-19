@@ -18,20 +18,22 @@ import (
 
 // Service 2FA 服务
 type Service struct {
-	twofaRepo twofa.Repository
-	userRepo  user.Repository
-	issuer    string // TOTP 发行者名称
+	twofaCommandRepo twofa.CommandRepository
+	twofaQueryRepo   twofa.QueryRepository
+	userQueryRepo    user.QueryRepository
+	issuer           string // TOTP 发行者名称
 }
 
 // NewService 创建 2FA 服务
-func NewService(twofaRepo twofa.Repository, userRepo user.Repository, issuer string) *Service {
+func NewService(twofaCommandRepo twofa.CommandRepository, twofaQueryRepo twofa.QueryRepository, userQueryRepo user.QueryRepository, issuer string) *Service {
 	if issuer == "" {
 		issuer = "Go-DDD-Template"
 	}
 	return &Service{
-		twofaRepo: twofaRepo,
-		userRepo:  userRepo,
-		issuer:    issuer,
+		twofaCommandRepo: twofaCommandRepo,
+		twofaQueryRepo:   twofaQueryRepo,
+		userQueryRepo:    userQueryRepo,
+		issuer:           issuer,
 	}
 }
 
@@ -45,7 +47,7 @@ type SetupResponse struct {
 // Setup 设置 2FA（生成密钥和二维码）
 func (s *Service) Setup(ctx context.Context, userID uint) (*SetupResponse, error) {
 	// 查找用户
-	u, err := s.userRepo.GetByID(ctx, userID)
+	u, err := s.userQueryRepo.GetByID(ctx, userID)
 	if err != nil {
 		return nil, fmt.Errorf("user not found: %w", err)
 	}
@@ -86,7 +88,7 @@ func (s *Service) Setup(ctx context.Context, userID uint) (*SetupResponse, error
 		RecoveryCodes: twofa.RecoveryCodes{}, // 空恢复码，验证后生成
 	}
 
-	if err := s.twofaRepo.CreateOrUpdate(ctx, tfa); err != nil {
+	if err := s.twofaCommandRepo.CreateOrUpdate(ctx, tfa); err != nil {
 		return nil, fmt.Errorf("failed to save 2FA secret: %w", err)
 	}
 
@@ -101,7 +103,7 @@ func (s *Service) Setup(ctx context.Context, userID uint) (*SetupResponse, error
 // 返回恢复码列表
 func (s *Service) VerifyAndEnable(ctx context.Context, userID uint, code string) ([]string, error) {
 	// 查找 2FA 配置
-	tfa, err := s.twofaRepo.FindByUserID(ctx, userID)
+	tfa, err := s.twofaQueryRepo.FindByUserID(ctx, userID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get 2FA config: %w", err)
 	}
@@ -128,7 +130,7 @@ func (s *Service) VerifyAndEnable(ctx context.Context, userID uint, code string)
 	tfa.RecoveryCodes = recoveryCodes
 	tfa.SetupCompletedAt = &now
 
-	if err := s.twofaRepo.CreateOrUpdate(ctx, tfa); err != nil {
+	if err := s.twofaCommandRepo.CreateOrUpdate(ctx, tfa); err != nil {
 		return nil, fmt.Errorf("failed to enable 2FA: %w", err)
 	}
 
@@ -138,7 +140,7 @@ func (s *Service) VerifyAndEnable(ctx context.Context, userID uint, code string)
 // Verify 验证 TOTP 代码或恢复码
 func (s *Service) Verify(ctx context.Context, userID uint, code string) (bool, error) {
 	// 查找 2FA 配置
-	tfa, err := s.twofaRepo.FindByUserID(ctx, userID)
+	tfa, err := s.twofaQueryRepo.FindByUserID(ctx, userID)
 	if err != nil {
 		return false, fmt.Errorf("failed to get 2FA config: %w", err)
 	}
@@ -152,7 +154,7 @@ func (s *Service) Verify(ctx context.Context, userID uint, code string) (bool, e
 		// 更新最后使用时间
 		now := time.Now()
 		tfa.LastUsedAt = &now
-		_ = s.twofaRepo.CreateOrUpdate(ctx, tfa)
+		_ = s.twofaCommandRepo.CreateOrUpdate(ctx, tfa)
 		return true, nil
 	}
 
@@ -164,7 +166,7 @@ func (s *Service) Verify(ctx context.Context, userID uint, code string) (bool, e
 			tfa.RecoveryCodes = append(tfa.RecoveryCodes[:i], tfa.RecoveryCodes[i+1:]...)
 			now := time.Now()
 			tfa.LastUsedAt = &now
-			if err := s.twofaRepo.CreateOrUpdate(ctx, tfa); err != nil {
+			if err := s.twofaCommandRepo.CreateOrUpdate(ctx, tfa); err != nil {
 				return false, fmt.Errorf("failed to update recovery codes: %w", err)
 			}
 			return true, nil
@@ -176,12 +178,12 @@ func (s *Service) Verify(ctx context.Context, userID uint, code string) (bool, e
 
 // Disable 禁用 2FA
 func (s *Service) Disable(ctx context.Context, userID uint) error {
-	return s.twofaRepo.Delete(ctx, userID)
+	return s.twofaCommandRepo.Delete(ctx, userID)
 }
 
 // GetStatus 获取 2FA 状态
 func (s *Service) GetStatus(ctx context.Context, userID uint) (bool, int, error) {
-	tfa, err := s.twofaRepo.FindByUserID(ctx, userID)
+	tfa, err := s.twofaQueryRepo.FindByUserID(ctx, userID)
 	if err != nil {
 		return false, 0, fmt.Errorf("failed to get 2FA config: %w", err)
 	}

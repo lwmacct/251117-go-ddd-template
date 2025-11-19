@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"strings"
 
+	userdto "github.com/lwmacct/251117-go-ddd-template/internal/application/user"
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/captcha"
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/twofa"
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/user"
@@ -15,27 +16,33 @@ import (
 
 // Service 认证服务
 type Service struct {
-	userRepo       user.Repository
-	twofaRepo      twofa.Repository
-	captchaRepo    captcha.Repository
-	jwtManager     *JWTManager
-	sessionService *LoginSessionService
+	userCommandRepo  user.CommandRepository
+	userQueryRepo    user.QueryRepository
+	twofaCommandRepo twofa.CommandRepository
+	twofaQueryRepo   twofa.QueryRepository
+	captchaRepo      captcha.Repository
+	jwtManager       *JWTManager
+	sessionService   *LoginSessionService
 }
 
 // NewService 创建认证服务
 func NewService(
-	userRepo user.Repository,
-	twofaRepo twofa.Repository,
+	userCommandRepo user.CommandRepository,
+	userQueryRepo user.QueryRepository,
+	twofaCommandRepo twofa.CommandRepository,
+	twofaQueryRepo twofa.QueryRepository,
 	captchaRepo captcha.Repository,
 	jwtManager *JWTManager,
 	sessionService *LoginSessionService,
 ) *Service {
 	return &Service{
-		userRepo:       userRepo,
-		twofaRepo:      twofaRepo,
-		captchaRepo:    captchaRepo,
-		jwtManager:     jwtManager,
-		sessionService: sessionService,
+		userCommandRepo:  userCommandRepo,
+		userQueryRepo:    userQueryRepo,
+		twofaCommandRepo: twofaCommandRepo,
+		twofaQueryRepo:   twofaQueryRepo,
+		captchaRepo:      captchaRepo,
+		jwtManager:       jwtManager,
+		sessionService:   sessionService,
 	}
 }
 
@@ -62,13 +69,13 @@ type LoginRequest struct {
 
 // AuthResponse 认证响应
 type AuthResponse struct {
-	AccessToken  string             `json:"access_token,omitempty"`  // 第一次登录时不返回（需要2FA验证）
-	RefreshToken string             `json:"refresh_token,omitempty"` // 第一次登录时不返回（需要2FA验证）
-	TokenType    string             `json:"token_type,omitempty"`
-	ExpiresIn    int                `json:"expires_in,omitempty"` // 秒
-	User         *user.UserResponse `json:"user,omitempty"`
-	SessionToken string             `json:"session_token,omitempty"` // 临时会话token（第一次登录后返回，用于第二次2FA验证）
-	Requires2FA  bool               `json:"requires_2fa,omitempty"`  // 是否需要2FA验证
+	AccessToken  string                        `json:"access_token,omitempty"`  // 第一次登录时不返回（需要2FA验证）
+	RefreshToken string                        `json:"refresh_token,omitempty"` // 第一次登录时不返回（需要2FA验证）
+	TokenType    string                        `json:"token_type,omitempty"`
+	ExpiresIn    int                           `json:"expires_in,omitempty"` // 秒
+	User         *userdto.UserWithRolesResponse `json:"user,omitempty"`
+	SessionToken string                        `json:"session_token,omitempty"` // 临时会话token（第一次登录后返回，用于第二次2FA验证）
+	Requires2FA  bool                          `json:"requires_2fa,omitempty"`  // 是否需要2FA验证
 }
 
 // TwoFactorRequiredError 表示需要2FA验证的错误
@@ -81,12 +88,12 @@ func (e *TwoFactorRequiredError) Error() string {
 // Register 注册新用户
 func (s *Service) Register(ctx context.Context, req *RegisterRequest) (*AuthResponse, error) {
 	// 检查用户名是否已存在
-	if _, err := s.userRepo.GetByUsername(ctx, req.Username); err == nil {
+	if _, err := s.userQueryRepo.GetByUsername(ctx, req.Username); err == nil {
 		return nil, fmt.Errorf("username already exists")
 	}
 
 	// 检查邮箱是否已存在
-	if _, err := s.userRepo.GetByEmail(ctx, req.Email); err == nil {
+	if _, err := s.userQueryRepo.GetByEmail(ctx, req.Email); err == nil {
 		return nil, fmt.Errorf("email already exists")
 	}
 
@@ -105,12 +112,12 @@ func (s *Service) Register(ctx context.Context, req *RegisterRequest) (*AuthResp
 		Status:   "active",
 	}
 
-	if err := s.userRepo.Create(ctx, newUser); err != nil {
+	if err := s.userCommandRepo.Create(ctx, newUser); err != nil {
 		return nil, fmt.Errorf("failed to create user: %w", err)
 	}
 
 	// Reload user with roles
-	userWithRoles, err := s.userRepo.GetByIDWithRoles(ctx, newUser.ID)
+	userWithRoles, err := s.userQueryRepo.GetByIDWithRoles(ctx, newUser.ID)
 	if err != nil {
 		// Fallback to empty roles if failed to load
 		userWithRoles = newUser
@@ -129,7 +136,7 @@ func (s *Service) Register(ctx context.Context, req *RegisterRequest) (*AuthResp
 		RefreshToken: refreshToken,
 		TokenType:    "Bearer",
 		ExpiresIn:    int(s.jwtManager.accessTokenDuration.Seconds()),
-		User:         userWithRoles.ToResponse(),
+		User:         userdto.ToUserWithRolesResponse(userWithRoles),
 	}, nil
 }
 
@@ -176,7 +183,7 @@ func (s *Service) Login(ctx context.Context, req *LoginRequest) (*AuthResponse, 
 		}
 
 		// 2. 根据session中的用户ID查找用户
-		u, err = s.userRepo.GetByIDWithRoles(ctx, sessionData.UserID)
+		u, err = s.userQueryRepo.GetByIDWithRoles(ctx, sessionData.UserID)
 		if err != nil {
 			return nil, fmt.Errorf("user not found")
 		}
@@ -187,13 +194,16 @@ func (s *Service) Login(ctx context.Context, req *LoginRequest) (*AuthResponse, 
 		}
 
 		// 4. 验证2FA验证码
-		tfa, err := s.twofaRepo.FindByUserID(ctx, u.ID)
+		tfa, err := s.twofaQueryRepo.FindByUserID(ctx, u.ID)
 		if err != nil || tfa == nil || !tfa.Enabled {
 			return nil, fmt.Errorf("2FA not enabled for this account")
 		}
 
 		// 使用2FA服务验证（支持TOTP和恢复码）
-		twofaService := &twofaService{twofaRepo: s.twofaRepo}
+		twofaService := &twofaService{
+			twofaCommandRepo: s.twofaCommandRepo,
+			twofaQueryRepo:   s.twofaQueryRepo,
+		}
 		valid, err := twofaService.Verify(ctx, u.ID, req.TwoFactorCode)
 		if err != nil || !valid {
 			return nil, fmt.Errorf("invalid two factor code")
@@ -211,15 +221,15 @@ func (s *Service) Login(ctx context.Context, req *LoginRequest) (*AuthResponse, 
 		}
 
 		// 2. 查找用户（支持用户名或邮箱）
-		u, err = s.userRepo.GetByUsernameWithRoles(ctx, req.Login)
+		u, err = s.userQueryRepo.GetByUsernameWithRoles(ctx, req.Login)
 		if err != nil {
 			// 尝试邮箱
-			tempUser, err2 := s.userRepo.GetByEmail(ctx, req.Login)
+			tempUser, err2 := s.userQueryRepo.GetByEmail(ctx, req.Login)
 			if err2 != nil {
 				return nil, fmt.Errorf("invalid credentials")
 			}
 			// Reload with roles
-			u, err = s.userRepo.GetByIDWithRoles(ctx, tempUser.ID)
+			u, err = s.userQueryRepo.GetByIDWithRoles(ctx, tempUser.ID)
 			if err != nil {
 				u = tempUser
 			}
@@ -236,7 +246,7 @@ func (s *Service) Login(ctx context.Context, req *LoginRequest) (*AuthResponse, 
 		}
 
 		// 5. 检查是否启用2FA
-		tfa, err := s.twofaRepo.FindByUserID(ctx, u.ID)
+		tfa, err := s.twofaQueryRepo.FindByUserID(ctx, u.ID)
 		if err == nil && tfa != nil && tfa.Enabled {
 			// 用户启用了 2FA，生成临时session token
 			sessionToken, err := s.sessionService.GenerateSessionToken(ctx, u.ID, req.Login)
@@ -270,17 +280,18 @@ func (s *Service) generateTokens(u *user.User) (*AuthResponse, error) {
 		RefreshToken: refreshToken,
 		TokenType:    "Bearer",
 		ExpiresIn:    int(s.jwtManager.accessTokenDuration.Seconds()),
-		User:         u.ToResponse(),
+		User:         userdto.ToUserWithRolesResponse(u),
 	}, nil
 }
 
 // twofaService 临时 2FA 服务包装（避免循环依赖）
 type twofaService struct {
-	twofaRepo twofa.Repository
+	twofaCommandRepo twofa.CommandRepository
+	twofaQueryRepo   twofa.QueryRepository
 }
 
 func (s *twofaService) Verify(ctx context.Context, userID uint, code string) (bool, error) {
-	tfa, err := s.twofaRepo.FindByUserID(ctx, userID)
+	tfa, err := s.twofaQueryRepo.FindByUserID(ctx, userID)
 	if err != nil {
 		return false, err
 	}
@@ -299,7 +310,7 @@ func (s *twofaService) Verify(ctx context.Context, userID uint, code string) (bo
 		if recoveryCode == code {
 			// 移除已使用的恢复码
 			tfa.RecoveryCodes = append(tfa.RecoveryCodes[:i], tfa.RecoveryCodes[i+1:]...)
-			if err := s.twofaRepo.CreateOrUpdate(ctx, tfa); err != nil {
+			if err := s.twofaCommandRepo.CreateOrUpdate(ctx, tfa); err != nil {
 				return false, fmt.Errorf("failed to update recovery codes: %w", err)
 			}
 			return true, nil
@@ -318,7 +329,7 @@ func (s *Service) RefreshToken(ctx context.Context, refreshToken string) (*AuthR
 	}
 
 	// 获取用户信息（包含角色和权限）
-	u, err := s.userRepo.GetByIDWithRoles(ctx, claims.UserID)
+	u, err := s.userQueryRepo.GetByIDWithRoles(ctx, claims.UserID)
 	if err != nil {
 		return nil, fmt.Errorf("user not found: %w", err)
 	}
@@ -341,6 +352,6 @@ func (s *Service) RefreshToken(ctx context.Context, refreshToken string) (*AuthR
 		RefreshToken: newRefreshToken,
 		TokenType:    "Bearer",
 		ExpiresIn:    int(s.jwtManager.accessTokenDuration.Seconds()),
-		User:         u.ToResponse(),
+		User:         userdto.ToUserWithRolesResponse(u),
 	}, nil
 }

@@ -4,26 +4,29 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	userdto "github.com/lwmacct/251117-go-ddd-template/internal/application/user"
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/user"
 	"golang.org/x/crypto/bcrypt"
 )
 
 // UserHandler 用户处理器
 type UserHandler struct {
-	userRepo user.Repository
+	userCommandRepo user.CommandRepository
+	userQueryRepo   user.QueryRepository
 }
 
 // NewUserHandler 创建用户处理器
-func NewUserHandler(userRepo user.Repository) *UserHandler {
+func NewUserHandler(userCommandRepo user.CommandRepository, userQueryRepo user.QueryRepository) *UserHandler {
 	return &UserHandler{
-		userRepo: userRepo,
+		userCommandRepo: userCommandRepo,
+		userQueryRepo:   userQueryRepo,
 	}
 }
 
 // Create 创建用户
 // POST /api/users
 func (h *UserHandler) Create(c *gin.Context) {
-	var dto user.UserCreateDTO
+	var dto userdto.CreateUserDTO
 	if err := c.ShouldBindJSON(&dto); err != nil {
 		c.JSON(400, gin.H{"error": err.Error()})
 		return
@@ -44,14 +47,14 @@ func (h *UserHandler) Create(c *gin.Context) {
 		Status:   "active",
 	}
 
-	if err := h.userRepo.Create(c.Request.Context(), newUser); err != nil {
+	if err := h.userCommandRepo.Create(c.Request.Context(), newUser); err != nil {
 		c.JSON(500, gin.H{"error": err.Error()})
 		return
 	}
 
 	c.JSON(201, gin.H{
 		"message": "user created successfully",
-		"data":    newUser.ToResponse(),
+		"data":    userdto.ToUserResponse(newUser),
 	})
 }
 
@@ -65,14 +68,14 @@ func (h *UserHandler) GetByID(c *gin.Context) {
 		return
 	}
 
-	u, err := h.userRepo.GetByID(c.Request.Context(), uint(id))
+	u, err := h.userQueryRepo.GetByID(c.Request.Context(), uint(id))
 	if err != nil {
 		c.JSON(404, gin.H{"error": err.Error()})
 		return
 	}
 
 	c.JSON(200, gin.H{
-		"data": u.ToResponse(),
+		"data": userdto.ToUserResponse(u),
 	})
 }
 
@@ -91,20 +94,20 @@ func (h *UserHandler) List(c *gin.Context) {
 
 	offset := (page - 1) * limit
 
-	users, err := h.userRepo.List(c.Request.Context(), offset, limit)
+	users, err := h.userQueryRepo.List(c.Request.Context(), offset, limit)
 	if err != nil {
 		c.JSON(500, gin.H{"error": err.Error()})
 		return
 	}
 
 	// 转换为响应 DTO
-	responses := make([]*user.UserResponse, len(users))
+	responses := make([]*userdto.UserResponse, len(users))
 	for i, u := range users {
-		responses[i] = u.ToResponse()
+		responses[i] = userdto.ToUserResponse(u)
 	}
 
 	// 获取总数
-	total, err := h.userRepo.Count(c.Request.Context())
+	total, err := h.userQueryRepo.Count(c.Request.Context())
 	if err != nil {
 		c.JSON(500, gin.H{"error": err.Error()})
 		return
@@ -130,14 +133,14 @@ func (h *UserHandler) Update(c *gin.Context) {
 		return
 	}
 
-	var dto user.UserUpdateDTO
+	var dto userdto.UpdateUserDTO
 	if err := c.ShouldBindJSON(&dto); err != nil {
 		c.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
 
 	// 获取现有用户
-	u, err := h.userRepo.GetByID(c.Request.Context(), uint(id))
+	u, err := h.userQueryRepo.GetByID(c.Request.Context(), uint(id))
 	if err != nil {
 		c.JSON(404, gin.H{"error": err.Error()})
 		return
@@ -157,14 +160,14 @@ func (h *UserHandler) Update(c *gin.Context) {
 		u.Status = *dto.Status
 	}
 
-	if err := h.userRepo.Update(c.Request.Context(), u); err != nil {
+	if err := h.userCommandRepo.Update(c.Request.Context(), u); err != nil {
 		c.JSON(500, gin.H{"error": err.Error()})
 		return
 	}
 
 	c.JSON(200, gin.H{
 		"message": "user updated successfully",
-		"data":    u.ToResponse(),
+		"data":    userdto.ToUserResponse(u),
 	})
 }
 
@@ -178,7 +181,7 @@ func (h *UserHandler) Delete(c *gin.Context) {
 		return
 	}
 
-	if err := h.userRepo.Delete(c.Request.Context(), uint(id)); err != nil {
+	if err := h.userCommandRepo.Delete(c.Request.Context(), uint(id)); err != nil{
 		c.JSON(500, gin.H{"error": err.Error()})
 		return
 	}

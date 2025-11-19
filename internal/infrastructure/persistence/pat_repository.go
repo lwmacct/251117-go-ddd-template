@@ -9,13 +9,23 @@ import (
 	"gorm.io/gorm"
 )
 
-// patRepository implements pat.Repository using GORM
+// patRepository implements pat.CommandRepository and pat.QueryRepository using GORM
 type patRepository struct {
 	db *gorm.DB
 }
 
-// NewPATRepository creates a new PAT repository instance
+// NewPATRepository creates a new PAT repository instance (deprecated, use NewPATCommandRepository/NewPATQueryRepository)
 func NewPATRepository(db *gorm.DB) pat.Repository {
+	return &patRepository{db: db}
+}
+
+// NewPATCommandRepository creates a new PAT command repository instance
+func NewPATCommandRepository(db *gorm.DB) pat.CommandRepository {
+	return &patRepository{db: db}
+}
+
+// NewPATQueryRepository creates a new PAT query repository instance
+func NewPATQueryRepository(db *gorm.DB) pat.QueryRepository {
 	return &patRepository{db: db}
 }
 

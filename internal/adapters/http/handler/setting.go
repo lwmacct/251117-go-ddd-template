@@ -7,11 +7,15 @@ import (
 )
 
 type SettingHandler struct {
-	settingRepo setting.Repository
+	settingCommandRepo setting.CommandRepository
+	settingQueryRepo   setting.QueryRepository
 }
 
-func NewSettingHandler(settingRepo setting.Repository) *SettingHandler {
-	return &SettingHandler{settingRepo: settingRepo}
+func NewSettingHandler(settingCommandRepo setting.CommandRepository, settingQueryRepo setting.QueryRepository) *SettingHandler {
+	return &SettingHandler{
+		settingCommandRepo: settingCommandRepo,
+		settingQueryRepo:   settingQueryRepo,
+	}
 }
 
 // GetSettings 获取配置列表
@@ -22,9 +26,9 @@ func (h *SettingHandler) GetSettings(c *gin.Context) {
 	var err error
 
 	if category != "" {
-		settings, err = h.settingRepo.FindByCategory(c.Request.Context(), category)
+		settings, err = h.settingQueryRepo.FindByCategory(c.Request.Context(), category)
 	} else {
-		settings, err = h.settingRepo.FindAll(c.Request.Context())
+		settings, err = h.settingQueryRepo.FindAll(c.Request.Context())
 	}
 
 	if err != nil {
@@ -39,7 +43,7 @@ func (h *SettingHandler) GetSettings(c *gin.Context) {
 func (h *SettingHandler) GetSetting(c *gin.Context) {
 	key := c.Param("key")
 
-	s, err := h.settingRepo.FindByKey(c.Request.Context(), key)
+	s, err := h.settingQueryRepo.FindByKey(c.Request.Context(), key)
 	if err != nil {
 		response.InternalError(c, err.Error())
 		return
@@ -71,7 +75,7 @@ func (h *SettingHandler) CreateSetting(c *gin.Context) {
 	}
 
 	// 检查 Key 是否已存在
-	existing, err := h.settingRepo.FindByKey(c.Request.Context(), req.Key)
+	existing, err := h.settingQueryRepo.FindByKey(c.Request.Context(), req.Key)
 	if err != nil {
 		response.InternalError(c, err.Error())
 		return
@@ -94,7 +98,7 @@ func (h *SettingHandler) CreateSetting(c *gin.Context) {
 		Label:     req.Label,
 	}
 
-	if err := h.settingRepo.Create(c.Request.Context(), s); err != nil {
+	if err := h.settingCommandRepo.Create(c.Request.Context(), s); err != nil {
 		response.InternalError(c, err.Error())
 		return
 	}
@@ -119,7 +123,7 @@ func (h *SettingHandler) UpdateSetting(c *gin.Context) {
 		return
 	}
 
-	s, err := h.settingRepo.FindByKey(c.Request.Context(), key)
+	s, err := h.settingQueryRepo.FindByKey(c.Request.Context(), key)
 	if err != nil {
 		response.InternalError(c, err.Error())
 		return
@@ -137,7 +141,7 @@ func (h *SettingHandler) UpdateSetting(c *gin.Context) {
 		s.Label = req.Label
 	}
 
-	if err := h.settingRepo.Update(c.Request.Context(), s); err != nil {
+	if err := h.settingCommandRepo.Update(c.Request.Context(), s); err != nil {
 		response.InternalError(c, err.Error())
 		return
 	}
@@ -149,7 +153,7 @@ func (h *SettingHandler) UpdateSetting(c *gin.Context) {
 func (h *SettingHandler) DeleteSetting(c *gin.Context) {
 	key := c.Param("key")
 
-	s, err := h.settingRepo.FindByKey(c.Request.Context(), key)
+	s, err := h.settingQueryRepo.FindByKey(c.Request.Context(), key)
 	if err != nil {
 		response.InternalError(c, err.Error())
 		return
@@ -159,7 +163,7 @@ func (h *SettingHandler) DeleteSetting(c *gin.Context) {
 		return
 	}
 
-	if err := h.settingRepo.Delete(c.Request.Context(), s.ID); err != nil {
+	if err := h.settingCommandRepo.Delete(c.Request.Context(), s.ID); err != nil {
 		response.InternalError(c, err.Error())
 		return
 	}
@@ -187,7 +191,7 @@ func (h *SettingHandler) BatchUpdateSettings(c *gin.Context) {
 	settings := make([]*setting.Setting, 0, len(req.Settings))
 	for _, s := range req.Settings {
 		// 查找现有配置以获取完整信息
-		existing, err := h.settingRepo.FindByKey(c.Request.Context(), s.Key)
+		existing, err := h.settingQueryRepo.FindByKey(c.Request.Context(), s.Key)
 		if err != nil {
 			response.InternalError(c, err.Error())
 			return
@@ -204,7 +208,7 @@ func (h *SettingHandler) BatchUpdateSettings(c *gin.Context) {
 	}
 
 	// 批量更新
-	if err := h.settingRepo.BatchUpsert(c.Request.Context(), settings); err != nil {
+	if err := h.settingCommandRepo.BatchUpsert(c.Request.Context(), settings); err != nil {
 		response.InternalError(c, err.Error())
 		return
 	}

@@ -13,8 +13,18 @@ type settingRepository struct {
 	db *gorm.DB
 }
 
-// NewSettingRepository 创建 Setting 仓储实例
+// NewSettingRepository 创建 Setting 仓储实例（deprecated，使用 NewSettingCommandRepository/NewSettingQueryRepository）
 func NewSettingRepository(db *gorm.DB) setting.Repository {
+	return &settingRepository{db: db}
+}
+
+// NewSettingCommandRepository 创建配置写操作仓储实例
+func NewSettingCommandRepository(db *gorm.DB) setting.CommandRepository {
+	return &settingRepository{db: db}
+}
+
+// NewSettingQueryRepository 创建配置读操作仓储实例
+func NewSettingQueryRepository(db *gorm.DB) setting.QueryRepository {
 	return &settingRepository{db: db}
 }
 
