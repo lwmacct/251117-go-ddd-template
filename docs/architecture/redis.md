@@ -626,7 +626,7 @@ result, err := script.Run(ctx, redisClient, []string{"balance:user:1"}, 100).Res
 
 ## 下一步
 
-- 了解 [认证授权](/guide/authentication)
-- 学习 [PostgreSQL 集成](/guide/postgresql)
-- 查看 [项目架构](/guide/architecture)
+- 了解 [认证授权](/architecture/authentication)
+- 学习 [PostgreSQL 集成](/architecture/postgresql)
+- 查看 [项目架构](/architecture/)
 - 探索 [配置系统](/guide/configuration)

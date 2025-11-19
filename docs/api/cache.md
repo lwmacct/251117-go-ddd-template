@@ -591,7 +591,7 @@ async function getCacheWithFallback(key) {
 
 ## 相关链接
 
-- [Redis 集成指南](/guide/redis) - Redis 配置和高级用法
+- [Redis 集成指南](/architecture/redis) - Redis 配置和高级用法
 - [认证接口](/api/auth) - JWT 认证接口
 - [用户接口](/api/users) - 用户管理接口
 - [配置系统](/guide/configuration) - Redis 连接配置

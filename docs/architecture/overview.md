@@ -321,6 +321,6 @@ func (h *AuthHandler) Register(c *gin.Context) {
 ## 下一步
 
 - 了解[配置系统](/guide/configuration)
-- 学习[认证授权](/guide/authentication)
-- 探索 [PostgreSQL 集成](/guide/postgresql)
-- 查看 [Redis 缓存](/guide/redis)
+- 学习[认证授权](/architecture/authentication)
+- 探索 [PostgreSQL 集成](/architecture/postgresql)
+- 查看 [Redis 缓存](/architecture/redis)

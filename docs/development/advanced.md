@@ -23,9 +23,7 @@
 method="POST"
 path="/api/auth/login"
 description="用户登录接口"
-version="v2.0"
-
->
+version="v2.0">
 
 **请求体**：
 
@@ -50,9 +48,7 @@ version="v2.0"
 <ApiEndpoint
 method="GET"
 path="/api/users/:id"
-description="获取用户详情"
-
->
+description="获取用户详情">
 
 **路径参数**：
 
@@ -74,10 +70,8 @@ description="获取用户详情"
 <ApiEndpoint
 method="DELETE"
 path="/api/users/:id"
-description="删除用户 (此接口已废弃) "
-deprecated
-
->
+description="删除用户 (此接口已废弃)"
+deprecated>
 
 请使用 `PUT /api/users/:id` 并设置 `status: inactive`。
 
@@ -88,9 +82,7 @@ deprecated
 <FeatureCard
 title="JWT 认证"
 description="基于 JWT 的用户认证系统"
-icon="🔐"
-
->
+icon="🔐">
 
 - 支持 Token 刷新
 - 自动过期处理
@@ -102,9 +94,7 @@ icon="🔐"
 title="PostgreSQL 集成"
 description="使用 GORM 进行数据库操作"
 icon="🗄️"
-highlighted
-
->
+highlighted>
 
 - 自动迁移
 - 软删除支持
@@ -116,9 +106,7 @@ highlighted
 <FeatureCard
 title="Redis 缓存"
 description="高性能缓存和分布式锁"
-icon="⚡"
-
->
+icon="⚡">
 
 - 缓存策略
 - 分布式锁
@@ -227,7 +215,7 @@ const steps = [
 
 ## 📚 扩展阅读
 
-- [创建自定义组件](/development/vitepress-features#自定义组件)
+- [创建自定义组件](/development/features#自定义组件)
 - [主题配置](https://vitepress.dev/reference/default-theme-config)
 - [Vue 组件集成](https://vitepress.dev/guide/using-vue)
 

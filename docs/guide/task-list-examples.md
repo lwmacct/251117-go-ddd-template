@@ -275,6 +275,6 @@ VitePress 2.0 原生支持 GitHub 风格的任务列表，可以用于项目计�
 
 ## 🔗 相关功能
 
-- [Badge 徽章](/development/vitepress-features#badge-徽章) - 标注状态
-- [自定义容器](/development/vitepress-features#自定义容器) - 组织内容
-- [StepsGuide 组件](/development/vitepress-advanced#步骤指南) - 步骤指导
+- [Badge 徽章](/development/features#badge-徽章) - 标注状态
+- [自定义容器](/development/features#自定义容器) - 组织内容
+- [StepsGuide 组件](/development/advanced#步骤指南) - 步骤指导

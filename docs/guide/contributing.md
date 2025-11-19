@@ -25,7 +25,8 @@ npm install
 
 ```bash
 # 启动开发服务器 (支持热重载)
-npm run docs:dev
+cd docs
+npm run dev
 ```
 
 文档将在本地端口 5173 启动，通常是 `http://localhost:5173`。
@@ -34,32 +35,96 @@ npm run docs:dev
 
 ```bash
 # 构建生产版本
-npm run docs:build
+cd docs
+npm run build
 
 # 预览构建结果
-npm run docs:preview
+npm run preview
 ```
 
 ### 文档结构
 
 ```
 docs/
-├── .vitepress/
-│   └── config.ts           # VitePress 配置
 ├── index.md                # 首页
-├── guide/                  # 指南
+├── guide/                  # 用户指南
+│   ├── getting-started.md          # 快速开始
+│   ├── configuration.md            # 配置系统
+│   ├── cli-commands.md             # CLI 命令
+│   ├── application-deployment.md   # 应用部署
+│   ├── docs-deployment.md          # 文档部署
+│   ├── testing.md                  # 测试指南
+│   └── contributing.md             # 贡献指南
+│
+├── architecture/           # 系统架构
+│   ├── index.md                    # 架构概览
+│   ├── overview.md                 # 架构设计
+│   ├── authentication.md           # 认证机制
+│   ├── rbac.md                     # RBAC 权限系统
+│   ├── pat.md                      # Personal Access Token
+│   ├── postgresql.md               # PostgreSQL 架构
+│   └── redis.md                    # Redis 架构
+│
+├── frontend/               # 前端文档
+│   ├── index.md
 │   ├── getting-started.md
-│   ├── architecture.md
-│   ├── configuration.md
-│   ├── authentication.md
-│   ├── postgresql.md
-│   ├── redis.md
-│   └── deployment.md
-└── api/                    # API 文档
+│   ├── project-structure.md
+│   └── api-integration.md
+│
+├── api/                    # API 参考文档
+│   ├── index.md
+│   ├── auth.md
+│   ├── users.md
+│   └── cache.md
+│
+└── development/            # 开发者文档
     ├── index.md
-    ├── auth.md
-    └── users.md
+    ├── quick-reference.md
+    ├── deployment.md
+    ├── docs-integration.md
+    ├── upgrade.md
+    ├── mermaid-integration.md
+    ├── features.md
+    └── advanced.md
 ```
+
+### 文档分类说明
+
+#### 1. 用户指南 (`/guide/`)
+
+**目标读者**: 应用的使用者、部署人员、新手开发者
+
+**内容特点**:
+- 面向实践，注重操作步骤
+- 适合快速上手
+- 包含大量示例代码
+
+#### 2. 系统架构 (`/architecture/`)
+
+**目标读者**: 架构师、高级开发者、技术决策者
+
+**内容特点**:
+- 深入技术细节
+- 解释设计决策
+- 包含架构图和流程图
+- 适合理解系统工作原理
+
+#### 3. API 参考 (`/api/`)
+
+**目标读者**: API 使用者、前端开发者、集成开发者
+
+**内容特点**:
+- 面向接口调用
+- 详细的参数说明
+- 多语言示例代码
+
+#### 4. 开发者文档 (`/development/`)
+
+**目标读者**: 项目维护者、文档编写者
+
+**内容特点**:
+- 面向文档系统本身
+- 适合维护和扩展文档
 
 ### 编写文档
 
@@ -107,7 +172,7 @@ func main() {
 
 ```markdown
 - 查看 [快速开始](/guide/getting-started)
-- 了解 [项目架构](/guide/architecture)
+- 了解 [项目架构](/architecture/)
 - 探索 [API 文档](/api/)
 ```
 
@@ -168,7 +233,8 @@ git checkout -b docs/update-guide
 
 ```bash
 # 确保构建通过
-npm run docs:build
+cd docs
+npm run build
 ```
 
 #### 4. 提交更改
@@ -215,6 +281,62 @@ docker-compose -f docker-compose.yml up --detach
 | 认证   | ✅   | 验证、鉴权         |
 | 仓储   | ✅   | 存储库、Repository |
 | 中间件 | ✅   | 拦截器             |
+
+### 文档分类原则
+
+#### 用户指南 vs 架构文档
+
+| 特性 | 用户指南 | 架构文档 |
+|------|---------|---------|
+| **目标** | 如何使用 | 为什么这样设计 |
+| **深度** | 操作层面 | 设计层面 |
+| **受众** | 初学者、用户 | 架构师、高级开发者 |
+| **内容** | 步骤、示例 | 原理、流程、设计 |
+| **更新频率** | 功能变化时 | 架构变化时 |
+
+#### 示例：权限系统文档的分类
+
+- **用户指南** (`/guide/`): 如何使用权限功能、如何分配角色
+- **架构文档** (`/architecture/rbac`): RBAC 系统的工作原理、三段式权限格式、中间件实现
+- **API 文档** (`/api/`): 权限相关的 API 端点、请求格式
+
+### 文档编写最佳实践
+
+#### 架构文档编写要点
+
+1. **解释"为什么"，而不仅仅是"是什么"**
+   - ✅ "使用三段式权限格式是为了实现更细粒度的权限控制"
+   - ✗ "权限格式是 domain:resource:action"
+
+2. **包含设计决策和权衡**
+   - ✅ "选择 JWT 而非 Session 是为了支持水平扩展"
+   - ✗ "系统使用 JWT"
+
+3. **提供架构图和流程图**
+   - 使用 Mermaid 绘制序列图、流程图
+   - 图文结合，易于理解
+
+4. **深入技术细节**
+   - 代码实现
+   - 数据库查询优化
+   - 性能考虑
+
+#### 用户指南编写要点
+
+1. **聚焦操作步骤**
+   - 清晰的步骤说明
+   - 命令行示例
+   - 预期结果
+
+2. **面向实践**
+   - 真实场景
+   - 常见问题
+   - 故障排查
+
+3. **易于上手**
+   - 循序渐进
+   - 避免过多技术细节
+   - 提供快速路径
 
 ## 代码贡献
 

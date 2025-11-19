@@ -6,18 +6,18 @@
 
 ### 快速参考
 
-- **[VitePress 快速参考](./vitepress-quick-reference)** - VitePress 多环境部署的快速上手指南
+- **[VitePress 快速参考](./quick-reference)** - VitePress 多环境部署的快速上手指南
 
 ### 详细指南
 
-- **[VitePress 部署指南](./vitepress-deployment)** - 完整的多环境部署文档
+- **[VitePress 部署指南](./deployment)** - 完整的多环境部署文档
 - **[文档集成说明](./docs-integration)** - Go API 服务器集成 VitePress 文档服务
 - **[Mermaid 集成](./mermaid-integration)** - VitePress 中使用 Mermaid 图表的技术实现
-- **[功能展示](./vitepress-features)** - VitePress 2.0 原生功能完整示例
+- **[功能展示](./features)** - VitePress 2.0 原生功能完整示例
 
 ### 升级记录
 
-- **[VitePress 2.0 升级](./vitepress-upgrade)** - VitePress 2.0.0-alpha.13 升级总结
+- **[VitePress 2.0 升级](./upgrade)** - VitePress 2.0.0-alpha.13 升级总结
 
 ## 文档概览
 

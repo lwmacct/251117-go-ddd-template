@@ -375,5 +375,5 @@ success = api.delete_user(1)
 ## 下一步
 
 - 查看[认证接口文档](/api/auth)
-- 了解[认证授权机制](/guide/authentication)
-- 学习[项目架构](/guide/architecture)
+- 了解[认证授权机制](/architecture/authentication)
+- 学习[项目架构](/architecture/)

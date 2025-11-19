@@ -143,4 +143,4 @@ GET /api/users?page=2&page_size=20
 
 - 查看[认证接口详情](/api/auth)
 - 查看[用户接口详情](/api/users)
-- 了解[认证授权机制](/guide/authentication)
+- 了解[认证授权机制](/architecture/authentication)

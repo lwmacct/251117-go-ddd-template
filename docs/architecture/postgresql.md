@@ -570,7 +570,7 @@ db.Use(dbresolver.Register(dbresolver.Config{
 
 ## 下一步
 
-- 了解 [认证授权](/guide/authentication)
-- 学习 [Redis 缓存](/guide/redis)
+- 了解 [认证授权](/architecture/authentication)
+- 学习 [Redis 缓存](/architecture/redis)
 - 查看 [用户 API 文档](/api/users)
-- 探索 [项目架构](/guide/architecture)
+- 探索 [项目架构](/architecture/)

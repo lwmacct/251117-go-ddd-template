@@ -732,6 +732,6 @@ docker exec go-ddd-redis redis-cli ping
 
 - [快速开始](/guide/getting-started) - 本地开发环境配置
 - [配置系统](/guide/configuration) - 配置选项说明
-- [PostgreSQL](/guide/postgresql) - 数据库配置
-- [Redis](/guide/redis) - 缓存配置
+- [PostgreSQL](/architecture/postgresql) - 数据库配置
+- [Redis](/architecture/redis) - 缓存配置
 - [文档部署](/guide/docs-deployment) - VitePress 文档部署

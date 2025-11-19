@@ -291,6 +291,6 @@ echo ".env" >> .gitignore
 
 ## 下一步
 
-- 了解[认证授权](/guide/authentication)
-- 学习 [PostgreSQL 集成](/guide/postgresql)
-- 探索 [Redis 缓存](/guide/redis)
+- 了解[认证授权](/architecture/authentication)
+- 学习 [PostgreSQL 集成](/architecture/postgresql)
+- 探索 [Redis 缓存](/architecture/redis)

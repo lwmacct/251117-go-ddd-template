@@ -578,6 +578,8 @@ try {
 - [认证授权](/architecture/authentication) - JWT 认证机制
 - [Personal Access Token](/architecture/pat) - PAT 使用指南
 - [API 参考](/api/) - 后端 API 详细文档
-- [状态管理](./state-management.md) - Pinia Store 使用
+<!-- TODO: 待完善的文档
+- [状态管理](./state-management) - Pinia Store 使用
+-->
 
 开始高效地集成 API 吧！ 🚀

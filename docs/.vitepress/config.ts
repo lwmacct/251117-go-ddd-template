@@ -214,11 +214,11 @@ export default defineConfig({
           items: [
             {
               text: "快速参考",
-              link: "/development/vitepress-quick-reference",
+              link: "/development/quick-reference",
             },
             {
               text: "部署指南",
-              link: "/development/vitepress-deployment",
+              link: "/development/deployment",
             },
             {
               text: "文档集成",
@@ -226,7 +226,7 @@ export default defineConfig({
             },
             {
               text: "升级记录",
-              link: "/development/vitepress-upgrade",
+              link: "/development/upgrade",
             },
           ],
         },
@@ -240,11 +240,11 @@ export default defineConfig({
             },
             {
               text: "功能展示",
-              link: "/development/vitepress-features",
+              link: "/development/features",
             },
             {
               text: "高级功能",
-              link: "/development/vitepress-advanced",
+              link: "/development/advanced",
             },
           ],
         },
