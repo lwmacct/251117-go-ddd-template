@@ -451,6 +451,6 @@ APP_DATA_AUTO_MIGRATE=true go run main.go api
 
 ## 相关链接
 
-- [项目架构](/architecture/)
+- [项目架构](/backend/)
 - [配置系统](/guide/configuration)
 - [快速开始](/guide/getting-started)

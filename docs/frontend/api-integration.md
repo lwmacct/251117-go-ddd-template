@@ -575,8 +575,8 @@ try {
 
 ## 相关文档
 
-- [认证授权](/architecture/authentication) - JWT 认证机制
-- [Personal Access Token](/architecture/pat) - PAT 使用指南
+- [认证授权](/backend/authentication) - JWT 认证机制
+- [Personal Access Token](/backend/pat) - PAT 使用指南
 - [API 参考](/api/) - 后端 API 详细文档
 <!-- TODO: 待完善的文档
 - [状态管理](./state-management) - Pinia Store 使用

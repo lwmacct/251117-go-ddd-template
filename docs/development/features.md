@@ -184,7 +184,7 @@ export default defineConfig({
 ### 内部链接
 
 - [快速开始](/guide/getting-started)
-- [项目架构](/architecture/)
+- [项目架构](/backend/)
 - [API 文档](/api/)
 
 ### 外部链接

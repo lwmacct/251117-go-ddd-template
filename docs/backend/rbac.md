@@ -648,7 +648,7 @@ userGroup.Use(middleware.JWTAuth(jwtManager))
 
 ### 管理员接口保护示例
 
-所有 `/api/admin/*` 接口都受到三层保护：
+所有 `/api/admin/*` 接口都受到多层保护：
 
 1. **JWTAuth**: 必须提供有效的 JWT Token
 2. **AuditMiddleware**: 自动记录所有操作

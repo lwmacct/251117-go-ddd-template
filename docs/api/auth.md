@@ -330,5 +330,5 @@ const getCurrentUser = async (accessToken) => {
 ## 下一步
 
 - 查看[用户接口文档](/api/users)
-- 了解[认证授权机制](/architecture/authentication)
-- 学习[JWT 最佳实践](/architecture/authentication#jwt-最佳实践)
+- 了解[认证授权机制](/backend/authentication)
+- 学习[JWT 最佳实践](/backend/authentication#jwt-最佳实践)

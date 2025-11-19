@@ -27,8 +27,8 @@ export default defineConfig({
         link: "/guide/",
       },
       {
-        text: "架构",
-        link: "/architecture/",
+        text: "后端",
+        link: "/backend/",
       },
       {
         text: "前端",
@@ -107,25 +107,25 @@ export default defineConfig({
           ],
         },
       ],
-      "/architecture/": [
+      "/backend/": [
         {
           text: "系统架构",
           items: [
             {
               text: "架构概览",
-              link: "/architecture/",
+              link: "/backend/",
             },
             {
-              text: "三层架构（遗留）",
-              link: "/architecture/overview",
+              text: "架构设计概览",
+              link: "/backend/overview",
             },
             {
               text: "DDD + CQRS 架构",
-              link: "/architecture/ddd-cqrs",
+              link: "/backend/ddd-cqrs",
             },
             {
               text: "架构迁移指南",
-              link: "/architecture/migration-guide",
+              link: "/backend/migration-guide",
             },
           ],
         },
@@ -134,15 +134,15 @@ export default defineConfig({
           items: [
             {
               text: "认证机制",
-              link: "/architecture/authentication",
+              link: "/backend/authentication",
             },
             {
               text: "RBAC 权限系统",
-              link: "/architecture/rbac",
+              link: "/backend/rbac",
             },
             {
               text: "Personal Access Token",
-              link: "/architecture/pat",
+              link: "/backend/pat",
             },
           ],
         },
@@ -151,11 +151,11 @@ export default defineConfig({
           items: [
             {
               text: "PostgreSQL 架构",
-              link: "/architecture/postgresql",
+              link: "/backend/postgresql",
             },
             {
               text: "Redis 架构",
-              link: "/architecture/redis",
+              link: "/backend/redis",
             },
           ],
         },

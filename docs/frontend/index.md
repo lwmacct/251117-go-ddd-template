@@ -233,8 +233,8 @@ export default defineConfig({
 ### 后端集成
 
 - [API 文档](/api/) - 后端 API 接口文档
-- [认证授权](/architecture/authentication) - 认证机制说明
-- [RBAC 权限](/architecture/rbac) - 权限系统详解
+- [认证授权](/backend/authentication) - 认证机制说明
+- [RBAC 权限](/backend/rbac) - 权限系统详解
 
 ## 贡献指南
 

@@ -99,7 +99,7 @@ docs/
 - 适合快速上手
 - 包含大量示例代码
 
-#### 2. 系统架构 (`/architecture/`)
+#### 2. 系统架构 (`/backend/`)
 
 **目标读者**: 架构师、高级开发者、技术决策者
 
@@ -172,7 +172,7 @@ func main() {
 
 ```markdown
 - 查看 [快速开始](/guide/getting-started)
-- 了解 [项目架构](/architecture/)
+- 了解 [项目架构](/backend/)
 - 探索 [API 文档](/api/)
 ```
 
@@ -297,7 +297,7 @@ docker-compose -f docker-compose.yml up --detach
 #### 示例：权限系统文档的分类
 
 - **用户指南** (`/guide/`): 如何使用权限功能、如何分配角色
-- **架构文档** (`/architecture/rbac`): RBAC 系统的工作原理、三段式权限格式、中间件实现
+- **架构文档** (`/backend/rbac`): RBAC 系统的工作原理、三段式权限格式、中间件实现
 - **API 文档** (`/api/`): 权限相关的 API 端点、请求格式
 
 ### 文档编写最佳实践

@@ -572,7 +572,7 @@ db.Use(dbresolver.Register(dbresolver.Config{
 
 ## 下一步
 
-- 了解 [认证授权](/architecture/authentication)
-- 学习 [Redis 缓存](/architecture/redis)
+- 了解 [认证授权](/backend/authentication)
+- 学习 [Redis 缓存](/backend/redis)
 - 查看 [用户 API 文档](/api/users)
-- 探索 [项目架构](/architecture/)
+- 探索 [项目架构](/backend/)
