@@ -55,6 +55,61 @@ internal/
 - 依赖 Application Use Case Handlers
 - 不包含业务逻辑
 
+### 📁 文件命名规范
+
+| 层级 | 文件类型 | 命名规范 | 示例 |
+|------|---------|---------|------|
+| **Domain** | 实体模型 | `entity_{模块}.go` | `entity_user.go`, `entity_role.go` |
+| | Repository接口 | `command_repository.go` / `query_repository.go` | 每个模块固定命名 |
+| | 值对象 | `value_objects.go` | 复杂领域需要时使用 |
+| | 错误定义 | `errors.go` | 每个模块的领域错误 |
+| | 兼容接口 | `repository.go` | 组合 Command/Query Repository |
+| **Infrastructure** | Repository实现 | `{模块}_{操作类型}_repository.go` | `user_command_repository.go`, `user_query_repository.go` |
+| | Domain Service实现 | `service.go` | 在各自子目录（如 `auth/service.go`） |
+| **Application** | Command定义 | `{操作}_xxx.go` | `create_user.go`, `update_user.go` |
+| | Command Handler | `{操作}_xxx_handler.go` | `create_user_handler.go` |
+| | Query定义 | `{操作}_xxx.go` | `get_user.go`, `list_users.go` |
+| | Query Handler | `{操作}_xxx_handler.go` | `get_user_handler.go` |
+| | DTO定义 | `dto.go` | 模块根目录 |
+| | Mapper函数 | `mapper.go` | 模块根目录 |
+| **Adapters** | HTTP Handler | `{模块}.go`（单数） | `user.go`, `role.go`, `menu.go` |
+
+**目录结构示例**：
+```
+internal/domain/user/
+├── entity_user.go              # User 实体
+├── command_repository.go       # 写操作接口
+├── query_repository.go         # 读操作接口
+├── repository.go               # 兼容接口（组合）
+└── errors.go                   # 领域错误
+
+internal/infrastructure/persistence/
+├── user_command_repository.go  # User 写操作实现
+├── user_query_repository.go    # User 读操作实现
+├── role_command_repository.go
+├── role_query_repository.go
+└── ...
+
+internal/application/user/
+├── command/
+│   ├── create_user.go
+│   ├── create_user_handler.go
+│   ├── update_user.go
+│   └── update_user_handler.go
+├── query/
+│   ├── get_user.go
+│   ├── get_user_handler.go
+│   ├── list_users.go
+│   └── list_users_handler.go
+├── dto.go                      # 所有 DTO
+└── mapper.go                   # Entity → DTO 映射
+
+internal/adapters/http/handler/
+├── user.go                     # UserHandler
+├── role.go                     # RoleHandler
+└── menu.go                     # MenuHandler
+```
+
 ## 💻 添加新功能
 
 ### 标准开发流程（Use Case 模式）
@@ -62,7 +117,8 @@ internal/
 #### 1. Domain 层定义
 
 ```go
-// internal/domain/xxx/model.go
+// internal/domain/xxx/entity_xxx.go
+// 实体文件使用 entity_ 前缀命名
 type Xxx struct {
     ID   uint
     Name string
@@ -73,6 +129,7 @@ func (x *Xxx) IsValid() bool { ... }
 func (x *Xxx) Activate() { ... }
 
 // internal/domain/xxx/command_repository.go
+// 写操作 Repository 接口
 type CommandRepository interface {
     Create(ctx context.Context, entity *Xxx) error
     Update(ctx context.Context, entity *Xxx) error
@@ -80,6 +137,7 @@ type CommandRepository interface {
 }
 
 // internal/domain/xxx/query_repository.go
+// 读操作 Repository 接口
 type QueryRepository interface {
     GetByID(ctx context.Context, id uint) (*Xxx, error)
     List(ctx context.Context, offset, limit int) ([]*Xxx, error)
@@ -87,39 +145,141 @@ type QueryRepository interface {
 }
 
 // internal/domain/xxx/errors.go
+// 领域错误定义
 var ErrXxxNotFound = errors.New("xxx not found")
+
+// internal/domain/xxx/value_objects.go (可选)
+// 复杂领域的值对象定义（如 pat、twofa 模块）
+type XxxValueObject struct { ... }
 ```
 
 #### 2. Infrastructure 层实现
 
+**所有 Repository 实现统一在 `internal/infrastructure/persistence/` 目录**
+
 ```go
 // internal/infrastructure/persistence/xxx_command_repository.go
+// 命名规范：{模块}_{操作类型}_repository.go
 type xxxCommandRepository struct { db *gorm.DB }
+
 func NewXxxCommandRepository(db *gorm.DB) xxx.CommandRepository {
     return &xxxCommandRepository{db: db}
 }
-func (r *xxxCommandRepository) Create(ctx, entity) error { ... }
+
+func (r *xxxCommandRepository) Create(ctx context.Context, entity *xxx.Xxx) error {
+    return r.db.WithContext(ctx).Create(entity).Error
+}
+
+func (r *xxxCommandRepository) Update(ctx context.Context, entity *xxx.Xxx) error {
+    return r.db.WithContext(ctx).Save(entity).Error
+}
+
+func (r *xxxCommandRepository) Delete(ctx context.Context, id uint) error {
+    return r.db.WithContext(ctx).Delete(&xxx.Xxx{}, id).Error
+}
 
 // internal/infrastructure/persistence/xxx_query_repository.go
+// 读操作 Repository 实现
 type xxxQueryRepository struct { db *gorm.DB }
+
 func NewXxxQueryRepository(db *gorm.DB) xxx.QueryRepository {
     return &xxxQueryRepository{db: db}
 }
-func (r *xxxQueryRepository) GetByID(ctx, id) (*xxx.Xxx, error) { ... }
+
+func (r *xxxQueryRepository) GetByID(ctx context.Context, id uint) (*xxx.Xxx, error) {
+    var entity xxx.Xxx
+    err := r.db.WithContext(ctx).First(&entity, id).Error
+    if err != nil {
+        return nil, err
+    }
+    return &entity, nil
+}
+
+func (r *xxxQueryRepository) List(ctx context.Context, offset, limit int) ([]*xxx.Xxx, error) {
+    var entities []*xxx.Xxx
+    err := r.db.WithContext(ctx).Offset(offset).Limit(limit).Find(&entities).Error
+    return entities, err
+}
+
+func (r *xxxQueryRepository) ExistsByName(ctx context.Context, name string) (bool, error) {
+    var count int64
+    err := r.db.WithContext(ctx).Model(&xxx.Xxx{}).Where("name = ?", name).Count(&count).Error
+    return count > 0, err
+}
+```
+
+**Domain Service 实现示例**（如认证服务）：
+
+```go
+// internal/infrastructure/auth/service.go
+// 实现 domain/auth.Service 接口
+type authService struct {
+    jwtManager *JWTManager
+}
+
+func NewAuthService(jwtManager *JWTManager) auth.Service {
+    return &authService{jwtManager: jwtManager}
+}
+
+func (s *authService) HashPassword(password string) (string, error) { ... }
+func (s *authService) VerifyPassword(hashedPassword, password string) error { ... }
+func (s *authService) GenerateToken(userID uint) (string, error) { ... }
 ```
 
 #### 3. Application 层创建 Use Case
 
+**目录结构**：
+```
+internal/application/xxx/
+├── command/              # 写操作 Use Cases
+│   ├── create_xxx.go           # Command 定义
+│   ├── create_xxx_handler.go   # Command Handler
+│   ├── update_xxx.go
+│   ├── update_xxx_handler.go
+│   ├── delete_xxx.go
+│   └── delete_xxx_handler.go
+├── query/                # 读操作 Use Cases
+│   ├── get_xxx.go              # Query 定义
+│   ├── get_xxx_handler.go      # Query Handler
+│   ├── list_xxx.go
+│   └── list_xxx_handler.go
+├── dto.go                # DTO 定义（请求/响应）
+└── mapper.go             # Entity → DTO 映射函数
+```
+
+**Command 定义和 Handler**：
+
 ```go
 // internal/application/xxx/command/create_xxx.go
+package command
+
 type CreateXxxCommand struct {
     Name string
 }
 
+type CreateXxxResult struct {
+    ID uint
+}
+
 // internal/application/xxx/command/create_xxx_handler.go
+package command
+
+import (
+    "context"
+    "errors"
+    "your-project/internal/domain/xxx"
+)
+
 type CreateXxxHandler struct {
     xxxCommandRepo xxx.CommandRepository
     xxxQueryRepo   xxx.QueryRepository
+}
+
+func NewCreateXxxHandler(cmdRepo xxx.CommandRepository, queryRepo xxx.QueryRepository) *CreateXxxHandler {
+    return &CreateXxxHandler{
+        xxxCommandRepo: cmdRepo,
+        xxxQueryRepo:   queryRepo,
+    }
 }
 
 func (h *CreateXxxHandler) Handle(ctx context.Context, cmd CreateXxxCommand) (*CreateXxxResult, error) {
@@ -129,70 +289,289 @@ func (h *CreateXxxHandler) Handle(ctx context.Context, cmd CreateXxxCommand) (*C
         return nil, errors.New("name already exists")
     }
 
-    // 2. 创建实体
+    // 2. 创建领域实体
     entity := &xxx.Xxx{Name: cmd.Name}
-    h.xxxCommandRepo.Create(ctx, entity)
+
+    // 3. 调用 Command Repository
+    if err := h.xxxCommandRepo.Create(ctx, entity); err != nil {
+        return nil, err
+    }
 
     return &CreateXxxResult{ID: entity.ID}, nil
 }
+```
+
+**Query 定义和 Handler**：
+
+```go
+// internal/application/xxx/query/get_xxx.go
+package query
+
+type GetXxxQuery struct {
+    ID uint
+}
 
 // internal/application/xxx/query/get_xxx_handler.go
+package query
+
+import (
+    "context"
+    "your-project/internal/domain/xxx"
+)
+
 type GetXxxHandler struct {
     xxxQueryRepo xxx.QueryRepository
 }
-func (h *GetXxxHandler) Handle(ctx, query GetXxxQuery) (*XxxResponse, error) {
-    return h.xxxQueryRepo.GetByID(ctx, query.ID)
+
+func NewGetXxxHandler(queryRepo xxx.QueryRepository) *GetXxxHandler {
+    return &GetXxxHandler{xxxQueryRepo: queryRepo}
 }
 
+func (h *GetXxxHandler) Handle(ctx context.Context, query GetXxxQuery) (*xxx.Xxx, error) {
+    return h.xxxQueryRepo.GetByID(ctx, query.ID)
+}
+```
+
+**DTO 和 Mapper**：
+
+```go
 // internal/application/xxx/dto.go
+package xxx
+
+type CreateXxxDTO struct {
+    Name string `json:"name" binding:"required"`
+}
+
+type UpdateXxxDTO struct {
+    Name string `json:"name"`
+}
+
 type XxxResponse struct {
     ID   uint   `json:"id"`
     Name string `json:"name"`
+}
+
+// internal/application/xxx/mapper.go
+package xxx
+
+import "your-project/internal/domain/xxx"
+
+func ToXxxResponse(entity *xxx.Xxx) *XxxResponse {
+    return &XxxResponse{
+        ID:   entity.ID,
+        Name: entity.Name,
+    }
 }
 ```
 
 #### 4. Adapters 层创建 HTTP Handler
 
+**文件位置**：`internal/adapters/http/handler/xxx.go`（使用单数命名）
+
 ```go
-// internal/adapters/http/handler/xxx_handler.go
+// internal/adapters/http/handler/xxx.go
+package handler
+
+import (
+    "net/http"
+    "strconv"
+
+    "github.com/gin-gonic/gin"
+    "your-project/internal/adapters/http/response"
+    "your-project/internal/application/xxx"
+    "your-project/internal/application/xxx/command"
+    "your-project/internal/application/xxx/query"
+)
+
 type XxxHandler struct {
+    // Use Case Handlers（依赖注入）
     createXxxHandler *command.CreateXxxHandler
+    updateXxxHandler *command.UpdateXxxHandler
+    deleteXxxHandler *command.DeleteXxxHandler
     getXxxHandler    *query.GetXxxHandler
+    listXxxHandler   *query.ListXxxHandler
 }
 
+func NewXxxHandler(
+    createHandler *command.CreateXxxHandler,
+    updateHandler *command.UpdateXxxHandler,
+    deleteHandler *command.DeleteXxxHandler,
+    getHandler *query.GetXxxHandler,
+    listHandler *query.ListXxxHandler,
+) *XxxHandler {
+    return &XxxHandler{
+        createXxxHandler: createHandler,
+        updateXxxHandler: updateHandler,
+        deleteXxxHandler: deleteHandler,
+        getXxxHandler:    getHandler,
+        listXxxHandler:   listHandler,
+    }
+}
+
+// Create 处理创建请求
 func (h *XxxHandler) Create(c *gin.Context) {
-    var req CreateXxxRequest
-    c.ShouldBindJSON(&req)
+    var req xxx.CreateXxxDTO
+    if err := c.ShouldBindJSON(&req); err != nil {
+        response.Error(c, http.StatusBadRequest, "Invalid request", err)
+        return
+    }
 
     // 调用 Use Case Handler
     result, err := h.createXxxHandler.Handle(c.Request.Context(), command.CreateXxxCommand{
         Name: req.Name,
     })
-
     if err != nil {
-        c.JSON(400, gin.H{"error": err.Error()})
+        response.Error(c, http.StatusInternalServerError, "Failed to create", err)
         return
     }
 
-    c.JSON(201, gin.H{"message": "created", "data": result})
+    response.Success(c, http.StatusCreated, "Created successfully", result)
+}
+
+// GetByID 处理获取单个资源请求
+func (h *XxxHandler) GetByID(c *gin.Context) {
+    id, err := strconv.ParseUint(c.Param("id"), 10, 64)
+    if err != nil {
+        response.Error(c, http.StatusBadRequest, "Invalid ID", err)
+        return
+    }
+
+    // 调用 Query Handler
+    entity, err := h.getXxxHandler.Handle(c.Request.Context(), query.GetXxxQuery{
+        ID: uint(id),
+    })
+    if err != nil {
+        response.Error(c, http.StatusNotFound, "Not found", err)
+        return
+    }
+
+    // 使用 Mapper 转换为 DTO
+    resp := xxx.ToXxxResponse(entity)
+    response.Success(c, http.StatusOK, "Success", resp)
+}
+
+// Update 处理更新请求
+func (h *XxxHandler) Update(c *gin.Context) {
+    id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+    var req xxx.UpdateXxxDTO
+    if err := c.ShouldBindJSON(&req); err != nil {
+        response.Error(c, http.StatusBadRequest, "Invalid request", err)
+        return
+    }
+
+    _, err := h.updateXxxHandler.Handle(c.Request.Context(), command.UpdateXxxCommand{
+        ID:   uint(id),
+        Name: req.Name,
+    })
+    if err != nil {
+        response.Error(c, http.StatusInternalServerError, "Failed to update", err)
+        return
+    }
+
+    response.Success(c, http.StatusOK, "Updated successfully", nil)
+}
+
+// Delete 处理删除请求
+func (h *XxxHandler) Delete(c *gin.Context) {
+    id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+
+    err := h.deleteXxxHandler.Handle(c.Request.Context(), command.DeleteXxxCommand{
+        ID: uint(id),
+    })
+    if err != nil {
+        response.Error(c, http.StatusInternalServerError, "Failed to delete", err)
+        return
+    }
+
+    response.Success(c, http.StatusOK, "Deleted successfully", nil)
 }
 ```
 
 #### 5. Bootstrap 注册依赖
 
+**在 `internal/bootstrap/container.go` 中按顺序注册**：
+
 ```go
 // internal/bootstrap/container.go
+package bootstrap
 
-// Repositories
-xxxCommandRepo := persistence.NewXxxCommandRepository(db)
-xxxQueryRepo := persistence.NewXxxQueryRepository(db)
+import (
+    "your-project/internal/adapters/http/handler"
+    "your-project/internal/application/xxx/command"
+    "your-project/internal/application/xxx/query"
+    "your-project/internal/infrastructure/persistence"
+)
 
-// Use Case Handlers
-createXxxHandler := command.NewCreateXxxHandler(xxxCommandRepo, xxxQueryRepo)
-getXxxHandler := query.NewGetXxxHandler(xxxQueryRepo)
+type Container struct {
+    // ... 其他字段
 
-// HTTP Handler
-xxxHandler := handler.NewXxxHandler(createXxxHandler, getXxxHandler)
+    // Repositories
+    XxxCommandRepo xxx.CommandRepository
+    XxxQueryRepo   xxx.QueryRepository
+
+    // Use Case Handlers
+    CreateXxxHandler *command.CreateXxxHandler
+    UpdateXxxHandler *command.UpdateXxxHandler
+    DeleteXxxHandler *command.DeleteXxxHandler
+    GetXxxHandler    *query.GetXxxHandler
+    ListXxxHandler   *query.ListXxxHandler
+
+    // HTTP Handler
+    XxxHandler *handler.XxxHandler
+}
+
+func NewContainer(cfg *config.Config) (*Container, error) {
+    c := &Container{}
+
+    // 1. 初始化数据库等基础设施
+    db := initDatabase(cfg)
+
+    // 2. 创建 Repositories
+    c.XxxCommandRepo = persistence.NewXxxCommandRepository(db)
+    c.XxxQueryRepo = persistence.NewXxxQueryRepository(db)
+
+    // 3. 创建 Use Case Handlers
+    c.CreateXxxHandler = command.NewCreateXxxHandler(c.XxxCommandRepo, c.XxxQueryRepo)
+    c.UpdateXxxHandler = command.NewUpdateXxxHandler(c.XxxCommandRepo, c.XxxQueryRepo)
+    c.DeleteXxxHandler = command.NewDeleteXxxHandler(c.XxxCommandRepo)
+    c.GetXxxHandler = query.NewGetXxxHandler(c.XxxQueryRepo)
+    c.ListXxxHandler = query.NewListXxxHandler(c.XxxQueryRepo)
+
+    // 4. 创建 HTTP Handler
+    c.XxxHandler = handler.NewXxxHandler(
+        c.CreateXxxHandler,
+        c.UpdateXxxHandler,
+        c.DeleteXxxHandler,
+        c.GetXxxHandler,
+        c.ListXxxHandler,
+    )
+
+    return c, nil
+}
+```
+
+**在 `internal/adapters/http/router.go` 中注册路由**：
+
+```go
+// internal/adapters/http/router.go
+func SetupRouter(container *bootstrap.Container) *gin.Engine {
+    r := gin.Default()
+
+    // API 路由组
+    api := r.Group("/api/v1")
+    {
+        xxx := api.Group("/xxx")
+        {
+            xxx.POST("", container.XxxHandler.Create)
+            xxx.GET("/:id", container.XxxHandler.GetByID)
+            xxx.PUT("/:id", container.XxxHandler.Update)
+            xxx.DELETE("/:id", container.XxxHandler.Delete)
+            xxx.GET("", container.XxxHandler.List)
+        }
+    }
+
+    return r
+}
 ```
 
 ## ⚠️ 核心原则
