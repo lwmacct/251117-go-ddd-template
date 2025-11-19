@@ -10,9 +10,11 @@ import (
 
 // Claims JWT 自定义声明
 type Claims struct {
-	UserID   uint   `json:"user_id"`
-	Username string `json:"username"`
-	Email    string `json:"email"`
+	UserID      uint     `json:"user_id"`
+	Username    string   `json:"username"`
+	Email       string   `json:"email"`
+	Roles       []string `json:"roles"`
+	Permissions []string `json:"permissions"`
 	jwt.RegisteredClaims
 }
 
@@ -33,11 +35,13 @@ func NewJWTManager(secretKey string, accessTokenDuration, refreshTokenDuration t
 }
 
 // GenerateAccessToken 生成访问令牌
-func (m *JWTManager) GenerateAccessToken(userID uint, username, email string) (string, error) {
+func (m *JWTManager) GenerateAccessToken(userID uint, username, email string, roles, permissions []string) (string, error) {
 	claims := Claims{
-		UserID:   userID,
-		Username: username,
-		Email:    email,
+		UserID:      userID,
+		Username:    username,
+		Email:       email,
+		Roles:       roles,
+		Permissions: permissions,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(m.accessTokenDuration)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
@@ -50,11 +54,13 @@ func (m *JWTManager) GenerateAccessToken(userID uint, username, email string) (s
 }
 
 // GenerateRefreshToken 生成刷新令牌
-func (m *JWTManager) GenerateRefreshToken(userID uint, username, email string) (string, error) {
+func (m *JWTManager) GenerateRefreshToken(userID uint, username, email string, roles, permissions []string) (string, error) {
 	claims := Claims{
-		UserID:   userID,
-		Username: username,
-		Email:    email,
+		UserID:      userID,
+		Username:    username,
+		Email:       email,
+		Roles:       roles,
+		Permissions: permissions,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(m.refreshTokenDuration)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
@@ -93,13 +99,13 @@ func (m *JWTManager) ValidateToken(tokenString string) (*Claims, error) {
 }
 
 // GenerateTokenPair 生成访问令牌和刷新令牌对
-func (m *JWTManager) GenerateTokenPair(userID uint, username, email string) (accessToken, refreshToken string, err error) {
-	accessToken, err = m.GenerateAccessToken(userID, username, email)
+func (m *JWTManager) GenerateTokenPair(userID uint, username, email string, roles, permissions []string) (accessToken, refreshToken string, err error) {
+	accessToken, err = m.GenerateAccessToken(userID, username, email, roles, permissions)
 	if err != nil {
 		return "", "", fmt.Errorf("failed to generate access token: %w", err)
 	}
 
-	refreshToken, err = m.GenerateRefreshToken(userID, username, email)
+	refreshToken, err = m.GenerateRefreshToken(userID, username, email, roles, permissions)
 	if err != nil {
 		return "", "", fmt.Errorf("failed to generate refresh token: %w", err)
 	}

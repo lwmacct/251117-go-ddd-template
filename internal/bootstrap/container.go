@@ -6,6 +6,9 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/lwmacct/251117-go-ddd-template/internal/adapters/http"
+	"github.com/lwmacct/251117-go-ddd-template/internal/domain/auditlog"
+	"github.com/lwmacct/251117-go-ddd-template/internal/domain/pat"
+	"github.com/lwmacct/251117-go-ddd-template/internal/domain/role"
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/user"
 	infraauth "github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/auth"
 	"github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/config"
@@ -30,13 +33,19 @@ func DefaultOptions() *ContainerOptions {
 
 // Container 依赖注入容器
 type Container struct {
-	Config         *config.Config
-	DB             *gorm.DB
-	RedisClient    *redis.Client
-	UserRepository user.Repository
-	JWTManager     *infraauth.JWTManager
-	AuthService    *infraauth.Service
-	Router         *gin.Engine
+	Config               *config.Config
+	DB                   *gorm.DB
+	RedisClient          *redis.Client
+	UserRepository       user.Repository
+	RoleRepository       role.RoleRepository
+	PermissionRepository role.PermissionRepository
+	AuditLogRepository   auditlog.Repository
+	PATRepository        pat.Repository
+	JWTManager           *infraauth.JWTManager
+	TokenGenerator       *infraauth.TokenGenerator
+	PATService           *infraauth.PATService
+	AuthService          *infraauth.Service
+	Router               *gin.Engine
 }
 
 // NewContainer 创建并初始化依赖注入容器
@@ -74,28 +83,55 @@ func NewContainer(cfg *config.Config, opts *ContainerOptions) (*Container, error
 
 	// 4. 初始化仓储
 	userRepo := persistence.NewUserRepository(db)
+	roleRepo := persistence.NewRoleRepository(db)
+	permissionRepo := persistence.NewPermissionRepository(db)
+	auditLogRepo := persistence.NewAuditLogRepository(db)
+	patRepo := persistence.NewPATRepository(db)
 
-	// 5. 初始化 JWT 管理器
+	// 5. 初始化 JWT 管理器和 Token 生成器
 	jwtManager := infraauth.NewJWTManager(
 		cfg.JWT.Secret,
 		cfg.JWT.AccessTokenExpiry,
 		cfg.JWT.RefreshTokenExpiry,
 	)
+	tokenGenerator := infraauth.NewTokenGenerator()
 
-	// 6. 初始化认证服务
+	// 6. 初始化 PAT 服务
+	patService := infraauth.NewPATService(patRepo, userRepo, tokenGenerator)
+
+	// 7. 初始化认证服务
 	authService := infraauth.NewService(userRepo, jwtManager)
 
-	// 7. 初始化路由 (传入依赖)
-	router := http.SetupRouter(cfg, db, redisClient, userRepo, jwtManager, authService)
+	// 8. 初始化路由 (传入依赖)
+	router := http.SetupRouter(
+		cfg,
+		db,
+		redisClient,
+		userRepo,
+		roleRepo,
+		permissionRepo,
+		auditLogRepo,
+		patRepo,
+		jwtManager,
+		tokenGenerator,
+		patService,
+		authService,
+	)
 
 	return &Container{
-		Config:         cfg,
-		DB:             db,
-		RedisClient:    redisClient,
-		UserRepository: userRepo,
-		JWTManager:     jwtManager,
-		AuthService:    authService,
-		Router:         router,
+		Config:               cfg,
+		DB:                   db,
+		RedisClient:          redisClient,
+		UserRepository:       userRepo,
+		RoleRepository:       roleRepo,
+		PermissionRepository: permissionRepo,
+		AuditLogRepository:   auditLogRepo,
+		PATRepository:        patRepo,
+		JWTManager:           jwtManager,
+		TokenGenerator:       tokenGenerator,
+		PATService:           patService,
+		AuthService:          authService,
+		Router:               router,
 	}, nil
 }
 
@@ -119,6 +155,9 @@ func (c *Container) Close() error {
 func GetAllModels() []any {
 	return []any{
 		&user.User{},
-		// 未来添加其他模型...
+		&role.Role{},
+		&role.Permission{},
+		&auditlog.AuditLog{},
+		&pat.PersonalAccessToken{},
 	}
 }

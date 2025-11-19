@@ -30,4 +30,19 @@ type Repository interface {
 
 	// Count 统计用户数量
 	Count(ctx context.Context) (int64, error)
+
+	// GetByIDWithRoles 根据 ID 获取用户（包含角色和权限信息）
+	GetByIDWithRoles(ctx context.Context, id uint) (*User, error)
+
+	// GetByUsernameWithRoles 根据用户名获取用户（包含角色和权限信息）
+	GetByUsernameWithRoles(ctx context.Context, username string) (*User, error)
+
+	// AssignRoles 为用户分配角色
+	AssignRoles(ctx context.Context, userID uint, roleIDs []uint) error
+
+	// RemoveRoles 移除用户的角色
+	RemoveRoles(ctx context.Context, userID uint, roleIDs []uint) error
+
+	// GetRoles 获取用户的所有角色
+	GetRoles(ctx context.Context, userID uint) ([]uint, error)
 }

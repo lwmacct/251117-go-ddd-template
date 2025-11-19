@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/lwmacct/251117-go-ddd-template/internal/domain/role"
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/user"
 	"gorm.io/gorm"
 )
@@ -98,4 +99,95 @@ func (r *userRepository) Count(ctx context.Context) (int64, error) {
 		return 0, fmt.Errorf("failed to count users: %w", err)
 	}
 	return count, nil
+}
+
+// GetByIDWithRoles 根据 ID 获取用户（包含角色和权限信息）
+func (r *userRepository) GetByIDWithRoles(ctx context.Context, id uint) (*user.User, error) {
+	var u user.User
+	if err := r.db.WithContext(ctx).
+		Preload("Roles.Permissions").
+		First(&u, id).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, fmt.Errorf("user not found with id: %d", id)
+		}
+		return nil, fmt.Errorf("failed to get user by id with roles: %w", err)
+	}
+	return &u, nil
+}
+
+// GetByUsernameWithRoles 根据用户名获取用户（包含角色和权限信息）
+func (r *userRepository) GetByUsernameWithRoles(ctx context.Context, username string) (*user.User, error) {
+	var u user.User
+	if err := r.db.WithContext(ctx).
+		Preload("Roles.Permissions").
+		Where("username = ?", username).
+		First(&u).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, fmt.Errorf("user not found with username: %s", username)
+		}
+		return nil, fmt.Errorf("failed to get user by username with roles: %w", err)
+	}
+	return &u, nil
+}
+
+// AssignRoles 为用户分配角色（替换现有角色）
+func (r *userRepository) AssignRoles(ctx context.Context, userID uint, roleIDs []uint) error {
+	var u user.User
+	if err := r.db.WithContext(ctx).First(&u, userID).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return fmt.Errorf("user not found with id: %d", userID)
+		}
+		return fmt.Errorf("failed to find user: %w", err)
+	}
+
+	var roles []role.Role
+	if err := r.db.WithContext(ctx).Find(&roles, roleIDs).Error; err != nil {
+		return fmt.Errorf("failed to find roles: %w", err)
+	}
+
+	if err := r.db.WithContext(ctx).Model(&u).Association("Roles").Replace(roles); err != nil {
+		return fmt.Errorf("failed to assign roles: %w", err)
+	}
+
+	return nil
+}
+
+// RemoveRoles 移除用户的角色
+func (r *userRepository) RemoveRoles(ctx context.Context, userID uint, roleIDs []uint) error {
+	var u user.User
+	if err := r.db.WithContext(ctx).First(&u, userID).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return fmt.Errorf("user not found with id: %d", userID)
+		}
+		return fmt.Errorf("failed to find user: %w", err)
+	}
+
+	var roles []role.Role
+	if err := r.db.WithContext(ctx).Find(&roles, roleIDs).Error; err != nil {
+		return fmt.Errorf("failed to find roles: %w", err)
+	}
+
+	if err := r.db.WithContext(ctx).Model(&u).Association("Roles").Delete(roles); err != nil {
+		return fmt.Errorf("failed to remove roles: %w", err)
+	}
+
+	return nil
+}
+
+// GetRoles 获取用户的所有角色ID
+func (r *userRepository) GetRoles(ctx context.Context, userID uint) ([]uint, error) {
+	var u user.User
+	if err := r.db.WithContext(ctx).Preload("Roles").First(&u, userID).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, fmt.Errorf("user not found with id: %d", userID)
+		}
+		return nil, fmt.Errorf("failed to get user roles: %w", err)
+	}
+
+	roleIDs := make([]uint, 0, len(u.Roles))
+	for _, r := range u.Roles {
+		roleIDs = append(roleIDs, r.ID)
+	}
+
+	return roleIDs, nil
 }

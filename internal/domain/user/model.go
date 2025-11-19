@@ -4,6 +4,7 @@ package user
 import (
 	"time"
 
+	"github.com/lwmacct/251117-go-ddd-template/internal/domain/role"
 	"gorm.io/gorm"
 )
 
@@ -21,6 +22,9 @@ type User struct {
 	Avatar   string `gorm:"size:255" json:"avatar"`
 	Bio      string `gorm:"type:text" json:"bio"`
 	Status   string `gorm:"size:20;default:'active'" json:"status"` // active, inactive, banned
+
+	// RBAC: Many-to-Many relationship with roles
+	Roles []role.Role `gorm:"many2many:user_roles;" json:"roles,omitempty"`
 }
 
 // TableName 指定表名
@@ -76,4 +80,76 @@ func (u *User) ToResponse() *UserResponse {
 		CreatedAt: u.CreatedAt,
 		UpdatedAt: u.UpdatedAt,
 	}
+}
+
+// HasRole checks if the user has a specific role
+func (u *User) HasRole(roleName string) bool {
+	for _, r := range u.Roles {
+		if r.Name == roleName {
+			return true
+		}
+	}
+	return false
+}
+
+// HasAnyRole checks if the user has any of the specified roles
+func (u *User) HasAnyRole(roleNames ...string) bool {
+	for _, roleName := range roleNames {
+		if u.HasRole(roleName) {
+			return true
+		}
+	}
+	return false
+}
+
+// HasPermission checks if the user has a specific permission
+func (u *User) HasPermission(permissionCode string) bool {
+	for _, r := range u.Roles {
+		for _, p := range r.Permissions {
+			if p.Code == permissionCode {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+// GetRoleNames returns all role names of the user
+func (u *User) GetRoleNames() []string {
+	names := make([]string, 0, len(u.Roles))
+	for _, r := range u.Roles {
+		names = append(names, r.Name)
+	}
+	return names
+}
+
+// GetPermissions returns all unique permissions of the user
+func (u *User) GetPermissions() []role.Permission {
+	permissionMap := make(map[uint]role.Permission)
+	for _, r := range u.Roles {
+		for _, p := range r.Permissions {
+			permissionMap[p.ID] = p
+		}
+	}
+
+	permissions := make([]role.Permission, 0, len(permissionMap))
+	for _, p := range permissionMap {
+		permissions = append(permissions, p)
+	}
+	return permissions
+}
+
+// GetPermissionCodes returns all unique permission codes of the user
+func (u *User) GetPermissionCodes() []string {
+	permissions := u.GetPermissions()
+	codes := make([]string, 0, len(permissions))
+	for _, p := range permissions {
+		codes = append(codes, p.Code)
+	}
+	return codes
+}
+
+// IsAdmin checks if the user has admin role
+func (u *User) IsAdmin() bool {
+	return u.HasRole("admin")
 }

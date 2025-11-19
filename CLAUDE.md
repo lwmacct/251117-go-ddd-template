@@ -11,13 +11,7 @@
 - 文档索引文件：`docs/.vitepress/config.ts`
 - 此文件定义了完整的导航和侧边栏配置，包含所有可用的文档页面
 
-### 在线访问
-
-- GitHub Pages: https://lwmacct.github.io/251117-go-ddd-template/
-
-### 使用建议
-
-当需要了解项目详细信息时：
+### 当需要了解项目详细信息时：
 
 1. 查看 `docs/.vitepress/config.ts` 了解有哪些文档
 2. 在 `docs/` 目录下直接阅读对应的 Markdown 文件
@@ -34,9 +28,6 @@
 - 缓存：Redis
 - 认证：JWT (golang-jwt/jwt/v5)
 - 配置：Koanf
-- 容器：Docker Compose
-
-**模块路径**：`github.com/lwmacct/251117-go-ddd-template`
 
 ## 架构概览
 
@@ -113,7 +104,6 @@ APP_JWT_SECRET=your-secret-key
 ├── web/               # 前端项目 (Vue 3，独立的 package.json)
 ├── docs/              # VitePress 文档 (独立的 package.json)
 ├── configs/           # 配置文件
-├── .devcontainer/     # Dev Container 配置
 ├── docker-compose.yml # PostgreSQL + Redis
 ├── Taskfile.yaml      # 任务自动化
 ├── .air.toml          # 热重载配置
@@ -132,7 +122,6 @@ APP_JWT_SECRET=your-secret-key
 ✅ 依赖注入容器
 ✅ 仓储模式
 ✅ 健康检查
-✅ Docker Compose 开发环境
 ✅ VitePress 文档系统
 
 ## 待实现功能

@@ -77,8 +77,17 @@ func (s *Service) Register(ctx context.Context, req *RegisterRequest) (*AuthResp
 		return nil, fmt.Errorf("failed to create user: %w", err)
 	}
 
+	// Reload user with roles
+	userWithRoles, err := s.userRepo.GetByIDWithRoles(ctx, newUser.ID)
+	if err != nil {
+		// Fallback to empty roles if failed to load
+		userWithRoles = newUser
+	}
+
 	// 生成 token
-	accessToken, refreshToken, err := s.jwtManager.GenerateTokenPair(newUser.ID, newUser.Username, newUser.Email)
+	roles := userWithRoles.GetRoleNames()
+	permissions := userWithRoles.GetPermissionCodes()
+	accessToken, refreshToken, err := s.jwtManager.GenerateTokenPair(userWithRoles.ID, userWithRoles.Username, userWithRoles.Email, roles, permissions)
 	if err != nil {
 		return nil, fmt.Errorf("failed to generate tokens: %w", err)
 	}
@@ -88,23 +97,28 @@ func (s *Service) Register(ctx context.Context, req *RegisterRequest) (*AuthResp
 		RefreshToken: refreshToken,
 		TokenType:    "Bearer",
 		ExpiresIn:    int(s.jwtManager.accessTokenDuration.Seconds()),
-		User:         newUser.ToResponse(),
+		User:         userWithRoles.ToResponse(),
 	}, nil
 }
 
 // Login 用户登录
 func (s *Service) Login(ctx context.Context, req *LoginRequest) (*AuthResponse, error) {
-	// 尝试通过用户名或邮箱查找用户
+	// 尝试通过用户名或邮箱查找用户（包含角色和权限）
 	var u *user.User
 	var err error
 
 	// 先尝试用户名
-	u, err = s.userRepo.GetByUsername(ctx, req.Login)
+	u, err = s.userRepo.GetByUsernameWithRoles(ctx, req.Login)
 	if err != nil {
 		// 再尝试邮箱
-		u, err = s.userRepo.GetByEmail(ctx, req.Login)
-		if err != nil {
+		tempUser, err2 := s.userRepo.GetByEmail(ctx, req.Login)
+		if err2 != nil {
 			return nil, fmt.Errorf("invalid credentials")
+		}
+		// Reload with roles
+		u, err = s.userRepo.GetByIDWithRoles(ctx, tempUser.ID)
+		if err != nil {
+			u = tempUser
 		}
 	}
 
@@ -119,7 +133,9 @@ func (s *Service) Login(ctx context.Context, req *LoginRequest) (*AuthResponse, 
 	}
 
 	// 生成 token
-	accessToken, refreshToken, err := s.jwtManager.GenerateTokenPair(u.ID, u.Username, u.Email)
+	roles := u.GetRoleNames()
+	permissions := u.GetPermissionCodes()
+	accessToken, refreshToken, err := s.jwtManager.GenerateTokenPair(u.ID, u.Username, u.Email, roles, permissions)
 	if err != nil {
 		return nil, fmt.Errorf("failed to generate tokens: %w", err)
 	}
@@ -141,8 +157,8 @@ func (s *Service) RefreshToken(ctx context.Context, refreshToken string) (*AuthR
 		return nil, fmt.Errorf("invalid refresh token: %w", err)
 	}
 
-	// 获取用户信息
-	u, err := s.userRepo.GetByID(ctx, claims.UserID)
+	// 获取用户信息（包含角色和权限）
+	u, err := s.userRepo.GetByIDWithRoles(ctx, claims.UserID)
 	if err != nil {
 		return nil, fmt.Errorf("user not found: %w", err)
 	}
@@ -153,7 +169,9 @@ func (s *Service) RefreshToken(ctx context.Context, refreshToken string) (*AuthR
 	}
 
 	// 生成新的 token 对
-	accessToken, newRefreshToken, err := s.jwtManager.GenerateTokenPair(u.ID, u.Username, u.Email)
+	roles := u.GetRoleNames()
+	permissions := u.GetPermissionCodes()
+	accessToken, newRefreshToken, err := s.jwtManager.GenerateTokenPair(u.ID, u.Username, u.Email, roles, permissions)
 	if err != nil {
 		return nil, fmt.Errorf("failed to generate tokens: %w", err)
 	}

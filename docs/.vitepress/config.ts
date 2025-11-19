@@ -24,7 +24,15 @@ export default defineConfig({
       },
       {
         text: "指南",
-        link: "/guide/getting-started",
+        link: "/guide/",
+      },
+      {
+        text: "架构",
+        link: "/architecture/",
+      },
+      {
+        text: "前端",
+        link: "/frontend/",
       },
       {
         text: "API 文档",
@@ -39,15 +47,15 @@ export default defineConfig({
     sidebar: {
       "/guide/": [
         {
-          text: "指南",
+          text: "快速入门",
           items: [
+            {
+              text: "指南概览",
+              link: "/guide/",
+            },
             {
               text: "快速开始",
               link: "/guide/getting-started",
-            },
-            {
-              text: "项目架构",
-              link: "/guide/architecture",
             },
             {
               text: "配置系统",
@@ -57,6 +65,11 @@ export default defineConfig({
               text: "CLI 命令",
               link: "/guide/cli-commands",
             },
+          ],
+        },
+        {
+          text: "部署运维",
+          items: [
             {
               text: "应用部署",
               link: "/guide/application-deployment",
@@ -65,6 +78,11 @@ export default defineConfig({
               text: "文档部署",
               link: "/guide/docs-deployment",
             },
+          ],
+        },
+        {
+          text: "开发指南",
+          items: [
             {
               text: "测试指南",
               link: "/guide/testing",
@@ -73,6 +91,11 @@ export default defineConfig({
               text: "贡献指南",
               link: "/guide/contributing",
             },
+          ],
+        },
+        {
+          text: "示例",
+          items: [
             {
               text: "Mermaid 图表",
               link: "/guide/mermaid-examples",
@@ -83,20 +106,71 @@ export default defineConfig({
             },
           ],
         },
+      ],
+      "/architecture/": [
         {
-          text: "核心功能",
+          text: "系统架构",
           items: [
             {
-              text: "认证授权",
-              link: "/guide/authentication",
+              text: "架构概览",
+              link: "/architecture/",
             },
             {
-              text: "PostgreSQL",
-              link: "/guide/postgresql",
+              text: "架构设计",
+              link: "/architecture/overview",
+            },
+          ],
+        },
+        {
+          text: "认证与授权",
+          items: [
+            {
+              text: "认证机制",
+              link: "/architecture/authentication",
             },
             {
-              text: "Redis",
-              link: "/guide/redis",
+              text: "RBAC 权限系统",
+              link: "/architecture/rbac",
+            },
+            {
+              text: "Personal Access Token",
+              link: "/architecture/pat",
+            },
+          ],
+        },
+        {
+          text: "数据层",
+          items: [
+            {
+              text: "PostgreSQL 架构",
+              link: "/architecture/postgresql",
+            },
+            {
+              text: "Redis 架构",
+              link: "/architecture/redis",
+            },
+          ],
+        },
+      ],
+      "/frontend/": [
+        {
+          text: "前端文档",
+          items: [
+            {
+              text: "概览",
+              link: "/frontend/",
+            },
+            {
+              text: "快速开始",
+              link: "/frontend/getting-started",
+            },
+            {
+              text: "项目结构",
+              link: "/frontend/project-structure",
+            },
+            {
+              text: "API 集成",
+              link: "/frontend/api-integration",
             },
           ],
         },

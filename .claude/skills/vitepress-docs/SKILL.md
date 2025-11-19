@@ -1,6 +1,6 @@
 ---
 name: vitepress-docs
-description: 在 docs 目录下创建或更新符合 VitePress 2.0 规范的 Markdown 文档，自动更新侧边栏和导航配置。当用户要求"创建文档"、"更新文档"、"写文档"、"添加指南"、"写 API 文档"、"新建文档页面"或提到 VitePress 文档时使用。
+description: 当用户要求"创建文档"、"更新文档"、"写文档"、"添加指南"、"写 API 文档"、"新建文档页面" 或提到 Docs/VitePress 时使用。
 ---
 
 # VitePress 文档管理器
@@ -94,10 +94,10 @@ sidebar: {
 
 ```bash
 # 开发模式预览
-npm run docs:dev
+npm run dev
 
 # 构建验证 (检查死链接)
-npm run docs:build
+npm run build
 ```
 
 ## VitePress 2.0 特性支持
@@ -229,7 +229,7 @@ docs/guide/getting-started.md
    ```typescript
    { text: "数据库迁移", link: "/guide/database-migration" }
    ```
-4. 运行 `npm run docs:build` 验证
+4. 运行 `npm run build` 验证
 
 **输出**：
 
@@ -238,7 +238,7 @@ docs/guide/getting-started.md
 ✅ 已更新：docs/.vitepress/config.ts
    - 添加侧边栏链接：/guide/database-migration
 
-📝 预览：npm run docs:dev
+📝 预览：npm run dev
 🌐 访问：
    - 本地：http://localhost:5173/guide/database-migration
    - Go 服务器：http://localhost:8080/docs/guide/database-migration
@@ -266,7 +266,7 @@ docs/guide/getting-started.md
    - 新增"分布式锁"章节
    - 添加代码示例
 
-📝 预览：npm run docs:dev
+📝 预览：npm run dev
 🌐 访问：http://localhost:5173/api/cache
 ```
 
@@ -292,7 +292,7 @@ docs/guide/getting-started.md
 ✅ 已更新：docs/.vitepress/config.ts
    - 添加到开发文档侧边栏
 
-📝 预览：npm run docs:dev
+📝 预览：npm run dev
 🌐 访问：http://localhost:5173/development/docker-deployment
 ```
 
