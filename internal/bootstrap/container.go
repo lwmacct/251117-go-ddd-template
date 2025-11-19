@@ -4,9 +4,16 @@ import (
 	"context"
 	"log/slog"
 
+	// Standard library imports
 	"github.com/gin-gonic/gin"
+	"github.com/redis/go-redis/v9"
+	"gorm.io/gorm"
+
+	// Adapter imports
 	"github.com/lwmacct/251117-go-ddd-template/internal/adapters/http"
 	"github.com/lwmacct/251117-go-ddd-template/internal/adapters/http/handler"
+
+	// Application imports - Use Case Handlers
 	auditlogQuery "github.com/lwmacct/251117-go-ddd-template/internal/application/auditlog/query"
 	authCommand "github.com/lwmacct/251117-go-ddd-template/internal/application/auth/command"
 	menuCommand "github.com/lwmacct/251117-go-ddd-template/internal/application/menu/command"
@@ -19,8 +26,10 @@ import (
 	settingQuery "github.com/lwmacct/251117-go-ddd-template/internal/application/setting/query"
 	userCommand "github.com/lwmacct/251117-go-ddd-template/internal/application/user/command"
 	userQuery "github.com/lwmacct/251117-go-ddd-template/internal/application/user/query"
+
+	// Domain imports
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/auditlog"
-	domainAuth "github.com/lwmacct/251117-go-ddd-template/internal/domain/auth"
+	authDomain "github.com/lwmacct/251117-go-ddd-template/internal/domain/auth"
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/captcha"
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/menu"
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/pat"
@@ -28,15 +37,16 @@ import (
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/setting"
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/twofa"
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/user"
-	infraauth "github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/auth"
-	infracaptcha "github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/captcha"
+
+	// Infrastructure imports
+
+	authInfra "github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/auth"
+	captchaInfra "github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/captcha"
 	"github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/config"
 	"github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/database"
 	"github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/persistence"
-	redisinfra "github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/redis"
-	infratwofa "github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/twofa"
-	"github.com/redis/go-redis/v9"
-	"gorm.io/gorm"
+	redisInfra "github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/redis"
+	twofaInfra "github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/twofa"
 )
 
 // ContainerOptions 容器初始化选项
@@ -80,15 +90,15 @@ type Container struct {
 	CaptchaQueryRepo   captcha.QueryRepository
 
 	// Domain Services
-	AuthService domainAuth.Service
+	AuthService authDomain.Service
 
 	// Infrastructure Services
-	JWTManager          *infraauth.JWTManager
-	TokenGenerator      *infraauth.TokenGenerator
-	LoginSessionService *infraauth.LoginSessionService
-	PATService          *infraauth.PATService
-	CaptchaService      *infracaptcha.Service
-	TwoFAService        *infratwofa.Service
+	JWTManager          *authInfra.JWTManager
+	TokenGenerator      *authInfra.TokenGenerator
+	LoginSessionService *authInfra.LoginSessionService
+	PATService          *authInfra.PATService
+	CaptchaService      *captchaInfra.Service
+	TwoFAService        *twofaInfra.Service
 
 	// Use Case Handlers - Auth
 	LoginHandler        *authCommand.LoginHandler
@@ -137,7 +147,7 @@ func NewContainer(cfg *config.Config, opts *ContainerOptions) (*Container, error
 	}
 
 	// 3. 初始化 Redis 客户端
-	redisClient, err := redisinfra.NewClient(ctx, cfg.Data.RedisURL)
+	redisClient, err := redisInfra.NewClient(ctx, cfg.Data.RedisURL)
 	if err != nil {
 		return nil, err
 	}
@@ -168,59 +178,33 @@ func NewContainer(cfg *config.Config, opts *ContainerOptions) (*Container, error
 	// =================================================================
 	// 5. 初始化 Infrastructure 组件（技术实现）
 	// =================================================================
-	jwtManager := infraauth.NewJWTManager(
-		cfg.JWT.Secret,
-		cfg.JWT.AccessTokenExpiry,
-		cfg.JWT.RefreshTokenExpiry,
-	)
-	tokenGenerator := infraauth.NewTokenGenerator()
-	loginSessionService := infraauth.NewLoginSessionService()
+	jwtManager := authInfra.NewJWTManager(cfg.JWT.Secret, cfg.JWT.AccessTokenExpiry, cfg.JWT.RefreshTokenExpiry)
+	tokenGenerator := authInfra.NewTokenGenerator()
+	loginSessionService := authInfra.NewLoginSessionService()
 
 	// =================================================================
 	// 6. 初始化 Domain Services（领域服务）
 	// =================================================================
-	passwordPolicy := domainAuth.DefaultPasswordPolicy()
-	authService := infraauth.NewAuthService(jwtManager, tokenGenerator, passwordPolicy)
+	passwordPolicy := authDomain.DefaultPasswordPolicy()
+	authService := authInfra.NewAuthService(jwtManager, tokenGenerator, passwordPolicy)
 
 	// =================================================================
 	// 7. 初始化 Use Case Handlers - Auth
 	// =================================================================
-	loginHandler := authCommand.NewLoginHandler(
-		userQueryRepo,
-		captchaRepo,
-		twofaQueryRepo,
-		authService,
-	)
+	loginHandler := authCommand.NewLoginHandler(userQueryRepo, captchaRepo, twofaQueryRepo, authService)
 
-	registerHandler := authCommand.NewRegisterHandler(
-		userCommandRepo,
-		userQueryRepo,
-		authService,
-	)
+	registerHandler := authCommand.NewRegisterHandler(userCommandRepo, userQueryRepo, authService)
 
-	refreshTokenHandler := authCommand.NewRefreshTokenHandler(
-		userQueryRepo,
-		authService,
-	)
+	refreshTokenHandler := authCommand.NewRefreshTokenHandler(userQueryRepo, authService)
 
 	// =================================================================
 	// 8. 初始化 Use Case Handlers - User
 	// =================================================================
-	createUserHandler := userCommand.NewCreateUserHandler(
-		userCommandRepo,
-		userQueryRepo,
-		authService,
-	)
+	createUserHandler := userCommand.NewCreateUserHandler(userCommandRepo, userQueryRepo, authService)
 
-	updateUserHandler := userCommand.NewUpdateUserHandler(
-		userCommandRepo,
-		userQueryRepo,
-	)
+	updateUserHandler := userCommand.NewUpdateUserHandler(userCommandRepo, userQueryRepo)
 
-	deleteUserHandler := userCommand.NewDeleteUserHandler(
-		userCommandRepo,
-		userQueryRepo,
-	)
+	deleteUserHandler := userCommand.NewDeleteUserHandler(userCommandRepo, userQueryRepo)
 
 	getUserHandler := userQuery.NewGetUserHandler(userQueryRepo)
 	listUsersHandler := userQuery.NewListUsersHandler(userQueryRepo)
@@ -228,26 +212,13 @@ func NewContainer(cfg *config.Config, opts *ContainerOptions) (*Container, error
 	// =================================================================
 	// 8.5. 初始化 Use Case Handlers - Role
 	// =================================================================
-	createRoleHandler := roleCommand.NewCreateRoleHandler(
-		roleCommandRepo,
-		roleQueryRepo,
-	)
+	createRoleHandler := roleCommand.NewCreateRoleHandler(roleCommandRepo, roleQueryRepo)
 
-	updateRoleHandler := roleCommand.NewUpdateRoleHandler(
-		roleCommandRepo,
-		roleQueryRepo,
-	)
+	updateRoleHandler := roleCommand.NewUpdateRoleHandler(roleCommandRepo, roleQueryRepo)
 
-	deleteRoleHandler := roleCommand.NewDeleteRoleHandler(
-		roleCommandRepo,
-		roleQueryRepo,
-	)
+	deleteRoleHandler := roleCommand.NewDeleteRoleHandler(roleCommandRepo, roleQueryRepo)
 
-	setPermissionsHandler := roleCommand.NewSetPermissionsHandler(
-		roleCommandRepo,
-		roleQueryRepo,
-		permissionQueryRepo,
-	)
+	setPermissionsHandler := roleCommand.NewSetPermissionsHandler(roleCommandRepo, roleQueryRepo, permissionQueryRepo)
 
 	getRoleHandler := roleQuery.NewGetRoleHandler(roleQueryRepo)
 	listRolesHandler := roleQuery.NewListRolesHandler(roleQueryRepo)
@@ -256,25 +227,13 @@ func NewContainer(cfg *config.Config, opts *ContainerOptions) (*Container, error
 	// =================================================================
 	// 8.6. 初始化 Use Case Handlers - Menu
 	// =================================================================
-	createMenuHandler := menuCommand.NewCreateMenuHandler(
-		menuCommandRepo,
-		menuQueryRepo,
-	)
+	createMenuHandler := menuCommand.NewCreateMenuHandler(menuCommandRepo, menuQueryRepo)
 
-	updateMenuHandler := menuCommand.NewUpdateMenuHandler(
-		menuCommandRepo,
-		menuQueryRepo,
-	)
+	updateMenuHandler := menuCommand.NewUpdateMenuHandler(menuCommandRepo, menuQueryRepo)
 
-	deleteMenuHandler := menuCommand.NewDeleteMenuHandler(
-		menuCommandRepo,
-		menuQueryRepo,
-	)
+	deleteMenuHandler := menuCommand.NewDeleteMenuHandler(menuCommandRepo, menuQueryRepo)
 
-	reorderMenusHandler := menuCommand.NewReorderMenusHandler(
-		menuCommandRepo,
-		menuQueryRepo,
-	)
+	reorderMenusHandler := menuCommand.NewReorderMenusHandler(menuCommandRepo, menuQueryRepo)
 
 	getMenuHandler := menuQuery.NewGetMenuHandler(menuQueryRepo)
 	listMenusHandler := menuQuery.NewListMenusHandler(menuQueryRepo)
@@ -282,25 +241,13 @@ func NewContainer(cfg *config.Config, opts *ContainerOptions) (*Container, error
 	// =================================================================
 	// 8.7. 初始化 Use Case Handlers - Setting
 	// =================================================================
-	createSettingHandler := settingCommand.NewCreateSettingHandler(
-		settingCommandRepo,
-		settingQueryRepo,
-	)
+	createSettingHandler := settingCommand.NewCreateSettingHandler(settingCommandRepo, settingQueryRepo)
 
-	updateSettingHandler := settingCommand.NewUpdateSettingHandler(
-		settingCommandRepo,
-		settingQueryRepo,
-	)
+	updateSettingHandler := settingCommand.NewUpdateSettingHandler(settingCommandRepo, settingQueryRepo)
 
-	deleteSettingHandler := settingCommand.NewDeleteSettingHandler(
-		settingCommandRepo,
-		settingQueryRepo,
-	)
+	deleteSettingHandler := settingCommand.NewDeleteSettingHandler(settingCommandRepo, settingQueryRepo)
 
-	batchUpdateSettingsHandler := settingCommand.NewBatchUpdateSettingsHandler(
-		settingCommandRepo,
-		settingQueryRepo,
-	)
+	batchUpdateSettingsHandler := settingCommand.NewBatchUpdateSettingsHandler(settingCommandRepo, settingQueryRepo)
 
 	getSettingHandler := settingQuery.NewGetSettingHandler(settingQueryRepo)
 	listSettingsHandler := settingQuery.NewListSettingsHandler(settingQueryRepo)
@@ -308,16 +255,9 @@ func NewContainer(cfg *config.Config, opts *ContainerOptions) (*Container, error
 	// =================================================================
 	// 8.8. 初始化 Use Case Handlers - PAT
 	// =================================================================
-	createTokenHandler := patCommand.NewCreateTokenHandler(
-		patCommandRepo,
-		patQueryRepo,
-		tokenGenerator,
-	)
+	createTokenHandler := patCommand.NewCreateTokenHandler(patCommandRepo, patQueryRepo, tokenGenerator)
 
-	revokeTokenHandler := patCommand.NewRevokeTokenHandler(
-		patCommandRepo,
-		patQueryRepo,
-	)
+	revokeTokenHandler := patCommand.NewRevokeTokenHandler(patCommandRepo, patQueryRepo)
 
 	getTokenHandler := patQuery.NewGetTokenHandler(patQueryRepo)
 	listTokensHandler := patQuery.NewListTokensHandler(patQueryRepo)
@@ -331,80 +271,31 @@ func NewContainer(cfg *config.Config, opts *ContainerOptions) (*Container, error
 	// =================================================================
 	// 9. 初始化 HTTP Handlers（适配器层）
 	// =================================================================
-	authHandler := handler.NewAuthHandler(
-		loginHandler,
-		registerHandler,
-		refreshTokenHandler,
-		getUserHandler,
-	)
+	authHandler := handler.NewAuthHandler(loginHandler, registerHandler, refreshTokenHandler, getUserHandler)
 
-	userHandler := handler.NewUserHandler(
-		createUserHandler,
-		updateUserHandler,
-		deleteUserHandler,
-		getUserHandler,
-		listUsersHandler,
-	)
+	userHandler := handler.NewUserHandler(createUserHandler, updateUserHandler, deleteUserHandler, getUserHandler, listUsersHandler)
 
-	roleHandler := handler.NewRoleHandler(
-		createRoleHandler,
-		updateRoleHandler,
-		deleteRoleHandler,
-		setPermissionsHandler,
-		getRoleHandler,
-		listRolesHandler,
-		listPermissionsHandler,
-	)
+	roleHandler := handler.NewRoleHandler(createRoleHandler, updateRoleHandler, deleteRoleHandler, setPermissionsHandler, getRoleHandler, listRolesHandler, listPermissionsHandler)
 
-	menuHandler := handler.NewMenuHandler(
-		createMenuHandler,
-		updateMenuHandler,
-		deleteMenuHandler,
-		reorderMenusHandler,
-		getMenuHandler,
-		listMenusHandler,
-	)
+	menuHandler := handler.NewMenuHandler(createMenuHandler, updateMenuHandler, deleteMenuHandler, reorderMenusHandler, getMenuHandler, listMenusHandler)
 
-	settingHandler := handler.NewSettingHandler(
-		createSettingHandler,
-		updateSettingHandler,
-		deleteSettingHandler,
-		batchUpdateSettingsHandler,
-		getSettingHandler,
-		listSettingsHandler,
-	)
+	settingHandler := handler.NewSettingHandler(createSettingHandler, updateSettingHandler, deleteSettingHandler, batchUpdateSettingsHandler, getSettingHandler, listSettingsHandler)
 
-	patHandler := handler.NewPATHandler(
-		createTokenHandler,
-		revokeTokenHandler,
-		getTokenHandler,
-		listTokensHandler,
-	)
+	patHandler := handler.NewPATHandler(createTokenHandler, revokeTokenHandler, getTokenHandler, listTokensHandler)
 
-	auditLogHandler := handler.NewAuditLogHandler(
-		listLogsHandler,
-		getLogHandler,
-	)
+	auditLogHandler := handler.NewAuditLogHandler(listLogsHandler, getLogHandler)
 
 	// =================================================================
 	// 10. 初始化 Infrastructure Services（基础设施服务）
 	// =================================================================
-	patService := infraauth.NewPATService(patCommandRepo, patQueryRepo, userQueryRepo, tokenGenerator)
-	captchaService := infracaptcha.NewService()
-	twofaService := infratwofa.NewService(twofaCommandRepo, twofaQueryRepo, userQueryRepo, cfg.Auth.TwoFAIssuer)
+	patService := authInfra.NewPATService(patCommandRepo, patQueryRepo, userQueryRepo, tokenGenerator)
+	captchaService := captchaInfra.NewService()
+	twofaService := twofaInfra.NewService(twofaCommandRepo, twofaQueryRepo, userQueryRepo, cfg.Auth.TwoFAIssuer)
 
 	// =================================================================
 	// 11. 初始化路由（使用 DDD+CQRS 架构）
 	// =================================================================
-	authServiceForRouter := infraauth.NewService(
-		userCommandRepo,
-		userQueryRepo,
-		twofaCommandRepo,
-		twofaQueryRepo,
-		captchaRepo,
-		jwtManager,
-		loginSessionService,
-	)
+	authServiceForRouter := authInfra.NewService(userCommandRepo, userQueryRepo, twofaCommandRepo, twofaQueryRepo, captchaRepo, jwtManager, loginSessionService)
 
 	router := http.SetupRouter(
 		cfg,
@@ -488,7 +379,7 @@ func NewContainer(cfg *config.Config, opts *ContainerOptions) (*Container, error
 // Close 关闭容器中的所有资源
 func (c *Container) Close() error {
 	// 关闭 Redis 连接
-	if err := redisinfra.Close(c.RedisClient); err != nil {
+	if err := redisInfra.Close(c.RedisClient); err != nil {
 		return err
 	}
 
