@@ -79,13 +79,12 @@ docs/
 │
 └── development/            # 开发者文档
     ├── index.md
-    ├── quick-reference.md
     ├── deployment.md
     ├── docs-integration.md
-    ├── upgrade.md
     ├── mermaid-integration.md
     ├── features.md
-    └── advanced.md
+    ├── advanced.md
+    └── upgrade.md
 ```
 
 ### 文档分类说明

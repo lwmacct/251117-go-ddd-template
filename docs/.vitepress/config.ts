@@ -217,13 +217,9 @@ export default defineConfig({
           ],
         },
         {
-          text: "VitePress 文档系统",
+          text: "文档工作流",
           collapsed: false,
           items: [
-            {
-              text: "快速参考",
-              link: "/development/quick-reference",
-            },
             {
               text: "部署指南",
               link: "/development/deployment",
@@ -239,7 +235,7 @@ export default defineConfig({
           ],
         },
         {
-          text: "VitePress 功能扩展",
+          text: "写作与组件",
           collapsed: false,
           items: [
             {
@@ -247,11 +243,11 @@ export default defineConfig({
               link: "/development/mermaid-integration",
             },
             {
-              text: "功能展示",
+              text: "功能示例",
               link: "/development/features",
             },
             {
-              text: "高级功能",
+              text: "主题与高级能力",
               link: "/development/advanced",
             },
           ],

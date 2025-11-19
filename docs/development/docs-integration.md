@@ -1,284 +1,112 @@
-# VitePress 文档集成到 Go API 服务器
+# 文档与 Go API 集成
 
-## 功能概述
+VitePress 构建出的静态文件由 Go API 服务器直接托管，路径为 `/docs`. 本文记录配置结构、路由实现以及常见扩展点，所有示例均来自当前代码库。
 
-Go API 服务器现在可以同时提供 VitePress 构建的文档服务，通过 `/docs` 路由访问。这样您可以在同一个服务器上同时提供：
+## 配置来源
 
-- **REST API** - `/api/*` 路由
-- **在线文档** - `/docs` 路由
-- **静态文件** - `/` 其他路由 (可选)
-
-## 实现方式
-
-### 1. 配置结构
-
-在 `internal/infrastructure/config/config.go:38` 添加了新的配置字段：
+`internal/infrastructure/config/config.go` 中的 `ServerConfig` 定义了文档目录：
 
 ```go
+// internal/infrastructure/config/config.go
 type ServerConfig struct {
-    Addr      string `koanf:"addr"`       // 监听地址
-    Env       string `koanf:"env"`        // 运行环境
-    StaticDir string `koanf:"static_dir"` // 静态资源目录
-    DocsDir   string `koanf:"docs_dir"`   // 文档目录 ← 新增
+    Addr      string `koanf:"addr"`
+    Env       string `koanf:"env"`
+    StaticDir string `koanf:"static_dir"`
+    DocsDir   string `koanf:"docs_dir"` // VitePress 构建输出
 }
 ```
 
-默认值设置为 `docs/.vitepress/dist`。
+默认值在同文件的 `DefaultConfig()` 中设置为 `docs/.vitepress/dist`。运行时可通过：
 
-### 2. 路由配置
+```bash
+APP_SERVER_DOCS_DIR=/custom/path task go:run -- api
+```
 
-在 `internal/adapters/http/router.go:70-106` 添加了文档服务路由：
+来覆盖此参数；若置为空字符串则自动关闭文档路由。
+
+## 适配器层实现
+
+`internal/adapters/http/router.go`（第 161 行起）注册了文档路由：
 
 ```go
-// 提供 VitePress 文档服务 (通过 /docs 路由访问)
 if cfg.Server.DocsDir != "" {
-    docsGroup := r.Group("/docs")
-    docsGroup.Use(func(c *gin.Context) {
-        // 移除 /docs 前缀，因为 VitePress base 已包含它
-        path := strings.TrimPrefix(c.Request.URL.Path, "/docs")
-        if path == "" {
-            path = "/"
+    docs := r.Group("/docs")
+    docs.Use(func(c *gin.Context) {
+        reqPath := strings.TrimPrefix(c.Request.URL.Path, "/docs")
+        if reqPath == "" {
+            reqPath = "/"
         }
+        fullPath := filepath.Join(cfg.Server.DocsDir, reqPath)
 
-        // 构建文件路径
-        filePath := filepath.Join(cfg.Server.DocsDir, path)
-
-        // 检查文件是否存在
-        if _, err := os.Stat(filePath); err == nil {
-            c.File(filePath)
+        if _, err := os.Stat(fullPath); err == nil {
+            c.File(fullPath)
             return
         }
 
-        // 如果路径不存在，尝试添加 .html 扩展名 (VitePress 清洁 URL)
-        if !strings.HasSuffix(path, ".html") && !strings.Contains(path, ".") {
-            htmlPath := filepath.Join(cfg.Server.DocsDir, path+".html")
+        if !strings.HasSuffix(reqPath, ".html") && !strings.Contains(reqPath, ".") {
+            htmlPath := filepath.Join(cfg.Server.DocsDir, reqPath+".html")
             if _, err := os.Stat(htmlPath); err == nil {
                 c.File(htmlPath)
                 return
             }
         }
 
-        // 文件不存在，返回 index.html (用于 SPA 路由)
         indexPath := filepath.Join(cfg.Server.DocsDir, "index.html")
         if _, err := os.Stat(indexPath); err == nil {
             c.File(indexPath)
         } else {
-            c.Status(404)
+            c.Status(http.StatusNotFound)
         }
     })
 }
 ```
 
-### 3. VitePress 配置
+### 行为说明
 
-在 `docs/.vitepress/config.ts:8` 设置了正确的 base 路径：
+1. **清洁 URL**：`/docs/backend/ddd-cqrs` 会被映射到 `docs/.vitepress/dist/backend/ddd-cqrs.html`。
+2. **静态文件优先**：若请求恰好匹配物理文件直接返回。
+3. **SPA 回退**：不存在的路径会回退到 `index.html`，由 VitePress 前端路由处理。
+4. **完全隔离**：逻辑位于 adapters 层，未侵入 application/domain 层，符合 DDD 依赖方向。
 
-```typescript
-export default defineConfig({
-  base: "/docs/", // 通过 Go API 服务器访问时使用 '/docs/'
-  // ...其他配置
-});
+## 目录结构
+
+```
+docs/.vitepress/dist/
+├── index.html
+├── guide/
+├── backend/
+├── api/
+└── assets/
 ```
 
-## 使用方法
+- `assets/` 中的静态资源通过同一路由返回。
+- 需要确保 Go 进程对该目录具有读取权限。
 
-### 1. 构建 VitePress 文档
+## 禁用或替换
+
+| 需求 | 做法 |
+| ---- | ---- |
+| 禁用 `/docs` | 将 `APP_SERVER_DOCS_DIR` 或 `server.docs_dir` 设为空字符串。 |
+| 切换到 CDN | 将 `DocsDir` 指向一个同步目录，并在 CDN 发布静态文件；同时可保留 `/docs` 作为回退。 |
+| 支持多版本文档 | 修改 `DocsDir` 指向版本化目录，例如 `docs/.vitepress/dist/v2`，并在 VitePress 内使用多语言/多基路径。 |
+
+## 常见故障排查
+
+| 现象 | 解决方案 |
+| ---- | -------- |
+| 访问 `/docs` 提示 404 | 检查 `docs/.vitepress/dist/index.html` 是否存在，以及 `server.docs_dir` 是否配置正确。 |
+| 静态资源丢失 | 构建命令必须保持 `base=/docs/`。若 `VITEPRESS_BASE` 设置错误，重新以 `VITEPRESS_BASE=/docs/ npm --prefix docs run build` 构建。 |
+| 生产环境需要缓存控制 | 在 `docsGroup.Use` 中添加自定义中间件，或在上游 Nginx/CDN 层处理 Cache-Control 头。 |
+
+## 相关命令速查
 
 ```bash
-npm run docs:build
-```
+# 构建文档
+npm --prefix docs run build
 
-这会在 `docs/.vitepress/dist/` 目录生成静态文件。
-
-### 2. 启动 Go API 服务器
-
-```bash
-# 方式 1: 使用 task
+# 运行 Go API 并提供 /docs
 task go:run -- api
 
-# 方式 2: 直接运行编译后的二进制
-.local/bin/go-ddd-template api
+# 使用自定义 DocsDir 进行验证
+APP_SERVER_DOCS_DIR=/tmp/docs-dist task go:run -- api
 ```
-
-### 3. 访问文档
-
-打开浏览器访问：
-
-```
-http://localhost:8080/docs/                  # 文档首页
-http://localhost:8080/docs/guide/getting-started  # 指南页面
-http://localhost:8080/docs/api/              # API 文档
-```
-
-## 路由结构
-
-```
-http://localhost:8080/
-├── /health                    # 健康检查
-├── /api/                      # REST API
-│   ├── /api/auth/register     # 用户注册
-│   ├── /api/auth/login        # 用户登录
-│   ├── /api/users             # 用户列表
-│   └── ...
-├── /docs/                     # VitePress 文档 ← 新增
-│   ├── /docs/                 # 文档首页
-│   ├── /docs/guide/           # 指南
-│   ├── /docs/api/             # API 文档
-│   └── /docs/assets/          # 静态资源
-└── /*                         # 其他静态文件 (如果配置了 StaticDir)
-```
-
-## 配置选项
-
-### 环境变量
-
-可以通过环境变量覆盖文档目录路径：
-
-```bash
-# 使用自定义文档目录
-APP_SERVER_DOCS_DIR=/path/to/docs .local/bin/go-ddd-template api
-
-# 禁用文档服务 (留空)
-APP_SERVER_DOCS_DIR="" .local/bin/go-ddd-template api
-```
-
-### 配置文件
-
-在 `config.yaml` 或 `configs/config.yaml` 中配置：
-
-```yaml
-server:
-  addr: "0.0.0.0:8080"
-  env: "development"
-  static_dir: "web/dist"
-  docs_dir: "docs/.vitepress/dist" # 文档目录
-```
-
-## 部署建议
-
-### 开发环境
-
-开发时推荐使用 VitePress 自带的开发服务器 (支持热更新) ：
-
-```bash
-# 终端 1: 启动 VitePress 开发服务器
-npm run docs:dev
-# 访问 http://localhost:5173
-
-# 终端 2: 启动 Go API 服务器
-task go:run -- api
-# 访问 http://localhost:8080/api
-```
-
-### 生产环境
-
-生产环境可以统一使用 Go API 服务器：
-
-```bash
-# 1. 构建 VitePress
-npm run docs:build
-
-# 2. 构建 Go 应用
-task go:build
-
-# 3. 启动服务 (包含 API + 文档)
-.local/bin/go-ddd-template api
-```
-
-## 技术细节
-
-### VitePress 清洁 URL 支持
-
-路由器实现了对 VitePress 清洁 URL 的支持：
-
-- `/docs/guide/getting-started` → `guide/getting-started.html`
-- `/docs/api/` → `api/index.html`
-- `/docs/` → `index.html`
-
-### SPA 路由回退
-
-如果请求的文件不存在，会返回 `index.html`，由 VitePress 的客户端路由处理。
-
-### 性能优化
-
-- 文件直接由 Gin 的 `c.File()` 方法提供，避免额外的内存拷贝
-- 支持浏览器缓存 (HTTP 标准头)
-- 静态文件不经过任何中间件处理 (除了 CORS)
-
-## 故障排除
-
-### 文档返回 404
-
-1. 检查文档是否已构建：
-
-   ```bash
-   ls docs/.vitepress/dist/
-   ```
-
-2. 检查配置：
-
-   ```bash
-   # 查看当前配置
-   cat configs/config.example.yaml
-   ```
-
-3. 检查路径权限：
-   ```bash
-   ls -ld docs/.vitepress/dist
-   ```
-
-### 资源文件无法加载
-
-检查 VitePress base 配置是否正确：
-
-```typescript
-// docs/.vitepress/config.ts
-export default defineConfig({
-  base: "/docs/", // 必须以 / 开头和结尾
-});
-```
-
-### CSS/JS 文件路径错误
-
-确保 VitePress 构建时使用了正确的 base 路径：
-
-```bash
-# 重新构建
-npm run docs:build
-
-# 检查生成的 HTML 中的资源路径
-grep -r 'assets' docs/.vitepress/dist/index.html
-```
-
-## 示例请求
-
-```bash
-# 访问文档首页
-curl http://localhost:8080/docs/
-
-# 访问指南页面
-curl http://localhost:8080/docs/guide/getting-started
-
-# 访问 API 文档
-curl http://localhost:8080/docs/api/auth
-
-# 同时测试 API 和文档
-curl http://localhost:8080/health
-curl http://localhost:8080/api/auth/login
-curl http://localhost:8080/docs/
-```
-
-## 相关文件
-
-- 配置定义: `internal/infrastructure/config/config.go:38`
-- 路由实现: `internal/adapters/http/router.go:70-106`
-- VitePress 配置: `docs/.vitepress/config.ts:8`
-- 配置示例: `configs/config.example.yaml:12`
-
-## 后续改进
-
-- [ ] 添加文档访问权限控制 (JWT 认证)
-- [ ] 支持多版本文档
-- [ ] 添加文档搜索 API
-- [ ] 集成 API 文档自动生成 (Swagger/OpenAPI)
-- [ ] 添加文档缓存策略

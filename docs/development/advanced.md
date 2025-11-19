@@ -1,240 +1,77 @@
-# VitePress 高级功能展示
+# 主题与高级能力
 
-本页面展示 VitePress 的高级功能和自定义组件。
+本页记录 VitePress 主题在本仓库中的扩展方式，方便在不破坏默认主题的前提下添加交互与品牌样式。
 
-## 🖼️ 图片缩放 (Medium Zoom)
+## 入口：`docs/.vitepress/theme/index.ts`
 
-点击下方图片可以放大查看：
+关键点：
 
-![Go Logo](https://go.dev/blog/go-brand/Go-Logo/PNG/Go-Logo_Blue.png)
+1. **继承默认主题**：`extends: DefaultTheme`，保留搜索、侧边栏等默认行为。
+2. **注册组件**：`enhanceApp` 中把 `Mermaid`、`ApiEndpoint`、`FeatureCard`、`StepsGuide` 设为全局组件，避免在 Markdown 中逐页引入。
+3. **Medium Zoom**：通过 `setup()` + `medium-zoom` 实现图片点击放大，并在路由切换后重新初始化。
 
-**特性**：
+```ts
+import mediumZoom from "medium-zoom";
+import { onMounted, watch, nextTick } from "vue";
+import { useRoute } from "vitepress";
 
-- ✅ 点击图片放大
-- ✅ 背景自适应主题
-- ✅ 响应式设计
-- ✅ 路由切换自动重新初始化
+const initZoom = () => {
+  mediumZoom(".main img", { background: "var(--vp-c-bg)" });
+};
 
-## 📡 API 端点展示
-
-使用自定义 `ApiEndpoint` 组件展示 API：
-
-<ApiEndpoint
-method="POST"
-path="/api/auth/login"
-description="用户登录接口"
-version="v2.0">
-
-**请求体**：
-
-```json
-{
-  "username": "admin",
-  "password": "password123"
-}
+onMounted(initZoom);
+watch(() => route.path, () => nextTick(initZoom));
 ```
 
-**响应**：
+> 📌 `medium-zoom` 已写入 `docs/package.json`，无需额外引用。
 
-```json
-{
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "expires_in": 3600
-}
-```
+## 全局样式：`docs/.vitepress/theme/style.css`
 
-</ApiEndpoint>
+- **品牌色**：声明 `--vp-c-brand-*`，与 README、CLAUDE.md 中的设计保持一致。
+- **Mermaid 容器**：`.mermaid-container` 加 margin，避免与段落贴合。
+- **外链标识**：为所有外部链接自动添加 ↗，方便辨识跳转到外部站点。
+- **代码块/表格圆角**：统一 8px 圆角，匹配前端与后端 UI。
+- **滚动条样式**：自定义浅色/深色模式下的滚动条颜色。
 
-<ApiEndpoint
-method="GET"
-path="/api/users/:id"
-description="获取用户详情">
+所有样式都放在单文件，避免零散 CSS 难以追踪。
 
-**路径参数**：
+## 新增组件流程
 
-- `id` (required): 用户 ID
+1. 在 `docs/.vitepress/theme/components/` 编写 Vue SFC。
+2. 在 `theme/index.ts` 中 `app.component("Foo", Foo)` 注册。
+3. 在 Markdown 中直接 `<Foo />` 使用。
 
-**响应**：
+示例：`ApiEndpoint.vue` 支持 `method`、`path`、`version`、`deprecated` 等 props，方便 API 文档快速展现请求信息。
 
-```json
-{
-  "id": 1,
-  "username": "admin",
-  "email": "admin@example.com",
-  "created_at": "2025-11-18T10:00:00Z"
-}
-```
+## 使用 `<script setup>`
 
-</ApiEndpoint>
-
-<ApiEndpoint
-method="DELETE"
-path="/api/users/:id"
-description="删除用户 (此接口已废弃)"
-deprecated>
-
-请使用 `PUT /api/users/:id` 并设置 `status: inactive`。
-
-</ApiEndpoint>
-
-## 🎯 功能卡片
-
-<FeatureCard
-title="JWT 认证"
-description="基于 JWT 的用户认证系统"
-icon="🔐">
-
-- 支持 Token 刷新
-- 自动过期处理
-- 安全的密钥管理
-
-</FeatureCard>
-
-<FeatureCard
-title="PostgreSQL 集成"
-description="使用 GORM 进行数据库操作"
-icon="🗄️"
-highlighted>
-
-- 自动迁移
-- 软删除支持
-- 事务管理
-- 连接池优化
-
-</FeatureCard>
-
-<FeatureCard
-title="Redis 缓存"
-description="高性能缓存和分布式锁"
-icon="⚡">
-
-- 缓存策略
-- 分布式锁
-- 过期时间管理
-
-</FeatureCard>
-
-## 📝 步骤指南
-
-<script setup>
-const setupSteps = [
-  {
-    title: '安装依赖',
-    description: '使用 Docker Compose 启动 PostgreSQL 和 Redis 服务'
-  },
-  {
-    title: '配置环境变量',
-    description: '复制 .env.example 为 .env 并填写配置'
-  },
-  {
-    title: '运行数据库迁移',
-    description: '执行 task db:migrate 创建数据表'
-  },
-  {
-    title: '启动应用',
-    description: '运行 task go:run -- api 启动 HTTP 服务器'
-  }
-]
-</script>
-
-<StepsGuide :steps="setupSteps" />
-
-## 🎨 主题自定义
-
-本文档系统已自定义以下主题元素：
-
-### 品牌颜色
-
-- **主色调**: `#3eaf7c` <span style="display: inline-block; width: 20px; height: 20px; background: #3eaf7c; border-radius: 4px; vertical-align: middle;"></span>
-- **辅助色**: `#42b983` <span style="display: inline-block; width: 20px; height: 20px; background: #42b983; border-radius: 4px; vertical-align: middle;"></span>
-- **深色**: `#35495e` <span style="display: inline-block; width: 20px; height: 20px; background: #35495e; border-radius: 4px; vertical-align: middle;"></span>
-
-### UI 增强
-
-- ✅ 外部链接自动添加 ↗ 图标
-- ✅ 圆角代码块 (8px)
-- ✅ 美化的滚动条
-- ✅ 圆角表格
-- ✅ 平滑过渡动画
-
-## 🔧 代码实现
-
-### ApiEndpoint 组件
-
-```vue
-<ApiEndpoint method="POST" path="/api/users" description="创建新用户" version="v2.0">
-  <!-- 你的内容 -->
-</ApiEndpoint>
-```
-
-**Props**:
-
-- `method`: HTTP 方法 (`GET` | `POST` | `PUT` | `PATCH` | `DELETE`)
-- `path`: API 路径
-- `description`: 描述 (可选)
-- `version`: 版本标记 (可选)
-- `deprecated`: 是否废弃 (可选)
-
-### FeatureCard 组件
-
-```vue
-<FeatureCard title="功能标题" description="功能描述" icon="🎯" highlighted>
-  <!-- 详细内容 -->
-</FeatureCard>
-```
-
-**Props**:
-
-- `title`: 功能标题
-- `description`: 功能描述 (可选)
-- `icon`: Emoji 图标 (可选)
-- `highlighted`: 是否高亮 (可选)
-
-### StepsGuide 组件
+VitePress 2.0 支持在 Markdown 中内联 `<script setup>`，本仓库的 `StepsGuide` 示例正是如此。推荐写成：
 
 ```vue
 <script setup>
-const steps = [
-  {
-    title: "步骤 1",
-    description: "描述 1",
-  },
-  {
-    title: "步骤 2",
-    description: "描述 2",
-  },
-];
+import type { Step } from '../.vitepress/theme/components/StepsGuide.vue'
+const steps: Step[] = [...]
 </script>
 
 <StepsGuide :steps="steps" />
 ```
 
-**Props**:
+这样可以享受 TypeScript 类型提示，保持与应用代码一致的开发体验。
 
-- `steps`: 步骤数组，每个步骤包含 `title` 和 `description`
+## 调整默认布局
 
-## 📚 扩展阅读
+如需向顶部/底部插槽注入内容，可修改 `theme/index.ts` 中的 `Layout`：
 
-- [创建自定义组件](/development/features#自定义组件)
-- [主题配置](https://vitepress.dev/reference/default-theme-config)
-- [Vue 组件集成](https://vitepress.dev/guide/using-vue)
+```ts
+Layout: () => h(DefaultTheme.Layout, null, {
+  'layout-bottom': () => h(MyFooter)
+})
+```
 
-## 💡 使用建议
+目前未做额外定制，保留扩展空间。
 
-1. **API 文档**：使用 `ApiEndpoint` 组件展示 RESTful API
-2. **功能展示**：使用 `FeatureCard` 突出核心功能
-3. **教程指南**：使用 `StepsGuide` 展示操作步骤
-4. **图片展示**：利用 Medium Zoom 提供更好的查看体验
-5. **主题定制**：根据品牌调整 CSS 变量
+## 注意事项
 
-## 🚀 更多可能
-
-你还可以创建更多自定义组件：
-
-- **代码对比组件**：并排展示不同版本的代码
-- **时间线组件**：展示项目发展历程
-- **状态指示器**：显示服务状态
-- **进度追踪**：展示项目完成度
-- **交互式演示**：嵌入 CodeSandbox/StackBlitz
-
-所有这些都可以通过 Vue 组件轻松实现！
+- 主题层不得引入与后端耦合的逻辑，保持纯前端职责。
+- 修改主题后需运行 `npm --prefix docs run dev` 验证 HMR 与生产构建。
+- 若新增外部依赖（如图表组件），请同步更新 `docs/package.json` 与锁文件，并在《升级记录》中说明原因。

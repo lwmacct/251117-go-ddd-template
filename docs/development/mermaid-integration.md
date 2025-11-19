@@ -1,122 +1,98 @@
-# VitePress Mermaid 集成说明
+# Mermaid 集成说明
 
-## 概述
+Mermaid 用于在文档中快速展示 DDD 分层、CQRS 流程、认证链路等结构图。本页记录其在本仓库中的接入方式与最佳实践。
 
-本项目已成功集成 Mermaid.js，支持在 VitePress 2.0 文档中使用 Mermaid 图表。
+## 集成概览
 
-## 技术方案
+| 位置 | 作用 |
+| ---- | ---- |
+| `docs/.vitepress/config.ts` | 拦截 ` ```mermaid ` 代码块，渲染为 `<Mermaid>` 组件。 |
+| `docs/.vitepress/theme/components/Mermaid.vue` | 调用 `mermaid.render()`，处理暗色/亮色主题切换。 |
+| `docs/package.json` | 声明 `mermaid ^11.12.1` 依赖。 |
+| `docs/guide/mermaid-examples.md` | 示例集合，可在此检视渲染效果。 |
 
-- **不使用第三方插件**：`vitepress-plugin-mermaid` 仅支持 VitePress 1.x
-- **自定义实现**：使用 markdown-it 自定义渲染器 + Vue 3 组件
-- **完全兼容**：与 VitePress 2.0.0-alpha.13 完美兼容
+## Markdown 渲染器
 
-## 架构
+`config.ts` 中通过 `markdown.config` 重写 `fence` 行为：
 
-### 1. Markdown-it 配置 (`.vitepress/config.ts`)
-
-```typescript
+```ts
 markdown: {
   config: (md) => {
     const fence = md.renderer.rules.fence!;
     md.renderer.rules.fence = (...args) => {
       const [tokens, idx] = args;
-      const token = tokens[idx];
-      const lang = token.info.trim();
-
-      if (lang === "mermaid") {
-        const code = md.utils.escapeHtml(token.content.trim());
-        return `<Mermaid>${code}</Mermaid>\n`;
+      if (tokens[idx].info.trim() === "mermaid") {
+        const code = md.utils.escapeHtml(tokens[idx].content.trim());
+        return `<Mermaid><pre style="display:none;">${code}</pre></Mermaid>`;
       }
-
       return fence(...args);
     };
   },
-}
+},
 ```
 
-该配置将 ` ```mermaid ` 代码块转换为 `<Mermaid>` Vue 组件。
-
-### 2. Mermaid Vue 组件 (`.vitepress/theme/components/Mermaid.vue`)
-
-- 读取 slot 中的 Mermaid 代码 (已转义的 HTML 实体)
-- 使用 `innerHTML` 自动解码 HTML 实体
-- 调用 `mermaid.render()` 渲染图表
-- 自动适配亮色/暗色主题
-
-### 3. 全局组件注册 (`.vitepress/theme/index.ts`)
-
-```typescript
-export default {
-  extends: DefaultTheme,
-  enhanceApp({ app }) {
-    app.component("Mermaid", Mermaid);
-  },
-} satisfies Theme;
-```
-
-## 使用方法
-
-在任何 Markdown 文件中使用标准的 Mermaid 代码块语法：
+这样可在 Markdown 中持续使用标准的代码块语法：
 
 ````markdown
 ```mermaid
 flowchart LR
-    A[开始] --> B[处理]
-    B --> C[结束]
+    A[Adapters] --> B[Application]
+    B --> C[Domain]
+    C <---> D[Infrastructure]
 ```
 ````
 
-## 支持的图表类型
+## Vue 组件行为
 
-- ✅ 流程图 (Flowchart)
-- ✅ 时序图 (Sequence Diagram)
-- ✅ 类图 (Class Diagram)
-- ✅ 状态图 (State Diagram)
-- ✅ ER 图 (Entity Relationship)
-- ✅ Git 分支图 (Gitgraph)
-- ✅ 甘特图 (Gantt)
-- ✅ 饼图 (Pie Chart)
-- ✅ 思维导图 (Mindmap)
-- ✅ 时间线 (Timeline)
+`Mermaid.vue` 会：
 
-## 特性
+1. 读取 slot 内的 `<pre>`，恢复为原始 Mermaid 字符串。
+2. 根据主题 (`useData().isDark`) 切换 `theme: 'dark' | 'default'`。
+3. 在路由更新时重新渲染，确保切换页面后图表依旧存在。
 
-- ✅ 自动主题切换 (亮色/暗色)
-- ✅ 响应式设计
-- ✅ 标准 Markdown 语法
-- ✅ 无需第三方插件
-- ✅ 完全类型安全
+## 示例：CQRS 流程
 
-## 示例
+```mermaid
+graph TD
+    UI[HTTP Handler (Adapters)] -->|Command| UC[Application Use Case]
+    UC -->|写操作| CR[CommandRepository]
+    UC -->|读操作| QR[QueryRepository]
+    CR --> DB[(PostgreSQL)]
+    QR --> Cache[(Redis)]
+```
 
-查看完整示例：`docs/guide/mermaid-examples.md`
+## 示例：认证管线
 
-## 故障排除
+```mermaid
+sequenceDiagram
+    participant Client
+    participant Handler as adapters/http/handler/auth.go
+    participant UseCase as application/auth/command/login_handler.go
+    participant Service as domain/auth.Service
+    participant Repo as infrastructure/persistence/user_query_repository.go
 
-### 渲染失败
+    Client->>Handler: POST /api/auth/login
+    Handler->>UseCase: LoginCommand
+    UseCase->>Repo: GetByUsername
+    Repo-->>UseCase: User
+    UseCase->>Service: GenerateAccessToken
+    Service-->>UseCase: TokenPair
+    UseCase-->>Handler: LoginResult
+    Handler-->>Client: 200 OK
+```
 
-如果图表渲染失败，请检查：
+## 调试技巧
 
-1. **语法错误**：使用 [Mermaid Live Editor](https://mermaid.live/) 验证语法
-2. **特殊字符**：确保没有使用未转义的 HTML 特殊字符
-3. **版本兼容**：当前使用 Mermaid v11.12.1
+- **语法校验**：使用 [mermaid.live](https://mermaid.live/) 预览后再粘贴到 Markdown。
+- **主题切换**：若暗色模式渲染异常，检查浏览器控制台是否有 `mermaid` 错误。
+- **大图滚动**：Mermaid 输出的 `<svg>` 默认可滚动，必要时可在 Markdown 中包裹 `<div style="overflow:auto">`。
 
-### 主题不匹配
+## 性能注意事项
 
-Mermaid 组件会自动监听 VitePress 主题变化。如果主题不匹配：
+- 避免在同一页渲染过多复杂图表（>10 个），否则会阻塞首屏渲染。
+- 对于只需要静态图片的场景，可以通过 `![diagram](...)` 插入截图，降低运行时成本。
 
-1. 检查浏览器控制台是否有错误
-2. 尝试手动切换主题
-3. 清除浏览器缓存
+## 清理规则
 
-## 依赖
-
-- `mermaid`: ^11.12.1
-- `vitepress`: ^2.0.0-alpha.13
-- `vue`: ^3.5.24
-
-## 参考资料
-
-- [Mermaid 官方文档](https://mermaid.js.org/)
-- [VitePress 官方文档](https://vitepress.dev/)
-- [Markdown-it 文档](https://markdown-it.github.io/)
+- 若某页图表描述的模块已删除（例如旧的三层架构），需要同步更新或移除相应的 Mermaid 图。
+- 所有示例必须能在 `npm --prefix docs run build` 中顺利渲染，CI 若提示 `mermaid` 错误，请先在本地复现并修复语法。
