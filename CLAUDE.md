@@ -4,8 +4,6 @@
 
 基于 Go 的 DDD (领域驱动设计) 模板应用，采用四层架构 + CQRS 模式，提供认证、RBAC 权限、审计日志等特性。Monorepo 结构包含后端(Go)、前端(Vue 3)、文档(VitePress)。
 
-> 🚫 仓库**仅**保留最新的 DDD + CQRS 架构。发现任何与此规范不符的遗留实现（如合并后的 Repository）时，应立即规划迁移，不允许在新功能中继续使用。
-
 ## 🏗️ 核心架构
 
 ### DDD 四层架构 + CQRS
@@ -31,13 +29,15 @@ internal/
 
 **1. Domain 层**（不依赖任何外层）
 
-- 定义领域模型（富模型，包含业务行为方法）
+- 定义领域模型（富模型，包含业务行为方法；**不得出现任何 GORM Tag 或 `gorm` 依赖**）
 - 定义 Repository 接口（CommandRepository、QueryRepository）
 - 定义 Domain Service 接口（领域能力，如密码验证、Token 生成）
 - 定义领域错误
 
 **2. Infrastructure 层**（实现 Domain 接口）
 
+- 在 `internal/infrastructure/persistence` 中为每个模块定义 `*_model.go`（GORM Model + 映射函数）
+- 仓储实现中使用持久化 Model 与数据库交互，并在进入/返回领域层时进行映射
 - 实现 CommandRepository（GORM 写操作）
 - 实现 QueryRepository（GORM 读操作，可优化为 Redis/ES）
 - 实现 Domain Service（技术实现，如 BCrypt、JWT）
@@ -57,21 +57,17 @@ internal/
 
 ### 📁 文件命名规范
 
-| 层级               | 文件类型            | 命名规范                                        | 示例                                                     |
-| ------------------ | ------------------- | ----------------------------------------------- | -------------------------------------------------------- |
-| **Domain**         | 实体模型            | `entity_{模块}.go`                              | `entity_user.go`, `entity_role.go`                       |
-|                    | Repository 接口     | `command_repository.go` / `query_repository.go` | 每个模块固定命名                                         |
-|                    | 值对象              | `value_objects.go`                              | 复杂领域需要时使用                                       |
-|                    | 错误定义            | `errors.go`                                     | 每个模块的领域错误                                       |
-| **Infrastructure** | Repository 实现     | `{模块}_{操作类型}_repository.go`               | `user_command_repository.go`, `user_query_repository.go` |
-|                    | Domain Service 实现 | `service.go`                                    | 在各自子目录（如 `auth/service.go`）                     |
-| **Application**    | Command 定义        | `{操作}_xxx.go`                                 | `create_user.go`, `update_user.go`                       |
-|                    | Command Handler     | `{操作}_xxx_handler.go`                         | `create_user_handler.go`                                 |
-|                    | Query 定义          | `{操作}_xxx.go`                                 | `get_user.go`, `list_users.go`                           |
-|                    | Query Handler       | `{操作}_xxx_handler.go`                         | `get_user_handler.go`                                    |
-|                    | DTO 定义            | `dto.go`                                        | 模块根目录                                               |
-|                    | Mapper 函数         | `mapper.go`                                     | 模块根目录                                               |
-| **Adapters**       | HTTP Handler        | `{模块}.go`（单数）                             | `user.go`, `role.go`, `menu.go`                          |
+| 层级               | 文件类型             | 命名规范                                                           | 示例                                                              |
+| ------------------ | -------------------- | ------------------------------------------------------------------ | ----------------------------------------------------------------- |
+| **Domain**         | 实体模型             | `entity_{模块}.go`（仅含业务字段/行为，不允许 GORM Tag）           | `entity_user.go`, `entity_role.go`                                |
+|                    | Repository 接口      | `command_repository.go` / `query_repository.go`                    | 每个模块固定命名                                                  |
+|                    | 值对象               | `value_objects.go`                                                 | 复杂领域需要时使用                                                |
+|                    | 错误定义             | `errors.go`                                                        | 每个模块的领域错误                                                |
+| **Infrastructure** | 持久化 Model         | `{模块}_model.go`（含 GORM Tag、映射函数）                         | `user_model.go`, `role_model.go`, `pat_model.go`                  |
+|                    | Repository 实现      | `{模块}_{操作类型}_repository.go`（入/出都映射 Domain）            | `user_command_repository.go`, `user_query_repository.go`          |
+|                    | Domain Service 实现  | `service.go`                                                       | 在各自子目录（如 `auth/service.go`）                              |
+| **Application**    | Command/Query/DTO 等 | `{操作}_xxx.go` / `{操作}_xxx_handler.go` / `dto.go` / `mapper.go` | `create_user.go`, `create_user_handler.go`, `dto.go`, `mapper.go` |
+| **Adapters**       | HTTP Handler         | `{模块}.go`（单数）                                                | `user.go`, `role.go`, `menu.go`                                   |
 
 **目录结构示例**：
 
@@ -108,8 +104,6 @@ internal/adapters/http/handler/
 ├── role.go                     # RoleHandler
 └── menu.go                     # MenuHandler
 ```
-
-> ⚠️ 任何组合仓储（如 `repository.go`）都被视为技术债务，新增或修改功能时应立即拆分出 `CommandRepository` 与 `QueryRepository`。
 
 ## 💻 添加新功能
 
@@ -156,56 +150,42 @@ type XxxValueObject struct { ... }
 
 #### 2. Infrastructure 层实现
 
-**所有 Repository 实现统一在 `internal/infrastructure/persistence/` 目录**
+**所有 Repository 实现统一在 `internal/infrastructure/persistence/` 目录，并通过 Model 进行映射**
 
 ```go
+// internal/infrastructure/persistence/xxx_model.go
+type XxxModel struct {
+    ID   uint   `gorm:"primaryKey"`
+    Name string `gorm:"size:100;not null"`
+    // ...
+}
+
+func newXxxModelFromEntity(entity *xxx.Xxx) *XxxModel { ... }
+func (m *XxxModel) toEntity() *xxx.Xxx { ... }
+
 // internal/infrastructure/persistence/xxx_command_repository.go
-// 命名规范：{模块}_{操作类型}_repository.go
 type xxxCommandRepository struct { db *gorm.DB }
 
-func NewXxxCommandRepository(db *gorm.DB) xxx.CommandRepository {
-    return &xxxCommandRepository{db: db}
-}
-
 func (r *xxxCommandRepository) Create(ctx context.Context, entity *xxx.Xxx) error {
-    return r.db.WithContext(ctx).Create(entity).Error
-}
-
-func (r *xxxCommandRepository) Update(ctx context.Context, entity *xxx.Xxx) error {
-    return r.db.WithContext(ctx).Save(entity).Error
-}
-
-func (r *xxxCommandRepository) Delete(ctx context.Context, id uint) error {
-    return r.db.WithContext(ctx).Delete(&xxx.Xxx{}, id).Error
+    model := newXxxModelFromEntity(entity)
+    if err := r.db.WithContext(ctx).Create(model).Error; err != nil {
+        return err
+    }
+    if saved := model.toEntity(); saved != nil {
+        *entity = *saved
+    }
+    return nil
 }
 
 // internal/infrastructure/persistence/xxx_query_repository.go
-// 读操作 Repository 实现
 type xxxQueryRepository struct { db *gorm.DB }
 
-func NewXxxQueryRepository(db *gorm.DB) xxx.QueryRepository {
-    return &xxxQueryRepository{db: db}
-}
-
 func (r *xxxQueryRepository) GetByID(ctx context.Context, id uint) (*xxx.Xxx, error) {
-    var entity xxx.Xxx
-    err := r.db.WithContext(ctx).First(&entity, id).Error
-    if err != nil {
+    var model XxxModel
+    if err := r.db.WithContext(ctx).First(&model, id).Error; err != nil {
         return nil, err
     }
-    return &entity, nil
-}
-
-func (r *xxxQueryRepository) List(ctx context.Context, offset, limit int) ([]*xxx.Xxx, error) {
-    var entities []*xxx.Xxx
-    err := r.db.WithContext(ctx).Offset(offset).Limit(limit).Find(&entities).Error
-    return entities, err
-}
-
-func (r *xxxQueryRepository) ExistsByName(ctx context.Context, name string) (bool, error) {
-    var count int64
-    err := r.db.WithContext(ctx).Model(&xxx.Xxx{}).Where("name = ?", name).Count(&count).Error
-    return count > 0, err
+    return model.toEntity(), nil
 }
 ```
 
@@ -371,86 +351,6 @@ func ToXxxResponse(entity *xxx.Xxx) *XxxResponse {
 **文件位置**：`internal/adapters/http/handler/xxx.go`（使用单数命名）
 
 ```go
-// internal/adapters/http/handler/xxx.go
-package handler
-
-import (
-    "net/http"
-    "strconv"
-
-    "github.com/gin-gonic/gin"
-    "your-project/internal/adapters/http/response"
-    "your-project/internal/application/xxx"
-    "your-project/internal/application/xxx/command"
-    "your-project/internal/application/xxx/query"
-)
-
-type XxxHandler struct {
-    // Use Case Handlers（依赖注入）
-    createXxxHandler *command.CreateXxxHandler
-    updateXxxHandler *command.UpdateXxxHandler
-    deleteXxxHandler *command.DeleteXxxHandler
-    getXxxHandler    *query.GetXxxHandler
-    listXxxHandler   *query.ListXxxHandler
-}
-
-func NewXxxHandler(
-    createHandler *command.CreateXxxHandler,
-    updateHandler *command.UpdateXxxHandler,
-    deleteHandler *command.DeleteXxxHandler,
-    getHandler *query.GetXxxHandler,
-    listHandler *query.ListXxxHandler,
-) *XxxHandler {
-    return &XxxHandler{
-        createXxxHandler: createHandler,
-        updateXxxHandler: updateHandler,
-        deleteXxxHandler: deleteHandler,
-        getXxxHandler:    getHandler,
-        listXxxHandler:   listHandler,
-    }
-}
-
-// Create 处理创建请求
-func (h *XxxHandler) Create(c *gin.Context) {
-    var req xxx.CreateXxxDTO
-    if err := c.ShouldBindJSON(&req); err != nil {
-        response.Error(c, http.StatusBadRequest, "Invalid request", err)
-        return
-    }
-
-    // 调用 Use Case Handler
-    result, err := h.createXxxHandler.Handle(c.Request.Context(), command.CreateXxxCommand{
-        Name: req.Name,
-    })
-    if err != nil {
-        response.Error(c, http.StatusInternalServerError, "Failed to create", err)
-        return
-    }
-
-    response.Success(c, http.StatusCreated, "Created successfully", result)
-}
-
-// GetByID 处理获取单个资源请求
-func (h *XxxHandler) GetByID(c *gin.Context) {
-    id, err := strconv.ParseUint(c.Param("id"), 10, 64)
-    if err != nil {
-        response.Error(c, http.StatusBadRequest, "Invalid ID", err)
-        return
-    }
-
-    // 调用 Query Handler
-    entity, err := h.getXxxHandler.Handle(c.Request.Context(), query.GetXxxQuery{
-        ID: uint(id),
-    })
-    if err != nil {
-        response.Error(c, http.StatusNotFound, "Not found", err)
-        return
-    }
-
-    // 使用 Mapper 转换为 DTO
-    resp := xxx.ToXxxResponse(entity)
-    response.Success(c, http.StatusOK, "Success", resp)
-}
 
 // Update 处理更新请求
 func (h *XxxHandler) Update(c *gin.Context) {
@@ -489,7 +389,7 @@ func (h *XxxHandler) Delete(c *gin.Context) {
 }
 ```
 
-#### 5. Bootstrap 注册依赖
+#### 4. Bootstrap 注册依赖
 
 **在 `internal/bootstrap/container.go` 中按顺序注册**：
 
@@ -554,82 +454,18 @@ func NewContainer(cfg *config.Config) (*Container, error) {
 
 > 🧠 实际 wiring 位于 `internal/bootstrap/container.go`。新增模块时务必遵循其中的顺序：先构建 Repository，再创建 Use Case Handler，最后初始化 HTTP Handler 并将其实例通过 `http.SetupRouter` 注册到路由层。
 
-**在 `internal/adapters/http/router.go` 中注册路由**（容器会将依赖逐一传入，而不是直接传递 Container）：
-
-```go
-// internal/adapters/http/router.go
-func SetupRouter(
-    cfg *config.Config,
-    db *gorm.DB,
-    redisClient *redis.Client,
-    userCommandRepo user.CommandRepository,
-    userQueryRepo user.QueryRepository,
-    auditLogCommandRepo auditlog.CommandRepository,
-    captchaCommandRepo captcha.CommandRepository,
-    jwtManager *infraauth.JWTManager,
-    patService *infraauth.PATService,
-    authService *infraauth.Service,
-    captchaService *infracaptcha.Service,
-    twofaService *infratwofa.Service,
-    authHandler *handler.AuthHandler,
-    roleHandler *handler.RoleHandler,
-    menuHandler *handler.MenuHandler,
-    settingHandler *handler.SettingHandler,
-    patHandler *handler.PATHandler,
-    auditLogHandler *handler.AuditLogHandler,
-) *gin.Engine {
-    r := gin.New()
-    r.Use(gin.Recovery(), middleware.CORS())
-
-    healthHandler := handler.NewHealthHandler(db, redisClient)
-    r.GET("/health", healthHandler.Check)
-
-    api := r.Group("/api")
-    {
-        captchaHandler := handler.NewCaptchaHandler(captchaCommandRepo, captchaService, cfg.Auth.DevSecret)
-        auth := api.Group("/auth")
-        {
-            auth.POST("/register", authHandler.Register)
-            auth.POST("/login", authHandler.Login)
-            auth.POST("/refresh", authHandler.RefreshToken)
-            auth.GET("/captcha", captchaHandler.GetCaptcha)
-        }
-
-        twofaHandler := handler.NewTwoFAHandler(twofaService)
-        twofa := api.Group("/auth/2fa")
-        twofa.Use(middleware.Auth(jwtManager, patService, userQueryRepo))
-        {
-            twofa.POST("/setup", twofaHandler.Setup)
-            // ...
-        }
-
-        admin := api.Group("/admin")
-        admin.Use(middleware.Auth(jwtManager, patService, userQueryRepo))
-        admin.Use(middleware.AuditMiddleware(auditLogCommandRepo))
-        admin.Use(middleware.RequireRole("admin"))
-        {
-            adminUserHandler := handler.NewAdminUserHandler(userCommandRepo, userQueryRepo)
-            admin.POST("/users", middleware.RequirePermission("admin:users:create"), adminUserHandler.CreateUser)
-            admin.GET("/roles", middleware.RequirePermission("admin:roles:read"), roleHandler.ListRoles)
-            // ...
-        }
-    }
-
-    return r
-}
-```
-
 ## ⚠️ 核心原则
 
 1. **依赖倒置** - Domain 层定义接口，Infrastructure 层实现，Application 层依赖接口
-2. **CQRS 分离** - 写操作用 CommandRepository，读操作用 QueryRepository
-3. **Use Case 模式** - 业务逻辑在 Application 层的 Handler 中，不在 HTTP Handler
-4. **富领域模型** - Domain 模型包含业务行为（`entity.Activate()` 而非 `entity.Status = "active"`）
-5. **单一职责** - Handler 仅做 HTTP 转换，Use Case Handler 编排业务，Repository 访问数据
-6. **依赖注入** - 所有依赖在 `container.go` 中注册
-7. **统一响应** - HTTP 响应使用 `adapters/http/response` 包
-8. **接口优先** - 先定义 Domain 接口，再实现 Infrastructure
-9. **统一架构** - 所有模块必须遵循最新 DDD+CQRS 约定，发现旧式实现立即拆分重构，禁止新增兼容层
+2. **领域纯度** - Domain 模型仅承载业务语义，不得引用 GORM 或其它 ORM Tag；Infra 通过 `*_model.go` 负责映射
+3. **CQRS 分离** - 写操作用 CommandRepository，读操作用 QueryRepository
+4. **Use Case 模式** - 业务逻辑在 Application 层的 Handler 中处理，HTTP Handler 只做入参/出参绑定
+5. **富领域模型** - 业务行为通过方法体现（如 `entity.Activate()`），禁止直接修改结构体字段
+6. **单一职责** - Handler 仅做 HTTP 转换，Use Case Handler 编排业务，Repository 访问数据
+7. **依赖注入** - 所有依赖在 `container.go` 中注册
+8. **统一响应** - HTTP 响应使用 `adapters/http/response` 包
+9. **接口优先** - 先定义 Domain 接口，再实现 Infrastructure
+10. **统一架构** - 所有模块必须遵循最新 DDD+CQRS 约定，发现旧式实现立即拆分重构，禁止新增兼容层
 
 ## 🔑 关键文件位置
 
@@ -684,11 +520,11 @@ func SetupRouter(
 
 ## 🚫 禁止操作
 
-- ❌ 在 HTTP Handler 中写业务逻辑
-- ❌ 在 Application 层直接依赖 Infrastructure 实现（只依赖 Domain 接口）
-- ❌ 在 Domain 层依赖外层（Domain 不能 import Infrastructure/Application）
-- ❌ Command 和 Query Repository 混用（写操作必须调用 CommandRepository，读操作必须调用 QueryRepository，遇到旧的组合接口要第一时间拆分）
-- ❌ 跳过 Use Case 直接从 Handler 调用 Repository
+- ❌ 在 HTTP Handler 中编排业务逻辑或直接调用 Repository
+- ❌ 在 Application 层直接依赖 Infrastructure 实现（只能依赖 Domain 接口）
+- ❌ Domain 层 import 外层代码（禁止 `gorm`/Infra 依赖）
+- ❌ Command 和 Query Repository 混用，或复用旧的 `repository.go`
+- ❌ 跳过 Use Case，直接从 Handler 或 Infra 操作数据库
 
 ## 开发环境
 
