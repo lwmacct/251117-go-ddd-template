@@ -9,11 +9,11 @@
 ```
 internal/
 ├── commands/          # CLI 命令层 (入口点)
-├── adapters/         # 适配器层 (外部接口)
-├── domain/           # 领域层 (核心业务逻辑)
-├── infrastructure/   # 基础设施层 (技术实现)
-├── bootstrap/        # 引导层 (依赖注入)
-└── shared/          # 共享工具层
+├── adapters/          # 适配器层 (HTTP/GraphQL/WebSocket 等)
+├── application/       # 应用层 (Command/Query + Handler + DTO)
+├── domain/            # 领域层 (核心业务逻辑与接口)
+├── infrastructure/    # 基础设施层 (技术实现)
+└── bootstrap/         # 引导层 (依赖注入)
 ```
 
 ## 分层说明
@@ -69,11 +69,41 @@ adapters/
 **职责：**
 
 - 接收和解析 HTTP 请求
-- 调用领域服务或仓储
-- 构造 HTTP 响应
+- 调用 Application 层的 Use Case Handler
+- 构造统一响应
 - 中间件处理 (认证、日志等)
 
-### 3. Domain 层 (领域)
+### 3. Application 层 (应用)
+
+位于 `internal/application/`，围绕 Use Case 编排业务。
+
+```
+application/
+└── user/
+    ├── command/
+    │   ├── create_user.go
+    │   └── create_user_handler.go
+    ├── query/
+    │   ├── list_users.go
+    │   └── list_users_handler.go
+    ├── dto.go
+    └── mapper.go
+```
+
+**职责：**
+
+- 定义 Command/Query 数据对象
+- 实现 Handler 编排（依赖 Domain 接口 + Domain Service）
+- 定义 DTO 与 Mapper（Domain ↔ DTO）
+- 进行跨领域的应用级校验
+
+**特点：**
+
+- 不直接访问数据库，仅依赖 Domain 定义的接口
+- Command 使用 CommandRepository，Query 使用 QueryRepository
+- DTO 和 HTTP 请求/响应映射只在这一层处理
+
+### 4. Domain 层 (领域)
 
 位于 `internal/domain/`，包含核心业务逻辑和规则。
 
@@ -87,55 +117,43 @@ domain/
 
 **职责：**
 
-- 定义领域模型 (实体、值对象)
-- 定义仓储接口
-- 实现业务规则和验证
-- 不依赖任何外部框架
+- 定义领域模型 (实体、值对象)，包含业务行为
+- 定义 Repository 接口 (Command/Query) 与 Domain Service 接口
+- 保持纯净：无 GORM Tag、无 JSON Tag、无基础设施依赖
+- 暴露领域错误，供 Application 层处理
 
 **特点：**
 
-- 用户模型包含业务逻辑 (如密码加密)
-- DTO 用于数据传输
-- 仓储接口定义数据访问契约
+- 业务行为收敛在实体方法或 Domain Service
+- 所有持久化细节 (索引、外键) 完全放在 Infrastructure
+- DTO、HTTP 请求等概念不会出现在 Domain
 
-### 4. Infrastructure 层 (基础设施)
+### 5. Infrastructure 层 (基础设施)
 
 位于 `internal/infrastructure/`，提供技术实现。
 
 ```
 infrastructure/
-├── auth/             # 认证基础设施
-│   ├── jwt.go        # JWT 管理器
-│   └── service.go    # 认证服务
-├── config/           # 配置管理
-│   └── config.go     # Koanf 配置
-├── database/         # 数据库
-│   ├── connection.go # PostgreSQL 连接
-│   ├── migrator.go   # 基础迁移器
-│   ├── migration_manager.go  # 迁移管理器
-│   ├── seeder.go     # 种子管理器
-│   └── seeds/        # 种子数据
-│       └── user_seeder.go  # 用户种子
-├── persistence/      # 持久化
-│   ├── user_command_repository.go  # 用户写仓储实现
-│   └── user_query_repository.go    # 用户读仓储实现
-├── queue/            # 队列系统
-│   ├── redis_queue.go   # Redis 队列
-│   └── processor.go     # 任务处理器
-└── redis/            # Redis
-    ├── client.go     # Redis 客户端
-    └── cache_repository.go  # 缓存仓储
+├── auth/                 # 认证领域服务实现
+├── config/               # 配置管理
+├── database/             # 数据库引导、迁移
+├── persistence/          # GORM 持久化模型 + 仓储
+│   ├── user_model.go
+│   ├── user_command_repository.go
+│   └── user_query_repository.go
+├── redis/                # Redis 集成
+└── queue/                # 任务/消息
 ```
 
 **职责：**
 
-- 实现领域层定义的仓储接口
-- 提供数据库连接和管理
-- 提供外部服务集成
-- 实现认证授权机制
-- 提供队列和后台任务处理
+- 实现 Domain 定义的接口 (Repository + Domain Service)
+- 定义 `*_model.go` GORM 模型并负责 Model ↔ Entity 映射
+- 管理数据库和缓存连接、迁移、种子数据
+- 集成外部系统（Redis、队列、第三方 API）
+- 暴露技术层错误给应用层处理
 
-### 5. Bootstrap 层 (引导)
+### 6. Bootstrap 层 (引导)
 
 位于 `internal/bootstrap/`，负责依赖注入和初始化。
 
@@ -174,22 +192,6 @@ type ContainerOptions struct {
 - 可通过配置 `data.auto_migrate` 开启 (开发环境便利)
 - 通过 `GetAllModels()` 获取所有需要迁移的模型
 
-### 6. Shared 层 (共享)
-
-位于 `internal/shared/`，提供通用工具。
-
-```
-shared/
-└── errors/           # 自定义错误类型
-    └── errors.go
-```
-
-**职责：**
-
-- 提供通用错误类型
-- 提供工具函数
-- 提供常量定义
-
 ## 数据流
 
 ### 请求处理流程
@@ -218,8 +220,8 @@ HTTP 响应
 
 ```
 Commands → Bootstrap → Infrastructure → Domain
-         ↓
-    Adapters → Domain
+         ↓                   ↑
+    Adapters → Application → Domain
 ```
 
 **依赖原则：**
@@ -227,7 +229,8 @@ Commands → Bootstrap → Infrastructure → Domain
 - 外层依赖内层
 - Domain 层不依赖任何外层
 - Infrastructure 实现 Domain 定义的接口
-- Adapters 通过接口调用 Domain
+- Application 层仅依赖 Domain 接口与领域服务
+- Adapters 通过 Use Case Handler 调用 Application 层
 
 ## 设计模式
 
@@ -263,13 +266,23 @@ type QueryRepository interface {
 
 ```go
 type Container struct {
-    Config         *config.Config
-    DB             *database.Connection
-    RedisClient    *redis.Client
-    UserRepository domain.Repository
-    JWTManager     *auth.JWTManager
-    AuthService    *auth.Service
-    Router         *http.Router
+    Config      *config.Config
+    DB          *gorm.DB
+    RedisClient *redis.Client
+
+    // CQRS repositories
+    UserCommandRepo user.CommandRepository
+    UserQueryRepo   user.QueryRepository
+
+    // Domain services
+    AuthService auth.Service
+
+    // Use Case handlers
+    LoginHandler    *authcommand.LoginHandler
+    RegisterHandler *authcommand.RegisterHandler
+
+    // HTTP handlers
+    AuthHandler *handler.AuthHandler
 }
 ```
 
@@ -285,12 +298,27 @@ HTTP 层作为适配器，将外部请求转换为领域操作：
 
 ```go
 func (h *AuthHandler) Register(c *gin.Context) {
-    // 解析请求
     var req RegisterRequest
-    // 调用领域服务
-    user, tokens, err := h.authService.Register(...)
-    // 返回响应
-    c.JSON(http.StatusOK, RegisterResponse{...})
+    if err := c.ShouldBindJSON(&req); err != nil {
+        response.ValidationError(c, err.Error())
+        return
+    }
+
+    result, err := h.registerHandler.Handle(c.Request.Context(), command.RegisterCommand{
+        Username: req.Username,
+        Email:    req.Email,
+        Password: req.Password,
+    })
+    if err != nil {
+        response.BadRequest(c, err.Error())
+        return
+    }
+
+    response.Created(c, gin.H{
+        "user_id":       result.UserID,
+        "access_token":  result.AccessToken,
+        "refresh_token": result.RefreshToken,
+    })
 }
 ```
 
@@ -298,12 +326,11 @@ func (h *AuthHandler) Register(c *gin.Context) {
 
 ### 添加新功能
 
-1. **定义领域模型**：在 `internal/domain/<name>/model.go`
-2. **定义仓储接口**：在 `internal/domain/<name>/command_repository.go` 与 `query_repository.go`
-3. **实现仓储**：在 `internal/infrastructure/persistence/`（分别实现 Command/Query）
-4. **创建 Handler**：在 `internal/adapters/http/handler/`
-5. **注册路由**：在 `internal/adapters/http/router.go`
-6. **注入依赖**：在 `internal/bootstrap/container.go`
+1. **Domain 层**：在 `internal/domain/<module>/entity_<module>.go` 定义实体（含业务行为），更新 `command_repository.go` 与 `query_repository.go`。
+2. **Infrastructure 层**：在 `internal/infrastructure/persistence/<module>_model.go` 定义 GORM 模型，并分别实现 Command/Query Repository。
+3. **Application 层**：在 `internal/application/<module>/command|query` 创建 Command/Query + Handler，补充 `dto.go`、`mapper.go`。
+4. **Bootstrap**：在 `internal/bootstrap/container.go` 注入新的 Repository/Handler。
+5. **Adapters**：在 `internal/adapters/http/handler/<module>.go` 增加 HTTP Handler，并在 `router.go` 注册路由。
 
 ### 添加新的数据源
 
@@ -314,7 +341,7 @@ func (h *AuthHandler) Register(c *gin.Context) {
 ### 添加新的外部接口
 
 1. 在 `internal/adapters/` 创建新的适配器 (如 gRPC、GraphQL)
-2. 复用 Domain 层和 Infrastructure 层
+2. 复用 Application + Domain + Infrastructure 层
 3. 在 `internal/commands/` 添加新的命令
 
 ## 最佳实践

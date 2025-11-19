@@ -90,53 +90,85 @@ internal/
 ### 用户领域模型
 
 ```go
+// internal/domain/user/entity_user.go
 type User struct {
-    ID        uint           `gorm:"primarykey" json:"id"`
-    CreatedAt time.Time      `json:"created_at"`
-    UpdatedAt time.Time      `json:"updated_at"`
-    DeletedAt gorm.DeletedAt `gorm:"index" json:"-"` // 软删除
+    ID        uint
+    CreatedAt time.Time
+    UpdatedAt time.Time
+    DeletedAt *time.Time
 
-    Username string `gorm:"uniqueIndex;size:50;not null" json:"username"`
-    Email    string `gorm:"uniqueIndex;size:100;not null" json:"email"`
-    Password string `gorm:"size:255;not null" json:"-"`
-    FullName string `gorm:"size:100" json:"full_name"`
-    Status   string `gorm:"size:20;default:'active'" json:"status"`
+    Username string
+    Email    string
+    Password string
+    FullName string
+    Status   string
 }
 ```
 
 **模型特点：**
 
-- `ID` - 主键，自增
-- `CreatedAt/UpdatedAt` - GORM 自动维护
-- `DeletedAt` - 软删除标记
-- `Username/Email` - 唯一索引
-- `Password` - 响应时自动隐藏
+- 仅包含业务字段和行为，不带任何 GORM Tag
+- 软删除、唯一索引等数据库细节在基础设施层处理
 
-### 仓储接口
+### 持久化模型（Infrastructure）
 
 ```go
-type Repository interface {
-    // 创建用户
+// internal/infrastructure/persistence/user_model.go
+type UserModel struct {
+    ID        uint           `gorm:"primaryKey"`
+    CreatedAt time.Time
+    UpdatedAt time.Time
+    DeletedAt gorm.DeletedAt `gorm:"index"`
+
+    Username string `gorm:"uniqueIndex;size:50;not null"`
+    Email    string `gorm:"uniqueIndex;size:100;not null"`
+    Password string `gorm:"size:255;not null"`
+    FullName string `gorm:"size:100"`
+    Status   string `gorm:"size:20;default:'active'"`
+}
+
+func newUserModelFromEntity(entity *user.User) *UserModel { ... }
+func (m *UserModel) toEntity() *user.User { ... }
+```
+
+**模型特点：**
+
+- `CreatedAt/UpdatedAt/DeletedAt` 由 GORM 维护
+- 唯一索引、软删除、字段长度等数据库约束均定义在 Model 上
+- 仓储层在读写数据库前后负责 Model ↔ Domain 的映射
+
+### 仓储接口（CQRS）
+
+```go
+// internal/domain/user/command_repository.go
+type CommandRepository interface {
     Create(ctx context.Context, user *User) error
-
-    // 查询用户
-    FindByID(ctx context.Context, id uint) (*User, error)
-    FindByUsername(ctx context.Context, username string) (*User, error)
-    FindByEmail(ctx context.Context, email string) (*User, error)
-
-    // 列表查询 (分页)
-    List(ctx context.Context, page, pageSize int) (*PaginatedUsers, error)
-
-    // 更新用户
     Update(ctx context.Context, user *User) error
-
-    // 删除用户 (软删除)
     Delete(ctx context.Context, id uint) error
+    AssignRoles(ctx context.Context, userID uint, roleIDs []uint) error
+    RemoveRoles(ctx context.Context, userID uint, roleIDs []uint) error
+    UpdatePassword(ctx context.Context, userID uint, hashedPassword string) error
+    UpdateStatus(ctx context.Context, userID uint, status string) error
+}
 
-    // 统计数量
+// internal/domain/user/query_repository.go
+type QueryRepository interface {
+    GetByID(ctx context.Context, id uint) (*User, error)
+    GetByUsername(ctx context.Context, username string) (*User, error)
+    GetByEmail(ctx context.Context, email string) (*User, error)
+    GetByIDWithRoles(ctx context.Context, id uint) (*User, error)
+    GetByUsernameWithRoles(ctx context.Context, username string) (*User, error)
+    GetByEmailWithRoles(ctx context.Context, email string) (*User, error)
+    List(ctx context.Context, offset, limit int) ([]*User, error)
     Count(ctx context.Context) (int64, error)
+    Search(ctx context.Context, keyword string, offset, limit int) ([]*User, error)
+    ExistsByUsername(ctx context.Context, username string) (bool, error)
+    ExistsByEmail(ctx context.Context, email string) (bool, error)
 }
 ```
+
+- 写操作（Create/Update/Delete）只能通过 `CommandRepository`，读操作通过 `QueryRepository`。
+- Infrastructure 层提供 `user_command_repository.go` 与 `user_query_repository.go`，内部使用 `user_model.go` 做 Entity ↔ Model 转换。
 
 ## 连接池配置
 
@@ -380,12 +412,12 @@ postgresql://user:pass@localhost:5432/app?pool_max_conns=25&pool_min_conns=5
 ### 1. 索引优化
 
 ```go
-// 在模型中定义索引
-type User struct {
-    Username string `gorm:"uniqueIndex"`           // 唯一索引
-    Email    string `gorm:"uniqueIndex"`           // 唯一索引
-    Status   string `gorm:"index"`                 // 普通索引
-    DeletedAt gorm.DeletedAt `gorm:"index"`       // 软删除索引
+// 在持久化模型中定义索引
+type UserModel struct {
+    Username string         `gorm:"uniqueIndex"` // 唯一索引
+    Email    string         `gorm:"uniqueIndex"` // 唯一索引
+    Status   string         `gorm:"index"`       // 普通索引
+    DeletedAt gorm.DeletedAt `gorm:"index"`      // 软删除索引
 }
 ```
 

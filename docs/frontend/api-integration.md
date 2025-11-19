@@ -1,588 +1,216 @@
 # API 集成
 
-本文档介绍如何在前端应用中集成后端 API，包括 Axios 配置、请求拦截器、错误处理等。
+前端 API 层集中在 `web/src/api/`，与后端模块保持一致：`auth/` 负责认证与用户自助、`user/` 负责个人访问令牌、`admin/` 负责后台管理。以下示例均来自当前代码。
 
-## Axios 客户端配置
+## Axios 客户端（`src/api/auth/client.ts`）
 
-### 创建客户端实例
-
-**文件**: `src/api/client.ts`
-
-```typescript
+```ts
 import axios from "axios";
-import type { AxiosInstance, AxiosRequestConfig, AxiosResponse } from "axios";
-import { useAuthStore } from "@/stores/auth";
-import router from "@/router";
+import { getAccessToken, getRefreshToken, saveAccessToken, saveRefreshToken, clearAuthTokens } from "@/utils/auth";
+import type { ApiResponse, AuthResponse } from "@/types/auth";
 
-// API 基础 URL
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
+const API_BASE_URL = "/api/auth";
 
-// 创建 Axios 实例
-const client: AxiosInstance = axios.create({
+export const apiClient = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 30000, // 30 秒超时
-  headers: {
-    "Content-Type": "application/json",
-  },
+  timeout: 10000,
 });
 
-// 请求拦截器
-client.interceptors.request.use(
-  (config: AxiosRequestConfig) => {
-    const authStore = useAuthStore();
+apiClient.interceptors.request.use((config) => {
+  const token = getAccessToken();
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
 
-    // 自动添加 JWT Token
-    if (authStore.accessToken) {
-      config.headers = config.headers || {};
-      config.headers.Authorization = `Bearer ${authStore.accessToken}`;
-    }
-
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  },
-);
-
-// 响应拦截器
-client.interceptors.response.use(
-  (response: AxiosResponse) => {
-    return response.data; // 直接返回 data
-  },
+apiClient.interceptors.response.use(
+  (response) => response,
   async (error) => {
     const originalRequest = error.config;
-
-    // 401 未授权：刷新 Token
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
-
-      try {
-        const authStore = useAuthStore();
-        await authStore.refreshToken();
-
-        // 重试原请求
-        return client(originalRequest);
-      } catch (refreshError) {
-        // 刷新失败，跳转登录
-        router.push("/login");
-        return Promise.reject(refreshError);
+      const refreshToken = getRefreshToken();
+      if (refreshToken) {
+        const { data } = await axios.post<ApiResponse<AuthResponse>>(`${API_BASE_URL}/refresh`, {
+          refresh_token: refreshToken,
+        });
+        if (data.data) {
+          saveAccessToken(data.data.access_token);
+          saveRefreshToken(data.data.refresh_token);
+          originalRequest.headers.Authorization = `Bearer ${data.data.access_token}`;
+          return apiClient(originalRequest);
+        }
       }
+      clearAuthTokens();
+      window.location.href = "/#/auth/login";
     }
-
-    // 403 权限不足
-    if (error.response?.status === 403) {
-      // 显示权限不足提示
-      console.error("权限不足");
-    }
-
     return Promise.reject(error);
   },
 );
-
-export default client;
 ```
 
-## API 接口封装
+- 客户端使用固定的 `/api/auth` 前缀，同时覆盖 `/api/auth/user/*` 与 `/api/auth/user/tokens`。
+- 刷新令牌失败会清理本地状态并回到登录页，确保 401 循环被阻断。
 
-### 认证 API
+## 认证 API（`src/api/auth/auth.ts`）
 
-**文件**: `src/api/auth.ts`
+```ts
+import { apiClient } from "./client";
+import { saveAccessToken, saveRefreshToken, clearAuthTokens } from "@/utils/auth";
+import type { LoginRequest, RegisterRequest, AuthResponse, ApiResponse } from "@/types/auth";
 
-```typescript
-import client from "./client";
-import type { LoginRequest, LoginResponse, RegisterRequest } from "@/types/api";
+export const login = async (req: LoginRequest): Promise<AuthResponse> => {
+  const { data } = await apiClient.post<ApiResponse<AuthResponse>>("/login", req);
+  if (data.data) {
+    saveAccessToken(data.data.access_token);
+    saveRefreshToken(data.data.refresh_token);
+    return data.data;
+  }
+  throw new Error(data.error || "Login failed");
+};
 
-export const authApi = {
-  /**
-   * 用户登录
-   */
-  login(data: LoginRequest): Promise<LoginResponse> {
-    return client.post("/api/auth/login", data);
-  },
+export const register = async (req: RegisterRequest): Promise<AuthResponse> => {
+  const { data } = await apiClient.post<ApiResponse<AuthResponse>>("/register", req);
+  if (data.data) {
+    saveAccessToken(data.data.access_token);
+    saveRefreshToken(data.data.refresh_token);
+    return data.data;
+  }
+  throw new Error(data.error || "Registration failed");
+};
 
-  /**
-   * 用户注册
-   */
-  register(data: RegisterRequest): Promise<void> {
-    return client.post("/api/auth/register", data);
-  },
+export const refreshToken = async (refreshToken: string): Promise<AuthResponse> => {
+  const { data } = await apiClient.post<ApiResponse<AuthResponse>>("/refresh", {
+    refresh_token: refreshToken,
+  });
+  if (data.data) {
+    return data.data;
+  }
+  throw new Error(data.error || "Token refresh failed");
+};
 
-  /**
-   * 刷新 Token
-   */
-  refreshToken(refreshToken: string): Promise<LoginResponse> {
-    return client.post("/api/auth/refresh", { refresh_token: refreshToken });
-  },
-
-  /**
-   * 退出登录
-   */
-  logout(): Promise<void> {
-    return client.post("/api/auth/logout");
-  },
+export const logout = () => {
+  clearAuthTokens();
 };
 ```
 
-### 用户 API
+- `login`/`register` 均保存 token，`logout` 只清理客户端缓存。
+- 带验证码或 2FA 的登陆流程由 `PlatformAuthAPI` 在同目录下实现，仍然共享 `apiClient`。
 
-**文件**: `src/api/users.ts`
+## 用户自助 API（`src/api/auth/user.ts`）
 
-```typescript
-import client from "./client";
-import type { User, UpdateProfileRequest } from "@/types/api";
+```ts
+import { apiClient } from "./client";
+import type { User, ApiResponse } from "@/types/auth";
 
-export const userApi = {
-  /**
-   * 获取当前用户信息
-   */
-  getProfile(): Promise<User> {
-    return client.get("/api/user/me");
-  },
-
-  /**
-   * 更新个人资料
-   */
-  updateProfile(data: UpdateProfileRequest): Promise<User> {
-    return client.put("/api/user/me", data);
-  },
-
-  /**
-   * 修改密码
-   */
-  changePassword(oldPassword: string, newPassword: string): Promise<void> {
-    return client.put("/api/user/me/password", {
-      old_password: oldPassword,
-      new_password: newPassword,
-    });
-  },
-
-  /**
-   * 删除账户
-   */
-  deleteAccount(): Promise<void> {
-    return client.delete("/api/user/me");
-  },
+export const getCurrentUser = async (): Promise<User> => {
+  const { data } = await apiClient.get<ApiResponse<User>>("/me");
+  if (data.data) {
+    return data.data;
+  }
+  throw new Error(data.error || "Failed to get user info");
 };
-```
 
-### Personal Access Token API
+export interface ChangePasswordRequest {
+  old_password: string;
+  new_password: string;
+}
 
-**文件**: `src/api/tokens.ts`
-
-```typescript
-import client from "./client";
-import type { CreateTokenRequest, TokenResponse, TokenListItem } from "@/types/api";
-
-export const tokenApi = {
-  /**
-   * 创建 Personal Access Token
-   */
-  create(data: CreateTokenRequest): Promise<TokenResponse> {
-    return client.post("/api/user/tokens", data);
-  },
-
-  /**
-   * 列出所有 Token
-   */
-  list(): Promise<TokenListItem[]> {
-    return client.get("/api/user/tokens");
-  },
-
-  /**
-   * 获取 Token 详情
-   */
-  get(id: number): Promise<TokenListItem> {
-    return client.get(`/api/user/tokens/${id}`);
-  },
-
-  /**
-   * 撤销 Token
-   */
-  revoke(id: number): Promise<void> {
-    return client.delete(`/api/user/tokens/${id}`);
-  },
+export const changePassword = async (params: ChangePasswordRequest): Promise<void> => {
+  await apiClient.put("/user/me/password", params);
 };
-```
-
-## TypeScript 类型定义
-
-### API 类型
-
-**文件**: `src/types/api.ts`
-
-```typescript
-// ========== 认证相关 ==========
-
-export interface LoginRequest {
-  login: string;
-  password: string;
-}
-
-export interface RegisterRequest {
-  username: string;
-  email: string;
-  password: string;
-  full_name: string;
-}
-
-export interface LoginResponse {
-  message: string;
-  data: {
-    access_token: string;
-    refresh_token: string;
-    token_type: string;
-    expires_in: number;
-    user: User;
-  };
-}
-
-// ========== 用户相关 ==========
-
-export interface User {
-  id: number;
-  username: string;
-  email: string;
-  full_name: string;
-  status: "active" | "inactive" | "banned";
-  created_at: string;
-  updated_at: string;
-}
 
 export interface UpdateProfileRequest {
   full_name?: string;
-  email?: string;
+  avatar?: string;
+  bio?: string;
 }
 
-// ========== Token 相关 ==========
-
-export interface CreateTokenRequest {
-  name: string;
-  permissions: string[];
-  expires_in?: number;
-  ip_whitelist?: string[];
-  description?: string;
-}
-
-export interface TokenResponse {
-  token: string;
-  id: number;
-  name: string;
-  token_prefix: string;
-  permissions: string[];
-  expires_at: string | null;
-  created_at: string;
-}
-
-export interface TokenListItem {
-  id: number;
-  name: string;
-  token_prefix: string;
-  permissions: string[];
-  expires_at: string | null;
-  last_used_at: string | null;
-  status: "active" | "revoked" | "expired";
-  created_at: string;
-}
-
-// ========== 通用响应 ==========
-
-export interface ApiResponse<T> {
-  message: string;
-  data: T;
-}
-
-export interface ApiError {
-  error: string;
-  details?: any;
-}
-```
-
-## 在组件中使用
-
-### Composition API 方式
-
-```vue
-<script setup lang="ts">
-import { ref, onMounted } from "vue";
-import { userApi } from "@/api/users";
-import type { User } from "@/types/api";
-
-const user = ref<User | null>(null);
-const loading = ref(false);
-const error = ref<string | null>(null);
-
-// 获取用户信息
-const fetchProfile = async () => {
-  loading.value = true;
-  error.value = null;
-
-  try {
-    user.value = await userApi.getProfile();
-  } catch (err: any) {
-    error.value = err.response?.data?.error || "获取用户信息失败";
-  } finally {
-    loading.value = false;
+export const updateProfile = async (params: UpdateProfileRequest): Promise<User> => {
+  const { data } = await apiClient.put<ApiResponse<User>>("/user/me", params);
+  if (data.data) {
+    return data.data;
   }
-};
-
-// 更新个人资料
-const updateProfile = async (data: UpdateProfileRequest) => {
-  try {
-    user.value = await userApi.updateProfile(data);
-    // 显示成功提示
-  } catch (err: any) {
-    error.value = err.response?.data?.error || "更新失败";
-  }
-};
-
-onMounted(() => {
-  fetchProfile();
-});
-</script>
-
-<template>
-  <div>
-    <v-progress-linear v-if="loading" indeterminate />
-    <v-alert v-if="error" type="error">{{ error }}</v-alert>
-    <div v-if="user">
-      <h2>{{ user.full_name }}</h2>
-      <p>{{ user.email }}</p>
-    </div>
-  </div>
-</template>
-```
-
-### 在 Store 中使用
-
-```typescript
-// stores/user.ts
-import { defineStore } from "pinia";
-import { userApi } from "@/api/users";
-import type { User } from "@/types/api";
-
-export const useUserStore = defineStore("user", {
-  state: () => ({
-    profile: null as User | null,
-    loading: false,
-    error: null as string | null,
-  }),
-
-  actions: {
-    async fetchProfile() {
-      this.loading = true;
-      this.error = null;
-
-      try {
-        this.profile = await userApi.getProfile();
-      } catch (err: any) {
-        this.error = err.response?.data?.error || "获取用户信息失败";
-        throw err;
-      } finally {
-        this.loading = false;
-      }
-    },
-
-    async updateProfile(data: UpdateProfileRequest) {
-      try {
-        this.profile = await userApi.updateProfile(data);
-      } catch (err: any) {
-        this.error = err.response?.data?.error || "更新失败";
-        throw err;
-      }
-    },
-  },
-});
-```
-
-## 错误处理
-
-### 统一错误处理
-
-**创建错误处理工具**:
-
-```typescript
-// utils/error-handler.ts
-import type { AxiosError } from "axios";
-
-export interface ApiErrorResponse {
-  error: string;
-  details?: any;
-}
-
-export class ApiError extends Error {
-  constructor(
-    public status: number,
-    public data: ApiErrorResponse,
-  ) {
-    super(data.error);
-  }
-}
-
-export const handleApiError = (error: unknown): string => {
-  if (axios.isAxiosError(error)) {
-    const axiosError = error as AxiosError<ApiErrorResponse>;
-
-    // 网络错误
-    if (!axiosError.response) {
-      return "网络连接失败，请检查网络设置";
-    }
-
-    // HTTP 错误
-    const { status, data } = axiosError.response;
-
-    switch (status) {
-      case 400:
-        return data.error || "请求参数错误";
-      case 401:
-        return "未授权，请重新登录";
-      case 403:
-        return "权限不足";
-      case 404:
-        return "请求的资源不存在";
-      case 500:
-        return "服务器错误";
-      default:
-        return data.error || `请求失败 (${status})`;
-    }
-  }
-
-  return "未知错误";
+  throw new Error(data.error || "更新个人资料失败");
 };
 ```
 
-**在组件中使用**:
+- Path 全部基于 `/api/auth`，因此 `PUT /user/me` 实际请求 `/api/auth/user/me`。
+- 错误直接抛出以便 Store/组件统一处理。
 
-```typescript
-import { handleApiError } from "@/utils/error-handler";
+## Personal Access Token API（`src/api/user/tokens.ts`）
 
-try {
-  await userApi.updateProfile(data);
-} catch (err) {
-  const message = handleApiError(err);
-  // 显示错误消息
-  showErrorNotification(message);
-}
-```
+```ts
+import { apiClient } from "../auth/client";
+import type { PersonalAccessToken, CreateTokenRequest, CreateTokenResponse } from "@/types/user";
+import type { ApiResponse } from "@/types/auth";
 
-## 请求取消
-
-### 取消正在进行的请求
-
-```typescript
-import { ref } from "vue";
-import axios from "axios";
-
-const controller = ref<AbortController | null>(null);
-
-const fetchData = async () => {
-  // 取消之前的请求
-  if (controller.value) {
-    controller.value.abort();
+export const listTokens = async (): Promise<PersonalAccessToken[]> => {
+  const { data } = await apiClient.get<ApiResponse<PersonalAccessToken[]>>("/user/tokens");
+  if (data.data) {
+    return data.data;
   }
-
-  // 创建新的 AbortController
-  controller.value = new AbortController();
-
-  try {
-    const data = await userApi.getProfile({
-      signal: controller.value.signal,
-    });
-    // 处理数据
-  } catch (err) {
-    if (axios.isCancel(err)) {
-      console.log("请求已取消");
-    }
-  }
+  throw new Error(data.error || "获取 Token 列表失败");
 };
 
-// 组件卸载时取消请求
-onUnmounted(() => {
-  if (controller.value) {
-    controller.value.abort();
+export const createToken = async (params: CreateTokenRequest): Promise<CreateTokenResponse> => {
+  const { data } = await apiClient.post<ApiResponse<CreateTokenResponse>>("/user/tokens", params);
+  if (data.data) {
+    return data.data;
   }
-});
-```
-
-## 环境配置
-
-### 开发环境 vs 生产环境
-
-**`.env.development`**:
-
-```bash
-VITE_API_BASE_URL=http://localhost:8080
-```
-
-**`.env.production`**:
-
-```bash
-VITE_API_BASE_URL=https://api.production.com
-```
-
-**在代码中使用**:
-
-```typescript
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-```
-
-## 最佳实践
-
-### 1. 统一接口封装
-
-```typescript
-// ✓ 推荐
-export const userApi = {
-  getProfile: () => client.get("/api/user/me"),
+  throw new Error(data.error || "创建 Token 失败");
 };
 
-// ✗ 避免
-axios.get("http://localhost:8080/api/user/me");
+export const revokeToken = async (id: number): Promise<void> => {
+  await apiClient.delete(`/user/tokens/${id}`);
+};
 ```
 
-### 2. 使用 TypeScript 类型
+- 成功创建时仅返回一次明文 token（`CreateTokenResponse`），需要立即显示给用户。
+- 其余字段（前缀、权限、过期时间）与后端 PAT 模块完全一致。
 
-```typescript
-// ✓ 推荐
-getProfile(): Promise<User>
+## API 聚合导出
 
-// ✗ 避免
-getProfile(): Promise<any>
+`src/api/index.ts` 统一 re-export：
+
+```ts
+export * from "./auth"; // auth/auth.ts + auth/user.ts + auth/client.ts + platformAuth.ts
+export * from "./user";
+export type {
+  CaptchaData,
+  LoginRequest,
+  PlatformLoginRequest,
+  AuthResponse,
+  LoginResult,
+  User,
+} from "@/types";
 ```
 
-### 3. 错误处理
+组件或 Store 只需一次导入：
 
-```typescript
-// ✓ 推荐
-try {
-  await userApi.getProfile();
-} catch (err) {
-  handleApiError(err);
-}
+```ts
+import { login, getCurrentUser, listTokens } from "@/api";
 
-// ✗ 避免
-userApi.getProfile(); // 忽略错误
+await login({ login: "admin", password: "secret" });
+const profile = await getCurrentUser();
+const tokens = await listTokens();
 ```
 
-### 4. 加载状态
+## Store / 组件调用示例
 
-```typescript
-// ✓ 推荐
-const loading = ref(false);
-loading.value = true;
-try {
-  await fetchData();
-} finally {
-  loading.value = false;
-}
+`src/stores/auth.ts` 直接引用上述 API：
+
+```ts
+const response = await login(credentials);
+currentUser.value = response.user;
+
+const user = await getCurrentUser();
+currentUser.value = user;
 ```
 
-## 相关文档
+`src/pages/user/tokens/index.vue` 也可通过 `listTokens` / `createToken` 构建 PAT UI，而无需重复拼接 URL。
 
-- [认证授权](/backend/authentication) - JWT 认证机制
-- [Personal Access Token](/backend/pat) - PAT 使用指南
-- [API 参考](/api/) - 后端 API 详细文档
-<!-- TODO: 待完善的文档
-- [状态管理](./state-management) - Pinia Store 使用
-  -->
+---
 
-开始高效地集成 API 吧！ 🚀
+通过集中式客户端 + 模块化 API，前端与后端 DDD 模块保持一一对应，Token 注入、刷新和错误处理都在同一位置完成，避免在组件层散落重复逻辑。

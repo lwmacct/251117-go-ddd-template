@@ -91,7 +91,8 @@ func (h *CreateUserHandler) Handle(ctx context.Context, cmd CreateUserCommand) (
 
 - **位置**: `internal/domain/`
 - **职责**: 定义业务模型、领域服务接口、仓储接口
-- **特点**: 不依赖任何外层，纯业务逻辑
+- **特点**: 不依赖任何外层，纯业务逻辑；**禁止出现 GORM Tag 或 `gorm` 依赖**
+- **与数据库映射分离**: 所有 ORM 细节放在 `internal/infrastructure/persistence/*_model.go` 中维护，通过 mapper 函数与 Domain 实体互转
 
 **富领域模型示例**:
 
@@ -147,29 +148,43 @@ type QueryRepository interface {
 
 - **位置**: `internal/infrastructure/`
 - **职责**: 实现领域服务、仓储、数据库、Redis、外部API
+- **持久化模型**: 每个模块在 `internal/infrastructure/persistence/{module}_model.go` 中定义 GORM Model + 映射函数，仓储层统一通过模型 → 领域实体转换
 
 ```go
-// 实现 Domain Service
-type AuthServiceImpl struct {
-    jwtManager      *JWTManager
-    tokenGenerator  *TokenGenerator
-    passwordPolicy  domainAuth.PasswordPolicy
+// internal/infrastructure/persistence/user_model.go
+type UserModel struct {
+    ID        uint           `gorm:"primaryKey"`
+    Username  string         `gorm:"uniqueIndex;size:50;not null"`
+    Email     string         `gorm:"uniqueIndex;size:100;not null"`
+    Password  string         `gorm:"size:255;not null"`
+    Status    string         `gorm:"size:20;default:'active'"`
+    // ...
 }
 
-func (s *AuthServiceImpl) ValidatePasswordPolicy(ctx context.Context, password string) error {
-    if len(password) < s.passwordPolicy.MinLength {
-        return domainAuth.ErrPasswordTooShort
+func newUserModelFromEntity(entity *user.User) *UserModel { ... }
+func (m *UserModel) toEntity() *user.User { ... }
+
+// internal/infrastructure/persistence/user_command_repository.go
+type userCommandRepository struct { db *gorm.DB }
+
+func (r *userCommandRepository) Create(ctx context.Context, entity *user.User) error {
+    model := newUserModelFromEntity(entity)
+    if err := r.db.WithContext(ctx).Create(model).Error; err != nil {
+        return err
     }
-    // ... 更多验证
+    if saved := model.toEntity(); saved != nil {
+        *entity = *saved
+    }
+    return nil
 }
 
-// 实现 Repository
-type userCommandRepository struct {
-    db *gorm.DB
-}
-
-func (r *userCommandRepository) Create(ctx context.Context, user *user.User) error {
-    return r.db.WithContext(ctx).Create(user).Error
+// internal/infrastructure/persistence/user_query_repository.go
+func (r *userQueryRepository) GetByID(ctx context.Context, id uint) (*user.User, error) {
+    var model UserModel
+    if err := r.db.WithContext(ctx).First(&model, id).Error; err != nil {
+        return nil, err
+    }
+    return model.toEntity(), nil
 }
 ```
 

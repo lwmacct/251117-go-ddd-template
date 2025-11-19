@@ -1,203 +1,220 @@
-# 项目结构
+﻿# 项目结构
 
-本文档详细介绍前端项目的目录组织、文件命名规范和模块划分。
+本文档详细介绍前端项目的目录组织、文件命名规范和模块划分，所有示例均来自当前 `web/` 目录。
 
 ## 目录结构
 
 ```
 web/
-├── public/                 # 静态资源（不经过 Vite 处理）
-│   └── favicon.ico            # 网站图标
-│
-├── src/                    # 源代码目录
-│   ├── api/                   # API 接口封装
-│   │   ├── client.ts             # Axios 客户端配置
-│   │   ├── auth.ts               # 认证相关接口
-│   │   └── users.ts              # 用户相关接口
-│   │
-│   ├── components/            # 通用组件（可复用）
-│   │   ├── common/               # 基础组件
-│   │   └── business/             # 业务组件
-│   │
-│   ├── global/                # 全局配置和样式
-│   │   ├── styles/               # 全局样式
-│   │   └── plugins/              # 插件配置
-│   │
-│   ├── layout/                # 布局组件
-│   │   ├── DefaultLayout.vue     # 默认布局
-│   │   └── AuthLayout.vue        # 认证布局
-│   │
-│   ├── pages/                 # 页面组件
-│   │   ├── Home.vue              # 首页
-│   │   ├── Login.vue             # 登录页
-│   │   └── Dashboard.vue         # 仪表板
-│   │
-│   ├── router/                # 路由配置
-│   │   └── index.ts              # 路由定义
-│   │
-│   ├── stores/                # Pinia 状态管理
-│   │   ├── auth.ts               # 认证 Store
-│   │   └── user.ts               # 用户 Store
-│   │
-│   ├── types/                 # TypeScript 类型定义
-│   │   ├── api.ts                # API 类型
-│   │   └── models.ts             # 数据模型
-│   │
-│   ├── utils/                 # 工具函数
-│   │   ├── request.ts            # 请求工具
-│   │   └── storage.ts            # 存储工具
-│   │
-│   ├── views/                 # 视图组件
-│   │   └── (按功能模块组织)
-│   │
-│   ├── App.vue                # 根组件
-│   └── main.ts                # 应用入口
-│
-├── dist/                   # 构建输出目录
-├── node_modules/           # 依赖包
-│
-├── index.html              # HTML 入口模板
-├── vite.config.ts          # Vite 配置
-├── tsconfig.json           # TypeScript 配置
-├── tsconfig.app.json       # 应用 TS 配置
-├── tsconfig.node.json      # Node TS 配置
-├── package.json            # 项目配置
-└── README.md               # 项目说明
+├── public/                     # 静态资源
+│   └── favicon.ico
+├── src/
+│   ├── api/                    # API 客户端（按业务拆分）
+│   │   ├── auth/
+│   │   ├── user/
+│   │   ├── admin/
+│   │   └── index.ts
+│   ├── global/                 # 全局样式/配置占位
+│   ├── layout/                 # 布局组件 (AdminLayout.vue / UserLayout.vue)
+│   ├── pages/                  # 页面（admin/auth/user 三大模块）
+│   ├── router/                 # 路由定义（admin.ts、auth.ts、user.ts）
+│   ├── stores/                 # Pinia Store
+│   ├── types/                  # 类型定义（auth/admin/user 等子目录）
+│   ├── utils/                  # 工具库（以 auth/token/storage 为核心）
+│   ├── views/                  # 共享 UI 片段（AppBars、Navigation）
+│   ├── App.vue
+│   └── main.ts
+├── env.d.ts
+├── index.html
+├── package.json
+├── tsconfig*.json
+└── vite.config.ts
 ```
 
 ## 核心目录说明
 
-### `src/api/` - API 接口
+### `src/api/` - API 模块
 
-**职责**: 封装所有后端 API 调用
-
-**结构**:
+接口按照业务归类并共享 `auth/client.ts` 中的 Axios 实例：
 
 ```
 api/
-├── client.ts       # Axios 客户端配置、拦截器
-├── auth.ts         # 认证接口：登录、注册、刷新 Token
-├── users.ts        # 用户接口：CRUD、角色管理
-└── index.ts        # 导出所有 API
+├── auth/
+│   ├── auth.ts          # 登录、注册、刷新 Token
+│   ├── user.ts          # /api/auth/user/* 接口
+│   ├── platformAuth.ts  # 带验证码的登录流程
+│   └── client.ts        # Axios + 拦截器
+├── user/
+│   └── tokens.ts        # PAT API
+├── admin/
+│   └── ...              # 预留管理端接口
+└── index.ts             # 对外导出
 ```
 
-**示例**:
+```ts
+// src/api/auth/auth.ts
+import { apiClient } from "./client";
+import { saveAccessToken, saveRefreshToken } from "@/utils/auth";
+import type { LoginRequest, AuthResponse, ApiResponse } from "@/types/auth";
 
-```typescript
-// api/users.ts
-import client from "./client";
-
-export const userApi = {
-  getProfile: () => client.get("/api/user/me"),
-  updateProfile: (data) => client.put("/api/user/me", data),
+export const login = async (req: LoginRequest): Promise<AuthResponse> => {
+  const { data } = await apiClient.post<ApiResponse<AuthResponse>>("/login", req);
+  if (data.data) {
+    saveAccessToken(data.data.access_token);
+    saveRefreshToken(data.data.refresh_token);
+    return data.data;
+  }
+  throw new Error(data.error || "Login failed");
 };
 ```
 
-### `src/components/` - 通用组件
+```ts
+// src/api/user/tokens.ts
+import { apiClient } from "../auth/client";
+import type { PersonalAccessToken, CreateTokenRequest, CreateTokenResponse } from "@/types/user";
+import type { ApiResponse } from "@/types/auth";
 
-**职责**: 可复用的 UI 组件
-
-**分类**:
-
-- `common/` - 基础组件（按钮、输入框、卡片）
-- `business/` - 业务组件（用户卡片、数据表格）
-
-**命名规范**:
-
-```
-PascalCase.vue
-
-✓ UserCard.vue
-✓ DataTable.vue
-✗ userCard.vue
-✗ data-table.vue
+export const listTokens = async (): Promise<PersonalAccessToken[]> => {
+  const { data } = await apiClient.get<ApiResponse<PersonalAccessToken[]>>("/user/tokens");
+  if (data.data) {
+    return data.data;
+  }
+  throw new Error(data.error || "获取 Token 列表失败");
+};
 ```
 
-### `src/pages/` - 页面组件
+### `src/layout/` - 布局组件
 
-**职责**: 路由对应的页面组件
+- `AdminLayout.vue`：包裹所有 `/admin/*` 页面，内置导航、侧栏等。
+- `UserLayout.vue`：用户中心布局。
 
-**特点**:
+布局组件负责加载 `views/Navigation`、`views/AppBars` 等共享片段，并决定面包屑/权限粒度。
 
-- 每个页面对应一个路由
-- 组合通用组件构建页面
-- 处理页面级别的状态
+### `src/pages/` - 页面模块
 
-**示例**:
+以业务域划分目录，与后端的 DDD 模块一一对应：
 
-```vue
-<!-- pages/Dashboard.vue -->
-<template>
-  <v-container>
-    <h1>Dashboard</h1>
-    <UserCard :user="currentUser" />
-  </v-container>
-</template>
 ```
+pages/
+├── admin/
+│   ├── overview/
+│   ├── roles/
+│   ├── users/
+│   ├── menus/
+│   └── settings/
+├── auth/
+│   ├── login/
+│   └── register/
+└── user/
+    ├── profile/
+    ├── security/
+    └── tokens/
+```
+
+- 每个目录包含一个 `index.vue`，并在路由中懒加载。
+- 页面聚合 `stores/`、`api/`，不直接访问 HTTP 层。
 
 ### `src/router/` - 路由配置
 
-**职责**: 管理应用路由
+路由同样模块化，`router/index.ts` 汇总三个子路由：
 
-**核心文件**: `index.ts`
+```ts
+// src/router/index.ts
+import { createRouter, createWebHashHistory } from "vue-router";
+import { adminRoutes } from "./admin";
+import { authRoutes } from "./auth";
+import { userRoutes } from "./user";
 
-```typescript
-import { createRouter, createWebHistory } from "vue-router";
-
-const router = createRouter({
-  history: createWebHistory(),
-  routes: [
-    {
-      path: "/",
-      component: () => import("@/pages/Home.vue"),
-    },
-    {
-      path: "/login",
-      component: () => import("@/pages/Login.vue"),
-    },
-  ],
-});
-
-export default router;
-```
-
-### `src/stores/` - 状态管理
-
-**职责**: Pinia Store，管理全局状态
-
-**结构**:
-
-```
-stores/
-├── auth.ts         # 认证状态：token、用户信息
-├── user.ts         # 用户状态：个人资料
-└── index.ts        # Store 导出
-```
-
-**示例**:
-
-```typescript
-// stores/auth.ts
-import { defineStore } from "pinia";
-
-export const useAuthStore = defineStore("auth", {
-  state: () => ({
-    token: null,
-    user: null,
-  }),
-  actions: {
-    async login(credentials) {
-      // 登录逻辑
-    },
-  },
+export default createRouter({
+  history: createWebHashHistory(import.meta.env.BASE_URL),
+  routes: [{ path: "/", redirect: "/auth/login" }, authRoutes, adminRoutes, userRoutes],
 });
 ```
 
-### `src/types/` - 类型定义
+`router/admin.ts` 展示了完整的 Children 配置、`meta.requiresAuth`、懒加载写法，与后端 RBAC 路由保持一致。
 
-**职责**: TypeScript 类型和接口定义
+### `src/stores/` - Pinia 状态
 
-**结构**:
+`useAuthStore` 负责登录/注册、2FA 会话、用户资料缓存。示例：
+
+```ts
+// src/stores/auth.ts
+export const useAuthStore = defineStore("auth", () => {
+  const currentUser = ref<User | null>(null);
+  const isLoading = ref(false);
+  const error = ref<string | null>(null);
+  const isAuthenticated = computed(() => !!currentUser.value);
+
+  async function initAuth() {
+    if (!getAccessToken()) {
+      currentUser.value = null;
+      return;
+    }
+    try {
+      isLoading.value = true;
+      currentUser.value = await getCurrentUser();
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  return { currentUser, isAuthenticated, initAuth };
+});
+```
+
+其他 Store（如 `counter.ts`）主要用于示例或局部状态。
+
+### `src/types/` - 类型系统
+
+类型按业务拆分（`auth/`、`admin/`、`user/`、`common/`），集中导出方便引入：
+
+```ts
+// src/types/auth/auth.ts
+export interface LoginRequest {
+  login: string;
+  password: string;
+}
+
+export interface AuthResponse {
+  access_token: string;
+  refresh_token: string;
+  token_type: string;
+  expires_in: number;
+  user: User;
+}
+```
+
+保持领域术语一致，方便与后端 DTO 对齐。
+
+### `src/utils/` - 工具库
+
+当前以认证工具为主：
+
+- `auth/storage.ts`：localStorage 读写 token。
+- `auth/token.ts`：解析 JWT、判断过期。
+- `auth/validation.ts`：客户端校验规则。
+
+```ts
+// src/utils/auth/token.ts
+export function parseJwtToken(token: string) {
+  try {
+    const [_, payload] = token.split(".");
+    const base64 = payload.replace(/-/g, "+").replace(/_/g, "/");
+    return JSON.parse(atob(base64));
+  } catch (error) {
+    console.error("Failed to parse JWT token:", error);
+    return null;
+  }
+}
+```
+
+### `src/views/` - 共享视图片段
+
+`AppBars`、`Navigation` 等目录存放跨页面复用的 UI 组合件，而不是零散的基础组件。它们通常被布局或页面直接引用，避免再引入额外的 `components/` 层。
+
+---
+
+通过上述结构，前端与后端 DDD 模块保持相同的域划分（auth/admin/user），API 与 Store 只处理与自身领域相关的逻辑，使得维护和协作更清晰。
 
 ```
 types/

@@ -93,19 +93,6 @@ export default defineConfig({
             },
           ],
         },
-        {
-          text: "示例",
-          items: [
-            {
-              text: "Mermaid 图表",
-              link: "/guide/mermaid-examples",
-            },
-            {
-              text: "任务列表示例",
-              link: "/guide/task-list-examples",
-            },
-          ],
-        },
       ],
       "/backend/": [
         {

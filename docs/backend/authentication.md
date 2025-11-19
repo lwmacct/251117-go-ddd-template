@@ -84,18 +84,95 @@ curl http://localhost:8080/api/auth/me \
 
 ```
 internal/
+├── domain/
+│   └── auth/
+│       ├── service.go      # 认证领域服务接口（无外部依赖）
+│       └── errors.go       # 领域错误
+├── application/
+│   └── auth/
+│       └── command/        # Register/Login/Refresh Use Case
 ├── infrastructure/
 │   └── auth/
-│       ├── jwt.go         # JWT token 生成和验证
-│       └── service.go     # 认证服务 (注册、登录、刷新)
+│       ├── jwt.go          # JWT 管理器
+│       ├── service.go      # 领域服务实现（调用 Repository）
+│       └── session.go      # 临时会话存储（2FA）
 ├── adapters/
 │   └── http/
 │       ├── handler/
-│       │   └── auth.go    # 认证 HTTP 处理器
+│       │   └── auth.go     # HTTP Handler，只做请求/响应映射
 │       └── middleware/
-│           └── jwt.go     # JWT 认证中间件
+│           └── jwt.go      # JWT 鉴权
 └── bootstrap/
-    └── container.go       # 依赖注入
+    └── container.go        # 依赖注入
+```
+
+### 分层实现
+
+```
+HTTP Request
+    ↓
+Adapters 层 (AuthHandler) - 绑定请求 + 调用 Use Case
+    ↓
+Application 层 (Login/Register Handler)
+    ↓
+Domain Service 接口 (auth.Service)
+    ↓
+Infrastructure (auth.Service 实现 + persistence repos)
+```
+
+- **Domain/auth** 仅定义 `Service` 接口和密码策略等值对象，不包含 GORM Tag 或 HTTP 逻辑。
+- **Infrastructure/auth** 负责实现 Domain Service，并组合 `user`, `captcha`, `twofa` Command/Query Repository。
+- **Application/auth/command** 的 Handler 只依赖接口：`auth.Service` + `user.QueryRepository` 等，根据命令协调注册/登录流程。
+- **Adapters** 只做请求绑定、调用 Handler、输出统一响应；所有业务错误码均来源于 Application/Domain。
+
+```go
+// Domain 层：Service interface (无外部依赖)
+type Service interface {
+    VerifyPassword(ctx context.Context, hashedPassword, plainPassword string) error
+    GeneratePasswordHash(ctx context.Context, password string) (string, error)
+    GenerateAccessToken(ctx context.Context, userID uint, username string, roles []string) (string, time.Time, error)
+    GenerateRefreshToken(ctx context.Context, userID uint) (string, time.Time, error)
+    // ... 其他 Token/PAT 能力
+}
+```
+
+```go
+// Application 层：Login Use Case Handler
+type LoginHandler struct {
+    userQueryRepo      user.QueryRepository
+    captchaCommandRepo captcha.CommandRepository
+    twofaQueryRepo     twofa.QueryRepository
+    authService        auth.Service
+}
+
+func (h *LoginHandler) Handle(ctx context.Context, cmd LoginCommand) (*LoginResult, error) {
+    // 业务编排：验证验证码 → 校验用户状态 → 调用 Domain Service 生成 Token
+}
+```
+
+```go
+// Adapters 层：HTTP Handler
+func (h *AuthHandler) Login(c *gin.Context) {
+    var req LoginRequest
+    if err := c.ShouldBindJSON(&req); err != nil {
+        response.ValidationError(c, err.Error())
+        return
+    }
+
+    result, err := h.loginHandler.Handle(c.Request.Context(), authCommand.LoginCommand{
+        Login:     req.Login,
+        Password:  req.Password,
+        CaptchaID: req.CaptchaID,
+        Captcha:   req.Captcha,
+    })
+
+    if err != nil {
+        response.Unauthorized(c, err.Error())
+        return
+    }
+
+    response.OK(c, gin.H{"data": result})
+}
 ```
 
 ### JWT Claims 结构

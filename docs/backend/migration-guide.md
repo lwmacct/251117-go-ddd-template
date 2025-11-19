@@ -141,6 +141,13 @@ func (u *User) HasRole(roleName string) bool
 func (u *User) UpdateProfile(fullName, email string)
 ```
 
+#### 2.5 去除 Domain 层的 GORM 依赖
+
+- 将所有 `gorm` Tag、`gorm.DeletedAt` 等实现细节迁移到 `internal/infrastructure/persistence/{module}_model.go`
+- 为每个模块增加 `new{Module}ModelFromEntity` / `(*{Module}Model).toEntity`，仓储实现通过这些函数完成映射
+- Domain 实体仅保留业务字段和方法（如状态切换、权限校验）
+- 示例：`user_model.go`、`role_model.go`、`pat_model.go`、`twofa_model.go` 均采用该模式
+
 ---
 
 ### 阶段 3：实现 CQRS Repository ✅
@@ -157,20 +164,34 @@ type userCommandRepository struct {
     db *gorm.DB
 }
 
-func (r *userCommandRepository) Create(ctx context.Context, user *user.User) error {
-    return r.db.WithContext(ctx).Create(user).Error
+func (r *userCommandRepository) Create(ctx context.Context, entity *user.User) error {
+    model := newUserModelFromEntity(entity)
+    if err := r.db.WithContext(ctx).Create(model).Error; err != nil {
+        return err
+    }
+    if saved := model.toEntity(); saved != nil {
+        *entity = *saved
+    }
+    return nil
 }
 
-func (r *userCommandRepository) Update(ctx context.Context, user *user.User) error {
-    return r.db.WithContext(ctx).Save(user).Error
+func (r *userCommandRepository) Update(ctx context.Context, entity *user.User) error {
+    model := newUserModelFromEntity(entity)
+    if err := r.db.WithContext(ctx).Save(model).Error; err != nil {
+        return err
+    }
+    if saved := model.toEntity(); saved != nil {
+        *entity = *saved
+    }
+    return nil
 }
 
 func (r *userCommandRepository) Delete(ctx context.Context, id uint) error {
-    return r.db.WithContext(ctx).Delete(&user.User{}, id).Error
+    return r.db.WithContext(ctx).Delete(&UserModel{}, id).Error
 }
 
 func (r *userCommandRepository) AssignRoles(ctx context.Context, userID uint, roleIDs []uint) error {
-    // 实现角色分配...
+    // 通过模型进行关联更新 ...
 }
 ```
 
@@ -183,20 +204,26 @@ type userQueryRepository struct {
 }
 
 func (r *userQueryRepository) GetByID(ctx context.Context, id uint) (*user.User, error) {
-    var u user.User
-    err := r.db.WithContext(ctx).First(&u, id).Error
-    return &u, err
+    var model UserModel
+    if err := r.db.WithContext(ctx).First(&model, id).Error; err != nil {
+        return nil, err
+    }
+    return model.toEntity(), nil
 }
 
 func (r *userQueryRepository) GetByIDWithRoles(ctx context.Context, id uint) (*user.User, error) {
-    var u user.User
-    err := r.db.WithContext(ctx).Preload("Roles").First(&u, id).Error
-    return &u, err
+    var model UserModel
+    if err := r.db.WithContext(ctx).
+        Preload("Roles").
+        First(&model, id).Error; err != nil {
+        return nil, err
+    }
+    return model.toEntity(), nil
 }
 
 func (r *userQueryRepository) ExistsByUsername(ctx context.Context, username string) (bool, error) {
     var count int64
-    err := r.db.WithContext(ctx).Model(&user.User{}).Where("username = ?", username).Count(&count).Error
+    err := r.db.WithContext(ctx).Model(&UserModel{}).Where("username = ?", username).Count(&count).Error
     return count > 0, err
 }
 ```

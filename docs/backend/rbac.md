@@ -33,52 +33,103 @@ Permission（权限）
 
 ## 权限模型
 
-### 数据库表结构
+### 领域实体与持久化模型
 
-#### Users 表
-
-```go
-type User struct {
-    ID        uint
-    Username  string        // 用户名（唯一）
-    Email     string        // 邮箱（唯一）
-    Password  string        // 密码（bcrypt 加密）
-    FullName  string        // 全名
-    Status    string        // 状态：active, inactive, banned
-    Roles     []role.Role   // 关联的角色（多对多）
-}
-```
-
-#### Roles 表
+#### Domain 层实体（无 GORM Tag）
 
 ```go
+// internal/domain/role/entity_role.go
 type Role struct {
     ID          uint
-    Name        string        // 角色标识（如 "admin"）
-    DisplayName string        // 显示名称（如 "管理员"）
-    Description string        // 角色描述
-    IsSystem    bool          // 是否为系统角色（系统角色不可删除）
-    Permissions []Permission  // 关联的权限（多对多）
+    Name        string
+    DisplayName string
+    Description string
+    IsSystem    bool
+    Permissions []Permission
 }
-```
 
-#### Permissions 表
-
-```go
+// internal/domain/role/entity_permission.go
 type Permission struct {
     ID          uint
-    Domain      string  // 域（如 "admin", "user", "api"）
-    Resource    string  // 资源名称（如 "users", "roles", "profile"）
-    Action      string  // 操作名称（如 "create", "read", "update", "delete"）
-    Code        string  // 权限代码（如 "admin:users:create"）唯一
-    Description string  // 权限描述
+    Domain      string
+    Resource    string
+    Action      string
+    Code        string
+    Description string
+}
+
+// internal/domain/user/entity_user.go
+type User struct {
+    ID       uint
+    Username string
+    Email    string
+    Password string
+    Status   string
+    Roles    []role.Role
 }
 ```
 
-#### 关联表（GORM 自动创建）
+- Domain 实体只承载业务字段与行为（如 `User.AssignRole`），不包含任何 ORM/GORM 相关细节。
+- 领域行为（激活用户、分配角色等）都在实体方法中完成，Use Case 通过这些方法保持业务规则一致性。
 
-- `user_roles`：user_id, role_id
-- `role_permissions`：role_id, permission_id
+#### Infrastructure 层 `*_model.go`
+
+```go
+// internal/infrastructure/persistence/role_model.go
+type RoleModel struct {
+    ID          uint           `gorm:"primaryKey"`
+    CreatedAt   time.Time
+    UpdatedAt   time.Time
+    DeletedAt   gorm.DeletedAt `gorm:"index"`
+    Name        string         `gorm:"size:50;uniqueIndex;not null"`
+    DisplayName string         `gorm:"size:100;not null"`
+    Description string         `gorm:"size:255"`
+    IsSystem    bool           `gorm:"default:false;not null"`
+    Permissions []PermissionModel `gorm:"many2many:role_permissions"`
+}
+```
+
+```go
+// internal/infrastructure/persistence/permission_model.go
+type PermissionModel struct {
+    ID          uint           `gorm:"primaryKey"`
+    CreatedAt   time.Time
+    UpdatedAt   time.Time
+    DeletedAt   gorm.DeletedAt `gorm:"index"`
+    Domain      string         `gorm:"size:50;not null"`
+    Resource    string         `gorm:"size:50;not null"`
+    Action      string         `gorm:"size:50;not null"`
+    Code        string         `gorm:"size:150;uniqueIndex;not null"`
+    Description string         `gorm:"size:255"`
+}
+```
+
+```go
+// internal/infrastructure/persistence/user_model.go
+type UserModel struct {
+    ID       uint           `gorm:"primaryKey"`
+    Username string         `gorm:"uniqueIndex;size:50;not null"`
+    Email    string         `gorm:"uniqueIndex;size:100;not null"`
+    Password string         `gorm:"size:255;not null"`
+    Status   string         `gorm:"size:20;default:'active'"`
+    Roles    []RoleModel    `gorm:"many2many:user_roles"`
+}
+```
+
+- 所有数据库约束（索引、关联、软删除）集中在持久化模型，领域层保持纯粹。
+- `mapRoleModelsToEntities` / `mapRoleEntitiesToModels` 等辅助方法负责在仓储中完成 Model ↔ Entity 转换。
+- 关联表 `user_roles`、`role_permissions` 由 GORM 根据模型声明自动维护。
+
+#### Repository 分离
+
+| 接口 | 位置 | 说明 |
+| ---- | ---- | ---- |
+| `role.CommandRepository` | `internal/domain/role/command_repository.go` | 写操作：创建/更新/删除角色与权限，全部使用 GORM Model 写入 |
+| `role.QueryRepository` | `internal/domain/role/query_repository.go` | 读操作：`GetByIDWithPermissions`、`List`、`ExistsByName` 等 |
+| `user.CommandRepository` | `internal/domain/user/command_repository.go` | 用户写操作（激活、分配角色） |
+| `user.QueryRepository` | `internal/domain/user/query_repository.go` | 用户读操作（含角色/权限预加载） |
+
+每个仓储的 Infrastructure 实现在 `internal/infrastructure/persistence/*_repository.go`，并在构造函数中显式注入，确保 Command/Query 读写分离。
 
 ### 权限代码格式
 
