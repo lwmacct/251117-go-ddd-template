@@ -8,6 +8,14 @@ import (
 	"github.com/lwmacct/251117-go-ddd-template/internal/adapters/http"
 	"github.com/lwmacct/251117-go-ddd-template/internal/adapters/http/handler"
 	authCommand "github.com/lwmacct/251117-go-ddd-template/internal/application/auth/command"
+	menuCommand "github.com/lwmacct/251117-go-ddd-template/internal/application/menu/command"
+	menuQuery "github.com/lwmacct/251117-go-ddd-template/internal/application/menu/query"
+	patCommand "github.com/lwmacct/251117-go-ddd-template/internal/application/pat/command"
+	patQuery "github.com/lwmacct/251117-go-ddd-template/internal/application/pat/query"
+	roleCommand "github.com/lwmacct/251117-go-ddd-template/internal/application/role/command"
+	roleQuery "github.com/lwmacct/251117-go-ddd-template/internal/application/role/query"
+	settingCommand "github.com/lwmacct/251117-go-ddd-template/internal/application/setting/command"
+	settingQuery "github.com/lwmacct/251117-go-ddd-template/internal/application/setting/query"
 	userCommand "github.com/lwmacct/251117-go-ddd-template/internal/application/user/command"
 	userQuery "github.com/lwmacct/251117-go-ddd-template/internal/application/user/query"
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/auditlog"
@@ -216,6 +224,103 @@ func NewContainer(cfg *config.Config, opts *ContainerOptions) (*Container, error
 	listUsersHandler := userQuery.NewListUsersHandler(userQueryRepo)
 
 	// =================================================================
+	// 8.5. 初始化 Use Case Handlers - Role
+	// =================================================================
+	createRoleHandler := roleCommand.NewCreateRoleHandler(
+		roleCommandRepo,
+		roleQueryRepo,
+	)
+
+	updateRoleHandler := roleCommand.NewUpdateRoleHandler(
+		roleCommandRepo,
+		roleQueryRepo,
+	)
+
+	deleteRoleHandler := roleCommand.NewDeleteRoleHandler(
+		roleCommandRepo,
+		roleQueryRepo,
+	)
+
+	setPermissionsHandler := roleCommand.NewSetPermissionsHandler(
+		roleCommandRepo,
+		roleQueryRepo,
+		permissionQueryRepo,
+	)
+
+	getRoleHandler := roleQuery.NewGetRoleHandler(roleQueryRepo)
+	listRolesHandler := roleQuery.NewListRolesHandler(roleQueryRepo)
+	listPermissionsHandler := roleQuery.NewListPermissionsHandler(permissionQueryRepo)
+
+	// =================================================================
+	// 8.6. 初始化 Use Case Handlers - Menu
+	// =================================================================
+	createMenuHandler := menuCommand.NewCreateMenuHandler(
+		menuCommandRepo,
+		menuQueryRepo,
+	)
+
+	updateMenuHandler := menuCommand.NewUpdateMenuHandler(
+		menuCommandRepo,
+		menuQueryRepo,
+	)
+
+	deleteMenuHandler := menuCommand.NewDeleteMenuHandler(
+		menuCommandRepo,
+		menuQueryRepo,
+	)
+
+	reorderMenusHandler := menuCommand.NewReorderMenusHandler(
+		menuCommandRepo,
+		menuQueryRepo,
+	)
+
+	getMenuHandler := menuQuery.NewGetMenuHandler(menuQueryRepo)
+	listMenusHandler := menuQuery.NewListMenusHandler(menuQueryRepo)
+
+	// =================================================================
+	// 8.7. 初始化 Use Case Handlers - Setting
+	// =================================================================
+	createSettingHandler := settingCommand.NewCreateSettingHandler(
+		settingCommandRepo,
+		settingQueryRepo,
+	)
+
+	updateSettingHandler := settingCommand.NewUpdateSettingHandler(
+		settingCommandRepo,
+		settingQueryRepo,
+	)
+
+	deleteSettingHandler := settingCommand.NewDeleteSettingHandler(
+		settingCommandRepo,
+		settingQueryRepo,
+	)
+
+	batchUpdateSettingsHandler := settingCommand.NewBatchUpdateSettingsHandler(
+		settingCommandRepo,
+		settingQueryRepo,
+	)
+
+	getSettingHandler := settingQuery.NewGetSettingHandler(settingQueryRepo)
+	listSettingsHandler := settingQuery.NewListSettingsHandler(settingQueryRepo)
+
+	// =================================================================
+	// 8.8. 初始化 Use Case Handlers - PAT
+	// =================================================================
+	createTokenHandler := patCommand.NewCreateTokenHandler(
+		patCommandRepo,
+		patQueryRepo,
+		tokenGenerator,
+	)
+
+	revokeTokenHandler := patCommand.NewRevokeTokenHandler(
+		patCommandRepo,
+		patQueryRepo,
+	)
+
+	getTokenHandler := patQuery.NewGetTokenHandler(patQueryRepo)
+	listTokensHandler := patQuery.NewListTokensHandler(patQueryRepo)
+
+	// =================================================================
 	// 9. 初始化 HTTP Handlers（适配器层）
 	// =================================================================
 	authHandler := handler.NewAuthHandler(
@@ -231,6 +336,41 @@ func NewContainer(cfg *config.Config, opts *ContainerOptions) (*Container, error
 		deleteUserHandler,
 		getUserHandler,
 		listUsersHandler,
+	)
+
+	roleHandler := handler.NewRoleHandler(
+		createRoleHandler,
+		updateRoleHandler,
+		deleteRoleHandler,
+		setPermissionsHandler,
+		getRoleHandler,
+		listRolesHandler,
+		listPermissionsHandler,
+	)
+
+	menuHandler := handler.NewMenuHandler(
+		createMenuHandler,
+		updateMenuHandler,
+		deleteMenuHandler,
+		reorderMenusHandler,
+		getMenuHandler,
+		listMenusHandler,
+	)
+
+	settingHandler := handler.NewSettingHandler(
+		createSettingHandler,
+		updateSettingHandler,
+		deleteSettingHandler,
+		batchUpdateSettingsHandler,
+		getSettingHandler,
+		listSettingsHandler,
+	)
+
+	patHandler := handler.NewPATHandler(
+		createTokenHandler,
+		revokeTokenHandler,
+		getTokenHandler,
+		listTokensHandler,
 	)
 
 	// =================================================================
@@ -259,24 +399,19 @@ func NewContainer(cfg *config.Config, opts *ContainerOptions) (*Container, error
 		redisClient,
 		userCommandRepo,
 		userQueryRepo,
-		roleCommandRepo,
-		roleQueryRepo,
-		permissionCommandRepo,
-		permissionQueryRepo,
 		auditLogCommandRepo,
 		auditLogQueryRepo,
 		captchaRepo,
-		menuCommandRepo,
-		menuQueryRepo,
-		settingCommandRepo,
-		settingQueryRepo,
 		jwtManager,
-		tokenGenerator,
 		patService,
 		authServiceForRouter,
 		captchaService,
 		twofaService,
-		authHandler, // 使用新的 DDD+CQRS AuthHandler
+		authHandler,     // 使用新的 DDD+CQRS AuthHandler
+		roleHandler,     // 使用新的 DDD+CQRS RoleHandler
+		menuHandler,     // 使用新的 DDD+CQRS MenuHandler
+		settingHandler,  // 使用新的 DDD+CQRS SettingHandler
+		patHandler,      // 使用新的 DDD+CQRS PATHandler
 	)
 
 	return &Container{

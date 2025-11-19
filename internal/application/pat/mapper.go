@@ -41,3 +41,19 @@ func ToTokenListResponse(items []*pat.TokenListItem) *TokenListResponse {
 		Total:  int64(len(responses)),
 	}
 }
+
+// ToTokenInfoResponse 将领域实体转换为 TokenInfoResponse（不包含 token）
+func ToTokenInfoResponse(token *pat.PersonalAccessToken) *TokenInfoResponse {
+	if token == nil {
+		return nil
+	}
+
+	return &TokenInfoResponse{
+		ID:          token.ID,
+		Name:        token.Name,
+		Permissions: token.Permissions,
+		ExpiresAt:   token.ExpiresAt,
+		LastUsedAt:  token.LastUsedAt,
+		CreatedAt:   token.CreatedAt,
+	}
+}

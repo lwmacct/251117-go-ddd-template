@@ -6,33 +6,37 @@ import (
 
 	"github.com/gin-gonic/gin"
 	patdto "github.com/lwmacct/251117-go-ddd-template/internal/application/pat"
-	"github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/auth"
+	patCommand "github.com/lwmacct/251117-go-ddd-template/internal/application/pat/command"
+	patQuery "github.com/lwmacct/251117-go-ddd-template/internal/application/pat/query"
 )
 
-// PATHandler handles Personal Access Token operations
+// PATHandler handles Personal Access Token operations (DDD+CQRS Use Case Pattern)
 type PATHandler struct {
-	patService *auth.PATService
+	// Command Handlers
+	createTokenHandler *patCommand.CreateTokenHandler
+	revokeTokenHandler *patCommand.RevokeTokenHandler
+
+	// Query Handlers
+	getTokenHandler  *patQuery.GetTokenHandler
+	listTokensHandler *patQuery.ListTokensHandler
 }
 
 // NewPATHandler creates a new PAT handler
-func NewPATHandler(patService *auth.PATService) *PATHandler {
+func NewPATHandler(
+	createTokenHandler *patCommand.CreateTokenHandler,
+	revokeTokenHandler *patCommand.RevokeTokenHandler,
+	getTokenHandler *patQuery.GetTokenHandler,
+	listTokensHandler *patQuery.ListTokensHandler,
+) *PATHandler {
 	return &PATHandler{
-		patService: patService,
+		createTokenHandler: createTokenHandler,
+		revokeTokenHandler: revokeTokenHandler,
+		getTokenHandler:    getTokenHandler,
+		listTokensHandler:  listTokensHandler,
 	}
 }
 
 // CreateToken creates a new Personal Access Token
-//
-//	@Summary		Create personal access token
-//	@Description	Create a new PAT with selected permissions
-//	@Tags			tokens
-//	@Accept			json
-//	@Produce		json
-//	@Param			request	body		patdto.CreateTokenRequest	true	"Token creation request"
-//	@Success		201		{object}	patdto.TokenResponse
-//	@Failure		400		{object}	map[string]interface{}
-//	@Failure		401		{object}	map[string]interface{}
-//	@Router			/user/tokens [post]
 func (h *PATHandler) CreateToken(c *gin.Context) {
 	var req patdto.CreateTokenRequest
 
@@ -52,8 +56,14 @@ func (h *PATHandler) CreateToken(c *gin.Context) {
 		return
 	}
 
-	// Create token
-	resp, err := h.patService.CreateToken(c.Request.Context(), &req, userID.(uint))
+	// 调用 Use Case Handler
+	result, err := h.createTokenHandler.Handle(c.Request.Context(), patCommand.CreateTokenCommand{
+		UserID:      userID.(uint),
+		Name:        req.Name,
+		Permissions: req.Permissions,
+		ExpiresAt:   nil, // TODO: 处理过期时间
+	})
+
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": "failed to create token: " + err.Error(),
@@ -63,20 +73,12 @@ func (h *PATHandler) CreateToken(c *gin.Context) {
 
 	c.JSON(http.StatusCreated, gin.H{
 		"message": "token created successfully",
-		"data":    resp,
+		"data":    result,
 		"warning": "Please save this token now. You won't be able to see it again!",
 	})
 }
 
 // ListTokens lists all tokens for the current user
-//
-//	@Summary		List personal access tokens
-//	@Description	Get all PATs for the current user (without sensitive data)
-//	@Tags			tokens
-//	@Produce		json
-//	@Success		200	{object}	map[string]interface{}
-//	@Failure		401	{object}	map[string]interface{}
-//	@Router			/user/tokens [get]
 func (h *PATHandler) ListTokens(c *gin.Context) {
 	userID, exists := c.Get("user_id")
 	if !exists {
@@ -86,7 +88,11 @@ func (h *PATHandler) ListTokens(c *gin.Context) {
 		return
 	}
 
-	tokens, err := h.patService.ListTokens(c.Request.Context(), userID.(uint))
+	// 调用 Use Case Handler
+	tokens, err := h.listTokensHandler.Handle(c.Request.Context(), patQuery.ListTokensQuery{
+		UserID: userID.(uint),
+	})
+
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": "failed to list tokens: " + err.Error(),
@@ -102,17 +108,6 @@ func (h *PATHandler) ListTokens(c *gin.Context) {
 }
 
 // RevokeToken revokes a specific token
-//
-//	@Summary		Revoke personal access token
-//	@Description	Revoke a PAT by ID
-//	@Tags			tokens
-//	@Produce		json
-//	@Param			id	path		int	true	"Token ID"
-//	@Success		200	{object}	map[string]interface{}
-//	@Failure		400	{object}	map[string]interface{}
-//	@Failure		401	{object}	map[string]interface{}
-//	@Failure		404	{object}	map[string]interface{}
-//	@Router			/user/tokens/{id} [delete]
 func (h *PATHandler) RevokeToken(c *gin.Context) {
 	userID, exists := c.Get("user_id")
 	if !exists {
@@ -131,7 +126,13 @@ func (h *PATHandler) RevokeToken(c *gin.Context) {
 		return
 	}
 
-	if err := h.patService.RevokeToken(c.Request.Context(), userID.(uint), uint(tokenID)); err != nil {
+	// 调用 Use Case Handler
+	err = h.revokeTokenHandler.Handle(c.Request.Context(), patCommand.RevokeTokenCommand{
+		UserID:  userID.(uint),
+		TokenID: uint(tokenID),
+	})
+
+	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{
 			"error": "failed to revoke token: " + err.Error(),
 		})
@@ -144,31 +145,11 @@ func (h *PATHandler) RevokeToken(c *gin.Context) {
 }
 
 // GetToken retrieves details of a specific token
-//
-//	@Summary		Get personal access token details
-//	@Description	Get details of a PAT by ID (without sensitive data)
-//	@Tags			tokens
-//	@Produce		json
-//	@Param			id	path		int	true	"Token ID"
-//	@Success		200	{object}	map[string]interface{}
-//	@Failure		400	{object}	map[string]interface{}
-//	@Failure		401	{object}	map[string]interface{}
-//	@Failure		404	{object}	map[string]interface{}
-//	@Router			/user/tokens/{id} [get]
 func (h *PATHandler) GetToken(c *gin.Context) {
 	userID, exists := c.Get("user_id")
 	if !exists {
 		c.JSON(http.StatusUnauthorized, gin.H{
 			"error": "unauthorized: user ID not found",
-		})
-		return
-	}
-
-	// Get all user's tokens and find the specific one
-	tokens, err := h.patService.ListTokens(c.Request.Context(), userID.(uint))
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": "failed to retrieve token: " + err.Error(),
 		})
 		return
 	}
@@ -182,18 +163,21 @@ func (h *PATHandler) GetToken(c *gin.Context) {
 		return
 	}
 
-	// Find the token
-	for _, token := range tokens {
-		if token.ID == uint(tokenID) {
-			c.JSON(http.StatusOK, gin.H{
-				"message": "token retrieved successfully",
-				"data":    token,
-			})
-			return
-		}
+	// 调用 Use Case Handler
+	token, err := h.getTokenHandler.Handle(c.Request.Context(), patQuery.GetTokenQuery{
+		UserID:  userID.(uint),
+		TokenID: uint(tokenID),
+	})
+
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"error": "token not found",
+		})
+		return
 	}
 
-	c.JSON(http.StatusNotFound, gin.H{
-		"error": "token not found",
+	c.JSON(http.StatusOK, gin.H{
+		"message": "token retrieved successfully",
+		"data":    token,
 	})
 }

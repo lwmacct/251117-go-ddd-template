@@ -5,18 +5,39 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/lwmacct/251117-go-ddd-template/internal/adapters/http/response"
-	"github.com/lwmacct/251117-go-ddd-template/internal/domain/menu"
+	menuCommand "github.com/lwmacct/251117-go-ddd-template/internal/application/menu/command"
+	menuQuery "github.com/lwmacct/251117-go-ddd-template/internal/application/menu/query"
 )
 
+// MenuHandler handles menu management operations (DDD+CQRS Use Case Pattern)
 type MenuHandler struct {
-	menuCommandRepo menu.CommandRepository
-	menuQueryRepo   menu.QueryRepository
+	// Command Handlers
+	createMenuHandler  *menuCommand.CreateMenuHandler
+	updateMenuHandler  *menuCommand.UpdateMenuHandler
+	deleteMenuHandler  *menuCommand.DeleteMenuHandler
+	reorderMenusHandler *menuCommand.ReorderMenusHandler
+
+	// Query Handlers
+	getMenuHandler  *menuQuery.GetMenuHandler
+	listMenusHandler *menuQuery.ListMenusHandler
 }
 
-func NewMenuHandler(menuCommandRepo menu.CommandRepository, menuQueryRepo menu.QueryRepository) *MenuHandler {
+// NewMenuHandler creates a new MenuHandler instance
+func NewMenuHandler(
+	createMenuHandler *menuCommand.CreateMenuHandler,
+	updateMenuHandler *menuCommand.UpdateMenuHandler,
+	deleteMenuHandler *menuCommand.DeleteMenuHandler,
+	reorderMenusHandler *menuCommand.ReorderMenusHandler,
+	getMenuHandler *menuQuery.GetMenuHandler,
+	listMenusHandler *menuQuery.ListMenusHandler,
+) *MenuHandler {
 	return &MenuHandler{
-		menuCommandRepo: menuCommandRepo,
-		menuQueryRepo:   menuQueryRepo,
+		createMenuHandler:   createMenuHandler,
+		updateMenuHandler:   updateMenuHandler,
+		deleteMenuHandler:   deleteMenuHandler,
+		reorderMenusHandler: reorderMenusHandler,
+		getMenuHandler:      getMenuHandler,
+		listMenusHandler:    listMenusHandler,
 	}
 }
 
@@ -62,26 +83,29 @@ func (h *MenuHandler) Create(c *gin.Context) {
 		visible = *req.Visible
 	}
 
-	m := &menu.Menu{
+	// 调用 Use Case Handler
+	result, err := h.createMenuHandler.Handle(c.Request.Context(), menuCommand.CreateMenuCommand{
 		Title:    req.Title,
 		Path:     req.Path,
 		Icon:     req.Icon,
 		ParentID: req.ParentID,
 		Order:    req.Order,
 		Visible:  visible,
-	}
+	})
 
-	if err := h.menuCommandRepo.Create(c.Request.Context(), m); err != nil {
+	if err != nil {
 		response.InternalError(c, "Failed to create menu")
 		return
 	}
 
-	response.Created(c, m)
+	response.Created(c, result)
 }
 
 // List 获取菜单列表（树形结构）
 func (h *MenuHandler) List(c *gin.Context) {
-	menus, err := h.menuQueryRepo.FindAll(c.Request.Context())
+	// 调用 Use Case Handler
+	menus, err := h.listMenusHandler.Handle(c.Request.Context(), menuQuery.ListMenusQuery{})
+
 	if err != nil {
 		response.InternalError(c, "Failed to fetch menus")
 		return
@@ -98,13 +122,17 @@ func (h *MenuHandler) Get(c *gin.Context) {
 		return
 	}
 
-	m, err := h.menuQueryRepo.FindByID(c.Request.Context(), uint(id))
+	// 调用 Use Case Handler
+	menu, err := h.getMenuHandler.Handle(c.Request.Context(), menuQuery.GetMenuQuery{
+		MenuID: uint(id),
+	})
+
 	if err != nil {
 		response.NotFound(c, "Menu")
 		return
 	}
 
-	response.OK(c, m)
+	response.OK(c, menu)
 }
 
 // Update 更新菜单
@@ -121,38 +149,23 @@ func (h *MenuHandler) Update(c *gin.Context) {
 		return
 	}
 
-	m, err := h.menuQueryRepo.FindByID(c.Request.Context(), uint(id))
+	// 调用 Use Case Handler
+	menu, err := h.updateMenuHandler.Handle(c.Request.Context(), menuCommand.UpdateMenuCommand{
+		MenuID:   uint(id),
+		Title:    req.Title,
+		Path:     req.Path,
+		Icon:     req.Icon,
+		ParentID: req.ParentID,
+		Order:    req.Order,
+		Visible:  req.Visible,
+	})
+
 	if err != nil {
-		response.NotFound(c, "Menu")
-		return
-	}
-
-	// 更新字段
-	if req.Title != nil {
-		m.Title = *req.Title
-	}
-	if req.Path != nil {
-		m.Path = *req.Path
-	}
-	if req.Icon != nil {
-		m.Icon = *req.Icon
-	}
-	if req.ParentID != nil {
-		m.ParentID = req.ParentID
-	}
-	if req.Order != nil {
-		m.Order = *req.Order
-	}
-	if req.Visible != nil {
-		m.Visible = *req.Visible
-	}
-
-	if err := h.menuCommandRepo.Update(c.Request.Context(), m); err != nil {
 		response.InternalError(c, "Failed to update menu")
 		return
 	}
 
-	response.OK(c, m)
+	response.OK(c, menu)
 }
 
 // Delete 删除菜单
@@ -163,20 +176,13 @@ func (h *MenuHandler) Delete(c *gin.Context) {
 		return
 	}
 
-	// 检查是否有子菜单
-	children, err := h.menuQueryRepo.FindByParentID(c.Request.Context(), ptrUint(uint(id)))
+	// 调用 Use Case Handler
+	err = h.deleteMenuHandler.Handle(c.Request.Context(), menuCommand.DeleteMenuCommand{
+		MenuID: uint(id),
+	})
+
 	if err != nil {
-		response.InternalError(c, "Failed to check children")
-		return
-	}
-
-	if len(children) > 0 {
-		response.BadRequest(c, "Cannot delete menu with children")
-		return
-	}
-
-	if err := h.menuCommandRepo.Delete(c.Request.Context(), uint(id)); err != nil {
-		response.InternalError(c, "Failed to delete menu")
+		response.InternalError(c, err.Error())
 		return
 	}
 
@@ -191,28 +197,23 @@ func (h *MenuHandler) Reorder(c *gin.Context) {
 		return
 	}
 
-	// 转换格式
-	menus := make([]struct {
-		ID       uint
-		Order    int
-		ParentID *uint
-	}, len(req.Menus))
-
+	// 转换为 Command
+	menus := make([]menuCommand.MenuItem, len(req.Menus))
 	for i, m := range req.Menus {
 		menus[i].ID = m.ID
 		menus[i].Order = m.Order
 		menus[i].ParentID = m.ParentID
 	}
 
-	if err := h.menuCommandRepo.UpdateOrder(c.Request.Context(), menus); err != nil {
+	// 调用 Use Case Handler
+	err := h.reorderMenusHandler.Handle(c.Request.Context(), menuCommand.ReorderMenusCommand{
+		Menus: menus,
+	})
+
+	if err != nil {
 		response.InternalError(c, "Failed to update menu order")
 		return
 	}
 
 	response.NoContent(c)
-}
-
-// ptrUint 辅助函数：创建 uint 指针
-func ptrUint(u uint) *uint {
-	return &u
 }

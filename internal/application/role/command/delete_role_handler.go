@@ -1,0 +1,50 @@
+// Package command 定义角色命令处理器
+package command
+
+import (
+	"context"
+	"fmt"
+
+	"github.com/lwmacct/251117-go-ddd-template/internal/domain/role"
+)
+
+// DeleteRoleHandler 删除角色命令处理器
+type DeleteRoleHandler struct {
+	roleCommandRepo role.CommandRepository
+	roleQueryRepo   role.QueryRepository
+}
+
+// NewDeleteRoleHandler 创建删除角色命令处理器
+func NewDeleteRoleHandler(
+	roleCommandRepo role.CommandRepository,
+	roleQueryRepo role.QueryRepository,
+) *DeleteRoleHandler {
+	return &DeleteRoleHandler{
+		roleCommandRepo: roleCommandRepo,
+		roleQueryRepo:   roleQueryRepo,
+	}
+}
+
+// Handle 处理删除角色命令
+func (h *DeleteRoleHandler) Handle(ctx context.Context, cmd DeleteRoleCommand) error {
+	// 1. 查找角色
+	existingRole, err := h.roleQueryRepo.FindByID(ctx, cmd.RoleID)
+	if err != nil {
+		return fmt.Errorf("failed to find role: %w", err)
+	}
+	if existingRole == nil {
+		return fmt.Errorf("role not found with id: %d", cmd.RoleID)
+	}
+
+	// 2. 检查是否为系统角色（系统角色不可删除）
+	if existingRole.IsSystem {
+		return fmt.Errorf("cannot delete system role")
+	}
+
+	// 3. 删除角色
+	if err := h.roleCommandRepo.Delete(ctx, cmd.RoleID); err != nil {
+		return fmt.Errorf("failed to delete role: %w", err)
+	}
+
+	return nil
+}

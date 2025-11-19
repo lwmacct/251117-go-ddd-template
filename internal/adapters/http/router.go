@@ -10,9 +10,6 @@ import (
 	"github.com/lwmacct/251117-go-ddd-template/internal/adapters/http/middleware"
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/auditlog"
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/captcha"
-	"github.com/lwmacct/251117-go-ddd-template/internal/domain/menu"
-	"github.com/lwmacct/251117-go-ddd-template/internal/domain/role"
-	"github.com/lwmacct/251117-go-ddd-template/internal/domain/setting"
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/user"
 	infraauth "github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/auth"
 	infracaptcha "github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/captcha"
@@ -29,24 +26,19 @@ func SetupRouter(
 	redisClient *redis.Client,
 	userCommandRepo user.CommandRepository,
 	userQueryRepo user.QueryRepository,
-	roleCommandRepo role.CommandRepository,
-	roleQueryRepo role.QueryRepository,
-	permissionCommandRepo role.PermissionCommandRepository,
-	permissionQueryRepo role.PermissionQueryRepository,
 	auditLogCommandRepo auditlog.CommandRepository,
 	auditLogQueryRepo auditlog.QueryRepository,
 	captchaRepo captcha.Repository,
-	menuCommandRepo menu.CommandRepository,
-	menuQueryRepo menu.QueryRepository,
-	settingCommandRepo setting.CommandRepository,
-	settingQueryRepo setting.QueryRepository,
 	jwtManager *infraauth.JWTManager,
-	tokenGenerator *infraauth.TokenGenerator,
 	patService *infraauth.PATService,
 	authService *infraauth.Service,
 	captchaService *infracaptcha.Service,
 	twofaService *infratwofa.Service,
 	authHandler *handler.AuthHandler,
+	roleHandler *handler.RoleHandler,
+	menuHandler *handler.MenuHandler,
+	settingHandler *handler.SettingHandler,
+	patHandler *handler.PATHandler,
 ) *gin.Engine {
 	r := gin.New()
 
@@ -105,7 +97,6 @@ func SetupRouter(
 			admin.PUT("/users/:id/roles", middleware.RequirePermission("admin:users:update"), adminUserHandler.AssignRoles)
 
 			// 角色管理
-			roleHandler := handler.NewRoleHandler(roleCommandRepo, roleQueryRepo, permissionCommandRepo, permissionQueryRepo)
 			admin.POST("/roles", middleware.RequirePermission("admin:roles:create"), roleHandler.CreateRole)
 			admin.GET("/roles", middleware.RequirePermission("admin:roles:read"), roleHandler.ListRoles)
 			admin.GET("/roles/:id", middleware.RequirePermission("admin:roles:read"), roleHandler.GetRole)
@@ -122,7 +113,6 @@ func SetupRouter(
 			admin.GET("/audit-logs/:id", middleware.RequirePermission("admin:audit_logs:read"), auditLogHandler.GetLog)
 
 			// 菜单管理
-			menuHandler := handler.NewMenuHandler(menuCommandRepo, menuQueryRepo)
 			admin.POST("/menus", middleware.RequirePermission("admin:menus:create"), menuHandler.Create)
 			admin.GET("/menus", middleware.RequirePermission("admin:menus:read"), menuHandler.List)
 			admin.GET("/menus/:id", middleware.RequirePermission("admin:menus:read"), menuHandler.Get)
@@ -135,7 +125,6 @@ func SetupRouter(
 			admin.GET("/overview/stats", middleware.RequirePermission("admin:overview:read"), overviewHandler.GetStats)
 
 			// 系统配置
-			settingHandler := handler.NewSettingHandler(settingCommandRepo, settingQueryRepo)
 			admin.GET("/settings", middleware.RequirePermission("admin:settings:read"), settingHandler.GetSettings)
 			admin.GET("/settings/:key", middleware.RequirePermission("admin:settings:read"), settingHandler.GetSetting)
 			admin.POST("/settings", middleware.RequirePermission("admin:settings:create"), settingHandler.CreateSetting)
@@ -156,7 +145,6 @@ func SetupRouter(
 			userGroup.DELETE("/me", middleware.RequirePermission("user:profile:delete"), userProfileHandler.DeleteAccount)
 
 			// Personal Access Token 管理
-			patHandler := handler.NewPATHandler(patService)
 			userGroup.POST("/tokens", middleware.RequirePermission("user:tokens:create"), patHandler.CreateToken)
 			userGroup.GET("/tokens", middleware.RequirePermission("user:tokens:read"), patHandler.ListTokens)
 			userGroup.GET("/tokens/:id", middleware.RequirePermission("user:tokens:read"), patHandler.GetToken)

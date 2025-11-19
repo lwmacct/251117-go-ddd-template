@@ -26,3 +26,13 @@ type TokenListResponse struct {
 	Tokens []*TokenResponse `json:"tokens"`
 	Total  int64            `json:"total"`
 }
+
+// TokenInfoResponse Token 信息响应（不包含 token）
+type TokenInfoResponse struct {
+	ID          uint       `json:"id"`
+	Name        string     `json:"name"`
+	Permissions []string   `json:"permissions"`
+	ExpiresAt   *time.Time `json:"expires_at"`
+	LastUsedAt  *time.Time `json:"last_used_at"`
+	CreatedAt   time.Time  `json:"created_at"`
+}

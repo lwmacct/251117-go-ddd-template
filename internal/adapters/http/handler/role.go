@@ -5,29 +5,42 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"github.com/lwmacct/251117-go-ddd-template/internal/domain/role"
+	roleCommand "github.com/lwmacct/251117-go-ddd-template/internal/application/role/command"
+	roleQuery "github.com/lwmacct/251117-go-ddd-template/internal/application/role/query"
 )
 
-// RoleHandler handles role management operations (CQRS架构)
+// RoleHandler handles role management operations (DDD+CQRS Use Case Pattern)
 type RoleHandler struct {
-	roleCommandRepo       role.CommandRepository
-	roleQueryRepo         role.QueryRepository
-	permissionCommandRepo role.PermissionCommandRepository
-	permissionQueryRepo   role.PermissionQueryRepository
+	// Command Handlers
+	createRoleHandler     *roleCommand.CreateRoleHandler
+	updateRoleHandler     *roleCommand.UpdateRoleHandler
+	deleteRoleHandler     *roleCommand.DeleteRoleHandler
+	setPermissionsHandler *roleCommand.SetPermissionsHandler
+
+	// Query Handlers
+	getRoleHandler         *roleQuery.GetRoleHandler
+	listRolesHandler       *roleQuery.ListRolesHandler
+	listPermissionsHandler *roleQuery.ListPermissionsHandler
 }
 
 // NewRoleHandler creates a new RoleHandler instance
 func NewRoleHandler(
-	roleCommandRepo role.CommandRepository,
-	roleQueryRepo role.QueryRepository,
-	permissionCommandRepo role.PermissionCommandRepository,
-	permissionQueryRepo role.PermissionQueryRepository,
+	createRoleHandler *roleCommand.CreateRoleHandler,
+	updateRoleHandler *roleCommand.UpdateRoleHandler,
+	deleteRoleHandler *roleCommand.DeleteRoleHandler,
+	setPermissionsHandler *roleCommand.SetPermissionsHandler,
+	getRoleHandler *roleQuery.GetRoleHandler,
+	listRolesHandler *roleQuery.ListRolesHandler,
+	listPermissionsHandler *roleQuery.ListPermissionsHandler,
 ) *RoleHandler {
 	return &RoleHandler{
-		roleCommandRepo:       roleCommandRepo,
-		roleQueryRepo:         roleQueryRepo,
-		permissionCommandRepo: permissionCommandRepo,
-		permissionQueryRepo:   permissionQueryRepo,
+		createRoleHandler:      createRoleHandler,
+		updateRoleHandler:      updateRoleHandler,
+		deleteRoleHandler:      deleteRoleHandler,
+		setPermissionsHandler:  setPermissionsHandler,
+		getRoleHandler:         getRoleHandler,
+		listRolesHandler:       listRolesHandler,
+		listPermissionsHandler: listPermissionsHandler,
 	}
 }
 
@@ -44,21 +57,21 @@ func (h *RoleHandler) CreateRole(c *gin.Context) {
 		return
 	}
 
-	newRole := &role.Role{
+	// 调用 Use Case Handler
+	result, err := h.createRoleHandler.Handle(c.Request.Context(), roleCommand.CreateRoleCommand{
 		Name:        req.Name,
 		DisplayName: req.DisplayName,
 		Description: req.Description,
-		IsSystem:    false,
-	}
+	})
 
-	if err := h.roleCommandRepo.Create(c.Request.Context(), newRole); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to create role"})
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
 	c.JSON(http.StatusCreated, gin.H{
 		"message": "role created successfully",
-		"role":    newRole,
+		"data":    result,
 	})
 }
 
@@ -74,18 +87,23 @@ func (h *RoleHandler) ListRoles(c *gin.Context) {
 		limit = 20
 	}
 
-	roles, total, err := h.roleQueryRepo.List(c.Request.Context(), page, limit)
+	// 调用 Use Case Handler
+	result, err := h.listRolesHandler.Handle(c.Request.Context(), roleQuery.ListRolesQuery{
+		Page:  page,
+		Limit: limit,
+	})
+
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to list roles"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"roles": roles,
+		"data": result.Roles,
 		"pagination": gin.H{
-			"page":  page,
-			"limit": limit,
-			"total": total,
+			"page":  result.Page,
+			"limit": result.Limit,
+			"total": result.Total,
 		},
 	})
 }
@@ -98,13 +116,17 @@ func (h *RoleHandler) GetRole(c *gin.Context) {
 		return
 	}
 
-	r, err := h.roleQueryRepo.FindByIDWithPermissions(c.Request.Context(), uint(id))
-	if err != nil || r == nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "role not found"})
+	// 调用 Use Case Handler
+	result, err := h.getRoleHandler.Handle(c.Request.Context(), roleQuery.GetRoleQuery{
+		RoleID: uint(id),
+	})
+
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, r)
+	c.JSON(http.StatusOK, gin.H{"data": result})
 }
 
 // UpdateRole updates a role
@@ -112,17 +134,6 @@ func (h *RoleHandler) UpdateRole(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid role ID"})
-		return
-	}
-
-	r, err := h.roleQueryRepo.FindByID(c.Request.Context(), uint(id))
-	if err != nil || r == nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "role not found"})
-		return
-	}
-
-	if r.IsSystem {
-		c.JSON(http.StatusForbidden, gin.H{"error": "cannot modify system role"})
 		return
 	}
 
@@ -136,21 +147,21 @@ func (h *RoleHandler) UpdateRole(c *gin.Context) {
 		return
 	}
 
-	if req.DisplayName != nil {
-		r.DisplayName = *req.DisplayName
-	}
-	if req.Description != nil {
-		r.Description = *req.Description
-	}
+	// 调用 Use Case Handler
+	result, err := h.updateRoleHandler.Handle(c.Request.Context(), roleCommand.UpdateRoleCommand{
+		RoleID:      uint(id),
+		DisplayName: req.DisplayName,
+		Description: req.Description,
+	})
 
-	if err := h.roleCommandRepo.Update(c.Request.Context(), r); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to update role"})
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{
 		"message": "role updated successfully",
-		"role":    r,
+		"data":    result,
 	})
 }
 
@@ -162,19 +173,13 @@ func (h *RoleHandler) DeleteRole(c *gin.Context) {
 		return
 	}
 
-	r, err := h.roleQueryRepo.FindByID(c.Request.Context(), uint(id))
-	if err != nil || r == nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "role not found"})
-		return
-	}
+	// 调用 Use Case Handler
+	err = h.deleteRoleHandler.Handle(c.Request.Context(), roleCommand.DeleteRoleCommand{
+		RoleID: uint(id),
+	})
 
-	if r.IsSystem {
-		c.JSON(http.StatusForbidden, gin.H{"error": "cannot delete system role"})
-		return
-	}
-
-	if err := h.roleCommandRepo.Delete(c.Request.Context(), uint(id)); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to delete role"})
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -198,8 +203,14 @@ func (h *RoleHandler) SetPermissions(c *gin.Context) {
 		return
 	}
 
-	if err := h.roleCommandRepo.SetPermissions(c.Request.Context(), uint(id), req.PermissionIDs); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to set permissions"})
+	// 调用 Use Case Handler
+	err = h.setPermissionsHandler.Handle(c.Request.Context(), roleCommand.SetPermissionsCommand{
+		RoleID:        uint(id),
+		PermissionIDs: req.PermissionIDs,
+	})
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -218,18 +229,23 @@ func (h *RoleHandler) ListPermissions(c *gin.Context) {
 		limit = 50
 	}
 
-	permissions, total, err := h.permissionQueryRepo.List(c.Request.Context(), page, limit)
+	// 调用 Use Case Handler
+	result, err := h.listPermissionsHandler.Handle(c.Request.Context(), roleQuery.ListPermissionsQuery{
+		Page:  page,
+		Limit: limit,
+	})
+
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to list permissions"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"permissions": permissions,
+		"data": result.Permissions,
 		"pagination": gin.H{
-			"page":  page,
-			"limit": limit,
-			"total": total,
+			"page":  result.Page,
+			"limit": result.Limit,
+			"total": result.Total,
 		},
 	})
 }

@@ -3,18 +3,39 @@ package handler
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/lwmacct/251117-go-ddd-template/internal/adapters/http/response"
-	"github.com/lwmacct/251117-go-ddd-template/internal/domain/setting"
+	settingCommand "github.com/lwmacct/251117-go-ddd-template/internal/application/setting/command"
+	settingQuery "github.com/lwmacct/251117-go-ddd-template/internal/application/setting/query"
 )
 
+// SettingHandler handles setting management operations (DDD+CQRS Use Case Pattern)
 type SettingHandler struct {
-	settingCommandRepo setting.CommandRepository
-	settingQueryRepo   setting.QueryRepository
+	// Command Handlers
+	createSettingHandler       *settingCommand.CreateSettingHandler
+	updateSettingHandler       *settingCommand.UpdateSettingHandler
+	deleteSettingHandler       *settingCommand.DeleteSettingHandler
+	batchUpdateSettingsHandler *settingCommand.BatchUpdateSettingsHandler
+
+	// Query Handlers
+	getSettingHandler   *settingQuery.GetSettingHandler
+	listSettingsHandler *settingQuery.ListSettingsHandler
 }
 
-func NewSettingHandler(settingCommandRepo setting.CommandRepository, settingQueryRepo setting.QueryRepository) *SettingHandler {
+// NewSettingHandler creates a new SettingHandler instance
+func NewSettingHandler(
+	createSettingHandler *settingCommand.CreateSettingHandler,
+	updateSettingHandler *settingCommand.UpdateSettingHandler,
+	deleteSettingHandler *settingCommand.DeleteSettingHandler,
+	batchUpdateSettingsHandler *settingCommand.BatchUpdateSettingsHandler,
+	getSettingHandler *settingQuery.GetSettingHandler,
+	listSettingsHandler *settingQuery.ListSettingsHandler,
+) *SettingHandler {
 	return &SettingHandler{
-		settingCommandRepo: settingCommandRepo,
-		settingQueryRepo:   settingQueryRepo,
+		createSettingHandler:       createSettingHandler,
+		updateSettingHandler:       updateSettingHandler,
+		deleteSettingHandler:       deleteSettingHandler,
+		batchUpdateSettingsHandler: batchUpdateSettingsHandler,
+		getSettingHandler:          getSettingHandler,
+		listSettingsHandler:        listSettingsHandler,
 	}
 }
 
@@ -22,14 +43,10 @@ func NewSettingHandler(settingCommandRepo setting.CommandRepository, settingQuer
 func (h *SettingHandler) GetSettings(c *gin.Context) {
 	category := c.Query("category")
 
-	var settings []*setting.Setting
-	var err error
-
-	if category != "" {
-		settings, err = h.settingQueryRepo.FindByCategory(c.Request.Context(), category)
-	} else {
-		settings, err = h.settingQueryRepo.FindAll(c.Request.Context())
-	}
+	// 调用 Use Case Handler
+	settings, err := h.listSettingsHandler.Handle(c.Request.Context(), settingQuery.ListSettingsQuery{
+		Category: category,
+	})
 
 	if err != nil {
 		response.InternalError(c, err.Error())
@@ -43,18 +60,17 @@ func (h *SettingHandler) GetSettings(c *gin.Context) {
 func (h *SettingHandler) GetSetting(c *gin.Context) {
 	key := c.Param("key")
 
-	s, err := h.settingQueryRepo.FindByKey(c.Request.Context(), key)
-	if err != nil {
-		response.InternalError(c, err.Error())
-		return
-	}
+	// 调用 Use Case Handler
+	setting, err := h.getSettingHandler.Handle(c.Request.Context(), settingQuery.GetSettingQuery{
+		Key: key,
+	})
 
-	if s == nil {
+	if err != nil {
 		response.NotFound(c, "setting")
 		return
 	}
 
-	response.OK(c, s)
+	response.OK(c, setting)
 }
 
 // CreateSettingRequest 创建配置请求
@@ -74,36 +90,21 @@ func (h *SettingHandler) CreateSetting(c *gin.Context) {
 		return
 	}
 
-	// 检查 Key 是否已存在
-	existing, err := h.settingQueryRepo.FindByKey(c.Request.Context(), req.Key)
-	if err != nil {
-		response.InternalError(c, err.Error())
-		return
-	}
-	if existing != nil {
-		response.BadRequest(c, "配置键已存在")
-		return
-	}
-
-	// 默认值类型
-	if req.ValueType == "" {
-		req.ValueType = setting.ValueTypeString
-	}
-
-	s := &setting.Setting{
+	// 调用 Use Case Handler
+	result, err := h.createSettingHandler.Handle(c.Request.Context(), settingCommand.CreateSettingCommand{
 		Key:       req.Key,
 		Value:     req.Value,
 		Category:  req.Category,
 		ValueType: req.ValueType,
 		Label:     req.Label,
-	}
+	})
 
-	if err := h.settingCommandRepo.Create(c.Request.Context(), s); err != nil {
+	if err != nil {
 		response.InternalError(c, err.Error())
 		return
 	}
 
-	response.Created(c, s)
+	response.Created(c, result)
 }
 
 // UpdateSettingRequest 更新配置请求
@@ -123,47 +124,32 @@ func (h *SettingHandler) UpdateSetting(c *gin.Context) {
 		return
 	}
 
-	s, err := h.settingQueryRepo.FindByKey(c.Request.Context(), key)
+	// 调用 Use Case Handler
+	setting, err := h.updateSettingHandler.Handle(c.Request.Context(), settingCommand.UpdateSettingCommand{
+		Key:       key,
+		Value:     req.Value,
+		ValueType: req.ValueType,
+		Label:     req.Label,
+	})
+
 	if err != nil {
 		response.InternalError(c, err.Error())
 		return
 	}
-	if s == nil {
-		response.NotFound(c, "setting")
-		return
-	}
 
-	s.Value = req.Value
-	if req.ValueType != "" {
-		s.ValueType = req.ValueType
-	}
-	if req.Label != "" {
-		s.Label = req.Label
-	}
-
-	if err := h.settingCommandRepo.Update(c.Request.Context(), s); err != nil {
-		response.InternalError(c, err.Error())
-		return
-	}
-
-	response.OK(c, s)
+	response.OK(c, setting)
 }
 
 // DeleteSetting 删除配置
 func (h *SettingHandler) DeleteSetting(c *gin.Context) {
 	key := c.Param("key")
 
-	s, err := h.settingQueryRepo.FindByKey(c.Request.Context(), key)
-	if err != nil {
-		response.InternalError(c, err.Error())
-		return
-	}
-	if s == nil {
-		response.NotFound(c, "setting")
-		return
-	}
+	// 调用 Use Case Handler
+	err := h.deleteSettingHandler.Handle(c.Request.Context(), settingCommand.DeleteSettingCommand{
+		Key: key,
+	})
 
-	if err := h.settingCommandRepo.Delete(c.Request.Context(), s.ID); err != nil {
+	if err != nil {
 		response.InternalError(c, err.Error())
 		return
 	}
@@ -187,28 +173,19 @@ func (h *SettingHandler) BatchUpdateSettings(c *gin.Context) {
 		return
 	}
 
-	// 构建配置列表
-	settings := make([]*setting.Setting, 0, len(req.Settings))
-	for _, s := range req.Settings {
-		// 查找现有配置以获取完整信息
-		existing, err := h.settingQueryRepo.FindByKey(c.Request.Context(), s.Key)
-		if err != nil {
-			response.InternalError(c, err.Error())
-			return
-		}
-		if existing != nil {
-			// 更新现有配置的值
-			existing.Value = s.Value
-			settings = append(settings, existing)
-		} else {
-			// 如果配置不存在,跳过(或者可以返回错误)
-			response.BadRequest(c, "配置键 "+s.Key+" 不存在")
-			return
-		}
+	// 转换为 Command
+	settings := make([]settingCommand.SettingItem, len(req.Settings))
+	for i, s := range req.Settings {
+		settings[i].Key = s.Key
+		settings[i].Value = s.Value
 	}
 
-	// 批量更新
-	if err := h.settingCommandRepo.BatchUpsert(c.Request.Context(), settings); err != nil {
+	// 调用 Use Case Handler
+	err := h.batchUpdateSettingsHandler.Handle(c.Request.Context(), settingCommand.BatchUpdateSettingsCommand{
+		Settings: settings,
+	})
+
+	if err != nil {
 		response.InternalError(c, err.Error())
 		return
 	}
