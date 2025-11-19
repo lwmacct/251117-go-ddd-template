@@ -214,10 +214,6 @@ export default defineConfig({
               text: "概览",
               link: "/development/",
             },
-            {
-              text: "Claude 开发指南",
-              link: "/development/claude-guide",
-            },
           ],
         },
         {

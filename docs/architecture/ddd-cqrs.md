@@ -766,7 +766,6 @@ CreateUserCommand {
 ## 📚 相关资源
 
 - [架构迁移指南](./migration-guide.md) - 详细重构过程（包含 PAT、AuditLog 实现细节）
-- [Claude 开发指南](/development/claude-guide) - 项目开发指导
 - Domain-Driven Design (Eric Evans)
 - CQRS Pattern (Martin Fowler)
 
