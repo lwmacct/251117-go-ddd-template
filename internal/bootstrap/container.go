@@ -87,8 +87,8 @@ type Container struct {
 	ListUsersHandler  *userQuery.ListUsersHandler
 
 	// HTTP Handlers
-	AuthHandler *handler.AuthHandlerNew
-	UserHandler *handler.UserHandlerNew
+	AuthHandler *handler.AuthHandler
+	UserHandler *handler.UserHandler
 
 	Router *gin.Engine
 }
@@ -208,14 +208,14 @@ func NewContainer(cfg *config.Config, opts *ContainerOptions) (*Container, error
 	// =================================================================
 	// 9. 初始化 HTTP Handlers（适配器层）
 	// =================================================================
-	authHandler := handler.NewAuthHandlerNew(
+	authHandler := handler.NewAuthHandler(
 		loginHandler,
 		registerHandler,
 		refreshTokenHandler,
 		getUserHandler,
 	)
 
-	userHandler := handler.NewUserHandlerNew(
+	userHandler := handler.NewUserHandler(
 		createUserHandler,
 		updateUserHandler,
 		deleteUserHandler,
@@ -235,9 +235,8 @@ func NewContainer(cfg *config.Config, opts *ContainerOptions) (*Container, error
 	twofaService := infratwofa.NewService(twofaCommandRepo, twofaQueryRepo, userQueryRepoForTwoFA, cfg.Auth.TwoFAIssuer)
 
 	// =================================================================
-	// 11. 初始化路由（使用新的 Handlers）
+	// 11. 初始化路由（使用新架构的 Handlers）
 	// =================================================================
-	// TODO: 更新 SetupRouter 来使用新的 Handlers
 	authServiceForRouter := infraauth.NewService(
 		userCommandRepo,
 		userQueryRepo,
@@ -273,6 +272,7 @@ func NewContainer(cfg *config.Config, opts *ContainerOptions) (*Container, error
 		authServiceForRouter,
 		captchaService,
 		twofaService,
+		authHandler, // 使用新的 DDD+CQRS AuthHandler
 	)
 
 	return &Container{

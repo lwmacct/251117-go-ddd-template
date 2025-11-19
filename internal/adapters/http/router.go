@@ -43,7 +43,7 @@ func SetupRouter(
 	authService *infraauth.Service,
 	captchaService *infracaptcha.Service,
 	twofaService *infratwofa.Service,
-	authHandler *handler.AuthHandlerNew,
+	authHandler *handler.AuthHandler,
 ) *gin.Engine {
 	r := gin.New()
 
