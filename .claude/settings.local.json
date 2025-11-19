@@ -1,7 +1,13 @@
 {
   "permissions": {
-    "allow": ["WebSearch"],
+    "allow": [
+      "WebSearch",
+      "Bash(go get:*)",
+      "Bash(find:*)",
+      "Bash(go build:*)"
+    ],
     "deny": [],
     "defaultMode": "bypassPermissions"
-  }
+  },
+  "outputStyle": "Explanatory"
 }

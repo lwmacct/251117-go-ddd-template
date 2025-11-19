@@ -29,6 +29,7 @@ __pycache__/
 main
 
 # build
+/bin/
 /build/
 /dist/
 

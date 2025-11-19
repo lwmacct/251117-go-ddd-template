@@ -9,11 +9,16 @@ import (
 	"github.com/lwmacct/251117-go-ddd-template/internal/adapters/http/handler"
 	"github.com/lwmacct/251117-go-ddd-template/internal/adapters/http/middleware"
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/auditlog"
+	"github.com/lwmacct/251117-go-ddd-template/internal/domain/captcha"
+	"github.com/lwmacct/251117-go-ddd-template/internal/domain/menu"
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/pat"
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/role"
+	"github.com/lwmacct/251117-go-ddd-template/internal/domain/setting"
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/user"
 	infraauth "github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/auth"
+	infracaptcha "github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/captcha"
 	"github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/config"
+	infratwofa "github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/twofa"
 	"github.com/redis/go-redis/v9"
 	"gorm.io/gorm"
 )
@@ -28,10 +33,15 @@ func SetupRouter(
 	permissionRepo role.PermissionRepository,
 	auditLogRepo auditlog.Repository,
 	patRepo pat.Repository,
+	captchaRepo captcha.Repository,
+	menuRepo menu.Repository,
+	settingRepo setting.Repository,
 	jwtManager *infraauth.JWTManager,
 	tokenGenerator *infraauth.TokenGenerator,
 	patService *infraauth.PATService,
 	authService *infraauth.Service,
+	captchaService *infracaptcha.Service,
+	twofaService *infratwofa.Service,
 ) *gin.Engine {
 	r := gin.New()
 
@@ -48,11 +58,24 @@ func SetupRouter(
 	{
 		// 认证路由 (公开)
 		authHandler := handler.NewAuthHandler(authService)
+		captchaHandler := handler.NewCaptchaHandler(captchaRepo, captchaService, cfg.Auth.DevSecret)
 		auth := api.Group("/auth")
 		{
 			auth.POST("/register", authHandler.Register)
 			auth.POST("/login", authHandler.Login)
 			auth.POST("/refresh", authHandler.RefreshToken)
+			auth.GET("/captcha", captchaHandler.GetCaptcha) // 获取验证码（公开）
+		}
+
+		// 2FA 路由（需要认证）
+		twofaHandler := handler.NewTwoFAHandler(twofaService)
+		twofa := api.Group("/auth/2fa")
+		twofa.Use(middleware.Auth(jwtManager, patService, userRepo))
+		{
+			twofa.POST("/setup", twofaHandler.Setup)               // 设置 2FA
+			twofa.POST("/verify", twofaHandler.VerifyAndEnable)    // 验证并启用 2FA
+			twofa.POST("/disable", twofaHandler.Disable)           // 禁用 2FA
+			twofa.GET("/status", twofaHandler.GetStatus)           // 获取 2FA 状态
 		}
 
 		// 管理员路由 (/api/admin/*) - 使用三段式权限控制
@@ -86,6 +109,28 @@ func SetupRouter(
 			auditLogHandler := handler.NewAuditLogHandler(auditLogRepo)
 			admin.GET("/audit-logs", middleware.RequirePermission("admin:audit_logs:read"), auditLogHandler.ListLogs)
 			admin.GET("/audit-logs/:id", middleware.RequirePermission("admin:audit_logs:read"), auditLogHandler.GetLog)
+
+			// 菜单管理
+			menuHandler := handler.NewMenuHandler(menuRepo)
+			admin.POST("/menus", middleware.RequirePermission("admin:menus:create"), menuHandler.Create)
+			admin.GET("/menus", middleware.RequirePermission("admin:menus:read"), menuHandler.List)
+			admin.GET("/menus/:id", middleware.RequirePermission("admin:menus:read"), menuHandler.Get)
+			admin.PUT("/menus/:id", middleware.RequirePermission("admin:menus:update"), menuHandler.Update)
+			admin.DELETE("/menus/:id", middleware.RequirePermission("admin:menus:delete"), menuHandler.Delete)
+			admin.PUT("/menus/reorder", middleware.RequirePermission("admin:menus:update"), menuHandler.Reorder)
+
+			// 系统概览
+			overviewHandler := handler.NewOverviewHandler(db)
+			admin.GET("/overview/stats", middleware.RequirePermission("admin:overview:read"), overviewHandler.GetStats)
+
+			// 系统配置
+			settingHandler := handler.NewSettingHandler(settingRepo)
+			admin.GET("/settings", middleware.RequirePermission("admin:settings:read"), settingHandler.GetSettings)
+			admin.GET("/settings/:key", middleware.RequirePermission("admin:settings:read"), settingHandler.GetSetting)
+			admin.POST("/settings", middleware.RequirePermission("admin:settings:create"), settingHandler.CreateSetting)
+			admin.PUT("/settings/:key", middleware.RequirePermission("admin:settings:update"), settingHandler.UpdateSetting)
+			admin.DELETE("/settings/:key", middleware.RequirePermission("admin:settings:delete"), settingHandler.DeleteSetting)
+			admin.PUT("/settings/batch", middleware.RequirePermission("admin:settings:update"), settingHandler.BatchUpdateSettings)
 		}
 
 		// 用户路由 (/api/user/*) - 使用三段式权限控制

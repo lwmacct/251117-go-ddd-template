@@ -7,14 +7,20 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/lwmacct/251117-go-ddd-template/internal/adapters/http"
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/auditlog"
+	"github.com/lwmacct/251117-go-ddd-template/internal/domain/captcha"
+	"github.com/lwmacct/251117-go-ddd-template/internal/domain/menu"
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/pat"
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/role"
+	"github.com/lwmacct/251117-go-ddd-template/internal/domain/setting"
+	"github.com/lwmacct/251117-go-ddd-template/internal/domain/twofa"
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/user"
 	infraauth "github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/auth"
+	infracaptcha "github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/captcha"
 	"github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/config"
 	"github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/database"
 	"github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/persistence"
 	redisinfra "github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/redis"
+	infratwofa "github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/twofa"
 	"github.com/redis/go-redis/v9"
 	"gorm.io/gorm"
 )
@@ -41,10 +47,17 @@ type Container struct {
 	PermissionRepository role.PermissionRepository
 	AuditLogRepository   auditlog.Repository
 	PATRepository        pat.Repository
+	CaptchaRepository    captcha.Repository
+	TwoFARepository      twofa.Repository
+	MenuRepository       menu.Repository
+	SettingRepository    setting.Repository
 	JWTManager           *infraauth.JWTManager
 	TokenGenerator       *infraauth.TokenGenerator
+	LoginSessionService  *infraauth.LoginSessionService
 	PATService           *infraauth.PATService
 	AuthService          *infraauth.Service
+	CaptchaService       *infracaptcha.Service
+	TwoFAService         *infratwofa.Service
 	Router               *gin.Engine
 }
 
@@ -87,6 +100,10 @@ func NewContainer(cfg *config.Config, opts *ContainerOptions) (*Container, error
 	permissionRepo := persistence.NewPermissionRepository(db)
 	auditLogRepo := persistence.NewAuditLogRepository(db)
 	patRepo := persistence.NewPATRepository(db)
+	captchaRepo := persistence.NewCaptchaMemoryRepository()
+	twofaRepo := persistence.NewTwoFARepository(db)
+	menuRepo := persistence.NewMenuRepository(db)
+	settingRepo := persistence.NewSettingRepository(db)
 
 	// 5. 初始化 JWT 管理器和 Token 生成器
 	jwtManager := infraauth.NewJWTManager(
@@ -95,14 +112,25 @@ func NewContainer(cfg *config.Config, opts *ContainerOptions) (*Container, error
 		cfg.JWT.RefreshTokenExpiry,
 	)
 	tokenGenerator := infraauth.NewTokenGenerator()
+	loginSessionService := infraauth.NewLoginSessionService()
 
 	// 6. 初始化 PAT 服务
 	patService := infraauth.NewPATService(patRepo, userRepo, tokenGenerator)
 
-	// 7. 初始化认证服务
-	authService := infraauth.NewService(userRepo, jwtManager)
+	// 7. 初始化认证服务（集成验证码和2FA）
+	authService := infraauth.NewService(
+		userRepo,
+		twofaRepo,
+		captchaRepo,
+		jwtManager,
+		loginSessionService,
+	)
 
-	// 8. 初始化路由 (传入依赖)
+	// 8. 初始化验证码和2FA服务
+	captchaService := infracaptcha.NewService()
+	twofaService := infratwofa.NewService(twofaRepo, userRepo, cfg.Auth.TwoFAIssuer)
+
+	// 9. 初始化路由 (传入依赖)
 	router := http.SetupRouter(
 		cfg,
 		db,
@@ -112,10 +140,15 @@ func NewContainer(cfg *config.Config, opts *ContainerOptions) (*Container, error
 		permissionRepo,
 		auditLogRepo,
 		patRepo,
+		captchaRepo,
+		menuRepo,
+		settingRepo,
 		jwtManager,
 		tokenGenerator,
 		patService,
 		authService,
+		captchaService,
+		twofaService,
 	)
 
 	return &Container{
@@ -127,10 +160,17 @@ func NewContainer(cfg *config.Config, opts *ContainerOptions) (*Container, error
 		PermissionRepository: permissionRepo,
 		AuditLogRepository:   auditLogRepo,
 		PATRepository:        patRepo,
+		CaptchaRepository:    captchaRepo,
+		TwoFARepository:      twofaRepo,
+		MenuRepository:       menuRepo,
+		SettingRepository:    settingRepo,
 		JWTManager:           jwtManager,
 		TokenGenerator:       tokenGenerator,
+		LoginSessionService:  loginSessionService,
 		PATService:           patService,
 		AuthService:          authService,
+		CaptchaService:       captchaService,
+		TwoFAService:         twofaService,
 		Router:               router,
 	}, nil
 }
@@ -159,5 +199,8 @@ func GetAllModels() []any {
 		&role.Permission{},
 		&auditlog.AuditLog{},
 		&pat.PersonalAccessToken{},
+		&twofa.TwoFA{},   // 2FA 配置表
+		&menu.Menu{},     // 菜单表
+		&setting.Setting{}, // 系统配置表
 	}
 }

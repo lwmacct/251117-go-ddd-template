@@ -83,13 +83,97 @@ export class PlatformAuthAPI {
 
   /**
    * 验证 2FA (双因素认证)
+   * 注意：2FA 验证实际上是第二次登录，使用相同的 /auth/login 端点
    */
   static async verify2FA(params: { session_token: string; code: string }): Promise<PlatformApiResponse<any>> {
     try {
-      const { data } = await apiClient.post<PlatformApiResponse<any>>("/auth/verify-2fa", params);
+      const { data } = await apiClient.post<PlatformApiResponse<any>>("/auth/login", {
+        session_token: params.session_token,
+        two_factor_code: params.code,
+      });
       return data;
     } catch (error: any) {
-      throw new Error(error.response?.data?.message || "2FA 验证失败");
+      throw new Error(error.response?.data?.error || "2FA 验证失败");
+    }
+  }
+
+  /**
+   * 设置 2FA（生成密钥和二维码）
+   */
+  static async setup2FA(): Promise<
+    PlatformApiResponse<{
+      secret: string;
+      qrcode_url: string;
+      qrcode_img: string;
+    }>
+  > {
+    try {
+      const { data } = await apiClient.post<
+        PlatformApiResponse<{
+          secret: string;
+          qrcode_url: string;
+          qrcode_img: string;
+        }>
+      >("/auth/2fa/setup");
+      return data;
+    } catch (error: any) {
+      throw new Error(error.response?.data?.error || "设置 2FA 失败");
+    }
+  }
+
+  /**
+   * 验证并启用 2FA
+   */
+  static async enable2FA(code: string): Promise<
+    PlatformApiResponse<{
+      recovery_codes: string[];
+      message: string;
+    }>
+  > {
+    try {
+      const { data } = await apiClient.post<
+        PlatformApiResponse<{
+          recovery_codes: string[];
+          message: string;
+        }>
+      >("/auth/2fa/verify", { code });
+      return data;
+    } catch (error: any) {
+      throw new Error(error.response?.data?.error || "启用 2FA 失败");
+    }
+  }
+
+  /**
+   * 禁用 2FA
+   */
+  static async disable2FA(): Promise<PlatformApiResponse<any>> {
+    try {
+      const { data } = await apiClient.post<PlatformApiResponse<any>>("/auth/2fa/disable");
+      return data;
+    } catch (error: any) {
+      throw new Error(error.response?.data?.error || "禁用 2FA 失败");
+    }
+  }
+
+  /**
+   * 获取 2FA 状态
+   */
+  static async get2FAStatus(): Promise<
+    PlatformApiResponse<{
+      enabled: boolean;
+      recovery_codes_count: number;
+    }>
+  > {
+    try {
+      const { data } = await apiClient.get<
+        PlatformApiResponse<{
+          enabled: boolean;
+          recovery_codes_count: number;
+        }>
+      >("/auth/2fa/status");
+      return data;
+    } catch (error: any) {
+      throw new Error(error.response?.data?.error || "获取 2FA 状态失败");
     }
   }
 }

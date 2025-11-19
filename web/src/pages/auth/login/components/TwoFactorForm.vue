@@ -50,14 +50,19 @@ async function handleVerify() {
   errorMessage.value = "";
 
   try {
-    // 调用2FA验证API
+    // 调用2FA验证API（实际上是第二次登录）
     const response = await PlatformAuthAPI.verify2FA({
       session_token: loginStore.sessionToken.value,
       code: twoFactorCode.value,
     });
 
-    if (response.code === 200) {
-      // 2FA验证成功，发出事件
+    if (response.code === 200 && response.data) {
+      // 2FA验证成功，保存用户信息
+      if (response.data.user) {
+        authStore.updateUser(response.data.user);
+      }
+
+      // 发出验证成功事件
       emit("verified");
     } else {
       errorMessage.value = response.message || "验证码错误，请重试";

@@ -23,13 +23,6 @@ import (
 	"github.com/knadh/koanf/v2"
 )
 
-// Config 应用配置
-type Config struct {
-	Server ServerConfig `koanf:"server"`
-	Data   DataConfig   `koanf:"data"`
-	JWT    JWTConfig    `koanf:"jwt"`
-}
-
 // ServerConfig 服务器配置
 type ServerConfig struct {
 	Addr      string `koanf:"addr"`       // 监听地址，格式: host:port，例如 "0.0.0.0:8080" 或 ":8080"
@@ -53,6 +46,21 @@ type JWTConfig struct {
 	RefreshTokenExpiry time.Duration `koanf:"refresh_token_expiry"`
 }
 
+// AuthConfig 认证配置
+type AuthConfig struct {
+	DevSecret       string `koanf:"dev_secret"`       // 开发模式密钥（用于验证码开发模式）
+	TwoFAIssuer     string `koanf:"twofa_issuer"`     // 2FA TOTP 发行者名称
+	CaptchaRequired bool   `koanf:"captcha_required"` // 是否需要验证码（可在生产环境强制开启）
+}
+
+// Config 应用配置
+type Config struct {
+	Server ServerConfig `koanf:"server"`
+	Data   DataConfig   `koanf:"data"`
+	JWT    JWTConfig    `koanf:"jwt"`
+	Auth   AuthConfig   `koanf:"auth"`
+}
+
 // defaultConfig 返回默认配置
 func defaultConfig() Config {
 	return Config{
@@ -72,6 +80,11 @@ func defaultConfig() Config {
 			Secret:             "change-me-in-production",
 			AccessTokenExpiry:  15 * time.Minute,
 			RefreshTokenExpiry: 7 * 24 * time.Hour,
+		},
+		Auth: AuthConfig{
+			DevSecret:       "dev-secret-change-me",
+			TwoFAIssuer:     "Go-DDD-Template",
+			CaptchaRequired: true, // 默认开启验证码
 		},
 	}
 }

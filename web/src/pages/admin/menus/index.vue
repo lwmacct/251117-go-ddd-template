@@ -1,44 +1,99 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, onMounted } from 'vue';
+import { useMenus } from './composables/useMenus';
+import MenuDialog from './components/MenuDialog.vue';
+import MenuTree from './components/MenuTree.vue';
+import type { Menu, CreateMenuRequest, UpdateMenuRequest } from '@/types/admin';
 
-/**
- * 菜单管理页面
- * 用于查看和管理系统菜单
- */
+const {
+  menus,
+  loading,
+  errorMessage,
+  successMessage,
+  fetchMenus,
+  createMenu,
+  updateMenu,
+  deleteMenu,
+  reorderMenus,
+  clearMessages,
+} = useMenus();
 
-interface MenuItem {
-  id: number;
-  title: string;
-  path: string;
-  icon: string;
-  parent?: number;
-  order: number;
-  visible: boolean;
-}
+const menuDialog = ref(false);
+const deleteDialog = ref(false);
+const dialogMode = ref<'create' | 'edit'>('create');
+const selectedMenu = ref<Menu | null>(null);
+const menuToDelete = ref<Menu | null>(null);
+const viewMode = ref<'tree' | 'table'>('tree');
 
-const menus = ref<MenuItem[]>([]);
-const dialog = ref(false);
-const search = ref("");
-const treeView = ref(true);
+onMounted(() => {
+  fetchMenus();
+});
 
-// 表头配置
-const headers = [
-  { title: "菜单名称", key: "title" },
-  { title: "路径", key: "path" },
-  { title: "图标", key: "icon" },
-  { title: "排序", key: "order" },
-  { title: "可见", key: "visible" },
-  { title: "操作", key: "actions", sortable: false },
-];
-
-// 添加/编辑菜单
-const openDialog = () => {
-  dialog.value = true;
+const openCreateDialog = () => {
+  dialogMode.value = 'create';
+  selectedMenu.value = null;
+  menuDialog.value = true;
 };
 
-// 切换视图模式
-const toggleView = () => {
-  treeView.value = !treeView.value;
+const openEditDialog = (menu: Menu) => {
+  dialogMode.value = 'edit';
+  selectedMenu.value = menu;
+  menuDialog.value = true;
+};
+
+const openDeleteDialog = (menu: Menu) => {
+  menuToDelete.value = menu;
+  deleteDialog.value = true;
+};
+
+const handleSaveMenu = async (data: CreateMenuRequest | UpdateMenuRequest) => {
+  let success = false;
+
+  if (dialogMode.value === 'create') {
+    success = await createMenu(data as CreateMenuRequest);
+  } else if (selectedMenu.value) {
+    success = await updateMenu(selectedMenu.value.id, data as UpdateMenuRequest);
+  }
+
+  if (success) {
+    menuDialog.value = false;
+  }
+};
+
+const confirmDelete = async () => {
+  if (!menuToDelete.value) return;
+
+  const success = await deleteMenu(menuToDelete.value.id);
+  if (success) {
+    deleteDialog.value = false;
+    menuToDelete.value = null;
+  }
+};
+
+// 处理拖拽排序
+const handleMenusReorder = async (updatedMenus: Menu[]) => {
+  // 构建排序数据
+  const buildReorderData = (menus: Menu[], parentId?: number) => {
+    const result: Array<{ id: number; order: number; parent_id?: number }> = [];
+    menus.forEach((menu, index) => {
+      result.push({
+        id: menu.id,
+        order: index,
+        parent_id: parentId,
+      });
+      if (menu.children && menu.children.length > 0) {
+        result.push(...buildReorderData(menu.children, menu.id));
+      }
+    });
+    return result;
+  };
+
+  const reorderData = {
+    menus: buildReorderData(updatedMenus),
+  };
+
+  await reorderMenus(reorderData);
+  await fetchMenus(); // 刷新列表
 };
 </script>
 
@@ -50,70 +105,110 @@ const toggleView = () => {
       </v-col>
     </v-row>
 
+    <v-row v-if="errorMessage || successMessage">
+      <v-col cols="12">
+        <v-alert v-if="errorMessage" type="error" closable @click:close="clearMessages">
+          {{ errorMessage }}
+        </v-alert>
+        <v-alert v-if="successMessage" type="success" closable @click:close="clearMessages">
+          {{ successMessage }}
+        </v-alert>
+      </v-col>
+    </v-row>
+
     <v-row>
       <v-col cols="12">
         <v-card>
           <v-card-title>
             <v-row align="center">
-              <v-col cols="12" md="4">
-                <v-text-field v-model="search" prepend-inner-icon="mdi-magnify" label="搜索菜单" single-line hide-details variant="outlined" density="compact"></v-text-field>
-              </v-col>
-              <v-col cols="12" md="8" class="text-right">
-                <v-btn-toggle v-model="treeView" mandatory class="mr-4">
-                  <v-btn :value="true" icon="mdi-file-tree"></v-btn>
-                  <v-btn :value="false" icon="mdi-table"></v-btn>
+              <v-col cols="12" md="6">
+                <v-btn-toggle v-model="viewMode" mandatory>
+                  <v-btn value="tree" size="small">
+                    <v-icon start>mdi-file-tree</v-icon>
+                    树形视图
+                  </v-btn>
+                  <v-btn value="table" size="small">
+                    <v-icon start>mdi-table</v-icon>
+                    表格视图
+                  </v-btn>
                 </v-btn-toggle>
-                <v-btn color="primary" @click="openDialog">
+              </v-col>
+              <v-col cols="12" md="6" class="text-right">
+                <v-btn color="primary" @click="openCreateDialog">
                   <v-icon start>mdi-plus</v-icon>
                   新建菜单
                 </v-btn>
               </v-col>
             </v-row>
           </v-card-title>
+
           <v-card-text>
+            <v-progress-linear v-if="loading" indeterminate color="primary" class="mb-4"></v-progress-linear>
+
             <!-- 树形视图 -->
-            <div v-if="treeView">
-              <v-alert type="info" variant="tonal"> 树形视图功能开发中... </v-alert>
+            <div v-if="viewMode === 'tree' && !loading">
+              <MenuTree v-if="menus.length > 0" :menus="menus" @edit="openEditDialog" @delete="openDeleteDialog" @update:menus="handleMenusReorder" />
+              <v-alert v-else type="info">暂无菜单，点击"新建菜单"创建第一个菜单</v-alert>
             </div>
 
-            <!-- 表格视图 -->
-            <v-data-table v-else :headers="headers" :items="menus" :search="search" no-data-text="暂无菜单数据">
-              <template #item.icon="{ item }">
-                <v-icon>{{ item.icon }}</v-icon>
-              </template>
-              <template #item.visible="{ item }">
-                <v-chip :color="item.visible ? 'success' : 'error'" size="small">
-                  {{ item.visible ? "显示" : "隐藏" }}
-                </v-chip>
-              </template>
-              <template #item.actions>
-                <v-btn icon="mdi-pencil" size="small" variant="text"></v-btn>
-                <v-btn icon="mdi-delete" size="small" variant="text" color="error"></v-btn>
-              </template>
-            </v-data-table>
+            <!-- 表格视图（可选实现） -->
+            <div v-if="viewMode === 'table' && !loading">
+              <v-alert type="info" class="mb-4">
+                表格视图展示所有菜单（扁平化）
+              </v-alert>
+              <v-simple-table v-if="menus.length > 0">
+                <template #default>
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>标题</th>
+                      <th>路径</th>
+                      <th>图标</th>
+                      <th>排序</th>
+                      <th>可见</th>
+                      <th>操作</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <!-- 扁平化菜单展示（简化版） -->
+                    <template v-for="menu in menus" :key="menu.id">
+                      <tr>
+                        <td>{{ menu.id }}</td>
+                        <td>{{ menu.title }}</td>
+                        <td><code>{{ menu.path }}</code></td>
+                        <td><v-icon v-if="menu.icon" size="small">{{ menu.icon }}</v-icon></td>
+                        <td>{{ menu.order }}</td>
+                        <td><v-chip :color="menu.visible ? 'success' : 'error'" size="small">{{ menu.visible ? '是' : '否' }}</v-chip></td>
+                        <td>
+                          <v-btn icon="mdi-pencil" size="small" variant="text" @click="openEditDialog(menu)"></v-btn>
+                          <v-btn icon="mdi-delete" size="small" variant="text" color="error" @click="openDeleteDialog(menu)"></v-btn>
+                        </td>
+                      </tr>
+                    </template>
+                  </tbody>
+                </template>
+              </v-simple-table>
+            </div>
           </v-card-text>
         </v-card>
       </v-col>
     </v-row>
 
-    <!-- 新建/编辑对话框 -->
-    <v-dialog v-model="dialog" max-width="600">
+    <MenuDialog v-model="menuDialog" :menu="selectedMenu" :mode="dialogMode" :parent-menus="menus" @save="handleSaveMenu" />
+
+    <v-dialog v-model="deleteDialog" max-width="400">
       <v-card>
-        <v-card-title>新建菜单</v-card-title>
+        <v-card-title class="text-h5">确认删除</v-card-title>
         <v-card-text>
-          <v-form>
-            <v-text-field label="菜单名称" variant="outlined" class="mb-4"></v-text-field>
-            <v-text-field label="路径" variant="outlined" class="mb-4"></v-text-field>
-            <v-text-field label="图标 (MDI) " placeholder="mdi-home" variant="outlined" class="mb-4"></v-text-field>
-            <v-select label="父级菜单" :items="['无', '系统管理', '用户中心']" variant="outlined" class="mb-4"></v-select>
-            <v-text-field label="排序" type="number" variant="outlined" class="mb-4"></v-text-field>
-            <v-switch label="是否可见" color="primary"></v-switch>
-          </v-form>
+          确定要删除菜单 <strong>{{ menuToDelete?.title }}</strong> 吗？
+          <v-alert v-if="menuToDelete?.children && menuToDelete.children.length > 0" type="warning" class="mt-2" density="compact">
+            该菜单有子菜单，请先删除子菜单
+          </v-alert>
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn @click="dialog = false">取消</v-btn>
-          <v-btn color="primary" @click="dialog = false">保存</v-btn>
+          <v-btn variant="text" @click="deleteDialog = false">取消</v-btn>
+          <v-btn color="error" variant="elevated" @click="confirmDelete" :loading="loading">删除</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>

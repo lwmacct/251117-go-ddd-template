@@ -40,6 +40,9 @@ func (h *AuthHandler) Register(c *gin.Context) {
 
 // Login 用户登录
 // POST /api/auth/login
+// 支持两种登录流程：
+// 1. 第一次登录：login + password + captcha_id + captcha
+// 2. 第二次登录（2FA）：session_token + two_factor_code
 func (h *AuthHandler) Login(c *gin.Context) {
 	var req auth.LoginRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -49,6 +52,15 @@ func (h *AuthHandler) Login(c *gin.Context) {
 
 	resp, err := h.authService.Login(c.Request.Context(), &req)
 	if err != nil {
+		// 检查是否是2FA验证需求错误
+		if _, ok := err.(*auth.TwoFactorRequiredError); ok {
+			// 返回session token，前端需要显示2FA验证页面
+			c.JSON(200, gin.H{
+				"message": "Two factor authentication required",
+				"data":    resp,
+			})
+			return
+		}
 		c.JSON(401, gin.H{"error": err.Error()})
 		return
 	}
