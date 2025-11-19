@@ -9,15 +9,17 @@ import (
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/auditlog"
 )
 
-// AuditLogHandler handles audit log operations
+// AuditLogHandler handles audit log operations (CQRS架构)
 type AuditLogHandler struct {
-	repo auditlog.Repository
+	commandRepo auditlog.CommandRepository
+	queryRepo   auditlog.QueryRepository
 }
 
 // NewAuditLogHandler creates a new AuditLogHandler instance
-func NewAuditLogHandler(repo auditlog.Repository) *AuditLogHandler {
+func NewAuditLogHandler(commandRepo auditlog.CommandRepository, queryRepo auditlog.QueryRepository) *AuditLogHandler {
 	return &AuditLogHandler{
-		repo: repo,
+		commandRepo: commandRepo,
+		queryRepo:   queryRepo,
 	}
 }
 
@@ -70,7 +72,7 @@ func (h *AuditLogHandler) ListLogs(c *gin.Context) {
 		}
 	}
 
-	logs, total, err := h.repo.List(c.Request.Context(), filter)
+	logs, total, err := h.queryRepo.List(c.Request.Context(), filter)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to list audit logs"})
 		return
@@ -94,7 +96,7 @@ func (h *AuditLogHandler) GetLog(c *gin.Context) {
 		return
 	}
 
-	log, err := h.repo.FindByID(c.Request.Context(), uint(id))
+	log, err := h.queryRepo.FindByID(c.Request.Context(), uint(id))
 	if err != nil || log == nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "audit log not found"})
 		return

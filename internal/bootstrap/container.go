@@ -10,8 +10,8 @@ import (
 	authCommand "github.com/lwmacct/251117-go-ddd-template/internal/application/auth/command"
 	userCommand "github.com/lwmacct/251117-go-ddd-template/internal/application/user/command"
 	userQuery "github.com/lwmacct/251117-go-ddd-template/internal/application/user/query"
-	domainAuth "github.com/lwmacct/251117-go-ddd-template/internal/domain/auth"
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/auditlog"
+	domainAuth "github.com/lwmacct/251117-go-ddd-template/internal/domain/auth"
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/captcha"
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/menu"
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/pat"
@@ -49,19 +49,25 @@ type Container struct {
 	RedisClient *redis.Client
 
 	// CQRS Repositories
-	UserCommandRepo      user.CommandRepository
-	UserQueryRepo        user.QueryRepository
-	AuditLogCommandRepo  auditlog.CommandRepository
-	AuditLogQueryRepo    auditlog.QueryRepository
+	UserCommandRepo       user.CommandRepository
+	UserQueryRepo         user.QueryRepository
+	AuditLogCommandRepo   auditlog.CommandRepository
+	AuditLogQueryRepo     auditlog.QueryRepository
+	RoleCommandRepo       role.CommandRepository
+	RoleQueryRepo         role.QueryRepository
+	PermissionCommandRepo role.PermissionCommandRepository
+	PermissionQueryRepo   role.PermissionQueryRepository
+	PATCommandRepo        pat.CommandRepository
+	PATQueryRepo          pat.QueryRepository
+	MenuCommandRepo       menu.CommandRepository
+	MenuQueryRepo         menu.QueryRepository
+	SettingCommandRepo    setting.CommandRepository
+	SettingQueryRepo      setting.QueryRepository
+	TwoFACommandRepo      twofa.CommandRepository
+	TwoFAQueryRepo        twofa.QueryRepository
 
-	// Legacy Repositories (待迁移)
-	RoleRepository       role.RoleRepository
-	PermissionRepository role.PermissionRepository
-	PATRepository        pat.Repository
-	CaptchaRepository    captcha.Repository
-	TwoFARepository      twofa.Repository
-	MenuRepository       menu.Repository
-	SettingRepository    setting.Repository
+	// Special Repository (内存存储，不需要 CQRS 分离)
+	CaptchaRepository captcha.Repository
 
 	// Domain Services
 	AuthService domainAuth.Service
@@ -127,23 +133,27 @@ func NewContainer(cfg *config.Config, opts *ContainerOptions) (*Container, error
 	}
 
 	// =================================================================
-	// 4. 初始化 CQRS Repositories（新架构）
+	// 4. 初始化 CQRS Repositories（完全符合 DDD+CQRS 架构）
 	// =================================================================
 	userCommandRepo := persistence.NewUserCommandRepository(db)
 	userQueryRepo := persistence.NewUserQueryRepository(db)
 	auditLogCommandRepo := persistence.NewAuditLogCommandRepository(db)
 	auditLogQueryRepo := persistence.NewAuditLogQueryRepository(db)
+	roleCommandRepo := persistence.NewRoleCommandRepository(db)
+	roleQueryRepo := persistence.NewRoleQueryRepository(db)
+	permissionCommandRepo := persistence.NewPermissionCommandRepository(db)
+	permissionQueryRepo := persistence.NewPermissionQueryRepository(db)
+	patCommandRepo := persistence.NewPATCommandRepository(db)
+	patQueryRepo := persistence.NewPATQueryRepository(db)
+	menuCommandRepo := persistence.NewMenuCommandRepository(db)
+	menuQueryRepo := persistence.NewMenuQueryRepository(db)
+	settingCommandRepo := persistence.NewSettingCommandRepository(db)
+	settingQueryRepo := persistence.NewSettingQueryRepository(db)
 	twofaCommandRepo := persistence.NewTwoFACommandRepository(db)
 	twofaQueryRepo := persistence.NewTwoFAQueryRepository(db)
 
-	// Legacy Repositories (待迁移)
-	roleRepo := persistence.NewRoleRepository(db)
-	permissionRepo := persistence.NewPermissionRepository(db)
-	patRepo := persistence.NewPATRepository(db)
+	// Special Repository (内存存储，不需要 CQRS 分离)
 	captchaRepo := persistence.NewCaptchaMemoryRepository()
-	twofaRepo := persistence.NewTwoFARepository(db)
-	menuRepo := persistence.NewMenuRepository(db)
-	settingRepo := persistence.NewSettingRepository(db)
 
 	// =================================================================
 	// 5. 初始化 Infrastructure 组件（技术实现）
@@ -224,18 +234,14 @@ func NewContainer(cfg *config.Config, opts *ContainerOptions) (*Container, error
 	)
 
 	// =================================================================
-	// 10. 初始化 Legacy Services（待迁移）
+	// 10. 初始化 Infrastructure Services（基础设施服务）
 	// =================================================================
-	patCommandRepo := persistence.NewPATCommandRepository(db)
-	patQueryRepo := persistence.NewPATQueryRepository(db)
-
 	patService := infraauth.NewPATService(patCommandRepo, patQueryRepo, userQueryRepo, tokenGenerator)
 	captchaService := infracaptcha.NewService()
-	userQueryRepoForTwoFA := persistence.NewUserQueryRepository(db)
-	twofaService := infratwofa.NewService(twofaCommandRepo, twofaQueryRepo, userQueryRepoForTwoFA, cfg.Auth.TwoFAIssuer)
+	twofaService := infratwofa.NewService(twofaCommandRepo, twofaQueryRepo, userQueryRepo, cfg.Auth.TwoFAIssuer)
 
 	// =================================================================
-	// 11. 初始化路由（使用新架构的 Handlers）
+	// 11. 初始化路由（使用 DDD+CQRS 架构）
 	// =================================================================
 	authServiceForRouter := infraauth.NewService(
 		userCommandRepo,
@@ -247,20 +253,18 @@ func NewContainer(cfg *config.Config, opts *ContainerOptions) (*Container, error
 		loginSessionService,
 	)
 
-	menuCommandRepo := persistence.NewMenuCommandRepository(db)
-	menuQueryRepo := persistence.NewMenuQueryRepository(db)
-	settingCommandRepo := persistence.NewSettingCommandRepository(db)
-	settingQueryRepo := persistence.NewSettingQueryRepository(db)
-
 	router := http.SetupRouter(
 		cfg,
 		db,
 		redisClient,
 		userCommandRepo,
 		userQueryRepo,
-		roleRepo,
-		permissionRepo,
-		persistence.NewAuditLogRepository(db), // Legacy
+		roleCommandRepo,
+		roleQueryRepo,
+		permissionCommandRepo,
+		permissionQueryRepo,
+		auditLogCommandRepo,
+		auditLogQueryRepo,
 		captchaRepo,
 		menuCommandRepo,
 		menuQueryRepo,
@@ -281,19 +285,25 @@ func NewContainer(cfg *config.Config, opts *ContainerOptions) (*Container, error
 		RedisClient: redisClient,
 
 		// CQRS Repositories
-		UserCommandRepo:     userCommandRepo,
-		UserQueryRepo:       userQueryRepo,
-		AuditLogCommandRepo: auditLogCommandRepo,
-		AuditLogQueryRepo:   auditLogQueryRepo,
+		UserCommandRepo:       userCommandRepo,
+		UserQueryRepo:         userQueryRepo,
+		AuditLogCommandRepo:   auditLogCommandRepo,
+		AuditLogQueryRepo:     auditLogQueryRepo,
+		RoleCommandRepo:       roleCommandRepo,
+		RoleQueryRepo:         roleQueryRepo,
+		PermissionCommandRepo: permissionCommandRepo,
+		PermissionQueryRepo:   permissionQueryRepo,
+		PATCommandRepo:        patCommandRepo,
+		PATQueryRepo:          patQueryRepo,
+		MenuCommandRepo:       menuCommandRepo,
+		MenuQueryRepo:         menuQueryRepo,
+		SettingCommandRepo:    settingCommandRepo,
+		SettingQueryRepo:      settingQueryRepo,
+		TwoFACommandRepo:      twofaCommandRepo,
+		TwoFAQueryRepo:        twofaQueryRepo,
 
-		// Legacy Repositories
-		RoleRepository:       roleRepo,
-		PermissionRepository: permissionRepo,
-		PATRepository:        patRepo,
-		CaptchaRepository:    captchaRepo,
-		TwoFARepository:      twofaRepo,
-		MenuRepository:       menuRepo,
-		SettingRepository:    settingRepo,
+		// Special Repository
+		CaptchaRepository: captchaRepo,
 
 		// Domain Services
 		AuthService: authService,

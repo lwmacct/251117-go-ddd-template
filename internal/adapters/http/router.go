@@ -22,16 +22,19 @@ import (
 	"gorm.io/gorm"
 )
 
-// SetupRouter 配置路由
+// SetupRouter 配置路由 (完全符合 DDD+CQRS 架构)
 func SetupRouter(
 	cfg *config.Config,
 	db *gorm.DB,
 	redisClient *redis.Client,
 	userCommandRepo user.CommandRepository,
 	userQueryRepo user.QueryRepository,
-	roleRepo role.RoleRepository,
-	permissionRepo role.PermissionRepository,
-	auditLogRepo auditlog.Repository,
+	roleCommandRepo role.CommandRepository,
+	roleQueryRepo role.QueryRepository,
+	permissionCommandRepo role.PermissionCommandRepository,
+	permissionQueryRepo role.PermissionQueryRepository,
+	auditLogCommandRepo auditlog.CommandRepository,
+	auditLogQueryRepo auditlog.QueryRepository,
 	captchaRepo captcha.Repository,
 	menuCommandRepo menu.CommandRepository,
 	menuQueryRepo menu.QueryRepository,
@@ -89,7 +92,7 @@ func SetupRouter(
 		// 管理员路由 (/api/admin/*) - 使用三段式权限控制
 		admin := api.Group("/admin")
 		admin.Use(middleware.Auth(jwtManager, patService, userQueryRepo))
-		admin.Use(middleware.AuditMiddleware(auditLogRepo))
+		admin.Use(middleware.AuditMiddleware(auditLogCommandRepo))
 		admin.Use(middleware.RequireRole("admin"))
 		{
 			// 用户管理
@@ -102,7 +105,7 @@ func SetupRouter(
 			admin.PUT("/users/:id/roles", middleware.RequirePermission("admin:users:update"), adminUserHandler.AssignRoles)
 
 			// 角色管理
-			roleHandler := handler.NewRoleHandler(roleRepo, permissionRepo)
+			roleHandler := handler.NewRoleHandler(roleCommandRepo, roleQueryRepo, permissionCommandRepo, permissionQueryRepo)
 			admin.POST("/roles", middleware.RequirePermission("admin:roles:create"), roleHandler.CreateRole)
 			admin.GET("/roles", middleware.RequirePermission("admin:roles:read"), roleHandler.ListRoles)
 			admin.GET("/roles/:id", middleware.RequirePermission("admin:roles:read"), roleHandler.GetRole)
@@ -114,7 +117,7 @@ func SetupRouter(
 			admin.GET("/permissions", middleware.RequirePermission("admin:permissions:read"), roleHandler.ListPermissions)
 
 			// 审计日志
-			auditLogHandler := handler.NewAuditLogHandler(auditLogRepo)
+			auditLogHandler := handler.NewAuditLogHandler(auditLogCommandRepo, auditLogQueryRepo)
 			admin.GET("/audit-logs", middleware.RequirePermission("admin:audit_logs:read"), auditLogHandler.ListLogs)
 			admin.GET("/audit-logs/:id", middleware.RequirePermission("admin:audit_logs:read"), auditLogHandler.GetLog)
 

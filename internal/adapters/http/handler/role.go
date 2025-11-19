@@ -8,17 +8,26 @@ import (
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/role"
 )
 
-// RoleHandler handles role management operations
+// RoleHandler handles role management operations (CQRS架构)
 type RoleHandler struct {
-	roleRepo       role.RoleRepository
-	permissionRepo role.PermissionRepository
+	roleCommandRepo       role.CommandRepository
+	roleQueryRepo         role.QueryRepository
+	permissionCommandRepo role.PermissionCommandRepository
+	permissionQueryRepo   role.PermissionQueryRepository
 }
 
 // NewRoleHandler creates a new RoleHandler instance
-func NewRoleHandler(roleRepo role.RoleRepository, permissionRepo role.PermissionRepository) *RoleHandler {
+func NewRoleHandler(
+	roleCommandRepo role.CommandRepository,
+	roleQueryRepo role.QueryRepository,
+	permissionCommandRepo role.PermissionCommandRepository,
+	permissionQueryRepo role.PermissionQueryRepository,
+) *RoleHandler {
 	return &RoleHandler{
-		roleRepo:       roleRepo,
-		permissionRepo: permissionRepo,
+		roleCommandRepo:       roleCommandRepo,
+		roleQueryRepo:         roleQueryRepo,
+		permissionCommandRepo: permissionCommandRepo,
+		permissionQueryRepo:   permissionQueryRepo,
 	}
 }
 
@@ -42,7 +51,7 @@ func (h *RoleHandler) CreateRole(c *gin.Context) {
 		IsSystem:    false,
 	}
 
-	if err := h.roleRepo.Create(c.Request.Context(), newRole); err != nil {
+	if err := h.roleCommandRepo.Create(c.Request.Context(), newRole); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to create role"})
 		return
 	}
@@ -65,7 +74,7 @@ func (h *RoleHandler) ListRoles(c *gin.Context) {
 		limit = 20
 	}
 
-	roles, total, err := h.roleRepo.List(c.Request.Context(), page, limit)
+	roles, total, err := h.roleQueryRepo.List(c.Request.Context(), page, limit)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to list roles"})
 		return
@@ -89,7 +98,7 @@ func (h *RoleHandler) GetRole(c *gin.Context) {
 		return
 	}
 
-	r, err := h.roleRepo.FindByID(c.Request.Context(), uint(id))
+	r, err := h.roleQueryRepo.FindByIDWithPermissions(c.Request.Context(), uint(id))
 	if err != nil || r == nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "role not found"})
 		return
@@ -106,7 +115,7 @@ func (h *RoleHandler) UpdateRole(c *gin.Context) {
 		return
 	}
 
-	r, err := h.roleRepo.FindByID(c.Request.Context(), uint(id))
+	r, err := h.roleQueryRepo.FindByID(c.Request.Context(), uint(id))
 	if err != nil || r == nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "role not found"})
 		return
@@ -134,7 +143,7 @@ func (h *RoleHandler) UpdateRole(c *gin.Context) {
 		r.Description = *req.Description
 	}
 
-	if err := h.roleRepo.Update(c.Request.Context(), r); err != nil {
+	if err := h.roleCommandRepo.Update(c.Request.Context(), r); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to update role"})
 		return
 	}
@@ -153,7 +162,7 @@ func (h *RoleHandler) DeleteRole(c *gin.Context) {
 		return
 	}
 
-	r, err := h.roleRepo.FindByID(c.Request.Context(), uint(id))
+	r, err := h.roleQueryRepo.FindByID(c.Request.Context(), uint(id))
 	if err != nil || r == nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "role not found"})
 		return
@@ -164,7 +173,7 @@ func (h *RoleHandler) DeleteRole(c *gin.Context) {
 		return
 	}
 
-	if err := h.roleRepo.Delete(c.Request.Context(), uint(id)); err != nil {
+	if err := h.roleCommandRepo.Delete(c.Request.Context(), uint(id)); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to delete role"})
 		return
 	}
@@ -189,7 +198,7 @@ func (h *RoleHandler) SetPermissions(c *gin.Context) {
 		return
 	}
 
-	if err := h.roleRepo.SetPermissions(c.Request.Context(), uint(id), req.PermissionIDs); err != nil {
+	if err := h.roleCommandRepo.SetPermissions(c.Request.Context(), uint(id), req.PermissionIDs); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to set permissions"})
 		return
 	}
@@ -209,7 +218,7 @@ func (h *RoleHandler) ListPermissions(c *gin.Context) {
 		limit = 50
 	}
 
-	permissions, total, err := h.permissionRepo.List(c.Request.Context(), page, limit)
+	permissions, total, err := h.permissionQueryRepo.List(c.Request.Context(), page, limit)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to list permissions"})
 		return

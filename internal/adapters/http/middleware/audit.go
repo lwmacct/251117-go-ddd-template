@@ -11,8 +11,8 @@ import (
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/auditlog"
 )
 
-// AuditMiddleware creates a middleware that logs user actions
-func AuditMiddleware(repo auditlog.Repository) gin.HandlerFunc {
+// AuditMiddleware creates a middleware that logs user actions (CQRS: 只写操作)
+func AuditMiddleware(repo auditlog.CommandRepository) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// Skip audit for GET requests (read-only operations)
 		if c.Request.Method == "GET" {

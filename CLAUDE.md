@@ -271,5 +271,5 @@ xxxHandler := handler.NewXxxHandler(createXxxHandler, getXxxHandler)
 ## 开发环境
 
 - 当前系统环境为 ubuntu 22.04, 你可以使用 apt 安装任意软件包来完成工作
-- 在完成每一个任务后进行 git commit -m "<COMMIT MESSAGE>" 来提交代码
+- 在完成每一个任务后进行 git commit 来提交工作报告
 - 环境中可能有多个 AI Agent 在工作，git commit 时不必在意其他被修改的文件
