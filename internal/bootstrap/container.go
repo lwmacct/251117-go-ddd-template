@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/lwmacct/251117-go-ddd-template/internal/adapters/http"
 	"github.com/lwmacct/251117-go-ddd-template/internal/adapters/http/handler"
+	auditlogQuery "github.com/lwmacct/251117-go-ddd-template/internal/application/auditlog/query"
 	authCommand "github.com/lwmacct/251117-go-ddd-template/internal/application/auth/command"
 	menuCommand "github.com/lwmacct/251117-go-ddd-template/internal/application/menu/command"
 	menuQuery "github.com/lwmacct/251117-go-ddd-template/internal/application/menu/query"
@@ -321,6 +322,12 @@ func NewContainer(cfg *config.Config, opts *ContainerOptions) (*Container, error
 	listTokensHandler := patQuery.NewListTokensHandler(patQueryRepo)
 
 	// =================================================================
+	// 8.9. 初始化 Use Case Handlers - AuditLog
+	// =================================================================
+	listLogsHandler := auditlogQuery.NewListLogsHandler(auditLogQueryRepo)
+	getLogHandler := auditlogQuery.NewGetLogHandler(auditLogQueryRepo)
+
+	// =================================================================
 	// 9. 初始化 HTTP Handlers（适配器层）
 	// =================================================================
 	authHandler := handler.NewAuthHandler(
@@ -373,6 +380,11 @@ func NewContainer(cfg *config.Config, opts *ContainerOptions) (*Container, error
 		listTokensHandler,
 	)
 
+	auditLogHandler := handler.NewAuditLogHandler(
+		listLogsHandler,
+		getLogHandler,
+	)
+
 	// =================================================================
 	// 10. 初始化 Infrastructure Services（基础设施服务）
 	// =================================================================
@@ -399,19 +411,19 @@ func NewContainer(cfg *config.Config, opts *ContainerOptions) (*Container, error
 		redisClient,
 		userCommandRepo,
 		userQueryRepo,
-		auditLogCommandRepo,
-		auditLogQueryRepo,
+		auditLogCommandRepo, // 审计中间件需要
 		captchaRepo,
 		jwtManager,
 		patService,
 		authServiceForRouter,
 		captchaService,
 		twofaService,
-		authHandler,     // 使用新的 DDD+CQRS AuthHandler
-		roleHandler,     // 使用新的 DDD+CQRS RoleHandler
-		menuHandler,     // 使用新的 DDD+CQRS MenuHandler
-		settingHandler,  // 使用新的 DDD+CQRS SettingHandler
-		patHandler,      // 使用新的 DDD+CQRS PATHandler
+		authHandler,      // 使用新的 DDD+CQRS AuthHandler
+		roleHandler,      // 使用新的 DDD+CQRS RoleHandler
+		menuHandler,      // 使用新的 DDD+CQRS MenuHandler
+		settingHandler,   // 使用新的 DDD+CQRS SettingHandler
+		patHandler,       // 使用新的 DDD+CQRS PATHandler
+		auditLogHandler,  // 使用新的 DDD+CQRS AuditLogHandler
 	)
 
 	return &Container{

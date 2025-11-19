@@ -6,20 +6,24 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/lwmacct/251117-go-ddd-template/internal/domain/auditlog"
+	auditlogQuery "github.com/lwmacct/251117-go-ddd-template/internal/application/auditlog/query"
 )
 
-// AuditLogHandler handles audit log operations (CQRS架构)
+// AuditLogHandler handles audit log operations (DDD+CQRS Use Case Pattern)
 type AuditLogHandler struct {
-	commandRepo auditlog.CommandRepository
-	queryRepo   auditlog.QueryRepository
+	// Query Handlers
+	listLogsHandler *auditlogQuery.ListLogsHandler
+	getLogHandler   *auditlogQuery.GetLogHandler
 }
 
 // NewAuditLogHandler creates a new AuditLogHandler instance
-func NewAuditLogHandler(commandRepo auditlog.CommandRepository, queryRepo auditlog.QueryRepository) *AuditLogHandler {
+func NewAuditLogHandler(
+	listLogsHandler *auditlogQuery.ListLogsHandler,
+	getLogHandler *auditlogQuery.GetLogHandler,
+) *AuditLogHandler {
 	return &AuditLogHandler{
-		commandRepo: commandRepo,
-		queryRepo:   queryRepo,
+		listLogsHandler: listLogsHandler,
+		getLogHandler:   getLogHandler,
 	}
 }
 
@@ -35,7 +39,7 @@ func (h *AuditLogHandler) ListLogs(c *gin.Context) {
 		limit = 20
 	}
 
-	filter := auditlog.FilterOptions{
+	query := auditlogQuery.ListLogsQuery{
 		Page:  page,
 		Limit: limit,
 	}
@@ -44,46 +48,47 @@ func (h *AuditLogHandler) ListLogs(c *gin.Context) {
 	if userIDStr := c.Query("user_id"); userIDStr != "" {
 		if userID, err := strconv.ParseUint(userIDStr, 10, 32); err == nil {
 			uid := uint(userID)
-			filter.UserID = &uid
+			query.UserID = &uid
 		}
 	}
 
 	if action := c.Query("action"); action != "" {
-		filter.Action = action
+		query.Action = action
 	}
 
 	if resource := c.Query("resource"); resource != "" {
-		filter.Resource = resource
+		query.Resource = resource
 	}
 
 	if status := c.Query("status"); status != "" {
-		filter.Status = status
+		query.Status = status
 	}
 
 	if startDateStr := c.Query("start_date"); startDateStr != "" {
 		if startDate, err := time.Parse(time.RFC3339, startDateStr); err == nil {
-			filter.StartDate = &startDate
+			query.StartDate = &startDate
 		}
 	}
 
 	if endDateStr := c.Query("end_date"); endDateStr != "" {
 		if endDate, err := time.Parse(time.RFC3339, endDateStr); err == nil {
-			filter.EndDate = &endDate
+			query.EndDate = &endDate
 		}
 	}
 
-	logs, total, err := h.queryRepo.List(c.Request.Context(), filter)
+	// 调用 Use Case Handler
+	result, err := h.listLogsHandler.Handle(c.Request.Context(), query)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to list audit logs"})
 		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"logs": logs,
+		"logs": result.Logs,
 		"pagination": gin.H{
-			"page":  page,
-			"limit": limit,
-			"total": total,
+			"page":  result.Page,
+			"limit": result.Limit,
+			"total": result.Total,
 		},
 	})
 }
@@ -96,8 +101,12 @@ func (h *AuditLogHandler) GetLog(c *gin.Context) {
 		return
 	}
 
-	log, err := h.queryRepo.FindByID(c.Request.Context(), uint(id))
-	if err != nil || log == nil {
+	// 调用 Use Case Handler
+	log, err := h.getLogHandler.Handle(c.Request.Context(), auditlogQuery.GetLogQuery{
+		LogID: uint(id),
+	})
+
+	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "audit log not found"})
 		return
 	}

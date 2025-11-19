@@ -27,7 +27,6 @@ func SetupRouter(
 	userCommandRepo user.CommandRepository,
 	userQueryRepo user.QueryRepository,
 	auditLogCommandRepo auditlog.CommandRepository,
-	auditLogQueryRepo auditlog.QueryRepository,
 	captchaRepo captcha.Repository,
 	jwtManager *infraauth.JWTManager,
 	patService *infraauth.PATService,
@@ -39,6 +38,7 @@ func SetupRouter(
 	menuHandler *handler.MenuHandler,
 	settingHandler *handler.SettingHandler,
 	patHandler *handler.PATHandler,
+	auditLogHandler *handler.AuditLogHandler,
 ) *gin.Engine {
 	r := gin.New()
 
@@ -108,7 +108,6 @@ func SetupRouter(
 			admin.GET("/permissions", middleware.RequirePermission("admin:permissions:read"), roleHandler.ListPermissions)
 
 			// 审计日志
-			auditLogHandler := handler.NewAuditLogHandler(auditLogCommandRepo, auditLogQueryRepo)
 			admin.GET("/audit-logs", middleware.RequirePermission("admin:audit_logs:read"), auditLogHandler.ListLogs)
 			admin.GET("/audit-logs/:id", middleware.RequirePermission("admin:audit_logs:read"), auditLogHandler.GetLog)
 
