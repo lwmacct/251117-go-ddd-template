@@ -70,19 +70,21 @@ task go:run -- api
 internal/
 ├── domain/
 │   └── user/
-│       ├── model.go       # 用户领域模型和 DTO
-│       └── repository.go  # 用户仓储接口
+│       ├── entity_user.go          # 用户领域模型
+│       ├── command_repository.go   # 写接口（Create/Update/Delete...）
+│       └── query_repository.go     # 读接口（Get/List/Search...）
 ├── infrastructure/
 │   ├── database/
-│   │   ├── connection.go  # 数据库连接管理
-│   │   └── migrator.go    # 数据库迁移
+│   │   ├── connection.go           # 数据库连接管理
+│   │   └── migrator.go             # 数据库迁移
 │   └── persistence/
-│       └── user_repository.go  # 用户仓储 GORM 实现
+│       ├── user_command_repository.go # GORM 写实现
+│       └── user_query_repository.go   # GORM 读实现
 └── adapters/
     └── http/
         └── handler/
-            ├── user.go    # 用户 HTTP 处理器
-            └── health.go  # 健康检查
+            ├── user.go             # 用户 HTTP 处理器
+            └── health.go           # 健康检查
 ```
 
 ### 用户领域模型

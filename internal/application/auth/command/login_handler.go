@@ -25,31 +25,31 @@ type LoginResult struct {
 
 // LoginHandler 登录命令处理器
 type LoginHandler struct {
-	userQueryRepo    user.QueryRepository
-	captchaQueryRepo captcha.Repository
-	twofaQueryRepo   twofa.QueryRepository
-	authService      domainAuth.Service
+	userQueryRepo      user.QueryRepository
+	captchaCommandRepo captcha.CommandRepository
+	twofaQueryRepo     twofa.QueryRepository
+	authService        domainAuth.Service
 }
 
 // NewLoginHandler 创建登录命令处理器
 func NewLoginHandler(
 	userQueryRepo user.QueryRepository,
-	captchaQueryRepo captcha.Repository,
+	captchaCommandRepo captcha.CommandRepository,
 	twofaQueryRepo twofa.QueryRepository,
 	authService domainAuth.Service,
 ) *LoginHandler {
 	return &LoginHandler{
-		userQueryRepo:    userQueryRepo,
-		captchaQueryRepo: captchaQueryRepo,
-		twofaQueryRepo:   twofaQueryRepo,
-		authService:      authService,
+		userQueryRepo:      userQueryRepo,
+		captchaCommandRepo: captchaCommandRepo,
+		twofaQueryRepo:     twofaQueryRepo,
+		authService:        authService,
 	}
 }
 
 // Handle 处理登录命令
 func (h *LoginHandler) Handle(ctx context.Context, cmd LoginCommand) (*LoginResult, error) {
 	// 1. 验证图形验证码
-	valid, err := h.captchaQueryRepo.Verify(ctx, cmd.CaptchaID, cmd.Captcha)
+	valid, err := h.captchaCommandRepo.Verify(ctx, cmd.CaptchaID, cmd.Captcha)
 	if err != nil {
 		return nil, fmt.Errorf("failed to verify captcha: %w", err)
 	}

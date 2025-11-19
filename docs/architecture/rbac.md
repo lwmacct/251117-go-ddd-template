@@ -210,11 +210,11 @@ sequenceDiagram
     AuthHandler-->>Client: 200 OK + Tokens
 ```
 
-**关键代码** (`internal/infrastructure/auth/service.go:105-150`):
+**关键代码**（`internal/infrastructure/auth/service.go:100-150`）：
 
 ```go
 // 1. 查询用户（预加载角色和权限）
-u, err := s.userRepo.GetByUsernameWithRoles(ctx, req.Login)
+u, err := s.userQueryRepo.GetByUsernameWithRoles(ctx, req.Login)
 
 // 2. 验证密码
 bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(req.Password))
@@ -232,11 +232,11 @@ accessToken, refreshToken, err := s.jwtManager.GenerateTokenPair(
 **数据库查询优化**（使用嵌套预加载）：
 
 ```go
-// internal/infrastructure/persistence/user_repository.go:119-130
-func (r *userRepository) GetByUsernameWithRoles(ctx context.Context, username string) (*user.User, error) {
+// internal/infrastructure/persistence/user_query_repository.go:60-75
+func (r *userQueryRepository) GetByUsernameWithRoles(ctx context.Context, username string) (*user.User, error) {
     var u user.User
     err := r.db.WithContext(ctx).
-        Preload("Roles.Permissions").  // 嵌套预加载：角色及其权限
+        Preload("Roles.Permissions"). // 嵌套预加载角色及其权限
         Where("username = ?", username).
         First(&u).Error
     return &u, err
@@ -284,7 +284,7 @@ func (r *userRepository) GetByUsernameWithRoles(ctx context.Context, username st
 
 ```go
 // 中间件会自动判断 token 类型
-func Auth(jwtManager *JWTManager, patService *PATService, userRepo user.Repository) gin.HandlerFunc {
+func Auth(jwtManager *JWTManager, patService *PATService, userQueryRepo user.QueryRepository) gin.HandlerFunc {
     return func(c *gin.Context) {
         authHeader := c.GetHeader("Authorization")  // "Bearer <token>"
         tokenString := extractToken(authHeader)
@@ -292,7 +292,7 @@ func Auth(jwtManager *JWTManager, patService *PATService, userRepo user.Reposito
         // 判断 token 类型
         if strings.HasPrefix(tokenString, "pat_") {
             // PAT 认证
-            authenticateWithPAT(c, patService, userRepo, tokenString)
+            authenticateWithPAT(c, patService, userQueryRepo, tokenString)
         } else {
             // JWT 认证
             authenticateWithJWT(c, jwtManager, tokenString)
@@ -352,7 +352,7 @@ c.Set("pat_id", pat.ID)
 **功能**: 统一验证 JWT Token 和 PAT，并将用户信息注入到 Gin Context
 
 ```go
-func Auth(jwtManager *JWTManager, patService *PATService, userRepo user.Repository) gin.HandlerFunc {
+func Auth(jwtManager *JWTManager, patService *PATService, userQueryRepo user.QueryRepository) gin.HandlerFunc {
     return func(c *gin.Context) {
         // 1. 提取 Authorization Header
         authHeader := c.GetHeader("Authorization")  // "Bearer <token>"
@@ -361,7 +361,7 @@ func Auth(jwtManager *JWTManager, patService *PATService, userRepo user.Reposito
 
         // 2. 判断 token 类型并验证
         if strings.HasPrefix(tokenString, "pat_") {
-            authenticateWithPAT(c, patService, userRepo, tokenString)
+            authenticateWithPAT(c, patService, userQueryRepo, tokenString)
         } else {
             authenticateWithJWT(c, jwtManager, tokenString)
         }

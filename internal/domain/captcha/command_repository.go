@@ -5,18 +5,14 @@ import (
 	"time"
 )
 
-// Repository 验证码仓储接口
-type Repository interface {
+// CommandRepository 定义所有会修改验证码状态的操作
+type CommandRepository interface {
 	// Create 创建验证码并存储
 	Create(ctx context.Context, captchaID string, code string, expiration time.Duration) error
 
-	// Verify 验证验证码（不区分大小写，一次性使用）
-	// 验证后会自动删除验证码
+	// Verify 验证验证码（一次性使用，验证后需要从存储中移除）
 	Verify(ctx context.Context, captchaID string, code string) (bool, error)
 
-	// Delete 删除验证码
+	// Delete 根据 ID 删除验证码
 	Delete(ctx context.Context, captchaID string) error
-
-	// GetStats 获取统计信息
-	GetStats(ctx context.Context) map[string]interface{}
 }

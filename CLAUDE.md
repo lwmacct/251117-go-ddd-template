@@ -6,6 +6,8 @@
 
 基于 Go 的 DDD (领域驱动设计) 模板应用，采用四层架构 + CQRS 模式，提供认证、RBAC 权限、审计日志等特性。Monorepo 结构包含后端(Go)、前端(Vue 3)、文档(VitePress)。
 
+> 🚫 仓库**仅**保留最新的 DDD + CQRS 架构。发现任何与此规范不符的遗留实现（如合并后的 Repository）时，应立即规划迁移，不允许在新功能中继续使用。
+
 ## 🏗️ 核心架构
 
 ### DDD 四层架构 + CQRS
@@ -57,30 +59,29 @@ internal/
 
 ### 📁 文件命名规范
 
-| 层级 | 文件类型 | 命名规范 | 示例 |
-|------|---------|---------|------|
-| **Domain** | 实体模型 | `entity_{模块}.go` | `entity_user.go`, `entity_role.go` |
-| | Repository接口 | `command_repository.go` / `query_repository.go` | 每个模块固定命名 |
-| | 值对象 | `value_objects.go` | 复杂领域需要时使用 |
-| | 错误定义 | `errors.go` | 每个模块的领域错误 |
-| | 兼容接口 | `repository.go` | 组合 Command/Query Repository |
-| **Infrastructure** | Repository实现 | `{模块}_{操作类型}_repository.go` | `user_command_repository.go`, `user_query_repository.go` |
-| | Domain Service实现 | `service.go` | 在各自子目录（如 `auth/service.go`） |
-| **Application** | Command定义 | `{操作}_xxx.go` | `create_user.go`, `update_user.go` |
-| | Command Handler | `{操作}_xxx_handler.go` | `create_user_handler.go` |
-| | Query定义 | `{操作}_xxx.go` | `get_user.go`, `list_users.go` |
-| | Query Handler | `{操作}_xxx_handler.go` | `get_user_handler.go` |
-| | DTO定义 | `dto.go` | 模块根目录 |
-| | Mapper函数 | `mapper.go` | 模块根目录 |
-| **Adapters** | HTTP Handler | `{模块}.go`（单数） | `user.go`, `role.go`, `menu.go` |
+| 层级               | 文件类型            | 命名规范                                        | 示例                                                     |
+| ------------------ | ------------------- | ----------------------------------------------- | -------------------------------------------------------- |
+| **Domain**         | 实体模型            | `entity_{模块}.go`                              | `entity_user.go`, `entity_role.go`                       |
+|                    | Repository 接口     | `command_repository.go` / `query_repository.go` | 每个模块固定命名                                         |
+|                    | 值对象              | `value_objects.go`                              | 复杂领域需要时使用                                       |
+|                    | 错误定义            | `errors.go`                                     | 每个模块的领域错误                                       |
+| **Infrastructure** | Repository 实现     | `{模块}_{操作类型}_repository.go`               | `user_command_repository.go`, `user_query_repository.go` |
+|                    | Domain Service 实现 | `service.go`                                    | 在各自子目录（如 `auth/service.go`）                     |
+| **Application**    | Command 定义        | `{操作}_xxx.go`                                 | `create_user.go`, `update_user.go`                       |
+|                    | Command Handler     | `{操作}_xxx_handler.go`                         | `create_user_handler.go`                                 |
+|                    | Query 定义          | `{操作}_xxx.go`                                 | `get_user.go`, `list_users.go`                           |
+|                    | Query Handler       | `{操作}_xxx_handler.go`                         | `get_user_handler.go`                                    |
+|                    | DTO 定义            | `dto.go`                                        | 模块根目录                                               |
+|                    | Mapper 函数         | `mapper.go`                                     | 模块根目录                                               |
+| **Adapters**       | HTTP Handler        | `{模块}.go`（单数）                             | `user.go`, `role.go`, `menu.go`                          |
 
 **目录结构示例**：
+
 ```
 internal/domain/user/
 ├── entity_user.go              # User 实体
 ├── command_repository.go       # 写操作接口
 ├── query_repository.go         # 读操作接口
-├── repository.go               # 兼容接口（组合）
 └── errors.go                   # 领域错误
 
 internal/infrastructure/persistence/
@@ -109,6 +110,8 @@ internal/adapters/http/handler/
 ├── role.go                     # RoleHandler
 └── menu.go                     # MenuHandler
 ```
+
+> ⚠️ 任何组合仓储（如 `repository.go`）都被视为技术债务，新增或修改功能时应立即拆分出 `CommandRepository` 与 `QueryRepository`。
 
 ## 💻 添加新功能
 
@@ -229,6 +232,7 @@ func (s *authService) GenerateToken(userID uint) (string, error) { ... }
 #### 3. Application 层创建 Use Case
 
 **目录结构**：
+
 ```
 internal/application/xxx/
 ├── command/              # 写操作 Use Cases
@@ -550,23 +554,66 @@ func NewContainer(cfg *config.Config) (*Container, error) {
 }
 ```
 
-**在 `internal/adapters/http/router.go` 中注册路由**：
+> 🧠 实际 wiring 位于 `internal/bootstrap/container.go`。新增模块时务必遵循其中的顺序：先构建 Repository，再创建 Use Case Handler，最后初始化 HTTP Handler 并将其实例通过 `http.SetupRouter` 注册到路由层。
+
+**在 `internal/adapters/http/router.go` 中注册路由**（容器会将依赖逐一传入，而不是直接传递 Container）：
 
 ```go
 // internal/adapters/http/router.go
-func SetupRouter(container *bootstrap.Container) *gin.Engine {
-    r := gin.Default()
+func SetupRouter(
+    cfg *config.Config,
+    db *gorm.DB,
+    redisClient *redis.Client,
+    userCommandRepo user.CommandRepository,
+    userQueryRepo user.QueryRepository,
+    auditLogCommandRepo auditlog.CommandRepository,
+    captchaCommandRepo captcha.CommandRepository,
+    jwtManager *infraauth.JWTManager,
+    patService *infraauth.PATService,
+    authService *infraauth.Service,
+    captchaService *infracaptcha.Service,
+    twofaService *infratwofa.Service,
+    authHandler *handler.AuthHandler,
+    roleHandler *handler.RoleHandler,
+    menuHandler *handler.MenuHandler,
+    settingHandler *handler.SettingHandler,
+    patHandler *handler.PATHandler,
+    auditLogHandler *handler.AuditLogHandler,
+) *gin.Engine {
+    r := gin.New()
+    r.Use(gin.Recovery(), middleware.CORS())
 
-    // API 路由组
-    api := r.Group("/api/v1")
+    healthHandler := handler.NewHealthHandler(db, redisClient)
+    r.GET("/health", healthHandler.Check)
+
+    api := r.Group("/api")
     {
-        xxx := api.Group("/xxx")
+        captchaHandler := handler.NewCaptchaHandler(captchaCommandRepo, captchaService, cfg.Auth.DevSecret)
+        auth := api.Group("/auth")
         {
-            xxx.POST("", container.XxxHandler.Create)
-            xxx.GET("/:id", container.XxxHandler.GetByID)
-            xxx.PUT("/:id", container.XxxHandler.Update)
-            xxx.DELETE("/:id", container.XxxHandler.Delete)
-            xxx.GET("", container.XxxHandler.List)
+            auth.POST("/register", authHandler.Register)
+            auth.POST("/login", authHandler.Login)
+            auth.POST("/refresh", authHandler.RefreshToken)
+            auth.GET("/captcha", captchaHandler.GetCaptcha)
+        }
+
+        twofaHandler := handler.NewTwoFAHandler(twofaService)
+        twofa := api.Group("/auth/2fa")
+        twofa.Use(middleware.Auth(jwtManager, patService, userQueryRepo))
+        {
+            twofa.POST("/setup", twofaHandler.Setup)
+            // ...
+        }
+
+        admin := api.Group("/admin")
+        admin.Use(middleware.Auth(jwtManager, patService, userQueryRepo))
+        admin.Use(middleware.AuditMiddleware(auditLogCommandRepo))
+        admin.Use(middleware.RequireRole("admin"))
+        {
+            adminUserHandler := handler.NewAdminUserHandler(userCommandRepo, userQueryRepo)
+            admin.POST("/users", middleware.RequirePermission("admin:users:create"), adminUserHandler.CreateUser)
+            admin.GET("/roles", middleware.RequirePermission("admin:roles:read"), roleHandler.ListRoles)
+            // ...
         }
     }
 
@@ -584,7 +631,7 @@ func SetupRouter(container *bootstrap.Container) *gin.Engine {
 6. **依赖注入** - 所有依赖在 `container.go` 中注册
 7. **统一响应** - HTTP 响应使用 `adapters/http/response` 包
 8. **接口优先** - 先定义 Domain 接口，再实现 Infrastructure
-9. **向前兼容** - 不需要考虑向后兼容，可以破坏现有功能
+9. **统一架构** - 所有模块必须遵循最新 DDD+CQRS 约定，发现旧式实现立即拆分重构，禁止新增兼容层
 
 ## 🔑 关键文件位置
 
@@ -604,9 +651,7 @@ func SetupRouter(container *bootstrap.Container) *gin.Engine {
 
 **架构文档参考**：
 
-- `docs/architecture/ddd-cqrs.md` - DDD + CQRS 四层架构详解
-- `docs/architecture/migration-guide.md` - 架构迁移指南和最佳实践
-- `docs/architecture/overview.md` - 三层架构（遗留）
+- `docs/architecture/ddd-cqrs.md` - DDD + CQRS 四层架构详解（主架构标准）
 
 **查看文档时**：
 
@@ -644,11 +689,12 @@ func SetupRouter(container *bootstrap.Container) *gin.Engine {
 - ❌ 在 HTTP Handler 中写业务逻辑
 - ❌ 在 Application 层直接依赖 Infrastructure 实现（只依赖 Domain 接口）
 - ❌ 在 Domain 层依赖外层（Domain 不能 import Infrastructure/Application）
-- ❌ Command 和 Query Repository 混用（写操作用 Command，读操作用 Query）
+- ❌ Command 和 Query Repository 混用（写操作必须调用 CommandRepository，读操作必须调用 QueryRepository，遇到旧的组合接口要第一时间拆分）
 - ❌ 跳过 Use Case 直接从 Handler 调用 Repository
 
 ## 开发环境
 
 - 当前系统环境为 ubuntu 22.04, 你可以使用 apt 安装任意软件包来完成工作
+- 你可以使用常用工具如 `ripgrep fd-find tree` 等来辅助你完成任务
 - 在完成每一个任务后进行 git commit 来提交工作报告
 - 环境中可能有多个 AI Agent 在工作，git commit 时不必在意其他被修改的文件

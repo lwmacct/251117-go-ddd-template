@@ -75,8 +75,9 @@ type Container struct {
 	TwoFACommandRepo      twofa.CommandRepository
 	TwoFAQueryRepo        twofa.QueryRepository
 
-	// Special Repository (内存存储，不需要 CQRS 分离)
-	CaptchaRepository captcha.Repository
+	// Captcha（内存实现，同样遵循 CQRS）
+	CaptchaCommandRepo captcha.CommandRepository
+	CaptchaQueryRepo   captcha.QueryRepository
 
 	// Domain Services
 	AuthService domainAuth.Service
@@ -161,7 +162,7 @@ func NewContainer(cfg *config.Config, opts *ContainerOptions) (*Container, error
 	twofaCommandRepo := persistence.NewTwoFACommandRepository(db)
 	twofaQueryRepo := persistence.NewTwoFAQueryRepository(db)
 
-	// Special Repository (内存存储，不需要 CQRS 分离)
+	// Captcha Repository（内存实现，同样提供 Command/Query 能力）
 	captchaRepo := persistence.NewCaptchaMemoryRepository()
 
 	// =================================================================
@@ -418,12 +419,12 @@ func NewContainer(cfg *config.Config, opts *ContainerOptions) (*Container, error
 		authServiceForRouter,
 		captchaService,
 		twofaService,
-		authHandler,      // 使用新的 DDD+CQRS AuthHandler
-		roleHandler,      // 使用新的 DDD+CQRS RoleHandler
-		menuHandler,      // 使用新的 DDD+CQRS MenuHandler
-		settingHandler,   // 使用新的 DDD+CQRS SettingHandler
-		patHandler,       // 使用新的 DDD+CQRS PATHandler
-		auditLogHandler,  // 使用新的 DDD+CQRS AuditLogHandler
+		authHandler,     // 使用新的 DDD+CQRS AuthHandler
+		roleHandler,     // 使用新的 DDD+CQRS RoleHandler
+		menuHandler,     // 使用新的 DDD+CQRS MenuHandler
+		settingHandler,  // 使用新的 DDD+CQRS SettingHandler
+		patHandler,      // 使用新的 DDD+CQRS PATHandler
+		auditLogHandler, // 使用新的 DDD+CQRS AuditLogHandler
 	)
 
 	return &Container{
@@ -449,8 +450,9 @@ func NewContainer(cfg *config.Config, opts *ContainerOptions) (*Container, error
 		TwoFACommandRepo:      twofaCommandRepo,
 		TwoFAQueryRepo:        twofaQueryRepo,
 
-		// Special Repository
-		CaptchaRepository: captchaRepo,
+		// Captcha Repository（单实例实现 Command/Query）
+		CaptchaCommandRepo: captchaRepo,
+		CaptchaQueryRepo:   captchaRepo,
 
 		// Domain Services
 		AuthService: authService,

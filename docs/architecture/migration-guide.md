@@ -216,15 +216,15 @@ type LoginCommand struct {
 ```go
 // internal/application/auth/command/login_handler.go
 type LoginHandler struct {
-    userQueryRepo    user.QueryRepository
-    captchaQueryRepo captcha.Repository
-    twofaQueryRepo   twofa.QueryRepository
-    authService      domainAuth.Service
+    userQueryRepo      user.QueryRepository
+    captchaCommandRepo captcha.CommandRepository
+    twofaQueryRepo     twofa.QueryRepository
+    authService        domainAuth.Service
 }
 
 func (h *LoginHandler) Handle(ctx context.Context, cmd LoginCommand) (*LoginResult, error) {
     // 1. 验证图形验证码
-    valid, _ := h.captchaQueryRepo.Verify(ctx, cmd.CaptchaID, cmd.Captcha)
+    valid, _ := h.captchaCommandRepo.Verify(ctx, cmd.CaptchaID, cmd.Captcha)
     if !valid {
         return nil, domainAuth.ErrInvalidCaptcha
     }
@@ -522,7 +522,7 @@ func NewContainer(cfg *config.Config, opts *ContainerOptions) (*Container, error
     // 4. Use Case Handlers - Auth
     loginHandler := authCommand.NewLoginHandler(
         userQueryRepo,
-        captchaRepo,
+        captchaCommandRepo,
         twofaQueryRepo,
         authService,
     )

@@ -16,13 +16,13 @@ import (
 
 // Service 认证服务
 type Service struct {
-	userCommandRepo  user.CommandRepository
-	userQueryRepo    user.QueryRepository
-	twofaCommandRepo twofa.CommandRepository
-	twofaQueryRepo   twofa.QueryRepository
-	captchaRepo      captcha.Repository
-	jwtManager       *JWTManager
-	sessionService   *LoginSessionService
+	userCommandRepo    user.CommandRepository
+	userQueryRepo      user.QueryRepository
+	twofaCommandRepo   twofa.CommandRepository
+	twofaQueryRepo     twofa.QueryRepository
+	captchaCommandRepo captcha.CommandRepository
+	jwtManager         *JWTManager
+	sessionService     *LoginSessionService
 }
 
 // NewService 创建认证服务
@@ -31,18 +31,18 @@ func NewService(
 	userQueryRepo user.QueryRepository,
 	twofaCommandRepo twofa.CommandRepository,
 	twofaQueryRepo twofa.QueryRepository,
-	captchaRepo captcha.Repository,
+	captchaCommandRepo captcha.CommandRepository,
 	jwtManager *JWTManager,
 	sessionService *LoginSessionService,
 ) *Service {
 	return &Service{
-		userCommandRepo:  userCommandRepo,
-		userQueryRepo:    userQueryRepo,
-		twofaCommandRepo: twofaCommandRepo,
-		twofaQueryRepo:   twofaQueryRepo,
-		captchaRepo:      captchaRepo,
-		jwtManager:       jwtManager,
-		sessionService:   sessionService,
+		userCommandRepo:    userCommandRepo,
+		userQueryRepo:      userQueryRepo,
+		twofaCommandRepo:   twofaCommandRepo,
+		twofaQueryRepo:     twofaQueryRepo,
+		captchaCommandRepo: captchaCommandRepo,
+		jwtManager:         jwtManager,
+		sessionService:     sessionService,
 	}
 }
 
@@ -59,23 +59,23 @@ type RegisterRequest struct {
 // 1. 第一次登录：login + password + captcha_id + captcha (必须)
 // 2. 第二次登录（2FA）：session_token + two_factor_code (必须)
 type LoginRequest struct {
-	Login         string `json:"login,omitempty"`          // 用户名或邮箱（第一次登录必须）
-	Password      string `json:"password,omitempty"`       // 密码（第一次登录必须）
-	CaptchaID     string `json:"captcha_id,omitempty"`     // 验证码ID（第一次登录必须）
-	Captcha       string `json:"captcha,omitempty"`        // 验证码（第一次登录必须）
+	Login         string `json:"login,omitempty"`           // 用户名或邮箱（第一次登录必须）
+	Password      string `json:"password,omitempty"`        // 密码（第一次登录必须）
+	CaptchaID     string `json:"captcha_id,omitempty"`      // 验证码ID（第一次登录必须）
+	Captcha       string `json:"captcha,omitempty"`         // 验证码（第一次登录必须）
 	TwoFactorCode string `json:"two_factor_code,omitempty"` // 2FA验证码（第二次登录必须）
-	SessionToken  string `json:"session_token,omitempty"`  // 临时会话token（第二次登录必须）
+	SessionToken  string `json:"session_token,omitempty"`   // 临时会话token（第二次登录必须）
 }
 
 // AuthResponse 认证响应
 type AuthResponse struct {
-	AccessToken  string                        `json:"access_token,omitempty"`  // 第一次登录时不返回（需要2FA验证）
-	RefreshToken string                        `json:"refresh_token,omitempty"` // 第一次登录时不返回（需要2FA验证）
-	TokenType    string                        `json:"token_type,omitempty"`
-	ExpiresIn    int                           `json:"expires_in,omitempty"` // 秒
+	AccessToken  string                         `json:"access_token,omitempty"`  // 第一次登录时不返回（需要2FA验证）
+	RefreshToken string                         `json:"refresh_token,omitempty"` // 第一次登录时不返回（需要2FA验证）
+	TokenType    string                         `json:"token_type,omitempty"`
+	ExpiresIn    int                            `json:"expires_in,omitempty"` // 秒
 	User         *userdto.UserWithRolesResponse `json:"user,omitempty"`
-	SessionToken string                        `json:"session_token,omitempty"` // 临时会话token（第一次登录后返回，用于第二次2FA验证）
-	Requires2FA  bool                          `json:"requires_2fa,omitempty"`  // 是否需要2FA验证
+	SessionToken string                         `json:"session_token,omitempty"` // 临时会话token（第一次登录后返回，用于第二次2FA验证）
+	Requires2FA  bool                           `json:"requires_2fa,omitempty"`  // 是否需要2FA验证
 }
 
 // TwoFactorRequiredError 表示需要2FA验证的错误
@@ -215,7 +215,7 @@ func (s *Service) Login(ctx context.Context, req *LoginRequest) (*AuthResponse, 
 	} else {
 		// ========== 流程1：第一次登录（账号密码验证） ==========
 		// 1. 验证图形验证码
-		valid, err := s.captchaRepo.Verify(ctx, req.CaptchaID, req.Captcha)
+		valid, err := s.captchaCommandRepo.Verify(ctx, req.CaptchaID, req.Captcha)
 		if err != nil || !valid {
 			return nil, fmt.Errorf("invalid or expired captcha")
 		}

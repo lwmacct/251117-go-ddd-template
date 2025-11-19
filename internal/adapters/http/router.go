@@ -27,7 +27,7 @@ func SetupRouter(
 	userCommandRepo user.CommandRepository,
 	userQueryRepo user.QueryRepository,
 	auditLogCommandRepo auditlog.CommandRepository,
-	captchaRepo captcha.Repository,
+	captchaCommandRepo captcha.CommandRepository,
 	jwtManager *infraauth.JWTManager,
 	patService *infraauth.PATService,
 	authService *infraauth.Service,
@@ -54,7 +54,7 @@ func SetupRouter(
 	api := r.Group("/api")
 	{
 		// 认证路由 (公开)
-		captchaHandler := handler.NewCaptchaHandler(captchaRepo, captchaService, cfg.Auth.DevSecret)
+		captchaHandler := handler.NewCaptchaHandler(captchaCommandRepo, captchaService, cfg.Auth.DevSecret)
 		auth := api.Group("/auth")
 		{
 			auth.POST("/register", authHandler.Register)
@@ -75,10 +75,10 @@ func SetupRouter(
 		twofa := api.Group("/auth/2fa")
 		twofa.Use(middleware.Auth(jwtManager, patService, userQueryRepo))
 		{
-			twofa.POST("/setup", twofaHandler.Setup)               // 设置 2FA
-			twofa.POST("/verify", twofaHandler.VerifyAndEnable)    // 验证并启用 2FA
-			twofa.POST("/disable", twofaHandler.Disable)           // 禁用 2FA
-			twofa.GET("/status", twofaHandler.GetStatus)           // 获取 2FA 状态
+			twofa.POST("/setup", twofaHandler.Setup)            // 设置 2FA
+			twofa.POST("/verify", twofaHandler.VerifyAndEnable) // 验证并启用 2FA
+			twofa.POST("/disable", twofaHandler.Disable)        // 禁用 2FA
+			twofa.GET("/status", twofaHandler.GetStatus)        // 获取 2FA 状态
 		}
 
 		// 管理员路由 (/api/admin/*) - 使用三段式权限控制

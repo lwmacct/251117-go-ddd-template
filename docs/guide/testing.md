@@ -36,14 +36,17 @@ go install github.com/vektra/mockery/v2@latest
 ├── internal/
 │   ├── domain/
 │   │   └── user/
-│   │       ├── model.go
-│   │       ├── model_test.go          # 单元测试
-│   │       ├── repository.go
-│   │       └── repository_mock.go     # Mock 接口
+│   │       ├── entity_user.go
+│   │       ├── entity_user_test.go    # 单元测试
+│   │       ├── command_repository.go
+│   │       ├── query_repository.go
+│   │       └── repository_mock.go     # Command/Query Mock（通过 mockery 生成）
 │   ├── infrastructure/
 │   │   └── persistence/
-│   │       ├── user_repository.go
-│   │       └── user_repository_test.go # 集成测试
+│   │       ├── user_command_repository.go      # 写实现
+│   │       ├── user_command_repository_test.go # 写仓储集成测试
+│   │       ├── user_query_repository.go        # 读实现
+│   │       └── user_query_repository_test.go   # 读仓储集成测试
 │   └── adapters/
 │       └── http/
 │           └── handler/
@@ -416,7 +419,8 @@ type UserRepositoryTestSuite struct {
 	db       *gorm.DB
 	pool     *dockertest.Pool
 	resource *dockertest.Resource
-	repo     user.Repository
+	commandRepo user.CommandRepository
+	queryRepo   user.QueryRepository
 }
 
 func (suite *UserRepositoryTestSuite) SetupSuite() {
@@ -466,8 +470,9 @@ func (suite *UserRepositoryTestSuite) SetupSuite() {
 	// 自动迁移
 	suite.db.AutoMigrate(&user.User{})
 
-	// 创建仓储实例
-	suite.repo = persistence.NewUserRepository(suite.db)
+	// 创建 CQRS 仓储实例
+	suite.commandRepo = persistence.NewUserCommandRepository(suite.db)
+	suite.queryRepo = persistence.NewUserQueryRepository(suite.db)
 }
 
 func (suite *UserRepositoryTestSuite) TearDownSuite() {
@@ -489,13 +494,13 @@ func (suite *UserRepositoryTestSuite) TestCreate() {
 		Password: "hashedpassword",
 	}
 
-	err := suite.repo.Create(ctx, newUser)
+	err := suite.commandRepo.Create(ctx, newUser)
 	assert.NoError(suite.T(), err)
 	assert.NotZero(suite.T(), newUser.ID)
 	assert.NotZero(suite.T(), newUser.CreatedAt)
 }
 
-func (suite *UserRepositoryTestSuite) TestFindByID() {
+func (suite *UserRepositoryTestSuite) TestGetByID() {
 	ctx := context.Background()
 
 	// 创建用户
@@ -504,10 +509,10 @@ func (suite *UserRepositoryTestSuite) TestFindByID() {
 		Email:    "test@example.com",
 		Password: "hashedpassword",
 	}
-	suite.repo.Create(ctx, newUser)
+	suite.commandRepo.Create(ctx, newUser)
 
 	// 查找用户
-	foundUser, err := suite.repo.FindByID(ctx, newUser.ID)
+	foundUser, err := suite.queryRepo.GetByID(ctx, newUser.ID)
 	assert.NoError(suite.T(), err)
 	assert.Equal(suite.T(), newUser.Username, foundUser.Username)
 	assert.Equal(suite.T(), newUser.Email, foundUser.Email)
@@ -522,15 +527,15 @@ func (suite *UserRepositoryTestSuite) TestUpdate() {
 		Email:    "test@example.com",
 		Password: "hashedpassword",
 	}
-	suite.repo.Create(ctx, newUser)
+	suite.commandRepo.Create(ctx, newUser)
 
 	// 更新用户
 	newUser.Email = "updated@example.com"
-	err := suite.repo.Update(ctx, newUser)
+	err := suite.commandRepo.Update(ctx, newUser)
 	assert.NoError(suite.T(), err)
 
 	// 验证更新
-	foundUser, _ := suite.repo.FindByID(ctx, newUser.ID)
+	foundUser, _ := suite.queryRepo.GetByID(ctx, newUser.ID)
 	assert.Equal(suite.T(), "updated@example.com", foundUser.Email)
 }
 
@@ -543,14 +548,14 @@ func (suite *UserRepositoryTestSuite) TestDelete() {
 		Email:    "test@example.com",
 		Password: "hashedpassword",
 	}
-	suite.repo.Create(ctx, newUser)
+	suite.commandRepo.Create(ctx, newUser)
 
 	// 删除用户 (软删除)
-	err := suite.repo.Delete(ctx, newUser.ID)
+	err := suite.commandRepo.Delete(ctx, newUser.ID)
 	assert.NoError(suite.T(), err)
 
 	// 验证已删除 (软删除，仍能查到 DeletedAt)
-	foundUser, err := suite.repo.FindByID(ctx, newUser.ID)
+	foundUser, err := suite.queryRepo.GetByID(ctx, newUser.ID)
 	assert.Error(suite.T(), err) // 应该找不到 (因为软删除)
 }
 

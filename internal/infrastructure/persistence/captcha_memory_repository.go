@@ -31,8 +31,13 @@ type captchaMemoryRepository struct {
 	stopClean chan struct{}
 }
 
+var (
+	_ captcha.CommandRepository = (*captchaMemoryRepository)(nil)
+	_ captcha.QueryRepository   = (*captchaMemoryRepository)(nil)
+)
+
 // NewCaptchaMemoryRepository 创建内存验证码仓储
-func NewCaptchaMemoryRepository() captcha.Repository {
+func NewCaptchaMemoryRepository() *captchaMemoryRepository {
 	repo := &captchaMemoryRepository{
 		data:      make(map[string]*captcha.CaptchaData),
 		stopClean: make(chan struct{}),

@@ -11,14 +11,14 @@ import (
 
 // CaptchaHandler 验证码处理器
 type CaptchaHandler struct {
-	captchaRepo    captcha.Repository
+	captchaRepo    captcha.CommandRepository
 	captchaService *captchaService.Service
 	devSecret      string // 开发模式密钥
 }
 
 // NewCaptchaHandler 创建验证码处理器
 func NewCaptchaHandler(
-	captchaRepo captcha.Repository,
+	captchaRepo captcha.CommandRepository,
 	captchaService *captchaService.Service,
 	devSecret string,
 ) *CaptchaHandler {

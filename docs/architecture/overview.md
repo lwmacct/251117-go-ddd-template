@@ -79,9 +79,10 @@ adapters/
 
 ```
 domain/
-└── user/             # 用户领域
-    ├── model.go      # 用户模型和 DTO
-    └── repository.go # 用户仓储接口
+└── user/                     # 用户领域
+    ├── entity_user.go        # 用户模型
+    ├── command_repository.go # 写接口（Create/Update/Delete...）
+    └── query_repository.go   # 读接口（Get/List/Search...）
 ```
 
 **职责：**
@@ -116,7 +117,8 @@ infrastructure/
 │   └── seeds/        # 种子数据
 │       └── user_seeder.go  # 用户种子
 ├── persistence/      # 持久化
-│   └── user_repository.go  # 用户仓储实现
+│   ├── user_command_repository.go  # 用户写仓储实现
+│   └── user_query_repository.go    # 用户读仓储实现
 ├── queue/            # 队列系统
 │   ├── redis_queue.go   # Redis 队列
 │   └── processor.go     # 任务处理器
@@ -231,17 +233,23 @@ Commands → Bootstrap → Infrastructure → Domain
 
 ### 1. 仓储模式 (Repository Pattern)
 
-**定义：**在 `internal/domain/user/repository.go`
+**定义：**在 `internal/domain/user/command_repository.go` 与 `query_repository.go`
 
 ```go
-type Repository interface {
+type CommandRepository interface {
     Create(ctx context.Context, user *User) error
-    FindByID(ctx context.Context, id uint) (*User, error)
-    // ...
+    Update(ctx context.Context, user *User) error
+    Delete(ctx context.Context, id uint) error
+}
+
+type QueryRepository interface {
+    GetByID(ctx context.Context, id uint) (*User, error)
+    GetByUsernameWithRoles(ctx context.Context, username string) (*User, error)
+    List(ctx context.Context, offset, limit int) ([]*User, error)
 }
 ```
 
-**实现：**在 `internal/infrastructure/persistence/user_repository.go`
+**实现：**在 `internal/infrastructure/persistence/user_command_repository.go` 和 `user_query_repository.go`
 
 **优点：**
 
@@ -291,8 +299,8 @@ func (h *AuthHandler) Register(c *gin.Context) {
 ### 添加新功能
 
 1. **定义领域模型**：在 `internal/domain/<name>/model.go`
-2. **定义仓储接口**：在 `internal/domain/<name>/repository.go`
-3. **实现仓储**：在 `internal/infrastructure/persistence/`
+2. **定义仓储接口**：在 `internal/domain/<name>/command_repository.go` 与 `query_repository.go`
+3. **实现仓储**：在 `internal/infrastructure/persistence/`（分别实现 Command/Query）
 4. **创建 Handler**：在 `internal/adapters/http/handler/`
 5. **注册路由**：在 `internal/adapters/http/router.go`
 6. **注入依赖**：在 `internal/bootstrap/container.go`
