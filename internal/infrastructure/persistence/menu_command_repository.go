@@ -21,23 +21,31 @@ func NewMenuCommandRepository(db *gorm.DB) menu.CommandRepository {
 
 // Create 创建菜单
 func (r *menuCommandRepository) Create(ctx context.Context, m *menu.Menu) error {
-	if err := r.db.WithContext(ctx).Create(m).Error; err != nil {
+	model := newMenuModelFromEntity(m)
+	if err := r.db.WithContext(ctx).Create(model).Error; err != nil {
 		return fmt.Errorf("failed to create menu: %w", err)
+	}
+	if saved := model.toEntity(); saved != nil {
+		*m = *saved
 	}
 	return nil
 }
 
 // Update 更新菜单
 func (r *menuCommandRepository) Update(ctx context.Context, m *menu.Menu) error {
-	if err := r.db.WithContext(ctx).Save(m).Error; err != nil {
+	model := newMenuModelFromEntity(m)
+	if err := r.db.WithContext(ctx).Save(model).Error; err != nil {
 		return fmt.Errorf("failed to update menu: %w", err)
+	}
+	if saved := model.toEntity(); saved != nil {
+		*m = *saved
 	}
 	return nil
 }
 
 // Delete 删除菜单
 func (r *menuCommandRepository) Delete(ctx context.Context, id uint) error {
-	if err := r.db.WithContext(ctx).Delete(&menu.Menu{}, id).Error; err != nil {
+	if err := r.db.WithContext(ctx).Delete(&MenuModel{}, id).Error; err != nil {
 		return fmt.Errorf("failed to delete menu: %w", err)
 	}
 	return nil
@@ -51,7 +59,7 @@ func (r *menuCommandRepository) UpdateOrder(ctx context.Context, menus []struct 
 }) error {
 	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		for _, m := range menus {
-			if err := tx.Model(&menu.Menu{}).
+			if err := tx.Model(&MenuModel{}).
 				Where("id = ?", m.ID).
 				Updates(map[string]interface{}{
 					"order":     m.Order,

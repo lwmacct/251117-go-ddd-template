@@ -22,74 +22,74 @@ func NewPermissionQueryRepository(db *gorm.DB) role.PermissionQueryRepository {
 
 // FindByID 根据 ID 查找权限
 func (p *permissionQueryRepository) FindByID(ctx context.Context, id uint) (*role.Permission, error) {
-	var permission role.Permission
-	err := p.db.WithContext(ctx).First(&permission, id).Error
+	var model PermissionModel
+	err := p.db.WithContext(ctx).First(&model, id).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, nil
 		}
 		return nil, fmt.Errorf("failed to find permission by id: %w", err)
 	}
-	return &permission, nil
+	return model.toEntity(), nil
 }
 
 // FindByCode 根据代码查找权限
 func (p *permissionQueryRepository) FindByCode(ctx context.Context, code string) (*role.Permission, error) {
-	var permission role.Permission
-	err := p.db.WithContext(ctx).Where("code = ?", code).First(&permission).Error
+	var model PermissionModel
+	err := p.db.WithContext(ctx).Where("code = ?", code).First(&model).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, nil
 		}
 		return nil, fmt.Errorf("failed to find permission by code: %w", err)
 	}
-	return &permission, nil
+	return model.toEntity(), nil
 }
 
 // FindByIDs 根据 ID 列表查找多个权限
 func (p *permissionQueryRepository) FindByIDs(ctx context.Context, ids []uint) ([]role.Permission, error) {
-	var permissions []role.Permission
-	err := p.db.WithContext(ctx).Find(&permissions, ids).Error
+	var models []PermissionModel
+	err := p.db.WithContext(ctx).Find(&models, ids).Error
 	if err != nil {
 		return nil, fmt.Errorf("failed to find permissions by ids: %w", err)
 	}
-	return permissions, nil
+	return mapPermissionModelsToEntities(models), nil
 }
 
 // List 获取权限列表 (分页)
 func (p *permissionQueryRepository) List(ctx context.Context, page, limit int) ([]role.Permission, int64, error) {
-	var permissions []role.Permission
+	var models []PermissionModel
 	var total int64
 
-	query := p.db.WithContext(ctx).Model(&role.Permission{})
+	query := p.db.WithContext(ctx).Model(&PermissionModel{})
 
 	if err := query.Count(&total).Error; err != nil {
 		return nil, 0, fmt.Errorf("failed to count permissions: %w", err)
 	}
 
 	offset := (page - 1) * limit
-	err := query.Offset(offset).Limit(limit).Find(&permissions).Error
+	err := query.Offset(offset).Limit(limit).Find(&models).Error
 	if err != nil {
 		return nil, 0, fmt.Errorf("failed to list permissions: %w", err)
 	}
 
-	return permissions, total, nil
+	return mapPermissionModelsToEntities(models), total, nil
 }
 
 // ListByResource 根据资源获取权限列表
 func (p *permissionQueryRepository) ListByResource(ctx context.Context, resource string) ([]role.Permission, error) {
-	var permissions []role.Permission
-	err := p.db.WithContext(ctx).Where("resource = ?", resource).Find(&permissions).Error
+	var models []PermissionModel
+	err := p.db.WithContext(ctx).Where("resource = ?", resource).Find(&models).Error
 	if err != nil {
 		return nil, fmt.Errorf("failed to list permissions by resource: %w", err)
 	}
-	return permissions, nil
+	return mapPermissionModelsToEntities(models), nil
 }
 
 // Exists 检查权限是否存在
 func (p *permissionQueryRepository) Exists(ctx context.Context, id uint) (bool, error) {
 	var count int64
-	if err := p.db.WithContext(ctx).Model(&role.Permission{}).Where("id = ?", id).Count(&count).Error; err != nil {
+	if err := p.db.WithContext(ctx).Model(&PermissionModel{}).Where("id = ?", id).Count(&count).Error; err != nil {
 		return false, fmt.Errorf("failed to check permission existence: %w", err)
 	}
 	return count > 0, nil
@@ -98,7 +98,7 @@ func (p *permissionQueryRepository) Exists(ctx context.Context, id uint) (bool, 
 // ExistsByCode 检查权限代码是否存在
 func (p *permissionQueryRepository) ExistsByCode(ctx context.Context, code string) (bool, error) {
 	var count int64
-	if err := p.db.WithContext(ctx).Model(&role.Permission{}).Where("code = ?", code).Count(&count).Error; err != nil {
+	if err := p.db.WithContext(ctx).Model(&PermissionModel{}).Where("code = ?", code).Count(&count).Error; err != nil {
 		return false, fmt.Errorf("failed to check permission code existence: %w", err)
 	}
 	return count > 0, nil

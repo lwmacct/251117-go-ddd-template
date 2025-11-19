@@ -22,41 +22,46 @@ func NewMenuQueryRepository(db *gorm.DB) menu.QueryRepository {
 
 // FindByID 根据 ID 查找菜单
 func (r *menuQueryRepository) FindByID(ctx context.Context, id uint) (*menu.Menu, error) {
-	var m menu.Menu
-	err := r.db.WithContext(ctx).First(&m, id).Error
+	var model MenuModel
+	err := r.db.WithContext(ctx).First(&model, id).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, fmt.Errorf("menu not found with id: %d", id)
 		}
 		return nil, fmt.Errorf("failed to find menu by id: %w", err)
 	}
-	return &m, nil
+	return model.toEntity(), nil
 }
 
 // FindAll 查找所有菜单（树形结构）
 func (r *menuQueryRepository) FindAll(ctx context.Context) ([]*menu.Menu, error) {
-	var allMenus []*menu.Menu
+	var rootModels []MenuModel
 	err := r.db.WithContext(ctx).
 		Where("parent_id IS NULL").
 		Order("`order` ASC, id ASC").
-		Find(&allMenus).Error
+		Find(&rootModels).Error
 	if err != nil {
 		return nil, fmt.Errorf("failed to find all menus: %w", err)
 	}
 
-	// 递归加载子菜单
-	for _, m := range allMenus {
-		if err := r.loadChildren(ctx, m); err != nil {
+	menus := make([]*menu.Menu, 0, len(rootModels))
+	for i := range rootModels {
+		entity := rootModels[i].toEntity()
+		if entity == nil {
+			continue
+		}
+		if err := r.loadChildren(ctx, entity); err != nil {
 			return nil, err
 		}
+		menus = append(menus, entity)
 	}
 
-	return allMenus, nil
+	return menus, nil
 }
 
 // FindByParentID 根据父 ID 查找子菜单
 func (r *menuQueryRepository) FindByParentID(ctx context.Context, parentID *uint) ([]*menu.Menu, error) {
-	var menus []*menu.Menu
+	var models []MenuModel
 	query := r.db.WithContext(ctx)
 
 	if parentID == nil {
@@ -65,31 +70,42 @@ func (r *menuQueryRepository) FindByParentID(ctx context.Context, parentID *uint
 		query = query.Where("parent_id = ?", *parentID)
 	}
 
-	err := query.Order("`order` ASC, id ASC").Find(&menus).Error
+	err := query.Order("`order` ASC, id ASC").Find(&models).Error
 	if err != nil {
 		return nil, fmt.Errorf("failed to find menus by parent id: %w", err)
+	}
+
+	menus := make([]*menu.Menu, 0, len(models))
+	for i := range models {
+		if entity := models[i].toEntity(); entity != nil {
+			menus = append(menus, entity)
+		}
 	}
 	return menus, nil
 }
 
 // loadChildren 递归加载子菜单
 func (r *menuQueryRepository) loadChildren(ctx context.Context, m *menu.Menu) error {
-	var children []*menu.Menu
+	var childModels []MenuModel
 	err := r.db.WithContext(ctx).
 		Where("parent_id = ?", m.ID).
 		Order("`order` ASC, id ASC").
-		Find(&children).Error
+		Find(&childModels).Error
 	if err != nil {
 		return fmt.Errorf("failed to load children menus: %w", err)
 	}
 
-	m.Children = children
-
-	for _, child := range children {
-		if err := r.loadChildren(ctx, child); err != nil {
-			return err
+	children := make([]*menu.Menu, 0, len(childModels))
+	for i := range childModels {
+		if child := childModels[i].toEntity(); child != nil {
+			if err := r.loadChildren(ctx, child); err != nil {
+				return err
+			}
+			children = append(children, child)
 		}
 	}
+
+	m.Children = children
 
 	return nil
 }

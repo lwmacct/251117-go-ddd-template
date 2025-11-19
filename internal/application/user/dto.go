@@ -9,6 +9,7 @@ type CreateUserDTO struct {
 	Email    string `json:"email" binding:"required,email"`
 	Password string `json:"password" binding:"required,min=6"`
 	FullName string `json:"full_name" binding:"max=100"`
+	RoleIDs  []uint `json:"role_ids" binding:"omitempty,dive,gt=0"`
 }
 
 // UpdateUserDTO 更新用户 DTO
@@ -45,16 +46,16 @@ type UserResponse struct {
 
 // UserWithRolesResponse 用户响应 DTO（包含角色信息）
 type UserWithRolesResponse struct {
-	ID        uint         `json:"id"`
-	Username  string       `json:"username"`
-	Email     string       `json:"email"`
-	FullName  string       `json:"full_name"`
-	Avatar    string       `json:"avatar"`
-	Bio       string       `json:"bio"`
-	Status    string       `json:"status"`
-	Roles     []RoleDTO    `json:"roles"`
-	CreatedAt time.Time    `json:"created_at"`
-	UpdatedAt time.Time    `json:"updated_at"`
+	ID        uint      `json:"id"`
+	Username  string    `json:"username"`
+	Email     string    `json:"email"`
+	FullName  string    `json:"full_name"`
+	Avatar    string    `json:"avatar"`
+	Bio       string    `json:"bio"`
+	Status    string    `json:"status"`
+	Roles     []RoleDTO `json:"roles"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 // RoleDTO 角色 DTO（嵌套在用户响应中）

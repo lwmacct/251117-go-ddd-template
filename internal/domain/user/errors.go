@@ -31,4 +31,7 @@ var (
 
 	// ErrCannotModifyAdmin 不能修改管理员
 	ErrCannotModifyAdmin = errors.New("cannot modify admin user")
+
+	// ErrInvalidPassword 密码错误
+	ErrInvalidPassword = errors.New("invalid password")
 )

@@ -21,10 +21,10 @@ func NewTwoFAQueryRepository(db *gorm.DB) twofa.QueryRepository {
 
 // FindByUserID 根据用户 ID 查找 2FA 配置
 func (r *twofaQueryRepository) FindByUserID(ctx context.Context, userID uint) (*twofa.TwoFA, error) {
-	var tfa twofa.TwoFA
+	var model TwoFAModel
 	result := r.db.WithContext(ctx).
 		Where("user_id = ?", userID).
-		First(&tfa)
+		First(&model)
 
 	if result.Error != nil {
 		if result.Error == gorm.ErrRecordNotFound {
@@ -33,14 +33,14 @@ func (r *twofaQueryRepository) FindByUserID(ctx context.Context, userID uint) (*
 		return nil, fmt.Errorf("failed to find 2FA by user ID: %w", result.Error)
 	}
 
-	return &tfa, nil
+	return model.toEntity(), nil
 }
 
 // IsEnabled 检查用户是否启用了 2FA
 func (r *twofaQueryRepository) IsEnabled(ctx context.Context, userID uint) (bool, error) {
 	var count int64
 	result := r.db.WithContext(ctx).
-		Model(&twofa.TwoFA{}).
+		Model(&TwoFAModel{}).
 		Where("user_id = ? AND enabled = ?", userID, true).
 		Count(&count)
 

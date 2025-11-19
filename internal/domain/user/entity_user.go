@@ -5,37 +5,25 @@ import (
 	"time"
 
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/role"
-	"gorm.io/gorm"
 )
 
 // User 用户实体
 type User struct {
-	ID        uint           `gorm:"primarykey" json:"id"`
-	CreatedAt time.Time      `json:"created_at"`
-	UpdatedAt time.Time      `json:"updated_at"`
-	DeletedAt gorm.DeletedAt `gorm:"index" json:"-"` // 软删除
+	ID        uint       `json:"id"`
+	CreatedAt time.Time  `json:"created_at"`
+	UpdatedAt time.Time  `json:"updated_at"`
+	DeletedAt *time.Time `json:"-"`
 
-	Username string `gorm:"uniqueIndex;size:50;not null" json:"username"`
-	Email    string `gorm:"uniqueIndex;size:100;not null" json:"email"`
-	Password string `gorm:"size:255;not null" json:"-"` // 不在 JSON 中返回密码
-	FullName string `gorm:"size:100" json:"full_name"`
-	Avatar   string `gorm:"size:255" json:"avatar"`
-	Bio      string `gorm:"type:text" json:"bio"`
-	Status   string `gorm:"size:20;default:'active'" json:"status"` // active, inactive, banned
+	Username string `json:"username"`
+	Email    string `json:"email"`
+	Password string `json:"-"`
+	FullName string `json:"full_name"`
+	Avatar   string `json:"avatar"`
+	Bio      string `json:"bio"`
+	Status   string `json:"status"`
 
 	// RBAC: Many-to-Many relationship with roles
-	Roles []role.Role `gorm:"many2many:user_roles;" json:"roles,omitempty"`
-}
-
-// TableName 指定表名
-func (User) TableName() string {
-	return "users"
-}
-
-// BeforeCreate GORM 钩子：创建前
-func (u *User) BeforeCreate(tx *gorm.DB) error {
-	// 这里可以添加创建前的逻辑，例如密码加密
-	return nil
+	Roles []role.Role `json:"roles,omitempty"`
 }
 
 // HasRole checks if the user has a specific role

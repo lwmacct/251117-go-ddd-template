@@ -4,7 +4,7 @@ package seeds
 import (
 	"context"
 
-	"github.com/lwmacct/251117-go-ddd-template/internal/domain/user"
+	_persistence "github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/persistence"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
@@ -20,7 +20,7 @@ func (s *UserSeeder) Seed(ctx context.Context, db *gorm.DB) error {
 		return err
 	}
 
-	users := []user.User{
+	users := []_persistence.UserModel{
 		{
 			Username: "admin",
 			Email:    "admin@example.com",
@@ -46,7 +46,7 @@ func (s *UserSeeder) Seed(ctx context.Context, db *gorm.DB) error {
 
 	// 使用 FirstOrCreate 避免重复创建
 	for _, u := range users {
-		var existing user.User
+		var existing _persistence.UserModel
 		result := db.Where("username = ?", u.Username).First(&existing)
 
 		if result.Error == gorm.ErrRecordNotFound {

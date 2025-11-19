@@ -21,23 +21,31 @@ func NewPermissionCommandRepository(db *gorm.DB) role.PermissionCommandRepositor
 
 // Create 创建新权限
 func (p *permissionCommandRepository) Create(ctx context.Context, permission *role.Permission) error {
-	if err := p.db.WithContext(ctx).Create(permission).Error; err != nil {
+	model := newPermissionModelFromEntity(permission)
+	if err := p.db.WithContext(ctx).Create(model).Error; err != nil {
 		return fmt.Errorf("failed to create permission: %w", err)
+	}
+	if saved := model.toEntity(); saved != nil {
+		*permission = *saved
 	}
 	return nil
 }
 
 // Update 更新权限
 func (p *permissionCommandRepository) Update(ctx context.Context, permission *role.Permission) error {
-	if err := p.db.WithContext(ctx).Save(permission).Error; err != nil {
+	model := newPermissionModelFromEntity(permission)
+	if err := p.db.WithContext(ctx).Save(model).Error; err != nil {
 		return fmt.Errorf("failed to update permission: %w", err)
+	}
+	if saved := model.toEntity(); saved != nil {
+		*permission = *saved
 	}
 	return nil
 }
 
 // Delete 删除权限 (软删除)
 func (p *permissionCommandRepository) Delete(ctx context.Context, id uint) error {
-	if err := p.db.WithContext(ctx).Delete(&role.Permission{}, id).Error; err != nil {
+	if err := p.db.WithContext(ctx).Delete(&PermissionModel{}, id).Error; err != nil {
 		return fmt.Errorf("failed to delete permission: %w", err)
 	}
 	return nil

@@ -22,10 +22,10 @@ func NewPATQueryRepository(db *gorm.DB) pat.QueryRepository {
 
 // FindByToken 通过令牌哈希查找（用于认证）
 func (r *patQueryRepository) FindByToken(ctx context.Context, tokenHash string) (*pat.PersonalAccessToken, error) {
-	var token pat.PersonalAccessToken
+	var model PersonalAccessTokenModel
 	err := r.db.WithContext(ctx).
 		Where("token = ?", tokenHash).
-		First(&token).Error
+		First(&model).Error
 
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -34,14 +34,14 @@ func (r *patQueryRepository) FindByToken(ctx context.Context, tokenHash string) 
 		return nil, fmt.Errorf("failed to find PAT by token: %w", err)
 	}
 
-	return &token, nil
+	return model.toEntity(), nil
 }
 
 // FindByID 通过 ID 查找令牌
 func (r *patQueryRepository) FindByID(ctx context.Context, id uint) (*pat.PersonalAccessToken, error) {
-	var token pat.PersonalAccessToken
+	var model PersonalAccessTokenModel
 	err := r.db.WithContext(ctx).
-		First(&token, id).Error
+		First(&model, id).Error
 
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -50,15 +50,15 @@ func (r *patQueryRepository) FindByID(ctx context.Context, id uint) (*pat.Person
 		return nil, fmt.Errorf("failed to find PAT by ID: %w", err)
 	}
 
-	return &token, nil
+	return model.toEntity(), nil
 }
 
 // FindByPrefix 通过前缀查找令牌
 func (r *patQueryRepository) FindByPrefix(ctx context.Context, prefix string) (*pat.PersonalAccessToken, error) {
-	var token pat.PersonalAccessToken
+	var model PersonalAccessTokenModel
 	err := r.db.WithContext(ctx).
 		Where("token_prefix = ?", prefix).
-		First(&token).Error
+		First(&model).Error
 
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -67,20 +67,20 @@ func (r *patQueryRepository) FindByPrefix(ctx context.Context, prefix string) (*
 		return nil, fmt.Errorf("failed to find PAT by prefix: %w", err)
 	}
 
-	return &token, nil
+	return model.toEntity(), nil
 }
 
 // ListByUser 获取指定用户的所有令牌
 func (r *patQueryRepository) ListByUser(ctx context.Context, userID uint) ([]*pat.PersonalAccessToken, error) {
-	var tokens []*pat.PersonalAccessToken
+	var models []PersonalAccessTokenModel
 	err := r.db.WithContext(ctx).
 		Where("user_id = ?", userID).
 		Order("created_at DESC").
-		Find(&tokens).Error
+		Find(&models).Error
 
 	if err != nil {
 		return nil, fmt.Errorf("failed to list PATs by user: %w", err)
 	}
 
-	return tokens, nil
+	return mapPATModelsToEntities(models), nil
 }

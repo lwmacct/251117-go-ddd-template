@@ -22,23 +22,23 @@ func NewAuditLogQueryRepository(db *gorm.DB) auditlog.QueryRepository {
 
 // FindByID finds an audit log by ID
 func (r *auditLogQueryRepository) FindByID(ctx context.Context, id uint) (*auditlog.AuditLog, error) {
-	var log auditlog.AuditLog
-	err := r.db.WithContext(ctx).First(&log, id).Error
+	var model AuditLogModel
+	err := r.db.WithContext(ctx).First(&model, id).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, fmt.Errorf("audit log not found")
 		}
 		return nil, fmt.Errorf("failed to find audit log: %w", err)
 	}
-	return &log, nil
+	return model.toEntity(), nil
 }
 
 // List returns audit logs with filtering and pagination
 func (r *auditLogQueryRepository) List(ctx context.Context, filter auditlog.FilterOptions) ([]auditlog.AuditLog, int64, error) {
-	var logs []auditlog.AuditLog
+	var models []AuditLogModel
 	var total int64
 
-	query := r.db.WithContext(ctx).Model(&auditlog.AuditLog{})
+	query := r.db.WithContext(ctx).Model(&AuditLogModel{})
 
 	// Apply filters
 	if filter.UserID != nil {
@@ -71,8 +71,15 @@ func (r *auditLogQueryRepository) List(ctx context.Context, filter auditlog.Filt
 	// Order by created_at desc
 	query = query.Order("created_at DESC")
 
-	if err := query.Find(&logs).Error; err != nil {
+	if err := query.Find(&models).Error; err != nil {
 		return nil, 0, fmt.Errorf("failed to list audit logs: %w", err)
+	}
+
+	logs := make([]auditlog.AuditLog, 0, len(models))
+	for i := range models {
+		if entity := models[i].toEntity(); entity != nil {
+			logs = append(logs, *entity)
+		}
 	}
 
 	return logs, total, nil
@@ -80,10 +87,10 @@ func (r *auditLogQueryRepository) List(ctx context.Context, filter auditlog.Filt
 
 // ListByUser returns audit logs for a specific user
 func (r *auditLogQueryRepository) ListByUser(ctx context.Context, userID uint, page, limit int) ([]auditlog.AuditLog, int64, error) {
-	var logs []auditlog.AuditLog
+	var models []AuditLogModel
 	var total int64
 
-	query := r.db.WithContext(ctx).Model(&auditlog.AuditLog{}).
+	query := r.db.WithContext(ctx).Model(&AuditLogModel{}).
 		Where("user_id = ?", userID)
 
 	if err := query.Count(&total).Error; err != nil {
@@ -91,8 +98,15 @@ func (r *auditLogQueryRepository) ListByUser(ctx context.Context, userID uint, p
 	}
 
 	offset := (page - 1) * limit
-	if err := query.Order("created_at DESC").Offset(offset).Limit(limit).Find(&logs).Error; err != nil {
+	if err := query.Order("created_at DESC").Offset(offset).Limit(limit).Find(&models).Error; err != nil {
 		return nil, 0, fmt.Errorf("failed to list audit logs by user: %w", err)
+	}
+
+	logs := make([]auditlog.AuditLog, 0, len(models))
+	for i := range models {
+		if entity := models[i].toEntity(); entity != nil {
+			logs = append(logs, *entity)
+		}
 	}
 
 	return logs, total, nil
@@ -100,10 +114,10 @@ func (r *auditLogQueryRepository) ListByUser(ctx context.Context, userID uint, p
 
 // ListByResource returns audit logs for a specific resource
 func (r *auditLogQueryRepository) ListByResource(ctx context.Context, resource string, page, limit int) ([]auditlog.AuditLog, int64, error) {
-	var logs []auditlog.AuditLog
+	var models []AuditLogModel
 	var total int64
 
-	query := r.db.WithContext(ctx).Model(&auditlog.AuditLog{}).
+	query := r.db.WithContext(ctx).Model(&AuditLogModel{}).
 		Where("resource = ?", resource)
 
 	if err := query.Count(&total).Error; err != nil {
@@ -111,8 +125,15 @@ func (r *auditLogQueryRepository) ListByResource(ctx context.Context, resource s
 	}
 
 	offset := (page - 1) * limit
-	if err := query.Order("created_at DESC").Offset(offset).Limit(limit).Find(&logs).Error; err != nil {
+	if err := query.Order("created_at DESC").Offset(offset).Limit(limit).Find(&models).Error; err != nil {
 		return nil, 0, fmt.Errorf("failed to list audit logs by resource: %w", err)
+	}
+
+	logs := make([]auditlog.AuditLog, 0, len(models))
+	for i := range models {
+		if entity := models[i].toEntity(); entity != nil {
+			logs = append(logs, *entity)
+		}
 	}
 
 	return logs, total, nil
@@ -120,10 +141,10 @@ func (r *auditLogQueryRepository) ListByResource(ctx context.Context, resource s
 
 // ListByAction returns audit logs for a specific action
 func (r *auditLogQueryRepository) ListByAction(ctx context.Context, action string, page, limit int) ([]auditlog.AuditLog, int64, error) {
-	var logs []auditlog.AuditLog
+	var models []AuditLogModel
 	var total int64
 
-	query := r.db.WithContext(ctx).Model(&auditlog.AuditLog{}).
+	query := r.db.WithContext(ctx).Model(&AuditLogModel{}).
 		Where("action = ?", action)
 
 	if err := query.Count(&total).Error; err != nil {
@@ -131,8 +152,15 @@ func (r *auditLogQueryRepository) ListByAction(ctx context.Context, action strin
 	}
 
 	offset := (page - 1) * limit
-	if err := query.Order("created_at DESC").Offset(offset).Limit(limit).Find(&logs).Error; err != nil {
+	if err := query.Order("created_at DESC").Offset(offset).Limit(limit).Find(&models).Error; err != nil {
 		return nil, 0, fmt.Errorf("failed to list audit logs by action: %w", err)
+	}
+
+	logs := make([]auditlog.AuditLog, 0, len(models))
+	for i := range models {
+		if entity := models[i].toEntity(); entity != nil {
+			logs = append(logs, *entity)
+		}
 	}
 
 	return logs, total, nil
@@ -142,7 +170,7 @@ func (r *auditLogQueryRepository) ListByAction(ctx context.Context, action strin
 func (r *auditLogQueryRepository) Count(ctx context.Context, filter auditlog.FilterOptions) (int64, error) {
 	var total int64
 
-	query := r.db.WithContext(ctx).Model(&auditlog.AuditLog{})
+	query := r.db.WithContext(ctx).Model(&AuditLogModel{})
 
 	// Apply filters
 	if filter.UserID != nil {
@@ -170,10 +198,10 @@ func (r *auditLogQueryRepository) Count(ctx context.Context, filter auditlog.Fil
 
 // Search searches audit logs by keyword
 func (r *auditLogQueryRepository) Search(ctx context.Context, keyword string, page, limit int) ([]auditlog.AuditLog, int64, error) {
-	var logs []auditlog.AuditLog
+	var models []AuditLogModel
 	var total int64
 
-	query := r.db.WithContext(ctx).Model(&auditlog.AuditLog{}).
+	query := r.db.WithContext(ctx).Model(&AuditLogModel{}).
 		Where("resource LIKE ? OR action LIKE ? OR details LIKE ?",
 			"%"+keyword+"%", "%"+keyword+"%", "%"+keyword+"%")
 
@@ -182,8 +210,15 @@ func (r *auditLogQueryRepository) Search(ctx context.Context, keyword string, pa
 	}
 
 	offset := (page - 1) * limit
-	if err := query.Order("created_at DESC").Offset(offset).Limit(limit).Find(&logs).Error; err != nil {
+	if err := query.Order("created_at DESC").Offset(offset).Limit(limit).Find(&models).Error; err != nil {
 		return nil, 0, fmt.Errorf("failed to search audit logs: %w", err)
+	}
+
+	logs := make([]auditlog.AuditLog, 0, len(models))
+	for i := range models {
+		if entity := models[i].toEntity(); entity != nil {
+			logs = append(logs, *entity)
+		}
 	}
 
 	return logs, total, nil

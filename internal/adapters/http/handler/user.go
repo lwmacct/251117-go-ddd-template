@@ -4,6 +4,7 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/lwmacct/251117-go-ddd-template/internal/adapters/http/response"
 	appUserDTO "github.com/lwmacct/251117-go-ddd-template/internal/application/user"
 	userCommand "github.com/lwmacct/251117-go-ddd-template/internal/application/user/command"
 	userQuery "github.com/lwmacct/251117-go-ddd-template/internal/application/user/query"
@@ -40,7 +41,7 @@ func NewUserHandler(
 func (h *UserHandler) Create(c *gin.Context) {
 	var req appUserDTO.CreateUserDTO
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(400, gin.H{"error": err.Error()})
+		response.ValidationError(c, err.Error())
 		return
 	}
 
@@ -50,14 +51,15 @@ func (h *UserHandler) Create(c *gin.Context) {
 		Email:    req.Email,
 		Password: req.Password,
 		FullName: req.FullName,
+		RoleIDs:  req.RoleIDs,
 	})
 
 	if err != nil {
-		c.JSON(500, gin.H{"error": err.Error()})
+		response.InternalError(c, err.Error())
 		return
 	}
 
-	c.JSON(201, gin.H{
+	response.Created(c, gin.H{
 		"message": "user created successfully",
 		"data": gin.H{
 			"user_id":  result.UserID,
@@ -73,7 +75,7 @@ func (h *UserHandler) GetByID(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := strconv.ParseUint(idStr, 10, 32)
 	if err != nil {
-		c.JSON(400, gin.H{"error": "invalid user id"})
+		response.BadRequest(c, "invalid user id")
 		return
 	}
 
@@ -84,13 +86,11 @@ func (h *UserHandler) GetByID(c *gin.Context) {
 	})
 
 	if err != nil {
-		c.JSON(404, gin.H{"error": err.Error()})
+		response.NotFound(c, "user")
 		return
 	}
 
-	c.JSON(200, gin.H{
-		"data": user,
-	})
+	response.OK(c, gin.H{"data": user})
 }
 
 // List 获取用户列表
@@ -115,18 +115,17 @@ func (h *UserHandler) List(c *gin.Context) {
 	})
 
 	if err != nil {
-		c.JSON(500, gin.H{"error": err.Error()})
+		response.InternalError(c, err.Error())
 		return
 	}
 
-	c.JSON(200, gin.H{
-		"data": gin.H{
-			"users": result.Users,
-			"total": result.Total,
-			"page":  page,
-			"limit": limit,
-		},
-	})
+	meta := response.NewPaginationMeta(int(result.Total), page, limit)
+	response.List(c, gin.H{
+		"users": result.Users,
+		"total": result.Total,
+		"page":  page,
+		"limit": limit,
+	}, meta)
 }
 
 // Update 更新用户
@@ -135,13 +134,13 @@ func (h *UserHandler) Update(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := strconv.ParseUint(idStr, 10, 32)
 	if err != nil {
-		c.JSON(400, gin.H{"error": "invalid user id"})
+		response.BadRequest(c, "invalid user id")
 		return
 	}
 
 	var req appUserDTO.UpdateUserDTO
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(400, gin.H{"error": err.Error()})
+		response.ValidationError(c, err.Error())
 		return
 	}
 
@@ -155,13 +154,11 @@ func (h *UserHandler) Update(c *gin.Context) {
 	})
 
 	if err != nil {
-		c.JSON(500, gin.H{"error": err.Error()})
+		response.InternalError(c, err.Error())
 		return
 	}
 
-	c.JSON(200, gin.H{
-		"message": "user updated successfully",
-	})
+	response.OK(c, gin.H{"message": "user updated successfully"})
 }
 
 // Delete 删除用户
@@ -170,7 +167,7 @@ func (h *UserHandler) Delete(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := strconv.ParseUint(idStr, 10, 32)
 	if err != nil {
-		c.JSON(400, gin.H{"error": "invalid user id"})
+		response.BadRequest(c, "invalid user id")
 		return
 	}
 
@@ -180,11 +177,9 @@ func (h *UserHandler) Delete(c *gin.Context) {
 	})
 
 	if err != nil {
-		c.JSON(500, gin.H{"error": err.Error()})
+		response.InternalError(c, err.Error())
 		return
 	}
 
-	c.JSON(200, gin.H{
-		"message": "user deleted successfully",
-	})
+	response.OK(c, gin.H{"message": "user deleted successfully"})
 }

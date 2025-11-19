@@ -4,8 +4,7 @@ import (
 	"context"
 	"log/slog"
 
-	"github.com/lwmacct/251117-go-ddd-template/internal/domain/role"
-	"github.com/lwmacct/251117-go-ddd-template/internal/domain/user"
+	_persistence "github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/persistence"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
@@ -32,7 +31,7 @@ func (s *RBACSeeder) Seed(ctx context.Context, db *gorm.DB) error {
 
 // seedPermissions seeds initial permissions with three-part format: domain:resource:action
 func (s *RBACSeeder) seedPermissions(ctx context.Context, db *gorm.DB) error {
-	permissions := []role.Permission{
+	permissions := []_persistence.PermissionModel{
 		// Admin domain - User management
 		{Domain: "admin", Resource: "users", Action: "create", Code: "admin:users:create", Description: "Create users"},
 		{Domain: "admin", Resource: "users", Action: "read", Code: "admin:users:read", Description: "Read all users"},
@@ -74,7 +73,7 @@ func (s *RBACSeeder) seedPermissions(ctx context.Context, db *gorm.DB) error {
 	}
 
 	for _, perm := range permissions {
-		var existing role.Permission
+		var existing _persistence.PermissionModel
 		result := db.WithContext(ctx).Where("code = ?", perm.Code).First(&existing)
 		if result.Error == gorm.ErrRecordNotFound {
 			if err := db.WithContext(ctx).Create(&perm).Error; err != nil {
@@ -90,25 +89,26 @@ func (s *RBACSeeder) seedPermissions(ctx context.Context, db *gorm.DB) error {
 }
 
 // seedRoles seeds initial roles with permissions
+
 func (s *RBACSeeder) seedRoles(ctx context.Context, db *gorm.DB) error {
 	// Get all permissions
-	var allPermissions []role.Permission
+	var allPermissions []_persistence.PermissionModel
 	if err := db.WithContext(ctx).Find(&allPermissions).Error; err != nil {
 		return err
 	}
 
 	// Find user permissions (user domain permissions only)
-	var userPermissions []role.Permission
+	var userPermissions []_persistence.PermissionModel
 	if err := db.WithContext(ctx).Where("domain = ?", "user").Find(&userPermissions).Error; err != nil {
 		return err
 	}
 
 	roles := []struct {
-		role        role.Role
-		permissions []role.Permission
+		role        _persistence.RoleModel
+		permissions []_persistence.PermissionModel
 	}{
 		{
-			role: role.Role{
+			role: _persistence.RoleModel{
 				Name:        "admin",
 				DisplayName: "Administrator",
 				Description: "Full system access with all permissions",
@@ -117,7 +117,7 @@ func (s *RBACSeeder) seedRoles(ctx context.Context, db *gorm.DB) error {
 			permissions: allPermissions,
 		},
 		{
-			role: role.Role{
+			role: _persistence.RoleModel{
 				Name:        "user",
 				DisplayName: "Regular User",
 				Description: "Standard user with limited permissions",
@@ -128,7 +128,7 @@ func (s *RBACSeeder) seedRoles(ctx context.Context, db *gorm.DB) error {
 	}
 
 	for _, r := range roles {
-		var existing role.Role
+		var existing _persistence.RoleModel
 		result := db.WithContext(ctx).Where("name = ?", r.role.Name).First(&existing)
 		if result.Error == gorm.ErrRecordNotFound {
 			// Create role
@@ -155,11 +155,11 @@ func (s *RBACSeeder) seedRoles(ctx context.Context, db *gorm.DB) error {
 // seedAdminUser seeds an initial admin user
 func (s *RBACSeeder) seedAdminUser(ctx context.Context, db *gorm.DB) error {
 	// Check if admin user already exists
-	var existing user.User
+	var existing _persistence.UserModel
 	result := db.WithContext(ctx).Where("username = ?", "admin").First(&existing)
 	if result.Error == gorm.ErrRecordNotFound {
 		// Get admin role
-		var adminRole role.Role
+		var adminRole _persistence.RoleModel
 		if err := db.WithContext(ctx).Where("name = ?", "admin").First(&adminRole).Error; err != nil {
 			return err
 		}
@@ -171,7 +171,7 @@ func (s *RBACSeeder) seedAdminUser(ctx context.Context, db *gorm.DB) error {
 		}
 
 		// Create admin user
-		adminUser := &user.User{
+		adminUser := &_persistence.UserModel{
 			Username: "admin",
 			Email:    "admin@example.com",
 			Password: string(hashedPassword),

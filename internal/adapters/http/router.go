@@ -8,11 +8,12 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/lwmacct/251117-go-ddd-template/internal/adapters/http/handler"
 	"github.com/lwmacct/251117-go-ddd-template/internal/adapters/http/middleware"
+	"github.com/lwmacct/251117-go-ddd-template/internal/domain/auditlog"
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/captcha"
+	"github.com/lwmacct/251117-go-ddd-template/internal/domain/user"
 	infraauth "github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/auth"
 	infracaptcha "github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/captcha"
 	"github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/config"
-	"github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/persistence"
 	infratwofa "github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/twofa"
 	"github.com/redis/go-redis/v9"
 	"gorm.io/gorm"
@@ -23,8 +24,8 @@ func SetupRouter(
 	cfg *config.Config,
 	db *gorm.DB,
 	redisClient *redis.Client,
-	userRepos persistence.UserRepositories,
-	auditLogRepos persistence.AuditLogRepositories,
+	userQueryRepo user.QueryRepository,
+	auditLogCommandRepo auditlog.CommandRepository,
 	captchaCommandRepo captcha.CommandRepository,
 	jwtManager *infraauth.JWTManager,
 	patService *infraauth.PATService,
@@ -37,6 +38,8 @@ func SetupRouter(
 	settingHandler *handler.SettingHandler,
 	patHandler *handler.PATHandler,
 	auditLogHandler *handler.AuditLogHandler,
+	adminUserHandler *handler.AdminUserHandler,
+	userProfileHandler *handler.UserProfileHandler,
 ) *gin.Engine {
 	r := gin.New()
 
@@ -63,7 +66,7 @@ func SetupRouter(
 
 		// 认证用户路由
 		authUser := api.Group("/auth")
-		authUser.Use(middleware.Auth(jwtManager, patService, userRepos.Query))
+		authUser.Use(middleware.Auth(jwtManager, patService, userQueryRepo))
 		{
 			authUser.GET("/me", authHandler.Me) // 获取当前用户信息
 		}
@@ -71,7 +74,7 @@ func SetupRouter(
 		// 2FA 路由（需要认证）
 		twofaHandler := handler.NewTwoFAHandler(twofaService)
 		twofa := api.Group("/auth/2fa")
-		twofa.Use(middleware.Auth(jwtManager, patService, userRepos.Query))
+		twofa.Use(middleware.Auth(jwtManager, patService, userQueryRepo))
 		{
 			twofa.POST("/setup", twofaHandler.Setup)            // 设置 2FA
 			twofa.POST("/verify", twofaHandler.VerifyAndEnable) // 验证并启用 2FA
@@ -81,12 +84,11 @@ func SetupRouter(
 
 		// 管理员路由 (/api/admin/*) - 使用三段式权限控制
 		admin := api.Group("/admin")
-		admin.Use(middleware.Auth(jwtManager, patService, userRepos.Query))
-		admin.Use(middleware.AuditMiddleware(auditLogRepos.Command))
+		admin.Use(middleware.Auth(jwtManager, patService, userQueryRepo))
+		admin.Use(middleware.AuditMiddleware(auditLogCommandRepo))
 		admin.Use(middleware.RequireRole("admin"))
 		{
 			// 用户管理
-			adminUserHandler := handler.NewAdminUserHandler(userRepos.Command, userRepos.Query)
 			admin.POST("/users", middleware.RequirePermission("admin:users:create"), adminUserHandler.CreateUser)
 			admin.GET("/users", middleware.RequirePermission("admin:users:read"), adminUserHandler.ListUsers)
 			admin.GET("/users/:id", middleware.RequirePermission("admin:users:read"), adminUserHandler.GetUser)
@@ -132,10 +134,9 @@ func SetupRouter(
 
 		// 用户路由 (/api/user/*) - 使用三段式权限控制
 		userGroup := api.Group("/user")
-		userGroup.Use(middleware.Auth(jwtManager, patService, userRepos.Query))
+		userGroup.Use(middleware.Auth(jwtManager, patService, userQueryRepo))
 		{
 			// 个人资料管理
-			userProfileHandler := handler.NewUserProfileHandler(userRepos.Command, userRepos.Query)
 			userGroup.GET("/me", middleware.RequirePermission("user:profile:read"), userProfileHandler.GetProfile)
 			userGroup.PUT("/me", middleware.RequirePermission("user:profile:update"), userProfileHandler.UpdateProfile)
 			userGroup.PUT("/me/password", middleware.RequirePermission("user:password:update"), userProfileHandler.ChangePassword)

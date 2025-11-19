@@ -28,15 +28,8 @@ import (
 	userQuery "github.com/lwmacct/251117-go-ddd-template/internal/application/user/query"
 
 	// Domain imports
-	"github.com/lwmacct/251117-go-ddd-template/internal/domain/auditlog"
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/auth"
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/captcha"
-	"github.com/lwmacct/251117-go-ddd-template/internal/domain/menu"
-	"github.com/lwmacct/251117-go-ddd-template/internal/domain/pat"
-	"github.com/lwmacct/251117-go-ddd-template/internal/domain/role"
-	"github.com/lwmacct/251117-go-ddd-template/internal/domain/setting"
-	"github.com/lwmacct/251117-go-ddd-template/internal/domain/twofa"
-	"github.com/lwmacct/251117-go-ddd-template/internal/domain/user"
 
 	// Infrastructure imports, 统一使用前缀 _
 
@@ -98,15 +91,19 @@ type Container struct {
 	RefreshTokenHandler *authCommand.RefreshTokenHandler
 
 	// Use Case Handlers - User
-	CreateUserHandler *userCommand.CreateUserHandler
-	UpdateUserHandler *userCommand.UpdateUserHandler
-	DeleteUserHandler *userCommand.DeleteUserHandler
-	GetUserHandler    *userQuery.GetUserHandler
-	ListUsersHandler  *userQuery.ListUsersHandler
+	CreateUserHandler     *userCommand.CreateUserHandler
+	UpdateUserHandler     *userCommand.UpdateUserHandler
+	DeleteUserHandler     *userCommand.DeleteUserHandler
+	AssignRolesHandler    *userCommand.AssignRolesHandler
+	ChangePasswordHandler *userCommand.ChangePasswordHandler
+	GetUserHandler        *userQuery.GetUserHandler
+	ListUsersHandler      *userQuery.ListUsersHandler
 
 	// HTTP Handlers
-	AuthHandler *handler.AuthHandler
-	UserHandler *handler.UserHandler
+	AuthHandler        *handler.AuthHandler
+	UserHandler        *handler.UserHandler
+	AdminUserHandler   *handler.AdminUserHandler
+	UserProfileHandler *handler.UserProfileHandler
 
 	Router *gin.Engine
 }
@@ -185,6 +182,8 @@ func NewContainer(cfg *_config.Config, opts *ContainerOptions) (*Container, erro
 	createUserHandler := userCommand.NewCreateUserHandler(userRepos.Command, userRepos.Query, authService)
 	updateUserHandler := userCommand.NewUpdateUserHandler(userRepos.Command, userRepos.Query)
 	deleteUserHandler := userCommand.NewDeleteUserHandler(userRepos.Command, userRepos.Query)
+	assignRolesHandler := userCommand.NewAssignRolesHandler(userRepos.Command, userRepos.Query)
+	changePasswordHandler := userCommand.NewChangePasswordHandler(userRepos.Command, userRepos.Query, authService)
 	getUserHandler := userQuery.NewGetUserHandler(userRepos.Query)
 	listUsersHandler := userQuery.NewListUsersHandler(userRepos.Query)
 
@@ -238,6 +237,8 @@ func NewContainer(cfg *_config.Config, opts *ContainerOptions) (*Container, erro
 	// =================================================================
 	authHandler := handler.NewAuthHandler(loginHandler, registerHandler, refreshTokenHandler, getUserHandler)
 	userHandler := handler.NewUserHandler(createUserHandler, updateUserHandler, deleteUserHandler, getUserHandler, listUsersHandler)
+	adminUserHandler := handler.NewAdminUserHandler(createUserHandler, updateUserHandler, deleteUserHandler, assignRolesHandler, getUserHandler, listUsersHandler)
+	userProfileHandler := handler.NewUserProfileHandler(getUserHandler, updateUserHandler, changePasswordHandler, deleteUserHandler)
 	roleHandler := handler.NewRoleHandler(createRoleHandler, updateRoleHandler, deleteRoleHandler, setPermissionsHandler, getRoleHandler, listRolesHandler, listPermissionsHandler)
 	menuHandler := handler.NewMenuHandler(createMenuHandler, updateMenuHandler, deleteMenuHandler, reorderMenusHandler, getMenuHandler, listMenusHandler)
 	settingHandler := handler.NewSettingHandler(createSettingHandler, updateSettingHandler, deleteSettingHandler, batchUpdateSettingsHandler, getSettingHandler, listSettingsHandler)
@@ -260,8 +261,8 @@ func NewContainer(cfg *_config.Config, opts *ContainerOptions) (*Container, erro
 		cfg,
 		db,
 		redisClient,
-		userRepos,
-		auditLogRepos, // 审计中间件需要
+		userRepos.Query,
+		auditLogRepos.Command, // 审计中间件需要
 		captchaRepo,
 		jwtManager,
 		patService,
@@ -274,6 +275,8 @@ func NewContainer(cfg *_config.Config, opts *ContainerOptions) (*Container, erro
 		settingHandler,  // 使用新的 DDD+CQRS SettingHandler
 		patHandler,      // 使用新的 DDD+CQRS PATHandler
 		auditLogHandler, // 使用新的 DDD+CQRS AuditLogHandler
+		adminUserHandler,
+		userProfileHandler,
 	)
 
 	return &Container{
@@ -312,15 +315,19 @@ func NewContainer(cfg *_config.Config, opts *ContainerOptions) (*Container, erro
 		RefreshTokenHandler: refreshTokenHandler,
 
 		// Use Case Handlers - User
-		CreateUserHandler: createUserHandler,
-		UpdateUserHandler: updateUserHandler,
-		DeleteUserHandler: deleteUserHandler,
-		GetUserHandler:    getUserHandler,
-		ListUsersHandler:  listUsersHandler,
+		CreateUserHandler:     createUserHandler,
+		UpdateUserHandler:     updateUserHandler,
+		DeleteUserHandler:     deleteUserHandler,
+		AssignRolesHandler:    assignRolesHandler,
+		ChangePasswordHandler: changePasswordHandler,
+		GetUserHandler:        getUserHandler,
+		ListUsersHandler:      listUsersHandler,
 
 		// HTTP Handlers
-		AuthHandler: authHandler,
-		UserHandler: userHandler,
+		AuthHandler:        authHandler,
+		UserHandler:        userHandler,
+		AdminUserHandler:   adminUserHandler,
+		UserProfileHandler: userProfileHandler,
 
 		Router: router,
 	}, nil
@@ -345,13 +352,13 @@ func (c *Container) Close() error {
 // 当添加新的领域模型时，需要在这里注册
 func GetAllModels() []any {
 	return []any{
-		&user.User{},
-		&role.Role{},
-		&role.Permission{},
-		&auditlog.AuditLog{},
-		&pat.PersonalAccessToken{},
-		&twofa.TwoFA{},     // 2FA 配置表
-		&menu.Menu{},       // 菜单表
-		&setting.Setting{}, // 系统配置表
+		&_persistence.UserModel{},
+		&_persistence.RoleModel{},
+		&_persistence.PermissionModel{},
+		&_persistence.PersonalAccessTokenModel{},
+		&_persistence.AuditLogModel{},
+		&_persistence.TwoFAModel{},
+		&_persistence.MenuModel{},
+		&_persistence.SettingModel{},
 	}
 }

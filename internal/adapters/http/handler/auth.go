@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"github.com/gin-gonic/gin"
+	"github.com/lwmacct/251117-go-ddd-template/internal/adapters/http/response"
 	authCommand "github.com/lwmacct/251117-go-ddd-template/internal/application/auth/command"
 	userQuery "github.com/lwmacct/251117-go-ddd-template/internal/application/user/query"
 	domainAuth "github.com/lwmacct/251117-go-ddd-template/internal/domain/auth"
@@ -45,7 +46,7 @@ type RegisterRequest struct {
 func (h *AuthHandler) Register(c *gin.Context) {
 	var req RegisterRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(400, gin.H{"error": err.Error()})
+		response.ValidationError(c, err.Error())
 		return
 	}
 
@@ -58,11 +59,11 @@ func (h *AuthHandler) Register(c *gin.Context) {
 	})
 
 	if err != nil {
-		c.JSON(400, gin.H{"error": err.Error()})
+		response.BadRequest(c, err.Error())
 		return
 	}
 
-	c.JSON(201, gin.H{
+	response.Created(c, gin.H{
 		"message": "user registered successfully",
 		"data": gin.H{
 			"user_id":       result.UserID,
@@ -78,10 +79,10 @@ func (h *AuthHandler) Register(c *gin.Context) {
 
 // LoginRequest 登录请求
 type LoginRequest struct {
-	Login     string `json:"login" binding:"required"`           // 用户名或邮箱
-	Password  string `json:"password" binding:"required"`        // 密码
-	CaptchaID string `json:"captcha_id" binding:"required"`      // 验证码ID
-	Captcha   string `json:"captcha" binding:"required"`         // 验证码
+	Login     string `json:"login" binding:"required"`      // 用户名或邮箱
+	Password  string `json:"password" binding:"required"`   // 密码
+	CaptchaID string `json:"captcha_id" binding:"required"` // 验证码ID
+	Captcha   string `json:"captcha" binding:"required"`    // 验证码
 }
 
 // Login 用户登录
@@ -89,7 +90,7 @@ type LoginRequest struct {
 func (h *AuthHandler) Login(c *gin.Context) {
 	var req LoginRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(400, gin.H{"error": err.Error()})
+		response.ValidationError(c, err.Error())
 		return
 	}
 
@@ -102,13 +103,13 @@ func (h *AuthHandler) Login(c *gin.Context) {
 	})
 
 	if err != nil {
-		c.JSON(401, gin.H{"error": err.Error()})
+		response.Unauthorized(c, err.Error())
 		return
 	}
 
 	// 检查是否需要 2FA
 	if result.Requires2FA {
-		c.JSON(200, gin.H{
+		response.OK(c, gin.H{
 			"message": "Two factor authentication required",
 			"data": gin.H{
 				"requires_2fa":  true,
@@ -119,7 +120,7 @@ func (h *AuthHandler) Login(c *gin.Context) {
 	}
 
 	// 正常登录成功
-	c.JSON(200, gin.H{
+	response.OK(c, gin.H{
 		"message": "login successful",
 		"data": gin.H{
 			"access_token":  result.AccessToken,
@@ -144,7 +145,7 @@ type RefreshTokenRequest struct {
 func (h *AuthHandler) RefreshToken(c *gin.Context) {
 	var req RefreshTokenRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(400, gin.H{"error": err.Error()})
+		response.ValidationError(c, err.Error())
 		return
 	}
 
@@ -156,14 +157,14 @@ func (h *AuthHandler) RefreshToken(c *gin.Context) {
 	if err != nil {
 		// 处理特定错误
 		if errors.Is(err, domainAuth.ErrInvalidToken) || errors.Is(err, domainAuth.ErrTokenExpired) {
-			c.JSON(401, gin.H{"error": "invalid or expired token"})
+			response.Unauthorized(c, "invalid or expired token")
 			return
 		}
-		c.JSON(401, gin.H{"error": err.Error()})
+		response.Unauthorized(c, err.Error())
 		return
 	}
 
-	c.JSON(200, gin.H{
+	response.OK(c, gin.H{
 		"message": "token refreshed successfully",
 		"data": gin.H{
 			"access_token":  result.AccessToken,
@@ -180,13 +181,13 @@ func (h *AuthHandler) Me(c *gin.Context) {
 	// 从上下文获取用户信息 (由 JWT 中间件设置)
 	userIDRaw, exists := c.Get("user_id")
 	if !exists {
-		c.JSON(401, gin.H{"error": "unauthorized"})
+		response.Unauthorized(c, "unauthorized")
 		return
 	}
 
 	userID, ok := userIDRaw.(uint)
 	if !ok {
-		c.JSON(500, gin.H{"error": "invalid user_id type"})
+		response.InternalError(c, "invalid user_id type")
 		return
 	}
 
@@ -197,11 +198,9 @@ func (h *AuthHandler) Me(c *gin.Context) {
 	})
 
 	if err != nil {
-		c.JSON(404, gin.H{"error": "user not found"})
+		response.NotFound(c, "user")
 		return
 	}
 
-	c.JSON(200, gin.H{
-		"data": user,
-	})
+	response.OK(c, gin.H{"data": user})
 }

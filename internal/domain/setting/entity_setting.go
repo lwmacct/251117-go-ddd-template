@@ -6,19 +6,14 @@ import (
 
 // Setting 系统配置实体
 type Setting struct {
-	ID        uint      `gorm:"primarykey" json:"id"`
-	Key       string    `gorm:"uniqueIndex;size:100;not null" json:"key"`
-	Value     string    `gorm:"type:text" json:"value"`
-	Category  string    `gorm:"size:50;index;not null" json:"category"`
-	ValueType string    `gorm:"size:20;default:'string'" json:"value_type"` // string, number, boolean, json
-	Label     string    `gorm:"size:200" json:"label"`
+	ID        uint      `json:"id"`
+	Key       string    `json:"key"`
+	Value     string    `json:"value"`
+	Category  string    `json:"category"`
+	ValueType string    `json:"value_type"`
+	Label     string    `json:"label"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
-}
-
-// TableName 指定表名
-func (Setting) TableName() string {
-	return "settings"
 }
 
 // Category 常量

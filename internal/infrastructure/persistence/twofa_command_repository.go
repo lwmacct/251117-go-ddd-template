@@ -21,14 +21,19 @@ func NewTwoFACommandRepository(db *gorm.DB) twofa.CommandRepository {
 
 // CreateOrUpdate 创建或更新 2FA 配置
 func (r *twofaCommandRepository) CreateOrUpdate(ctx context.Context, tfa *twofa.TwoFA) error {
-	// 使用 Upsert：如果存在则更新，不存在则创建
+	model := newTwoFAModelFromEntity(tfa)
+	var persisted TwoFAModel
 	result := r.db.WithContext(ctx).
-		Where("user_id = ?", tfa.UserID).
-		Assign(tfa).
-		FirstOrCreate(tfa)
+		Where("user_id = ?", model.UserID).
+		Assign(model).
+		FirstOrCreate(&persisted)
 
 	if result.Error != nil {
 		return fmt.Errorf("failed to create or update 2FA: %w", result.Error)
+	}
+
+	if entity := persisted.toEntity(); entity != nil {
+		*tfa = *entity
 	}
 
 	return nil
@@ -38,7 +43,7 @@ func (r *twofaCommandRepository) CreateOrUpdate(ctx context.Context, tfa *twofa.
 func (r *twofaCommandRepository) Delete(ctx context.Context, userID uint) error {
 	result := r.db.WithContext(ctx).
 		Where("user_id = ?", userID).
-		Delete(&twofa.TwoFA{})
+		Delete(&TwoFAModel{})
 
 	if result.Error != nil {
 		return fmt.Errorf("failed to delete 2FA: %w", result.Error)

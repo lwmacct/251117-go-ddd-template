@@ -5,7 +5,6 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/lwmacct/251117-go-ddd-template/internal/domain/role"
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/user"
 	"gorm.io/gorm"
 )
@@ -22,23 +21,31 @@ func NewUserCommandRepository(db *gorm.DB) user.CommandRepository {
 
 // Create 创建用户
 func (r *userCommandRepository) Create(ctx context.Context, u *user.User) error {
-	if err := r.db.WithContext(ctx).Create(u).Error; err != nil {
+	model := newUserModelFromEntity(u)
+	if err := r.db.WithContext(ctx).Create(model).Error; err != nil {
 		return fmt.Errorf("failed to create user: %w", err)
+	}
+	if saved := model.toEntity(); saved != nil {
+		*u = *saved
 	}
 	return nil
 }
 
 // Update 更新用户
 func (r *userCommandRepository) Update(ctx context.Context, u *user.User) error {
-	if err := r.db.WithContext(ctx).Save(u).Error; err != nil {
+	model := newUserModelFromEntity(u)
+	if err := r.db.WithContext(ctx).Save(model).Error; err != nil {
 		return fmt.Errorf("failed to update user: %w", err)
+	}
+	if saved := model.toEntity(); saved != nil {
+		*u = *saved
 	}
 	return nil
 }
 
 // Delete 删除用户 (软删除)
 func (r *userCommandRepository) Delete(ctx context.Context, id uint) error {
-	if err := r.db.WithContext(ctx).Delete(&user.User{}, id).Error; err != nil {
+	if err := r.db.WithContext(ctx).Delete(&UserModel{}, id).Error; err != nil {
 		return fmt.Errorf("failed to delete user: %w", err)
 	}
 	return nil
@@ -46,7 +53,7 @@ func (r *userCommandRepository) Delete(ctx context.Context, id uint) error {
 
 // AssignRoles 为用户分配角色（替换现有角色）
 func (r *userCommandRepository) AssignRoles(ctx context.Context, userID uint, roleIDs []uint) error {
-	var u user.User
+	var u UserModel
 	if err := r.db.WithContext(ctx).First(&u, userID).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return user.ErrUserNotFound
@@ -54,7 +61,7 @@ func (r *userCommandRepository) AssignRoles(ctx context.Context, userID uint, ro
 		return fmt.Errorf("failed to find user: %w", err)
 	}
 
-	var roles []role.Role
+	var roles []RoleModel
 	if err := r.db.WithContext(ctx).Find(&roles, roleIDs).Error; err != nil {
 		return fmt.Errorf("failed to find roles: %w", err)
 	}
@@ -68,7 +75,7 @@ func (r *userCommandRepository) AssignRoles(ctx context.Context, userID uint, ro
 
 // RemoveRoles 移除用户的角色
 func (r *userCommandRepository) RemoveRoles(ctx context.Context, userID uint, roleIDs []uint) error {
-	var u user.User
+	var u UserModel
 	if err := r.db.WithContext(ctx).First(&u, userID).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return user.ErrUserNotFound
@@ -76,7 +83,7 @@ func (r *userCommandRepository) RemoveRoles(ctx context.Context, userID uint, ro
 		return fmt.Errorf("failed to find user: %w", err)
 	}
 
-	var roles []role.Role
+	var roles []RoleModel
 	if err := r.db.WithContext(ctx).Find(&roles, roleIDs).Error; err != nil {
 		return fmt.Errorf("failed to find roles: %w", err)
 	}
@@ -90,7 +97,7 @@ func (r *userCommandRepository) RemoveRoles(ctx context.Context, userID uint, ro
 
 // UpdatePassword 更新用户密码
 func (r *userCommandRepository) UpdatePassword(ctx context.Context, userID uint, hashedPassword string) error {
-	if err := r.db.WithContext(ctx).Model(&user.User{}).
+	if err := r.db.WithContext(ctx).Model(&UserModel{}).
 		Where("id = ?", userID).
 		Update("password", hashedPassword).Error; err != nil {
 		return fmt.Errorf("failed to update password: %w", err)
@@ -100,7 +107,7 @@ func (r *userCommandRepository) UpdatePassword(ctx context.Context, userID uint,
 
 // UpdateStatus 更新用户状态
 func (r *userCommandRepository) UpdateStatus(ctx context.Context, userID uint, status string) error {
-	if err := r.db.WithContext(ctx).Model(&user.User{}).
+	if err := r.db.WithContext(ctx).Model(&UserModel{}).
 		Where("id = ?", userID).
 		Update("status", status).Error; err != nil {
 		return fmt.Errorf("failed to update status: %w", err)

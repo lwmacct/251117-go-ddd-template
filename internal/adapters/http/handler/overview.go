@@ -3,8 +3,6 @@ package handler
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/lwmacct/251117-go-ddd-template/internal/adapters/http/response"
-	"github.com/lwmacct/251117-go-ddd-template/internal/domain/user"
-	"github.com/lwmacct/251117-go-ddd-template/internal/domain/role"
 	"gorm.io/gorm"
 )
 
@@ -29,15 +27,15 @@ type SystemStatsResponse struct {
 func (h *OverviewHandler) GetStats(c *gin.Context) {
 	stats := SystemStatsResponse{}
 
-	// 统计用户数
-	h.db.Model(&user.User{}).Count(&stats.TotalUsers)
-	h.db.Model(&user.User{}).Where("status = ?", "active").Count(&stats.ActiveUsers)
-	h.db.Model(&user.User{}).Where("status = ?", "inactive").Count(&stats.InactiveUsers)
-	h.db.Model(&user.User{}).Where("status = ?", "banned").Count(&stats.BannedUsers)
+	// 统计用户数（排除软删除）
+	h.db.Table("users").Where("deleted_at IS NULL").Count(&stats.TotalUsers)
+	h.db.Table("users").Where("deleted_at IS NULL AND status = ?", "active").Count(&stats.ActiveUsers)
+	h.db.Table("users").Where("deleted_at IS NULL AND status = ?", "inactive").Count(&stats.InactiveUsers)
+	h.db.Table("users").Where("deleted_at IS NULL AND status = ?", "banned").Count(&stats.BannedUsers)
 
 	// 统计角色和权限
-	h.db.Model(&role.Role{}).Count(&stats.TotalRoles)
-	h.db.Model(&role.Permission{}).Count(&stats.TotalPermissions)
+	h.db.Table("roles").Where("deleted_at IS NULL").Count(&stats.TotalRoles)
+	h.db.Table("permissions").Where("deleted_at IS NULL").Count(&stats.TotalPermissions)
 
 	// 统计菜单（使用表名）
 	h.db.Table("menus").Count(&stats.TotalMenus)

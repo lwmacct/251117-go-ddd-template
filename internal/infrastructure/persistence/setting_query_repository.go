@@ -22,46 +22,46 @@ func NewSettingQueryRepository(db *gorm.DB) setting.QueryRepository {
 
 // FindByID 根据 ID 查找配置
 func (r *settingQueryRepository) FindByID(ctx context.Context, id uint) (*setting.Setting, error) {
-	var s setting.Setting
-	err := r.db.WithContext(ctx).First(&s, id).Error
+	var model SettingModel
+	err := r.db.WithContext(ctx).First(&model, id).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, nil
 		}
 		return nil, fmt.Errorf("failed to find setting by ID: %w", err)
 	}
-	return &s, nil
+	return model.toEntity(), nil
 }
 
 // FindByKey 根据 Key 查找配置
 func (r *settingQueryRepository) FindByKey(ctx context.Context, key string) (*setting.Setting, error) {
-	var s setting.Setting
-	err := r.db.WithContext(ctx).Where("key = ?", key).First(&s).Error
+	var model SettingModel
+	err := r.db.WithContext(ctx).Where("key = ?", key).First(&model).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, nil
 		}
 		return nil, fmt.Errorf("failed to find setting by key: %w", err)
 	}
-	return &s, nil
+	return model.toEntity(), nil
 }
 
 // FindByCategory 根据分类查找配置列表
 func (r *settingQueryRepository) FindByCategory(ctx context.Context, category string) ([]*setting.Setting, error) {
-	var settings []*setting.Setting
-	err := r.db.WithContext(ctx).Where("category = ?", category).Order("key ASC").Find(&settings).Error
+	var models []SettingModel
+	err := r.db.WithContext(ctx).Where("category = ?", category).Order("key ASC").Find(&models).Error
 	if err != nil {
 		return nil, fmt.Errorf("failed to find settings by category: %w", err)
 	}
-	return settings, nil
+	return mapSettingModelsToEntities(models), nil
 }
 
 // FindAll 查找所有配置
 func (r *settingQueryRepository) FindAll(ctx context.Context) ([]*setting.Setting, error) {
-	var settings []*setting.Setting
-	err := r.db.WithContext(ctx).Order("category ASC, key ASC").Find(&settings).Error
+	var models []SettingModel
+	err := r.db.WithContext(ctx).Order("category ASC, key ASC").Find(&models).Error
 	if err != nil {
 		return nil, fmt.Errorf("failed to find all settings: %w", err)
 	}
-	return settings, nil
+	return mapSettingModelsToEntities(models), nil
 }

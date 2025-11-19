@@ -22,23 +22,31 @@ func NewRoleCommandRepository(db *gorm.DB) role.CommandRepository {
 
 // Create 创建新角色
 func (r *roleCommandRepository) Create(ctx context.Context, roleEntity *role.Role) error {
-	if err := r.db.WithContext(ctx).Create(roleEntity).Error; err != nil {
+	model := newRoleModelFromEntity(roleEntity)
+	if err := r.db.WithContext(ctx).Create(model).Error; err != nil {
 		return fmt.Errorf("failed to create role: %w", err)
+	}
+	if saved := model.toEntity(); saved != nil {
+		*roleEntity = *saved
 	}
 	return nil
 }
 
 // Update 更新角色
 func (r *roleCommandRepository) Update(ctx context.Context, roleEntity *role.Role) error {
-	if err := r.db.WithContext(ctx).Save(roleEntity).Error; err != nil {
+	model := newRoleModelFromEntity(roleEntity)
+	if err := r.db.WithContext(ctx).Save(model).Error; err != nil {
 		return fmt.Errorf("failed to update role: %w", err)
+	}
+	if saved := model.toEntity(); saved != nil {
+		*roleEntity = *saved
 	}
 	return nil
 }
 
 // Delete 删除角色 (软删除)
 func (r *roleCommandRepository) Delete(ctx context.Context, id uint) error {
-	if err := r.db.WithContext(ctx).Delete(&role.Role{}, id).Error; err != nil {
+	if err := r.db.WithContext(ctx).Delete(&RoleModel{}, id).Error; err != nil {
 		return fmt.Errorf("failed to delete role: %w", err)
 	}
 	return nil
@@ -46,20 +54,20 @@ func (r *roleCommandRepository) Delete(ctx context.Context, id uint) error {
 
 // SetPermissions 设置角色权限 (替换现有权限)
 func (r *roleCommandRepository) SetPermissions(ctx context.Context, roleID uint, permissionIDs []uint) error {
-	var roleEntity role.Role
-	if err := r.db.WithContext(ctx).First(&roleEntity, roleID).Error; err != nil {
+	var roleModel RoleModel
+	if err := r.db.WithContext(ctx).First(&roleModel, roleID).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return fmt.Errorf("role not found with id: %d", roleID)
 		}
 		return fmt.Errorf("failed to find role: %w", err)
 	}
 
-	var permissions []role.Permission
+	var permissions []PermissionModel
 	if err := r.db.WithContext(ctx).Find(&permissions, permissionIDs).Error; err != nil {
 		return fmt.Errorf("failed to find permissions: %w", err)
 	}
 
-	if err := r.db.WithContext(ctx).Model(&roleEntity).Association("Permissions").Replace(permissions); err != nil {
+	if err := r.db.WithContext(ctx).Model(&roleModel).Association("Permissions").Replace(permissions); err != nil {
 		return fmt.Errorf("failed to set permissions: %w", err)
 	}
 
@@ -68,20 +76,20 @@ func (r *roleCommandRepository) SetPermissions(ctx context.Context, roleID uint,
 
 // AddPermissions 为角色添加权限
 func (r *roleCommandRepository) AddPermissions(ctx context.Context, roleID uint, permissionIDs []uint) error {
-	var roleEntity role.Role
-	if err := r.db.WithContext(ctx).First(&roleEntity, roleID).Error; err != nil {
+	var roleModel RoleModel
+	if err := r.db.WithContext(ctx).First(&roleModel, roleID).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return fmt.Errorf("role not found with id: %d", roleID)
 		}
 		return fmt.Errorf("failed to find role: %w", err)
 	}
 
-	var permissions []role.Permission
+	var permissions []PermissionModel
 	if err := r.db.WithContext(ctx).Find(&permissions, permissionIDs).Error; err != nil {
 		return fmt.Errorf("failed to find permissions: %w", err)
 	}
 
-	if err := r.db.WithContext(ctx).Model(&roleEntity).Association("Permissions").Append(permissions); err != nil {
+	if err := r.db.WithContext(ctx).Model(&roleModel).Association("Permissions").Append(permissions); err != nil {
 		return fmt.Errorf("failed to add permissions: %w", err)
 	}
 
@@ -90,20 +98,20 @@ func (r *roleCommandRepository) AddPermissions(ctx context.Context, roleID uint,
 
 // RemovePermissions 移除角色权限
 func (r *roleCommandRepository) RemovePermissions(ctx context.Context, roleID uint, permissionIDs []uint) error {
-	var roleEntity role.Role
-	if err := r.db.WithContext(ctx).First(&roleEntity, roleID).Error; err != nil {
+	var roleModel RoleModel
+	if err := r.db.WithContext(ctx).First(&roleModel, roleID).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return fmt.Errorf("role not found with id: %d", roleID)
 		}
 		return fmt.Errorf("failed to find role: %w", err)
 	}
 
-	var permissions []role.Permission
+	var permissions []PermissionModel
 	if err := r.db.WithContext(ctx).Find(&permissions, permissionIDs).Error; err != nil {
 		return fmt.Errorf("failed to find permissions: %w", err)
 	}
 
-	if err := r.db.WithContext(ctx).Model(&roleEntity).Association("Permissions").Delete(permissions); err != nil {
+	if err := r.db.WithContext(ctx).Model(&roleModel).Association("Permissions").Delete(permissions); err != nil {
 		return fmt.Errorf("failed to remove permissions: %w", err)
 	}
 

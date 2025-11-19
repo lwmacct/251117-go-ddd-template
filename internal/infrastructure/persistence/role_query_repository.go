@@ -22,54 +22,54 @@ func NewRoleQueryRepository(db *gorm.DB) role.QueryRepository {
 
 // FindByID 根据 ID 查找角色
 func (r *roleQueryRepository) FindByID(ctx context.Context, id uint) (*role.Role, error) {
-	var roleEntity role.Role
+	var model RoleModel
 	err := r.db.WithContext(ctx).
-		First(&roleEntity, id).Error
+		First(&model, id).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, nil
 		}
 		return nil, fmt.Errorf("failed to find role by id: %w", err)
 	}
-	return &roleEntity, nil
+	return model.toEntity(), nil
 }
 
 // FindByName 根据名称查找角色
 func (r *roleQueryRepository) FindByName(ctx context.Context, name string) (*role.Role, error) {
-	var roleEntity role.Role
+	var model RoleModel
 	err := r.db.WithContext(ctx).
 		Where("name = ?", name).
-		First(&roleEntity).Error
+		First(&model).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, nil
 		}
 		return nil, fmt.Errorf("failed to find role by name: %w", err)
 	}
-	return &roleEntity, nil
+	return model.toEntity(), nil
 }
 
 // FindByIDWithPermissions 根据 ID 查找角色 (包含权限)
 func (r *roleQueryRepository) FindByIDWithPermissions(ctx context.Context, id uint) (*role.Role, error) {
-	var roleEntity role.Role
+	var model RoleModel
 	err := r.db.WithContext(ctx).
 		Preload("Permissions").
-		First(&roleEntity, id).Error
+		First(&model, id).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, nil
 		}
 		return nil, fmt.Errorf("failed to find role with permissions: %w", err)
 	}
-	return &roleEntity, nil
+	return model.toEntity(), nil
 }
 
 // List 获取角色列表 (分页)
 func (r *roleQueryRepository) List(ctx context.Context, page, limit int) ([]role.Role, int64, error) {
-	var roles []role.Role
+	var models []RoleModel
 	var total int64
 
-	query := r.db.WithContext(ctx).Model(&role.Role{})
+	query := r.db.WithContext(ctx).Model(&RoleModel{})
 
 	if err := query.Count(&total).Error; err != nil {
 		return nil, 0, fmt.Errorf("failed to count roles: %w", err)
@@ -79,33 +79,33 @@ func (r *roleQueryRepository) List(ctx context.Context, page, limit int) ([]role
 	err := query.Preload("Permissions").
 		Offset(offset).
 		Limit(limit).
-		Find(&roles).Error
+		Find(&models).Error
 	if err != nil {
 		return nil, 0, fmt.Errorf("failed to list roles: %w", err)
 	}
 
-	return roles, total, nil
+	return mapRoleModelsToEntities(models), total, nil
 }
 
 // GetPermissions 获取角色的所有权限
 func (r *roleQueryRepository) GetPermissions(ctx context.Context, roleID uint) ([]role.Permission, error) {
-	var roleEntity role.Role
+	var roleModel RoleModel
 	err := r.db.WithContext(ctx).
 		Preload("Permissions").
-		First(&roleEntity, roleID).Error
+		First(&roleModel, roleID).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, fmt.Errorf("role not found with id: %d", roleID)
 		}
 		return nil, fmt.Errorf("failed to get role permissions: %w", err)
 	}
-	return roleEntity.Permissions, nil
+	return mapPermissionModelsToEntities(roleModel.Permissions), nil
 }
 
 // Exists 检查角色是否存在
 func (r *roleQueryRepository) Exists(ctx context.Context, id uint) (bool, error) {
 	var count int64
-	if err := r.db.WithContext(ctx).Model(&role.Role{}).Where("id = ?", id).Count(&count).Error; err != nil {
+	if err := r.db.WithContext(ctx).Model(&RoleModel{}).Where("id = ?", id).Count(&count).Error; err != nil {
 		return false, fmt.Errorf("failed to check role existence: %w", err)
 	}
 	return count > 0, nil
@@ -114,7 +114,7 @@ func (r *roleQueryRepository) Exists(ctx context.Context, id uint) (bool, error)
 // ExistsByName 检查角色名称是否存在
 func (r *roleQueryRepository) ExistsByName(ctx context.Context, name string) (bool, error) {
 	var count int64
-	if err := r.db.WithContext(ctx).Model(&role.Role{}).Where("name = ?", name).Count(&count).Error; err != nil {
+	if err := r.db.WithContext(ctx).Model(&RoleModel{}).Where("name = ?", name).Count(&count).Error; err != nil {
 		return false, fmt.Errorf("failed to check role name existence: %w", err)
 	}
 	return count > 0, nil
