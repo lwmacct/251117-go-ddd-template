@@ -1227,7 +1227,7 @@ userHandler := handler.NewUserHandler(..., batchDeleteUsersHandler)
 ## 📚 相关文档
 
 - [DDD + CQRS 架构详解](./ddd-cqrs.md) - 完整架构说明
-- [CLAUDE.md](../../CLAUDE.md) - 项目开发指导
+- [Claude 开发指南](/development/claude-guide) - 项目开发指导
 
 ---
 

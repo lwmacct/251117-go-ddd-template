@@ -7,6 +7,10 @@
     "node": ">=20.19.0"
   },
   "scripts": {
+    "sync:claude": "node ./scripts/sync-claude.mjs",
+    "predev": "npm run sync:claude",
+    "prebuild": "npm run sync:claude",
+    "prepreview": "npm run sync:claude",
     "dev": "vitepress dev --host",
     "build": "vitepress build",
     "preview": "vitepress preview"
