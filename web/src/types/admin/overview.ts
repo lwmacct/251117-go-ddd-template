@@ -2,7 +2,7 @@
  * 系统概览统计相关类型定义
  */
 
-import type { AuditLog } from './audit';
+import type { AuditLog } from "./audit";
 
 /** 系统统计信息 */
 export interface SystemStats {

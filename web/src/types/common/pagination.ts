@@ -8,7 +8,7 @@ export interface PaginationParams {
   limit: number;
   search?: string;
   sort_by?: string;
-  sort_order?: 'asc' | 'desc';
+  sort_order?: "asc" | "desc";
 }
 
 /** 分页元数据 */

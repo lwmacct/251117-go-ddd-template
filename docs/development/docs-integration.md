@@ -84,19 +84,19 @@ docs/.vitepress/dist/
 
 ## 禁用或替换
 
-| 需求 | 做法 |
-| ---- | ---- |
-| 禁用 `/docs` | 将 `APP_SERVER_DOCS_DIR` 或 `server.docs_dir` 设为空字符串。 |
-| 切换到 CDN | 将 `DocsDir` 指向一个同步目录，并在 CDN 发布静态文件；同时可保留 `/docs` 作为回退。 |
+| 需求           | 做法                                                                                                  |
+| -------------- | ----------------------------------------------------------------------------------------------------- |
+| 禁用 `/docs`   | 将 `APP_SERVER_DOCS_DIR` 或 `server.docs_dir` 设为空字符串。                                          |
+| 切换到 CDN     | 将 `DocsDir` 指向一个同步目录，并在 CDN 发布静态文件；同时可保留 `/docs` 作为回退。                   |
 | 支持多版本文档 | 修改 `DocsDir` 指向版本化目录，例如 `docs/.vitepress/dist/v2`，并在 VitePress 内使用多语言/多基路径。 |
 
 ## 常见故障排查
 
-| 现象 | 解决方案 |
-| ---- | -------- |
-| 访问 `/docs` 提示 404 | 检查 `docs/.vitepress/dist/index.html` 是否存在，以及 `server.docs_dir` 是否配置正确。 |
-| 静态资源丢失 | 构建命令必须保持 `base=/docs/`。若 `VITEPRESS_BASE` 设置错误，重新以 `VITEPRESS_BASE=/docs/ npm --prefix docs run build` 构建。 |
-| 生产环境需要缓存控制 | 在 `docsGroup.Use` 中添加自定义中间件，或在上游 Nginx/CDN 层处理 Cache-Control 头。 |
+| 现象                  | 解决方案                                                                                                                        |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| 访问 `/docs` 提示 404 | 检查 `docs/.vitepress/dist/index.html` 是否存在，以及 `server.docs_dir` 是否配置正确。                                          |
+| 静态资源丢失          | 构建命令必须保持 `base=/docs/`。若 `VITEPRESS_BASE` 设置错误，重新以 `VITEPRESS_BASE=/docs/ npm --prefix docs run build` 构建。 |
+| 生产环境需要缓存控制  | 在 `docsGroup.Use` 中添加自定义中间件，或在上游 Nginx/CDN 层处理 Cache-Control 头。                                             |
 
 ## 相关命令速查
 

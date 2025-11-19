@@ -3,7 +3,7 @@
  */
 
 /** 设置项类型 */
-export type SettingType = 'string' | 'int' | 'bool' | 'json';
+export type SettingType = "string" | "int" | "bool" | "json";
 
 /** 设置项 */
 export interface Setting {

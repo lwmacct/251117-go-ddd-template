@@ -183,18 +183,18 @@ src/components/MyComponent.vue
 ### Vite 配置 (`vite.config.ts`)
 
 ```typescript
-import { fileURLToPath, URL } from 'node:url'
-import { defineConfig } from 'vite'
-import vue from '@vitejs/plugin-vue'
+import { fileURLToPath, URL } from "node:url";
+import { defineConfig } from "vite";
+import vue from "@vitejs/plugin-vue";
 
 export default defineConfig({
   plugins: [vue()],
   resolve: {
     alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url))
-    }
-  }
-})
+      "@": fileURLToPath(new URL("./src", import.meta.url)),
+    },
+  },
+});
 ```
 
 ### TypeScript 配置 (`tsconfig.json`)
@@ -213,11 +213,11 @@ export default defineConfig({
 
 ## 常用命令
 
-| 命令 | 说明 |
-|------|------|
-| `npm run dev` | 启动开发服务器 |
-| `npm run build` | 生产构建 |
-| `npm run preview` | 预览构建产物 |
+| 命令                 | 说明                |
+| -------------------- | ------------------- |
+| `npm run dev`        | 启动开发服务器      |
+| `npm run build`      | 生产构建            |
+| `npm run preview`    | 预览构建产物        |
 | `npm run type-check` | TypeScript 类型检查 |
 
 ## 相关资源

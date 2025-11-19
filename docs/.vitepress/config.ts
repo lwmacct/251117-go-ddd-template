@@ -7,7 +7,7 @@ export default defineConfig({
   // - GitHub Pages 部署: '/251117-go-ddd-template/'
   //
   // 使用方式：
-  //   本地/Go服务器: npm run docs:build
+  //   本地/Go服务器: npm run build
   //   GitHub Pages:  由 GitHub Actions 自动设置 VITEPRESS_BASE
   base: process.env.VITEPRESS_BASE || "/docs/",
 

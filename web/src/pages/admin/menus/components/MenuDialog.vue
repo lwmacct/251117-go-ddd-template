@@ -1,26 +1,26 @@
 <script setup lang="ts">
-import { ref, watch, computed } from 'vue';
-import type { Menu, CreateMenuRequest, UpdateMenuRequest } from '@/types/admin';
+import { ref, watch, computed } from "vue";
+import type { Menu, CreateMenuRequest, UpdateMenuRequest } from "@/types/admin";
 
 interface Props {
   modelValue: boolean;
   menu?: Menu | null;
-  mode: 'create' | 'edit';
+  mode: "create" | "edit";
   parentMenus: Menu[];
 }
 
 interface Emits {
-  (e: 'update:modelValue', value: boolean): void;
-  (e: 'save', data: CreateMenuRequest | UpdateMenuRequest): void;
+  (e: "update:modelValue", value: boolean): void;
+  (e: "save", data: CreateMenuRequest | UpdateMenuRequest): void;
 }
 
 const props = defineProps<Props>();
 const emit = defineEmits<Emits>();
 
 const formData = ref<CreateMenuRequest & UpdateMenuRequest>({
-  title: '',
-  path: '',
-  icon: '',
+  title: "",
+  path: "",
+  icon: "",
   parent_id: undefined,
   order: 0,
   visible: true,
@@ -30,21 +30,21 @@ const valid = ref(false);
 const form = ref();
 
 const rules = {
-  title: [(v: string) => !!v || '标题不能为空'],
-  path: [(v: string) => !!v || '路径不能为空'],
+  title: [(v: string) => !!v || "标题不能为空"],
+  path: [(v: string) => !!v || "路径不能为空"],
 };
 
-const dialogTitle = computed(() => (props.mode === 'create' ? '新建菜单' : '编辑菜单'));
+const dialogTitle = computed(() => (props.mode === "create" ? "新建菜单" : "编辑菜单"));
 
 // 扁平化菜单列表（用于父菜单选择）
 const flatMenus = computed(() => {
   const result: Array<{ id: number; title: string; level: number }> = [];
   const flatten = (menus: Menu[], level = 0) => {
     menus.forEach((menu) => {
-      if (props.mode === 'edit' && props.menu && menu.id === props.menu.id) {
+      if (props.mode === "edit" && props.menu && menu.id === props.menu.id) {
         return; // 不能选择自己作为父菜单
       }
-      result.push({ id: menu.id, title: '  '.repeat(level) + menu.title, level });
+      result.push({ id: menu.id, title: "  ".repeat(level) + menu.title, level });
       if (menu.children && menu.children.length > 0) {
         flatten(menu.children, level + 1);
       }
@@ -57,11 +57,11 @@ const flatMenus = computed(() => {
 watch(
   () => props.menu,
   (newMenu) => {
-    if (newMenu && props.mode === 'edit') {
+    if (newMenu && props.mode === "edit") {
       formData.value = {
         title: newMenu.title,
         path: newMenu.path,
-        icon: newMenu.icon || '',
+        icon: newMenu.icon || "",
         parent_id: newMenu.parent_id,
         order: newMenu.order,
         visible: newMenu.visible,
@@ -70,14 +70,14 @@ watch(
       resetForm();
     }
   },
-  { immediate: true }
+  { immediate: true },
 );
 
 const resetForm = () => {
   formData.value = {
-    title: '',
-    path: '',
-    icon: '',
+    title: "",
+    path: "",
+    icon: "",
     parent_id: undefined,
     order: 0,
     visible: true,
@@ -86,7 +86,7 @@ const resetForm = () => {
 };
 
 const closeDialog = () => {
-  emit('update:modelValue', false);
+  emit("update:modelValue", false);
   resetForm();
 };
 
@@ -94,7 +94,7 @@ const handleSave = async () => {
   const { valid: isValid } = await form.value.validate();
   if (!isValid) return;
 
-  emit('save', formData.value);
+  emit("save", formData.value);
   closeDialog();
 };
 </script>
@@ -114,7 +114,17 @@ const handleSave = async () => {
 
           <v-text-field v-model="formData.icon" label="图标（可选）" variant="outlined" density="comfortable" class="mb-2" hint="MDI 图标名称，如: mdi-account"></v-text-field>
 
-          <v-select v-model="formData.parent_id" label="父菜单（可选）" :items="[{ id: undefined, title: '无（顶级菜单）', level: 0 }, ...flatMenus]" item-title="title" item-value="id" variant="outlined" density="comfortable" class="mb-2" clearable></v-select>
+          <v-select
+            v-model="formData.parent_id"
+            label="父菜单（可选）"
+            :items="[{ id: undefined, title: '无（顶级菜单）', level: 0 }, ...flatMenus]"
+            item-title="title"
+            item-value="id"
+            variant="outlined"
+            density="comfortable"
+            class="mb-2"
+            clearable
+          ></v-select>
 
           <v-text-field v-model.number="formData.order" label="排序" type="number" variant="outlined" density="comfortable" class="mb-2" hint="数字越小越靠前"></v-text-field>
 

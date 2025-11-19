@@ -52,9 +52,7 @@ onMounted(() => {
     <!-- 说明 -->
     <div class="mb-4">
       <h3 class="text-h6 mb-2">什么是双因素认证？</h3>
-      <p class="text-body-2">
-        双因素认证 (2FA) 是一种额外的安全层，除了密码外，还需要输入您手机应用（如 Google Authenticator、Microsoft Authenticator 等）生成的 6 位验证码才能登录。
-      </p>
+      <p class="text-body-2">双因素认证 (2FA) 是一种额外的安全层，除了密码外，还需要输入您手机应用（如 Google Authenticator、Microsoft Authenticator 等）生成的 6 位验证码才能登录。</p>
     </div>
 
     <!-- 操作按钮 -->

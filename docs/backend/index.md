@@ -11,10 +11,11 @@
 - ✅ **Use Case Pattern**: 业务编排集中在 Application 层
 
 **推荐阅读顺序**:
+
 1. [DDD + CQRS 架构详解](./ddd-cqrs.md) - 了解当前架构
 2. [架构迁移指南](./migration-guide.md) - 了解迁移过程
 3. [架构设计概览](./overview.md) - 统一分层与依赖关系
-:::
+   :::
 
 ## 📚 文档列表
 
@@ -102,18 +103,20 @@ api:cache:write     # API域-缓存-写入操作
 ```
 
 **特性**:
+
 - 支持通配符匹配（`admin:users:*`）
 - 细粒度权限控制
 - 灵活的权限委派
 
 ### 2. 双重认证机制
 
-| 认证方式 | 适用场景 | 特点 |
-|---------|---------|------|
-| **JWT** | Web 应用、移动应用 | 短期、可刷新、无状态 |
-| **PAT** | API 集成、CLI 工具 | 长期、权限子集、可撤销 |
+| 认证方式 | 适用场景           | 特点                   |
+| -------- | ------------------ | ---------------------- |
+| **JWT**  | Web 应用、移动应用 | 短期、可刷新、无状态   |
+| **PAT**  | API 集成、CLI 工具 | 长期、权限子集、可撤销 |
 
 **优势**:
+
 - JWT 用于用户交互场景
 - PAT 用于自动化和集成场景
 - 统一的认证中间件自动识别
@@ -131,11 +134,13 @@ Infrastructure (基础设施层) - Repository 实现 + Domain Service 实现
 ```
 
 **CQRS 模式**:
+
 - **CommandRepository**: Create, Update, Delete（写操作）
 - **QueryRepository**: GetByID, List, Search（读操作）
 - **优势**: 读写分离，Query 层可独立优化（Redis/Elasticsearch）
 
 **Use Case Pattern**:
+
 - Command Handler: 业务编排（CreateUserHandler, UpdateUserHandler）
 - Query Handler: 查询处理（GetUserHandler, ListUsersHandler）
 - HTTP Handler: 仅做 HTTP 转换，无业务逻辑
@@ -145,12 +150,14 @@ Infrastructure (基础设施层) - Repository 实现 + Domain Service 实现
 ### 4. 审计日志系统
 
 **自动记录**:
+
 - 所有写操作（POST、PUT、DELETE）
 - 操作者信息（UserID、Username）
 - 操作时间、IP 地址、User Agent
 - 操作状态（成功/失败）
 
 **查询功能**:
+
 - 按用户查询
 - 按资源查询
 - 按时间范围查询

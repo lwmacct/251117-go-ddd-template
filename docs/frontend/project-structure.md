@@ -72,6 +72,7 @@ web/
 **职责**: 封装所有后端 API 调用
 
 **结构**:
+
 ```
 api/
 ├── client.ts       # Axios 客户端配置、拦截器
@@ -81,14 +82,15 @@ api/
 ```
 
 **示例**:
+
 ```typescript
 // api/users.ts
-import client from './client'
+import client from "./client";
 
 export const userApi = {
-  getProfile: () => client.get('/api/user/me'),
-  updateProfile: (data) => client.put('/api/user/me', data)
-}
+  getProfile: () => client.get("/api/user/me"),
+  updateProfile: (data) => client.put("/api/user/me", data),
+};
 ```
 
 ### `src/components/` - 通用组件
@@ -96,10 +98,12 @@ export const userApi = {
 **职责**: 可复用的 UI 组件
 
 **分类**:
+
 - `common/` - 基础组件（按钮、输入框、卡片）
 - `business/` - 业务组件（用户卡片、数据表格）
 
 **命名规范**:
+
 ```
 PascalCase.vue
 
@@ -114,11 +118,13 @@ PascalCase.vue
 **职责**: 路由对应的页面组件
 
 **特点**:
+
 - 每个页面对应一个路由
 - 组合通用组件构建页面
 - 处理页面级别的状态
 
 **示例**:
+
 ```vue
 <!-- pages/Dashboard.vue -->
 <template>
@@ -136,23 +142,23 @@ PascalCase.vue
 **核心文件**: `index.ts`
 
 ```typescript
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHistory } from "vue-router";
 
 const router = createRouter({
   history: createWebHistory(),
   routes: [
     {
-      path: '/',
-      component: () => import('@/pages/Home.vue')
+      path: "/",
+      component: () => import("@/pages/Home.vue"),
     },
     {
-      path: '/login',
-      component: () => import('@/pages/Login.vue')
-    }
-  ]
-})
+      path: "/login",
+      component: () => import("@/pages/Login.vue"),
+    },
+  ],
+});
 
-export default router
+export default router;
 ```
 
 ### `src/stores/` - 状态管理
@@ -160,6 +166,7 @@ export default router
 **职责**: Pinia Store，管理全局状态
 
 **结构**:
+
 ```
 stores/
 ├── auth.ts         # 认证状态：token、用户信息
@@ -168,21 +175,22 @@ stores/
 ```
 
 **示例**:
+
 ```typescript
 // stores/auth.ts
-import { defineStore } from 'pinia'
+import { defineStore } from "pinia";
 
-export const useAuthStore = defineStore('auth', {
+export const useAuthStore = defineStore("auth", {
   state: () => ({
     token: null,
-    user: null
+    user: null,
   }),
   actions: {
     async login(credentials) {
       // 登录逻辑
-    }
-  }
-})
+    },
+  },
+});
 ```
 
 ### `src/types/` - 类型定义
@@ -190,6 +198,7 @@ export const useAuthStore = defineStore('auth', {
 **职责**: TypeScript 类型和接口定义
 
 **结构**:
+
 ```
 types/
 ├── api.ts          # API 请求/响应类型
@@ -198,17 +207,18 @@ types/
 ```
 
 **示例**:
+
 ```typescript
 // types/models.ts
 export interface User {
-  id: number
-  username: string
-  email: string
+  id: number;
+  username: string;
+  email: string;
 }
 
 export interface LoginRequest {
-  login: string
-  password: string
+  login: string;
+  password: string;
 }
 ```
 
@@ -217,6 +227,7 @@ export interface LoginRequest {
 **职责**: 通用工具函数
 
 **常见工具**:
+
 ```
 utils/
 ├── request.ts      # HTTP 请求封装
@@ -275,33 +286,33 @@ utils/
 
 ```typescript
 // 使用 @ 别名
-import { userApi } from '@/api/users'
-import UserCard from '@/components/UserCard.vue'
+import { userApi } from "@/api/users";
+import UserCard from "@/components/UserCard.vue";
 
 // 等同于
-import { userApi } from '../api/users'
-import UserCard from '../components/UserCard.vue'
+import { userApi } from "../api/users";
+import UserCard from "../components/UserCard.vue";
 ```
 
 ### 推荐的导入顺序
 
 ```typescript
 // 1. Vue 核心
-import { ref, computed } from 'vue'
+import { ref, computed } from "vue";
 
 // 2. Vue 生态库
-import { useRouter } from 'vue-router'
-import { useAuthStore } from '@/stores/auth'
+import { useRouter } from "vue-router";
+import { useAuthStore } from "@/stores/auth";
 
 // 3. 第三方库
-import axios from 'axios'
+import axios from "axios";
 
 // 4. 项目内部
-import { userApi } from '@/api/users'
-import UserCard from '@/components/UserCard.vue'
+import { userApi } from "@/api/users";
+import UserCard from "@/components/UserCard.vue";
 
 // 5. 类型
-import type { User } from '@/types/models'
+import type { User } from "@/types/models";
 ```
 
 ## 代码组织原则
@@ -357,11 +368,13 @@ views/
 ### 组件设计
 
 **可复用组件** (`components/`):
+
 - 无业务逻辑
 - 通过 props 接收数据
 - 通过 emit 触发事件
 
 **页面组件** (`pages/`):
+
 - 包含业务逻辑
 - 调用 API
 - 管理状态
@@ -371,13 +384,13 @@ views/
 ```typescript
 // ✓ 推荐：统一封装
 export const userApi = {
-  list: (params) => client.get('/api/users', { params }),
+  list: (params) => client.get("/api/users", { params }),
   get: (id) => client.get(`/api/users/${id}`),
-  create: (data) => client.post('/api/users', data)
-}
+  create: (data) => client.post("/api/users", data),
+};
 
 // ✗ 避免：直接调用
-axios.get('/api/users')
+axios.get("/api/users");
 ```
 
 ### 类型定义
@@ -385,14 +398,14 @@ axios.get('/api/users')
 ```typescript
 // ✓ 推荐：定义类型
 interface User {
-  id: number
-  name: string
+  id: number;
+  name: string;
 }
 
-const users = ref<User[]>([])
+const users = ref<User[]>([]);
 
 // ✗ 避免：any
-const users = ref<any>([])
+const users = ref<any>([]);
 ```
 
 ## 扩展阅读

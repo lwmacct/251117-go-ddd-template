@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue';
-import { AdminPermissionsAPI } from '@/api/admin';
-import type { Permission, PermissionTreeNode } from '@/types/admin';
+import { ref, onMounted, computed } from "vue";
+import { AdminPermissionsAPI } from "@/api/admin";
+import type { Permission, PermissionTreeNode } from "@/types/admin";
 
 interface Props {
   modelValue: boolean;
@@ -10,8 +10,8 @@ interface Props {
 }
 
 interface Emits {
-  (e: 'update:modelValue', value: boolean): void;
-  (e: 'save', permissionIds: number[]): void;
+  (e: "update:modelValue", value: boolean): void;
+  (e: "save", permissionIds: number[]): void;
 }
 
 const props = defineProps<Props>();
@@ -20,7 +20,7 @@ const emit = defineEmits<Emits>();
 const loading = ref(false);
 const permissions = ref<Permission[]>([]);
 const selectedPermissionIds = ref<number[]>([]);
-const errorMessage = ref('');
+const errorMessage = ref("");
 const expandAll = ref(false);
 
 // 将权限列表转换为树形结构
@@ -58,7 +58,7 @@ const permissionTree = computed<PermissionTreeNode[]>(() => {
     // 添加 action 节点（叶子节点）
     resourceNode.children!.push({
       key: `${perm.code}`,
-      label: `${perm.action} ${perm.description ? `(${perm.description})` : ''}`,
+      label: `${perm.action} ${perm.description ? `(${perm.description})` : ""}`,
       permission: perm,
     });
   });
@@ -68,25 +68,25 @@ const permissionTree = computed<PermissionTreeNode[]>(() => {
 
 const fetchPermissions = async () => {
   loading.value = true;
-  errorMessage.value = '';
+  errorMessage.value = "";
 
   try {
     const allPermissions = await AdminPermissionsAPI.getAllPermissions();
     permissions.value = allPermissions;
     selectedPermissionIds.value = props.rolePermissions.map((p) => p.id);
   } catch (error: any) {
-    errorMessage.value = error.message || '获取权限列表失败';
+    errorMessage.value = error.message || "获取权限列表失败";
   } finally {
     loading.value = false;
   }
 };
 
 const closeDialog = () => {
-  emit('update:modelValue', false);
+  emit("update:modelValue", false);
 };
 
 const handleSave = () => {
-  emit('save', selectedPermissionIds.value);
+  emit("save", selectedPermissionIds.value);
   closeDialog();
 };
 
@@ -121,7 +121,7 @@ onMounted(() => {
 
         <div class="d-flex justify-end mb-2">
           <v-btn variant="text" size="small" @click="expandAll = !expandAll">
-            {{ expandAll ? '折叠全部' : '展开全部' }}
+            {{ expandAll ? "折叠全部" : "展开全部" }}
           </v-btn>
         </div>
 
@@ -150,9 +150,7 @@ onMounted(() => {
           </v-expansion-panels>
         </div>
 
-        <v-alert v-if="!loading && permissions.length === 0" type="info">
-          暂无可用权限
-        </v-alert>
+        <v-alert v-if="!loading && permissions.length === 0" type="info"> 暂无可用权限 </v-alert>
       </v-card-text>
 
       <v-card-actions>

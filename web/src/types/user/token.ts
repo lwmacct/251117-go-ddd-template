@@ -3,7 +3,7 @@
  */
 
 /** Token 状态 */
-export type TokenStatus = 'active' | 'revoked' | 'expired';
+export type TokenStatus = "active" | "revoked" | "expired";
 
 /** Personal Access Token */
 export interface PersonalAccessToken {

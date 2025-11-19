@@ -1,52 +1,52 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue';
-import { useOverview } from './composables/useOverview';
+import { ref, onMounted, computed } from "vue";
+import { useOverview } from "./composables/useOverview";
 
 const { stats, loading, errorMessage, fetchStats } = useOverview();
 
 // 统计卡片配置
 const statsCards = computed(() => [
   {
-    title: '总用户数',
+    title: "总用户数",
     value: stats.value?.total_users || 0,
-    icon: 'mdi-account-group',
-    color: 'primary',
+    icon: "mdi-account-group",
+    color: "primary",
   },
   {
-    title: '活跃用户',
+    title: "活跃用户",
     value: stats.value?.active_users || 0,
-    icon: 'mdi-account-check',
-    color: 'success',
+    icon: "mdi-account-check",
+    color: "success",
   },
   {
-    title: '总角色数',
+    title: "总角色数",
     value: stats.value?.total_roles || 0,
-    icon: 'mdi-shield-account',
-    color: 'info',
+    icon: "mdi-shield-account",
+    color: "info",
   },
   {
-    title: '总权限数',
+    title: "总权限数",
     value: stats.value?.total_permissions || 0,
-    icon: 'mdi-key',
-    color: 'warning',
+    icon: "mdi-key",
+    color: "warning",
   },
   {
-    title: '禁用用户',
+    title: "禁用用户",
     value: stats.value?.inactive_users || 0,
-    icon: 'mdi-account-off',
-    color: 'warning',
+    icon: "mdi-account-off",
+    color: "warning",
   },
   {
-    title: '封禁用户',
+    title: "封禁用户",
     value: stats.value?.banned_users || 0,
-    icon: 'mdi-account-cancel',
-    color: 'error',
+    icon: "mdi-account-cancel",
+    color: "error",
   },
   {
-    title: '菜单数量',
+    title: "菜单数量",
     value: stats.value?.total_menus || 0,
-    icon: 'mdi-menu',
-    color: 'purple',
+    icon: "mdi-menu",
+    color: "purple",
   },
 ]);
 

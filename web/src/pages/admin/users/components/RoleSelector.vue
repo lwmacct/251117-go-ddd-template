@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue';
-import { AdminRolesAPI } from '@/api/admin';
-import type { Role } from '@/types/admin';
+import { ref, onMounted, computed } from "vue";
+import { AdminRolesAPI } from "@/api/admin";
+import type { Role } from "@/types/admin";
 
 /**
  * 角色选择器组件
@@ -15,8 +15,8 @@ interface Props {
 }
 
 interface Emits {
-  (e: 'update:modelValue', value: boolean): void;
-  (e: 'save', roleIds: number[]): void;
+  (e: "update:modelValue", value: boolean): void;
+  (e: "save", roleIds: number[]): void;
 }
 
 const props = defineProps<Props>();
@@ -26,22 +26,22 @@ const emit = defineEmits<Emits>();
 const loading = ref(false);
 const roles = ref<Role[]>([]);
 const selectedRoleIds = ref<number[]>([]);
-const errorMessage = ref('');
+const errorMessage = ref("");
 
 // 获取所有角色
 const fetchRoles = async () => {
   loading.value = true;
-  errorMessage.value = '';
+  errorMessage.value = "";
 
   try {
     const response = await AdminRolesAPI.listRoles({ page: 1, limit: 100 });
     roles.value = response.data;
 
     // 初始化已选角色
-    selectedRoleIds.value = props.userRoles.map(role => role.id);
+    selectedRoleIds.value = props.userRoles.map((role) => role.id);
   } catch (error: any) {
-    errorMessage.value = error.message || '获取角色列表失败';
-    console.error('Failed to fetch roles:', error);
+    errorMessage.value = error.message || "获取角色列表失败";
+    console.error("Failed to fetch roles:", error);
   } finally {
     loading.value = false;
   }
@@ -49,12 +49,12 @@ const fetchRoles = async () => {
 
 // 关闭对话框
 const closeDialog = () => {
-  emit('update:modelValue', false);
+  emit("update:modelValue", false);
 };
 
 // 保存角色分配
 const handleSave = () => {
-  emit('save', selectedRoleIds.value);
+  emit("save", selectedRoleIds.value);
   closeDialog();
 };
 
@@ -97,9 +97,7 @@ onMounted(() => {
           </v-list-item>
         </v-list>
 
-        <v-alert v-if="!loading && roles.length === 0" type="info">
-          暂无可用角色
-        </v-alert>
+        <v-alert v-if="!loading && roles.length === 0" type="info"> 暂无可用角色 </v-alert>
       </v-card-text>
 
       <v-card-actions>

@@ -1,67 +1,64 @@
 <script setup lang="ts">
-import { ref, watch, computed } from 'vue';
-import type { Role, CreateRoleRequest, UpdateRoleRequest } from '@/types/admin';
+import { ref, watch, computed } from "vue";
+import type { Role, CreateRoleRequest, UpdateRoleRequest } from "@/types/admin";
 
 interface Props {
   modelValue: boolean;
   role?: Role | null;
-  mode: 'create' | 'edit';
+  mode: "create" | "edit";
 }
 
 interface Emits {
-  (e: 'update:modelValue', value: boolean): void;
-  (e: 'save', data: CreateRoleRequest | UpdateRoleRequest): void;
+  (e: "update:modelValue", value: boolean): void;
+  (e: "save", data: CreateRoleRequest | UpdateRoleRequest): void;
 }
 
 const props = defineProps<Props>();
 const emit = defineEmits<Emits>();
 
 const formData = ref<CreateRoleRequest & UpdateRoleRequest>({
-  name: '',
-  display_name: '',
-  description: '',
+  name: "",
+  display_name: "",
+  description: "",
 });
 
 const valid = ref(false);
 const form = ref();
 
 const rules = {
-  name: [
-    (v: string) => !!v || '角色标识不能为空',
-    (v: string) => /^[a-z_]+$/.test(v) || '只能包含小写字母和下划线',
-  ],
-  display_name: [(v: string) => !!v || '显示名称不能为空'],
+  name: [(v: string) => !!v || "角色标识不能为空", (v: string) => /^[a-z_]+$/.test(v) || "只能包含小写字母和下划线"],
+  display_name: [(v: string) => !!v || "显示名称不能为空"],
 };
 
-const dialogTitle = computed(() => (props.mode === 'create' ? '新建角色' : '编辑角色'));
+const dialogTitle = computed(() => (props.mode === "create" ? "新建角色" : "编辑角色"));
 
 watch(
   () => props.role,
   (newRole) => {
-    if (newRole && props.mode === 'edit') {
+    if (newRole && props.mode === "edit") {
       formData.value = {
         name: newRole.name,
         display_name: newRole.display_name,
-        description: newRole.description || '',
+        description: newRole.description || "",
       };
     } else {
       resetForm();
     }
   },
-  { immediate: true }
+  { immediate: true },
 );
 
 const resetForm = () => {
   formData.value = {
-    name: '',
-    display_name: '',
-    description: '',
+    name: "",
+    display_name: "",
+    description: "",
   };
   form.value?.resetValidation();
 };
 
 const closeDialog = () => {
-  emit('update:modelValue', false);
+  emit("update:modelValue", false);
   resetForm();
 };
 
@@ -69,14 +66,14 @@ const handleSave = async () => {
   const { valid: isValid } = await form.value.validate();
   if (!isValid) return;
 
-  if (props.mode === 'create') {
-    emit('save', formData.value as CreateRoleRequest);
+  if (props.mode === "create") {
+    emit("save", formData.value as CreateRoleRequest);
   } else {
     const updateData: UpdateRoleRequest = {
       display_name: formData.value.display_name,
       description: formData.value.description,
     };
-    emit('save', updateData);
+    emit("save", updateData);
   }
 
   closeDialog();

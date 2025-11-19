@@ -23,6 +23,7 @@ node --version
 如果需要安装或升级 Node.js：
 
 **使用 nvm (推荐)**:
+
 ```bash
 # 安装 nvm
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
@@ -53,6 +54,7 @@ npm install
 ```
 
 **安装过程说明**:
+
 - Vue 3.5 - 渐进式框架
 - Vuetify 3 - Material Design 组件库
 - Pinia - 状态管理
@@ -68,6 +70,7 @@ npm run dev
 ```
 
 **输出示例**:
+
 ```
 VITE v7.2.2  ready in 234 ms
 
@@ -87,11 +90,13 @@ VITE v7.2.2  ready in 234 ms
 修改代码后，浏览器会自动刷新，无需手动重启服务器。
 
 **示例**:
+
 ```vue
 <!-- src/App.vue -->
 <template>
   <div>
-    <h1>Hello World</h1>  <!-- 修改后自动刷新 -->
+    <h1>Hello World</h1>
+    <!-- 修改后自动刷新 -->
   </div>
 </template>
 ```
@@ -120,12 +125,14 @@ npm run build
 ```
 
 **构建过程**:
+
 1. TypeScript 类型检查
 2. Vite 生产构建
 3. 代码压缩和优化
 4. 输出到 `dist/` 目录
 
 **输出示例**:
+
 ```
 vite v7.2.2 building for production...
 ✓ 234 modules transformed.
@@ -150,26 +157,26 @@ npm run preview
 **文件**: `vite.config.ts`
 
 ```typescript
-import { fileURLToPath, URL } from 'node:url'
-import { defineConfig } from 'vite'
-import vue from '@vitejs/plugin-vue'
-import vueDevTools from 'vite-plugin-vue-devtools'
+import { fileURLToPath, URL } from "node:url";
+import { defineConfig } from "vite";
+import vue from "@vitejs/plugin-vue";
+import vueDevTools from "vite-plugin-vue-devtools";
 
 export default defineConfig({
   plugins: [
     vue(),
-    vueDevTools(),  // Vue DevTools 插件
+    vueDevTools(), // Vue DevTools 插件
   ],
   resolve: {
     alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url))  // @ 别名
-    }
+      "@": fileURLToPath(new URL("./src", import.meta.url)), // @ 别名
+    },
   },
   server: {
     port: 5173,
-    host: true  // 允许外部访问
-  }
-})
+    host: true, // 允许外部访问
+  },
+});
 ```
 
 ### TypeScript 配置
@@ -183,7 +190,7 @@ export default defineConfig({
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]  // @ 别名配置
+      "@/*": ["./src/*"] // @ 别名配置
     }
   }
 }
@@ -194,10 +201,12 @@ export default defineConfig({
 ### VS Code 扩展
 
 **必备扩展**:
+
 - [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) - Vue 3 语言支持
 - [TypeScript Vue Plugin](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin) - TS 支持
 
 **推荐扩展**:
+
 - [ESLint](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint) - 代码检查
 - [Prettier](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode) - 代码格式化
 - [Vue VSCode Snippets](https://marketplace.visualstudio.com/items?itemName=sdras.vue-vscode-snippets) - Vue 代码片段
@@ -205,6 +214,7 @@ export default defineConfig({
 ### VS Code 设置
 
 **`.vscode/settings.json`**:
+
 ```json
 {
   "editor.formatOnSave": true,
@@ -222,13 +232,13 @@ export default defineConfig({
 
 ## 常用命令
 
-| 命令 | 说明 | 使用场景 |
-|------|------|---------|
-| `npm install` | 安装依赖 | 首次克隆或依赖更新后 |
-| `npm run dev` | 开发服务器 | 日常开发 |
-| `npm run build` | 生产构建 | 部署前 |
-| `npm run preview` | 预览构建 | 验证生产版本 |
-| `npm run type-check` | 类型检查 | 提交代码前 |
+| 命令                 | 说明       | 使用场景             |
+| -------------------- | ---------- | -------------------- |
+| `npm install`        | 安装依赖   | 首次克隆或依赖更新后 |
+| `npm run dev`        | 开发服务器 | 日常开发             |
+| `npm run build`      | 生产构建   | 部署前               |
+| `npm run preview`    | 预览构建   | 验证生产版本         |
+| `npm run type-check` | 类型检查   | 提交代码前           |
 
 ## 目录说明
 
@@ -270,9 +280,10 @@ task go:run -- api        # 启动后端 API 服务
 前端默认连接到 `http://localhost:8080`。
 
 **修改 API 地址**:
+
 ```typescript
 // src/api/client.ts
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080'
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
 ```
 
 ## 故障排查
@@ -280,11 +291,13 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080
 ### 端口被占用
 
 **错误**:
+
 ```
 Error: listen EADDRINUSE: address already in use :::5173
 ```
 
 **解决方案**:
+
 ```bash
 # 方案 1: 杀掉占用进程
 lsof -ti:5173 | xargs kill -9
@@ -299,11 +312,13 @@ server: {
 ### 依赖安装失败
 
 **错误**:
+
 ```
 npm ERR! code ERESOLVE
 ```
 
 **解决方案**:
+
 ```bash
 # 清除缓存
 rm -rf node_modules package-lock.json
@@ -316,11 +331,13 @@ npm install
 ### 类型错误
 
 **错误**:
+
 ```
 Property 'xxx' does not exist on type 'xxx'
 ```
 
 **解决方案**:
+
 ```bash
 # 重新生成类型声明
 npm run type-check
@@ -336,6 +353,6 @@ npm run type-check
 <!-- TODO: 待完善的文档
 - 学习 [开发规范](./coding-standards)
 - 探索 [Vuetify 组件](./vuetify)
--->
+  -->
 
 开始你的前端开发之旅吧！ 🎉

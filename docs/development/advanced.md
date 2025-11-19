@@ -20,7 +20,10 @@ const initZoom = () => {
 };
 
 onMounted(initZoom);
-watch(() => route.path, () => nextTick(initZoom));
+watch(
+  () => route.path,
+  () => nextTick(initZoom),
+);
 ```
 
 > 📌 `medium-zoom` 已写入 `docs/package.json`，无需额外引用。
@@ -63,9 +66,10 @@ const steps: Step[] = [...]
 如需向顶部/底部插槽注入内容，可修改 `theme/index.ts` 中的 `Layout`：
 
 ```ts
-Layout: () => h(DefaultTheme.Layout, null, {
-  'layout-bottom': () => h(MyFooter)
-})
+Layout: () =>
+  h(DefaultTheme.Layout, null, {
+    "layout-bottom": () => h(MyFooter),
+  });
 ```
 
 目前未做额外定制，保留扩展空间。

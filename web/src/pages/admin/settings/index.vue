@@ -1,19 +1,19 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue';
-import { useSettings } from './composables/useSettings';
+import { ref, onMounted, computed } from "vue";
+import { useSettings } from "./composables/useSettings";
 
 const { settings, loading, saving, errorMessage, successMessage, fetchSettings, getSetting, batchUpdateSettings, clearMessages } = useSettings();
 
-const tabs = ref('general');
+const tabs = ref("general");
 
 // 常规设置表单
 const generalForm = ref({
-  siteName: '',
-  siteUrl: '',
-  adminEmail: '',
-  timezone: 'Asia/Shanghai',
-  language: 'zh-CN',
-  theme: 'light',
+  siteName: "",
+  siteUrl: "",
+  adminEmail: "",
+  timezone: "Asia/Shanghai",
+  language: "zh-CN",
+  theme: "light",
 });
 
 // 安全设置表单
@@ -40,11 +40,11 @@ const backupForm = ref({
 
 // 时区选项
 const timezoneOptions = [
-  { title: 'Asia/Shanghai (上海)', value: 'Asia/Shanghai' },
-  { title: 'UTC', value: 'UTC' },
-  { title: 'America/New_York (纽约)', value: 'America/New_York' },
-  { title: 'Europe/London (伦敦)', value: 'Europe/London' },
-  { title: 'Asia/Tokyo (东京)', value: 'Asia/Tokyo' },
+  { title: "Asia/Shanghai (上海)", value: "Asia/Shanghai" },
+  { title: "UTC", value: "UTC" },
+  { title: "America/New_York (纽约)", value: "America/New_York" },
+  { title: "Europe/London (伦敦)", value: "Europe/London" },
+  { title: "Asia/Tokyo (东京)", value: "Asia/Tokyo" },
 ];
 
 onMounted(async () => {
@@ -55,28 +55,28 @@ onMounted(async () => {
 // 从设置列表加载表单值
 const loadFormValues = () => {
   // 常规设置
-  generalForm.value.siteName = getSetting('general.site_name', '');
-  generalForm.value.siteUrl = getSetting('general.site_url', '');
-  generalForm.value.adminEmail = getSetting('general.admin_email', '');
-  generalForm.value.timezone = getSetting('general.timezone', 'Asia/Shanghai');
-  generalForm.value.language = getSetting('general.language', 'zh-CN');
-  generalForm.value.theme = getSetting('general.theme', 'light');
+  generalForm.value.siteName = getSetting("general.site_name", "");
+  generalForm.value.siteUrl = getSetting("general.site_url", "");
+  generalForm.value.adminEmail = getSetting("general.admin_email", "");
+  generalForm.value.timezone = getSetting("general.timezone", "Asia/Shanghai");
+  generalForm.value.language = getSetting("general.language", "zh-CN");
+  generalForm.value.theme = getSetting("general.theme", "light");
 
   // 安全设置
-  securityForm.value.sessionTimeout = getSetting('security.session_timeout', 30);
-  securityForm.value.passwordMinLength = getSetting('security.password_min_length', 8);
-  securityForm.value.enableTwoFA = getSetting('security.enable_twofa', false);
-  securityForm.value.maxLoginAttempts = getSetting('security.max_login_attempts', 5);
+  securityForm.value.sessionTimeout = getSetting("security.session_timeout", 30);
+  securityForm.value.passwordMinLength = getSetting("security.password_min_length", 8);
+  securityForm.value.enableTwoFA = getSetting("security.enable_twofa", false);
+  securityForm.value.maxLoginAttempts = getSetting("security.max_login_attempts", 5);
 
   // 通知设置
-  notificationForm.value.enableNotifications = getSetting('notification.enable_notifications', true);
-  notificationForm.value.enableEmailNotifications = getSetting('notification.enable_email', true);
-  notificationForm.value.enableSMSNotifications = getSetting('notification.enable_sms', false);
+  notificationForm.value.enableNotifications = getSetting("notification.enable_notifications", true);
+  notificationForm.value.enableEmailNotifications = getSetting("notification.enable_email", true);
+  notificationForm.value.enableSMSNotifications = getSetting("notification.enable_sms", false);
 
   // 备份设置
-  backupForm.value.enableBackup = getSetting('backup.enable_backup', false);
-  backupForm.value.backupFrequency = getSetting('backup.backup_frequency', 24);
-  backupForm.value.backupRetentionDays = getSetting('backup.retention_days', 30);
+  backupForm.value.enableBackup = getSetting("backup.enable_backup", false);
+  backupForm.value.backupFrequency = getSetting("backup.backup_frequency", 24);
+  backupForm.value.backupRetentionDays = getSetting("backup.retention_days", 30);
 };
 
 // 保存当前 Tab 的设置
@@ -84,36 +84,36 @@ const saveCurrentTab = async () => {
   let updates: { key: string; value: any }[] = [];
 
   switch (tabs.value) {
-    case 'general':
+    case "general":
       updates = [
-        { key: 'general.site_name', value: generalForm.value.siteName },
-        { key: 'general.site_url', value: generalForm.value.siteUrl },
-        { key: 'general.admin_email', value: generalForm.value.adminEmail },
-        { key: 'general.timezone', value: generalForm.value.timezone },
-        { key: 'general.language', value: generalForm.value.language },
-        { key: 'general.theme', value: generalForm.value.theme },
+        { key: "general.site_name", value: generalForm.value.siteName },
+        { key: "general.site_url", value: generalForm.value.siteUrl },
+        { key: "general.admin_email", value: generalForm.value.adminEmail },
+        { key: "general.timezone", value: generalForm.value.timezone },
+        { key: "general.language", value: generalForm.value.language },
+        { key: "general.theme", value: generalForm.value.theme },
       ];
       break;
-    case 'security':
+    case "security":
       updates = [
-        { key: 'security.session_timeout', value: securityForm.value.sessionTimeout },
-        { key: 'security.password_min_length', value: securityForm.value.passwordMinLength },
-        { key: 'security.enable_twofa', value: securityForm.value.enableTwoFA },
-        { key: 'security.max_login_attempts', value: securityForm.value.maxLoginAttempts },
+        { key: "security.session_timeout", value: securityForm.value.sessionTimeout },
+        { key: "security.password_min_length", value: securityForm.value.passwordMinLength },
+        { key: "security.enable_twofa", value: securityForm.value.enableTwoFA },
+        { key: "security.max_login_attempts", value: securityForm.value.maxLoginAttempts },
       ];
       break;
-    case 'notification':
+    case "notification":
       updates = [
-        { key: 'notification.enable_notifications', value: notificationForm.value.enableNotifications },
-        { key: 'notification.enable_email', value: notificationForm.value.enableEmailNotifications },
-        { key: 'notification.enable_sms', value: notificationForm.value.enableSMSNotifications },
+        { key: "notification.enable_notifications", value: notificationForm.value.enableNotifications },
+        { key: "notification.enable_email", value: notificationForm.value.enableEmailNotifications },
+        { key: "notification.enable_sms", value: notificationForm.value.enableSMSNotifications },
       ];
       break;
-    case 'backup':
+    case "backup":
       updates = [
-        { key: 'backup.enable_backup', value: backupForm.value.enableBackup },
-        { key: 'backup.backup_frequency', value: backupForm.value.backupFrequency },
-        { key: 'backup.retention_days', value: backupForm.value.backupRetentionDays },
+        { key: "backup.enable_backup", value: backupForm.value.enableBackup },
+        { key: "backup.backup_frequency", value: backupForm.value.backupFrequency },
+        { key: "backup.retention_days", value: backupForm.value.backupRetentionDays },
       ];
       break;
   }
@@ -125,25 +125,25 @@ const saveCurrentTab = async () => {
 const saveAllSettings = async () => {
   const allUpdates = [
     // 常规设置
-    { key: 'general.site_name', value: generalForm.value.siteName },
-    { key: 'general.site_url', value: generalForm.value.siteUrl },
-    { key: 'general.admin_email', value: generalForm.value.adminEmail },
-    { key: 'general.timezone', value: generalForm.value.timezone },
-    { key: 'general.language', value: generalForm.value.language },
-    { key: 'general.theme', value: generalForm.value.theme },
+    { key: "general.site_name", value: generalForm.value.siteName },
+    { key: "general.site_url", value: generalForm.value.siteUrl },
+    { key: "general.admin_email", value: generalForm.value.adminEmail },
+    { key: "general.timezone", value: generalForm.value.timezone },
+    { key: "general.language", value: generalForm.value.language },
+    { key: "general.theme", value: generalForm.value.theme },
     // 安全设置
-    { key: 'security.session_timeout', value: securityForm.value.sessionTimeout },
-    { key: 'security.password_min_length', value: securityForm.value.passwordMinLength },
-    { key: 'security.enable_twofa', value: securityForm.value.enableTwoFA },
-    { key: 'security.max_login_attempts', value: securityForm.value.maxLoginAttempts },
+    { key: "security.session_timeout", value: securityForm.value.sessionTimeout },
+    { key: "security.password_min_length", value: securityForm.value.passwordMinLength },
+    { key: "security.enable_twofa", value: securityForm.value.enableTwoFA },
+    { key: "security.max_login_attempts", value: securityForm.value.maxLoginAttempts },
     // 通知设置
-    { key: 'notification.enable_notifications', value: notificationForm.value.enableNotifications },
-    { key: 'notification.enable_email', value: notificationForm.value.enableEmailNotifications },
-    { key: 'notification.enable_sms', value: notificationForm.value.enableSMSNotifications },
+    { key: "notification.enable_notifications", value: notificationForm.value.enableNotifications },
+    { key: "notification.enable_email", value: notificationForm.value.enableEmailNotifications },
+    { key: "notification.enable_sms", value: notificationForm.value.enableSMSNotifications },
     // 备份设置
-    { key: 'backup.enable_backup', value: backupForm.value.enableBackup },
-    { key: 'backup.backup_frequency', value: backupForm.value.backupFrequency },
-    { key: 'backup.retention_days', value: backupForm.value.backupRetentionDays },
+    { key: "backup.enable_backup", value: backupForm.value.enableBackup },
+    { key: "backup.backup_frequency", value: backupForm.value.backupFrequency },
+    { key: "backup.retention_days", value: backupForm.value.backupRetentionDays },
   ];
 
   await batchUpdateSettings(allUpdates);

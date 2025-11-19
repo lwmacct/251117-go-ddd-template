@@ -9,6 +9,7 @@
 RBAC (Role-Based Access Control) 是一种基于角色的访问控制模型，通过将权限分配给角色，再将角色分配给用户的方式来管理系统权限。
 
 本系统采用完整的 RBAC 模型，支持：
+
 - ✅ 多角色支持（一个用户可以拥有多个角色）
 - ✅ 细粒度权限控制（基于三段式 `domain:resource:action` 格式）
 - ✅ 通配符权限匹配（支持 `admin:users:*`、`admin:*:create`、`*:*:*` 等）
@@ -35,6 +36,7 @@ Permission（权限）
 ### 数据库表结构
 
 #### Users 表
+
 ```go
 type User struct {
     ID        uint
@@ -48,6 +50,7 @@ type User struct {
 ```
 
 #### Roles 表
+
 ```go
 type Role struct {
     ID          uint
@@ -60,6 +63,7 @@ type Role struct {
 ```
 
 #### Permissions 表
+
 ```go
 type Permission struct {
     ID          uint
@@ -72,6 +76,7 @@ type Permission struct {
 ```
 
 #### 关联表（GORM 自动创建）
+
 - `user_roles`：user_id, role_id
 - `role_permissions`：role_id, permission_id
 
@@ -80,48 +85,51 @@ type Permission struct {
 权限代码采用三段式 `domain:resource:action` 格式：
 
 **格式说明**：
+
 - **Domain（域）**：权限所属的领域，如 `admin`（管理后台）、`user`（用户自服务）、`api`（API 接口）
 - **Resource（资源）**：操作的对象，如 `users`（用户）、`roles`（角色）、`profile`（个人资料）
 - **Action（动作）**：具体操作，如 `create`（创建）、`read`（读取）、`update`（更新）、`delete`（删除）
 
 **权限示例**：
 
-| 权限代码 | 域 | 资源 | 动作 | 描述 |
-|---------|-----|------|------|------|
-| `admin:users:create` | admin | users | create | 管理员创建用户 |
-| `admin:users:read` | admin | users | read | 管理员查看所有用户 |
-| `admin:users:update` | admin | users | update | 管理员更新用户信息 |
-| `admin:users:delete` | admin | users | delete | 管理员删除用户 |
-| `admin:roles:read` | admin | roles | read | 管理员查看角色 |
-| `admin:permissions:read` | admin | permissions | read | 管理员查看权限列表 |
-| `admin:audit_logs:read` | admin | audit_logs | read | 管理员查看审计日志 |
-| `user:profile:read` | user | profile | read | 用户查看自己的资料 |
-| `user:profile:update` | user | profile | update | 用户更新自己的资料 |
-| `user:password:update` | user | password | update | 用户修改自己的密码 |
-| `user:tokens:create` | user | tokens | create | 用户创建个人访问令牌 |
-| `user:tokens:read` | user | tokens | read | 用户查看自己的令牌列表 |
-| `user:tokens:delete` | user | tokens | delete | 用户撤销自己的令牌 |
-| `api:cache:read` | api | cache | read | API 读取缓存 |
-| `api:cache:write` | api | cache | write | API 写入缓存 |
+| 权限代码                 | 域    | 资源        | 动作   | 描述                   |
+| ------------------------ | ----- | ----------- | ------ | ---------------------- |
+| `admin:users:create`     | admin | users       | create | 管理员创建用户         |
+| `admin:users:read`       | admin | users       | read   | 管理员查看所有用户     |
+| `admin:users:update`     | admin | users       | update | 管理员更新用户信息     |
+| `admin:users:delete`     | admin | users       | delete | 管理员删除用户         |
+| `admin:roles:read`       | admin | roles       | read   | 管理员查看角色         |
+| `admin:permissions:read` | admin | permissions | read   | 管理员查看权限列表     |
+| `admin:audit_logs:read`  | admin | audit_logs  | read   | 管理员查看审计日志     |
+| `user:profile:read`      | user  | profile     | read   | 用户查看自己的资料     |
+| `user:profile:update`    | user  | profile     | update | 用户更新自己的资料     |
+| `user:password:update`   | user  | password    | update | 用户修改自己的密码     |
+| `user:tokens:create`     | user  | tokens      | create | 用户创建个人访问令牌   |
+| `user:tokens:read`       | user  | tokens      | read   | 用户查看自己的令牌列表 |
+| `user:tokens:delete`     | user  | tokens      | delete | 用户撤销自己的令牌     |
+| `api:cache:read`         | api   | cache       | read   | API 读取缓存           |
+| `api:cache:write`        | api   | cache       | write  | API 写入缓存           |
 
 ### 通配符权限匹配
 
 系统支持在权限检查时使用通配符 `*`，实现灵活的权限委派：
 
-| 通配符权限 | 匹配范围 | 示例 |
-|-----------|---------|------|
-| `admin:users:*` | 用户资源的所有操作 | 可执行 create、read、update、delete |
-| `admin:*:create` | 所有资源的创建操作 | 可创建 users、roles 等 |
-| `user:*:*` | 用户域的所有权限 | 用户自服务的全部功能 |
-| `*:users:read` | 所有域的用户读取权限 | admin 和 user 域都可读 |
-| `*:*:*` | 超级管理员 | 系统所有权限 |
+| 通配符权限       | 匹配范围             | 示例                                |
+| ---------------- | -------------------- | ----------------------------------- |
+| `admin:users:*`  | 用户资源的所有操作   | 可执行 create、read、update、delete |
+| `admin:*:create` | 所有资源的创建操作   | 可创建 users、roles 等              |
+| `user:*:*`       | 用户域的所有权限     | 用户自服务的全部功能                |
+| `*:users:read`   | 所有域的用户读取权限 | admin 和 user 域都可读              |
+| `*:*:*`          | 超级管理员           | 系统所有权限                        |
 
 **匹配规则**：
+
 - 用户权限中的 `*` 可以匹配任意值
 - 检查时从左到右逐段比对：domain、resource、action
 - 任何一段为 `*` 即匹配该段的所有值
 
 **示例**：
+
 ```go
 // 用户拥有权限: "admin:users:*"
 RequirePermission("admin:users:create")  // ✓ 通过
@@ -139,10 +147,10 @@ RequirePermission("admin:users:update")  // ✗ 不通过（动作不匹配）
 
 系统默认提供两个系统角色：
 
-| 角色名 | 显示名称 | 权限 | 说明 |
-|--------|---------|------|------|
-| `admin` | 管理员 | 所有 admin 域权限 | 拥有管理后台全部权限 |
-| `user` | 普通用户 | 所有 user 域权限 | 拥有用户自服务全部权限 |
+| 角色名  | 显示名称 | 权限              | 说明                   |
+| ------- | -------- | ----------------- | ---------------------- |
+| `admin` | 管理员   | 所有 admin 域权限 | 拥有管理后台全部权限   |
+| `user`  | 普通用户 | 所有 user 域权限  | 拥有用户自服务全部权限 |
 
 ## JWT Token 与权限流转
 
@@ -162,24 +170,14 @@ type Claims struct {
 ```
 
 **Token 示例**（解码后）：
+
 ```json
 {
   "user_id": 1,
   "username": "admin",
   "email": "admin@example.com",
   "roles": ["admin"],
-  "permissions": [
-    "admin:users:create",
-    "admin:users:read",
-    "admin:users:update",
-    "admin:users:delete",
-    "admin:roles:create",
-    "admin:roles:read",
-    "admin:roles:update",
-    "admin:roles:delete",
-    "admin:permissions:read",
-    "admin:audit_logs:read"
-  ],
+  "permissions": ["admin:users:create", "admin:users:read", "admin:users:update", "admin:users:delete", "admin:roles:create", "admin:roles:read", "admin:roles:update", "admin:roles:delete", "admin:permissions:read", "admin:audit_logs:read"],
   "exp": 1672531200,
   "iat": 1672444800
 }
@@ -251,16 +249,16 @@ func (r *userQueryRepository) GetByUsernameWithRoles(ctx context.Context, userna
 
 ### PAT vs JWT 对比
 
-| 特性 | JWT Token | Personal Access Token |
-|------|----------|----------------------|
-| 用途 | Web 应用、移动应用 | API 集成、CLI 工具、自动化脚本 |
-| 有效期 | 短期（默认 1 小时） | 可选（7/30/90 天或永久） |
-| 刷新机制 | 使用 Refresh Token | 无需刷新，到期后重新创建 |
-| 权限范围 | 用户全部权限 | 用户权限的子集（创建时选择） |
-| 格式 | `Bearer eyJhbGc...` | `Bearer pat_xxxxx_yyy...` |
-| 存储方式 | 不存储（无状态） | 数据库存储（SHA-256 哈希） |
-| IP 限制 | 不支持 | 支持 IP 白名单 |
-| 撤销 | 不支持（除非加入黑名单） | 支持随时撤销 |
+| 特性     | JWT Token                | Personal Access Token          |
+| -------- | ------------------------ | ------------------------------ |
+| 用途     | Web 应用、移动应用       | API 集成、CLI 工具、自动化脚本 |
+| 有效期   | 短期（默认 1 小时）      | 可选（7/30/90 天或永久）       |
+| 刷新机制 | 使用 Refresh Token       | 无需刷新，到期后重新创建       |
+| 权限范围 | 用户全部权限             | 用户权限的子集（创建时选择）   |
+| 格式     | `Bearer eyJhbGc...`      | `Bearer pat_xxxxx_yyy...`      |
+| 存储方式 | 不存储（无状态）         | 数据库存储（SHA-256 哈希）     |
+| IP 限制  | 不支持                   | 支持 IP 白名单                 |
+| 撤销     | 不支持（除非加入黑名单） | 支持随时撤销                   |
 
 ### PAT Token 格式
 
@@ -269,11 +267,13 @@ func (r *userQueryRepository) GetByUsernameWithRoles(ctx context.Context, userna
 **示例**: `pat_2Kj9X_aB3cD4eF5gH6iJ7kL8mN9oP0qR1sT2uV3wX4yZ`
 
 **组成部分**：
+
 1. `pat_` - 固定前缀，用于识别 PAT 类型
 2. `2Kj9X` - 5 位随机前缀，用于用户快速识别 token
 3. `aB3cD...` - 32 位随机字符，实际的 token 内容
 
 **安全设计**：
+
 - 完整 token 仅在创建时显示一次
 - 数据库存储 SHA-256 哈希值，不存储明文
 - 前缀用于用户识别，不影响安全性
@@ -304,12 +304,14 @@ func Auth(jwtManager *JWTManager, patService *PATService, userQueryRepo user.Que
 ### PAT 认证流程
 
 **请求示例**:
+
 ```bash
 curl -X GET http://localhost:8080/api/user/me \
   -H "Authorization: Bearer pat_2Kj9X_aB3cD4eF5gH6iJ7kL8mN9oP0qR1sT2uV3wX4yZ"
 ```
 
 **认证步骤**:
+
 1. 中间件检测到 `pat_` 前缀，识别为 PAT
 2. 使用 SHA-256 哈希 token
 3. 在数据库中查找匹配的 token 记录
@@ -322,6 +324,7 @@ curl -X GET http://localhost:8080/api/user/me \
 7. 异步更新 `last_used_at` 时间戳
 
 **注入到 Context 的信息**:
+
 ```go
 c.Set("user_id", u.ID)
 c.Set("username", u.Username)
@@ -417,6 +420,7 @@ func RequireRole(role string) gin.HandlerFunc {
 ```
 
 **使用示例**:
+
 ```go
 admin.Use(middleware.RequireRole("admin"))  // 要求 admin 角色
 ```
@@ -480,6 +484,7 @@ func matchPermission(userPerm, requiredPerm string) bool {
 ```
 
 **使用示例**:
+
 ```go
 // 三段式权限
 router.POST("/users",
@@ -521,6 +526,7 @@ func RequireOwnership(paramName ...string) gin.HandlerFunc {
 ```
 
 **使用示例**:
+
 ```go
 router.PUT("/users/:id",
     middleware.RequireOwnership(),  // 只能修改自己的资料
@@ -655,12 +661,14 @@ userGroup.Use(middleware.JWTAuth(jwtManager))
 3. **RequireRole("admin")**: 必须拥有 `admin` 角色
 
 **请求示例**:
+
 ```bash
 curl -X GET http://localhost:8080/api/admin/users \
   -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
 ```
 
 **权限检查流程**:
+
 ```
 请求 → JWTAuth → 验证 Token → 提取 roles: ["admin"]
      → AuditMiddleware → 记录日志
@@ -673,12 +681,14 @@ curl -X GET http://localhost:8080/api/admin/users \
 所有 `/api/user/*` 接口仅需要 JWT 认证：
 
 **请求示例**:
+
 ```bash
 curl -X GET http://localhost:8080/api/user/me \
   -H "Authorization: Bearer <user_token>"
 ```
 
 **权限检查流程**:
+
 ```
 请求 → JWTAuth → 验证 Token → 提取 user_id
      → Handler 执行（使用 user_id 查询该用户的数据）
@@ -715,6 +725,7 @@ graph TD
 ### 成功案例：管理员创建用户
 
 **请求**:
+
 ```http
 POST /api/admin/users HTTP/1.1
 Host: localhost:8080
@@ -732,6 +743,7 @@ Content-Type: application/json
 **流程**:
 
 1. **JWTAuth 中间件**:
+
    ```go
    claims := ValidateToken(token)
    // claims = {
@@ -748,6 +760,7 @@ Content-Type: application/json
    ```
 
 2. **AuditMiddleware**:
+
    ```go
    // 异步记录审计日志
    log := AuditLog{
@@ -761,6 +774,7 @@ Content-Type: application/json
    ```
 
 3. **RequireRole("admin")**:
+
    ```go
    roles := c.Get("roles")  // ["admin"]
    // 检查 "admin" 是否在列表中
@@ -776,6 +790,7 @@ Content-Type: application/json
    ```
 
 **响应**:
+
 ```json
 {
   "message": "user created successfully",
@@ -792,6 +807,7 @@ Content-Type: application/json
 ### 失败案例：普通用户访问管理员接口
 
 **请求**:
+
 ```http
 GET /api/admin/users HTTP/1.1
 Authorization: Bearer <普通用户的 token>
@@ -800,6 +816,7 @@ Authorization: Bearer <普通用户的 token>
 **流程**:
 
 1. **JWTAuth 中间件**:
+
    ```go
    claims := {
        UserID: 5,
@@ -814,6 +831,7 @@ Authorization: Bearer <普通用户的 token>
 2. **AuditMiddleware**: 跳过（GET 请求）
 
 3. **RequireRole("admin")**:
+
    ```go
    roles := ["user"]
    // 检查 "admin" 是否在列表中
@@ -824,6 +842,7 @@ Authorization: Bearer <普通用户的 token>
    ```
 
 **响应**:
+
 ```json
 {
   "error": "forbidden: insufficient permissions"
@@ -835,6 +854,7 @@ Authorization: Bearer <普通用户的 token>
 如果使用 `RequireOwnership` 中间件：
 
 **请求**:
+
 ```http
 PUT /api/users/5 HTTP/1.1
 Authorization: Bearer <用户 ID 为 5 的 token>
@@ -850,6 +870,7 @@ Content-Type: application/json
 1. **JWTAuth**: 注入 `user_id = 5`
 
 2. **RequireOwnership**:
+
    ```go
    userID := c.Get("user_id")      // 5
    resourceID := c.Param("id")     // "5" (URL 参数)
@@ -863,6 +884,7 @@ Content-Type: application/json
 3. **Handler 执行**: 更新用户 ID 为 5 的资料
 
 **如果用户 ID 不匹配**:
+
 ```http
 PUT /api/users/10 HTTP/1.1
 Authorization: Bearer <用户 ID 为 5 的 token>
@@ -893,6 +915,7 @@ go run . migrate up
 ```
 
 迁移会创建以下表：
+
 - `users`
 - `roles`
 - `permissions`
@@ -959,6 +982,7 @@ curl -X POST http://localhost:8080/api/auth/login \
 ```
 
 **响应**:
+
 ```json
 {
   "message": "login successful",
@@ -979,12 +1003,14 @@ curl -X POST http://localhost:8080/api/auth/login \
 ### 2. 为用户分配角色
 
 **查看所有角色**:
+
 ```bash
 curl -X GET http://localhost:8080/api/admin/roles \
   -H "Authorization: Bearer <admin_token>"
 ```
 
 **为用户分配角色**:
+
 ```bash
 curl -X PUT http://localhost:8080/api/admin/users/5/roles \
   -H "Authorization: Bearer <admin_token>" \
@@ -1010,12 +1036,14 @@ curl -X POST http://localhost:8080/api/admin/roles \
 ### 4. 为角色分配权限
 
 **查看所有权限**:
+
 ```bash
 curl -X GET http://localhost:8080/api/admin/permissions \
   -H "Authorization: Bearer <admin_token>"
 ```
 
 **为角色设置权限**:
+
 ```bash
 curl -X PUT http://localhost:8080/api/admin/roles/3/permissions \
   -H "Authorization: Bearer <admin_token>" \
@@ -1052,6 +1080,7 @@ curl -X GET "http://localhost:8080/api/admin/audit-logs?resource=users" \
 2. **定期刷新 Token**
    - Access Token 默认有效期 1 小时
    - 使用 Refresh Token 定期更新
+
    ```bash
    curl -X POST http://localhost:8080/api/auth/refresh \
      -H "Content-Type: application/json" \
@@ -1073,6 +1102,7 @@ curl -X GET "http://localhost:8080/api/admin/audit-logs?resource=users" \
 ### 权限设计原则
 
 1. **使用角色而非直接分配权限**
+
    ```
    ✓ 推荐: User → Role → Permissions
    ✗ 避免: User → Permissions (难以管理)
@@ -1090,6 +1120,7 @@ curl -X GET "http://localhost:8080/api/admin/audit-logs?resource=users" \
 ### Token 管理建议
 
 1. **Token 失效时间设置**
+
    ```go
    // configs/config.example.yaml
    jwt:
@@ -1111,6 +1142,7 @@ curl -X GET "http://localhost:8080/api/admin/audit-logs?resource=users" \
 ### 审计日志使用
 
 1. **定期清理**
+
    ```go
    // 删除 90 天前的日志
    auditLogRepo.DeleteOlderThan(ctx, 90)
@@ -1136,6 +1168,7 @@ curl -X GET "http://localhost:8080/api/admin/audit-logs?resource=users" \
 - **Token 有效期内**: 使用的是 Token 生成时的权限信息
 
 **改进方案**:
+
 1. 缩短 Access Token 有效期（如 15 分钟）
 2. 使用 Redis 存储用户权限，每次请求时实时检查
 3. 实现 Token 黑名单机制，权限变更时强制 Token 失效
@@ -1182,6 +1215,7 @@ router.PUT("/users/:id",
 ```
 
 这样：
+
 - 管理员可以修改任何用户的资料
 - 普通用户只能修改自己的资料（`user_id == :id`）
 
@@ -1231,6 +1265,7 @@ type Claims struct {
 **A**: 两种方式：
 
 1. **通过 API** (推荐):
+
 ```bash
 curl -X POST http://localhost:8080/api/admin/permissions \
   -H "Authorization: Bearer <admin_token>" \
@@ -1244,6 +1279,7 @@ curl -X POST http://localhost:8080/api/admin/permissions \
 ```
 
 2. **修改种子数据** (`internal/infrastructure/database/rbac_seeder.go`):
+
 ```go
 permissions := []role.Permission{
     // ... 现有权限
@@ -1252,6 +1288,7 @@ permissions := []role.Permission{
 ```
 
 然后重新运行 seed：
+
 ```bash
 go run . seed
 ```

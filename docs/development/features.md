@@ -78,11 +78,11 @@
 ```vue
 <script setup>
 const steps = [
-  { title: '准备依赖', description: 'npm --prefix docs install && go mod download' },
-  { title: '运行服务', description: 'task go:run -- api' },
-  { title: '构建文档', description: 'npm --prefix docs run build' },
-  { title: '发布', description: 'git push && 等待 GitHub Actions' }
-]
+  { title: "准备依赖", description: "npm --prefix docs install && go mod download" },
+  { title: "运行服务", description: "task go:run -- api" },
+  { title: "构建文档", description: "npm --prefix docs run build" },
+  { title: "发布", description: "git push && 等待 GitHub Actions" },
+];
 </script>
 
 <StepsGuide :steps="steps" />

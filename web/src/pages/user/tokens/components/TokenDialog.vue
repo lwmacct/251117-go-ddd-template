@@ -1,21 +1,21 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue';
-import type { CreateTokenRequest } from '@/types/user';
+import { ref, watch } from "vue";
+import type { CreateTokenRequest } from "@/types/user";
 
 interface Props {
   modelValue: boolean;
 }
 
 interface Emits {
-  (e: 'update:modelValue', value: boolean): void;
-  (e: 'save', data: CreateTokenRequest): void;
+  (e: "update:modelValue", value: boolean): void;
+  (e: "save", data: CreateTokenRequest): void;
 }
 
 const props = defineProps<Props>();
 const emit = defineEmits<Emits>();
 
 const formData = ref<CreateTokenRequest>({
-  name: '',
+  name: "",
   permissions: [],
   expires_at: undefined,
   ip_whitelist: [],
@@ -25,13 +25,10 @@ const valid = ref(false);
 const form = ref();
 const expiresEnabled = ref(false);
 const ipWhitelistEnabled = ref(false);
-const ipWhitelistText = ref('');
+const ipWhitelistText = ref("");
 
 const rules = {
-  name: [
-    (v: string) => !!v || 'Token 名称不能为空',
-    (v: string) => (v && v.length >= 3) || 'Token 名称至少3个字符',
-  ],
+  name: [(v: string) => !!v || "Token 名称不能为空", (v: string) => (v && v.length >= 3) || "Token 名称至少3个字符"],
 };
 
 watch(
@@ -40,24 +37,24 @@ watch(
     if (!newVal) {
       resetForm();
     }
-  }
+  },
 );
 
 const resetForm = () => {
   formData.value = {
-    name: '',
+    name: "",
     permissions: [],
     expires_at: undefined,
     ip_whitelist: [],
   };
   expiresEnabled.value = false;
   ipWhitelistEnabled.value = false;
-  ipWhitelistText.value = '';
+  ipWhitelistText.value = "";
   form.value?.resetValidation();
 };
 
 const closeDialog = () => {
-  emit('update:modelValue', false);
+  emit("update:modelValue", false);
 };
 
 const handleSave = async () => {
@@ -68,20 +65,24 @@ const handleSave = async () => {
     name: formData.value.name,
     permissions: formData.value.permissions?.length ? formData.value.permissions : undefined,
     expires_at: expiresEnabled.value ? formData.value.expires_at : undefined,
-    ip_whitelist: ipWhitelistEnabled.value && ipWhitelistText.value
-      ? ipWhitelistText.value.split('\n').map(ip => ip.trim()).filter(ip => ip)
-      : undefined,
+    ip_whitelist:
+      ipWhitelistEnabled.value && ipWhitelistText.value
+        ? ipWhitelistText.value
+            .split("\n")
+            .map((ip) => ip.trim())
+            .filter((ip) => ip)
+        : undefined,
   };
 
-  emit('save', data);
+  emit("save", data);
   closeDialog();
 };
 
 const expirationOptions = [
-  { title: '7 天', value: 7 },
-  { title: '30 天', value: 30 },
-  { title: '90 天', value: 90 },
-  { title: '1 年', value: 365 },
+  { title: "7 天", value: 7 },
+  { title: "30 天", value: 30 },
+  { title: "90 天", value: 90 },
+  { title: "1 年", value: 365 },
 ];
 
 const setExpiration = (days: number) => {
@@ -125,9 +126,7 @@ const setExpiration = (days: number) => {
           </div>
         </v-form>
 
-        <v-alert type="info" class="mt-4" density="compact">
-          <strong>注意：</strong>Token 只会在创建时显示一次，请妥善保存。
-        </v-alert>
+        <v-alert type="info" class="mt-4" density="compact"> <strong>注意：</strong>Token 只会在创建时显示一次，请妥善保存。 </v-alert>
       </v-card-text>
 
       <v-card-actions>

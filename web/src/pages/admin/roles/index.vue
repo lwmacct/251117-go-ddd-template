@@ -1,43 +1,28 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
-import { useRoles } from './composables/useRoles';
-import RoleDialog from './components/RoleDialog.vue';
-import PermissionSelector from './components/PermissionSelector.vue';
-import type { Role, CreateRoleRequest, UpdateRoleRequest } from '@/types/admin';
+import { ref, onMounted } from "vue";
+import { useRoles } from "./composables/useRoles";
+import RoleDialog from "./components/RoleDialog.vue";
+import PermissionSelector from "./components/PermissionSelector.vue";
+import type { Role, CreateRoleRequest, UpdateRoleRequest } from "@/types/admin";
 
-const {
-  roles,
-  loading,
-  searchQuery,
-  pagination,
-  errorMessage,
-  successMessage,
-  fetchRoles,
-  createRole,
-  updateRole,
-  deleteRole,
-  setPermissions,
-  searchRoles,
-  changePage,
-  clearMessages,
-} = useRoles();
+const { roles, loading, searchQuery, pagination, errorMessage, successMessage, fetchRoles, createRole, updateRole, deleteRole, setPermissions, searchRoles, changePage, clearMessages } = useRoles();
 
 const roleDialog = ref(false);
 const permissionDialog = ref(false);
 const deleteDialog = ref(false);
-const dialogMode = ref<'create' | 'edit'>('create');
+const dialogMode = ref<"create" | "edit">("create");
 const selectedRole = ref<Role | null>(null);
 const roleToDelete = ref<Role | null>(null);
 
 const headers = [
-  { title: 'ID', key: 'id', sortable: true },
-  { title: '角色标识', key: 'name', sortable: true },
-  { title: '显示名称', key: 'display_name', sortable: true },
-  { title: '描述', key: 'description' },
-  { title: '权限数量', key: 'permissions' },
-  { title: '系统角色', key: 'is_system' },
-  { title: '创建时间', key: 'created_at', sortable: true },
-  { title: '操作', key: 'actions', sortable: false },
+  { title: "ID", key: "id", sortable: true },
+  { title: "角色标识", key: "name", sortable: true },
+  { title: "显示名称", key: "display_name", sortable: true },
+  { title: "描述", key: "description" },
+  { title: "权限数量", key: "permissions" },
+  { title: "系统角色", key: "is_system" },
+  { title: "创建时间", key: "created_at", sortable: true },
+  { title: "操作", key: "actions", sortable: false },
 ];
 
 onMounted(() => {
@@ -45,17 +30,17 @@ onMounted(() => {
 });
 
 const openCreateDialog = () => {
-  dialogMode.value = 'create';
+  dialogMode.value = "create";
   selectedRole.value = null;
   roleDialog.value = true;
 };
 
 const openEditDialog = (role: Role) => {
   if (role.is_system) {
-    errorMessage.value = '系统角色不能编辑';
+    errorMessage.value = "系统角色不能编辑";
     return;
   }
-  dialogMode.value = 'edit';
+  dialogMode.value = "edit";
   selectedRole.value = role;
   roleDialog.value = true;
 };
@@ -67,7 +52,7 @@ const openPermissionSelector = (role: Role) => {
 
 const openDeleteDialog = (role: Role) => {
   if (role.is_system) {
-    errorMessage.value = '系统角色不能删除';
+    errorMessage.value = "系统角色不能删除";
     return;
   }
   roleToDelete.value = role;
@@ -77,7 +62,7 @@ const openDeleteDialog = (role: Role) => {
 const handleSaveRole = async (data: CreateRoleRequest | UpdateRoleRequest) => {
   let success = false;
 
-  if (dialogMode.value === 'create') {
+  if (dialogMode.value === "create") {
     success = await createRole(data as CreateRoleRequest);
   } else if (selectedRole.value) {
     success = await updateRole(selectedRole.value.id, data as UpdateRoleRequest);
@@ -112,13 +97,13 @@ const handleSearch = () => {
 };
 
 const formatDate = (dateString?: string) => {
-  if (!dateString) return '-';
-  return new Date(dateString).toLocaleString('zh-CN', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
+  if (!dateString) return "-";
+  return new Date(dateString).toLocaleString("zh-CN", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
   });
 };
 
@@ -164,17 +149,23 @@ const formatPermissions = (role: Role) => {
           </v-card-title>
 
           <v-card-text>
-            <v-data-table-server v-model:items-per-page="pagination.limit" v-model:page="pagination.page" :headers="headers" :items="roles" :items-length="pagination.total" :loading="loading" loading-text="加载中..." no-data-text="暂无角色数据" @update:page="changePage">
+            <v-data-table-server
+              v-model:items-per-page="pagination.limit"
+              v-model:page="pagination.page"
+              :headers="headers"
+              :items="roles"
+              :items-length="pagination.total"
+              :loading="loading"
+              loading-text="加载中..."
+              no-data-text="暂无角色数据"
+              @update:page="changePage"
+            >
               <template #item.permissions="{ item }">
-                <v-chip size="small" color="primary">
-                  {{ formatPermissions(item) }} 个权限
-                </v-chip>
+                <v-chip size="small" color="primary"> {{ formatPermissions(item) }} 个权限 </v-chip>
               </template>
 
               <template #item.is_system="{ item }">
-                <v-chip v-if="item.is_system" size="small" color="info">
-                  系统
-                </v-chip>
+                <v-chip v-if="item.is_system" size="small" color="info"> 系统 </v-chip>
                 <span v-else>-</span>
               </template>
 

@@ -4,12 +4,12 @@ Mermaid 用于在文档中快速展示 DDD 分层、CQRS 流程、认证链路�
 
 ## 集成概览
 
-| 位置 | 作用 |
-| ---- | ---- |
-| `docs/.vitepress/config.ts` | 拦截 ` ```mermaid ` 代码块，渲染为 `<Mermaid>` 组件。 |
-| `docs/.vitepress/theme/components/Mermaid.vue` | 调用 `mermaid.render()`，处理暗色/亮色主题切换。 |
-| `docs/package.json` | 声明 `mermaid ^11.12.1` 依赖。 |
-| `docs/guide/mermaid-examples.md` | 示例集合，可在此检视渲染效果。 |
+| 位置                                           | 作用                                                  |
+| ---------------------------------------------- | ----------------------------------------------------- |
+| `docs/.vitepress/config.ts`                    | 拦截 ` ```mermaid ` 代码块，渲染为 `<Mermaid>` 组件。 |
+| `docs/.vitepress/theme/components/Mermaid.vue` | 调用 `mermaid.render()`，处理暗色/亮色主题切换。      |
+| `docs/package.json`                            | 声明 `mermaid ^11.12.1` 依赖。                        |
+| `docs/guide/mermaid-examples.md`               | 示例集合，可在此检视渲染效果。                        |
 
 ## Markdown 渲染器
 

@@ -1,37 +1,28 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
-import { useTokens } from './composables/useTokens';
-import TokenDialog from './components/TokenDialog.vue';
-import TokenDisplay from './components/TokenDisplay.vue';
-import type { CreateTokenRequest } from '@/types/user';
+import { ref, onMounted } from "vue";
+import { useTokens } from "./composables/useTokens";
+import TokenDialog from "./components/TokenDialog.vue";
+import TokenDisplay from "./components/TokenDisplay.vue";
+import type { CreateTokenRequest } from "@/types/user";
 
-const {
-  tokens,
-  loading,
-  errorMessage,
-  successMessage,
-  fetchTokens,
-  createToken,
-  revokeToken,
-  clearMessages,
-} = useTokens();
+const { tokens, loading, errorMessage, successMessage, fetchTokens, createToken, revokeToken, clearMessages } = useTokens();
 
 const tokenDialog = ref(false);
 const tokenDisplayDialog = ref(false);
 const revokeDialog = ref(false);
-const newToken = ref('');
-const newTokenName = ref('');
+const newToken = ref("");
+const newTokenName = ref("");
 const tokenToRevoke = ref<number | null>(null);
 
 const headers = [
-  { title: 'ID', key: 'id', sortable: true },
-  { title: 'Token 名称', key: 'name', sortable: true },
-  { title: 'Token 前缀', key: 'token_prefix' },
-  { title: '状态', key: 'status' },
-  { title: '最后使用', key: 'last_used_at' },
-  { title: '过期时间', key: 'expires_at' },
-  { title: '创建时间', key: 'created_at', sortable: true },
-  { title: '操作', key: 'actions', sortable: false },
+  { title: "ID", key: "id", sortable: true },
+  { title: "Token 名称", key: "name", sortable: true },
+  { title: "Token 前缀", key: "token_prefix" },
+  { title: "状态", key: "status" },
+  { title: "最后使用", key: "last_used_at" },
+  { title: "过期时间", key: "expires_at" },
+  { title: "创建时间", key: "created_at", sortable: true },
+  { title: "操作", key: "actions", sortable: false },
 ];
 
 onMounted(() => {
@@ -67,30 +58,30 @@ const confirmRevoke = async () => {
 };
 
 const formatDate = (dateString?: string) => {
-  if (!dateString) return '-';
-  return new Date(dateString).toLocaleString('zh-CN', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
+  if (!dateString) return "-";
+  return new Date(dateString).toLocaleString("zh-CN", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
   });
 };
 
 const getStatusColor = (status: string) => {
   const colors: Record<string, string> = {
-    active: 'success',
-    revoked: 'error',
-    expired: 'warning',
+    active: "success",
+    revoked: "error",
+    expired: "warning",
   };
-  return colors[status] || 'default';
+  return colors[status] || "default";
 };
 
 const getStatusText = (status: string) => {
   const texts: Record<string, string> = {
-    active: '正常',
-    revoked: '已撤销',
-    expired: '已过期',
+    active: "正常",
+    revoked: "已撤销",
+    expired: "已过期",
   };
   return texts[status] || status;
 };
@@ -106,9 +97,7 @@ const isTokenExpired = (expiresAt?: string) => {
     <v-row>
       <v-col cols="12">
         <h1 class="text-h4 mb-2">Personal Access Tokens</h1>
-        <p class="text-body-2 text-medium-emphasis">
-          Personal Access Tokens 可用于通过 API 访问系统资源
-        </p>
+        <p class="text-body-2 text-medium-emphasis">Personal Access Tokens 可用于通过 API 访问系统资源</p>
       </v-col>
     </v-row>
 
@@ -150,9 +139,7 @@ const isTokenExpired = (expiresAt?: string) => {
                 <v-chip :color="getStatusColor(item.status)" size="small">
                   {{ getStatusText(item.status) }}
                 </v-chip>
-                <v-chip v-if="isTokenExpired(item.expires_at)" color="warning" size="small" class="ml-1">
-                  已过期
-                </v-chip>
+                <v-chip v-if="isTokenExpired(item.expires_at)" color="warning" size="small" class="ml-1"> 已过期 </v-chip>
               </template>
 
               <template #item.last_used_at="{ item }">
@@ -160,7 +147,7 @@ const isTokenExpired = (expiresAt?: string) => {
               </template>
 
               <template #item.expires_at="{ item }">
-                <span class="text-body-2">{{ formatDate(item.expires_at) || '永不过期' }}</span>
+                <span class="text-body-2">{{ formatDate(item.expires_at) || "永不过期" }}</span>
               </template>
 
               <template #item.created_at="{ item }">
@@ -187,9 +174,7 @@ const isTokenExpired = (expiresAt?: string) => {
     <v-dialog v-model="revokeDialog" max-width="400">
       <v-card>
         <v-card-title class="text-h5">确认撤销</v-card-title>
-        <v-card-text>
-          确定要撤销此 Token 吗？撤销后将无法恢复，使用此 Token 的 API 请求将失败。
-        </v-card-text>
+        <v-card-text> 确定要撤销此 Token 吗？撤销后将无法恢复，使用此 Token 的 API 请求将失败。 </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn variant="text" @click="revokeDialog = false">取消</v-btn>

@@ -1,42 +1,31 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
-import { useMenus } from './composables/useMenus';
-import MenuDialog from './components/MenuDialog.vue';
-import MenuTree from './components/MenuTree.vue';
-import type { Menu, CreateMenuRequest, UpdateMenuRequest } from '@/types/admin';
+import { ref, onMounted } from "vue";
+import { useMenus } from "./composables/useMenus";
+import MenuDialog from "./components/MenuDialog.vue";
+import MenuTree from "./components/MenuTree.vue";
+import type { Menu, CreateMenuRequest, UpdateMenuRequest } from "@/types/admin";
 
-const {
-  menus,
-  loading,
-  errorMessage,
-  successMessage,
-  fetchMenus,
-  createMenu,
-  updateMenu,
-  deleteMenu,
-  reorderMenus,
-  clearMessages,
-} = useMenus();
+const { menus, loading, errorMessage, successMessage, fetchMenus, createMenu, updateMenu, deleteMenu, reorderMenus, clearMessages } = useMenus();
 
 const menuDialog = ref(false);
 const deleteDialog = ref(false);
-const dialogMode = ref<'create' | 'edit'>('create');
+const dialogMode = ref<"create" | "edit">("create");
 const selectedMenu = ref<Menu | null>(null);
 const menuToDelete = ref<Menu | null>(null);
-const viewMode = ref<'tree' | 'table'>('tree');
+const viewMode = ref<"tree" | "table">("tree");
 
 onMounted(() => {
   fetchMenus();
 });
 
 const openCreateDialog = () => {
-  dialogMode.value = 'create';
+  dialogMode.value = "create";
   selectedMenu.value = null;
   menuDialog.value = true;
 };
 
 const openEditDialog = (menu: Menu) => {
-  dialogMode.value = 'edit';
+  dialogMode.value = "edit";
   selectedMenu.value = menu;
   menuDialog.value = true;
 };
@@ -49,7 +38,7 @@ const openDeleteDialog = (menu: Menu) => {
 const handleSaveMenu = async (data: CreateMenuRequest | UpdateMenuRequest) => {
   let success = false;
 
-  if (dialogMode.value === 'create') {
+  if (dialogMode.value === "create") {
     success = await createMenu(data as CreateMenuRequest);
   } else if (selectedMenu.value) {
     success = await updateMenu(selectedMenu.value.id, data as UpdateMenuRequest);
@@ -153,9 +142,7 @@ const handleMenusReorder = async (updatedMenus: Menu[]) => {
 
             <!-- 表格视图（可选实现） -->
             <div v-if="viewMode === 'table' && !loading">
-              <v-alert type="info" class="mb-4">
-                表格视图展示所有菜单（扁平化）
-              </v-alert>
+              <v-alert type="info" class="mb-4"> 表格视图展示所有菜单（扁平化） </v-alert>
               <v-simple-table v-if="menus.length > 0">
                 <template #default>
                   <thead>
@@ -175,10 +162,16 @@ const handleMenusReorder = async (updatedMenus: Menu[]) => {
                       <tr>
                         <td>{{ menu.id }}</td>
                         <td>{{ menu.title }}</td>
-                        <td><code>{{ menu.path }}</code></td>
-                        <td><v-icon v-if="menu.icon" size="small">{{ menu.icon }}</v-icon></td>
+                        <td>
+                          <code>{{ menu.path }}</code>
+                        </td>
+                        <td>
+                          <v-icon v-if="menu.icon" size="small">{{ menu.icon }}</v-icon>
+                        </td>
                         <td>{{ menu.order }}</td>
-                        <td><v-chip :color="menu.visible ? 'success' : 'error'" size="small">{{ menu.visible ? '是' : '否' }}</v-chip></td>
+                        <td>
+                          <v-chip :color="menu.visible ? 'success' : 'error'" size="small">{{ menu.visible ? "是" : "否" }}</v-chip>
+                        </td>
                         <td>
                           <v-btn icon="mdi-pencil" size="small" variant="text" @click="openEditDialog(menu)"></v-btn>
                           <v-btn icon="mdi-delete" size="small" variant="text" color="error" @click="openDeleteDialog(menu)"></v-btn>
@@ -201,9 +194,7 @@ const handleMenusReorder = async (updatedMenus: Menu[]) => {
         <v-card-title class="text-h5">确认删除</v-card-title>
         <v-card-text>
           确定要删除菜单 <strong>{{ menuToDelete?.title }}</strong> 吗？
-          <v-alert v-if="menuToDelete?.children && menuToDelete.children.length > 0" type="warning" class="mt-2" density="compact">
-            该菜单有子菜单，请先删除子菜单
-          </v-alert>
+          <v-alert v-if="menuToDelete?.children && menuToDelete.children.length > 0" type="warning" class="mt-2" density="compact"> 该菜单有子菜单，请先删除子菜单 </v-alert>
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>

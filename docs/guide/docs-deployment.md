@@ -140,11 +140,11 @@ permissions:
 npm install
 
 # 启动开发服务器
-npm run docs:dev
+npm run dev
 
 # 或构建并预览生产版本
-npm run docs:build
-npm run docs:preview
+npm run build
+npm run preview
 ```
 
 **注意：** 本地开发时不需要设置 base 路径，VitePress 会自动处理。

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref } from "vue";
 
 interface Props {
   modelValue: boolean;
@@ -8,7 +8,7 @@ interface Props {
 }
 
 interface Emits {
-  (e: 'update:modelValue', value: boolean): void;
+  (e: "update:modelValue", value: boolean): void;
 }
 
 const props = defineProps<Props>();
@@ -24,12 +24,12 @@ const copyToken = async () => {
       copied.value = false;
     }, 2000);
   } catch (error) {
-    console.error('Failed to copy token:', error);
+    console.error("Failed to copy token:", error);
   }
 };
 
 const closeDialog = () => {
-  emit('update:modelValue', false);
+  emit("update:modelValue", false);
 };
 </script>
 
@@ -61,14 +61,12 @@ const closeDialog = () => {
 
         <div class="mt-4 d-flex justify-center">
           <v-btn :color="copied ? 'success' : 'primary'" size="large" @click="copyToken">
-            <v-icon start>{{ copied ? 'mdi-check' : 'mdi-content-copy' }}</v-icon>
-            {{ copied ? '已复制' : '复制 Token' }}
+            <v-icon start>{{ copied ? "mdi-check" : "mdi-content-copy" }}</v-icon>
+            {{ copied ? "已复制" : "复制 Token" }}
           </v-btn>
         </div>
 
-        <v-alert type="info" class="mt-4" density="compact">
-          <strong>使用方式：</strong>在 API 请求中添加 Header: <code>Authorization: Bearer YOUR_TOKEN</code>
-        </v-alert>
+        <v-alert type="info" class="mt-4" density="compact"> <strong>使用方式：</strong>在 API 请求中添加 Header: <code>Authorization: Bearer YOUR_TOKEN</code> </v-alert>
       </v-card-text>
 
       <v-card-actions>

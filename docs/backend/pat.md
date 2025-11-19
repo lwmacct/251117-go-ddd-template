@@ -14,14 +14,14 @@ Personal Access Token (PAT) 是一种用于 API 认证的长期凭证，作为 J
 
 ### PAT vs JWT 对比
 
-| 特性 | JWT Token | Personal Access Token |
-|------|----------|----------------------|
-| **用途** | Web/移动应用 | API 集成、CLI、脚本 |
-| **有效期** | 短期（1小时） | 长期（7/30/90天或永久） |
-| **刷新** | Refresh Token | 无需刷新 |
-| **权限** | 用户全部权限 | 用户权限的子集 |
-| **撤销** | 不支持 | 支持即时撤销 |
-| **IP 限制** | 不支持 | 支持 IP 白名单 |
+| 特性        | JWT Token     | Personal Access Token   |
+| ----------- | ------------- | ----------------------- |
+| **用途**    | Web/移动应用  | API 集成、CLI、脚本     |
+| **有效期**  | 短期（1小时） | 长期（7/30/90天或永久） |
+| **刷新**    | Refresh Token | 无需刷新                |
+| **权限**    | 用户全部权限  | 用户权限的子集          |
+| **撤销**    | 不支持        | 支持即时撤销            |
+| **IP 限制** | 不支持        | 支持 IP 白名单          |
 
 ## Token 格式
 
@@ -30,6 +30,7 @@ Personal Access Token (PAT) 是一种用于 API 认证的长期凭证，作为 J
 **示例**: `pat_2Kj9X_aB3cD4eF5gH6iJ7kL8mN9oP0qR1sT2uV3wX4yZ`
 
 **安全特性**：
+
 - 完整 token 仅在创建时显示一次
 - 数据库存储 SHA-256 哈希值
 - 前缀用于快速识别，不影响安全性
@@ -46,6 +47,7 @@ Personal Access Token (PAT) 是一种用于 API 认证的长期凭证，作为 J
 **API 端点**: `POST /api/user/tokens`
 
 **请求示例**:
+
 ```bash
 curl -X POST http://localhost:8080/api/user/tokens \
   -H "Authorization: Bearer <your_jwt_token>" \
@@ -65,15 +67,16 @@ curl -X POST http://localhost:8080/api/user/tokens \
 
 **请求参数**:
 
-| 字段 | 类型 | 必填 | 说明 |
-|-----|------|------|------|
-| `name` | string | ✓ | Token 名称（1-100 字符） |
-| `permissions` | string[] | ✓ | 权限列表（必须是用户已有权限的子集） |
-| `expires_in` | int | ✗ | 有效期天数（7/30/90 或 null=永久） |
-| `ip_whitelist` | string[] | ✗ | IP 白名单（可选） |
-| `description` | string | ✗ | 描述信息 |
+| 字段           | 类型     | 必填 | 说明                                 |
+| -------------- | -------- | ---- | ------------------------------------ |
+| `name`         | string   | ✓    | Token 名称（1-100 字符）             |
+| `permissions`  | string[] | ✓    | 权限列表（必须是用户已有权限的子集） |
+| `expires_in`   | int      | ✗    | 有效期天数（7/30/90 或 null=永久）   |
+| `ip_whitelist` | string[] | ✗    | IP 白名单（可选）                    |
+| `description`  | string   | ✗    | 描述信息                             |
 
 **响应示例**:
+
 ```json
 {
   "message": "token created successfully",
@@ -82,11 +85,7 @@ curl -X POST http://localhost:8080/api/user/tokens \
     "id": 1,
     "name": "My API Integration",
     "token_prefix": "pat_2Kj9X",
-    "permissions": [
-      "user:profile:read",
-      "user:profile:update",
-      "api:cache:read"
-    ],
+    "permissions": ["user:profile:read", "user:profile:update", "api:cache:read"],
     "expires_at": "2025-02-19T10:30:00Z",
     "created_at": "2024-11-20T10:30:00Z"
   },
@@ -95,6 +94,7 @@ curl -X POST http://localhost:8080/api/user/tokens \
 ```
 
 **重要提示**:
+
 - ⚠️ **完整 token 仅显示一次**，请立即保存
 - Token 创建后无法查看明文，只能撤销并重新创建
 - 权限必须是您当前拥有权限的子集
@@ -102,10 +102,12 @@ curl -X POST http://localhost:8080/api/user/tokens \
 ### 权限选择
 
 创建 Token 时，您可以选择需要的权限。系统会验证：
+
 1. 所选权限必须是您已有权限的子集
 2. 至少选择一个权限
 
 **权限验证示例**:
+
 ```bash
 # 假设用户拥有以下权限：
 # - user:profile:read
@@ -158,26 +160,27 @@ curl -X PUT http://localhost:8080/api/user/me \
 #### 2. JavaScript/Node.js
 
 ```javascript
-const PAT = 'pat_2Kj9X_aB3cD4eF5gH6iJ7kL8mN9oP0qR1sT2uV3wX4yZ';
+const PAT = "pat_2Kj9X_aB3cD4eF5gH6iJ7kL8mN9oP0qR1sT2uV3wX4yZ";
 
 // 使用 fetch
-fetch('http://localhost:8080/api/user/me', {
+fetch("http://localhost:8080/api/user/me", {
   headers: {
-    'Authorization': `Bearer ${PAT}`
-  }
+    Authorization: `Bearer ${PAT}`,
+  },
 })
-.then(res => res.json())
-.then(data => console.log(data));
+  .then((res) => res.json())
+  .then((data) => console.log(data));
 
 // 使用 axios
-const axios = require('axios');
+const axios = require("axios");
 
-axios.get('http://localhost:8080/api/user/me', {
-  headers: {
-    'Authorization': `Bearer ${PAT}`
-  }
-})
-.then(response => console.log(response.data));
+axios
+  .get("http://localhost:8080/api/user/me", {
+    headers: {
+      Authorization: `Bearer ${PAT}`,
+    },
+  })
+  .then((response) => console.log(response.data));
 ```
 
 #### 3. Python
@@ -242,6 +245,7 @@ curl -X GET http://localhost:8080/api/user/tokens \
 ```
 
 **响应示例**:
+
 ```json
 {
   "message": "tokens retrieved successfully",
@@ -290,6 +294,7 @@ curl -X DELETE http://localhost:8080/api/user/tokens/1 \
 ```
 
 **响应**:
+
 ```json
 {
   "message": "token revoked successfully"
@@ -297,6 +302,7 @@ curl -X DELETE http://localhost:8080/api/user/tokens/1 \
 ```
 
 **撤销后**：
+
 - Token 状态变为 `revoked`
 - 立即失效，无法再用于 API 认证
 - 记录保留在数据库中（软删除）
@@ -372,16 +378,19 @@ curl -X DELETE http://localhost:8080/api/user/tokens/1 \
 ### 6. 安全存储
 
 **推荐方式**：
+
 - ✓ 环境变量（生产环境）
 - ✓ 密钥管理服务（AWS Secrets Manager, HashiCorp Vault）
 - ✓ CI/CD 密钥存储
 
 **避免**：
+
 - ✗ 硬编码在代码中
 - ✗ 提交到版本控制系统
 - ✗ 明文存储在配置文件
 
 **示例（环境变量）**：
+
 ```bash
 # .env 文件（不要提交到 git）
 API_TOKEN=pat_2Kj9X_aB3cD4eF5gH6iJ7kL8mN9oP0qR1sT2uV3wX4yZ
@@ -398,6 +407,7 @@ curl -H "Authorization: Bearer $API_TOKEN" http://api.example.com/endpoint
 如果怀疑 Token 泄露：
 
 1. **立即撤销** 受影响的 Token
+
    ```bash
    curl -X DELETE http://localhost:8080/api/user/tokens/<token_id> \
      -H "Authorization: Bearer <jwt_token>"
@@ -410,6 +420,7 @@ curl -H "Authorization: Bearer $API_TOKEN" http://api.example.com/endpoint
 ### 监控建议
 
 定期检查：
+
 - Token 的最后使用时间（`last_used_at`）
 - 长期未使用的 Token（考虑撤销）
 - 即将过期的 Token（提前轮换）
@@ -422,11 +433,11 @@ curl -H "Authorization: Bearer $API_TOKEN" http://api.example.com/endpoint
 
 ## Token 状态说明
 
-| 状态 | 说明 | 可用性 |
-|------|------|--------|
-| `active` | 正常激活 | ✓ 可用 |
-| `revoked` | 已撤销 | ✗ 不可用 |
-| `expired` | 已过期 | ✗ 不可用 |
+| 状态      | 说明     | 可用性   |
+| --------- | -------- | -------- |
+| `active`  | 正常激活 | ✓ 可用   |
+| `revoked` | 已撤销   | ✗ 不可用 |
+| `expired` | 已过期   | ✗ 不可用 |
 
 系统会自动标记过期的 Token，您也可以手动撤销不再需要的 Token。
 
@@ -435,12 +446,14 @@ curl -H "Authorization: Bearer $API_TOKEN" http://api.example.com/endpoint
 ### Q1: Token 创建后忘记保存，如何找回？
 
 **A**: 无法找回。Token 明文仅在创建时显示一次，数据库只存储 SHA-256 哈希值。您需要：
+
 1. 撤销旧 Token
 2. 创建新 Token
 
 ### Q2: 如何增加 Token 的权限？
 
 **A**: 无法修改现有 Token 的权限。需要：
+
 1. 创建新 Token（包含所需权限）
 2. 更新应用配置使用新 Token
 3. 撤销旧 Token
@@ -452,12 +465,14 @@ curl -H "Authorization: Bearer $API_TOKEN" http://api.example.com/endpoint
 ### Q4: 使用 PAT 时出现 403 错误？
 
 **A**: 可能的原因：
+
 1. **权限不足**：Token 没有所需权限
 2. **Token 已撤销**：状态为 `revoked`
 3. **Token 已过期**：超过 `expires_at` 时间
 4. **IP 限制**：请求 IP 不在白名单中
 
 检查方法：
+
 ```bash
 # 查看 Token 详情
 curl -X GET http://localhost:8080/api/user/tokens/<token_id> \
@@ -467,10 +482,12 @@ curl -X GET http://localhost:8080/api/user/tokens/<token_id> \
 ### Q5: JWT 和 PAT 可以同时使用吗？
 
 **A**: 是的。系统支持两种认证方式：
+
 - Web 应用使用 JWT（短期，可刷新）
 - API 集成使用 PAT（长期，特定权限）
 
 选择依据：
+
 - **需要自动刷新** → 使用 JWT
 - **长期稳定访问** → 使用 PAT
 - **限制权限范围** → 使用 PAT
@@ -478,6 +495,7 @@ curl -X GET http://localhost:8080/api/user/tokens/<token_id> \
 ### Q6: 如何批量管理 Token？
 
 **A**: 目前需要逐个操作。建议：
+
 1. 使用描述性名称和分类标签
 2. 定期审查 Token 列表
 3. 撤销长期未使用的 Token
@@ -485,9 +503,10 @@ curl -X GET http://localhost:8080/api/user/tokens/<token_id> \
 ### Q7: PAT 支持通配符权限吗？
 
 **A**: 支持。创建 Token 时可以使用通配符权限（如果用户拥有）：
+
 ```json
 {
-  "permissions": ["user:*:read"]  // 用户域所有资源的读权限
+  "permissions": ["user:*:read"] // 用户域所有资源的读权限
 }
 ```
 
@@ -504,6 +523,7 @@ curl -X GET http://localhost:8080/api/user/tokens/<token_id> \
 如果您是开发者，想了解 PAT 的技术实现细节：
 
 **核心组件**：
+
 - `internal/domain/pat/model.go` - PAT 领域模型
 - `internal/infrastructure/auth/pat_service.go` - PAT 服务层
 - `internal/infrastructure/auth/token_generator.go` - Token 生成器
@@ -511,6 +531,7 @@ curl -X GET http://localhost:8080/api/user/tokens/<token_id> \
 - `internal/adapters/http/handler/pat.go` - PAT HTTP 处理器
 
 **数据库表**: `personal_access_tokens`
+
 ```sql
 CREATE TABLE personal_access_tokens (
     id SERIAL PRIMARY KEY,

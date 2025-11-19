@@ -23,6 +23,7 @@ graph TB
 ### 各层职责
 
 #### 1. Adapters 层 (接口适配)
+
 - **位置**: `internal/adapters/http/handler/`
 - **职责**: HTTP 请求/响应转换，不包含业务逻辑
 - **示例**: `AuthHandler`, `UserHandler`
@@ -49,6 +50,7 @@ func (h *UserHandler) Create(c *gin.Context) {
 ```
 
 #### 2. Application 层 (业务编排)
+
 - **位置**: `internal/application/*/command/` 和 `query/`
 - **职责**: 协调领域模型和仓储完成业务用例
 - **结构**: Command/Query + Handler
@@ -86,11 +88,13 @@ func (h *CreateUserHandler) Handle(ctx context.Context, cmd CreateUserCommand) (
 ```
 
 #### 3. Domain 层 (业务规则)
+
 - **位置**: `internal/domain/`
 - **职责**: 定义业务模型、领域服务接口、仓储接口
 - **特点**: 不依赖任何外层，纯业务逻辑
 
 **富领域模型示例**:
+
 ```go
 type User struct {
     ID       uint
@@ -119,6 +123,7 @@ func (u *User) AssignRole(role *Role) {
 ```
 
 **仓储接口**:
+
 ```go
 // CommandRepository - 写操作
 type CommandRepository interface {
@@ -139,6 +144,7 @@ type QueryRepository interface {
 ```
 
 #### 4. Infrastructure 层 (技术实现)
+
 - **位置**: `internal/infrastructure/`
 - **职责**: 实现领域服务、仓储、数据库、Redis、外部API
 
@@ -196,6 +202,7 @@ sequenceDiagram
 ```
 
 **代码示例**:
+
 ```go
 // 1. 定义 Command（纯数据对象）
 type CreateUserCommand struct {
@@ -297,6 +304,7 @@ userHandler := handler.NewUserHandler(
 ### 案例 1: PAT Token 创建 (安全设计模式)
 
 **业务需求**:
+
 - 创建 Personal Access Token 时，明文 Token 只能显示一次
 - 系统仅存储 Token 哈希值
 - 用户必须在创建时立即保存 Token
@@ -357,6 +365,7 @@ func (h *CreateTokenHandler) Handle(ctx context.Context, cmd CreateTokenCommand)
 ```
 
 **安全设计亮点**:
+
 1. **Token 仅返回一次**: `CreateTokenResult.Token` 包含明文，后续查询不再返回
 2. **哈希存储**: 数据库仅存储 `hashedToken`，无法反向推导
 3. **Token ID**: 用于快速索引和验证，不泄露 Token 内容
@@ -367,6 +376,7 @@ func (h *CreateTokenHandler) Handle(ctx context.Context, cmd CreateTokenCommand)
 ### 案例 2: AuditLog 复杂查询 (多维度过滤)
 
 **业务需求**:
+
 - 支持按用户、操作类型、资源、状态、时间范围等多维度过滤
 - 分页支持
 - 审计日志只读，不可修改
@@ -413,6 +423,7 @@ func (h *ListLogsHandler) Handle(ctx context.Context, query ListLogsQuery) (*Lis
 ```
 
 **设计特点**:
+
 1. **Query-Only**: 无 Command Handler，日志由 AuditMiddleware 自动创建
 2. **灵活过滤**: 所有过滤条件可选，支持组合查询
 3. **性能优化**: QueryRepository 可替换为 Elasticsearch 实现
@@ -423,6 +434,7 @@ func (h *ListLogsHandler) Handle(ctx context.Context, query ListLogsQuery) (*Lis
 ### 案例 3: Setting 批量更新 (事务处理)
 
 **业务需求**:
+
 - 一次性更新多个系统设置
 - 类型安全的值转换（string, int, bool, JSON）
 - 原子性操作（全部成功或全部失败）
@@ -450,6 +462,7 @@ func (h *BatchUpdateSettingsHandler) Handle(ctx context.Context, cmd BatchUpdate
 ```
 
 **HTTP Handler** (`internal/adapters/http/handler/setting.go:119`):
+
 ```go
 func (h *SettingHandler) BatchUpdateSettings(c *gin.Context) {
     var req BatchUpdateSettingsRequest
@@ -483,6 +496,7 @@ func (h *SettingHandler) BatchUpdateSettings(c *gin.Context) {
 ```
 
 **类型转换器** (`internal/application/setting/converter.go`):
+
 ```go
 func StringValue(setting *domainSetting.Setting) string {
     return setting.Value
@@ -506,6 +520,7 @@ func JSONValue(setting *domainSetting.Setting, v interface{}) error {
 ### 案例 4: Menu 树形结构排序 (复杂业务逻辑)
 
 **业务需求**:
+
 - 菜单支持多级树形结构（ParentID）
 - 支持重排序功能
 - 验证父菜单存在性
@@ -534,6 +549,7 @@ func (h *ReorderMenusHandler) Handle(ctx context.Context, cmd ReorderMenusComman
 ```
 
 **CreateMenuHandler 验证父菜单** (`internal/application/menu/command/create_menu_handler.go:24`):
+
 ```go
 func (h *CreateMenuHandler) Handle(ctx context.Context, cmd CreateMenuCommand) (*CreateMenuResult, error) {
     // 验证父菜单存在（如果指定）
@@ -572,6 +588,7 @@ func (h *CreateMenuHandler) Handle(ctx context.Context, cmd CreateMenuCommand) (
 #### 示例：添加「修改密码」功能
 
 **1. 定义 Command**
+
 ```go
 // internal/application/user/command/change_password.go
 type ChangePasswordCommand struct {
@@ -582,6 +599,7 @@ type ChangePasswordCommand struct {
 ```
 
 **2. 定义 Handler**
+
 ```go
 // internal/application/user/command/change_password_handler.go
 type ChangePasswordHandler struct {
@@ -610,6 +628,7 @@ func (h *ChangePasswordHandler) Handle(ctx context.Context, cmd ChangePasswordCo
 ```
 
 **3. 在 HTTP Handler 中使用**
+
 ```go
 // internal/adapters/http/handler/user.go
 func (h *UserHandler) ChangePassword(c *gin.Context) {
@@ -632,6 +651,7 @@ func (h *UserHandler) ChangePassword(c *gin.Context) {
 ```
 
 **4. 在 Container 中注册**
+
 ```go
 // internal/bootstrap/container.go
 changePasswordHandler := userCommand.NewChangePasswordHandler(
@@ -654,27 +674,29 @@ userHandler := handler.NewUserHandler(
 
 ## 🆚 架构对比
 
-| 维度 | 旧架构 | 新架构（DDD + CQRS） |
-|-----|-------|-------------------|
-| **分层** | 3 层 | 4 层（+ Application） |
-| **业务逻辑位置** | 散落在 Handler 和 Infrastructure Service | 集中在 Application Layer |
-| **Repository** | 读写混合 | CQRS 读写分离 |
-| **Handler 职责** | HTTP 转换 + 业务逻辑 | 仅 HTTP 转换 |
-| **可测试性** | 中等（需要 HTTP 上下文） | 优秀（Use Case 可独立测试） |
-| **Domain 模型** | 贫血模型 | 富领域模型 |
-| **查询优化** | 困难 | 容易（Query Repository 可接 Redis/ES） |
+| 维度             | 旧架构                                   | 新架构（DDD + CQRS）                   |
+| ---------------- | ---------------------------------------- | -------------------------------------- |
+| **分层**         | 3 层                                     | 4 层（+ Application）                  |
+| **业务逻辑位置** | 散落在 Handler 和 Infrastructure Service | 集中在 Application Layer               |
+| **Repository**   | 读写混合                                 | CQRS 读写分离                          |
+| **Handler 职责** | HTTP 转换 + 业务逻辑                     | 仅 HTTP 转换                           |
+| **可测试性**     | 中等（需要 HTTP 上下文）                 | 优秀（Use Case 可独立测试）            |
+| **Domain 模型**  | 贫血模型                                 | 富领域模型                             |
+| **查询优化**     | 困难                                     | 容易（Query Repository 可接 Redis/ES） |
 
 ---
 
 ## 🚀 优势
 
 ### 1. 职责分离清晰
+
 - Handler：HTTP 请求转换
 - Use Case：业务编排
 - Domain Service：领域能力
 - Repository：数据访问
 
 ### 2. 可测试性强
+
 ```go
 // 测试 Use Case Handler（无需 HTTP 上下文）
 func TestCreateUserHandler(t *testing.T) {
@@ -696,11 +718,13 @@ func TestCreateUserHandler(t *testing.T) {
 ```
 
 ### 3. 易于扩展
+
 - 添加新 Use Case 不影响现有代码
 - Query Repository 可独立优化（Redis/Elasticsearch）
 - Domain Service 可替换实现
 
 ### 4. 业务意图明确
+
 ```go
 // 旧代码
 POST /api/users + UserCreateDTO
@@ -720,21 +744,22 @@ CreateUserCommand {
 
 ### ✅ 完成模块清单 (2025-11-19)
 
-| 模块 | Application 层 | CQRS Repository | Use Cases 数量 | 状态 |
-|------|----------------|-----------------|----------------|------|
-| **Auth** | ✅ | ✅ | 3 Commands + 1 Query | 100% |
-| **User** | ✅ | ✅ | 5 Commands + 5 Queries | 100% |
-| **Role** | ✅ | ✅ | 4 Commands + 3 Queries | 100% |
-| **Menu** | ✅ | ✅ | 4 Commands + 2 Queries | 100% |
-| **Setting** | ✅ | ✅ | 4 Commands + 2 Queries | 100% |
-| **PAT** | ✅ | ✅ | 2 Commands + 2 Queries | 100% |
-| **AuditLog** | ✅ | ✅ | 0 Commands + 2 Queries | 100% |
-| **TwoFA** | Infrastructure | ✅ | N/A (Service 实现) | 100% |
-| **Captcha** | Infrastructure | Single Repo | N/A (内存存储) | 100% |
+| 模块         | Application 层 | CQRS Repository | Use Cases 数量         | 状态 |
+| ------------ | -------------- | --------------- | ---------------------- | ---- |
+| **Auth**     | ✅             | ✅              | 3 Commands + 1 Query   | 100% |
+| **User**     | ✅             | ✅              | 5 Commands + 5 Queries | 100% |
+| **Role**     | ✅             | ✅              | 4 Commands + 3 Queries | 100% |
+| **Menu**     | ✅             | ✅              | 4 Commands + 2 Queries | 100% |
+| **Setting**  | ✅             | ✅              | 4 Commands + 2 Queries | 100% |
+| **PAT**      | ✅             | ✅              | 2 Commands + 2 Queries | 100% |
+| **AuditLog** | ✅             | ✅              | 0 Commands + 2 Queries | 100% |
+| **TwoFA**    | Infrastructure | ✅              | N/A (Service 实现)     | 100% |
+| **Captcha**  | Infrastructure | Single Repo     | N/A (内存存储)         | 100% |
 
 ### 📈 统计数据
 
 **Application 层**:
+
 - **新增文件**: 58 个
 - **Use Case Handlers**: 30 个 (18 Command + 12 Query)
 - **Commands/Queries**: 30 个
@@ -743,11 +768,13 @@ CreateUserCommand {
 - **代码行数**: 约 2200+ 行
 
 **CQRS Repository**:
+
 - **Command Repository**: 8 个
 - **Query Repository**: 8 个
 - **Repository 实现**: 14 个
 
 **HTTP Handlers**:
+
 - **重构的 Handler**: 7 个
 - **新增路由**: 0 个 (所有路由已存在)
 

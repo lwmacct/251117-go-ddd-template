@@ -29,6 +29,7 @@
 **目标**: 建立应用层目录，定义 CQRS 结构
 
 **新增目录**:
+
 ```
 internal/application/
 ├── auth/
@@ -46,6 +47,7 @@ internal/application/
 ```
 
 **完成标志**:
+
 - [x] 所有模块的 command/ 和 query/ 目录
 - [x] 基础 Handler 模板
 - [x] DTO 定义
@@ -77,14 +79,17 @@ type Service interface {
 #### 2.2 拆分 Repository 为 CQRS
 
 **User 模块**:
+
 - `command_repository.go`：Create, Update, Delete, AssignRoles（写操作）
 - `query_repository.go`：GetByID, List, Search, Exists（读操作）
 
 **AuditLog 模块**:
+
 - `command_repository.go`：Create, Delete, BatchCreate
 - `query_repository.go`：复杂过滤、搜索、聚合查询
 
 **所有模块**:
+
 - ✅ user
 - ✅ role
 - ✅ auditlog
@@ -97,6 +102,7 @@ type Service interface {
 #### 2.3 迁移 DTO
 
 **从**:
+
 ```go
 // internal/domain/user/model.go
 type UserCreateRequest struct { ... }
@@ -104,6 +110,7 @@ type UserResponse struct { ... }
 ```
 
 **到**:
+
 ```go
 // internal/application/user/dto.go
 type CreateUserDTO struct { ... }
@@ -113,6 +120,7 @@ type UserWithRolesResponse struct { ... }
 #### 2.4 充实 Domain 模型
 
 **User 模型新增行为方法**:
+
 ```go
 // 状态检查
 func (u *User) CanLogin() bool
@@ -142,6 +150,7 @@ func (u *User) UpdateProfile(fullName, email string)
 #### User 模块实现
 
 **Command Repository**:
+
 ```go
 // internal/infrastructure/persistence/user_command_repository.go
 type userCommandRepository struct {
@@ -166,6 +175,7 @@ func (r *userCommandRepository) AssignRoles(ctx context.Context, userID uint, ro
 ```
 
 **Query Repository**:
+
 ```go
 // internal/infrastructure/persistence/user_query_repository.go
 type userQueryRepository struct {
@@ -200,6 +210,7 @@ func (r *userQueryRepository) ExistsByUsername(ctx context.Context, username str
 #### Auth 模块 - Login Use Case
 
 **Command 定义**:
+
 ```go
 // internal/application/auth/command/login.go
 type LoginCommand struct {
@@ -213,6 +224,7 @@ type LoginCommand struct {
 ```
 
 **Handler 实现**:
+
 ```go
 // internal/application/auth/command/login_handler.go
 type LoginHandler struct {
@@ -262,6 +274,7 @@ func (h *LoginHandler) Handle(ctx context.Context, cmd LoginCommand) (*LoginResu
 #### User 模块 - Create User Use Case
 
 **Command 定义**:
+
 ```go
 // internal/application/user/command/create_user.go
 type CreateUserCommand struct {
@@ -274,6 +287,7 @@ type CreateUserCommand struct {
 ```
 
 **Handler 实现**:
+
 ```go
 // internal/application/user/command/create_user_handler.go
 type CreateUserHandler struct {
@@ -387,6 +401,7 @@ func (s *AuthServiceImpl) VerifyPassword(ctx context.Context, hashedPassword, pa
 #### AuthHandler 重构
 
 **旧代码**:
+
 ```go
 type AuthHandler struct {
     authService *auth.Service  // Infrastructure Service
@@ -402,6 +417,7 @@ func (h *AuthHandler) Login(c *gin.Context) {
 ```
 
 **新代码**:
+
 ```go
 type AuthHandlerNew struct {
     loginHandler        *authCommand.LoginHandler
@@ -576,21 +592,25 @@ func NewContainer(cfg *config.Config, opts *ContainerOptions) (*Container, error
 **完成时间**: 2025-11-19
 
 **Role 模块 (16 文件)**:
+
 - Command: CreateRole, UpdateRole, DeleteRole, SetPermissions (4 Commands + 4 Handlers)
 - Query: GetRole, ListRoles, GetPermissions (3 Queries + 3 Handlers)
 - DTO + Mapper: role/dto.go, role/mapper.go
 
 **Menu 模块 (12 文件)**:
+
 - Command: CreateMenu, UpdateMenu, DeleteMenu, ReorderMenus (4 Commands + 4 Handlers)
 - Query: GetMenu, ListMenus (2 Queries + 2 Handlers)
 - DTO + Mapper: menu/dto.go, menu/mapper.go
 
 **Setting 模块 (14 文件)**:
+
 - Command: CreateSetting, UpdateSetting, DeleteSetting, BatchUpdateSettings (4 Commands + 4 Handlers)
 - Query: GetSetting, GetSettings (2 Queries + 2 Handlers)
 - DTO + Mapper + Converter: setting/dto.go, setting/mapper.go, setting/converter.go
 
 **修改文件**:
+
 - `internal/adapters/http/handler/role.go` - 重构为 Use Case 模式
 - `internal/adapters/http/handler/menu.go` - 重构为 Use Case 模式
 - `internal/adapters/http/handler/setting.go` - 重构为 Use Case 模式
@@ -601,6 +621,7 @@ func NewContainer(cfg *config.Config, opts *ContainerOptions) (*Container, error
 **完成时间**: 2025-11-19
 
 **PAT 模块 (10 文件)**:
+
 - Command: CreateToken, RevokeToken (2 Commands + 2 Handlers)
 - Query: GetToken, ListTokens (2 Queries + 2 Handlers)
 - DTO 扩展: pat/dto.go (新增 TokenInfoResponse)
@@ -609,6 +630,7 @@ func NewContainer(cfg *config.Config, opts *ContainerOptions) (*Container, error
 **核心实现**:
 
 **CreateTokenHandler** (安全设计):
+
 ```go
 func (h *CreateTokenHandler) Handle(ctx context.Context, cmd CreateTokenCommand) (*CreateTokenResult, error) {
     // 1. 生成安全 Token
@@ -636,10 +658,12 @@ func (h *CreateTokenHandler) Handle(ctx context.Context, cmd CreateTokenCommand)
 ```
 
 **修复的编译错误**:
+
 - ❌ `GenerateToken(32)` 方法不存在 → ✅ 改用 `GeneratePAT()`
 - ❌ `FindByUserID()` 方法不存在 → ✅ 改用 `ListByUser()`
 
 **修改文件**:
+
 - `internal/adapters/http/handler/pat.go` - 完全重构为 Use Case 模式
 - `internal/bootstrap/container.go` - 注册 PAT Use Case Handlers
 - `internal/adapters/http/router.go` - 使用新 PATHandler
@@ -649,6 +673,7 @@ func (h *CreateTokenHandler) Handle(ctx context.Context, cmd CreateTokenCommand)
 **完成时间**: 2025-11-19
 
 **AuditLog 模块 (6 文件)**:
+
 - Command: 无 (审计日志为只读，由中间件自动创建)
 - Query: ListLogs, GetLog (2 Queries + 2 Handlers)
 - DTO: auditlog/dto.go (AuditLogResponse, ListLogsResponse)
@@ -657,6 +682,7 @@ func (h *CreateTokenHandler) Handle(ctx context.Context, cmd CreateTokenCommand)
 **核心实现**:
 
 **ListLogsHandler** (复杂过滤):
+
 ```go
 func (h *ListLogsHandler) Handle(ctx context.Context, query ListLogsQuery) (*ListLogsResponse, error) {
     // 构建复杂过滤条件
@@ -689,10 +715,12 @@ func (h *ListLogsHandler) Handle(ctx context.Context, query ListLogsQuery) (*Lis
 ```
 
 **修复的编译错误**:
+
 - ❌ `cannot use log (variable of struct type) as *AuditLog value`
 - ✅ 改为 `for i := range logs` + `&logs[i]`
 
 **修改文件**:
+
 - `internal/adapters/http/handler/auditlog.go` - 重构为 Use Case 模式
 - `internal/bootstrap/container.go` - 注册 AuditLog Query Handlers
 - `internal/adapters/http/router.go` - 添加 auditLogHandler 参数
@@ -700,6 +728,7 @@ func (h *ListLogsHandler) Handle(ctx context.Context, query ListLogsQuery) (*Lis
 #### 最终统计数据 ✅
 
 **Application 层新增文件**:
+
 - **Role 模块**: 16 个文件 (8 Commands + 6 Queries + DTO + Mapper)
 - **Menu 模块**: 12 个文件 (8 Commands + 4 Queries + DTO + Mapper)
 - **Setting 模块**: 14 个文件 (8 Commands + 4 Queries + DTO + Mapper + Converter)
@@ -708,12 +737,14 @@ func (h *ListLogsHandler) Handle(ctx context.Context, query ListLogsQuery) (*Lis
 - **总计**: 58 个 Application 层文件
 
 **修改的文件**:
+
 - HTTP Handlers: 5 个 (role, menu, setting, pat, auditlog)
 - Container: 1 个 (bootstrap/container.go)
 - Router: 1 个 (adapters/http/router.go)
 - **总计**: 7 个文件修改
 
 **代码统计**:
+
 - **新增代码行数**: 约 2200+ 行
 - **Use Case Handlers**: 30 个 (18 Command Handlers + 12 Query Handlers)
 - **Commands/Queries**: 30 个
@@ -741,6 +772,7 @@ go test ./...
 ```
 
 **最终统计数据**:
+
 - **CQRS Repository 接口**: 16 个 (8 CommandRepository + 8 QueryRepository)
 - **Legacy Repository 接口**: 2 个 (Role, Permission - 向后兼容保留)
 - **CQRS Repository 文件**: 14 个
@@ -768,6 +800,7 @@ go test ./...
 | Query | GetPermissionsQuery | GetPermissionsHandler | 获取所有可用权限 |
 
 **文件位置**:
+
 - Commands: `internal/application/role/command/`
 - Queries: `internal/application/role/query/`
 - DTO: `internal/application/role/dto.go`
@@ -789,6 +822,7 @@ go test ./...
 | Query | ListMenusQuery | ListMenusHandler | 获取菜单列表 |
 
 **文件位置**:
+
 - Commands: `internal/application/menu/command/`
 - Queries: `internal/application/menu/query/`
 - DTO: `internal/application/menu/dto.go`
@@ -796,6 +830,7 @@ go test ./...
 - Handler: `internal/adapters/http/handler/menu.go`
 
 **特色功能**:
+
 - 支持树形结构 (ParentID)
 - 菜单重排序功能
 - 权限关联 (RequiredPermission)
@@ -815,6 +850,7 @@ go test ./...
 | Query | GetSettingsQuery | GetSettingsHandler | 获取设置列表 |
 
 **文件位置**:
+
 - Commands: `internal/application/setting/command/`
 - Queries: `internal/application/setting/query/`
 - DTO: `internal/application/setting/dto.go`
@@ -823,6 +859,7 @@ go test ./...
 - Handler: `internal/adapters/http/handler/setting.go`
 
 **特色功能**:
+
 - 类型安全的值转换 (StringValue, IntValue, BoolValue, JSONValue)
 - 批量更新支持
 - 分组管理 (Group 字段)
@@ -840,6 +877,7 @@ go test ./...
 | Query | ListTokensQuery | ListTokensHandler | 获取用户令牌列表 |
 
 **文件位置**:
+
 - Commands: `internal/application/pat/command/`
 - Queries: `internal/application/pat/query/`
 - DTO: `internal/application/pat/dto.go`
@@ -847,12 +885,14 @@ go test ./...
 - Handler: `internal/adapters/http/handler/pat.go`
 
 **安全特性**:
+
 - **Token 仅返回一次**: 创建时返回明文 Token，后续仅显示哈希值
 - **所有权验证**: GetToken 和 RevokeToken 验证用户所有权
 - **过期时间支持**: 可选的 ExpiresAt 字段
 - **权限粒度控制**: Permissions 数组
 
 **实现亮点** (internal/application/pat/command/create_token_handler.go:24):
+
 ```go
 // 生成安全 Token (明文 + 哈希)
 plainToken, hashedToken, _, err := h.tokenGenerator.GeneratePAT()
@@ -877,18 +917,21 @@ return &CreateTokenResult{
 | Query | GetLogQuery | GetLogHandler | 获取单条审计日志 |
 
 **文件位置**:
+
 - Queries: `internal/application/auditlog/query/`
 - DTO: `internal/application/auditlog/dto.go`
 - Mapper: `internal/application/auditlog/mapper.go`
 - Handler: `internal/adapters/http/handler/auditlog.go`
 
 **设计特点**:
+
 - **无 Command**: 审计日志为只读，由 AuditMiddleware 自动创建
 - **复杂过滤**: 支持 UserID、Action、Resource、Status、时间范围等多维度过滤
 - **分页支持**: Page + Limit
 - **不可变性**: 日志一旦创建不可修改
 
 **过滤能力** (internal/application/auditlog/query/list_logs.go:7):
+
 ```go
 type ListLogsQuery struct {
     Page      int
@@ -907,11 +950,13 @@ type ListLogsQuery struct {
 ### 已有模块 (Application 层已完成)
 
 #### ✅ Auth 模块 (认证)
+
 - ✅ Login, Register, RefreshToken
 - ✅ 2FA 集成
 - ✅ Captcha 验证
 
 #### ✅ User 模块 (用户管理)
+
 - ✅ CreateUser, UpdateUser, DeleteUser
 - ✅ GetUser, ListUsers
 - ✅ Profile Management
@@ -921,10 +966,12 @@ type ListLogsQuery struct {
 ### 基础设施模块 (无需 Application 层)
 
 #### ✅ Captcha 模块
+
 - **设计**: 单一 Repository (内存存储)
 - **原因**: 验证码生命周期短，无需 CQRS
 
 #### ✅ TwoFA 模块
+
 - **设计**: Infrastructure Service 足够
 - **原因**: TOTP 验证为纯技术实现，无复杂业务逻辑
 
@@ -932,15 +979,15 @@ type ListLogsQuery struct {
 
 ## 📈 成果对比
 
-| 维度 | 迁移前 | 迁移后 |
-|-----|-------|-------|
-| **架构层次** | 3 层 | 4 层（+ Application） |
-| **业务逻辑位置** | Handler + Infrastructure Service | Application Use Case Handler |
-| **CQRS 实现** | ❌ 无 | ✅ 完整实现 |
-| **Domain 模型** | 贫血模型 | 富领域模型 |
-| **可测试性** | ⭐⭐⭐ | ⭐⭐⭐⭐⭐ |
-| **查询性能优化** | 困难 | 容易（Query Repository 可接 Redis/ES） |
-| **新功能开发** | 散乱 | 标准化流程 |
+| 维度             | 迁移前                           | 迁移后                                 |
+| ---------------- | -------------------------------- | -------------------------------------- |
+| **架构层次**     | 3 层                             | 4 层（+ Application）                  |
+| **业务逻辑位置** | Handler + Infrastructure Service | Application Use Case Handler           |
+| **CQRS 实现**    | ❌ 无                            | ✅ 完整实现                            |
+| **Domain 模型**  | 贫血模型                         | 富领域模型                             |
+| **可测试性**     | ⭐⭐⭐                           | ⭐⭐⭐⭐⭐                             |
+| **查询性能优化** | 困难                             | 容易（Query Repository 可接 Redis/ES） |
+| **新功能开发**   | 散乱                             | 标准化流程                             |
 
 ---
 
@@ -971,6 +1018,7 @@ type ListLogsQuery struct {
 ### 1. 性能优化
 
 **Query Repository 接入 Redis**:
+
 ```go
 type userQueryRepositoryWithCache struct {
     db    *gorm.DB
@@ -1001,6 +1049,7 @@ func (r *userQueryRepositoryWithCache) GetByID(ctx context.Context, id uint) (*u
 ### 2. 搜索优化
 
 **AuditLog Query 接入 Elasticsearch**:
+
 ```go
 type auditLogQueryRepositoryWithES struct {
     db *gorm.DB
@@ -1015,6 +1064,7 @@ func (r *auditLogQueryRepositoryWithES) Search(ctx context.Context, filters Audi
 ### 3. 测试覆盖
 
 **Use Case 单元测试**:
+
 ```go
 func TestCreateUserHandler_Success(t *testing.T) {
     // Mock 依赖
@@ -1053,6 +1103,7 @@ func TestCreateUserHandler_Success(t *testing.T) {
 ### 每个模块迁移完成后检查
 
 **CQRS Repository**:
+
 - [ ] Command Repository 接口定义（Domain 层）
 - [ ] Query Repository 接口定义（Domain 层）
 - [ ] Command Repository 实现（Infrastructure 层）
@@ -1060,24 +1111,28 @@ func TestCreateUserHandler_Success(t *testing.T) {
 - [ ] 构造函数（NewXXXCommandRepository, NewXXXQueryRepository）
 
 **Use Cases**:
+
 - [ ] Command + Handler（至少 Create, Update, Delete）
 - [ ] Query + Handler（至少 Get, List）
 - [ ] DTO 定义（application/xxx/dto.go）
 - [ ] 错误处理（Domain 错误返回）
 
 **HTTP Handler**:
+
 - [ ] Handler 结构体定义（依赖 Use Case Handlers）
 - [ ] 所有 HTTP 方法实现（仅做 HTTP 转换）
 - [ ] 请求验证（使用 binding tags）
 - [ ] 响应统一格式（使用 response 包）
 
 **Container**:
+
 - [ ] CQRS Repositories 已注册
 - [ ] Use Case Handlers 已注册
 - [ ] HTTP Handler 已注册
 - [ ] Router 已更新
 
 **验证测试**:
+
 ```bash
 # 编译验证
 go build ./...
@@ -1099,6 +1154,7 @@ go test ./internal/adapters/http/handler/...
 **A**: ✅ 是的！所有 9 个模块已完成架构升级（2025-11-19）：
 
 **核心业务模块 (Application 层 100% 完成)**:
+
 - ✅ Auth 模块 - Login, Register, RefreshToken
 - ✅ User 模块 - 完整 CRUD + Profile Management
 - ✅ Role 模块 - 角色管理 + 权限管理 (7 Use Cases)
@@ -1108,10 +1164,12 @@ go test ./internal/adapters/http/handler/...
 - ✅ AuditLog 模块 - 审计日志 + 复杂过滤 (2 Query Use Cases)
 
 **基础设施模块 (Infrastructure 层足够)**:
+
 - ✅ TwoFA 模块 - TOTP 验证 (技术实现)
 - ✅ Captcha 模块 - 内存存储 (单一 Repository)
 
 **迁移完成度**: 100%
+
 - 所有核心业务模块均已实现 Application 层
 - CQRS Repository 100% 覆盖
 - Use Case Pattern 标准化应用
@@ -1119,12 +1177,14 @@ go test ./internal/adapters/http/handler/...
 ### Q2: Container 新旧代码已清理完成吗？
 
 **A**: ✅ 是的！已经完成清理：
+
 - ✅ `container_new.go` 已重命名为 `container.go`
 - ✅ 旧 `container.go` 已删除
 - ✅ 所有引用已更新为 `NewContainer()`
 - ✅ 统一使用 CQRS Repositories
 
 **当前 Container 结构**:
+
 ```go
 type Container struct {
     // CQRS Repositories
@@ -1148,6 +1208,7 @@ type Container struct {
 **A**: 按类型区分处理：
 
 **Infrastructure Service**（技术组件）：✅ 保留
+
 - `JWTManager` - JWT 技术实现
 - `TokenGenerator` - Token 生成器
 - `LoginSessionService` - 会话管理
@@ -1155,10 +1216,12 @@ type Container struct {
 - `TwoFAService` - 2FA 服务
 
 **Business Service**（业务编排）：✅ 已迁移到 Use Case Handler
+
 - 旧 `auth.Service.Login()` → `authCommand.LoginHandler.Handle()`
 - 旧 `auth.Service.Register()` → `authCommand.RegisterHandler.Handle()`
 
 **Domain Service**：✅ 已抽取接口
+
 - 定义：`internal/domain/auth/service.go`（接口）
 - 实现：`internal/infrastructure/auth/auth_service_impl.go`
 - 使用：Application 层依赖 Domain 接口
@@ -1168,19 +1231,23 @@ type Container struct {
 **A**: 不是，根据复杂度决定：
 
 **✅ 必须使用 CQRS**:
+
 - **复杂查询**：AuditLog（多维度过滤、搜索）
 - **高性能要求**：User（查询频繁，可接 Redis 缓存）
 - **读写分离场景**：需要独立优化读写性能
 
 **⚠️ 可选使用 CQRS**:
+
 - **简单 CRUD**：Menu、Setting（可以只分离接口，实现共用）
 - **低频操作**：PAT、TwoFA
 
 **❌ 不建议使用 CQRS**:
+
 - **单表简单查询**：极简单的模型
 - **内存存储**：Captcha（使用单一 Repository）
 
 **当前实现**:
+
 - ✅ Auth、User、Role、Menu、Setting、PAT、AuditLog：完整 CQRS + Application 层
 - ✅ TwoFA：Infrastructure Service 实现
 - ✅ Captcha：单一 Repository（内存存储）
@@ -1196,6 +1263,7 @@ type Container struct {
 4. **在 Container 中注册**
 
 **示例**: 添加"批量删除用户"功能
+
 ```go
 // 1. Command
 type BatchDeleteUsersCommand struct {

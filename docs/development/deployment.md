@@ -4,12 +4,12 @@
 
 ## 运行要求
 
-| 组件 | 版本/路径 | 说明 |
-| ---- | --------- | ---- |
-| Node.js | `>= 20.19.0` | 受 `docs/package.json#engines` 限制。 |
-| npm | v10+ | 直接驱动 VitePress 脚本。 |
-| Go | 1.22+ | 运行 `task go:run -- api` 以托管 `/docs` 静态文件。 |
-| Docs 输出目录 | `docs/.vitepress/dist` | Go 服务器通过 `cfg.Server.DocsDir` 读取该目录。 |
+| 组件          | 版本/路径              | 说明                                                |
+| ------------- | ---------------------- | --------------------------------------------------- |
+| Node.js       | `>= 20.19.0`           | 受 `docs/package.json#engines` 限制。               |
+| npm           | v10+                   | 直接驱动 VitePress 脚本。                           |
+| Go            | 1.22+                  | 运行 `task go:run -- api` 以托管 `/docs` 静态文件。 |
+| Docs 输出目录 | `docs/.vitepress/dist` | Go 服务器通过 `cfg.Server.DocsDir` 读取该目录。     |
 
 ## 本地开发流程
 
@@ -71,12 +71,12 @@ sed -n '1,5p' docs/.vitepress/dist/index.html | grep '<base'
 
 ## 常见问题
 
-| 现象 | 排查 |
-| ---- | ---- |
-| 文档 404 | 确认 `npm --prefix docs run build` 是否成功，`DocsDir` 是否指向 dist 目录。 |
-| 静态资源路径错误 | 检查 `VITEPRESS_BASE` 是否与部署路径一致，例如 Go 服务器必须保持 `/docs/`。 |
+| 现象                | 排查                                                                                                   |
+| ------------------- | ------------------------------------------------------------------------------------------------------ |
+| 文档 404            | 确认 `npm --prefix docs run build` 是否成功，`DocsDir` 是否指向 dist 目录。                            |
+| 静态资源路径错误    | 检查 `VITEPRESS_BASE` 是否与部署路径一致，例如 Go 服务器必须保持 `/docs/`。                            |
 | GitHub Actions 失败 | 查看工作流日志中的 `npm install`、`npm run build`、`upload` 步骤；大多为 Node 版本或锁文件不一致导致。 |
-| 浏览器缓存旧版本 | 尝试访问 `http://localhost:8080/docs/index.html?t=$(date +%s)` 或清理缓存。 |
+| 浏览器缓存旧版本    | 尝试访问 `http://localhost:8080/docs/index.html?t=$(date +%s)` 或清理缓存。                            |
 
 ## 发版 checklist
 

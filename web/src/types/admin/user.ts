@@ -2,7 +2,7 @@
  * Admin 用户管理相关类型定义
  */
 
-import type { Role } from './role';
+import type { Role } from "./role";
 
 /** Admin 用户信息（包含角色） */
 export interface AdminUser {
@@ -12,7 +12,7 @@ export interface AdminUser {
   full_name?: string;
   avatar?: string;
   bio?: string;
-  status: 'active' | 'inactive' | 'banned';
+  status: "active" | "inactive" | "banned";
   roles?: Role[];
   created_at?: string;
   updated_at?: string;
@@ -24,7 +24,7 @@ export interface CreateUserRequest {
   email: string;
   password: string;
   full_name?: string;
-  status?: 'active' | 'inactive';
+  status?: "active" | "inactive";
 }
 
 /** 更新用户请求 */
@@ -33,7 +33,7 @@ export interface UpdateUserRequest {
   full_name?: string;
   avatar?: string;
   bio?: string;
-  status?: 'active' | 'inactive' | 'banned';
+  status?: "active" | "inactive" | "banned";
 }
 
 /** 分配角色请求 */

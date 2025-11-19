@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-import draggable from 'vuedraggable';
-import type { Menu } from '@/types/admin';
+import { ref } from "vue";
+import draggable from "vuedraggable";
+import type { Menu } from "@/types/admin";
 
 interface Props {
   menus: Menu[];
@@ -9,9 +9,9 @@ interface Props {
 }
 
 interface Emits {
-  (e: 'edit', menu: Menu): void;
-  (e: 'delete', menu: Menu): void;
-  (e: 'update:menus', menus: Menu[]): void;
+  (e: "edit", menu: Menu): void;
+  (e: "delete", menu: Menu): void;
+  (e: "update:menus", menus: Menu[]): void;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -24,12 +24,23 @@ const drag = ref(false);
 const localMenus = ref(props.menus);
 
 const handleDragEnd = () => {
-  emit('update:menus', localMenus.value);
+  emit("update:menus", localMenus.value);
 };
 </script>
 
 <template>
-  <draggable v-model="localMenus" @start="drag = true" @end="drag = false; handleDragEnd()" item-key="id" handle=".drag-handle" :group="{ name: 'menus' }" class="menu-tree">
+  <draggable
+    v-model="localMenus"
+    @start="drag = true"
+    @end="
+      drag = false;
+      handleDragEnd();
+    "
+    item-key="id"
+    handle=".drag-handle"
+    :group="{ name: 'menus' }"
+    class="menu-tree"
+  >
     <template #item="{ element }">
       <div class="menu-item" :style="{ marginLeft: `${level * 24}px` }">
         <v-card variant="outlined" class="mb-2">

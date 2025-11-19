@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
-import { useAdminUsers } from './composables/useAdminUsers';
-import UserDialog from './components/UserDialog.vue';
-import RoleSelector from './components/RoleSelector.vue';
-import type { AdminUser, CreateUserRequest, UpdateUserRequest } from '@/types/admin';
+import { ref, onMounted } from "vue";
+import { useAdminUsers } from "./composables/useAdminUsers";
+import UserDialog from "./components/UserDialog.vue";
+import RoleSelector from "./components/RoleSelector.vue";
+import type { AdminUser, CreateUserRequest, UpdateUserRequest } from "@/types/admin";
 
 /**
  * 用户管理页面
@@ -11,22 +11,7 @@ import type { AdminUser, CreateUserRequest, UpdateUserRequest } from '@/types/ad
  */
 
 // 使用 composable
-const {
-  users,
-  loading,
-  searchQuery,
-  pagination,
-  errorMessage,
-  successMessage,
-  fetchUsers,
-  createUser,
-  updateUser,
-  deleteUser,
-  assignRoles,
-  searchUsers,
-  changePage,
-  clearMessages,
-} = useAdminUsers();
+const { users, loading, searchQuery, pagination, errorMessage, successMessage, fetchUsers, createUser, updateUser, deleteUser, assignRoles, searchUsers, changePage, clearMessages } = useAdminUsers();
 
 // 对话框状态
 const userDialog = ref(false);
@@ -34,20 +19,20 @@ const roleSelectorDialog = ref(false);
 const deleteDialog = ref(false);
 
 // 编辑状态
-const dialogMode = ref<'create' | 'edit'>('create');
+const dialogMode = ref<"create" | "edit">("create");
 const selectedUser = ref<AdminUser | null>(null);
 const userToDelete = ref<AdminUser | null>(null);
 
 // 表头配置
 const headers = [
-  { title: 'ID', key: 'id', sortable: true },
-  { title: '用户名', key: 'username', sortable: true },
-  { title: '邮箱', key: 'email', sortable: true },
-  { title: '全名', key: 'full_name' },
-  { title: '角色', key: 'roles' },
-  { title: '状态', key: 'status', sortable: true },
-  { title: '创建时间', key: 'created_at', sortable: true },
-  { title: '操作', key: 'actions', sortable: false },
+  { title: "ID", key: "id", sortable: true },
+  { title: "用户名", key: "username", sortable: true },
+  { title: "邮箱", key: "email", sortable: true },
+  { title: "全名", key: "full_name" },
+  { title: "角色", key: "roles" },
+  { title: "状态", key: "status", sortable: true },
+  { title: "创建时间", key: "created_at", sortable: true },
+  { title: "操作", key: "actions", sortable: false },
 ];
 
 // 初始化
@@ -57,14 +42,14 @@ onMounted(() => {
 
 // 打开创建对话框
 const openCreateDialog = () => {
-  dialogMode.value = 'create';
+  dialogMode.value = "create";
   selectedUser.value = null;
   userDialog.value = true;
 };
 
 // 打开编辑对话框
 const openEditDialog = (user: AdminUser) => {
-  dialogMode.value = 'edit';
+  dialogMode.value = "edit";
   selectedUser.value = user;
   userDialog.value = true;
 };
@@ -85,7 +70,7 @@ const openDeleteDialog = (user: AdminUser) => {
 const handleSaveUser = async (data: CreateUserRequest | UpdateUserRequest) => {
   let success = false;
 
-  if (dialogMode.value === 'create') {
+  if (dialogMode.value === "create") {
     success = await createUser(data as CreateUserRequest);
   } else if (selectedUser.value) {
     success = await updateUser(selectedUser.value.id, data as UpdateUserRequest);
@@ -124,38 +109,38 @@ const handleSearch = () => {
 
 // 格式化日期
 const formatDate = (dateString?: string) => {
-  if (!dateString) return '-';
-  return new Date(dateString).toLocaleString('zh-CN', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
+  if (!dateString) return "-";
+  return new Date(dateString).toLocaleString("zh-CN", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
   });
 };
 
 // 格式化角色
 const formatRoles = (user: AdminUser) => {
-  if (!user.roles || user.roles.length === 0) return '-';
-  return user.roles.map(role => role.display_name).join(', ');
+  if (!user.roles || user.roles.length === 0) return "-";
+  return user.roles.map((role) => role.display_name).join(", ");
 };
 
 // 状态颜色
 const getStatusColor = (status: string) => {
   const colors: Record<string, string> = {
-    active: 'success',
-    inactive: 'warning',
-    banned: 'error',
+    active: "success",
+    inactive: "warning",
+    banned: "error",
   };
-  return colors[status] || 'default';
+  return colors[status] || "default";
 };
 
 // 状态文本
 const getStatusText = (status: string) => {
   const texts: Record<string, string> = {
-    active: '启用',
-    inactive: '禁用',
-    banned: '封禁',
+    active: "启用",
+    inactive: "禁用",
+    banned: "封禁",
   };
   return texts[status] || status;
 };
@@ -201,7 +186,17 @@ const getStatusText = (status: string) => {
           </v-card-title>
 
           <v-card-text>
-            <v-data-table-server v-model:items-per-page="pagination.limit" v-model:page="pagination.page" :headers="headers" :items="users" :items-length="pagination.total" :loading="loading" loading-text="加载中..." no-data-text="暂无用户数据" @update:page="changePage">
+            <v-data-table-server
+              v-model:items-per-page="pagination.limit"
+              v-model:page="pagination.page"
+              :headers="headers"
+              :items="users"
+              :items-length="pagination.total"
+              :loading="loading"
+              loading-text="加载中..."
+              no-data-text="暂无用户数据"
+              @update:page="changePage"
+            >
               <!-- 角色列 -->
               <template #item.roles="{ item }">
                 <span class="text-body-2">{{ formatRoles(item) }}</span>
