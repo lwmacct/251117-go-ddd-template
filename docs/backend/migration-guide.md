@@ -483,11 +483,15 @@ type Container struct {
     DB          *gorm.DB
     RedisClient *redis.Client
 
-    // CQRS Repositories
-    UserCommandRepo     user.CommandRepository
-    UserQueryRepo       user.QueryRepository
-    AuditLogCommandRepo auditlog.CommandRepository
-    AuditLogQueryRepo   auditlog.QueryRepository
+    // CQRS Repositories（聚合 Command/Query）
+    UserRepos       persistence.UserRepositories
+    AuditLogRepos   persistence.AuditLogRepositories
+    RoleRepos       persistence.RoleRepositories
+    PermissionRepos persistence.PermissionRepositories
+    PATRepos        persistence.PATRepositories
+    MenuRepos       persistence.MenuRepositories
+    SettingRepos    persistence.SettingRepositories
+    TwoFARepos      persistence.TwoFARepositories
 
     // Domain Services
     AuthService domainAuth.Service
@@ -1187,15 +1191,13 @@ go test ./internal/adapters/http/handler/...
 
 ```go
 type Container struct {
-    // CQRS Repositories
-    UserCommandRepo     user.CommandRepository
-    UserQueryRepo       user.QueryRepository
-    AuditLogCommandRepo auditlog.CommandRepository
-    AuditLogQueryRepo   auditlog.QueryRepository
+    // CQRS Repositories（聚合后直接提供）
+    UserRepos     persistence.UserRepositories
+    AuditLogRepos persistence.AuditLogRepositories
 
     // Use Case Handlers
-    LoginHandler        *authCommand.LoginHandler
-    CreateUserHandler   *userCommand.CreateUserHandler
+    LoginHandler      *authCommand.LoginHandler
+    CreateUserHandler *userCommand.CreateUserHandler
 
     // HTTP Handlers
     AuthHandler *handler.AuthHandlerNew
