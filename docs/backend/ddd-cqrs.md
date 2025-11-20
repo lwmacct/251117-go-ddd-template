@@ -147,7 +147,7 @@ type QueryRepository interface {
 #### 4. Infrastructure 层 (技术实现)
 
 - **位置**: `internal/infrastructure/`
-- **职责**: 实现领域服务、仓储、数据库、Redis、外部API
+- **职责**: 实现领域服务、仓储、数据库、Redis、外部 API
 - **持久化模型**: 每个模块在 `internal/infrastructure/persistence/{module}_model.go` 中定义 GORM Model + 映射函数，仓储层统一通过模型 → 领域实体转换
 
 ```go
