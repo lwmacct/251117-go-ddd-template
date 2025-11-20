@@ -12,6 +12,19 @@ export interface AuditLog {
   resource_id?: number;
   ip_address?: string;
   user_agent?: string;
-  details?: Record<string, any>;
+  details?: string;
+  status: string;
   created_at: string;
+}
+
+/** 审计日志查询参数 */
+export interface AuditLogQueryParams {
+  page?: number;
+  limit?: number;
+  user_id?: number;
+  action?: string;
+  resource?: string;
+  status?: string;
+  start_date?: string;
+  end_date?: string;
 }

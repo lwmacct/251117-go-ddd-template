@@ -64,5 +64,14 @@ export const adminRoutes: RouteRecordRaw = {
         icon: "mdi-menu",
       },
     },
+    {
+      path: "auditlogs",
+      name: "AdminAuditLogs",
+      component: () => import("@/pages/admin/auditlogs/index.vue"),
+      meta: {
+        title: "审计日志",
+        icon: "mdi-file-document-outline",
+      },
+    },
   ],
 };
