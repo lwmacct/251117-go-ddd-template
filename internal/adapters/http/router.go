@@ -208,6 +208,17 @@ func SetupRouter(
 	// 提供静态文件服务 (使用 NoRoute 避免与 API 路由冲突)
 	if cfg.Server.StaticDir != "" {
 		r.NoRoute(func(c *gin.Context) {
+			// API 路由返回 JSON 404，避免 SPA fallback 干扰
+			if strings.HasPrefix(c.Request.URL.Path, "/api/") {
+				c.JSON(404, gin.H{
+					"code":    404,
+					"message": "endpoint not found",
+					"error":   "route does not exist",
+				})
+				return
+			}
+
+			// 非 API 路径使用 SPA fallback
 			path := filepath.Join(cfg.Server.StaticDir, c.Request.URL.Path)
 
 			if _, err := os.Stat(path); err == nil {
