@@ -9,8 +9,8 @@
  */
 
 import { ref, computed } from "vue";
-import { PlatformAuthAPI } from "@/api";
-import type { CaptchaData, PlatformRegisterRequest } from "@/api";
+import { AuthAPI } from "@/api";
+import type { CaptchaData, RegisterRequest } from "@/api";
 
 /**
  * Register 页面状态管理 Composable
@@ -102,7 +102,7 @@ export function useRegister() {
   const fetchCaptcha = async () => {
     try {
       loadingCaptcha.value = true;
-      const response = await PlatformAuthAPI.getCaptcha();
+      const response = await AuthAPI.getCaptcha();
       if (response.data) {
         captchaData.value = response.data;
         captchaCode.value = "";
@@ -146,14 +146,14 @@ export function useRegister() {
     isLoading.value = true;
 
     try {
-      const requestData: PlatformRegisterRequest = {
+      const requestData: RegisterRequest = {
         email: email.value,
         password: password.value,
         captcha_id: captchaData.value.id,
         captcha: captchaCode.value,
       };
 
-      const response = await PlatformAuthAPI.register(requestData);
+      const response = await AuthAPI.register(requestData);
 
       if (response.code === 200) {
         // 保存session token (用于邮箱验证)

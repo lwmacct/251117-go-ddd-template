@@ -117,9 +117,7 @@ func (h *UserHandler) List(c *gin.Context) {
 	}
 
 	meta := response.NewPaginationMeta(int(result.Total), page, limit)
-	response.List(c, "success", gin.H{
-		"users": result.Users,
-	}, meta)
+	response.List(c, "success", result.Users, meta)
 }
 
 // Update 更新用户

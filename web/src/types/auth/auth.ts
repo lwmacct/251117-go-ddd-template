@@ -3,34 +3,49 @@
  */
 import type { User } from "./user";
 
-/** 登录请求 (基础)  */
+/**
+ * 登录请求（标准版，带验证码）
+ * 支持多种登录方式：手机号/用户名/邮箱
+ */
 export interface LoginRequest {
-  login: string; // 用户名或邮箱
-  password: string;
-}
-
-/** 登录请求 (平台版，带验证码)  */
-export interface PlatformLoginRequest {
   account: string; // 手机号/用户名/邮箱
   password: string;
   captcha_id: string;
   captcha: string;
 }
 
-/** 注册请求 (基础)  */
+/**
+ * 注册请求（标准版，带验证码）
+ */
 export interface RegisterRequest {
-  username: string;
-  email: string;
-  password: string;
-  full_name?: string;
-}
-
-/** 注册请求 (平台版，带验证码)  */
-export interface PlatformRegisterRequest {
   email: string;
   password: string;
   captcha_id: string;
   captcha: string;
+}
+
+// ============================================================================
+// 已废弃的类型（向后兼容）
+// ============================================================================
+
+/**
+ * @deprecated 使用 LoginRequest 代替
+ * 基础登录请求（不带验证码，已废弃）
+ */
+export interface BasicLoginRequest {
+  login: string; // 用户名或邮箱
+  password: string;
+}
+
+/**
+ * @deprecated 使用 RegisterRequest 代替
+ * 基础注册请求（不带验证码，已废弃）
+ */
+export interface BasicRegisterRequest {
+  username: string;
+  email: string;
+  password: string;
+  full_name?: string;
 }
 
 /** 验证码数据 */

@@ -56,25 +56,24 @@
 {
   "code": 200,
   "message": "success",
-  "data": {
-    "users": [
-      {
-        "id": 1,
-        "username": "admin",
-        "email": "admin@example.com",
-        "full_name": "Administrator",
-        "status": "active",
-        "roles": [...],
-        "created_at": "2024-01-01T00:00:00Z",
-        "updated_at": "2024-01-01T00:00:00Z"
-      }
-    ]
-  },
+  "data": [
+    {
+      "id": 1,
+      "username": "admin",
+      "email": "admin@example.com",
+      "full_name": "Administrator",
+      "status": "active",
+      "roles": [...],
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  ],
   "meta": {
     "page": 1,
-    "limit": 20,
+    "per_page": 20,
     "total": 100,
-    "total_pages": 5
+    "total_pages": 5,
+    "has_more": false
   }
 }
 ```

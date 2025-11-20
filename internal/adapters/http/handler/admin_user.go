@@ -99,7 +99,7 @@ func (h *AdminUserHandler) CreateUser(c *gin.Context) {
 // @Param        page query int false "页码" default(1) minimum(1)
 // @Param        limit query int false "每页数量" default(20) minimum(1) maximum(100)
 // @Param        search query string false "搜索关键词（用户名或邮箱）"
-// @Success      200 {object} response.Response{data=object{users=[]appUserDTO.UserWithRolesResponse},meta=response.PaginationMeta} "用户列表"
+// @Success      200 {object} response.ListResponse{data=[]appUserDTO.UserWithRolesResponse,meta=response.PaginationMeta} "用户列表"
 // @Failure      401 {object} response.ErrorResponse "未授权"
 // @Failure      403 {object} response.ErrorResponse "权限不足"
 // @Failure      500 {object} response.ErrorResponse "服务器内部错误"
@@ -130,9 +130,7 @@ func (h *AdminUserHandler) ListUsers(c *gin.Context) {
 	}
 
 	meta := response.NewPaginationMeta(int(result.Total), page, limit)
-	response.List(c, "success", gin.H{
-		"users": result.Users,
-	}, meta)
+	response.List(c, "success", result.Users, meta)
 }
 
 // GetUser gets a user by ID (admin only)

@@ -10,7 +10,7 @@
 
 import { ref, computed } from "vue";
 import { useAuthStore } from "@/stores/auth";
-import { PlatformAuthAPI } from "@/api";
+import { AuthAPI } from "@/api";
 import type { CaptchaData } from "@/api";
 import type { LoginResult } from "@/types";
 
@@ -83,7 +83,7 @@ export function useLogin() {
   const fetchCaptcha = async () => {
     try {
       loadingCaptcha.value = true;
-      const response = await PlatformAuthAPI.getCaptcha();
+      const response = await AuthAPI.getCaptcha();
       if (response.data) {
         captchaData.value = response.data;
         captchaCode.value = ""; // 清空验证码输入

@@ -1,15 +1,17 @@
 /**
- * 平台认证 API (支持验证码和 2FA)
+ * 认证 API（标准版）
+ * 支持验证码、2FA 等完整认证功能
  */
 
 import { apiClient } from "./client";
-import type { PlatformLoginRequest, PlatformRegisterRequest, CaptchaData } from "@/types/auth";
+import type { LoginRequest, RegisterRequest, CaptchaData } from "@/types/auth";
 import type { ApiResponse } from "@/types/response";
 
 /**
- * 平台认证 API 类
+ * 认证 API
+ * 提供完整的认证功能：登录、注册、验证码、2FA 等
  */
-export class PlatformAuthAPI {
+export class AuthAPI {
   /**
    * 获取验证码
    */
@@ -23,9 +25,9 @@ export class PlatformAuthAPI {
   }
 
   /**
-   * 登录
+   * 登录（带验证码）
    */
-  static async login(req: PlatformLoginRequest): Promise<ApiResponse<any>> {
+  static async login(req: LoginRequest): Promise<ApiResponse<any>> {
     try {
       const { data } = await apiClient.post<ApiResponse<any>>("/api/auth/login", req);
       return data;
@@ -35,9 +37,9 @@ export class PlatformAuthAPI {
   }
 
   /**
-   * 注册
+   * 注册（带验证码）
    */
-  static async register(req: PlatformRegisterRequest): Promise<
+  static async register(req: RegisterRequest): Promise<
     ApiResponse<{
       session_token?: string;
       message?: string;
@@ -178,3 +180,9 @@ export class PlatformAuthAPI {
     }
   }
 }
+
+/**
+ * @deprecated 使用 AuthAPI 代替
+ * 向后兼容的别名
+ */
+export const PlatformAuthAPI = AuthAPI;

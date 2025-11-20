@@ -3,7 +3,7 @@ import { ref, computed, watch } from "vue";
 import { useRouter } from "vue-router";
 import { useLogin } from "../composables";
 import { useAuthStore } from "@/stores/auth";
-import { PlatformAuthAPI } from "@/api";
+import { AuthAPI } from "@/api";
 import { saveAccessToken, saveRefreshToken } from "@/utils/auth";
 
 const router = useRouter();
@@ -52,7 +52,7 @@ async function handleVerify() {
 
   try {
     // 调用2FA验证API（实际上是第二次登录）
-    const response = await PlatformAuthAPI.verify2FA({
+    const response = await AuthAPI.verify2FA({
       session_token: loginStore.sessionToken.value,
       code: twoFactorCode.value,
     });

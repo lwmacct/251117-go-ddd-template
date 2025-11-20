@@ -3,9 +3,9 @@
  */
 import { defineStore } from "pinia";
 import { ref, computed } from "vue";
-import { login as apiLogin, register as apiRegister, logout as apiLogout, getCurrentUser, PlatformAuthAPI } from "@/api/auth";
+import { login as basicLogin, register as basicRegister, logout as apiLogout, getCurrentUser, AuthAPI } from "@/api/auth";
 import { getAccessToken, clearAuthTokens, saveAccessToken, saveRefreshToken } from "@/utils/auth";
-import type { LoginRequest, RegisterRequest, PlatformLoginRequest, User, LoginResult } from "@/types/auth";
+import type { LoginRequest, BasicLoginRequest, BasicRegisterRequest, User, LoginResult } from "@/types/auth";
 
 export const useAuthStore = defineStore("auth", () => {
   // 状态
@@ -44,17 +44,18 @@ export const useAuthStore = defineStore("auth", () => {
   }
 
   /**
-   * 登录 (基础版)
+   * 登录
+   * 支持两种方式：标准登录（带验证码）和基础登录（已废弃）
    */
-  async function login(credentials: LoginRequest | PlatformLoginRequest): Promise<LoginResult> {
+  async function login(credentials: LoginRequest | BasicLoginRequest): Promise<LoginResult> {
     try {
       isLoading.value = true;
       error.value = null;
 
-      // 检查是否是平台登录请求 (带验证码)
+      // 检查是否是标准登录请求 (带验证码)
       if ("captcha_id" in credentials) {
-        // 使用平台 API
-        const response = await PlatformAuthAPI.login(credentials);
+        // 使用标准 API（带验证码）
+        const response = await AuthAPI.login(credentials);
 
         if (response.code === 200) {
           // 检查是否需要 2FA
@@ -94,8 +95,8 @@ export const useAuthStore = defineStore("auth", () => {
           message: response.message,
         };
       } else {
-        // 使用基础 API
-        const response = await apiLogin(credentials);
+        // 使用基础 API（已废弃，仅向后兼容）
+        const response = await basicLogin(credentials);
         currentUser.value = response.user;
         return {
           success: true,
@@ -116,13 +117,14 @@ export const useAuthStore = defineStore("auth", () => {
   }
 
   /**
-   * 注册
+   * 注册（基础版，已废弃）
+   * @deprecated 使用带验证码的注册流程
    */
-  async function register(data: RegisterRequest) {
+  async function register(data: BasicRegisterRequest) {
     try {
       isLoading.value = true;
       error.value = null;
-      const response = await apiRegister(data);
+      const response = await basicRegister(data);
       currentUser.value = response.user;
       return response;
     } catch (err: any) {

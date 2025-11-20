@@ -1,5 +1,5 @@
 import { ref } from "vue";
-import { PlatformAuthAPI } from "@/api";
+import { AuthAPI } from "@/api";
 
 /**
  * 2FA 管理 Composable
@@ -36,7 +36,7 @@ export function useTwoFactor() {
   async function fetchStatus() {
     try {
       loading.value = true;
-      const response = await PlatformAuthAPI.get2FAStatus();
+      const response = await AuthAPI.get2FAStatus();
       if (response.code === 200 && response.data) {
         enabled.value = response.data.enabled;
         recoveryCodesCount.value = response.data.recovery_codes_count;
@@ -57,7 +57,7 @@ export function useTwoFactor() {
       loading.value = true;
       errorMessage.value = "";
 
-      const response = await PlatformAuthAPI.setup2FA();
+      const response = await AuthAPI.setup2FA();
       if (response.code === 200 && response.data) {
         qrcodeImage.value = response.data.qrcode_img;
         secret.value = response.data.secret;
@@ -84,7 +84,7 @@ export function useTwoFactor() {
       loading.value = true;
       errorMessage.value = "";
 
-      const response = await PlatformAuthAPI.enable2FA(verifyCode.value);
+      const response = await AuthAPI.enable2FA(verifyCode.value);
       if (response.code === 200 && response.data) {
         recoveryCodes.value = response.data.recovery_codes;
         setupStep.value = "codes";
@@ -108,7 +108,7 @@ export function useTwoFactor() {
       loading.value = true;
       errorMessage.value = "";
 
-      const response = await PlatformAuthAPI.disable2FA();
+      const response = await AuthAPI.disable2FA();
       if (response.code === 200) {
         successMessage.value = "2FA 已成功禁用";
         showDisableDialog.value = false;
