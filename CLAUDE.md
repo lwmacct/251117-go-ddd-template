@@ -40,6 +40,7 @@ internal/
 - 仓储实现中使用持久化 Model 与数据库交互，并在进入/返回领域层时进行映射
 - 实现 CommandRepository（GORM 写操作）
 - 实现 QueryRepository（GORM 读操作，可优化为 Redis/ES）
+- 如需在依赖注入处同时传递读写仓储，可额外提供 `{模块}_repositories.go` 将 Command/Query 聚合
 - 实现 Domain Service（技术实现，如 BCrypt、JWT）
 - 数据库、Redis、外部 API
 
@@ -65,44 +66,42 @@ internal/
 |                    | 错误定义             | `errors.go`                                                        | 每个模块的领域错误                                                |
 | **Infrastructure** | 持久化 Model         | `{模块}_model.go`（含 GORM Tag、映射函数）                         | `user_model.go`, `role_model.go`, `pat_model.go`                  |
 |                    | Repository 实现      | `{模块}_{操作类型}_repository.go`（入/出都映射 Domain）            | `user_command_repository.go`, `user_query_repository.go`          |
+|                    | 仓储聚合             | `{模块}_repositories.go`（组合读写仓储，便于一次性注入）           | `user_repositories.go`, `auditlog_repositories.go`                |
 |                    | Domain Service 实现  | `service.go`                                                       | 在各自子目录（如 `auth/service.go`）                              |
 | **Application**    | Command/Query/DTO 等 | `{操作}_xxx.go` / `{操作}_xxx_handler.go` / `dto.go` / `mapper.go` | `create_user.go`, `create_user_handler.go`, `dto.go`, `mapper.go` |
 | **Adapters**       | HTTP Handler         | `{模块}.go`（单数）                                                | `user.go`, `role.go`, `menu.go`                                   |
 
-**目录结构示例**：
+**目录结构示例（以 user 模块为例）**：
 
 ```
 internal/domain/user/
-├── entity_user.go              # User 实体
-├── command_repository.go       # 写操作接口
-├── query_repository.go         # 读操作接口
-└── errors.go                   # 领域错误
+├── entity_user.go                 # User 实体/领域行为
+├── command_repository.go          # User 写仓储接口
+├── query_repository.go            # User 读仓储接口
+└── errors.go                      # User 领域错误
 
 internal/infrastructure/persistence/
-├── user_command_repository.go  # User 写操作实现
-├── user_query_repository.go    # User 读操作实现
-├── role_command_repository.go
-├── role_query_repository.go
-└── ...
+├── user_model.go                  # GORM Model + 映射函数
+├── user_command_repository.go     # 写仓储实现（入参/返回都映射 Domain）
+├── user_query_repository.go       # 读仓储实现
+└── user_repositories.go           # Command/Query 聚合（可选）
 
 internal/application/user/
 ├── command/
-│   ├── create_user.go
+│   ├── create_user.go             # Command DTO
 │   ├── create_user_handler.go
 │   ├── update_user.go
 │   └── update_user_handler.go
 ├── query/
-│   ├── get_user.go
+│   ├── get_user.go                # Query DTO
 │   ├── get_user_handler.go
 │   ├── list_users.go
 │   └── list_users_handler.go
-├── dto.go                      # 所有 DTO
-└── mapper.go                   # Entity → DTO 映射
+├── dto.go                         # HTTP DTO
+└── mapper.go                      # Entity => DTO
 
 internal/adapters/http/handler/
-├── user.go                     # UserHandler
-├── role.go                     # RoleHandler
-└── menu.go                     # MenuHandler
+└── user.go                        # User Handler（仅绑定/响应）
 ```
 
 ## 💻 添加新功能
@@ -186,6 +185,20 @@ func (r *xxxQueryRepository) GetByID(ctx context.Context, id uint) (*xxx.Xxx, er
         return nil, err
     }
     return model.toEntity(), nil
+}
+
+// internal/infrastructure/persistence/xxx_repositories.go（可选）
+// 将 Command/Query 聚合，方便容器一次性注入
+type XxxRepositories struct {
+    Command xxx.CommandRepository
+    Query   xxx.QueryRepository
+}
+
+func NewXxxRepositories(db *gorm.DB) XxxRepositories {
+    return XxxRepositories{
+        Command: NewXxxCommandRepository(db),
+        Query:   NewXxxQueryRepository(db),
+    }
 }
 ```
 
