@@ -27,7 +27,8 @@ swag init \
     -o internal/adapters/http/docs \
     --parseDependency \
     --parseInternal \
-    --parseDepth 3
+    --parseDepth 2 \
+    --exclude internal/infrastructure/database,internal/infrastructure/queue,internal/infrastructure/redis,internal/bootstrap,internal/commands/migrate,internal/commands/seed,internal/commands/worker
 
 echo ""
 echo -e "${GREEN}✅ Swagger documentation generated successfully!${NC}"
