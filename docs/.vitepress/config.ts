@@ -204,6 +204,16 @@ export default defineConfig({
           ],
         },
         {
+          text: "开发工具",
+          collapsed: false,
+          items: [
+            {
+              text: "Pre-commit 代码检查",
+              link: "/development/pre-commit",
+            },
+          ],
+        },
+        {
           text: "文档工作流",
           collapsed: false,
           items: [
