@@ -2,7 +2,7 @@
  * Admin 系统设置 API
  */
 import { apiClient } from "../auth/client";
-import type { ApiResponse } from "@/types/auth";
+import type { ApiResponse } from "@/types/response";
 import type { SettingGroup, UpdateSettingsRequest } from "@/types/admin";
 
 /**

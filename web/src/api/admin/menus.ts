@@ -2,7 +2,7 @@
  * Admin 菜单管理 API
  */
 import { apiClient } from "../auth/client";
-import type { ApiResponse } from "@/types/auth";
+import type { ApiResponse } from "@/types/response";
 import type { Menu, CreateMenuRequest, UpdateMenuRequest, ReorderMenusRequest } from "@/types/admin";
 
 /**

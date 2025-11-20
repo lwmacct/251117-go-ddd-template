@@ -2,7 +2,8 @@
  * 用户相关 API
  */
 import { apiClient } from "./client";
-import type { User, ApiResponse } from "@/types/auth";
+import type { User } from "@/types/auth";
+import type { ApiResponse } from "@/types/response";
 
 /**
  * 获取当前用户信息

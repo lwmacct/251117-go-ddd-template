@@ -2,7 +2,7 @@
  * Admin 系统概览 API
  */
 import { apiClient } from "../auth/client";
-import type { ApiResponse } from "@/types/auth";
+import type { ApiResponse } from "@/types/response";
 import type { SystemStats } from "@/types/admin";
 
 /**

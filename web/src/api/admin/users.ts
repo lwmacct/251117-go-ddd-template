@@ -2,7 +2,7 @@
  * Admin 用户管理 API
  */
 import { apiClient } from "../auth/client";
-import type { ApiResponse } from "@/types/auth";
+import type { ApiResponse } from "@/types/response";
 import type { AdminUser, CreateUserRequest, UpdateUserRequest, AssignRolesRequest } from "@/types/admin";
 import type { PaginatedResponse, PaginationParams } from "@/types/common";
 

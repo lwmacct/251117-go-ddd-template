@@ -22,7 +22,13 @@ const props = defineProps<Props>();
 const emit = defineEmits<Emits>();
 
 // 表单数据
-const formData = ref<CreateUserRequest & UpdateUserRequest>({
+const formData = ref<{
+  username: string;
+  email: string;
+  password: string;
+  full_name: string;
+  status: "active" | "inactive" | "banned";
+}>({
   username: "",
   email: "",
   password: "",

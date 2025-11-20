@@ -55,10 +55,3 @@ export interface LoginResult {
   requiresTwoFactor: boolean;
   sessionToken?: string;
 }
-
-/** 平台 API 响应 */
-export interface PlatformApiResponse<T = any> {
-  code: number;
-  message: string;
-  data?: T;
-}

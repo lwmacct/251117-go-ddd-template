@@ -2,7 +2,7 @@
  * Personal Access Token API
  */
 import { apiClient } from "../auth/client";
-import type { ApiResponse } from "@/types/auth";
+import type { ApiResponse } from "@/types/response";
 import type { PersonalAccessToken, CreateTokenRequest, CreateTokenResponse } from "@/types/user";
 
 /**

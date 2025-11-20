@@ -3,7 +3,8 @@
  */
 
 import { apiClient } from "./client";
-import type { PlatformLoginRequest, PlatformRegisterRequest, PlatformApiResponse, CaptchaData } from "@/types/auth";
+import type { PlatformLoginRequest, PlatformRegisterRequest, CaptchaData } from "@/types/auth";
+import type { ApiResponse } from "@/types/response";
 
 /**
  * 平台认证 API 类
@@ -12,9 +13,9 @@ export class PlatformAuthAPI {
   /**
    * 获取验证码
    */
-  static async getCaptcha(): Promise<PlatformApiResponse<CaptchaData>> {
+  static async getCaptcha(): Promise<ApiResponse<CaptchaData>> {
     try {
-      const { data } = await apiClient.get<PlatformApiResponse<CaptchaData>>("/api/auth/captcha");
+      const { data } = await apiClient.get<ApiResponse<CaptchaData>>("/api/auth/captcha");
       return data;
     } catch (error: any) {
       throw new Error(error.response?.data?.message || "获取验证码失败");
@@ -24,9 +25,9 @@ export class PlatformAuthAPI {
   /**
    * 登录
    */
-  static async login(req: PlatformLoginRequest): Promise<PlatformApiResponse<any>> {
+  static async login(req: PlatformLoginRequest): Promise<ApiResponse<any>> {
     try {
-      const { data } = await apiClient.post<PlatformApiResponse<any>>("/api/auth/login", req);
+      const { data } = await apiClient.post<ApiResponse<any>>("/api/auth/login", req);
       return data;
     } catch (error: any) {
       throw new Error(error.response?.data?.message || "登录失败");
@@ -37,14 +38,14 @@ export class PlatformAuthAPI {
    * 注册
    */
   static async register(req: PlatformRegisterRequest): Promise<
-    PlatformApiResponse<{
+    ApiResponse<{
       session_token?: string;
       message?: string;
     }>
   > {
     try {
       const { data } = await apiClient.post<
-        PlatformApiResponse<{
+        ApiResponse<{
           session_token?: string;
           message?: string;
         }>
@@ -58,9 +59,9 @@ export class PlatformAuthAPI {
   /**
    * 验证邮箱
    */
-  static async verifyEmail(params: { session_token?: string; email?: string; code: string }): Promise<PlatformApiResponse<any>> {
+  static async verifyEmail(params: { session_token?: string; email?: string; code: string }): Promise<ApiResponse<any>> {
     try {
-      const { data } = await apiClient.post<PlatformApiResponse<any>>("/api/auth/verify-email", params);
+      const { data } = await apiClient.post<ApiResponse<any>>("/api/auth/verify-email", params);
       return data;
     } catch (error: any) {
       throw new Error(error.response?.data?.message || "邮箱验证失败");
@@ -70,9 +71,9 @@ export class PlatformAuthAPI {
   /**
    * 重新发送验证码
    */
-  static async resendVerificationCode(sessionToken: string): Promise<PlatformApiResponse<any>> {
+  static async resendVerificationCode(sessionToken: string): Promise<ApiResponse<any>> {
     try {
-      const { data } = await apiClient.post<PlatformApiResponse<any>>("/api/auth/resend-code", {
+      const { data } = await apiClient.post<ApiResponse<any>>("/api/auth/resend-code", {
         session_token: sessionToken,
       });
       return data;
@@ -85,9 +86,9 @@ export class PlatformAuthAPI {
    * 验证 2FA (双因素认证)
    * 注意：2FA 验证实际上是第二次登录，使用相同的 /login 端点
    */
-  static async verify2FA(params: { session_token: string; code: string }): Promise<PlatformApiResponse<any>> {
+  static async verify2FA(params: { session_token: string; code: string }): Promise<ApiResponse<any>> {
     try {
-      const { data } = await apiClient.post<PlatformApiResponse<any>>("/api/auth/login", {
+      const { data } = await apiClient.post<ApiResponse<any>>("/api/auth/login", {
         session_token: params.session_token,
         two_factor_code: params.code,
       });
@@ -101,7 +102,7 @@ export class PlatformAuthAPI {
    * 设置 2FA（生成密钥和二维码）
    */
   static async setup2FA(): Promise<
-    PlatformApiResponse<{
+    ApiResponse<{
       secret: string;
       qrcode_url: string;
       qrcode_img: string;
@@ -109,7 +110,7 @@ export class PlatformAuthAPI {
   > {
     try {
       const { data } = await apiClient.post<
-        PlatformApiResponse<{
+        ApiResponse<{
           secret: string;
           qrcode_url: string;
           qrcode_img: string;
@@ -125,14 +126,14 @@ export class PlatformAuthAPI {
    * 验证并启用 2FA
    */
   static async enable2FA(code: string): Promise<
-    PlatformApiResponse<{
+    ApiResponse<{
       recovery_codes: string[];
       message: string;
     }>
   > {
     try {
       const { data } = await apiClient.post<
-        PlatformApiResponse<{
+        ApiResponse<{
           recovery_codes: string[];
           message: string;
         }>
@@ -146,9 +147,9 @@ export class PlatformAuthAPI {
   /**
    * 禁用 2FA
    */
-  static async disable2FA(): Promise<PlatformApiResponse<any>> {
+  static async disable2FA(): Promise<ApiResponse<any>> {
     try {
-      const { data } = await apiClient.post<PlatformApiResponse<any>>("/api/auth/2fa/disable");
+      const { data } = await apiClient.post<ApiResponse<any>>("/api/auth/2fa/disable");
       return data;
     } catch (error: any) {
       throw new Error(error.response?.data?.error || "禁用 2FA 失败");
@@ -159,14 +160,14 @@ export class PlatformAuthAPI {
    * 获取 2FA 状态
    */
   static async get2FAStatus(): Promise<
-    PlatformApiResponse<{
+    ApiResponse<{
       enabled: boolean;
       recovery_codes_count: number;
     }>
   > {
     try {
       const { data } = await apiClient.get<
-        PlatformApiResponse<{
+        ApiResponse<{
           enabled: boolean;
           recovery_codes_count: number;
         }>

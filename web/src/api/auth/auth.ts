@@ -4,7 +4,8 @@
 
 import { apiClient } from "./client";
 import { saveAccessToken, saveRefreshToken, clearAuthTokens } from "@/utils/auth";
-import type { LoginRequest, RegisterRequest, AuthResponse, ApiResponse } from "@/types/auth";
+import type { LoginRequest, RegisterRequest, AuthResponse } from "@/types/auth";
+import type { ApiResponse } from "@/types/response";
 
 /**
  * 用户登录

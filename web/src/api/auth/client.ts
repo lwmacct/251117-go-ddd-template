@@ -3,7 +3,8 @@
  */
 import axios from "axios";
 import { getAccessToken, getRefreshToken, saveAccessToken, saveRefreshToken, clearAuthTokens } from "@/utils/auth";
-import type { ApiResponse, AuthResponse } from "@/types/auth";
+import type { AuthResponse } from "@/types/auth";
+import type { ApiResponse } from "@/types/response";
 
 /** axios 实例 */
 export const apiClient = axios.create({
