@@ -1,17 +1,17 @@
 #!/usr/bin/env bash
 
-# Pre-commit hook entry for building VitePress docs when documentation files change.
-# This script can be invoked directly or via the pre-commit framework.
+# 用于在文档文件变更时构建 VitePress 文档的 pre-commit 钩子入口。
+# 此脚本可以直接调用或通过 pre-commit 框架调用。
 
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT_DIR"
 
-echo "Running docs build pre-commit hook..."
+echo "正在运行文档构建 pre-commit 钩子..."
 echo "--------------------------------------"
 
-# Prefer incoming file list (pre-commit), otherwise fall back to staged diff.
+# 优先使用传入的文件列表 (pre-commit),否则回退到暂存区差异检查。
 if [ "$#" -gt 0 ]; then
     DOCS_CHANGED_FILES="$*"
 else
@@ -19,31 +19,31 @@ else
 fi
 
 if [ -z "$DOCS_CHANGED_FILES" ]; then
-    echo "No staged docs changes detected; skipping docs build."
+    echo "未检测到暂存的文档变更；跳过文档构建。"
     exit 0
 fi
 
 if [ ! -d "$ROOT_DIR/docs" ]; then
-    echo "docs/ directory not found; skipping docs build."
+    echo "未找到 docs/ 目录；跳过文档构建。"
     exit 0
 fi
 
 if [ ! -f "$ROOT_DIR/docs/package.json" ]; then
-    echo "docs/package.json not found; skipping docs build."
+    echo "未找到 docs/package.json；跳过文档构建。"
     exit 0
 fi
 
 if [ ! -d "$ROOT_DIR/docs/node_modules" ]; then
-    echo "Installing docs dependencies (npm install)..."
+    echo "正在安装文档依赖 (npm install)..."
     (cd "$ROOT_DIR/docs" && npm install)
 fi
 
-echo "Building docs..."
+echo "正在构建文档..."
 if (cd "$ROOT_DIR/docs" && npm run build); then
-    echo "Docs build succeeded."
+    echo "文档构建成功。"
     exit 0
 else
     BUILD_EXIT_CODE=$?
-    echo "Docs build failed with exit code $BUILD_EXIT_CODE."
+    echo "文档构建失败,退出码 $BUILD_EXIT_CODE。"
     exit "$BUILD_EXIT_CODE"
 fi
