@@ -12,8 +12,8 @@ import (
 
 	// Swagger 文档
 	_ "github.com/lwmacct/251117-go-ddd-template/internal/adapters/http/docs" // Swagger docs
-	ginSwagger "github.com/swaggo/gin-swagger"
 	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 
 	// 引入处理器和中间件包
 	"github.com/lwmacct/251117-go-ddd-template/internal/adapters/http/handler"
