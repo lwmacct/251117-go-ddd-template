@@ -50,12 +50,12 @@ export default defineConfig({
           text: "快速入门",
           items: [
             {
-              text: "AI Agent",
-              link: "/guide/ai-agent",
-            },
-            {
               text: "指南概览",
               link: "/guide/",
+            },
+            {
+              text: "AI Agent",
+              link: "/guide/ai-agent",
             },
             {
               text: "快速开始",
