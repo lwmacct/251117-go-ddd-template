@@ -39,11 +39,18 @@ if [ ! -d "$ROOT_DIR/docs/node_modules" ]; then
 fi
 
 echo "正在构建文档..."
-if (cd "$ROOT_DIR/docs" && npm run build); then
-    echo "文档构建成功。"
+echo "提示: 首次构建或缓存失效时可能需要 30-60 秒，请耐心等待..."
+
+# 禁用 npm 进度条和交互式输出，避免在 pre-commit 环境中卡住
+export CI=true
+export npm_config_progress=false
+export npm_config_loglevel=error
+
+if (cd "$ROOT_DIR/docs" && npm run build 2>&1); then
+    echo "✅ 文档构建成功。"
     exit 0
 else
     BUILD_EXIT_CODE=$?
-    echo "文档构建失败,退出码 $BUILD_EXIT_CODE。"
+    echo "❌ 文档构建失败，退出码 $BUILD_EXIT_CODE。"
     exit "$BUILD_EXIT_CODE"
 fi
