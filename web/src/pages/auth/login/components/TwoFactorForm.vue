@@ -4,6 +4,7 @@ import { useRouter } from "vue-router";
 import { useLogin } from "../composables";
 import { useAuthStore } from "@/stores/auth";
 import { PlatformAuthAPI } from "@/api";
+import { saveAccessToken, saveRefreshToken } from "@/utils/auth";
 
 const router = useRouter();
 const loginStore = useLogin();
@@ -57,7 +58,15 @@ async function handleVerify() {
     });
 
     if (response.code === 200 && response.data) {
-      // 2FA验证成功，保存用户信息
+      // 2FA验证成功，保存 token
+      if (response.data.access_token) {
+        saveAccessToken(response.data.access_token);
+      }
+      if (response.data.refresh_token) {
+        saveRefreshToken(response.data.refresh_token);
+      }
+
+      // 保存用户信息
       if (response.data.user) {
         authStore.updateUser(response.data.user);
       }

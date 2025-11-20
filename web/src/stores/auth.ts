@@ -4,7 +4,7 @@
 import { defineStore } from "pinia";
 import { ref, computed } from "vue";
 import { login as apiLogin, register as apiRegister, logout as apiLogout, getCurrentUser, PlatformAuthAPI } from "@/api/auth";
-import { getAccessToken, clearAuthTokens } from "@/utils/auth";
+import { getAccessToken, clearAuthTokens, saveAccessToken, saveRefreshToken } from "@/utils/auth";
 import type { LoginRequest, RegisterRequest, PlatformLoginRequest, User, LoginResult } from "@/types/auth";
 
 export const useAuthStore = defineStore("auth", () => {
@@ -67,7 +67,15 @@ export const useAuthStore = defineStore("auth", () => {
             };
           }
 
-          // 登录成功
+          // 登录成功 - 保存 token
+          if (response.data?.access_token) {
+            saveAccessToken(response.data.access_token);
+          }
+          if (response.data?.refresh_token) {
+            saveRefreshToken(response.data.refresh_token);
+          }
+
+          // 保存用户信息
           if (response.data?.user) {
             currentUser.value = response.data.user;
           }
