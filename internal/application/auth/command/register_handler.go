@@ -84,8 +84,8 @@ func (h *RegisterHandler) Handle(ctx context.Context, cmd RegisterCommand) (*Reg
 		return nil, fmt.Errorf("failed to create user: %w", err)
 	}
 
-	// 6. 生成访问令牌
-	accessToken, expiresAt, err := h.authService.GenerateAccessToken(ctx, newUser.ID, newUser.Username, []string{})
+	// 6. 生成访问令牌（新架构：不传递 roles，权限从缓存查询）
+	accessToken, expiresAt, err := h.authService.GenerateAccessToken(ctx, newUser.ID, newUser.Username)
 	if err != nil {
 		return nil, fmt.Errorf("failed to generate access token: %w", err)
 	}

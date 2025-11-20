@@ -1329,7 +1329,7 @@ curl -X POST http://localhost:8080/api/admin/permissions \
   }'
 ```
 
-2. **修改种子数据** (`internal/infrastructure/database/rbac_seeder.go`):
+2. **修改种子数据** (`internal/infrastructure/database/seeds/rbac_seeder.go`):
 
 ```go
 permissions := []role.Permission{
@@ -1374,4 +1374,4 @@ go run . seed
 - JWT 实现: `internal/infrastructure/auth/jwt.go`
 - 路由配置: `internal/adapters/http/router.go`
 - 数据模型: `internal/domain/role/model.go`, `internal/domain/user/model.go`
-- 种子数据: `internal/infrastructure/database/rbac_seeder.go`
+- 种子数据: `internal/infrastructure/database/seeds/rbac_seeder.go`

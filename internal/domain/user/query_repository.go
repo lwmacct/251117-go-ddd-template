@@ -46,4 +46,8 @@ type QueryRepository interface {
 
 	// ExistsByEmail 检查邮箱是否存在
 	ExistsByEmail(ctx context.Context, email string) (bool, error)
+
+	// GetUserIDsByRole 获取拥有指定角色的所有用户 ID
+	// 用于权限缓存失效场景（角色权限变更时需要清除所有相关用户的缓存）
+	GetUserIDsByRole(ctx context.Context, roleID uint) ([]uint, error)
 }

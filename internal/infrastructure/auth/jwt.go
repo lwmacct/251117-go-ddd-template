@@ -10,11 +10,13 @@ import (
 
 // Claims JWT 自定义声明
 type Claims struct {
-	UserID      uint     `json:"user_id"`
-	Username    string   `json:"username"`
-	Email       string   `json:"email"`
-	Roles       []string `json:"roles"`
-	Permissions []string `json:"permissions"`
+	UserID   uint   `json:"user_id"`
+	Username string `json:"username"`
+	Email    string `json:"email"`
+	// Roles 和 Permissions 字段已废弃，保留仅用于向后兼容旧 token
+	// 新 token 不再包含这些字段，权限信息改为从缓存/数据库实时查询
+	Roles       []string `json:"roles,omitempty"`       // Deprecated: 仅用于向后兼容
+	Permissions []string `json:"permissions,omitempty"` // Deprecated: 仅用于向后兼容
 	jwt.RegisteredClaims
 }
 
@@ -35,13 +37,13 @@ func NewJWTManager(secretKey string, accessTokenDuration, refreshTokenDuration t
 }
 
 // GenerateAccessToken 生成访问令牌
-func (m *JWTManager) GenerateAccessToken(userID uint, username, email string, roles, permissions []string) (string, error) {
+// 新架构：Token 只包含 user_id/username/email，权限信息从缓存/数据库实时查询
+func (m *JWTManager) GenerateAccessToken(userID uint, username, email string) (string, error) {
 	claims := Claims{
-		UserID:      userID,
-		Username:    username,
-		Email:       email,
-		Roles:       roles,
-		Permissions: permissions,
+		UserID:   userID,
+		Username: username,
+		Email:    email,
+		// Roles 和 Permissions 不再包含在 token 中
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(m.accessTokenDuration)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
@@ -54,13 +56,11 @@ func (m *JWTManager) GenerateAccessToken(userID uint, username, email string, ro
 }
 
 // GenerateRefreshToken 生成刷新令牌
-func (m *JWTManager) GenerateRefreshToken(userID uint, username, email string, roles, permissions []string) (string, error) {
+// Refresh Token 同样不包含权限信息，刷新时从数据库查询最新权限
+func (m *JWTManager) GenerateRefreshToken(userID uint) (string, error) {
 	claims := Claims{
-		UserID:      userID,
-		Username:    username,
-		Email:       email,
-		Roles:       roles,
-		Permissions: permissions,
+		UserID: userID,
+		// Refresh Token 只需要 user_id，username/email 在刷新时重新获取
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(m.refreshTokenDuration)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
@@ -99,13 +99,13 @@ func (m *JWTManager) ValidateToken(tokenString string) (*Claims, error) {
 }
 
 // GenerateTokenPair 生成访问令牌和刷新令牌对
-func (m *JWTManager) GenerateTokenPair(userID uint, username, email string, roles, permissions []string) (accessToken, refreshToken string, err error) {
-	accessToken, err = m.GenerateAccessToken(userID, username, email, roles, permissions)
+func (m *JWTManager) GenerateTokenPair(userID uint, username, email string) (accessToken, refreshToken string, err error) {
+	accessToken, err = m.GenerateAccessToken(userID, username, email)
 	if err != nil {
 		return "", "", fmt.Errorf("failed to generate access token: %w", err)
 	}
 
-	refreshToken, err = m.GenerateRefreshToken(userID, username, email, roles, permissions)
+	refreshToken, err = m.GenerateRefreshToken(userID)
 	if err != nil {
 		return "", "", fmt.Errorf("failed to generate refresh token: %w", err)
 	}

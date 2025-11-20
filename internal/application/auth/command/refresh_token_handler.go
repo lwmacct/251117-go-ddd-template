@@ -56,8 +56,8 @@ func (h *RefreshTokenHandler) Handle(ctx context.Context, cmd RefreshTokenComman
 		return nil, domainAuth.ErrUserInactive
 	}
 
-	// 4. 生成新的访问令牌
-	accessToken, expiresAt, err := h.authService.GenerateAccessToken(ctx, u.ID, u.Username, u.GetRoleNames())
+	// 4. 生成新的访问令牌（新架构：不传递 roles，权限从缓存查询）
+	accessToken, expiresAt, err := h.authService.GenerateAccessToken(ctx, u.ID, u.Username)
 	if err != nil {
 		return nil, fmt.Errorf("failed to generate access token: %w", err)
 	}

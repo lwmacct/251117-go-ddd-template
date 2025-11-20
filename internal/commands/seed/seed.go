@@ -22,15 +22,6 @@ var Command = &cli.Command{
 	Action: runSeed,
 }
 
-// getAllSeeders 返回所有可用的种子
-func getAllSeeders() []database.Seeder {
-	return []database.Seeder{
-		&database.RBACSeeder{}, // RBAC 权限体系（必须先于 UserSeeder，因为会创建 admin 用户）
-		&seeds.UserSeeder{},
-		// 未来可以添加更多种子...
-	}
-}
-
 // runSeed 执行种子数据填充
 func runSeed(ctx context.Context, cmd *cli.Command) error {
 	cfg, err := config.Load()
@@ -53,7 +44,7 @@ func runSeed(ctx context.Context, cmd *cli.Command) error {
 	}()
 
 	// 创建种子管理器
-	manager := database.NewSeederManager(db, getAllSeeders())
+	manager := database.NewSeederManager(db, seeds.DefaultSeeders())
 
 	slog.Info("Running database seeders...")
 	if err := manager.Run(ctx); err != nil {

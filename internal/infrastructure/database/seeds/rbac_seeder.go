@@ -1,4 +1,4 @@
-package database
+package seeds
 
 import (
 	"context"
@@ -7,6 +7,7 @@ import (
 	_persistence "github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/persistence"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 // RBACSeeder seeds roles, permissions, and admin user
@@ -14,23 +15,23 @@ type RBACSeeder struct{}
 
 // Seed implements Seeder interface
 func (s *RBACSeeder) Seed(ctx context.Context, db *gorm.DB) error {
-	if err := s.seedPermissions(ctx, db); err != nil {
-		return err
-	}
+	return db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		if err := s.seedPermissions(ctx, tx); err != nil {
+			return err
+		}
 
-	if err := s.seedRoles(ctx, db); err != nil {
-		return err
-	}
+		if err := s.seedRoles(ctx, tx); err != nil {
+			return err
+		}
 
-	if err := s.seedAdminUser(ctx, db); err != nil {
-		return err
-	}
-
-	return nil
+		return s.seedAdminUser(ctx, tx)
+	})
 }
 
 // seedPermissions seeds initial permissions with three-part format: domain:resource:action
 func (s *RBACSeeder) seedPermissions(ctx context.Context, db *gorm.DB) error {
+	db = db.WithContext(ctx)
+
 	permissions := []_persistence.PermissionModel{
 		// Admin domain - User management
 		{Domain: "admin", Resource: "users", Action: "create", Code: "admin:users:create", Description: "Create users"},
@@ -72,18 +73,15 @@ func (s *RBACSeeder) seedPermissions(ctx context.Context, db *gorm.DB) error {
 		{Domain: "api", Resource: "cache", Action: "delete", Code: "api:cache:delete", Description: "Delete cache data"},
 	}
 
-	for _, perm := range permissions {
-		var existing _persistence.PermissionModel
-		result := db.WithContext(ctx).Where("code = ?", perm.Code).First(&existing)
-		if result.Error == gorm.ErrRecordNotFound {
-			if err := db.WithContext(ctx).Create(&perm).Error; err != nil {
-				return err
-			}
-			slog.Info("Created permission", "code", perm.Code)
-		} else {
-			slog.Info("Permission already exists", "code", perm.Code)
-		}
+	result := db.Clauses(clause.OnConflict{
+		Columns:   []clause.Column{{Name: "code"}},
+		DoNothing: true,
+	}).Create(&permissions)
+	if result.Error != nil {
+		return result.Error
 	}
+
+	slog.Info("Permissions ensured", "total", len(permissions), "inserted", result.RowsAffected)
 
 	return nil
 }
@@ -91,15 +89,17 @@ func (s *RBACSeeder) seedPermissions(ctx context.Context, db *gorm.DB) error {
 // seedRoles seeds initial roles with permissions
 
 func (s *RBACSeeder) seedRoles(ctx context.Context, db *gorm.DB) error {
+	db = db.WithContext(ctx)
+
 	// Get all permissions
 	var allPermissions []_persistence.PermissionModel
-	if err := db.WithContext(ctx).Find(&allPermissions).Error; err != nil {
+	if err := db.Find(&allPermissions).Error; err != nil {
 		return err
 	}
 
 	// Find user permissions (user domain permissions only)
 	var userPermissions []_persistence.PermissionModel
-	if err := db.WithContext(ctx).Where("domain = ?", "user").Find(&userPermissions).Error; err != nil {
+	if err := db.Where("domain = ?", "user").Find(&userPermissions).Error; err != nil {
 		return err
 	}
 
@@ -128,24 +128,46 @@ func (s *RBACSeeder) seedRoles(ctx context.Context, db *gorm.DB) error {
 	}
 
 	for _, r := range roles {
-		var existing _persistence.RoleModel
-		result := db.WithContext(ctx).Where("name = ?", r.role.Name).First(&existing)
-		if result.Error == gorm.ErrRecordNotFound {
-			// Create role
-			if err := db.WithContext(ctx).Create(&r.role).Error; err != nil {
+		role := r.role
+		result := db.Where("name = ?", r.role.Name).
+			Attrs(_persistence.RoleModel{
+				DisplayName: r.role.DisplayName,
+				Description: r.role.Description,
+				IsSystem:    r.role.IsSystem,
+			}).
+			FirstOrCreate(&role)
+		if result.Error != nil {
+			return result.Error
+		}
+
+		association := db.Model(&role).Association("Permissions")
+		var existingPermissions []_persistence.PermissionModel
+		if err := association.Find(&existingPermissions); err != nil {
+			return err
+		}
+
+		existing := make(map[uint]struct{}, len(existingPermissions))
+		for _, perm := range existingPermissions {
+			existing[perm.ID] = struct{}{}
+		}
+
+		var permsToAdd []*_persistence.PermissionModel
+		for i := range r.permissions {
+			if _, ok := existing[r.permissions[i].ID]; ok {
+				continue
+			}
+			permsToAdd = append(permsToAdd, &r.permissions[i])
+		}
+
+		for _, perm := range permsToAdd {
+			if err := association.Append(perm); err != nil {
 				return err
 			}
-			slog.Info("Created role", "name", r.role.Name)
+		}
 
-			// Assign permissions
-			if len(r.permissions) > 0 {
-				if err := db.WithContext(ctx).Model(&r.role).Association("Permissions").Append(r.permissions); err != nil {
-					return err
-				}
-				slog.Info("Assigned permissions to role", "role", r.role.Name, "count", len(r.permissions))
-			}
-		} else {
-			slog.Info("Role already exists", "name", r.role.Name)
+		slog.Info("Role ensured", "name", role.Name, "added_permissions", len(permsToAdd), "required_total", len(r.permissions))
+		if result.RowsAffected > 0 {
+			slog.Info("Role created", "name", role.Name)
 		}
 	}
 
@@ -154,55 +176,61 @@ func (s *RBACSeeder) seedRoles(ctx context.Context, db *gorm.DB) error {
 
 // seedAdminUser seeds an initial admin user
 func (s *RBACSeeder) seedAdminUser(ctx context.Context, db *gorm.DB) error {
+	db = db.WithContext(ctx)
+
 	// Get admin role
 	var adminRole _persistence.RoleModel
-	if err := db.WithContext(ctx).Where("name = ?", "admin").First(&adminRole).Error; err != nil {
+	if err := db.Where("name = ?", "admin").First(&adminRole).Error; err != nil {
 		return err
 	}
 
-	// Check if admin user already exists
-	var adminUser _persistence.UserModel
-	result := db.WithContext(ctx).Where("username = ?", "admin").First(&adminUser)
+	// Hash password for default user creation
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte("admin123"), bcrypt.DefaultCost)
+	if err != nil {
+		return err
+	}
 
-	if result.Error == gorm.ErrRecordNotFound {
-		// Hash password
-		hashedPassword, err := bcrypt.GenerateFromPassword([]byte("admin123"), bcrypt.DefaultCost)
-		if err != nil {
-			return err
-		}
-
-		// Create admin user
-		adminUser = _persistence.UserModel{
-			Username: "admin",
+	adminSearch := _persistence.UserModel{Username: "admin"}
+	result := db.Where(adminSearch).
+		Attrs(_persistence.UserModel{
 			Email:    "admin@example.com",
 			Password: string(hashedPassword),
 			FullName: "System Administrator",
 			Status:   "active",
-		}
-
-		if err := db.WithContext(ctx).Create(&adminUser).Error; err != nil {
-			return err
-		}
-		slog.Info("Created admin user", "username", "admin")
-		slog.Warn("Default admin credentials", "username", "admin", "password", "admin123", "warning", "PLEASE CHANGE THIS PASSWORD IMMEDIATELY")
-	} else {
-		slog.Info("Admin user already exists", "username", "admin")
+		}).
+		FirstOrCreate(&adminSearch)
+	if result.Error != nil {
+		return result.Error
 	}
 
-	// Ensure admin role is assigned (idempotent)
-	var roleCount int64
-	db.WithContext(ctx).Model(&adminUser).Association("Roles").Count()
-	db.WithContext(ctx).Table("user_roles").
-		Where("user_model_id = ? AND role_model_id = ?", adminUser.ID, adminRole.ID).
-		Count(&roleCount)
+	if result.RowsAffected > 0 {
+		slog.Info("Created admin user", "username", adminSearch.Username)
+		slog.Warn("Default admin credentials", "username", "admin", "password", "admin123", "warning", "PLEASE CHANGE THIS PASSWORD IMMEDIATELY")
+	} else {
+		slog.Info("Admin user ensured", "username", adminSearch.Username)
+	}
 
-	if roleCount == 0 {
-		if err := db.WithContext(ctx).Model(&adminUser).Association("Roles").Append(&adminRole); err != nil {
+	association := db.Model(&adminSearch).Association("Roles")
+	var existingRoles []_persistence.RoleModel
+	if err := association.Find(&existingRoles); err != nil {
+		return err
+	}
+
+	hasAdminRole := false
+	for _, role := range existingRoles {
+		if role.ID == adminRole.ID {
+			hasAdminRole = true
+			break
+		}
+	}
+
+	if !hasAdminRole {
+		if err := association.Append(&adminRole); err != nil {
 			return err
 		}
-		slog.Info("Assigned admin role to admin user", "username", "admin", "role", "admin")
+		slog.Info("Assigned admin role to admin user", "username", adminSearch.Username, "role", adminRole.Name)
 	} else {
-		slog.Info("Admin user already has admin role", "username", "admin")
+		slog.Info("Admin user already has admin role", "username", adminSearch.Username)
 	}
 
 	return nil

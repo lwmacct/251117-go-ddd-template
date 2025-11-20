@@ -180,3 +180,18 @@ func (r *userQueryRepository) ExistsByEmail(ctx context.Context, email string) (
 	}
 	return count > 0, nil
 }
+
+// GetUserIDsByRole 获取拥有指定角色的所有用户 ID
+func (r *userQueryRepository) GetUserIDsByRole(ctx context.Context, roleID uint) ([]uint, error) {
+	var userIDs []uint
+
+	// 通过 user_roles 关联表查询
+	if err := r.db.WithContext(ctx).
+		Table("user_roles").
+		Where("role_id = ?", roleID).
+		Pluck("user_id", &userIDs).Error; err != nil {
+		return nil, fmt.Errorf("failed to get user IDs by role: %w", err)
+	}
+
+	return userIDs, nil
+}

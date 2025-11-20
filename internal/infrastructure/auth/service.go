@@ -123,10 +123,8 @@ func (s *Service) Register(ctx context.Context, req *RegisterRequest) (*AuthResp
 		userWithRoles = newUser
 	}
 
-	// 生成 token
-	roles := userWithRoles.GetRoleNames()
-	permissions := userWithRoles.GetPermissionCodes()
-	accessToken, refreshToken, err := s.jwtManager.GenerateTokenPair(userWithRoles.ID, userWithRoles.Username, userWithRoles.Email, roles, permissions)
+	// 生成 token（新架构：不传递 roles/permissions，权限从缓存查询）
+	accessToken, refreshToken, err := s.jwtManager.GenerateTokenPair(userWithRoles.ID, userWithRoles.Username, userWithRoles.Email)
 	if err != nil {
 		return nil, fmt.Errorf("failed to generate tokens: %w", err)
 	}
@@ -268,9 +266,8 @@ func (s *Service) Login(ctx context.Context, req *LoginRequest) (*AuthResponse, 
 
 // generateTokens 生成访问令牌（辅助方法）
 func (s *Service) generateTokens(u *user.User) (*AuthResponse, error) {
-	roles := u.GetRoleNames()
-	permissions := u.GetPermissionCodes()
-	accessToken, refreshToken, err := s.jwtManager.GenerateTokenPair(u.ID, u.Username, u.Email, roles, permissions)
+	// 新架构：不传递 roles/permissions，权限从缓存查询
+	accessToken, refreshToken, err := s.jwtManager.GenerateTokenPair(u.ID, u.Username, u.Email)
 	if err != nil {
 		return nil, fmt.Errorf("failed to generate tokens: %w", err)
 	}
@@ -339,10 +336,8 @@ func (s *Service) RefreshToken(ctx context.Context, refreshToken string) (*AuthR
 		return nil, fmt.Errorf("user account is %s", u.Status)
 	}
 
-	// 生成新的 token 对
-	roles := u.GetRoleNames()
-	permissions := u.GetPermissionCodes()
-	accessToken, newRefreshToken, err := s.jwtManager.GenerateTokenPair(u.ID, u.Username, u.Email, roles, permissions)
+	// 生成新的 token 对（新架构：不传递 roles/permissions，权限从缓存查询）
+	accessToken, newRefreshToken, err := s.jwtManager.GenerateTokenPair(u.ID, u.Username, u.Email)
 	if err != nil {
 		return nil, fmt.Errorf("failed to generate tokens: %w", err)
 	}

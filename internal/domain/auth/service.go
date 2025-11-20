@@ -75,7 +75,8 @@ type Service interface {
 	ValidatePasswordPolicy(ctx context.Context, password string) error
 
 	// GenerateAccessToken 生成访问令牌
-	GenerateAccessToken(ctx context.Context, userID uint, username string, roles []string) (string, time.Time, error)
+	// 新架构：Token 只包含 user_id/username，权限信息从缓存实时查询
+	GenerateAccessToken(ctx context.Context, userID uint, username string) (string, time.Time, error)
 
 	// GenerateRefreshToken 生成刷新令牌
 	GenerateRefreshToken(ctx context.Context, userID uint) (string, time.Time, error)

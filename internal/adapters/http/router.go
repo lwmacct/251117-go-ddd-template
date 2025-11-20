@@ -36,6 +36,7 @@ func SetupRouter(
 	captchaCommandRepo captcha.CommandRepository,
 	jwtManager *infra_auth.JWTManager,
 	patService *infra_auth.PATService,
+	permissionCacheService *infra_auth.PermissionCacheService, // 新增：权限缓存服务
 	authService *infra_auth.Service,
 	captchaService *infra_captcha.Service,
 	twofaService *infra_twofa.Service,
@@ -73,7 +74,7 @@ func SetupRouter(
 
 		// 认证用户路由
 		authUser := api.Group("/auth")
-		authUser.Use(middleware.Auth(jwtManager, patService, userQueryRepo))
+		authUser.Use(middleware.Auth(jwtManager, patService, permissionCacheService))
 		{
 			authUser.GET("/me", authHandler.Me) // 获取当前用户信息
 		}
@@ -81,7 +82,7 @@ func SetupRouter(
 		// 2FA 路由（需要认证）
 		twofaHandler := handler.NewTwoFAHandler(twofaService)
 		twofa := api.Group("/auth/2fa")
-		twofa.Use(middleware.Auth(jwtManager, patService, userQueryRepo))
+		twofa.Use(middleware.Auth(jwtManager, patService, permissionCacheService))
 		{
 			twofa.POST("/setup", twofaHandler.Setup)            // 设置 2FA
 			twofa.POST("/verify", twofaHandler.VerifyAndEnable) // 验证并启用 2FA
@@ -91,7 +92,7 @@ func SetupRouter(
 
 		// 管理员路由 (/api/admin/*) - 使用三段式权限控制
 		admin := api.Group("/admin")
-		admin.Use(middleware.Auth(jwtManager, patService, userQueryRepo))
+		admin.Use(middleware.Auth(jwtManager, patService, permissionCacheService))
 		admin.Use(middleware.AuditMiddleware(auditLogCommandRepo))
 		admin.Use(middleware.RequireRole("admin"))
 		{
@@ -141,7 +142,7 @@ func SetupRouter(
 
 		// 用户路由 (/api/user/*) - 使用三段式权限控制
 		userGroup := api.Group("/user")
-		userGroup.Use(middleware.Auth(jwtManager, patService, userQueryRepo))
+		userGroup.Use(middleware.Auth(jwtManager, patService, permissionCacheService))
 		{
 			// 个人资料管理
 			userGroup.GET("/me", middleware.RequirePermission("user:profile:read"), userProfileHandler.GetProfile)

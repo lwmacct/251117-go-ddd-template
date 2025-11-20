@@ -3,6 +3,7 @@ package database
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
 	"gorm.io/gorm"
@@ -77,26 +78,52 @@ func (m *MigrationManager) Status() ([]Migration, error) {
 
 // Fresh 删除所有表并重新迁移 (危险！仅开发环境使用)
 func (m *MigrationManager) Fresh() error {
-	migrator := m.db.Migrator()
+	if err := m.dropAllTablesWithSQL(); err != nil {
+		return fmt.Errorf("failed to drop tables via SQL: %w", err)
+	}
 
-	// 1. 删除所有模型表
-	for _, model := range m.models {
-		if migrator.HasTable(model) {
-			if err := migrator.DropTable(model); err != nil {
-				return fmt.Errorf("failed to drop table for model %T: %w", model, err)
+	// 重新执行迁移
+	return m.Up()
+}
+
+// dropAllTablesWithSQL 使用原生 SQL 删除所有用户表
+func (m *MigrationManager) dropAllTablesWithSQL() error {
+	const listTablesSQL = `
+SELECT table_schema, table_name
+FROM information_schema.tables
+WHERE table_type = 'BASE TABLE'
+  AND table_schema NOT IN ('pg_catalog', 'information_schema')
+`
+
+	type tableInfo struct {
+		Schema string `gorm:"column:table_schema"`
+		Name   string `gorm:"column:table_name"`
+	}
+
+	var tables []tableInfo
+	if err := m.db.Raw(listTablesSQL).Scan(&tables).Error; err != nil {
+		return fmt.Errorf("failed to list tables: %w", err)
+	}
+
+	if len(tables) == 0 {
+		return nil
+	}
+
+	return m.db.Transaction(func(tx *gorm.DB) error {
+		for _, tbl := range tables {
+			stmt := fmt.Sprintf("DROP TABLE IF EXISTS %s.%s CASCADE",
+				quoteIdentifier(tbl.Schema), quoteIdentifier(tbl.Name))
+			if err := tx.Exec(stmt).Error; err != nil {
+				return fmt.Errorf("failed to drop table %s.%s: %w", tbl.Schema, tbl.Name, err)
 			}
 		}
-	}
+		return nil
+	})
+}
 
-	// 2. 删除迁移记录表
-	if migrator.HasTable(&Migration{}) {
-		if err := migrator.DropTable(&Migration{}); err != nil {
-			return fmt.Errorf("failed to drop migrations table: %w", err)
-		}
-	}
-
-	// 3. 重新执行迁移
-	return m.Up()
+// quoteIdentifier 安全地引用标识符
+func quoteIdentifier(name string) string {
+	return `"` + strings.ReplaceAll(name, `"`, `""`) + `"`
 }
 
 // HasMigrations 检查是否有迁移记录

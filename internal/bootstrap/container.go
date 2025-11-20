@@ -78,12 +78,13 @@ type Container struct {
 	AuthService auth.Service
 
 	// Infrastructure Services
-	JWTManager          *_auth.JWTManager
-	TokenGenerator      *_auth.TokenGenerator
-	LoginSessionService *_auth.LoginSessionService
-	PATService          *_auth.PATService
-	CaptchaService      *_captcha.Service
-	TwoFAService        *_twofa.Service
+	JWTManager              *_auth.JWTManager
+	TokenGenerator          *_auth.TokenGenerator
+	LoginSessionService     *_auth.LoginSessionService
+	PermissionCacheService  *_auth.PermissionCacheService
+	PATService              *_auth.PATService
+	CaptchaService          *_captcha.Service
+	TwoFAService            *_twofa.Service
 
 	// Use Case Handlers - Auth
 	LoginHandler        *authCommand.LoginHandler
@@ -162,6 +163,7 @@ func NewContainer(cfg *_config.Config, opts *ContainerOptions) (*Container, erro
 	jwtManager := _auth.NewJWTManager(cfg.JWT.Secret, cfg.JWT.AccessTokenExpiry, cfg.JWT.RefreshTokenExpiry)
 	tokenGenerator := _auth.NewTokenGenerator()
 	loginSessionService := _auth.NewLoginSessionService()
+	permissionCacheService := _auth.NewPermissionCacheService(redisClient, userRepos.Query, cfg.Data.RedisKeyPrefix)
 
 	// =================================================================
 	// 6. 初始化 Domain Services（领域服务）
@@ -266,6 +268,7 @@ func NewContainer(cfg *_config.Config, opts *ContainerOptions) (*Container, erro
 		captchaRepo,
 		jwtManager,
 		patService,
+		permissionCacheService, // 新架构：权限缓存服务
 		authServiceForRouter,
 		captchaService,
 		twofaService,
@@ -303,12 +306,13 @@ func NewContainer(cfg *_config.Config, opts *ContainerOptions) (*Container, erro
 		AuthService: authService,
 
 		// Infrastructure Services
-		JWTManager:          jwtManager,
-		TokenGenerator:      tokenGenerator,
-		LoginSessionService: loginSessionService,
-		PATService:          patService,
-		CaptchaService:      captchaService,
-		TwoFAService:        twofaService,
+		JWTManager:             jwtManager,
+		TokenGenerator:         tokenGenerator,
+		LoginSessionService:    loginSessionService,
+		PermissionCacheService: permissionCacheService,
+		PATService:             patService,
+		CaptchaService:         captchaService,
+		TwoFAService:           twofaService,
 
 		// Use Case Handlers - Auth
 		LoginHandler:        loginHandler,

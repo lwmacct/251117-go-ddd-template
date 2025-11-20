@@ -3,10 +3,12 @@ package seeds
 
 import (
 	"context"
+	"log/slog"
 
 	_persistence "github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/persistence"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 // UserSeeder 用户种子数据
@@ -14,6 +16,8 @@ type UserSeeder struct{}
 
 // Seed 执行用户种子数据填充
 func (s *UserSeeder) Seed(ctx context.Context, db *gorm.DB) error {
+	db = db.WithContext(ctx)
+
 	// 生成密码哈希 (默认密码：password123)
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte("password123"), bcrypt.DefaultCost)
 	if err != nil {
@@ -44,19 +48,14 @@ func (s *UserSeeder) Seed(ctx context.Context, db *gorm.DB) error {
 		},
 	}
 
-	// 使用 FirstOrCreate 避免重复创建
-	for _, u := range users {
-		var existing _persistence.UserModel
-		result := db.Where("username = ?", u.Username).First(&existing)
-
-		if result.Error == gorm.ErrRecordNotFound {
-			// 用户不存在，创建新用户
-			if err := db.Create(&u).Error; err != nil {
-				return err
-			}
-		}
-		// 用户已存在，跳过
+	result := db.Clauses(clause.OnConflict{
+		DoNothing: true,
+	}).Create(&users)
+	if result.Error != nil {
+		return result.Error
 	}
+
+	slog.Info("Seeded demo users", "attempted", len(users), "inserted", result.RowsAffected)
 
 	return nil
 }

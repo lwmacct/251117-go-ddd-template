@@ -59,8 +59,9 @@ func (s *authServiceImpl) ValidatePasswordPolicy(ctx context.Context, password s
 }
 
 // GenerateAccessToken 生成访问令牌
-func (s *authServiceImpl) GenerateAccessToken(ctx context.Context, userID uint, username string, roles []string) (string, time.Time, error) {
-	token, err := s.jwtManager.GenerateAccessToken(userID, username, "", roles, []string{})
+// 新架构：Token 只包含 user_id/username，权限信息从缓存实时查询
+func (s *authServiceImpl) GenerateAccessToken(ctx context.Context, userID uint, username string) (string, time.Time, error) {
+	token, err := s.jwtManager.GenerateAccessToken(userID, username, "")
 	if err != nil {
 		return "", time.Time{}, fmt.Errorf("failed to generate access token: %w", err)
 	}
@@ -71,7 +72,7 @@ func (s *authServiceImpl) GenerateAccessToken(ctx context.Context, userID uint, 
 
 // GenerateRefreshToken 生成刷新令牌
 func (s *authServiceImpl) GenerateRefreshToken(ctx context.Context, userID uint) (string, time.Time, error) {
-	token, err := s.jwtManager.GenerateRefreshToken(userID, "", "", []string{}, []string{})
+	token, err := s.jwtManager.GenerateRefreshToken(userID)
 	if err != nil {
 		return "", time.Time{}, fmt.Errorf("failed to generate refresh token: %w", err)
 	}

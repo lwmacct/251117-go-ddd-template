@@ -22,7 +22,7 @@ type UserModel struct {
 	Bio      string `gorm:"type:text"`
 	Status   string `gorm:"size:20;default:'active'"`
 
-	Roles []RoleModel `gorm:"many2many:user_roles;"`
+	Roles []RoleModel `gorm:"many2many:user_roles;joinForeignKey:UserID;joinReferences:RoleID;foreignKey:ID;references:ID"`
 }
 
 // TableName 指定用户表名
