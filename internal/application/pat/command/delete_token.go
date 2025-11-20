@@ -1,0 +1,8 @@
+// Package command 定义 PAT 命令处理器
+package command
+
+// DeleteTokenCommand 删除 Token 命令
+type DeleteTokenCommand struct {
+	UserID  uint
+	TokenID uint
+}

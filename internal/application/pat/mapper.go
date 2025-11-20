@@ -6,19 +6,35 @@ import (
 )
 
 // ToTokenResponse 将领域模型 PersonalAccessToken 转换为应用层 TokenResponse DTO
-func ToTokenResponse(token *pat.PersonalAccessToken, plainToken string) *TokenResponse {
+func ToTokenResponse(token *pat.PersonalAccessToken) *TokenResponse {
 	if token == nil {
 		return nil
 	}
 
 	return &TokenResponse{
 		ID:          token.ID,
+		UserID:      token.UserID,
 		Name:        token.Name,
-		Token:       plainToken, // 仅在创建时传入，其他时候为空字符串
+		TokenPrefix: token.TokenPrefix,
 		Permissions: token.Permissions,
+		IPWhitelist: token.IPWhitelist,
+		Status:      token.Status,
 		ExpiresAt:   token.ExpiresAt,
 		LastUsedAt:  token.LastUsedAt,
 		CreatedAt:   token.CreatedAt,
+		UpdatedAt:   token.UpdatedAt,
+	}
+}
+
+// ToCreateTokenResponse 将领域模型 PersonalAccessToken 转换为创建响应 DTO（携带一次性明文 token）
+func ToCreateTokenResponse(token *pat.PersonalAccessToken, plainToken string) *CreateTokenResponse {
+	if token == nil {
+		return nil
+	}
+
+	return &CreateTokenResponse{
+		PlainToken: plainToken,
+		Token:      ToTokenResponse(token),
 	}
 }
 
@@ -29,10 +45,13 @@ func ToTokenListResponse(items []*pat.TokenListItem) *TokenListResponse {
 		responses[i] = &TokenResponse{
 			ID:          item.ID,
 			Name:        item.Name,
+			TokenPrefix: item.TokenPrefix,
 			Permissions: item.Permissions,
+			Status:      item.Status,
 			ExpiresAt:   item.ExpiresAt,
 			LastUsedAt:  item.LastUsedAt,
 			CreatedAt:   item.CreatedAt,
+			UpdatedAt:   item.CreatedAt,
 		}
 	}
 
@@ -48,12 +67,5 @@ func ToTokenInfoResponse(token *pat.PersonalAccessToken) *TokenInfoResponse {
 		return nil
 	}
 
-	return &TokenInfoResponse{
-		ID:          token.ID,
-		Name:        token.Name,
-		Permissions: token.Permissions,
-		ExpiresAt:   token.ExpiresAt,
-		LastUsedAt:  token.LastUsedAt,
-		CreatedAt:   token.CreatedAt,
-	}
+	return ToTokenResponse(token)
 }

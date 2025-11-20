@@ -54,24 +54,35 @@ func (r *patCommandRepository) Delete(ctx context.Context, id uint) error {
 	return nil
 }
 
-// Revoke 撤销令牌（设置状态为 revoked）
-func (r *patCommandRepository) Revoke(ctx context.Context, id uint) error {
+// Disable 禁用令牌（设置状态为 disabled）
+func (r *patCommandRepository) Disable(ctx context.Context, id uint) error {
 	if err := r.db.WithContext(ctx).
 		Model(&PersonalAccessTokenModel{}).
 		Where("id = ?", id).
-		Update("status", "revoked").Error; err != nil {
-		return fmt.Errorf("failed to revoke PAT: %w", err)
+		Update("status", "disabled").Error; err != nil {
+		return fmt.Errorf("failed to disable PAT: %w", err)
 	}
 	return nil
 }
 
-// RevokeByUserID 撤销指定用户的所有令牌
-func (r *patCommandRepository) RevokeByUserID(ctx context.Context, userID uint) error {
+// Enable 重新启用令牌
+func (r *patCommandRepository) Enable(ctx context.Context, id uint) error {
 	if err := r.db.WithContext(ctx).
 		Model(&PersonalAccessTokenModel{}).
-		Where("user_id = ? AND status = ?", userID, "active").
-		Update("status", "revoked").Error; err != nil {
-		return fmt.Errorf("failed to revoke PATs by user ID: %w", err)
+		Where("id = ?", id).
+		Update("status", "active").Error; err != nil {
+		return fmt.Errorf("failed to enable PAT: %w", err)
+	}
+	return nil
+}
+
+// DeleteByUserID 删除指定用户的所有令牌
+func (r *patCommandRepository) DeleteByUserID(ctx context.Context, userID uint) error {
+	if err := r.db.WithContext(ctx).
+		Unscoped().
+		Where("user_id = ?", userID).
+		Delete(&PersonalAccessTokenModel{}).Error; err != nil {
+		return fmt.Errorf("failed to delete PATs by user ID: %w", err)
 	}
 	return nil
 }

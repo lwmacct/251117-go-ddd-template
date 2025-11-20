@@ -22,11 +22,7 @@ http://localhost:40012/swagger/index.html
 
 当你修改了 handler 文件中的 Swagger 注解后，运行：
 
-```bash
-./scripts/generate-swagger.sh
-```
-
-或者手动运行：
+手动运行:
 
 ```bash
 swag init \
@@ -35,9 +31,6 @@ swag init \
     --parseDependency \
     --parseInternal
 ```
-
-> **为什么不需要 `--exclude` 参数？**
-> swag 会智能地只解析带有 Swagger 注解的代码和它们引用的类型，无需手动排除无关目录。极简配置性能最优且维护成本最低。
 
 ### 3. API 测试
 

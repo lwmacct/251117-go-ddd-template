@@ -3,7 +3,7 @@
  */
 
 /** Token 状态 */
-export type TokenStatus = "active" | "revoked" | "expired";
+export type TokenStatus = "active" | "disabled" | "expired";
 
 /** Personal Access Token */
 export interface PersonalAccessToken {
@@ -25,7 +25,9 @@ export interface CreateTokenRequest {
   name: string;
   permissions?: string[];
   expires_at?: string;
+  expires_in?: number;
   ip_whitelist?: string[];
+  description?: string;
 }
 
 /** 创建 Token 响应（包含完整 token） */

@@ -35,7 +35,7 @@ func NewPATService(
 }
 
 // CreateToken creates a new Personal Access Token
-func (s *PATService) CreateToken(ctx context.Context, req *patdto.CreateTokenRequest, userID uint) (*patdto.TokenResponse, error) {
+func (s *PATService) CreateToken(ctx context.Context, req *patdto.CreateTokenRequest, userID uint) (*patdto.CreateTokenResponse, error) {
 	// Validate user exists and get their permissions
 	u, err := s.userQueryRepo.GetByIDWithRoles(ctx, userID)
 	if err != nil {
@@ -48,8 +48,13 @@ func (s *PATService) CreateToken(ctx context.Context, req *patdto.CreateTokenReq
 		return nil, errors.New("user has no permissions")
 	}
 
+	requestedPerms := req.Permissions
+	if len(requestedPerms) == 0 {
+		requestedPerms = userPermissions
+	}
+
 	// Validate requested permissions are subset of user's permissions
-	if err := s.validatePermissions(req.Permissions, userPermissions); err != nil {
+	if err := s.validatePermissions(requestedPerms, userPermissions); err != nil {
 		return nil, err
 	}
 
@@ -61,9 +66,16 @@ func (s *PATService) CreateToken(ctx context.Context, req *patdto.CreateTokenReq
 
 	// Calculate expiry
 	var expiresAt *time.Time
-	if req.ExpiresAt != nil {
-		expiry := time.Unix(*req.ExpiresAt, 0)
-		expiresAt = &expiry
+	if req.ExpiresAt != nil && *req.ExpiresAt != "" {
+		parsed, parseErr := time.Parse(time.RFC3339, *req.ExpiresAt)
+		if parseErr != nil {
+			return nil, fmt.Errorf("invalid expires_at format: %w", parseErr)
+		}
+		tmp := parsed.UTC()
+		expiresAt = &tmp
+	} else if req.ExpiresIn != nil && *req.ExpiresIn > 0 {
+		tmp := time.Now().Add(time.Duration(*req.ExpiresIn) * 24 * time.Hour).UTC()
+		expiresAt = &tmp
 	}
 
 	// Create PAT record
@@ -72,9 +84,11 @@ func (s *PATService) CreateToken(ctx context.Context, req *patdto.CreateTokenReq
 		Name:        req.Name,
 		Token:       tokenHash,
 		TokenPrefix: prefix,
-		Permissions: req.Permissions,
+		Permissions: requestedPerms,
 		ExpiresAt:   expiresAt,
 		Status:      "active",
+		IPWhitelist: req.IPWhitelist,
+		Description: req.Description,
 	}
 
 	if err := s.patCommandRepo.Create(ctx, token); err != nil {
@@ -82,26 +96,26 @@ func (s *PATService) CreateToken(ctx context.Context, req *patdto.CreateTokenReq
 	}
 
 	// Return response with plain token (only shown once!)
-	return patdto.ToTokenResponse(token, plainToken), nil
+	return patdto.ToCreateTokenResponse(token, plainToken), nil
 }
 
 // ListTokens lists all tokens for a user (without sensitive data)
-func (s *PATService) ListTokens(ctx context.Context, userID uint) ([]*pat.TokenListItem, error) {
+func (s *PATService) ListTokens(ctx context.Context, userID uint) ([]*patdto.TokenResponse, error) {
 	tokens, err := s.patQueryRepo.ListByUser(ctx, userID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to list tokens: %w", err)
 	}
 
-	items := make([]*pat.TokenListItem, len(tokens))
+	items := make([]*patdto.TokenResponse, len(tokens))
 	for i, t := range tokens {
-		items[i] = t.ToListItem()
+		items[i] = patdto.ToTokenResponse(t)
 	}
 
 	return items, nil
 }
 
-// RevokeToken revokes a token by ID
-func (s *PATService) RevokeToken(ctx context.Context, userID, tokenID uint) error {
+// DisableToken pauses a token (GitHub-style)
+func (s *PATService) DisableToken(ctx context.Context, userID, tokenID uint) error {
 	// Get token to verify ownership
 	token, err := s.patQueryRepo.FindByID(ctx, tokenID)
 	if err != nil {
@@ -113,11 +127,57 @@ func (s *PATService) RevokeToken(ctx context.Context, userID, tokenID uint) erro
 		return errors.New("unauthorized: token does not belong to user")
 	}
 
-	// Revoke token
-	if err := s.patCommandRepo.Revoke(ctx, tokenID); err != nil {
-		return fmt.Errorf("failed to revoke token: %w", err)
+	if token.Status == "disabled" {
+		return nil
 	}
 
+	// Disable token
+	if err := s.patCommandRepo.Disable(ctx, tokenID); err != nil {
+		return fmt.Errorf("failed to disable token: %w", err)
+	}
+
+	return nil
+}
+
+// EnableToken enables a disabled token
+func (s *PATService) EnableToken(ctx context.Context, userID, tokenID uint) error {
+	token, err := s.patQueryRepo.FindByID(ctx, tokenID)
+	if err != nil {
+		return fmt.Errorf("token not found: %w", err)
+	}
+
+	if token.UserID != userID {
+		return errors.New("unauthorized: token does not belong to user")
+	}
+
+	if token.IsExpired() {
+		return errors.New("token is expired and cannot be enabled")
+	}
+
+	if token.Status == "active" {
+		return nil
+	}
+
+	if err := s.patCommandRepo.Enable(ctx, tokenID); err != nil {
+		return fmt.Errorf("failed to enable token: %w", err)
+	}
+
+	return nil
+}
+
+// DeleteToken deletes a token permanently
+func (s *PATService) DeleteToken(ctx context.Context, userID, tokenID uint) error {
+	token, err := s.patQueryRepo.FindByID(ctx, tokenID)
+	if err != nil {
+		return fmt.Errorf("token not found: %w", err)
+	}
+	if token.UserID != userID {
+		return errors.New("unauthorized: token does not belong to user")
+	}
+
+	if err := s.patCommandRepo.Delete(ctx, tokenID); err != nil {
+		return fmt.Errorf("failed to delete token: %w", err)
+	}
 	return nil
 }
 
@@ -177,9 +237,9 @@ func (s *PATService) ValidateTokenWithIP(ctx context.Context, plainToken, client
 	return token, nil
 }
 
-// RevokeAllUserTokens revokes all tokens for a user (e.g., on password change)
-func (s *PATService) RevokeAllUserTokens(ctx context.Context, userID uint) error {
-	return s.patCommandRepo.RevokeByUserID(ctx, userID)
+// DeleteAllUserTokens deletes all tokens for a user (e.g., on password change)
+func (s *PATService) DeleteAllUserTokens(ctx context.Context, userID uint) error {
+	return s.patCommandRepo.DeleteByUserID(ctx, userID)
 }
 
 // CleanupExpiredTokens cleans up expired tokens (should be run periodically)

@@ -20,7 +20,7 @@ Personal Access Token (PAT) 是一种用于 API 认证的长期凭证，作为 J
 | **有效期**  | 短期（1小时） | 长期（7/30/90天或永久） |
 | **刷新**    | Refresh Token | 无需刷新                |
 | **权限**    | 用户全部权限  | 用户权限的子集          |
-| **撤销**    | 不支持        | 支持即时撤销            |
+| **删除**    | 不支持        | 支持即时删除            |
 | **IP 限制** | 不支持        | 支持 IP 白名单          |
 
 ## Token 格式
@@ -96,7 +96,7 @@ curl -X POST http://localhost:8080/api/user/tokens \
 **重要提示**:
 
 - ⚠️ **完整 token 仅显示一次**，请立即保存
-- Token 创建后无法查看明文，只能撤销并重新创建
+- Token 创建后无法查看明文，只能删除并重新创建
 - 权限必须是您当前拥有权限的子集
 
 ### 权限选择
@@ -284,7 +284,7 @@ curl -X GET http://localhost:8080/api/user/tokens/1 \
   -H "Authorization: Bearer <your_jwt_token>"
 ```
 
-### 撤销 Token
+### 删除 Token
 
 **API 端点**: `DELETE /api/user/tokens/:id`
 
@@ -297,13 +297,13 @@ curl -X DELETE http://localhost:8080/api/user/tokens/1 \
 
 ```json
 {
-  "message": "token revoked successfully"
+  "message": "token disabled successfully"
 }
 ```
 
-**撤销后**：
+**删除后**：
 
-- Token 状态变为 `revoked`
+- Token 状态变为 `disabled`
 - 立即失效，无法再用于 API 认证
 - 记录保留在数据库中（软删除）
 
@@ -372,7 +372,7 @@ curl -X DELETE http://localhost:8080/api/user/tokens/1 \
 ### 5. 定期轮换 Token
 
 - 每 90 天轮换一次生产环境的 Token
-- 撤销旧 Token 前先部署新 Token
+- 删除旧 Token 前先部署新 Token
 - 保持至少有一个备用 Token
 
 ### 6. 安全存储
@@ -406,7 +406,7 @@ curl -H "Authorization: Bearer $API_TOKEN" http://api.example.com/endpoint
 
 如果怀疑 Token 泄露：
 
-1. **立即撤销** 受影响的 Token
+1. **立即删除** 受影响的 Token
 
    ```bash
    curl -X DELETE http://localhost:8080/api/user/tokens/<token_id> \
@@ -422,7 +422,7 @@ curl -H "Authorization: Bearer $API_TOKEN" http://api.example.com/endpoint
 定期检查：
 
 - Token 的最后使用时间（`last_used_at`）
-- 长期未使用的 Token（考虑撤销）
+- 长期未使用的 Token（考虑删除）
 - 即将过期的 Token（提前轮换）
 
 ### IP 白名单注意事项
@@ -436,10 +436,10 @@ curl -H "Authorization: Bearer $API_TOKEN" http://api.example.com/endpoint
 | 状态      | 说明     | 可用性   |
 | --------- | -------- | -------- |
 | `active`  | 正常激活 | ✓ 可用   |
-| `revoked` | 已撤销   | ✗ 不可用 |
+| `disabled` | 已禁用   | ✗ 不可用（可重新启用） |
 | `expired` | 已过期   | ✗ 不可用 |
 
-系统会自动标记过期的 Token，您也可以手动撤销不再需要的 Token。
+系统会自动标记过期的 Token，您可以禁用或删除不再需要的 Token。
 
 ## 常见问题
 
@@ -447,7 +447,7 @@ curl -H "Authorization: Bearer $API_TOKEN" http://api.example.com/endpoint
 
 **A**: 无法找回。Token 明文仅在创建时显示一次，数据库只存储 SHA-256 哈希值。您需要：
 
-1. 撤销旧 Token
+1. 删除旧 Token
 2. 创建新 Token
 
 ### Q2: 如何增加 Token 的权限？
@@ -456,18 +456,18 @@ curl -H "Authorization: Bearer $API_TOKEN" http://api.example.com/endpoint
 
 1. 创建新 Token（包含所需权限）
 2. 更新应用配置使用新 Token
-3. 撤销旧 Token
+3. 删除旧 Token
 
 ### Q3: Token 过期后会自动删除吗？
 
-**A**: 不会。过期的 Token 仍保留在数据库中，状态为 `expired`，但无法用于认证。您可以手动撤销以清理列表。
+**A**: 不会。过期的 Token 仍保留在数据库中，状态为 `expired`，但无法用于认证。您可以手动删除以清理列表。
 
 ### Q4: 使用 PAT 时出现 403 错误？
 
 **A**: 可能的原因：
 
 1. **权限不足**：Token 没有所需权限
-2. **Token 已撤销**：状态为 `revoked`
+2. **Token 已删除**：状态为 `disabled`
 3. **Token 已过期**：超过 `expires_at` 时间
 4. **IP 限制**：请求 IP 不在白名单中
 
@@ -498,7 +498,7 @@ curl -X GET http://localhost:8080/api/user/tokens/<token_id> \
 
 1. 使用描述性名称和分类标签
 2. 定期审查 Token 列表
-3. 撤销长期未使用的 Token
+3. 删除长期未使用的 Token
 
 ### Q7: PAT 支持通配符权限吗？
 

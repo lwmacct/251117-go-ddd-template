@@ -75,7 +75,7 @@ import type { PersonalAccessToken, CreateTokenRequest, CreateTokenResponse } fro
 import type { ApiResponse } from "@/types/auth";
 
 export const listTokens = async (): Promise<PersonalAccessToken[]> => {
-  const { data } = await apiClient.get<ApiResponse<PersonalAccessToken[]>>("/user/tokens");
+  const { data } = await apiClient.get<ApiResponse<PersonalAccessToken[]>>("/api/user/tokens");
   if (data.data) {
     return data.data;
   }

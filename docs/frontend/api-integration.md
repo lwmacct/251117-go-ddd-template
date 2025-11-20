@@ -50,7 +50,7 @@ apiClient.interceptors.response.use(
 );
 ```
 
-- 客户端使用固定的 `/api/auth` 前缀，同时覆盖 `/api/auth/user/*` 与 `/api/auth/user/tokens`。
+- 客户端统一以 `/api/*` 为前缀，例如个人 Token 路径为 `/api/user/tokens`。
 - 刷新令牌失败会清理本地状态并回到登录页，确保 401 循环被阻断。
 
 ## 认证 API（`src/api/auth/auth.ts`）
@@ -147,7 +147,7 @@ import type { PersonalAccessToken, CreateTokenRequest, CreateTokenResponse } fro
 import type { ApiResponse } from "@/types/auth";
 
 export const listTokens = async (): Promise<PersonalAccessToken[]> => {
-  const { data } = await apiClient.get<ApiResponse<PersonalAccessToken[]>>("/user/tokens");
+  const { data } = await apiClient.get<ApiResponse<PersonalAccessToken[]>>("/api/user/tokens");
   if (data.data) {
     return data.data;
   }
@@ -155,15 +155,23 @@ export const listTokens = async (): Promise<PersonalAccessToken[]> => {
 };
 
 export const createToken = async (params: CreateTokenRequest): Promise<CreateTokenResponse> => {
-  const { data } = await apiClient.post<ApiResponse<CreateTokenResponse>>("/user/tokens", params);
+  const { data } = await apiClient.post<ApiResponse<CreateTokenResponse>>("/api/user/tokens", params);
   if (data.data) {
     return data.data;
   }
   throw new Error(data.error || "创建 Token 失败");
 };
 
-export const revokeToken = async (id: number): Promise<void> => {
-  await apiClient.delete(`/user/tokens/${id}`);
+export const deleteToken = async (id: number): Promise<void> => {
+  await apiClient.delete(`/api/user/tokens/${id}`);
+};
+
+export const disableToken = async (id: number): Promise<void> => {
+  await apiClient.patch(`/api/user/tokens/${id}/disable`);
+};
+
+export const enableToken = async (id: number): Promise<void> => {
+  await apiClient.patch(`/api/user/tokens/${id}/enable`);
 };
 ```
 

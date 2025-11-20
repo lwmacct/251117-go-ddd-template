@@ -1,10 +1,12 @@
 package handler
 
 import (
-	"net/http"
+	"fmt"
 	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/lwmacct/251117-go-ddd-template/internal/adapters/http/response"
 	patdto "github.com/lwmacct/251117-go-ddd-template/internal/application/pat"
 	patCommand "github.com/lwmacct/251117-go-ddd-template/internal/application/pat/command"
 	patQuery "github.com/lwmacct/251117-go-ddd-template/internal/application/pat/query"
@@ -13,8 +15,10 @@ import (
 // PATHandler handles Personal Access Token operations (DDD+CQRS Use Case Pattern)
 type PATHandler struct {
 	// Command Handlers
-	createTokenHandler *patCommand.CreateTokenHandler
-	revokeTokenHandler *patCommand.RevokeTokenHandler
+	createTokenHandler  *patCommand.CreateTokenHandler
+	deleteTokenHandler  *patCommand.DeleteTokenHandler
+	disableTokenHandler *patCommand.DisableTokenHandler
+	enableTokenHandler  *patCommand.EnableTokenHandler
 
 	// Query Handlers
 	getTokenHandler   *patQuery.GetTokenHandler
@@ -24,15 +28,19 @@ type PATHandler struct {
 // NewPATHandler creates a new PAT handler
 func NewPATHandler(
 	createTokenHandler *patCommand.CreateTokenHandler,
-	revokeTokenHandler *patCommand.RevokeTokenHandler,
+	deleteTokenHandler *patCommand.DeleteTokenHandler,
+	disableTokenHandler *patCommand.DisableTokenHandler,
+	enableTokenHandler *patCommand.EnableTokenHandler,
 	getTokenHandler *patQuery.GetTokenHandler,
 	listTokensHandler *patQuery.ListTokensHandler,
 ) *PATHandler {
 	return &PATHandler{
-		createTokenHandler: createTokenHandler,
-		revokeTokenHandler: revokeTokenHandler,
-		getTokenHandler:    getTokenHandler,
-		listTokensHandler:  listTokensHandler,
+		createTokenHandler:  createTokenHandler,
+		deleteTokenHandler:  deleteTokenHandler,
+		disableTokenHandler: disableTokenHandler,
+		enableTokenHandler:  enableTokenHandler,
+		getTokenHandler:     getTokenHandler,
+		listTokensHandler:   listTokensHandler,
 	}
 }
 
@@ -48,24 +56,26 @@ func NewPATHandler(
 // @Success      201 {object} response.Response{data=object{id=uint,name=string,token=string,expires_at=string},warning=string} "令牌创建成功"
 // @Failure      400 {object} response.ErrorResponse "参数错误"
 // @Failure      401 {object} response.ErrorResponse "未授权"
-// @Router       /api/user/pats [post]
-// @x-permission {"scope":"user:pats:create"}
+// @Router       /api/user/tokens [post]
+// @x-permission {"scope":"user:tokens:create"}
 func (h *PATHandler) CreateToken(c *gin.Context) {
 	var req patdto.CreateTokenRequest
 
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "invalid request: " + err.Error(),
-		})
+		response.BadRequest(c, "invalid request body", err.Error())
 		return
 	}
 
 	// Get user ID from context (set by Auth middleware)
 	userID, exists := c.Get("user_id")
 	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{
-			"error": "unauthorized: user ID not found",
-		})
+		response.Unauthorized(c, "unauthorized: user ID not found")
+		return
+	}
+
+	expiresAt, err := parseExpiresAt(req.ExpiresAt, req.ExpiresIn)
+	if err != nil {
+		response.BadRequest(c, "invalid expiration date", err.Error())
 		return
 	}
 
@@ -74,21 +84,17 @@ func (h *PATHandler) CreateToken(c *gin.Context) {
 		UserID:      userID.(uint),
 		Name:        req.Name,
 		Permissions: req.Permissions,
-		ExpiresAt:   nil, // TODO: 处理过期时间
+		ExpiresAt:   expiresAt,
+		IPWhitelist: req.IPWhitelist,
+		Description: req.Description,
 	})
 
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "failed to create token: " + err.Error(),
-		})
+		response.BadRequest(c, "failed to create token", err.Error())
 		return
 	}
 
-	c.JSON(http.StatusCreated, gin.H{
-		"message": "token created successfully",
-		"data":    result,
-		"warning": "Please save this token now. You won't be able to see it again!",
-	})
+	response.Created(c, "token created successfully", patdto.ToCreateTokenResponse(result.Token, result.PlainToken))
 }
 
 // ListTokens lists all tokens for the current user
@@ -102,14 +108,12 @@ func (h *PATHandler) CreateToken(c *gin.Context) {
 // @Success      200 {object} response.Response{data=[]object{id=uint,name=string,last_used_at=string,expires_at=string,created_at=string},count=int} "令牌列表"
 // @Failure      401 {object} response.ErrorResponse "未授权"
 // @Failure      500 {object} response.ErrorResponse "服务器内部错误"
-// @Router       /api/user/pats [get]
-// @x-permission {"scope":"user:pats:read"}
+// @Router       /api/user/tokens [get]
+// @x-permission {"scope":"user:tokens:read"}
 func (h *PATHandler) ListTokens(c *gin.Context) {
 	userID, exists := c.Get("user_id")
 	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{
-			"error": "unauthorized: user ID not found",
-		})
+		response.Unauthorized(c, "unauthorized: user ID not found")
 		return
 	}
 
@@ -119,68 +123,52 @@ func (h *PATHandler) ListTokens(c *gin.Context) {
 	})
 
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": "failed to list tokens: " + err.Error(),
-		})
+		response.InternalError(c, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"message": "tokens retrieved successfully",
-		"data":    tokens,
-		"count":   len(tokens),
-	})
+	response.OK(c, "tokens retrieved successfully", tokens)
 }
 
-// RevokeToken revokes a specific token
+// DeleteToken deletes a specific token
 //
-// @Summary      撤销个人访问令牌
-// @Description  用户撤销（删除）指定的个人访问令牌
+// @Summary      删除个人访问令牌
+// @Description  用户删除指定的个人访问令牌（不可恢复）
 // @Tags         用户 - 个人访问令牌 (User - Personal Access Token)
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
 // @Param        id path int true "令牌ID" minimum(1)
-// @Success      200 {object} response.Response{message=string} "令牌撤销成功"
+// @Success      200 {object} response.Response{message=string} "令牌删除成功"
 // @Failure      400 {object} response.ErrorResponse "无效的令牌ID"
 // @Failure      401 {object} response.ErrorResponse "未授权"
 // @Failure      404 {object} response.ErrorResponse "令牌不存在"
-// @Router       /api/user/pats/{id} [delete]
-// @x-permission {"scope":"user:pats:delete"}
-func (h *PATHandler) RevokeToken(c *gin.Context) {
+// @Router       /api/user/tokens/{id} [delete]
+// @x-permission {"scope":"user:tokens:delete"}
+func (h *PATHandler) DeleteToken(c *gin.Context) {
 	userID, exists := c.Get("user_id")
 	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{
-			"error": "unauthorized: user ID not found",
-		})
+		response.Unauthorized(c, "unauthorized: user ID not found")
 		return
 	}
 
 	tokenIDStr := c.Param("id")
-	tokenID, err := strconv.ParseUint(tokenIDStr, 10, 32)
+	tokenID, err := parseTokenID(tokenIDStr)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "invalid token ID",
-		})
+		response.BadRequest(c, "invalid token ID", err.Error())
 		return
 	}
 
-	// 调用 Use Case Handler
-	err = h.revokeTokenHandler.Handle(c.Request.Context(), patCommand.RevokeTokenCommand{
+	err = h.deleteTokenHandler.Handle(c.Request.Context(), patCommand.DeleteTokenCommand{
 		UserID:  userID.(uint),
-		TokenID: uint(tokenID),
+		TokenID: tokenID,
 	})
-
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{
-			"error": "failed to revoke token: " + err.Error(),
-		})
+		response.BadRequest(c, "failed to delete token", err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"message": "token revoked successfully",
-	})
+	response.OK(c, "token deleted successfully", nil)
 }
 
 // GetToken retrieves details of a specific token
@@ -196,23 +184,19 @@ func (h *PATHandler) RevokeToken(c *gin.Context) {
 // @Failure      400 {object} response.ErrorResponse "无效的令牌ID"
 // @Failure      401 {object} response.ErrorResponse "未授权"
 // @Failure      404 {object} response.ErrorResponse "令牌不存在"
-// @Router       /api/user/pats/{id} [get]
-// @x-permission {"scope":"user:pats:read"}
+// @Router       /api/user/tokens/{id} [get]
+// @x-permission {"scope":"user:tokens:read"}
 func (h *PATHandler) GetToken(c *gin.Context) {
 	userID, exists := c.Get("user_id")
 	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{
-			"error": "unauthorized: user ID not found",
-		})
+		response.Unauthorized(c, "unauthorized: user ID not found")
 		return
 	}
 
 	tokenIDStr := c.Param("id")
 	tokenID, err := strconv.ParseUint(tokenIDStr, 10, 32)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "invalid token ID",
-		})
+		response.BadRequest(c, "invalid token ID", nil)
 		return
 	}
 
@@ -223,14 +207,114 @@ func (h *PATHandler) GetToken(c *gin.Context) {
 	})
 
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{
-			"error": "token not found",
-		})
+		response.NotFound(c, "token")
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"message": "token retrieved successfully",
-		"data":    token,
-	})
+	response.OK(c, "token retrieved successfully", token)
+}
+
+// DisableToken 暂停令牌
+//
+// @Summary      禁用个人访问令牌
+// @Description  暂停指定令牌的使用（可再次启用）
+// @Tags         用户 - 个人访问令牌 (User - Personal Access Token)
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        id path int true "令牌ID" minimum(1)
+// @Success      200 {object} response.Response{message=string} "令牌已禁用"
+// @Failure      400 {object} response.ErrorResponse "无效的令牌ID"
+// @Failure      401 {object} response.ErrorResponse "未授权"
+// @Router       /api/user/tokens/{id}/disable [patch]
+// @x-permission {"scope":"user:tokens:disable"}
+func (h *PATHandler) DisableToken(c *gin.Context) {
+	userID, exists := c.Get("user_id")
+	if !exists {
+		response.Unauthorized(c, "unauthorized: user ID not found")
+		return
+	}
+
+	tokenID, err := parseTokenID(c.Param("id"))
+	if err != nil {
+		response.BadRequest(c, "invalid token ID", err.Error())
+		return
+	}
+
+	if err := h.disableTokenHandler.Handle(c.Request.Context(), patCommand.DisableTokenCommand{
+		UserID:  userID.(uint),
+		TokenID: tokenID,
+	}); err != nil {
+		response.BadRequest(c, "failed to disable token", err.Error())
+		return
+	}
+
+	response.OK(c, "token disabled successfully", nil)
+}
+
+// EnableToken 启用令牌
+//
+// @Summary      启用个人访问令牌
+// @Description  重新启用已禁用的令牌
+// @Tags         用户 - 个人访问令牌 (User - Personal Access Token)
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        id path int true "令牌ID" minimum(1)
+// @Success      200 {object} response.Response{message=string} "令牌已启用"
+// @Failure      400 {object} response.ErrorResponse "无效的令牌ID"
+// @Failure      401 {object} response.ErrorResponse "未授权"
+// @Router       /api/user/tokens/{id}/enable [patch]
+// @x-permission {"scope":"user:tokens:enable"}
+func (h *PATHandler) EnableToken(c *gin.Context) {
+	userID, exists := c.Get("user_id")
+	if !exists {
+		response.Unauthorized(c, "unauthorized: user ID not found")
+		return
+	}
+
+	tokenID, err := parseTokenID(c.Param("id"))
+	if err != nil {
+		response.BadRequest(c, "invalid token ID", err.Error())
+		return
+	}
+
+	if err := h.enableTokenHandler.Handle(c.Request.Context(), patCommand.EnableTokenCommand{
+		UserID:  userID.(uint),
+		TokenID: tokenID,
+	}); err != nil {
+		response.BadRequest(c, "failed to enable token", err.Error())
+		return
+	}
+
+	response.OK(c, "token enabled successfully", nil)
+}
+
+func parseTokenID(raw string) (uint, error) {
+	id, err := strconv.ParseUint(raw, 10, 32)
+	return uint(id), err
+}
+
+// parseExpiresAt parses expire parameters from request into a timestamp pointer.
+func parseExpiresAt(expiresAt *string, expiresIn *int) (*time.Time, error) {
+	if expiresAt != nil && *expiresAt != "" {
+		parsed, err := time.Parse(time.RFC3339, *expiresAt)
+		if err != nil {
+			// 前端 datetime-local 值缺少时区时使用本地时区解析
+			if localTime, localErr := time.ParseInLocation("2006-01-02T15:04", *expiresAt, time.Local); localErr == nil {
+				utc := localTime.UTC()
+				return &utc, nil
+			}
+			return nil, fmt.Errorf("expires_at must be RFC3339 or yyyy-MM-ddTHH:mm")
+		}
+		utc := parsed.UTC()
+		return &utc, nil
+	}
+
+	if expiresIn != nil && *expiresIn > 0 {
+		t := time.Now().Add(time.Duration(*expiresIn) * 24 * time.Hour).UTC()
+		return &t, nil
+	}
+
+	return nil, nil
 }

@@ -223,8 +223,10 @@ func NewContainer(cfg *_config.Config, opts *ContainerOptions) (*Container, erro
 	// =================================================================
 	// 8.8. 初始化 Use Case Handlers - PAT
 	// =================================================================
-	createTokenHandler := patCommand.NewCreateTokenHandler(patRepos.Command, patRepos.Query, tokenGenerator)
-	revokeTokenHandler := patCommand.NewRevokeTokenHandler(patRepos.Command, patRepos.Query)
+	createTokenHandler := patCommand.NewCreateTokenHandler(patRepos.Command, userRepos.Query, tokenGenerator)
+	deleteTokenHandler := patCommand.NewDeleteTokenHandler(patRepos.Command, patRepos.Query)
+	disableTokenHandler := patCommand.NewDisableTokenHandler(patRepos.Command, patRepos.Query)
+	enableTokenHandler := patCommand.NewEnableTokenHandler(patRepos.Command, patRepos.Query)
 	getTokenHandler := patQuery.NewGetTokenHandler(patRepos.Query)
 	listTokensHandler := patQuery.NewListTokensHandler(patRepos.Query)
 
@@ -244,7 +246,14 @@ func NewContainer(cfg *_config.Config, opts *ContainerOptions) (*Container, erro
 	roleHandler := handler.NewRoleHandler(createRoleHandler, updateRoleHandler, deleteRoleHandler, setPermissionsHandler, getRoleHandler, listRolesHandler, listPermissionsHandler)
 	menuHandler := handler.NewMenuHandler(createMenuHandler, updateMenuHandler, deleteMenuHandler, reorderMenusHandler, getMenuHandler, listMenusHandler)
 	settingHandler := handler.NewSettingHandler(createSettingHandler, updateSettingHandler, deleteSettingHandler, batchUpdateSettingsHandler, getSettingHandler, listSettingsHandler)
-	patHandler := handler.NewPATHandler(createTokenHandler, revokeTokenHandler, getTokenHandler, listTokensHandler)
+	patHandler := handler.NewPATHandler(
+		createTokenHandler,
+		deleteTokenHandler,
+		disableTokenHandler,
+		enableTokenHandler,
+		getTokenHandler,
+		listTokensHandler,
+	)
 	auditLogHandler := handler.NewAuditLogHandler(listLogsHandler, getLogHandler)
 
 	// =================================================================

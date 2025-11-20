@@ -19,7 +19,7 @@ type PersonalAccessToken struct {
 
 	ExpiresAt  *time.Time `json:"expires_at,omitempty"`   // 过期时间（nil=永久）
 	LastUsedAt *time.Time `json:"last_used_at,omitempty"` // 最后使用时间
-	Status     string     `json:"status"`                 // active, revoked, expired
+	Status     string     `json:"status"`                 // active, disabled, expired
 
 	IPWhitelist StringList `json:"ip_whitelist,omitempty"` // IP 白名单（可选）
 	Description string     `json:"description,omitempty"`  // 描述

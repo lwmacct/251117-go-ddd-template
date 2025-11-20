@@ -162,7 +162,9 @@ func SetupRouter(
 			userGroup.POST("/tokens", middleware.RequirePermission("user:tokens:create"), patHandler.CreateToken)
 			userGroup.GET("/tokens", middleware.RequirePermission("user:tokens:read"), patHandler.ListTokens)
 			userGroup.GET("/tokens/:id", middleware.RequirePermission("user:tokens:read"), patHandler.GetToken)
-			userGroup.DELETE("/tokens/:id", middleware.RequirePermission("user:tokens:delete"), patHandler.RevokeToken)
+			userGroup.DELETE("/tokens/:id", middleware.RequirePermission("user:tokens:delete"), patHandler.DeleteToken)
+			userGroup.PATCH("/tokens/:id/disable", middleware.RequirePermission("user:tokens:disable"), patHandler.DisableToken)
+			userGroup.PATCH("/tokens/:id/enable", middleware.RequirePermission("user:tokens:enable"), patHandler.EnableToken)
 		}
 
 		// 缓存操作示例 (公开，仅用于演示)

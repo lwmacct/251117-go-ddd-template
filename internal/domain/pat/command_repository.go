@@ -13,11 +13,14 @@ type CommandRepository interface {
 	// Delete 硬删除令牌
 	Delete(ctx context.Context, id uint) error
 
-	// Revoke 撤销令牌（设置状态为 revoked）
-	Revoke(ctx context.Context, id uint) error
+	// Disable 禁用令牌（设置状态为 disabled）
+	Disable(ctx context.Context, id uint) error
 
-	// RevokeByUserID 撤销指定用户的所有令牌
-	RevokeByUserID(ctx context.Context, userID uint) error
+	// Enable 启用令牌（设置状态为 active）
+	Enable(ctx context.Context, id uint) error
+
+	// DeleteByUserID 删除指定用户的所有令牌
+	DeleteByUserID(ctx context.Context, userID uint) error
 
 	// CleanupExpired 清理过期令牌
 	CleanupExpired(ctx context.Context) error

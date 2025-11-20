@@ -42,18 +42,54 @@ export function useTokens() {
     }
   };
 
-  const revokeToken = async (id: number): Promise<boolean> => {
+  const deleteToken = async (id: number): Promise<boolean> => {
     loading.value = true;
     errorMessage.value = "";
     successMessage.value = "";
 
     try {
-      await UserTokensAPI.revokeToken(id);
-      successMessage.value = "Token 已撤销";
+      await UserTokensAPI.deleteToken(id);
+      successMessage.value = "Token 已删除";
       await fetchTokens();
       return true;
     } catch (error: any) {
-      errorMessage.value = error.message || "撤销 Token 失败";
+      errorMessage.value = error.message || "删除 Token 失败";
+      return false;
+    } finally {
+      loading.value = false;
+    }
+  };
+
+  const disableToken = async (id: number): Promise<boolean> => {
+    loading.value = true;
+    errorMessage.value = "";
+    successMessage.value = "";
+
+    try {
+      await UserTokensAPI.disableToken(id);
+      successMessage.value = "Token 已禁用";
+      await fetchTokens();
+      return true;
+    } catch (error: any) {
+      errorMessage.value = error.message || "禁用 Token 失败";
+      return false;
+    } finally {
+      loading.value = false;
+    }
+  };
+
+  const enableToken = async (id: number): Promise<boolean> => {
+    loading.value = true;
+    errorMessage.value = "";
+    successMessage.value = "";
+
+    try {
+      await UserTokensAPI.enableToken(id);
+      successMessage.value = "Token 已启用";
+      await fetchTokens();
+      return true;
+    } catch (error: any) {
+      errorMessage.value = error.message || "启用 Token 失败";
       return false;
     } finally {
       loading.value = false;
@@ -72,7 +108,9 @@ export function useTokens() {
     successMessage,
     fetchTokens,
     createToken,
-    revokeToken,
+    deleteToken,
+    disableToken,
+    enableToken,
     clearMessages,
   };
 }

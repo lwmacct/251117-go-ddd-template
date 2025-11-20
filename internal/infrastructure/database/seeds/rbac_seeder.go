@@ -80,7 +80,9 @@ func (s *RBACSeeder) seedPermissions(ctx context.Context, db *gorm.DB) error {
 		// User domain - Token management
 		{Domain: "user", Resource: "tokens", Action: "create", Code: "user:tokens:create", Description: "Create personal access tokens"},
 		{Domain: "user", Resource: "tokens", Action: "read", Code: "user:tokens:read", Description: "List own tokens"},
-		{Domain: "user", Resource: "tokens", Action: "delete", Code: "user:tokens:delete", Description: "Revoke own tokens"},
+		{Domain: "user", Resource: "tokens", Action: "update", Code: "user:tokens:disable", Description: "Disable own tokens"},
+		{Domain: "user", Resource: "tokens", Action: "update", Code: "user:tokens:enable", Description: "Enable own tokens"},
+		{Domain: "user", Resource: "tokens", Action: "delete", Code: "user:tokens:delete", Description: "Delete own tokens"},
 
 		// API domain - Cache management (example for API endpoints)
 		{Domain: "api", Resource: "cache", Action: "read", Code: "api:cache:read", Description: "Read cache data"},

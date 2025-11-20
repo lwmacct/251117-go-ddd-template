@@ -10,7 +10,7 @@ import type { PersonalAccessToken, CreateTokenRequest, CreateTokenResponse } fro
  */
 export const listTokens = async (): Promise<PersonalAccessToken[]> => {
   try {
-    const { data } = await apiClient.get<ApiResponse<PersonalAccessToken[]>>("/user/tokens");
+    const { data } = await apiClient.get<ApiResponse<PersonalAccessToken[]>>("/api/user/tokens");
 
     if (data.data) {
       return data.data;
@@ -27,7 +27,7 @@ export const listTokens = async (): Promise<PersonalAccessToken[]> => {
  */
 export const getToken = async (id: number): Promise<PersonalAccessToken> => {
   try {
-    const { data } = await apiClient.get<ApiResponse<PersonalAccessToken>>(`/user/tokens/${id}`);
+    const { data } = await apiClient.get<ApiResponse<PersonalAccessToken>>(`/api/user/tokens/${id}`);
 
     if (data.data) {
       return data.data;
@@ -44,7 +44,7 @@ export const getToken = async (id: number): Promise<PersonalAccessToken> => {
  */
 export const createToken = async (params: CreateTokenRequest): Promise<CreateTokenResponse> => {
   try {
-    const { data } = await apiClient.post<ApiResponse<CreateTokenResponse>>("/user/tokens", params);
+    const { data } = await apiClient.post<ApiResponse<CreateTokenResponse>>("/api/user/tokens", params);
 
     if (data.data) {
       return data.data;
@@ -57,12 +57,34 @@ export const createToken = async (params: CreateTokenRequest): Promise<CreateTok
 };
 
 /**
- * 撤销 Token
+ * 删除 Token
  */
-export const revokeToken = async (id: number): Promise<void> => {
+export const deleteToken = async (id: number): Promise<void> => {
   try {
-    await apiClient.delete(`/user/tokens/${id}`);
+    await apiClient.delete(`/api/user/tokens/${id}`);
   } catch (error: any) {
-    throw new Error(error.response?.data?.error || error.message || "撤销 Token 失败");
+    throw new Error(error.response?.data?.error || error.message || "删除 Token 失败");
+  }
+};
+
+/**
+ * 禁用 Token
+ */
+export const disableToken = async (id: number): Promise<void> => {
+  try {
+    await apiClient.patch(`/api/user/tokens/${id}/disable`);
+  } catch (error: any) {
+    throw new Error(error.response?.data?.error || error.message || "禁用 Token 失败");
+  }
+};
+
+/**
+ * 启用 Token
+ */
+export const enableToken = async (id: number): Promise<void> => {
+  try {
+    await apiClient.patch(`/api/user/tokens/${id}/enable`);
+  } catch (error: any) {
+    throw new Error(error.response?.data?.error || error.message || "启用 Token 失败");
   }
 };

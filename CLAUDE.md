@@ -6,7 +6,7 @@
 
 ## 🏗️ 核心架构
 
-### DDD 四层架构 + CQRS
+### 🔷 DDD 四层架构 + CQRS
 
 ```
 internal/
@@ -25,7 +25,7 @@ internal/
 - CommandRepository：写操作（Create, Update, Delete）
 - QueryRepository：读操作（Get, List, Search, Count）
 
-### 各层职责
+### 📦 各层职责
 
 **1. Domain 层**（不依赖任何外层）
 
@@ -106,9 +106,9 @@ internal/adapters/http/handler/
 
 ## 💻 添加新功能
 
-### 标准开发流程（Use Case 模式）
+### 🔄 标准开发流程（Use Case 模式）
 
-#### 1. Domain 层定义
+#### 1️⃣ Domain 层定义
 
 ```go
 // internal/domain/xxx/entity_xxx.go
@@ -147,7 +147,7 @@ var ErrXxxNotFound = errors.New("xxx not found")
 type XxxValueObject struct { ... }
 ```
 
-#### 2. Infrastructure 层实现
+#### 2️⃣ Infrastructure 层实现
 
 **所有 Repository 实现统一在 `internal/infrastructure/persistence/` 目录，并通过 Model 进行映射**
 
@@ -220,7 +220,7 @@ func (s *authService) VerifyPassword(hashedPassword, password string) error { ..
 func (s *authService) GenerateToken(userID uint) (string, error) { ... }
 ```
 
-#### 3. Application 层创建 Use Case
+#### 3️⃣ Application 层创建 Use Case
 
 **目录结构**：
 
@@ -359,7 +359,7 @@ func ToXxxResponse(entity *xxx.Xxx) *XxxResponse {
 }
 ```
 
-#### 4. Adapters 层创建 HTTP Handler
+#### 4️⃣ Adapters 层创建 HTTP Handler
 
 **文件位置**：`internal/adapters/http/handler/xxx.go`（使用单数命名）
 
@@ -402,7 +402,7 @@ func (h *XxxHandler) Delete(c *gin.Context) {
 }
 ```
 
-#### 4. Bootstrap 注册依赖
+#### 5️⃣ Bootstrap 注册依赖
 
 **在 `internal/bootstrap/container.go` 中按顺序注册**：
 
@@ -489,6 +489,8 @@ func NewContainer(cfg *config.Config) (*Container, error) {
 
 ## 📚 项目文档
 
+- `internal/adapters/http/docs/`：Swagger API 文档, 不需要修改，自动生成
+
 **VitePress 文档系统**（位于 `docs/` 目录）：
 
 - 文档索引：`docs/.vitepress/config.ts`（定义所有可用文档页面）
@@ -508,7 +510,7 @@ func NewContainer(cfg *config.Config) (*Container, error) {
 
 ## 🎯 常见任务
 
-### 添加新的 Command（写操作）
+### ✍️ 添加新的 Command（写操作）
 
 1. Domain: 定义 `CommandRepository` 接口方法
 2. Infrastructure: 实现该方法（GORM）
@@ -516,7 +518,7 @@ func NewContainer(cfg *config.Config) (*Container, error) {
 4. Adapters: HTTP Handler 调用 Use Case Handler
 5. Bootstrap: 注册 Handler
 
-### 添加新的 Query（读操作）
+### 🔍 添加新的 Query（读操作）
 
 1. Domain: 定义 `QueryRepository` 接口方法
 2. Infrastructure: 实现该方法（GORM，可优化为 Redis）
@@ -524,7 +526,7 @@ func NewContainer(cfg *config.Config) (*Container, error) {
 4. Adapters: HTTP Handler 调用 Query Handler
 5. Bootstrap: 注册 Handler
 
-### 添加 Domain Service（领域能力）
+### 🔧 添加 Domain Service（领域能力）
 
 1. Domain: 定义 `Service` 接口（如 `auth.Service`）
 2. Infrastructure: 实现接口（技术实现，如 BCrypt、JWT）
@@ -539,15 +541,22 @@ func NewContainer(cfg *config.Config) (*Container, error) {
 - ❌ Command 和 Query Repository 混用，或复用旧的 `repository.go`
 - ❌ 跳过 Use Case，直接从 Handler 或 Infra 操作数据库
 
-## 开发环境
-
-- 当前系统环境为 ubuntu 22.04, 你可以使用 apt 安装任意软件包来完成工作
-- 你可以使用常用工具如 `rg fd tree psql` 等来辅助你完成任务
-- 在完成每一个任务后进行 git commit 来提交工作报告
-- 环境中可能有多个 AI Agent 在工作，git commit 时不必在意其他被修改的文件
-
-## 测试说明
+## 🧪 测试方法
 
 - 目录 `testing` 是测试专用目录, 存放 python 脚本
 - 必须使用 `uv` 命令来运行测试脚本 python, 这是正确使用 python 环境的唯一方式
 - 例如: `uv run testing/api_auth_login.py`
+
+## 🛠️ 开发约定
+
+### 💡 环境说明
+
+- 当前系统环境为 ubuntu 22.04, 你可以使用 apt 安装任意软件包来完成工作
+- 你可以使用常用工具如 `rg fd perl tree psql redis-cli` 来辅助完成任务
+
+### 📝 Git 提交约定
+
+- 本项目使用 [pre-commit](https://pre-commit.com/) 框架 (已安装在环境中)
+- 在完成每一个任务后进行 git commit 来提交工作报告, 如果 pre-commit 检查失败, 请继续修改直到通过
+- 环境中可能有多个 AI Agent 在工作，git commit 时不必在意其他被修改的文件
+- 如果你需要跳过检查 (与当前任务不相关的错误)，可以使用 `git commit --no-verify`

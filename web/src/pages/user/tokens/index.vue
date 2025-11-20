@@ -5,14 +5,14 @@ import TokenDialog from "./components/TokenDialog.vue";
 import TokenDisplay from "./components/TokenDisplay.vue";
 import type { CreateTokenRequest } from "@/types/user";
 
-const { tokens, loading, errorMessage, successMessage, fetchTokens, createToken, revokeToken, clearMessages } = useTokens();
+const { tokens, loading, errorMessage, successMessage, fetchTokens, createToken, deleteToken, disableToken, enableToken, clearMessages } = useTokens();
 
 const tokenDialog = ref(false);
 const tokenDisplayDialog = ref(false);
-const revokeDialog = ref(false);
+const deleteDialog = ref(false);
 const newToken = ref("");
 const newTokenName = ref("");
-const tokenToRevoke = ref<number | null>(null);
+const tokenToOperate = ref<number | null>(null);
 
 const headers = [
   { title: "ID", key: "id", sortable: true },
@@ -42,19 +42,27 @@ const handleCreateToken = async (data: CreateTokenRequest) => {
   }
 };
 
-const openRevokeDialog = (tokenId: number) => {
-  tokenToRevoke.value = tokenId;
-  revokeDialog.value = true;
+const openDeleteDialog = (tokenId: number) => {
+  tokenToOperate.value = tokenId;
+  deleteDialog.value = true;
 };
 
-const confirmRevoke = async () => {
-  if (tokenToRevoke.value === null) return;
+const confirmDelete = async () => {
+  if (tokenToOperate.value === null) return;
 
-  const success = await revokeToken(tokenToRevoke.value);
+  const success = await deleteToken(tokenToOperate.value);
   if (success) {
-    revokeDialog.value = false;
-    tokenToRevoke.value = null;
+    deleteDialog.value = false;
+    tokenToOperate.value = null;
   }
+};
+
+const handleDisable = async (tokenId: number) => {
+  await disableToken(tokenId);
+};
+
+const handleEnable = async (tokenId: number) => {
+  await enableToken(tokenId);
 };
 
 const formatDate = (dateString?: string) => {
@@ -71,7 +79,7 @@ const formatDate = (dateString?: string) => {
 const getStatusColor = (status: string) => {
   const colors: Record<string, string> = {
     active: "success",
-    revoked: "error",
+    disabled: "warning",
     expired: "warning",
   };
   return colors[status] || "default";
@@ -80,7 +88,7 @@ const getStatusColor = (status: string) => {
 const getStatusText = (status: string) => {
   const texts: Record<string, string> = {
     active: "正常",
-    revoked: "已撤销",
+    disabled: "已禁用",
     expired: "已过期",
   };
   return texts[status] || status;
@@ -155,11 +163,23 @@ const isTokenExpired = (expiresAt?: string) => {
               </template>
 
               <template #item.actions="{ item }">
-                <v-tooltip text="撤销">
-                  <template #activator="{ props }">
-                    <v-btn icon="mdi-delete" size="small" variant="text" color="error" v-bind="props" :disabled="item.status !== 'active'" @click="openRevokeDialog(item.id)"></v-btn>
-                  </template>
-                </v-tooltip>
+                <div class="d-flex align-center ga-2">
+                  <v-tooltip v-if="item.status === 'active'" text="禁用">
+                    <template #activator="{ props }">
+                      <v-btn icon="mdi-pause-circle" size="small" variant="text" color="warning" v-bind="props" @click="handleDisable(item.id)"></v-btn>
+                    </template>
+                  </v-tooltip>
+                  <v-tooltip v-else-if="item.status === 'disabled'" text="启用">
+                    <template #activator="{ props }">
+                      <v-btn icon="mdi-play-circle" size="small" variant="text" color="success" v-bind="props" @click="handleEnable(item.id)"></v-btn>
+                    </template>
+                  </v-tooltip>
+                  <v-tooltip text="删除">
+                    <template #activator="{ props }">
+                      <v-btn icon="mdi-delete" size="small" variant="text" color="error" v-bind="props" @click="openDeleteDialog(item.id)"></v-btn>
+                    </template>
+                  </v-tooltip>
+                </div>
               </template>
             </v-data-table>
           </v-card-text>
@@ -171,14 +191,14 @@ const isTokenExpired = (expiresAt?: string) => {
 
     <TokenDisplay v-model="tokenDisplayDialog" :token="newToken" :token-name="newTokenName" />
 
-    <v-dialog v-model="revokeDialog" max-width="400">
+    <v-dialog v-model="deleteDialog" max-width="400">
       <v-card>
-        <v-card-title class="text-h5">确认撤销</v-card-title>
-        <v-card-text> 确定要撤销此 Token 吗？撤销后将无法恢复，使用此 Token 的 API 请求将失败。 </v-card-text>
+        <v-card-title class="text-h5">确认删除</v-card-title>
+        <v-card-text> 确定要删除此 Token 吗？删除后将无法恢复，使用此 Token 的 API 请求将失败。 </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn variant="text" @click="revokeDialog = false">取消</v-btn>
-          <v-btn color="error" variant="elevated" @click="confirmRevoke" :loading="loading">撤销</v-btn>
+          <v-btn variant="text" @click="deleteDialog = false">取消</v-btn>
+          <v-btn color="error" variant="elevated" @click="confirmDelete" :loading="loading">删除</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>

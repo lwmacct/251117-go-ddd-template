@@ -256,15 +256,26 @@ definitions:
     type: object
   pat.CreateTokenRequest:
     properties:
+      description:
+        description: 可选，备注
+        type: string
       expires_at:
-        description: 可选，Unix 时间戳（秒），不设置则永不过期
+        description: 可选，过期时间（RFC3339 或 yyyy-MM-ddTHH:mm）
+        type: string
+      expires_in:
+        description: 可选，以天为单位的有效期（兜底，前端未使用时可忽略）
         type: integer
+      ip_whitelist:
+        description: 可选，IP 白名单
+        items:
+          type: string
+        type: array
       name:
         maxLength: 100
         minLength: 3
         type: string
       permissions:
-        description: 可选，限制令牌权限范围
+        description: 可选，限制令牌权限范围（为空则默认用户全部权限）
         items:
           type: string
         type: array
@@ -2442,198 +2453,6 @@ paths:
       - 用户 - 个人资料 (User - Profile)
       x-permission:
         scope: user:profile:update
-  /api/user/pats:
-    get:
-      consumes:
-      - application/json
-      description: 获取当前用户的所有个人访问令牌（不包含令牌值）
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 令牌列表
-          schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                count:
-                  type: integer
-                data:
-                  items:
-                    properties:
-                      created_at:
-                        type: string
-                      expires_at:
-                        type: string
-                      id:
-                        type: integer
-                      last_used_at:
-                        type: string
-                      name:
-                        type: string
-                    type: object
-                  type: array
-              type: object
-        "401":
-          description: 未授权
-          schema:
-            $ref: '#/definitions/response.ErrorResponse'
-        "500":
-          description: 服务器内部错误
-          schema:
-            $ref: '#/definitions/response.ErrorResponse'
-      security:
-      - BearerAuth: []
-      summary: 获取个人访问令牌列表
-      tags:
-      - 用户 - 个人访问令牌 (User - Personal Access Token)
-      x-permission:
-        scope: user:pats:read
-    post:
-      consumes:
-      - application/json
-      description: 用户创建新的个人访问令牌(PAT)，用于API访问。令牌仅在创建时显示一次
-      parameters:
-      - description: 令牌信息
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/pat.CreateTokenRequest'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: 令牌创建成功
-          schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  properties:
-                    expires_at:
-                      type: string
-                    id:
-                      type: integer
-                    name:
-                      type: string
-                    token:
-                      type: string
-                  type: object
-                warning:
-                  type: string
-              type: object
-        "400":
-          description: 参数错误
-          schema:
-            $ref: '#/definitions/response.ErrorResponse'
-        "401":
-          description: 未授权
-          schema:
-            $ref: '#/definitions/response.ErrorResponse'
-      security:
-      - BearerAuth: []
-      summary: 创建个人访问令牌
-      tags:
-      - 用户 - 个人访问令牌 (User - Personal Access Token)
-      x-permission:
-        scope: user:pats:create
-  /api/user/pats/{id}:
-    delete:
-      consumes:
-      - application/json
-      description: 用户撤销（删除）指定的个人访问令牌
-      parameters:
-      - description: 令牌ID
-        in: path
-        minimum: 1
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 令牌撤销成功
-          schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                message:
-                  type: string
-              type: object
-        "400":
-          description: 无效的令牌ID
-          schema:
-            $ref: '#/definitions/response.ErrorResponse'
-        "401":
-          description: 未授权
-          schema:
-            $ref: '#/definitions/response.ErrorResponse'
-        "404":
-          description: 令牌不存在
-          schema:
-            $ref: '#/definitions/response.ErrorResponse'
-      security:
-      - BearerAuth: []
-      summary: 撤销个人访问令牌
-      tags:
-      - 用户 - 个人访问令牌 (User - Personal Access Token)
-      x-permission:
-        scope: user:pats:delete
-    get:
-      consumes:
-      - application/json
-      description: 获取指定个人访问令牌的详细信息（不包含令牌值）
-      parameters:
-      - description: 令牌ID
-        in: path
-        minimum: 1
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 令牌详情
-          schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  properties:
-                    created_at:
-                      type: string
-                    expires_at:
-                      type: string
-                    id:
-                      type: integer
-                    last_used_at:
-                      type: string
-                    name:
-                      type: string
-                  type: object
-              type: object
-        "400":
-          description: 无效的令牌ID
-          schema:
-            $ref: '#/definitions/response.ErrorResponse'
-        "401":
-          description: 未授权
-          schema:
-            $ref: '#/definitions/response.ErrorResponse'
-        "404":
-          description: 令牌不存在
-          schema:
-            $ref: '#/definitions/response.ErrorResponse'
-      security:
-      - BearerAuth: []
-      summary: 获取个人访问令牌详情
-      tags:
-      - 用户 - 个人访问令牌 (User - Personal Access Token)
-      x-permission:
-        scope: user:pats:read
   /api/user/profile:
     get:
       consumes:
@@ -2713,6 +2532,276 @@ paths:
       - 用户 - 个人资料 (User - Profile)
       x-permission:
         scope: user:profile:update
+  /api/user/tokens:
+    get:
+      consumes:
+      - application/json
+      description: 获取当前用户的所有个人访问令牌（不包含令牌值）
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 令牌列表
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                count:
+                  type: integer
+                data:
+                  items:
+                    properties:
+                      created_at:
+                        type: string
+                      expires_at:
+                        type: string
+                      id:
+                        type: integer
+                      last_used_at:
+                        type: string
+                      name:
+                        type: string
+                    type: object
+                  type: array
+              type: object
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 获取个人访问令牌列表
+      tags:
+      - 用户 - 个人访问令牌 (User - Personal Access Token)
+      x-permission:
+        scope: user:tokens:read
+    post:
+      consumes:
+      - application/json
+      description: 用户创建新的个人访问令牌(PAT)，用于API访问。令牌仅在创建时显示一次
+      parameters:
+      - description: 令牌信息
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/pat.CreateTokenRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: 令牌创建成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  properties:
+                    expires_at:
+                      type: string
+                    id:
+                      type: integer
+                    name:
+                      type: string
+                    token:
+                      type: string
+                  type: object
+                warning:
+                  type: string
+              type: object
+        "400":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 创建个人访问令牌
+      tags:
+      - 用户 - 个人访问令牌 (User - Personal Access Token)
+      x-permission:
+        scope: user:tokens:create
+  /api/user/tokens/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: 用户删除指定的个人访问令牌（不可恢复）
+      parameters:
+      - description: 令牌ID
+        in: path
+        minimum: 1
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 令牌删除成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                message:
+                  type: string
+              type: object
+        "400":
+          description: 无效的令牌ID
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: 令牌不存在
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 删除个人访问令牌
+      tags:
+      - 用户 - 个人访问令牌 (User - Personal Access Token)
+      x-permission:
+        scope: user:tokens:delete
+    get:
+      consumes:
+      - application/json
+      description: 获取指定个人访问令牌的详细信息（不包含令牌值）
+      parameters:
+      - description: 令牌ID
+        in: path
+        minimum: 1
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 令牌详情
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  properties:
+                    created_at:
+                      type: string
+                    expires_at:
+                      type: string
+                    id:
+                      type: integer
+                    last_used_at:
+                      type: string
+                    name:
+                      type: string
+                  type: object
+              type: object
+        "400":
+          description: 无效的令牌ID
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: 令牌不存在
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 获取个人访问令牌详情
+      tags:
+      - 用户 - 个人访问令牌 (User - Personal Access Token)
+      x-permission:
+        scope: user:tokens:read
+  /api/user/tokens/{id}/disable:
+    patch:
+      consumes:
+      - application/json
+      description: 暂停指定令牌的使用（可再次启用）
+      parameters:
+      - description: 令牌ID
+        in: path
+        minimum: 1
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 令牌已禁用
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                message:
+                  type: string
+              type: object
+        "400":
+          description: 无效的令牌ID
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 禁用个人访问令牌
+      tags:
+      - 用户 - 个人访问令牌 (User - Personal Access Token)
+      x-permission:
+        scope: user:tokens:disable
+  /api/user/tokens/{id}/enable:
+    patch:
+      consumes:
+      - application/json
+      description: 重新启用已禁用的令牌
+      parameters:
+      - description: 令牌ID
+        in: path
+        minimum: 1
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 令牌已启用
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                message:
+                  type: string
+              type: object
+        "400":
+          description: 无效的令牌ID
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 启用个人访问令牌
+      tags:
+      - 用户 - 个人访问令牌 (User - Personal Access Token)
+      x-permission:
+        scope: user:tokens:enable
 securityDefinitions:
   BearerAuth:
     description: 'Bearer token authentication. Format: "Bearer {token}"'
