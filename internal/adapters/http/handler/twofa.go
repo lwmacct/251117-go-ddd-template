@@ -3,6 +3,7 @@ package handler
 import (
 	"github.com/gin-gonic/gin"
 
+	"github.com/lwmacct/251117-go-ddd-template/internal/adapters/http/response"
 	twofaService "github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/twofa"
 )
 
@@ -34,23 +35,18 @@ func NewTwoFAHandler(twofaService *twofaService.Service) *TwoFAHandler {
 func (h *TwoFAHandler) Setup(c *gin.Context) {
 	ctx := c.Request.Context()
 
-	// 从 JWT 中间件获取用户ID
-	userID, exists := c.Get("user_id")
-	if !exists {
-		c.JSON(401, gin.H{"error": "unauthorized"})
+	userID, ok := getUserID(c)
+	if !ok {
 		return
 	}
 
-	result, err := h.twofaService.Setup(ctx, userID.(uint))
+	result, err := h.twofaService.Setup(ctx, userID)
 	if err != nil {
-		c.JSON(400, gin.H{"error": err.Error()})
+		response.BadRequest(c, err.Error())
 		return
 	}
 
-	c.JSON(200, gin.H{
-		"message": "2FA setup initiated",
-		"data":    result,
-	})
+	response.OK(c, "2FA setup initiated", result)
 }
 
 // VerifyAndEnableRequest 验证并启用 2FA 请求
@@ -75,31 +71,26 @@ type VerifyAndEnableRequest struct {
 func (h *TwoFAHandler) VerifyAndEnable(c *gin.Context) {
 	ctx := c.Request.Context()
 
-	// 从 JWT 中间件获取用户ID
-	userID, exists := c.Get("user_id")
-	if !exists {
-		c.JSON(401, gin.H{"error": "unauthorized"})
+	userID, ok := getUserID(c)
+	if !ok {
 		return
 	}
 
 	var req VerifyAndEnableRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(400, gin.H{"error": "invalid request: " + err.Error()})
+		response.ValidationError(c, err.Error())
 		return
 	}
 
-	recoveryCodes, err := h.twofaService.VerifyAndEnable(ctx, userID.(uint), req.Code)
+	recoveryCodes, err := h.twofaService.VerifyAndEnable(ctx, userID, req.Code)
 	if err != nil {
-		c.JSON(400, gin.H{"error": err.Error()})
+		response.BadRequest(c, err.Error())
 		return
 	}
 
-	c.JSON(200, gin.H{
-		"message": "2FA enabled successfully",
-		"data": gin.H{
-			"recovery_codes": recoveryCodes,
-			"message":        "Please save these recovery codes in a safe place. You won't be able to see them again.",
-		},
+	response.OK(c, "2FA enabled successfully", gin.H{
+		"recovery_codes": recoveryCodes,
+		"message":        "Please save these recovery codes in a safe place. You won't be able to see them again.",
 	})
 }
 
@@ -119,21 +110,17 @@ func (h *TwoFAHandler) VerifyAndEnable(c *gin.Context) {
 func (h *TwoFAHandler) Disable(c *gin.Context) {
 	ctx := c.Request.Context()
 
-	// 从 JWT 中间件获取用户ID
-	userID, exists := c.Get("user_id")
-	if !exists {
-		c.JSON(401, gin.H{"error": "unauthorized"})
+	userID, ok := getUserID(c)
+	if !ok {
 		return
 	}
 
-	if err := h.twofaService.Disable(ctx, userID.(uint)); err != nil {
-		c.JSON(400, gin.H{"error": err.Error()})
+	if err := h.twofaService.Disable(ctx, userID); err != nil {
+		response.BadRequest(c, err.Error())
 		return
 	}
 
-	c.JSON(200, gin.H{
-		"message": "2FA disabled successfully",
-	})
+	response.OK(c, "2FA disabled successfully", nil)
 }
 
 // GetStatus 获取 2FA 状态
@@ -152,24 +139,36 @@ func (h *TwoFAHandler) Disable(c *gin.Context) {
 func (h *TwoFAHandler) GetStatus(c *gin.Context) {
 	ctx := c.Request.Context()
 
-	// 从 JWT 中间件获取用户ID
+	userID, ok := getUserID(c)
+	if !ok {
+		return
+	}
+
+	enabled, recoveryCodesCount, err := h.twofaService.GetStatus(ctx, userID)
+	if err != nil {
+		response.BadRequest(c, err.Error())
+		return
+	}
+
+	response.OK(c, "success", gin.H{
+		"enabled":              enabled,
+		"recovery_codes_count": recoveryCodesCount,
+	})
+}
+
+// getUserID 从上下文获取用户ID，并输出统一未认证响应
+func getUserID(c *gin.Context) (uint, bool) {
 	userID, exists := c.Get("user_id")
 	if !exists {
-		c.JSON(401, gin.H{"error": "unauthorized"})
-		return
+		response.Unauthorized(c, "Authentication required")
+		return 0, false
 	}
 
-	enabled, recoveryCodesCount, err := h.twofaService.GetStatus(ctx, userID.(uint))
-	if err != nil {
-		c.JSON(400, gin.H{"error": err.Error()})
-		return
+	id, ok := userID.(uint)
+	if !ok {
+		response.Unauthorized(c, "Invalid user context")
+		return 0, false
 	}
 
-	c.JSON(200, gin.H{
-		"message": "success",
-		"data": gin.H{
-			"enabled":              enabled,
-			"recovery_codes_count": recoveryCodesCount,
-		},
-	})
+	return id, true
 }

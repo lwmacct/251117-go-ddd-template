@@ -149,8 +149,9 @@ export function useSettings() {
       // 更新本地缓存
       updates.forEach((update) => {
         const index = settings.value.findIndex((s) => s.key === update.key);
-        if (index !== -1) {
-          settings.value[index].value = typeof update.value === "object" ? JSON.stringify(update.value) : String(update.value);
+        const current = index !== -1 ? settings.value[index] : undefined;
+        if (current) {
+          current.value = typeof update.value === "object" ? JSON.stringify(update.value) : String(update.value);
         }
       });
 

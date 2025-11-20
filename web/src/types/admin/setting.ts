@@ -3,27 +3,36 @@
  */
 
 /** 设置项类型 */
-export type SettingType = "string" | "int" | "bool" | "json";
+export type SettingType = "string" | "number" | "boolean" | "json";
 
 /** 设置项 */
 export interface Setting {
   key: string;
   value: string;
-  type: SettingType;
-  description?: string;
-  group?: string; // general, security, notification, backup
+  category: string;
+  value_type: SettingType;
+  label?: string;
   created_at?: string;
   updated_at?: string;
 }
 
-/** 设置分组 */
-export interface SettingGroup {
-  group: string;
-  label: string;
-  settings: Setting[];
+/** 创建设置请求 */
+export interface CreateSettingRequest {
+  key: string;
+  value: string;
+  category: string;
+  value_type?: SettingType;
+  label?: string;
 }
 
-/** 更新设置请求 */
+/** 更新单个设置请求 */
+export interface UpdateSettingRequest {
+  value: string;
+  value_type?: SettingType;
+  label?: string;
+}
+
+/** 批量更新设置请求 */
 export interface UpdateSettingsRequest {
   settings: Array<{
     key: string;

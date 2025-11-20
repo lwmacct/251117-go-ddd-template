@@ -14,7 +14,7 @@ export function useTwoFactor() {
   const loading = ref(false);
   const enabled = ref(false);
   const recoveryCodesCount = ref(0);
-  const showSetupDialog = ref(false);
+  const showSetupDialog = ref(false); // 保留以兼容旧弹窗逻辑，当前流程使用页内步骤
   const showDisableDialog = ref(false);
 
   // 设置 2FA 相关状态
@@ -22,7 +22,7 @@ export function useTwoFactor() {
   const secret = ref("");
   const verifyCode = ref("");
   const recoveryCodes = ref<string[]>([]);
-  const setupStep = ref<"qrcode" | "verify" | "codes">("qrcode");
+  const setupStep = ref<"status" | "setup" | "verify" | "codes">("status");
 
   // 消息状态
   const errorMessage = ref("");
@@ -36,10 +36,13 @@ export function useTwoFactor() {
   async function fetchStatus() {
     try {
       loading.value = true;
+      errorMessage.value = "";
       const response = await AuthAPI.get2FAStatus();
       if (response.code === 200 && response.data) {
         enabled.value = response.data.enabled;
         recoveryCodesCount.value = response.data.recovery_codes_count;
+      } else {
+        throw new Error(response.message || "获取 2FA 状态失败");
       }
     } catch (error: any) {
       console.error("获取 2FA 状态失败:", error);
@@ -56,13 +59,20 @@ export function useTwoFactor() {
     try {
       loading.value = true;
       errorMessage.value = "";
+      successMessage.value = "";
+      verifyCode.value = "";
+      recoveryCodes.value = [];
+      setupStep.value = "setup";
 
       const response = await AuthAPI.setup2FA();
       if (response.code === 200 && response.data) {
         qrcodeImage.value = response.data.qrcode_img;
         secret.value = response.data.secret;
-        setupStep.value = "qrcode";
+        setupStep.value = "setup";
         showSetupDialog.value = true;
+        successMessage.value = response.message || "2FA 密钥已生成";
+      } else {
+        throw new Error(response.message || "设置 2FA 失败");
       }
     } catch (error: any) {
       errorMessage.value = error.message || "设置 2FA 失败";
@@ -86,12 +96,14 @@ export function useTwoFactor() {
 
       const response = await AuthAPI.enable2FA(verifyCode.value);
       if (response.code === 200 && response.data) {
-        recoveryCodes.value = response.data.recovery_codes;
+        recoveryCodes.value = response.data.recovery_codes || [];
         setupStep.value = "codes";
-        successMessage.value = "2FA 已成功启用！";
+        successMessage.value = response.message || "2FA 已成功启用！";
 
         // 更新状态
         await fetchStatus();
+      } else {
+        throw new Error(response.message || "验证失败");
       }
     } catch (error: any) {
       errorMessage.value = error.message || "验证失败";
@@ -110,11 +122,13 @@ export function useTwoFactor() {
 
       const response = await AuthAPI.disable2FA();
       if (response.code === 200) {
-        successMessage.value = "2FA 已成功禁用";
+        successMessage.value = response.message || "2FA 已成功禁用";
         showDisableDialog.value = false;
 
         // 更新状态
         await fetchStatus();
+      } else {
+        throw new Error(response.message || "禁用 2FA 失败");
       }
     } catch (error: any) {
       errorMessage.value = error.message || "禁用 2FA 失败";
@@ -130,7 +144,7 @@ export function useTwoFactor() {
    */
   function closeSetupDialog() {
     showSetupDialog.value = false;
-    setupStep.value = "qrcode";
+    setupStep.value = "status";
     verifyCode.value = "";
     qrcodeImage.value = "";
     secret.value = "";

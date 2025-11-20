@@ -56,7 +56,7 @@ func (s *Service) Setup(ctx context.Context, userID uint) (*SetupResponse, error
 	key, err := totp.Generate(totp.GenerateOpts{
 		Issuer:      s.issuer,
 		AccountName: u.Username, // 使用用户名
-		SecretSize:  20,         // 20 字节（160 位），Base32 编码后 32 个字符
+		SecretSize:  10,         // 10 字节（80 位），更短的 Base32 密钥，便于手动输入
 	})
 	if err != nil {
 		return nil, fmt.Errorf("failed to generate TOTP key: %w", err)

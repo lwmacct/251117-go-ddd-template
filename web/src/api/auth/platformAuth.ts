@@ -7,6 +7,14 @@ import { apiClient } from "./client";
 import type { LoginRequest, RegisterRequest, CaptchaData } from "@/types/auth";
 import type { ApiResponse } from "@/types/response";
 
+const getErrorMessage = (error: any, fallback: string) => {
+  const messageFromResponse = error?.response?.data?.message || error?.response?.data?.error?.message || error?.response?.data?.error;
+  if (messageFromResponse) {
+    return typeof messageFromResponse === "string" ? messageFromResponse : fallback;
+  }
+  return fallback;
+};
+
 /**
  * 认证 API
  * 提供完整的认证功能：登录、注册、验证码、2FA 等
@@ -96,7 +104,7 @@ export class AuthAPI {
       });
       return data;
     } catch (error: any) {
-      throw new Error(error.response?.data?.error || "2FA 验证失败");
+      throw new Error(getErrorMessage(error, "2FA 验证失败"));
     }
   }
 
@@ -120,7 +128,7 @@ export class AuthAPI {
       >("/api/auth/2fa/setup");
       return data;
     } catch (error: any) {
-      throw new Error(error.response?.data?.error || "设置 2FA 失败");
+      throw new Error(getErrorMessage(error, "设置 2FA 失败"));
     }
   }
 
@@ -142,7 +150,7 @@ export class AuthAPI {
       >("/api/auth/2fa/verify", { code });
       return data;
     } catch (error: any) {
-      throw new Error(error.response?.data?.error || "启用 2FA 失败");
+      throw new Error(getErrorMessage(error, "启用 2FA 失败"));
     }
   }
 
@@ -154,7 +162,7 @@ export class AuthAPI {
       const { data } = await apiClient.post<ApiResponse<any>>("/api/auth/2fa/disable");
       return data;
     } catch (error: any) {
-      throw new Error(error.response?.data?.error || "禁用 2FA 失败");
+      throw new Error(getErrorMessage(error, "禁用 2FA 失败"));
     }
   }
 
@@ -176,7 +184,7 @@ export class AuthAPI {
       >("/api/auth/2fa/status");
       return data;
     } catch (error: any) {
-      throw new Error(error.response?.data?.error || "获取 2FA 状态失败");
+      throw new Error(getErrorMessage(error, "获取 2FA 状态失败"));
     }
   }
 }
