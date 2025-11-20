@@ -2857,7 +2857,7 @@ const docTemplate = `{
         },
         "/api/auth/login": {
             "post": {
-                "description": "使用用户名/邮箱和密码登录系统，需要提供图形验证码。如果启用了2FA，返回session_token用于后续2FA验证",
+                "description": "使用手机号/用户名/邮箱和密码登录系统，需要提供图形验证码。如果启用了2FA，返回session_token用于后续2FA验证",
                 "consumes": [
                     "application/json"
                 ],
@@ -3917,12 +3917,17 @@ const docTemplate = `{
         "handler.LoginRequest": {
             "type": "object",
             "required": [
+                "account",
                 "captcha",
                 "captcha_id",
-                "login",
                 "password"
             ],
             "properties": {
+                "account": {
+                    "description": "手机号/用户名/邮箱",
+                    "type": "string",
+                    "example": "admin"
+                },
                 "captcha": {
                     "description": "验证码",
                     "type": "string",
@@ -3932,11 +3937,6 @@ const docTemplate = `{
                     "description": "验证码ID",
                     "type": "string",
                     "example": "dev-123456"
-                },
-                "login": {
-                    "description": "用户名或邮箱",
-                    "type": "string",
-                    "example": "admin"
                 },
                 "password": {
                     "description": "密码",
@@ -4156,11 +4156,11 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "code": {
-                    "description": "业务错误码",
+                    "description": "业务错误码（小写下划线）",
                     "type": "string"
                 },
                 "details": {
-                    "description": "额外详情 (如验证错误列表)"
+                    "description": "额外详情（如验证错误列表）"
                 },
                 "message": {
                     "description": "错误消息",
@@ -4205,10 +4205,10 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "data": {
-                    "description": "响应数据"
+                    "description": "数据"
                 },
                 "message": {
-                    "description": "成功消息",
+                    "description": "消息",
                     "type": "string"
                 }
             }

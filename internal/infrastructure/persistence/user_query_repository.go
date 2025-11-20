@@ -154,6 +154,19 @@ func (r *userQueryRepository) Search(ctx context.Context, keyword string, offset
 	return mapUserModelsToEntities(models), nil
 }
 
+// CountBySearch 统计搜索结果数量
+func (r *userQueryRepository) CountBySearch(ctx context.Context, keyword string) (int64, error) {
+	var count int64
+	if err := r.db.WithContext(ctx).
+		Model(&UserModel{}).
+		Where("username LIKE ? OR email LIKE ? OR full_name LIKE ?",
+			"%"+keyword+"%", "%"+keyword+"%", "%"+keyword+"%").
+		Count(&count).Error; err != nil {
+		return 0, fmt.Errorf("failed to count search results: %w", err)
+	}
+	return count, nil
+}
+
 // Exists 检查用户是否存在
 func (r *userQueryRepository) Exists(ctx context.Context, id uint) (bool, error) {
 	var count int64

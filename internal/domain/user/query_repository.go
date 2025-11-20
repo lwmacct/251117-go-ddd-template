@@ -38,6 +38,9 @@ type QueryRepository interface {
 	// Search 搜索用户（支持用户名、邮箱、全名模糊匹配）
 	Search(ctx context.Context, keyword string, offset, limit int) ([]*User, error)
 
+	// CountBySearch 统计搜索结果数量
+	CountBySearch(ctx context.Context, keyword string) (int64, error)
+
 	// Exists 检查用户是否存在
 	Exists(ctx context.Context, id uint) (bool, error)
 

@@ -22,16 +22,35 @@ func NewListUsersHandler(userQueryRepo user.QueryRepository) *ListUsersHandler {
 
 // Handle 处理获取用户列表查询
 func (h *ListUsersHandler) Handle(ctx context.Context, query ListUsersQuery) (*appUserDTO.UserListResponse, error) {
-	// 获取用户列表
-	users, err := h.userQueryRepo.List(ctx, query.Offset, query.Limit)
-	if err != nil {
-		return nil, err
-	}
+	var users []*user.User
+	var total int64
+	var err error
 
-	// 获取总数
-	total, err := h.userQueryRepo.Count(ctx)
-	if err != nil {
-		return nil, err
+	// 根据是否有搜索关键词选择不同的查询方法
+	if query.Search != "" {
+		// 搜索用户
+		users, err = h.userQueryRepo.Search(ctx, query.Search, query.Offset, query.Limit)
+		if err != nil {
+			return nil, err
+		}
+
+		// 获取搜索结果总数
+		total, err = h.userQueryRepo.CountBySearch(ctx, query.Search)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		// 获取所有用户列表
+		users, err = h.userQueryRepo.List(ctx, query.Offset, query.Limit)
+		if err != nil {
+			return nil, err
+		}
+
+		// 获取总数
+		total, err = h.userQueryRepo.Count(ctx)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	// 转换为 DTO

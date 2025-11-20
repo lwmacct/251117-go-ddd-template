@@ -98,6 +98,7 @@ func (h *AdminUserHandler) CreateUser(c *gin.Context) {
 // @Security     BearerAuth
 // @Param        page query int false "页码" default(1) minimum(1)
 // @Param        limit query int false "每页数量" default(20) minimum(1) maximum(100)
+// @Param        search query string false "搜索关键词（用户名或邮箱）"
 // @Success      200 {object} response.Response{data=object{users=[]appUserDTO.UserWithRolesResponse},meta=response.PaginationMeta} "用户列表"
 // @Failure      401 {object} response.ErrorResponse "未授权"
 // @Failure      403 {object} response.ErrorResponse "权限不足"
@@ -107,6 +108,7 @@ func (h *AdminUserHandler) CreateUser(c *gin.Context) {
 func (h *AdminUserHandler) ListUsers(c *gin.Context) {
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "20"))
+	search := c.Query("search")
 
 	if page < 1 {
 		page = 1
@@ -120,6 +122,7 @@ func (h *AdminUserHandler) ListUsers(c *gin.Context) {
 	result, err := h.listUsersHandler.Handle(c.Request.Context(), userQuery.ListUsersQuery{
 		Offset: offset,
 		Limit:  limit,
+		Search: search,
 	})
 	if err != nil {
 		response.InternalError(c, err.Error())
@@ -274,7 +277,7 @@ func (h *AdminUserHandler) DeleteUser(c *gin.Context) {
 // @Failure      403 {object} response.ErrorResponse "权限不足"
 // @Failure      404 {object} response.ErrorResponse "用户不存在"
 // @Failure      500 {object} response.ErrorResponse "服务器内部错误"
-// @Router       /api/admin/users/{id}/roles [post]
+// @Router       /api/admin/users/{id}/roles [put]
 // @x-permission {"scope":"admin:users:update"}
 func (h *AdminUserHandler) AssignRoles(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
@@ -297,5 +300,15 @@ func (h *AdminUserHandler) AssignRoles(c *gin.Context) {
 		return
 	}
 
-	response.OK(c, "roles assigned successfully", nil)
+	// 获取更新后的用户信息（包含角色）
+	updatedUser, err := h.getUserHandler.Handle(c.Request.Context(), userQuery.GetUserQuery{
+		UserID:    uint(id),
+		WithRoles: true,
+	})
+	if err != nil {
+		response.InternalError(c, err.Error())
+		return
+	}
+
+	response.OK(c, "roles assigned successfully", updatedUser)
 }

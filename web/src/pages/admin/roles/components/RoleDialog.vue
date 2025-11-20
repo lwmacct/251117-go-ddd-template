@@ -48,14 +48,14 @@ watch(
   { immediate: true },
 );
 
-const resetForm = () => {
+function resetForm() {
   formData.value = {
     name: "",
     display_name: "",
     description: "",
   };
   form.value?.resetValidation();
-};
+}
 
 const closeDialog = () => {
   emit("update:modelValue", false);

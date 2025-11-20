@@ -84,9 +84,7 @@ const activeItem = computed(() => {
     <v-list nav density="compact" bg-color="transparent">
       <v-list-item v-for="item in items" :key="item.path" :to="item.path" :active="isActive(item)" :prepend-icon="showIcon ? item.icon : undefined" :title="item.title" :value="item.path" rounded="lg">
         <!-- 折叠状态下的 Tooltip -->
-        <v-tooltip activator="parent" location="end" :disabled="!rail">
-          {{ item.title }}
-        </v-tooltip>
+        <v-tooltip v-if="rail" activator="parent" location="end" :text="item.title" />
 
         <!-- 可选：显示徽章 -->
         <template v-if="item.badge && !rail" #append>

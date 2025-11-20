@@ -103,6 +103,10 @@ definitions:
     type: object
   handler.LoginRequest:
     properties:
+      account:
+        description: 手机号/用户名/邮箱
+        example: admin
+        type: string
       captcha:
         description: 验证码
         example: "9999"
@@ -111,18 +115,14 @@ definitions:
         description: 验证码ID
         example: dev-123456
         type: string
-      login:
-        description: 用户名或邮箱
-        example: admin
-        type: string
       password:
         description: 密码
         example: admin123
         type: string
     required:
+    - account
     - captcha
     - captcha_id
-    - login
     - password
     type: object
   handler.RefreshTokenRequest:
@@ -274,10 +274,10 @@ definitions:
   response.ErrorDetail:
     properties:
       code:
-        description: 业务错误码
+        description: 业务错误码（小写下划线）
         type: string
       details:
-        description: 额外详情 (如验证错误列表)
+        description: 额外详情（如验证错误列表）
       message:
         description: 错误消息
         type: string
@@ -308,9 +308,9 @@ definitions:
   response.Response:
     properties:
       data:
-        description: 响应数据
+        description: 数据
       message:
-        description: 成功消息
+        description: 消息
         type: string
     type: object
   user.AssignRolesDTO:
@@ -2180,7 +2180,7 @@ paths:
     post:
       consumes:
       - application/json
-      description: 使用用户名/邮箱和密码登录系统，需要提供图形验证码。如果启用了2FA，返回session_token用于后续2FA验证
+      description: 使用手机号/用户名/邮箱和密码登录系统，需要提供图形验证码。如果启用了2FA，返回session_token用于后续2FA验证
       parameters:
       - description: 登录凭证
         in: body

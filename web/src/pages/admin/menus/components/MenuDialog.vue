@@ -73,7 +73,7 @@ watch(
   { immediate: true },
 );
 
-const resetForm = () => {
+function resetForm() {
   formData.value = {
     title: "",
     path: "",
@@ -83,7 +83,7 @@ const resetForm = () => {
     visible: true,
   };
   form.value?.resetValidation();
-};
+}
 
 const closeDialog = () => {
   emit("update:modelValue", false);
