@@ -120,12 +120,12 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/response.Response"
+                                    "$ref": "#/definitions/response.ListResponse"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
-                                        "logs": {
+                                        "data": {
                                             "type": "array",
                                             "items": {
                                                 "type": "object",
@@ -151,20 +151,8 @@ const docTemplate = `{
                                                 }
                                             }
                                         },
-                                        "pagination": {
-                                            "type": "object",
-                                            "properties": {
-                                                "limit": {
-                                                    "type": "integer"
-                                                },
-                                                "page": {
-                                                    "type": "integer"
-                                                },
-                                                "total": {
-                                                    "type": "integer",
-                                                    "format": "int64"
-                                                }
-                                            }
+                                        "meta": {
+                                            "$ref": "#/definitions/response.PaginationMeta"
                                         }
                                     }
                                 }
@@ -854,7 +842,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/response.Response"
+                                    "$ref": "#/definitions/response.ListResponse"
                                 },
                                 {
                                     "type": "object",
@@ -882,20 +870,8 @@ const docTemplate = `{
                                                 }
                                             }
                                         },
-                                        "pagination": {
-                                            "type": "object",
-                                            "properties": {
-                                                "limit": {
-                                                    "type": "integer"
-                                                },
-                                                "page": {
-                                                    "type": "integer"
-                                                },
-                                                "total": {
-                                                    "type": "integer",
-                                                    "format": "int64"
-                                                }
-                                            }
+                                        "meta": {
+                                            "$ref": "#/definitions/response.PaginationMeta"
                                         }
                                     }
                                 }
@@ -969,7 +945,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/response.Response"
+                                    "$ref": "#/definitions/response.ListResponse"
                                 },
                                 {
                                     "type": "object",
@@ -994,20 +970,8 @@ const docTemplate = `{
                                                 }
                                             }
                                         },
-                                        "pagination": {
-                                            "type": "object",
-                                            "properties": {
-                                                "limit": {
-                                                    "type": "integer"
-                                                },
-                                                "page": {
-                                                    "type": "integer"
-                                                },
-                                                "total": {
-                                                    "type": "integer",
-                                                    "format": "int64"
-                                                }
-                                            }
+                                        "meta": {
+                                            "$ref": "#/definitions/response.PaginationMeta"
                                         }
                                     }
                                 }
@@ -2044,6 +2008,12 @@ const docTemplate = `{
                         "description": "每页数量",
                         "name": "limit",
                         "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "搜索关键词（用户名或邮箱）",
+                        "name": "search",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -2052,20 +2022,15 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/response.Response"
+                                    "$ref": "#/definitions/response.ListResponse"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "type": "object",
-                                            "properties": {
-                                                "users": {
-                                                    "type": "array",
-                                                    "items": {
-                                                        "$ref": "#/definitions/user.UserWithRolesResponse"
-                                                    }
-                                                }
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/user.UserWithRolesResponse"
                                             }
                                         },
                                         "meta": {
@@ -2446,7 +2411,7 @@ const docTemplate = `{
             }
         },
         "/api/admin/users/{id}/roles": {
-            "post": {
+            "put": {
                 "security": [
                     {
                         "BearerAuth": []
@@ -4173,6 +4138,21 @@ const docTemplate = `{
             "properties": {
                 "error": {
                     "$ref": "#/definitions/response.ErrorDetail"
+                }
+            }
+        },
+        "response.ListResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {},
+                "message": {
+                    "type": "string"
+                },
+                "meta": {
+                    "$ref": "#/definitions/response.PaginationMeta"
                 }
             }
         },

@@ -287,6 +287,16 @@ definitions:
       error:
         $ref: '#/definitions/response.ErrorDetail'
     type: object
+  response.ListResponse:
+    properties:
+      code:
+        type: integer
+      data: {}
+      message:
+        type: string
+      meta:
+        $ref: '#/definitions/response.PaginationMeta'
+    type: object
   response.PaginationMeta:
     properties:
       has_more:
@@ -487,9 +497,9 @@ paths:
           description: 审计日志列表
           schema:
             allOf:
-            - $ref: '#/definitions/response.Response'
+            - $ref: '#/definitions/response.ListResponse'
             - properties:
-                logs:
+                data:
                   items:
                     properties:
                       action:
@@ -506,16 +516,8 @@ paths:
                         type: integer
                     type: object
                   type: array
-                pagination:
-                  properties:
-                    limit:
-                      type: integer
-                    page:
-                      type: integer
-                    total:
-                      format: int64
-                      type: integer
-                  type: object
+                meta:
+                  $ref: '#/definitions/response.PaginationMeta'
               type: object
         "401":
           description: 未授权
@@ -946,7 +948,7 @@ paths:
           description: 权限列表
           schema:
             allOf:
-            - $ref: '#/definitions/response.Response'
+            - $ref: '#/definitions/response.ListResponse'
             - properties:
                 data:
                   items:
@@ -963,16 +965,8 @@ paths:
                         type: string
                     type: object
                   type: array
-                pagination:
-                  properties:
-                    limit:
-                      type: integer
-                    page:
-                      type: integer
-                    total:
-                      format: int64
-                      type: integer
-                  type: object
+                meta:
+                  $ref: '#/definitions/response.PaginationMeta'
               type: object
         "401":
           description: 未授权
@@ -1019,7 +1013,7 @@ paths:
           description: 角色列表
           schema:
             allOf:
-            - $ref: '#/definitions/response.Response'
+            - $ref: '#/definitions/response.ListResponse'
             - properties:
                 data:
                   items:
@@ -1034,16 +1028,8 @@ paths:
                         type: string
                     type: object
                   type: array
-                pagination:
-                  properties:
-                    limit:
-                      type: integer
-                    page:
-                      type: integer
-                    total:
-                      format: int64
-                      type: integer
-                  type: object
+                meta:
+                  $ref: '#/definitions/response.PaginationMeta'
               type: object
         "401":
           description: 未授权
@@ -1681,6 +1667,10 @@ paths:
         minimum: 1
         name: limit
         type: integer
+      - description: 搜索关键词（用户名或邮箱）
+        in: query
+        name: search
+        type: string
       produces:
       - application/json
       responses:
@@ -1688,15 +1678,12 @@ paths:
           description: 用户列表
           schema:
             allOf:
-            - $ref: '#/definitions/response.Response'
+            - $ref: '#/definitions/response.ListResponse'
             - properties:
                 data:
-                  properties:
-                    users:
-                      items:
-                        $ref: '#/definitions/user.UserWithRolesResponse'
-                      type: array
-                  type: object
+                  items:
+                    $ref: '#/definitions/user.UserWithRolesResponse'
+                  type: array
                 meta:
                   $ref: '#/definitions/response.PaginationMeta'
               type: object
@@ -1932,7 +1919,7 @@ paths:
       x-permission:
         scope: admin:users:update
   /api/admin/users/{id}/roles:
-    post:
+    put:
       consumes:
       - application/json
       description: 管理员为指定用户分配角色（会覆盖现有角色）
