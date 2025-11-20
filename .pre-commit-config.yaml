@@ -32,7 +32,13 @@ repos:
         stages: [pre-commit]
         files: ^docs/
 
+  # 通用官方钩子
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: check-added-large-files
+        args: ["--maxkb=1024"]
+
 # 全局配置
 default_stages: [pre-commit]
 fail_fast: false # 不要在第一个失败时停止，运行所有检查
-
