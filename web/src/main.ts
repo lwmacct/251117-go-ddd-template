@@ -3,6 +3,7 @@ import { createPinia } from "pinia";
 
 import App from "./App.vue";
 import router from "./router";
+import { useAuthStore } from "@/stores/auth";
 
 // https://vuetifyjs.com/en/introduction/why-vuetify/
 import "vuetify/styles";
@@ -69,4 +70,24 @@ const pinia = createPinia();
 app.use(pinia);
 
 app.use(router);
-app.mount("#app");
+
+/**
+ * 初始化应用
+ * 在挂载前恢复认证状态，确保路由守卫能正确判断用户是否已登录
+ */
+async function initializeApp() {
+  const authStore = useAuthStore();
+
+  // 从 localStorage 恢复认证状态
+  await authStore.initAuth();
+
+  // 挂载应用
+  app.mount("#app");
+}
+
+// 启动应用
+initializeApp().catch((error) => {
+  console.error("[App Init] Failed to initialize app:", error);
+  // 即使初始化失败也要挂载应用，让用户能访问登录页
+  app.mount("#app");
+});

@@ -16,7 +16,7 @@ export const adminRoutes: RouteRecordRaw = {
   redirect: "/admin/overview",
   meta: {
     title: "管理后台",
-    requiresAuth: false,
+    requiresAuth: true,
   },
   children: [
     {
