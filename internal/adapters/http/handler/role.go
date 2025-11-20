@@ -1,10 +1,10 @@
 package handler
 
 import (
-	"net/http"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/lwmacct/251117-go-ddd-template/internal/adapters/http/response"
 	roleCommand "github.com/lwmacct/251117-go-ddd-template/internal/application/role/command"
 	roleQuery "github.com/lwmacct/251117-go-ddd-template/internal/application/role/query"
 )
@@ -71,7 +71,7 @@ func (h *RoleHandler) CreateRole(c *gin.Context) {
 	var req CreateRoleRequest
 
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		response.ValidationError(c, err.Error())
 		return
 	}
 
@@ -83,14 +83,11 @@ func (h *RoleHandler) CreateRole(c *gin.Context) {
 	})
 
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		response.InternalError(c, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusCreated, gin.H{
-		"message": "role created successfully",
-		"data":    result,
-	})
+	response.Created(c, "role created successfully", result)
 }
 
 // ListRoles lists all roles
@@ -103,7 +100,7 @@ func (h *RoleHandler) CreateRole(c *gin.Context) {
 // @Security     BearerAuth
 // @Param        page query int false "页码" default(1) minimum(1)
 // @Param        limit query int false "每页数量" default(20) minimum(1) maximum(100)
-// @Success      200 {object} response.Response{data=[]object{id=uint,name=string,display_name=string,description=string},pagination=object{page=int,limit=int,total=int64}} "角色列表"
+// @Success      200 {object} response.ListResponse{data=[]object{id=uint,name=string,display_name=string,description=string},meta=response.PaginationMeta} "角色列表"
 // @Failure      401 {object} response.ErrorResponse "未授权"
 // @Failure      403 {object} response.ErrorResponse "权限不足"
 // @Failure      500 {object} response.ErrorResponse "服务器内部错误"
@@ -127,18 +124,12 @@ func (h *RoleHandler) ListRoles(c *gin.Context) {
 	})
 
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		response.InternalError(c, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"data": result.Roles,
-		"pagination": gin.H{
-			"page":  result.Page,
-			"limit": result.Limit,
-			"total": result.Total,
-		},
-	})
+	meta := response.NewPaginationMeta(int(result.Total), page, limit)
+	response.List(c, "success", result.Roles, meta)
 }
 
 // GetRole gets a role by ID
@@ -160,7 +151,7 @@ func (h *RoleHandler) ListRoles(c *gin.Context) {
 func (h *RoleHandler) GetRole(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid role ID"})
+		response.BadRequest(c, "invalid role ID")
 		return
 	}
 
@@ -170,11 +161,11 @@ func (h *RoleHandler) GetRole(c *gin.Context) {
 	})
 
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		response.NotFound(c, "role")
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"data": result})
+	response.OK(c, "success", result)
 }
 
 // UpdateRoleRequest 更新角色请求
@@ -204,14 +195,14 @@ type UpdateRoleRequest struct {
 func (h *RoleHandler) UpdateRole(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid role ID"})
+		response.BadRequest(c, "invalid role ID")
 		return
 	}
 
 	var req UpdateRoleRequest
 
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		response.ValidationError(c, err.Error())
 		return
 	}
 
@@ -223,14 +214,11 @@ func (h *RoleHandler) UpdateRole(c *gin.Context) {
 	})
 
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		response.InternalError(c, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"message": "role updated successfully",
-		"data":    result,
-	})
+	response.OK(c, "role updated successfully", result)
 }
 
 // DeleteRole deletes a role
@@ -253,7 +241,7 @@ func (h *RoleHandler) UpdateRole(c *gin.Context) {
 func (h *RoleHandler) DeleteRole(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid role ID"})
+		response.BadRequest(c, "invalid role ID")
 		return
 	}
 
@@ -263,11 +251,11 @@ func (h *RoleHandler) DeleteRole(c *gin.Context) {
 	})
 
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		response.InternalError(c, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "role deleted successfully"})
+	response.OK(c, "role deleted successfully", nil)
 }
 
 // SetPermissionsRequest 设置权限请求
@@ -296,14 +284,14 @@ type SetPermissionsRequest struct {
 func (h *RoleHandler) SetPermissions(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid role ID"})
+		response.BadRequest(c, "invalid role ID")
 		return
 	}
 
 	var req SetPermissionsRequest
 
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		response.ValidationError(c, err.Error())
 		return
 	}
 
@@ -314,11 +302,11 @@ func (h *RoleHandler) SetPermissions(c *gin.Context) {
 	})
 
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		response.InternalError(c, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "permissions set successfully"})
+	response.OK(c, "permissions set successfully", nil)
 }
 
 // ListPermissions lists all permissions
@@ -331,7 +319,7 @@ func (h *RoleHandler) SetPermissions(c *gin.Context) {
 // @Security     BearerAuth
 // @Param        page query int false "页码" default(1) minimum(1)
 // @Param        limit query int false "每页数量" default(50) minimum(1) maximum(100)
-// @Success      200 {object} response.Response{data=[]object{id=uint,name=string,display_name=string,resource=string,action=string},pagination=object{page=int,limit=int,total=int64}} "权限列表"
+// @Success      200 {object} response.ListResponse{data=[]object{id=uint,name=string,display_name=string,resource=string,action=string},meta=response.PaginationMeta} "权限列表"
 // @Failure      401 {object} response.ErrorResponse "未授权"
 // @Failure      403 {object} response.ErrorResponse "权限不足"
 // @Failure      500 {object} response.ErrorResponse "服务器内部错误"
@@ -355,16 +343,10 @@ func (h *RoleHandler) ListPermissions(c *gin.Context) {
 	})
 
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		response.InternalError(c, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"data": result.Permissions,
-		"pagination": gin.H{
-			"page":  result.Page,
-			"limit": result.Limit,
-			"total": result.Total,
-		},
-	})
+	meta := response.NewPaginationMeta(int(result.Total), page, limit)
+	response.List(c, "success", result.Permissions, meta)
 }

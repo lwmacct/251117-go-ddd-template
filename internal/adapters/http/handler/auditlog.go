@@ -1,11 +1,11 @@
 package handler
 
 import (
-	"net/http"
 	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/lwmacct/251117-go-ddd-template/internal/adapters/http/response"
 	auditlogQuery "github.com/lwmacct/251117-go-ddd-template/internal/application/auditlog/query"
 )
 
@@ -43,7 +43,7 @@ func NewAuditLogHandler(
 // @Param        status query string false "状态" Enums(success, failure)
 // @Param        start_date query string false "开始时间(RFC3339格式)" example:"2024-01-01T00:00:00Z"
 // @Param        end_date query string false "结束时间(RFC3339格式)" example:"2024-12-31T23:59:59Z"
-// @Success      200 {object} response.Response{logs=[]object{id=uint,user_id=uint,action=string,resource=string,status=string,created_at=string},pagination=object{page=int,limit=int,total=int64}} "审计日志列表"
+// @Success      200 {object} response.ListResponse{data=[]object{id=uint,user_id=uint,action=string,resource=string,status=string,created_at=string},meta=response.PaginationMeta} "审计日志列表"
 // @Failure      401 {object} response.ErrorResponse "未授权"
 // @Failure      403 {object} response.ErrorResponse "权限不足"
 // @Failure      500 {object} response.ErrorResponse "服务器内部错误"
@@ -100,18 +100,12 @@ func (h *AuditLogHandler) ListLogs(c *gin.Context) {
 	// 调用 Use Case Handler
 	result, err := h.listLogsHandler.Handle(c.Request.Context(), query)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to list audit logs"})
+		response.InternalError(c, "failed to list audit logs")
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"logs": result.Logs,
-		"pagination": gin.H{
-			"page":  result.Page,
-			"limit": result.Limit,
-			"total": result.Total,
-		},
-	})
+	meta := response.NewPaginationMeta(int(result.Total), page, limit)
+	response.List(c, "success", result.Logs, meta)
 }
 
 // GetLog gets an audit log by ID
@@ -133,7 +127,7 @@ func (h *AuditLogHandler) ListLogs(c *gin.Context) {
 func (h *AuditLogHandler) GetLog(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid log ID"})
+		response.BadRequest(c, "invalid log ID")
 		return
 	}
 
@@ -143,9 +137,9 @@ func (h *AuditLogHandler) GetLog(c *gin.Context) {
 	})
 
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "audit log not found"})
+		response.NotFound(c, "audit log")
 		return
 	}
 
-	c.JSON(http.StatusOK, log)
+	response.OK(c, "success", log)
 }

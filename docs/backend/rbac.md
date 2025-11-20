@@ -150,7 +150,16 @@ type UserModel struct {
 | `admin:users:update`     | admin | users       | update | 管理员更新用户信息     |
 | `admin:users:delete`     | admin | users       | delete | 管理员删除用户         |
 | `admin:roles:read`       | admin | roles       | read   | 管理员查看角色         |
+| `admin:settings:create`  | admin | settings    | create | 管理员创建系统配置     |
+| `admin:settings:read`    | admin | settings    | read   | 管理员查看系统配置     |
+| `admin:settings:update`  | admin | settings    | update | 管理员更新系统配置     |
+| `admin:settings:delete`  | admin | settings    | delete | 管理员删除系统配置     |
+| `admin:overview:read`    | admin | overview    | read   | 查看系统概览数据       |
 | `admin:permissions:read` | admin | permissions | read   | 管理员查看权限列表     |
+| `admin:menus:create`     | admin | menus       | create | 管理员创建菜单         |
+| `admin:menus:read`       | admin | menus       | read   | 管理员查看菜单         |
+| `admin:menus:update`     | admin | menus       | update | 管理员更新菜单         |
+| `admin:menus:delete`     | admin | menus       | delete | 管理员删除菜单         |
 | `admin:audit_logs:read`  | admin | audit_logs  | read   | 管理员查看审计日志     |
 | `user:profile:read`      | user  | profile     | read   | 用户查看自己的资料     |
 | `user:profile:update`    | user  | profile     | update | 用户更新自己的资料     |
@@ -1060,6 +1069,30 @@ curl -X GET http://localhost:8080/api/admin/roles \
   -H "Authorization: Bearer <admin_token>"
 ```
 
+**响应示例**:
+
+```json
+{
+  "code": 200,
+  "message": "success",
+  "data": [
+    {
+      "id": 1,
+      "name": "admin",
+      "display_name": "管理员",
+      "description": "系统管理员角色"
+    }
+  ],
+  "meta": {
+    "page": 1,
+    "per_page": 20,
+    "total": 1,
+    "total_pages": 1,
+    "has_more": false
+  }
+}
+```
+
 **为用户分配角色**:
 
 ```bash
@@ -1093,6 +1126,31 @@ curl -X GET http://localhost:8080/api/admin/permissions \
   -H "Authorization: Bearer <admin_token>"
 ```
 
+**响应示例**:
+
+```json
+{
+  "code": 200,
+  "message": "success",
+  "data": [
+    {
+      "id": 1,
+      "name": "admin.users.read",
+      "display_name": "读取用户",
+      "resource": "users",
+      "action": "read"
+    }
+  ],
+  "meta": {
+    "page": 1,
+    "per_page": 50,
+    "total": 20,
+    "total_pages": 1,
+    "has_more": false
+  }
+}
+```
+
 **为角色设置权限**:
 
 ```bash
@@ -1118,6 +1176,32 @@ curl -X GET "http://localhost:8080/api/admin/audit-logs?user_id=1&page=1&limit=2
 # 过滤：查看特定资源的操作
 curl -X GET "http://localhost:8080/api/admin/audit-logs?resource=users" \
   -H "Authorization: Bearer <admin_token>"
+```
+
+**响应示例**:
+
+```json
+{
+  "code": 200,
+  "message": "success",
+  "data": [
+    {
+      "id": 12,
+      "user_id": 1,
+      "action": "update",
+      "resource": "users",
+      "status": "success",
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  ],
+  "meta": {
+    "page": 1,
+    "per_page": 20,
+    "total": 42,
+    "total_pages": 3,
+    "has_more": true
+  }
+}
 ```
 
 ## 最佳实践

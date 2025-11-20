@@ -2,26 +2,31 @@
  * Admin 角色管理 API
  */
 import { apiClient } from "../auth/client";
-import type { ApiResponse } from "@/types/response";
+import { normalizeListResponse } from "../helpers/pagination";
+import type { ApiResponse, ListApiResponse } from "@/types/response";
 import type { Role, CreateRoleRequest, UpdateRoleRequest, SetPermissionsRequest } from "@/types/admin";
 import type { PaginatedResponse, PaginationParams } from "@/types/common";
 
 /**
  * 获取角色列表（分页）
  */
-export const listRoles = async (params: Partial<PaginationParams>): Promise<PaginatedResponse<Role>> => {
+export const listRoles = async (params: Partial<PaginationParams> = {}): Promise<PaginatedResponse<Role>> => {
+  const page = params.page ?? 1;
+  const limit = params.limit ?? 20;
+
   try {
-    const { data } = await apiClient.get<ApiResponse<PaginatedResponse<Role>>>("/api/admin/roles", {
-      params,
+    const { data } = await apiClient.get<ListApiResponse<Role[]>>("/api/admin/roles", {
+      params: {
+        page,
+        limit,
+        search: params.search,
+      },
     });
 
-    if (data.data) {
-      return data.data;
-    }
-
-    throw new Error(data.error || "获取角色列表失败");
+    return normalizeListResponse<Role>(data, { page, limit });
   } catch (error: any) {
-    throw new Error(error.response?.data?.error || error.message || "获取角色列表失败");
+    const serverError = error.response?.data?.error || error.response?.data?.message;
+    throw new Error(serverError || error.message || "获取角色列表失败");
   }
 };
 
@@ -90,15 +95,9 @@ export const deleteRole = async (id: number): Promise<void> => {
 /**
  * 设置角色权限
  */
-export const setPermissions = async (id: number, params: SetPermissionsRequest): Promise<Role> => {
+export const setPermissions = async (id: number, params: SetPermissionsRequest): Promise<void> => {
   try {
-    const { data } = await apiClient.put<ApiResponse<Role>>(`/admin/roles/${id}/permissions`, params);
-
-    if (data.data) {
-      return data.data;
-    }
-
-    throw new Error(data.error || "设置权限失败");
+    await apiClient.put(`/admin/roles/${id}/permissions`, params);
   } catch (error: any) {
     throw new Error(error.response?.data?.error || error.message || "设置权限失败");
   }

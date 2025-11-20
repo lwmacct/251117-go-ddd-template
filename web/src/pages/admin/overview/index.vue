@@ -4,6 +4,8 @@ import { useOverview } from "./composables/useOverview";
 
 const { stats, loading, errorMessage, fetchStats } = useOverview();
 
+const totalUsers = computed(() => stats.value?.total_users || 0);
+
 // 统计卡片配置
 const statsCards = computed(() => [
   {
@@ -50,6 +52,48 @@ const statsCards = computed(() => [
   },
 ]);
 
+const userStatusSummary = computed(() => {
+  const total = totalUsers.value;
+  return [
+    {
+      label: "活跃用户",
+      value: stats.value?.active_users || 0,
+      color: "success",
+    },
+    {
+      label: "未激活",
+      value: stats.value?.inactive_users || 0,
+      color: "warning",
+    },
+    {
+      label: "封禁",
+      value: stats.value?.banned_users || 0,
+      color: "error",
+    },
+  ].map((item) => ({
+    ...item,
+    percent: total ? Math.round((item.value / total) * 100) : 0,
+  }));
+});
+
+const recentAuditLogs = computed(() => stats.value?.recent_audit_logs || []);
+const hasAuditLogs = computed(() => recentAuditLogs.value.length > 0);
+
+const formatDate = (dateString?: string) => {
+  if (!dateString) return "-";
+  return new Date(dateString).toLocaleString("zh-CN", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+};
+
+const clearError = () => {
+  errorMessage.value = "";
+};
+
 onMounted(() => {
   fetchStats();
 });
@@ -66,7 +110,7 @@ onMounted(() => {
 
     <v-row v-if="errorMessage">
       <v-col cols="12">
-        <v-alert type="error" closable @click:close="errorMessage = ''">
+        <v-alert type="error" closable @click:close="clearError">
           {{ errorMessage }}
         </v-alert>
       </v-col>
@@ -97,9 +141,9 @@ onMounted(() => {
       </v-col>
     </v-row>
 
-    <!-- 快速操作 -->
+    <!-- 快速操作和用户状态 -->
     <v-row class="mt-4">
-      <v-col cols="12">
+      <v-col cols="12" lg="8">
         <v-card>
           <v-card-title>
             <v-icon start>mdi-lightning-bolt</v-icon>
@@ -132,6 +176,23 @@ onMounted(() => {
                 </v-btn>
               </v-col>
             </v-row>
+          </v-card-text>
+        </v-card>
+      </v-col>
+      <v-col cols="12" lg="4">
+        <v-card>
+          <v-card-title>
+            <v-icon start>mdi-chart-donut</v-icon>
+            用户状态分布
+          </v-card-title>
+          <v-card-text>
+            <div v-for="status in userStatusSummary" :key="status.label" class="mb-4">
+              <div class="d-flex align-center justify-space-between mb-1 text-body-2">
+                <span>{{ status.label }}</span>
+                <span>{{ status.value }} 人 ({{ status.percent }}%)</span>
+              </div>
+              <v-progress-linear :model-value="status.percent" :color="status.color" height="10" rounded></v-progress-linear>
+            </div>
           </v-card-text>
         </v-card>
       </v-col>
@@ -191,6 +252,53 @@ onMounted(() => {
                 </v-list-item-subtitle>
               </v-list-item>
             </v-list>
+          </v-card-text>
+        </v-card>
+      </v-col>
+    </v-row>
+
+    <!-- 最近审计日志 -->
+    <v-row class="mt-4">
+      <v-col cols="12">
+        <v-card>
+          <v-card-title class="d-flex justify-space-between align-center">
+            <div>
+              <v-icon start>mdi-history</v-icon>
+              最近审计日志
+            </div>
+            <v-btn color="primary" variant="text" to="/admin/audit-logs" size="small">
+              查看全部
+              <v-icon end>mdi-arrow-right</v-icon>
+            </v-btn>
+          </v-card-title>
+          <v-card-text>
+            <v-table v-if="hasAuditLogs">
+              <thead>
+                <tr>
+                  <th class="text-left">用户</th>
+                  <th class="text-left">操作</th>
+                  <th class="text-left">资源</th>
+                  <th class="text-left">状态</th>
+                  <th class="text-left">时间</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="log in recentAuditLogs" :key="log.id">
+                  <td>{{ log.username || "-" }}</td>
+                  <td>{{ log.action }}</td>
+                  <td>{{ log.resource }}</td>
+                  <td>
+                    <v-chip size="small" :color="log.status === 'success' ? 'success' : 'error'" variant="tonal">
+                      {{ log.status }}
+                    </v-chip>
+                  </td>
+                  <td>{{ formatDate(log.created_at) }}</td>
+                </tr>
+              </tbody>
+            </v-table>
+            <v-alert v-else type="info" variant="tonal">
+              暂无可展示的审计日志。
+            </v-alert>
           </v-card-text>
         </v-card>
       </v-col>

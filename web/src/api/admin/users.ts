@@ -2,24 +2,31 @@
  * Admin 用户管理 API
  */
 import { apiClient } from "../auth/client";
-import type { ApiResponse } from "@/types/response";
+import { normalizeListResponse } from "../helpers/pagination";
+import type { ApiResponse, ListApiResponse } from "@/types/response";
 import type { AdminUser, CreateUserRequest, UpdateUserRequest, AssignRolesRequest } from "@/types/admin";
 import type { PaginatedResponse, PaginationParams } from "@/types/common";
 
 /**
  * 获取用户列表（分页）
  */
-export const listUsers = async (params: Partial<PaginationParams>): Promise<PaginatedResponse<AdminUser>> => {
+export const listUsers = async (params: Partial<PaginationParams> = {}): Promise<PaginatedResponse<AdminUser>> => {
+  const page = params.page ?? 1;
+  const limit = params.limit ?? 20;
+
   try {
-    const { data } = await apiClient.get<ApiResponse<PaginatedResponse<AdminUser>>>("/api/admin/users", { params });
+    const { data } = await apiClient.get<ListApiResponse<AdminUser[]>>("/api/admin/users", {
+      params: {
+        page,
+        limit,
+        search: params.search,
+      },
+    });
 
-    if (data.data) {
-      return data.data;
-    }
-
-    throw new Error(data.error || "获取用户列表失败");
+    return normalizeListResponse<AdminUser>(data, { page, limit });
   } catch (error: any) {
-    throw new Error(error.response?.data?.error || error.message || "获取用户列表失败");
+    const serverError = error.response?.data?.error || error.response?.data?.message;
+    throw new Error(serverError || error.message || "获取用户列表失败");
   }
 };
 

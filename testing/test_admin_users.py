@@ -109,16 +109,15 @@ def test_list_users():
             print(f"✅ 获取成功!")
             print(f"响应数据: {data}")
 
-            if "data" in data:
-                users = data["data"].get("data", [])
-                pagination = data["data"].get("pagination", {})
-                print(f"\n用户数量: {len(users)}")
-                print(f"总数: {pagination.get('total', 0)}")
+            users = data.get("data", [])
+            pagination = data.get("meta", {})
+            print(f"\n用户数量: {len(users)}")
+            print(f"总数: {pagination.get('total', 0)}")
 
-                if users:
-                    print("\n前3个用户:")
-                    for user in users[:3]:
-                        print(f"  - ID: {user.get('id')}, 用户名: {user.get('username')}, 邮箱: {user.get('email')}")
+            if users:
+                print("\n前3个用户:")
+                for user in users[:3]:
+                    print(f"  - ID: {user.get('id')}, 用户名: {user.get('username')}, 邮箱: {user.get('email')}")
             return True
         else:
             print(f"❌ 请求失败: {response.text}")
@@ -269,11 +268,10 @@ def test_search_users():
             data = response.json()
             print(f"✅ 搜索成功!")
 
-            if "data" in data:
-                users = data["data"].get("data", [])
-                print(f"\n找到 {len(users)} 个用户:")
-                for user in users:
-                    print(f"  - 用户名: {user.get('username')}, 邮箱: {user.get('email')}")
+            users = data.get("data", [])
+            print(f"\n找到 {len(users)} 个用户:")
+            for user in users:
+                print(f"  - 用户名: {user.get('username')}, 邮箱: {user.get('email')}")
             return True
         else:
             print(f"❌ 搜索失败: {response.text}")
@@ -298,35 +296,34 @@ def test_assign_roles():
         roles_response = requests.get(roles_url, headers=get_headers(), params={"page": 1, "limit": 10}, timeout=10)
         if roles_response.status_code == 200:
             roles_data = roles_response.json()
-            if "data" in roles_data and "data" in roles_data["data"]:
-                roles = roles_data["data"]["data"]
-                if roles:
-                    # 取第一个角色进行测试
-                    role_id = roles[0]["id"]
-                    print(f"使用角色ID: {role_id} ({roles[0].get('display_name', 'N/A')})")
+            roles = roles_data.get("data", [])
+            if roles:
+                # 取第一个角色进行测试
+                role_id = roles[0]["id"]
+                print(f"使用角色ID: {role_id} ({roles[0].get('display_name', 'N/A')})")
 
-                    # 分配角色
-                    url = f"{BASE_URL}/api/admin/users/{test_user_id}/roles"
-                    payload = {"role_ids": [role_id]}
+                # 分配角色
+                url = f"{BASE_URL}/api/admin/users/{test_user_id}/roles"
+                payload = {"role_ids": [role_id]}
 
-                    response = requests.put(url, headers=get_headers(), json=payload, timeout=10)
-                    print(f"状态码: {response.status_code}")
+                response = requests.put(url, headers=get_headers(), json=payload, timeout=10)
+                print(f"状态码: {response.status_code}")
 
-                    if response.status_code == 200:
-                        data = response.json()
-                        print(f"✅ 角色分配成功!")
-                        print(f"响应数据: {data}")
+                if response.status_code == 200:
+                    data = response.json()
+                    print(f"✅ 角色分配成功!")
+                    print(f"响应数据: {data}")
 
-                        if "data" in data:
-                            user = data["data"]
-                            print(f"\n用户角色: {user.get('roles', [])}")
-                        return True
-                    else:
-                        print(f"❌ 分配失败: {response.text}")
-                        return False
+                    if "data" in data:
+                        user = data["data"]
+                        print(f"\n用户角色: {user.get('roles', [])}")
+                    return True
                 else:
-                    print("❌ 没有可用角色")
+                    print(f"❌ 分配失败: {response.text}")
                     return False
+            else:
+                print("❌ 没有可用角色")
+                return False
         else:
             print(f"❌ 获取角色列表失败")
             return False

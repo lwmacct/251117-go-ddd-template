@@ -38,7 +38,7 @@ func (r *menuQueryRepository) FindAll(ctx context.Context) ([]*menu.Menu, error)
 	var rootModels []MenuModel
 	err := r.db.WithContext(ctx).
 		Where("parent_id IS NULL").
-		Order("`order` ASC, id ASC").
+		Order("\"order\" ASC, id ASC").
 		Find(&rootModels).Error
 	if err != nil {
 		return nil, fmt.Errorf("failed to find all menus: %w", err)
@@ -70,7 +70,7 @@ func (r *menuQueryRepository) FindByParentID(ctx context.Context, parentID *uint
 		query = query.Where("parent_id = ?", *parentID)
 	}
 
-	err := query.Order("`order` ASC, id ASC").Find(&models).Error
+	err := query.Order("\"order\" ASC, id ASC").Find(&models).Error
 	if err != nil {
 		return nil, fmt.Errorf("failed to find menus by parent id: %w", err)
 	}
@@ -89,7 +89,7 @@ func (r *menuQueryRepository) loadChildren(ctx context.Context, m *menu.Menu) er
 	var childModels []MenuModel
 	err := r.db.WithContext(ctx).
 		Where("parent_id = ?", m.ID).
-		Order("`order` ASC, id ASC").
+		Order("\"order\" ASC, id ASC").
 		Find(&childModels).Error
 	if err != nil {
 		return fmt.Errorf("failed to load children menus: %w", err)

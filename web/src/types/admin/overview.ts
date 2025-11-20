@@ -2,7 +2,16 @@
  * 系统概览统计相关类型定义
  */
 
-import type { AuditLog } from "./audit";
+/** 概览页展示的审计日志摘要 */
+export interface OverviewAuditLog {
+  id: number;
+  user_id: number;
+  username: string;
+  action: string;
+  resource: string;
+  status: string;
+  created_at: string;
+}
 
 /** 系统统计信息 */
 export interface SystemStats {
@@ -13,5 +22,5 @@ export interface SystemStats {
   total_roles: number;
   total_permissions: number;
   total_menus: number;
-  recent_audit_logs?: AuditLog[];
+  recent_audit_logs?: OverviewAuditLog[];
 }

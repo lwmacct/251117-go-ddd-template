@@ -17,6 +17,7 @@ export interface PaginationMeta {
   limit: number;
   total: number;
   total_pages: number;
+  has_more?: boolean;
 }
 
 /** 分页响应 */

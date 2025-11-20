@@ -48,6 +48,21 @@ func (s *RBACSeeder) seedPermissions(ctx context.Context, db *gorm.DB) error {
 		// Admin domain - Permission management
 		{Domain: "admin", Resource: "permissions", Action: "read", Code: "admin:permissions:read", Description: "Read all permissions"},
 
+		// Admin domain - Overview dashboard
+		{Domain: "admin", Resource: "overview", Action: "read", Code: "admin:overview:read", Description: "View system overview stats"},
+
+		// Admin domain - Menu management
+		{Domain: "admin", Resource: "menus", Action: "create", Code: "admin:menus:create", Description: "Create menus"},
+		{Domain: "admin", Resource: "menus", Action: "read", Code: "admin:menus:read", Description: "Read menus"},
+		{Domain: "admin", Resource: "menus", Action: "update", Code: "admin:menus:update", Description: "Update menus"},
+		{Domain: "admin", Resource: "menus", Action: "delete", Code: "admin:menus:delete", Description: "Delete menus"},
+
+		// Admin domain - Settings management
+		{Domain: "admin", Resource: "settings", Action: "create", Code: "admin:settings:create", Description: "Create settings"},
+		{Domain: "admin", Resource: "settings", Action: "read", Code: "admin:settings:read", Description: "Read settings"},
+		{Domain: "admin", Resource: "settings", Action: "update", Code: "admin:settings:update", Description: "Update settings"},
+		{Domain: "admin", Resource: "settings", Action: "delete", Code: "admin:settings:delete", Description: "Delete settings"},
+
 		// Admin domain - Audit log management
 		{Domain: "admin", Resource: "audit_logs", Action: "read", Code: "admin:audit_logs:read", Description: "Read audit logs"},
 
