@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted, computed, watch } from "vue";
 import { AdminPermissionsAPI } from "@/api/admin";
 import type { Permission, PermissionTreeNode } from "@/types/admin";
 
@@ -22,6 +22,7 @@ const permissions = ref<Permission[]>([]);
 const selectedPermissionIds = ref<number[]>([]);
 const errorMessage = ref("");
 const expandAll = ref(false);
+const expandedPanels = ref<number[]>([]);
 
 // 将权限列表转换为树形结构
 const permissionTree = computed<PermissionTreeNode[]>(() => {
@@ -100,6 +101,17 @@ const togglePermission = (permId: number) => {
   }
 };
 
+// 监听展开/折叠全部的变化
+watch(expandAll, (newVal) => {
+  if (newVal) {
+    // 展开全部：设置所有面板的索引
+    expandedPanels.value = permissionTree.value.map((_, i) => i);
+  } else {
+    // 折叠全部：清空数组
+    expandedPanels.value = [];
+  }
+});
+
 onMounted(() => {
   if (props.modelValue) {
     fetchPermissions();
@@ -129,7 +141,7 @@ onMounted(() => {
 
         <!-- 权限树 -->
         <div v-if="!loading && permissionTree.length > 0" class="permission-tree">
-          <v-expansion-panels v-model:model-value="expandAll ? permissionTree.map((_, i) => i) : []" multiple>
+          <v-expansion-panels v-model="expandedPanels" multiple>
             <v-expansion-panel v-for="domainNode in permissionTree" :key="domainNode.key">
               <v-expansion-panel-title>
                 <v-icon start>mdi-folder</v-icon>
