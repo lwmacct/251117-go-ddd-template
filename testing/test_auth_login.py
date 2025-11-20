@@ -117,6 +117,7 @@ def test_login(account, password, captcha_id, captcha, test_name=""):
                     else:
                         # 正常登录成功
                         print(f"\n   ✅ 登录成功!")
+                        print(f"   消息: {data.get('message', 'N/A')}")
                         if "access_token" in response_data:
                             print(f"   Access Token: {response_data['access_token'][:50]}...")
                         if "refresh_token" in response_data:
@@ -131,7 +132,8 @@ def test_login(account, password, captcha_id, captcha, test_name=""):
                 else:
                     print(f"\n   ⚠️  响应格式异常")
             elif response.status_code == 401:
-                print(f"\n   ❌ 认证失败: {data.get('error', '未知错误')}")
+                # 新格式：{"code": 401, "message": "..."}
+                print(f"\n   ❌ 认证失败: {data.get('message', '未知错误')}")
             else:
                 print(f"\n   ❌ 请求失败")
 
