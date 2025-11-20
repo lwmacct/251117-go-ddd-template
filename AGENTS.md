@@ -1,1 +1,1 @@
-CLAUDE.md
+docs/guide/ai-agent.md
