@@ -113,7 +113,7 @@ func (h *MenuHandler) Create(c *gin.Context) {
 		return
 	}
 
-	response.Created(c, result)
+	response.Created(c, "menu created successfully", result)
 }
 
 // List 获取菜单列表（树形结构）
@@ -139,7 +139,7 @@ func (h *MenuHandler) List(c *gin.Context) {
 		return
 	}
 
-	response.OK(c, menus)
+	response.OK(c, "success", menus)
 }
 
 // Get 获取菜单详情
@@ -175,7 +175,7 @@ func (h *MenuHandler) Get(c *gin.Context) {
 		return
 	}
 
-	response.OK(c, menu)
+	response.OK(c, "success", menu)
 }
 
 // Update 更新菜单
@@ -225,7 +225,7 @@ func (h *MenuHandler) Update(c *gin.Context) {
 		return
 	}
 
-	response.OK(c, menu)
+	response.OK(c, "menu updated successfully", menu)
 }
 
 // Delete 删除菜单

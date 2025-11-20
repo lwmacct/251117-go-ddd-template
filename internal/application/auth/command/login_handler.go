@@ -59,9 +59,9 @@ func (h *LoginHandler) Handle(ctx context.Context, cmd LoginCommand) (*LoginResu
 
 	// 2. 查找用户（支持用户名或邮箱登录）
 	var u *user.User
-	if u, err = h.userQueryRepo.GetByUsernameWithRoles(ctx, cmd.Login); err != nil {
+	if u, err = h.userQueryRepo.GetByUsernameWithRoles(ctx, cmd.Account); err != nil {
 		// 尝试通过邮箱查找
-		if u, err = h.userQueryRepo.GetByEmailWithRoles(ctx, cmd.Login); err != nil {
+		if u, err = h.userQueryRepo.GetByEmailWithRoles(ctx, cmd.Account); err != nil {
 			return nil, domainAuth.ErrInvalidCredentials
 		}
 	}

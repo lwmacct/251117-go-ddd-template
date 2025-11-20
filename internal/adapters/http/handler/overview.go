@@ -40,5 +40,5 @@ func (h *OverviewHandler) GetStats(c *gin.Context) {
 	// 统计菜单（使用表名）
 	h.db.Table("menus").Count(&stats.TotalMenus)
 
-	response.OK(c, stats)
+	response.OK(c, "success", stats)
 }

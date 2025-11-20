@@ -3,8 +3,8 @@ package command
 
 // LoginCommand 登录命令
 type LoginCommand struct {
-	Login    string // 用户名或邮箱
-	Password string
+	Account   string // 用户名或邮箱
+	Password  string
 	CaptchaID string
 	Captcha   string
 }

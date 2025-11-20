@@ -59,13 +59,10 @@ func (h *UserHandler) Create(c *gin.Context) {
 		return
 	}
 
-	response.Created(c, gin.H{
-		"message": "user created successfully",
-		"data": gin.H{
-			"user_id":  result.UserID,
-			"username": result.Username,
-			"email":    result.Email,
-		},
+	response.Created(c, "user created successfully", gin.H{
+		"user_id":  result.UserID,
+		"username": result.Username,
+		"email":    result.Email,
 	})
 }
 
@@ -90,7 +87,7 @@ func (h *UserHandler) GetByID(c *gin.Context) {
 		return
 	}
 
-	response.OK(c, gin.H{"data": user})
+	response.OK(c, "success", user)
 }
 
 // List 获取用户列表
@@ -120,11 +117,8 @@ func (h *UserHandler) List(c *gin.Context) {
 	}
 
 	meta := response.NewPaginationMeta(int(result.Total), page, limit)
-	response.List(c, gin.H{
+	response.List(c, "success", gin.H{
 		"users": result.Users,
-		"total": result.Total,
-		"page":  page,
-		"limit": limit,
 	}, meta)
 }
 
@@ -158,7 +152,7 @@ func (h *UserHandler) Update(c *gin.Context) {
 		return
 	}
 
-	response.OK(c, gin.H{"message": "user updated successfully"})
+	response.OK(c, "user updated successfully", nil)
 }
 
 // Delete 删除用户
@@ -181,5 +175,5 @@ func (h *UserHandler) Delete(c *gin.Context) {
 		return
 	}
 
-	response.OK(c, gin.H{"message": "user deleted successfully"})
+	response.OK(c, "user deleted successfully", nil)
 }

@@ -67,7 +67,7 @@ func (h *SettingHandler) GetSettings(c *gin.Context) {
 		return
 	}
 
-	response.OK(c, settings)
+	response.OK(c, "success", settings)
 }
 
 // GetSetting 获取单个配置
@@ -98,7 +98,7 @@ func (h *SettingHandler) GetSetting(c *gin.Context) {
 		return
 	}
 
-	response.OK(c, setting)
+	response.OK(c, "success", setting)
 }
 
 // CreateSettingRequest 创建配置请求
@@ -147,7 +147,7 @@ func (h *SettingHandler) CreateSetting(c *gin.Context) {
 		return
 	}
 
-	response.Created(c, result)
+	response.Created(c, "setting created successfully", result)
 }
 
 // UpdateSettingRequest 更新配置请求
@@ -197,7 +197,7 @@ func (h *SettingHandler) UpdateSetting(c *gin.Context) {
 		return
 	}
 
-	response.OK(c, setting)
+	response.OK(c, "setting updated successfully", setting)
 }
 
 // DeleteSetting 删除配置
@@ -280,5 +280,5 @@ func (h *SettingHandler) BatchUpdateSettings(c *gin.Context) {
 		return
 	}
 
-	response.OK(c, gin.H{"message": "批量更新成功"})
+	response.OK(c, "批量更新成功", nil)
 }

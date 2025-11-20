@@ -83,9 +83,8 @@ func (h *AdminUserHandler) CreateUser(c *gin.Context) {
 		return
 	}
 
-	response.Created(c, gin.H{
-		"message": "user created successfully",
-		"user":    createdUser,
+	response.Created(c, "user created successfully", gin.H{
+		"user": createdUser,
 	})
 }
 
@@ -128,7 +127,7 @@ func (h *AdminUserHandler) ListUsers(c *gin.Context) {
 	}
 
 	meta := response.NewPaginationMeta(int(result.Total), page, limit)
-	response.List(c, gin.H{
+	response.List(c, "success", gin.H{
 		"users": result.Users,
 	}, meta)
 }
@@ -165,7 +164,7 @@ func (h *AdminUserHandler) GetUser(c *gin.Context) {
 		return
 	}
 
-	response.OK(c, userResp)
+	response.OK(c, "success", userResp)
 }
 
 // UpdateUser updates a user (admin only)
@@ -220,9 +219,8 @@ func (h *AdminUserHandler) UpdateUser(c *gin.Context) {
 		return
 	}
 
-	response.OK(c, gin.H{
-		"message": "user updated successfully",
-		"user":    updatedUser,
+	response.OK(c, "user updated successfully", gin.H{
+		"user": updatedUser,
 	})
 }
 
@@ -257,7 +255,7 @@ func (h *AdminUserHandler) DeleteUser(c *gin.Context) {
 		return
 	}
 
-	response.OK(c, gin.H{"message": "user deleted successfully"})
+	response.OK(c, "user deleted successfully", nil)
 }
 
 // AssignRoles assigns roles to a user (admin only)
@@ -299,5 +297,5 @@ func (h *AdminUserHandler) AssignRoles(c *gin.Context) {
 		return
 	}
 
-	response.OK(c, gin.H{"message": "roles assigned successfully"})
+	response.OK(c, "roles assigned successfully", nil)
 }

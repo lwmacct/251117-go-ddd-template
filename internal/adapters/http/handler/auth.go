@@ -72,26 +72,23 @@ func (h *AuthHandler) Register(c *gin.Context) {
 		return
 	}
 
-	response.Created(c, gin.H{
-		"message": "user registered successfully",
-		"data": gin.H{
-			"user_id":       result.UserID,
-			"username":      result.Username,
-			"email":         result.Email,
-			"access_token":  result.AccessToken,
-			"refresh_token": result.RefreshToken,
-			"token_type":    result.TokenType,
-			"expires_in":    result.ExpiresIn,
-		},
+	response.Created(c, "user registered successfully", gin.H{
+		"user_id":       result.UserID,
+		"username":      result.Username,
+		"email":         result.Email,
+		"access_token":  result.AccessToken,
+		"refresh_token": result.RefreshToken,
+		"token_type":    result.TokenType,
+		"expires_in":    result.ExpiresIn,
 	})
 }
 
 // LoginRequest 登录请求
 type LoginRequest struct {
-	Account   string `json:"account" binding:"required" example:"admin"`            // 手机号/用户名/邮箱
-	Password  string `json:"password" binding:"required" example:"admin123"`        // 密码
-	CaptchaID string `json:"captcha_id" binding:"required" example:"dev-123456"`    // 验证码ID
-	Captcha   string `json:"captcha" binding:"required" example:"9999"`             // 验证码
+	Account   string `json:"account" binding:"required" example:"admin"`         // 手机号/用户名/邮箱
+	Password  string `json:"password" binding:"required" example:"admin123"`     // 密码
+	CaptchaID string `json:"captcha_id" binding:"required" example:"dev-123456"` // 验证码ID
+	Captcha   string `json:"captcha" binding:"required" example:"9999"`          // 验证码
 }
 
 // Login 用户登录
@@ -115,7 +112,7 @@ func (h *AuthHandler) Login(c *gin.Context) {
 
 	// 调用 Use Case Handler
 	result, err := h.loginHandler.Handle(c.Request.Context(), authCommand.LoginCommand{
-		Login:     req.Account, // 前端使用 account，内部使用 login
+		Account:   req.Account, // 前端使用 account，内部使用 login
 		Password:  req.Password,
 		CaptchaID: req.CaptchaID,
 		Captcha:   req.Captcha,
@@ -128,28 +125,22 @@ func (h *AuthHandler) Login(c *gin.Context) {
 
 	// 检查是否需要 2FA
 	if result.Requires2FA {
-		response.OK(c, gin.H{
-			"message": "Two factor authentication required",
-			"data": gin.H{
-				"requires_2fa":  true,
-				"session_token": result.SessionToken,
-			},
+		response.OK(c, "Two factor authentication required", gin.H{
+			"requires_2fa":  true,
+			"session_token": result.SessionToken,
 		})
 		return
 	}
 
 	// 正常登录成功
-	response.OK(c, gin.H{
-		"message": "login successful",
-		"data": gin.H{
-			"access_token":  result.AccessToken,
-			"refresh_token": result.RefreshToken,
-			"token_type":    result.TokenType,
-			"expires_in":    result.ExpiresIn,
-			"user": gin.H{
-				"user_id":  result.UserID,
-				"username": result.Username,
-			},
+	response.OK(c, "login successful", gin.H{
+		"access_token":  result.AccessToken,
+		"refresh_token": result.RefreshToken,
+		"token_type":    result.TokenType,
+		"expires_in":    result.ExpiresIn,
+		"user": gin.H{
+			"user_id":  result.UserID,
+			"username": result.Username,
 		},
 	})
 }
@@ -192,14 +183,11 @@ func (h *AuthHandler) RefreshToken(c *gin.Context) {
 		return
 	}
 
-	response.OK(c, gin.H{
-		"message": "token refreshed successfully",
-		"data": gin.H{
-			"access_token":  result.AccessToken,
-			"refresh_token": result.RefreshToken,
-			"token_type":    result.TokenType,
-			"expires_in":    result.ExpiresIn,
-		},
+	response.OK(c, "token refreshed successfully", gin.H{
+		"access_token":  result.AccessToken,
+		"refresh_token": result.RefreshToken,
+		"token_type":    result.TokenType,
+		"expires_in":    result.ExpiresIn,
 	})
 }
 
@@ -240,5 +228,5 @@ func (h *AuthHandler) Me(c *gin.Context) {
 		return
 	}
 
-	response.OK(c, gin.H{"data": user})
+	response.OK(c, "success", user)
 }

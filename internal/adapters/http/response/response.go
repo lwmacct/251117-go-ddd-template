@@ -6,28 +6,43 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Response 通用成功响应结构（用于 Swagger 文档）
-type Response struct {
-	Message string      `json:"message,omitempty"` // 成功消息
-	Data    interface{} `json:"data,omitempty"`    // 响应数据
+// ============================================================================
+// 响应结构定义
+// ============================================================================
+
+// UnifiedResponse 统一响应结构
+// 前端期望格式：{ code: number, message: string, data?: any, error?: any }
+type UnifiedResponse struct {
+	Code    int    `json:"code"`              // HTTP 状态码（数字）
+	Message string `json:"message"`           // 消息描述
+	Data    any    `json:"data,omitempty"`    // 成功时的数据
+	Error   any    `json:"error,omitempty"`   // 失败时的错误详情
 }
 
-// ErrorResponse 错误响应 (符合 RFC 7807 Problem Details)
+// Response 通用响应结构（用于 Swagger 文档）
+type Response struct {
+	Message string `json:"message,omitempty"` // 消息
+	Data    any    `json:"data,omitempty"`    // 数据
+}
+
+// ErrorResponse 错误响应结构（用于 Swagger 文档）
 type ErrorResponse struct {
 	Error ErrorDetail `json:"error"`
 }
 
 // ErrorDetail 错误详情
 type ErrorDetail struct {
-	Code    string      `json:"code"`              // 业务错误码
-	Message string      `json:"message"`           // 错误消息
-	Details interface{} `json:"details,omitempty"` // 额外详情 (如验证错误列表)
+	Code    string `json:"code"`              // 业务错误码（小写下划线）
+	Message string `json:"message"`           // 错误消息
+	Details any    `json:"details,omitempty"` // 额外详情（如验证错误列表）
 }
 
-// ListResponse 列表响应 (带分页信息)
+// ListResponse 列表响应（带分页信息）
 type ListResponse struct {
-	Data interface{}     `json:"data"`
-	Meta *PaginationMeta `json:"meta,omitempty"`
+	Code    int             `json:"code"`
+	Message string          `json:"message"`
+	Data    any             `json:"data"`
+	Meta    *PaginationMeta `json:"meta,omitempty"`
 }
 
 // PaginationMeta 分页元数据
@@ -39,58 +54,72 @@ type PaginationMeta struct {
 	HasMore    bool `json:"has_more,omitempty"`    // 是否有下一页
 }
 
-// JSON 通用 JSON 响应 (成功时直接返回数据)
-func JSON(c *gin.Context, statusCode int, data interface{}) {
-	c.JSON(statusCode, data)
+// ============================================================================
+// 成功响应函数
+// ============================================================================
+
+// Success 统一成功响应
+// 返回格式：{ code: 200, message: "...", data: {...} }
+func Success(c *gin.Context, statusCode int, message string, data any) {
+	c.JSON(statusCode, UnifiedResponse{
+		Code:    statusCode,
+		Message: message,
+		Data:    data,
+	})
 }
 
-// OK 200 成功响应 (返回单个资源)
-func OK(c *gin.Context, data interface{}) {
-	c.JSON(http.StatusOK, data)
+// OK 200 成功响应
+func OK(c *gin.Context, message string, data any) {
+	Success(c, http.StatusOK, message, data)
 }
 
 // Created 201 创建成功响应
-func Created(c *gin.Context, data interface{}) {
-	c.JSON(http.StatusCreated, data)
+func Created(c *gin.Context, message string, data any) {
+	Success(c, http.StatusCreated, message, data)
 }
 
-// NoContent 204 无内容响应 (删除、更新成功等)
+// NoContent 204 无内容响应
 func NoContent(c *gin.Context) {
 	c.Status(http.StatusNoContent)
 }
 
-// List 200 列表响应 (带可选分页)
-func List(c *gin.Context, data interface{}, meta *PaginationMeta) {
+// List 200 列表响应（带分页）
+func List(c *gin.Context, message string, data any, meta *PaginationMeta) {
 	c.JSON(http.StatusOK, ListResponse{
-		Data: data,
-		Meta: meta,
+		Code:    http.StatusOK,
+		Message: message,
+		Data:    data,
+		Meta:    meta,
 	})
 }
 
-// Error 通用错误响应
-func Error(c *gin.Context, statusCode int, code string, message string, details ...interface{}) {
-	errDetail := ErrorDetail{
-		Code:    code,
+// ============================================================================
+// 错误响应函数
+// ============================================================================
+
+// Failure 统一错误响应
+// 返回格式：{ code: 400, message: "...", error: {...} }
+func Failure(c *gin.Context, statusCode int, message string, errorDetails ...any) {
+	resp := UnifiedResponse{
+		Code:    statusCode,
 		Message: message,
 	}
 
-	if len(details) > 0 {
-		errDetail.Details = details[0]
+	if len(errorDetails) > 0 {
+		resp.Error = errorDetails[0]
 	}
 
-	c.JSON(statusCode, ErrorResponse{
-		Error: errDetail,
-	})
+	c.JSON(statusCode, resp)
 }
 
 // BadRequest 400 请求错误
-func BadRequest(c *gin.Context, message string, details ...interface{}) {
-	Error(c, http.StatusBadRequest, "BAD_REQUEST", message, details...)
+func BadRequest(c *gin.Context, message string, details ...any) {
+	Failure(c, http.StatusBadRequest, message, details...)
 }
 
 // ValidationError 400 验证错误
-func ValidationError(c *gin.Context, details interface{}) {
-	Error(c, http.StatusBadRequest, "VALIDATION_ERROR", "Validation failed", details)
+func ValidationError(c *gin.Context, details any) {
+	Failure(c, http.StatusBadRequest, "Validation failed", details)
 }
 
 // Unauthorized 401 未认证
@@ -98,7 +127,7 @@ func Unauthorized(c *gin.Context, message string) {
 	if message == "" {
 		message = "Authentication required"
 	}
-	Error(c, http.StatusUnauthorized, "UNAUTHORIZED", message)
+	Failure(c, http.StatusUnauthorized, message)
 }
 
 // Forbidden 403 无权限
@@ -106,7 +135,7 @@ func Forbidden(c *gin.Context, message string) {
 	if message == "" {
 		message = "Access forbidden"
 	}
-	Error(c, http.StatusForbidden, "FORBIDDEN", message)
+	Failure(c, http.StatusForbidden, message)
 }
 
 // NotFound 404 资源不存在
@@ -115,7 +144,7 @@ func NotFound(c *gin.Context, resource string) {
 	if resource != "" {
 		message = resource + " not found"
 	}
-	Error(c, http.StatusNotFound, "NOT_FOUND", message)
+	Failure(c, http.StatusNotFound, message)
 }
 
 // Conflict 409 资源冲突
@@ -123,17 +152,17 @@ func Conflict(c *gin.Context, message string) {
 	if message == "" {
 		message = "Resource conflict"
 	}
-	Error(c, http.StatusConflict, "CONFLICT", message)
+	Failure(c, http.StatusConflict, message)
 }
 
 // TooManyRequests 429 请求过多
 func TooManyRequests(c *gin.Context) {
-	Error(c, http.StatusTooManyRequests, "TOO_MANY_REQUESTS", "Rate limit exceeded")
+	Failure(c, http.StatusTooManyRequests, "Rate limit exceeded")
 }
 
 // InternalError 500 服务器错误
-func InternalError(c *gin.Context, details ...interface{}) {
-	Error(c, http.StatusInternalServerError, "INTERNAL_ERROR", "Internal server error", details...)
+func InternalError(c *gin.Context, details ...any) {
+	Failure(c, http.StatusInternalServerError, "Internal server error", details...)
 }
 
 // ServiceUnavailable 503 服务不可用
@@ -141,15 +170,16 @@ func ServiceUnavailable(c *gin.Context, message string) {
 	if message == "" {
 		message = "Service temporarily unavailable"
 	}
-	Error(c, http.StatusServiceUnavailable, "SERVICE_UNAVAILABLE", message)
+	Failure(c, http.StatusServiceUnavailable, message)
 }
+
+// ============================================================================
+// 工具函数
+// ============================================================================
 
 // NewPaginationMeta 创建分页元数据
 func NewPaginationMeta(total, page, perPage int) *PaginationMeta {
-	totalPages := (total + perPage - 1) / perPage
-	if totalPages < 1 {
-		totalPages = 1
-	}
+	totalPages := max((total+perPage-1)/perPage, 1)
 
 	return &PaginationMeta{
 		Total:      total,
