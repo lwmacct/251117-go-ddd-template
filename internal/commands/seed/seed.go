@@ -25,6 +25,7 @@ var Command = &cli.Command{
 // getAllSeeders 返回所有可用的种子
 func getAllSeeders() []database.Seeder {
 	return []database.Seeder{
+		&database.RBACSeeder{}, // RBAC 权限体系（必须先于 UserSeeder，因为会创建 admin 用户）
 		&seeds.UserSeeder{},
 		// 未来可以添加更多种子...
 	}

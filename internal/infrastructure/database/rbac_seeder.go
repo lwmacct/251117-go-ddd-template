@@ -154,16 +154,17 @@ func (s *RBACSeeder) seedRoles(ctx context.Context, db *gorm.DB) error {
 
 // seedAdminUser seeds an initial admin user
 func (s *RBACSeeder) seedAdminUser(ctx context.Context, db *gorm.DB) error {
-	// Check if admin user already exists
-	var existing _persistence.UserModel
-	result := db.WithContext(ctx).Where("username = ?", "admin").First(&existing)
-	if result.Error == gorm.ErrRecordNotFound {
-		// Get admin role
-		var adminRole _persistence.RoleModel
-		if err := db.WithContext(ctx).Where("name = ?", "admin").First(&adminRole).Error; err != nil {
-			return err
-		}
+	// Get admin role
+	var adminRole _persistence.RoleModel
+	if err := db.WithContext(ctx).Where("name = ?", "admin").First(&adminRole).Error; err != nil {
+		return err
+	}
 
+	// Check if admin user already exists
+	var adminUser _persistence.UserModel
+	result := db.WithContext(ctx).Where("username = ?", "admin").First(&adminUser)
+
+	if result.Error == gorm.ErrRecordNotFound {
 		// Hash password
 		hashedPassword, err := bcrypt.GenerateFromPassword([]byte("admin123"), bcrypt.DefaultCost)
 		if err != nil {
@@ -171,7 +172,7 @@ func (s *RBACSeeder) seedAdminUser(ctx context.Context, db *gorm.DB) error {
 		}
 
 		// Create admin user
-		adminUser := &_persistence.UserModel{
+		adminUser = _persistence.UserModel{
 			Username: "admin",
 			Email:    "admin@example.com",
 			Password: string(hashedPassword),
@@ -179,18 +180,29 @@ func (s *RBACSeeder) seedAdminUser(ctx context.Context, db *gorm.DB) error {
 			Status:   "active",
 		}
 
-		if err := db.WithContext(ctx).Create(adminUser).Error; err != nil {
+		if err := db.WithContext(ctx).Create(&adminUser).Error; err != nil {
 			return err
 		}
 		slog.Info("Created admin user", "username", "admin")
-
-		// Assign admin role
-		if err := db.WithContext(ctx).Model(adminUser).Association("Roles").Append(&adminRole); err != nil {
-			return err
-		}
 		slog.Warn("Default admin credentials", "username", "admin", "password", "admin123", "warning", "PLEASE CHANGE THIS PASSWORD IMMEDIATELY")
 	} else {
 		slog.Info("Admin user already exists", "username", "admin")
+	}
+
+	// Ensure admin role is assigned (idempotent)
+	var roleCount int64
+	db.WithContext(ctx).Model(&adminUser).Association("Roles").Count()
+	db.WithContext(ctx).Table("user_roles").
+		Where("user_model_id = ? AND role_model_id = ?", adminUser.ID, adminRole.ID).
+		Count(&roleCount)
+
+	if roleCount == 0 {
+		if err := db.WithContext(ctx).Model(&adminUser).Association("Roles").Append(&adminRole); err != nil {
+			return err
+		}
+		slog.Info("Assigned admin role to admin user", "username", "admin", "role", "admin")
+	} else {
+		slog.Info("Admin user already has admin role", "username", "admin")
 	}
 
 	return nil
