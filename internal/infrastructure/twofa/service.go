@@ -39,9 +39,9 @@ func NewService(twofaCommandRepo twofa.CommandRepository, twofaQueryRepo twofa.Q
 
 // SetupResponse 设置 2FA 返回数据
 type SetupResponse struct {
-	Secret    string `json:"secret"`      // TOTP 密钥（用户可手动输入）
-	QRCodeURL string `json:"qrcode_url"`  // 二维码URL
-	QRCodeImg string `json:"qrcode_img"`  // Base64 编码的二维码图片
+	Secret    string `json:"secret"`     // TOTP 密钥（用户可手动输入）
+	QRCodeURL string `json:"qrcode_url"` // 二维码URL
+	QRCodeImg string `json:"qrcode_img"` // Base64 编码的二维码图片
 }
 
 // Setup 设置 2FA（生成密钥和二维码）

@@ -176,18 +176,10 @@ const saveAllSettings = async () => {
       <v-col cols="12">
         <v-card>
           <v-tabs v-model="tabs" bg-color="primary">
-            <v-tab value="general" prepend-icon="mdi-cog">
-              常规设置
-            </v-tab>
-            <v-tab value="security" prepend-icon="mdi-shield-lock">
-              安全设置
-            </v-tab>
-            <v-tab value="notification" prepend-icon="mdi-bell">
-              通知设置
-            </v-tab>
-            <v-tab value="backup" prepend-icon="mdi-backup-restore">
-              备份设置
-            </v-tab>
+            <v-tab value="general" prepend-icon="mdi-cog"> 常规设置 </v-tab>
+            <v-tab value="security" prepend-icon="mdi-shield-lock"> 安全设置 </v-tab>
+            <v-tab value="notification" prepend-icon="mdi-bell"> 通知设置 </v-tab>
+            <v-tab value="backup" prepend-icon="mdi-backup-restore"> 备份设置 </v-tab>
           </v-tabs>
 
           <v-card-text class="pa-6">

@@ -31,15 +31,15 @@ type Service struct {
 // NewService 创建验证码服务
 func NewService() *Service {
 	driver := base64Captcha.NewDriverString(
-		DefaultHeight,                      // 高度
-		DefaultWidth,                       // 宽度
-		2,                                  // 干扰噪点数量（适中）
-		base64Captcha.OptionShowSlimeLine,  // 显示干扰线选项
-		DefaultLength,                      // 验证码长度
-		charset,                            // 字符集
-		&color.RGBA{245, 245, 245, 255},    // 背景颜色（浅灰）
-		nil,                                // 使用默认字体
-		[]string{"wqy-microhei.ttc"},       // 字体列表
+		DefaultHeight,                     // 高度
+		DefaultWidth,                      // 宽度
+		2,                                 // 干扰噪点数量（适中）
+		base64Captcha.OptionShowSlimeLine, // 显示干扰线选项
+		DefaultLength,                     // 验证码长度
+		charset,                           // 字符集
+		&color.RGBA{245, 245, 245, 255},   // 背景颜色（浅灰）
+		nil,                               // 使用默认字体
+		[]string{"wqy-microhei.ttc"},      // 字体列表
 	).ConvertFonts()
 
 	return &Service{

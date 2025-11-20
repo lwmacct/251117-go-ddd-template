@@ -46,7 +46,7 @@ export const register = async (req: BasicRegisterRequest): Promise<AuthResponse>
  * 刷新访问令牌
  */
 export const refreshToken = async (refreshToken: string): Promise<AuthResponse> => {
-  const { data} = await apiClient.post<ApiResponse<AuthResponse>>("/api/auth/refresh", {
+  const { data } = await apiClient.post<ApiResponse<AuthResponse>>("/api/auth/refresh", {
     refresh_token: refreshToken,
   });
 

@@ -78,13 +78,13 @@ type Container struct {
 	AuthService auth.Service
 
 	// Infrastructure Services
-	JWTManager              *_auth.JWTManager
-	TokenGenerator          *_auth.TokenGenerator
-	LoginSessionService     *_auth.LoginSessionService
-	PermissionCacheService  *_auth.PermissionCacheService
-	PATService              *_auth.PATService
-	CaptchaService          *_captcha.Service
-	TwoFAService            *_twofa.Service
+	JWTManager             *_auth.JWTManager
+	TokenGenerator         *_auth.TokenGenerator
+	LoginSessionService    *_auth.LoginSessionService
+	PermissionCacheService *_auth.PermissionCacheService
+	PATService             *_auth.PATService
+	CaptchaService         *_captcha.Service
+	TwoFAService           *_twofa.Service
 
 	// Use Case Handlers - Auth
 	LoginHandler        *authCommand.LoginHandler

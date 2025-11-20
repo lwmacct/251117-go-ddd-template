@@ -177,14 +177,7 @@ export const revokeToken = async (id: number): Promise<void> => {
 ```ts
 export * from "./auth"; // auth/auth.ts + auth/user.ts + auth/client.ts + platformAuth.ts
 export * from "./user";
-export type {
-  CaptchaData,
-  LoginRequest,
-  PlatformLoginRequest,
-  AuthResponse,
-  LoginResult,
-  User,
-} from "@/types";
+export type { CaptchaData, LoginRequest, PlatformLoginRequest, AuthResponse, LoginResult, User } from "@/types";
 ```
 
 组件或 Store 只需一次导入：

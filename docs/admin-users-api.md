@@ -11,6 +11,7 @@
 **端点**: `POST /api/admin/users`
 **权限**: `admin:users:create`
 **请求体**:
+
 ```json
 {
   "username": "string (必填)",
@@ -23,6 +24,7 @@
 ```
 
 **响应**:
+
 ```json
 {
   "code": 201,
@@ -47,11 +49,13 @@
 **端点**: `GET /api/admin/users`
 **权限**: `admin:users:read`
 **查询参数**:
+
 - `page`: 页码（默认: 1）
 - `limit`: 每页数量（默认: 20，最大: 100）
 - `search`: 搜索关键词（支持用户名、邮箱、全名模糊匹配）
 
 **响应**:
+
 ```json
 {
   "code": 200,
@@ -84,6 +88,7 @@
 **权限**: `admin:users:read`
 
 **响应**:
+
 ```json
 {
   "code": 200,
@@ -113,6 +118,7 @@
 **端点**: `PUT /api/admin/users/:id`
 **权限**: `admin:users:update`
 **请求体**:
+
 ```json
 {
   "email": "string (可选)",
@@ -124,6 +130,7 @@
 ```
 
 **响应**:
+
 ```json
 {
   "code": 200,
@@ -149,6 +156,7 @@
 **权限**: `admin:users:delete`
 
 **响应**:
+
 ```json
 {
   "code": 200,
@@ -162,6 +170,7 @@
 **端点**: `PUT /api/admin/users/:id/roles`
 **权限**: `admin:users:update`
 **请求体**:
+
 ```json
 {
   "role_ids": [1, 2, 3]
@@ -169,6 +178,7 @@
 ```
 
 **响应**:
+
 ```json
 {
   "code": 200,
@@ -283,6 +293,7 @@ internal/
 #### 1. 响应格式一致性
 
 所有 API 使用统一的响应格式（`internal/adapters/http/response`）：
+
 - `response.OK()` - 200 成功
 - `response.Created()` - 201 创建成功
 - `response.List()` - 200 列表（含分页）
@@ -330,6 +341,7 @@ uv run testing/test_admin_users.py
 ```
 
 测试覆盖：
+
 1. ✅ 登录获取 Token
 2. ✅ 获取用户列表
 3. ✅ 创建用户

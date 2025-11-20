@@ -12,13 +12,13 @@ type CreateTokenRequest struct {
 
 // TokenResponse 令牌响应 DTO（创建时返回完整令牌）
 type TokenResponse struct {
-	ID          uint      `json:"id"`
-	Name        string    `json:"name"`
-	Token       string    `json:"token,omitempty"`       // 仅在创建时返回，其他时候为空
-	Permissions []string  `json:"permissions,omitempty"` // 令牌权限范围
+	ID          uint       `json:"id"`
+	Name        string     `json:"name"`
+	Token       string     `json:"token,omitempty"`       // 仅在创建时返回，其他时候为空
+	Permissions []string   `json:"permissions,omitempty"` // 令牌权限范围
 	ExpiresAt   *time.Time `json:"expires_at,omitempty"`
 	LastUsedAt  *time.Time `json:"last_used_at,omitempty"`
-	CreatedAt   time.Time `json:"created_at"`
+	CreatedAt   time.Time  `json:"created_at"`
 }
 
 // TokenListResponse 令牌列表响应 DTO

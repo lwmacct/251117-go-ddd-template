@@ -122,12 +122,12 @@ type UserModel struct {
 
 #### Repository 分离
 
-| 接口 | 位置 | 说明 |
-| ---- | ---- | ---- |
-| `role.CommandRepository` | `internal/domain/role/command_repository.go` | 写操作：创建/更新/删除角色与权限，全部使用 GORM Model 写入 |
-| `role.QueryRepository` | `internal/domain/role/query_repository.go` | 读操作：`GetByIDWithPermissions`、`List`、`ExistsByName` 等 |
-| `user.CommandRepository` | `internal/domain/user/command_repository.go` | 用户写操作（激活、分配角色） |
-| `user.QueryRepository` | `internal/domain/user/query_repository.go` | 用户读操作（含角色/权限预加载） |
+| 接口                     | 位置                                         | 说明                                                        |
+| ------------------------ | -------------------------------------------- | ----------------------------------------------------------- |
+| `role.CommandRepository` | `internal/domain/role/command_repository.go` | 写操作：创建/更新/删除角色与权限，全部使用 GORM Model 写入  |
+| `role.QueryRepository`   | `internal/domain/role/query_repository.go`   | 读操作：`GetByIDWithPermissions`、`List`、`ExistsByName` 等 |
+| `user.CommandRepository` | `internal/domain/user/command_repository.go` | 用户写操作（激活、分配角色）                                |
+| `user.QueryRepository`   | `internal/domain/user/query_repository.go`   | 用户读操作（含角色/权限预加载）                             |
 
 每个仓储的 Infrastructure 实现在 `internal/infrastructure/persistence/*_repository.go`，并在构造函数中显式注入，确保 Command/Query 读写分离。
 

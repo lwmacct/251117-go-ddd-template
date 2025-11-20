@@ -9,13 +9,13 @@ import (
 
 // MenuModel 菜单的 GORM 实体
 type MenuModel struct {
-	ID        uint           `gorm:"primaryKey"`
-	Title     string         `gorm:"type:varchar(100);not null"`
-	Path      string         `gorm:"type:varchar(255);not null"`
-	Icon      string         `gorm:"type:varchar(100)"`
-	ParentID  *uint          `gorm:"index"`
-	Order     int            `gorm:"default:0"`
-	Visible   bool           `gorm:"default:true"`
+	ID        uint   `gorm:"primaryKey"`
+	Title     string `gorm:"type:varchar(100);not null"`
+	Path      string `gorm:"type:varchar(255);not null"`
+	Icon      string `gorm:"type:varchar(100)"`
+	ParentID  *uint  `gorm:"index"`
+	Order     int    `gorm:"default:0"`
+	Visible   bool   `gorm:"default:true"`
 	CreatedAt time.Time
 	UpdatedAt time.Time
 	DeletedAt gorm.DeletedAt `gorm:"index"`
@@ -32,13 +32,13 @@ func newMenuModelFromEntity(entity *domainMenu.Menu) *MenuModel {
 	}
 
 	model := &MenuModel{
-		ID:       entity.ID,
-		Title:    entity.Title,
-		Path:     entity.Path,
-		Icon:     entity.Icon,
-		ParentID: entity.ParentID,
-		Order:    entity.Order,
-		Visible:  entity.Visible,
+		ID:        entity.ID,
+		Title:     entity.Title,
+		Path:      entity.Path,
+		Icon:      entity.Icon,
+		ParentID:  entity.ParentID,
+		Order:     entity.Order,
+		Visible:   entity.Visible,
 		CreatedAt: entity.CreatedAt,
 		UpdatedAt: entity.UpdatedAt,
 	}

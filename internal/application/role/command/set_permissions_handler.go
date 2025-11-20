@@ -10,9 +10,9 @@ import (
 
 // SetPermissionsHandler 设置权限命令处理器
 type SetPermissionsHandler struct {
-	roleCommandRepo       role.CommandRepository
-	roleQueryRepo         role.QueryRepository
-	permissionQueryRepo   role.PermissionQueryRepository
+	roleCommandRepo     role.CommandRepository
+	roleQueryRepo       role.QueryRepository
+	permissionQueryRepo role.PermissionQueryRepository
 }
 
 // NewSetPermissionsHandler 创建设置权限命令处理器

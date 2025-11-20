@@ -22,7 +22,7 @@ var Command = &cli.Command{
    子命令：
    - up     执行数据库迁移
    - status 查看迁移状态
-   - fresh  删除所有表并重新迁移 (危险！仅开发环境使用) 
+   - fresh  删除所有表并重新迁移 (危险！仅开发环境使用)
 	`,
 	Commands: []*cli.Command{
 		upCommand,

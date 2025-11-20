@@ -296,9 +296,7 @@ onMounted(() => {
                 </tr>
               </tbody>
             </v-table>
-            <v-alert v-else type="info" variant="tonal">
-              暂无可展示的审计日志。
-            </v-alert>
+            <v-alert v-else type="info" variant="tonal"> 暂无可展示的审计日志。 </v-alert>
           </v-card-text>
         </v-card>
       </v-col>

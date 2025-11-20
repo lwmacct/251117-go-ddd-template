@@ -13,10 +13,10 @@ import (
 // UnifiedResponse 统一响应结构
 // 前端期望格式：{ code: number, message: string, data?: any, error?: any }
 type UnifiedResponse struct {
-	Code    int    `json:"code"`              // HTTP 状态码（数字）
-	Message string `json:"message"`           // 消息描述
-	Data    any    `json:"data,omitempty"`    // 成功时的数据
-	Error   any    `json:"error,omitempty"`   // 失败时的错误详情
+	Code    int    `json:"code"`            // HTTP 状态码（数字）
+	Message string `json:"message"`         // 消息描述
+	Data    any    `json:"data,omitempty"`  // 成功时的数据
+	Error   any    `json:"error,omitempty"` // 失败时的错误详情
 }
 
 // Response 通用响应结构（用于 Swagger 文档）

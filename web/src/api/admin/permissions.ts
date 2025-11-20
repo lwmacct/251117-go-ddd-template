@@ -10,9 +10,7 @@ import type { PaginatedResponse, PaginationParams } from "@/types/common";
 /**
  * 获取权限列表（分页）
  */
-export const listPermissions = async (
-  params: Partial<PaginationParams> = {}
-): Promise<PaginatedResponse<Permission>> => {
+export const listPermissions = async (params: Partial<PaginationParams> = {}): Promise<PaginatedResponse<Permission>> => {
   const page = params.page ?? 1;
   const limit = params.limit ?? 50;
 

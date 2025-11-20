@@ -17,7 +17,7 @@ type PATHandler struct {
 	revokeTokenHandler *patCommand.RevokeTokenHandler
 
 	// Query Handlers
-	getTokenHandler  *patQuery.GetTokenHandler
+	getTokenHandler   *patQuery.GetTokenHandler
 	listTokensHandler *patQuery.ListTokensHandler
 }
 

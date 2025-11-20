@@ -12,13 +12,13 @@ import (
 // MenuHandler handles menu management operations (DDD+CQRS Use Case Pattern)
 type MenuHandler struct {
 	// Command Handlers
-	createMenuHandler  *menuCommand.CreateMenuHandler
-	updateMenuHandler  *menuCommand.UpdateMenuHandler
-	deleteMenuHandler  *menuCommand.DeleteMenuHandler
+	createMenuHandler   *menuCommand.CreateMenuHandler
+	updateMenuHandler   *menuCommand.UpdateMenuHandler
+	deleteMenuHandler   *menuCommand.DeleteMenuHandler
 	reorderMenusHandler *menuCommand.ReorderMenusHandler
 
 	// Query Handlers
-	getMenuHandler  *menuQuery.GetMenuHandler
+	getMenuHandler   *menuQuery.GetMenuHandler
 	listMenusHandler *menuQuery.ListMenusHandler
 }
 

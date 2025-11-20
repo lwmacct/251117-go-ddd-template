@@ -21,12 +21,12 @@ type AuditLog struct {
 
 // FilterOptions represents options for filtering audit logs
 type FilterOptions struct {
-	UserID     *uint
-	Action     string
-	Resource   string
-	Status     string
-	StartDate  *time.Time
-	EndDate    *time.Time
-	Page       int
-	Limit      int
+	UserID    *uint
+	Action    string
+	Resource  string
+	Status    string
+	StartDate *time.Time
+	EndDate   *time.Time
+	Page      int
+	Limit     int
 }

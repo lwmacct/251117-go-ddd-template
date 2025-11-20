@@ -9,15 +9,15 @@ import (
 
 // TwoFAModel 2FA 的 GORM 实体
 type TwoFAModel struct {
-	ID        uint           `gorm:"primaryKey"`
+	ID        uint `gorm:"primaryKey"`
 	CreatedAt time.Time
 	UpdatedAt time.Time
 	DeletedAt gorm.DeletedAt `gorm:"index"`
 
-	UserID uint `gorm:"uniqueIndex;not null"`
-	Enabled bool `gorm:"default:false;not null"`
-	Secret  string `gorm:"size:255;not null"`
-	RecoveryCodes domainTwoFA.RecoveryCodes `gorm:"type:text"`
+	UserID           uint                      `gorm:"uniqueIndex;not null"`
+	Enabled          bool                      `gorm:"default:false;not null"`
+	Secret           string                    `gorm:"size:255;not null"`
+	RecoveryCodes    domainTwoFA.RecoveryCodes `gorm:"type:text"`
 	SetupCompletedAt *time.Time
 	LastUsedAt       *time.Time
 }
@@ -33,13 +33,13 @@ func newTwoFAModelFromEntity(entity *domainTwoFA.TwoFA) *TwoFAModel {
 	}
 
 	model := &TwoFAModel{
-		ID:              entity.ID,
-		CreatedAt:       entity.CreatedAt,
-		UpdatedAt:       entity.UpdatedAt,
-		UserID:          entity.UserID,
-		Enabled:         entity.Enabled,
-		Secret:          entity.Secret,
-		RecoveryCodes:   entity.RecoveryCodes,
+		ID:               entity.ID,
+		CreatedAt:        entity.CreatedAt,
+		UpdatedAt:        entity.UpdatedAt,
+		UserID:           entity.UserID,
+		Enabled:          entity.Enabled,
+		Secret:           entity.Secret,
+		RecoveryCodes:    entity.RecoveryCodes,
 		SetupCompletedAt: entity.SetupCompletedAt,
 		LastUsedAt:       entity.LastUsedAt,
 	}
@@ -57,13 +57,13 @@ func (m *TwoFAModel) toEntity() *domainTwoFA.TwoFA {
 	}
 
 	entity := &domainTwoFA.TwoFA{
-		ID:              m.ID,
-		CreatedAt:       m.CreatedAt,
-		UpdatedAt:       m.UpdatedAt,
-		UserID:          m.UserID,
-		Enabled:         m.Enabled,
-		Secret:          m.Secret,
-		RecoveryCodes:   m.RecoveryCodes,
+		ID:               m.ID,
+		CreatedAt:        m.CreatedAt,
+		UpdatedAt:        m.UpdatedAt,
+		UserID:           m.UserID,
+		Enabled:          m.Enabled,
+		Secret:           m.Secret,
+		RecoveryCodes:    m.RecoveryCodes,
 		SetupCompletedAt: m.SetupCompletedAt,
 		LastUsedAt:       m.LastUsedAt,
 	}
