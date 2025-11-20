@@ -24,7 +24,7 @@ repos:
         files: ^internal/(adapters/http/handler|commands/api)/.*\.go$
 
       # VitePress 文档构建检查
-      - id: docs-build
+      - id: vitepress-build
         name: Build VitePress docs when docs/ changes
         entry: scripts/docs-build-pre-commit.sh
         language: script
