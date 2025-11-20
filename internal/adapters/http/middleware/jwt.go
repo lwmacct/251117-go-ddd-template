@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/lwmacct/251117-go-ddd-template/internal/adapters/http/response"
 	"github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/auth"
 )
 
@@ -15,7 +16,7 @@ func Auth(jwtManager *auth.JWTManager, patService *auth.PATService, permCacheSer
 		// 从请求头获取 Authorization
 		authHeader := c.GetHeader("Authorization")
 		if authHeader == "" {
-			c.JSON(401, gin.H{"error": "authorization header is required"})
+			response.Unauthorized(c, "Authorization header is required")
 			c.Abort()
 			return
 		}
@@ -23,7 +24,7 @@ func Auth(jwtManager *auth.JWTManager, patService *auth.PATService, permCacheSer
 		// 验证格式：Bearer <token>
 		parts := strings.SplitN(authHeader, " ", 2)
 		if len(parts) != 2 || parts[0] != "Bearer" {
-			c.JSON(401, gin.H{"error": "authorization header format must be Bearer {token}"})
+			response.Unauthorized(c, "Authorization header format must be Bearer {token}")
 			c.Abort()
 			return
 		}
@@ -34,14 +35,14 @@ func Auth(jwtManager *auth.JWTManager, patService *auth.PATService, permCacheSer
 		if strings.HasPrefix(tokenString, "pat_") {
 			// Personal Access Token 认证
 			if err := authenticateWithPAT(c, patService, permCacheService, tokenString); err != nil {
-				c.JSON(401, gin.H{"error": err.Error()})
+				response.Unauthorized(c, err.Error())
 				c.Abort()
 				return
 			}
 		} else {
 			// JWT 认证
 			if err := authenticateWithJWT(c, jwtManager, permCacheService, tokenString); err != nil {
-				c.JSON(401, gin.H{"error": err.Error()})
+				response.Unauthorized(c, err.Error())
 				c.Abort()
 				return
 			}
@@ -57,14 +58,14 @@ func JWTAuth(jwtManager *auth.JWTManager) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader("Authorization")
 		if authHeader == "" {
-			c.JSON(401, gin.H{"error": "authorization header is required"})
+			response.Unauthorized(c, "Authorization header is required")
 			c.Abort()
 			return
 		}
 
 		parts := strings.SplitN(authHeader, " ", 2)
 		if len(parts) != 2 || parts[0] != "Bearer" {
-			c.JSON(401, gin.H{"error": "authorization header format must be Bearer {token}"})
+			response.Unauthorized(c, "Authorization header format must be Bearer {token}")
 			c.Abort()
 			return
 		}
@@ -74,7 +75,7 @@ func JWTAuth(jwtManager *auth.JWTManager) gin.HandlerFunc {
 		// 旧方法：仅从 token 中读取权限（不支持实时权限查询）
 		claims, err := jwtManager.ValidateToken(tokenString)
 		if err != nil {
-			c.JSON(401, gin.H{"error": err.Error()})
+			response.Unauthorized(c, err.Error())
 			c.Abort()
 			return
 		}

@@ -1,11 +1,11 @@
 package middleware
 
 import (
-	"net/http"
 	"strconv"
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/lwmacct/251117-go-ddd-template/internal/adapters/http/response"
 )
 
 // RequireRole creates a middleware that checks if the user has a specific role
@@ -13,18 +13,14 @@ func RequireRole(role string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		roles, exists := c.Get("roles")
 		if !exists {
-			c.JSON(http.StatusUnauthorized, gin.H{
-				"error": "unauthorized: no roles found",
-			})
+			response.Unauthorized(c, "No roles found")
 			c.Abort()
 			return
 		}
 
 		rolesList, ok := roles.([]string)
 		if !ok {
-			c.JSON(http.StatusInternalServerError, gin.H{
-				"error": "internal error: invalid roles format",
-			})
+			response.InternalError(c, "Invalid roles format")
 			c.Abort()
 			return
 		}
@@ -38,9 +34,7 @@ func RequireRole(role string) gin.HandlerFunc {
 		}
 
 		if !hasRole {
-			c.JSON(http.StatusForbidden, gin.H{
-				"error": "forbidden: insufficient permissions",
-			})
+			response.Forbidden(c, "Insufficient permissions")
 			c.Abort()
 			return
 		}
@@ -54,18 +48,14 @@ func RequireAnyRole(roles ...string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		userRoles, exists := c.Get("roles")
 		if !exists {
-			c.JSON(http.StatusUnauthorized, gin.H{
-				"error": "unauthorized: no roles found",
-			})
+			response.Unauthorized(c, "No roles found")
 			c.Abort()
 			return
 		}
 
 		rolesList, ok := userRoles.([]string)
 		if !ok {
-			c.JSON(http.StatusInternalServerError, gin.H{
-				"error": "internal error: invalid roles format",
-			})
+			response.InternalError(c, "Invalid roles format")
 			c.Abort()
 			return
 		}
@@ -84,9 +74,7 @@ func RequireAnyRole(roles ...string) gin.HandlerFunc {
 		}
 
 		if !hasRole {
-			c.JSON(http.StatusForbidden, gin.H{
-				"error": "forbidden: insufficient permissions",
-			})
+			response.Forbidden(c, "Insufficient permissions")
 			c.Abort()
 			return
 		}
@@ -102,18 +90,14 @@ func RequirePermission(permission string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		permissions, exists := c.Get("permissions")
 		if !exists {
-			c.JSON(http.StatusUnauthorized, gin.H{
-				"error": "unauthorized: no permissions found",
-			})
+			response.Unauthorized(c, "No permissions found")
 			c.Abort()
 			return
 		}
 
 		permissionsList, ok := permissions.([]string)
 		if !ok {
-			c.JSON(http.StatusInternalServerError, gin.H{
-				"error": "internal error: invalid permissions format",
-			})
+			response.InternalError(c, "Invalid permissions format")
 			c.Abort()
 			return
 		}
@@ -127,9 +111,7 @@ func RequirePermission(permission string) gin.HandlerFunc {
 		}
 
 		if !hasPermission {
-			c.JSON(http.StatusForbidden, gin.H{
-				"error": "forbidden: insufficient permissions",
-			})
+			response.Forbidden(c, "Insufficient permissions")
 			c.Abort()
 			return
 		}
@@ -144,18 +126,14 @@ func RequireAnyPermission(permissions ...string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		userPermissions, exists := c.Get("permissions")
 		if !exists {
-			c.JSON(http.StatusUnauthorized, gin.H{
-				"error": "unauthorized: no permissions found",
-			})
+			response.Unauthorized(c, "No permissions found")
 			c.Abort()
 			return
 		}
 
 		permissionsList, ok := userPermissions.([]string)
 		if !ok {
-			c.JSON(http.StatusInternalServerError, gin.H{
-				"error": "internal error: invalid permissions format",
-			})
+			response.InternalError(c, "Invalid permissions format")
 			c.Abort()
 			return
 		}
@@ -174,9 +152,7 @@ func RequireAnyPermission(permissions ...string) gin.HandlerFunc {
 		}
 
 		if !hasPermission {
-			c.JSON(http.StatusForbidden, gin.H{
-				"error": "forbidden: insufficient permissions",
-			})
+			response.Forbidden(c, "Insufficient permissions")
 			c.Abort()
 			return
 		}
@@ -191,18 +167,14 @@ func RequireOwnership(paramName ...string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		userID, exists := c.Get("user_id")
 		if !exists {
-			c.JSON(http.StatusUnauthorized, gin.H{
-				"error": "unauthorized: no user ID found",
-			})
+			response.Unauthorized(c, "No user ID found")
 			c.Abort()
 			return
 		}
 
 		uid, ok := userID.(uint)
 		if !ok {
-			c.JSON(http.StatusInternalServerError, gin.H{
-				"error": "internal error: invalid user ID format",
-			})
+			response.InternalError(c, "Invalid user ID format")
 			c.Abort()
 			return
 		}
@@ -215,17 +187,13 @@ func RequireOwnership(paramName ...string) gin.HandlerFunc {
 		resourceIDStr := c.Param(param)
 		resourceID, err := strconv.ParseUint(resourceIDStr, 10, 32)
 		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"error": "invalid resource ID",
-			})
+			response.BadRequest(c, "Invalid resource ID")
 			c.Abort()
 			return
 		}
 
 		if uint(resourceID) != uid {
-			c.JSON(http.StatusForbidden, gin.H{
-				"error": "forbidden: can only access own resources",
-			})
+			response.Forbidden(c, "Can only access own resources")
 			c.Abort()
 			return
 		}
@@ -254,18 +222,14 @@ func RequireAdminOrOwnership(paramName ...string) gin.HandlerFunc {
 		// If not admin, check ownership
 		userID, exists := c.Get("user_id")
 		if !exists {
-			c.JSON(http.StatusUnauthorized, gin.H{
-				"error": "unauthorized: no user ID found",
-			})
+			response.Unauthorized(c, "No user ID found")
 			c.Abort()
 			return
 		}
 
 		uid, ok := userID.(uint)
 		if !ok {
-			c.JSON(http.StatusInternalServerError, gin.H{
-				"error": "internal error: invalid user ID format",
-			})
+			response.InternalError(c, "Invalid user ID format")
 			c.Abort()
 			return
 		}
@@ -278,17 +242,13 @@ func RequireAdminOrOwnership(paramName ...string) gin.HandlerFunc {
 		resourceIDStr := c.Param(param)
 		resourceID, err := strconv.ParseUint(resourceIDStr, 10, 32)
 		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"error": "invalid resource ID",
-			})
+			response.BadRequest(c, "Invalid resource ID")
 			c.Abort()
 			return
 		}
 
 		if uint(resourceID) != uid {
-			c.JSON(http.StatusForbidden, gin.H{
-				"error": "forbidden: insufficient permissions",
-			})
+			response.Forbidden(c, "Insufficient permissions")
 			c.Abort()
 			return
 		}
