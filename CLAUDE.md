@@ -542,6 +542,12 @@ func NewContainer(cfg *config.Config) (*Container, error) {
 ## 开发环境
 
 - 当前系统环境为 ubuntu 22.04, 你可以使用 apt 安装任意软件包来完成工作
-- 你可以使用常用工具如 `ripgrep fd-find tree psql` 等来辅助你完成任务
+- 你可以使用常用工具如 `rg fd tree psql` 等来辅助你完成任务
 - 在完成每一个任务后进行 git commit 来提交工作报告
 - 环境中可能有多个 AI Agent 在工作，git commit 时不必在意其他被修改的文件
+
+## 测试说明
+
+- 目录 `testing` 是测试专用目录, 存放 python 脚本
+- 必须使用 `uv` 命令来运行测试脚本 python, 这是正确使用 python 环境的唯一方式
+- 例如: `uv run testing/api_auth_login.py`
