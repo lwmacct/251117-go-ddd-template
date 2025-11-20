@@ -59,6 +59,18 @@ const dialogTitle = computed(() => {
   return props.mode === "create" ? "新建用户" : "编辑用户";
 });
 
+// 重置表单（需要在 watch 之前定义）
+const resetForm = () => {
+  formData.value = {
+    username: "",
+    email: "",
+    password: "",
+    full_name: "",
+    status: "active",
+  };
+  form.value?.resetValidation();
+};
+
 // 监听用户数据变化，初始化表单
 watch(
   () => props.user,
@@ -77,18 +89,6 @@ watch(
   },
   { immediate: true },
 );
-
-// 重置表单
-const resetForm = () => {
-  formData.value = {
-    username: "",
-    email: "",
-    password: "",
-    full_name: "",
-    status: "active",
-  };
-  form.value?.resetValidation();
-};
 
 // 关闭对话框
 const closeDialog = () => {
