@@ -44,15 +44,13 @@ pre-commit install
 - ✅ 如果有文档修改，自动运行 VitePress 构建验证
 - ✅ 只有构建成功才允许提交，确保文档质量
 
-#### 常用命令
+#### 常用操作
 
 ```bash
-# 手动运行文档构建检查
-pre-commit run docs-build --all-files
-
-# 跳过文档构建检查（不推荐）
+# 跳过文档构建检查（紧急情况下使用）
 git commit --no-verify
-# 或者
+
+# 或使用环境变量跳过
 SKIP=docs-build git commit -m "message"
 
 # 更新 hooks 到最新版本
