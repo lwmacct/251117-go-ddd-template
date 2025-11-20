@@ -8,49 +8,40 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT_DIR"
 
-echo "正在运行文档构建 pre-commit 钩子..."
-echo "--------------------------------------"
-
-# 优先使用传入的文件列表 (pre-commit),否则回退到暂存区差异检查。
+# 优先使用传入的文件列表 (pre-commit),否则回退到暂存区差异检查
 if [ "$#" -gt 0 ]; then
     DOCS_CHANGED_FILES="$*"
 else
     DOCS_CHANGED_FILES="$(git diff --cached --name-only -- 'docs/**' 'docs/*' || true)"
 fi
 
-if [ -z "$DOCS_CHANGED_FILES" ]; then
-    echo "未检测到暂存的文档变更；跳过文档构建。"
-    exit 0
-fi
+# 静默跳过：无文档变更
+[ -z "$DOCS_CHANGED_FILES" ] && exit 0
 
-if [ ! -d "$ROOT_DIR/docs" ]; then
-    echo "未找到 docs/ 目录；跳过文档构建。"
-    exit 0
-fi
+# 静默跳过：docs 目录或配置文件不存在
+[ ! -d "$ROOT_DIR/docs" ] && exit 0
+[ ! -f "$ROOT_DIR/docs/package.json" ] && exit 0
 
-if [ ! -f "$ROOT_DIR/docs/package.json" ]; then
-    echo "未找到 docs/package.json；跳过文档构建。"
-    exit 0
-fi
-
+# 安装依赖（仅在缺失时）
 if [ ! -d "$ROOT_DIR/docs/node_modules" ]; then
-    echo "正在安装文档依赖 (npm install)..."
-    (cd "$ROOT_DIR/docs" && npm install)
+    echo "📦 安装文档依赖..."
+    (cd "$ROOT_DIR/docs" && npm install --silent)
 fi
-
-echo "正在构建文档..."
-echo "提示: 首次构建或缓存失效时可能需要 30-60 秒，请耐心等待..."
 
 # 禁用 npm 进度条和交互式输出，避免在 pre-commit 环境中卡住
 export CI=true
 export npm_config_progress=false
-export npm_config_loglevel=error
+export npm_config_loglevel=silent
 
-if (cd "$ROOT_DIR/docs" && npm run build 2>&1); then
-    echo "✅ 文档构建成功。"
+# 运行构建（捕获输出，仅在失败时显示）
+BUILD_OUTPUT=$(cd "$ROOT_DIR/docs" && npm run build --silent 2>&1)
+BUILD_EXIT_CODE=$?
+
+if [ $BUILD_EXIT_CODE -eq 0 ]; then
+    echo "✅ 文档构建成功"
     exit 0
 else
-    BUILD_EXIT_CODE=$?
-    echo "❌ 文档构建失败，退出码 $BUILD_EXIT_CODE。"
-    exit "$BUILD_EXIT_CODE"
+    echo "❌ 文档构建失败"
+    echo "$BUILD_OUTPUT"
+    exit $BUILD_EXIT_CODE
 fi
