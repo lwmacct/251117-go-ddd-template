@@ -14,6 +14,15 @@ repos:
         stages: [pre-commit]
         files: \.go$
 
+      # Swagger/OpenAPI 文档生成
+      - id: swagger-generate
+        name: Generate Swagger/OpenAPI docs
+        entry: scripts/swagger-pre-commit.sh
+        language: script
+        pass_filenames: false
+        stages: [pre-commit]
+        files: ^internal/(adapters/http/handler|commands/api)/.*\.go$
+
       # VitePress 文档构建检查
       - id: docs-build
         name: Build VitePress docs when docs/ changes
