@@ -29,8 +29,15 @@ http://localhost:40012/swagger/index.html
 或者手动运行：
 
 ```bash
-swag init -g internal/commands/api/api.go -o internal/adapters/http/docs --parseDependency --parseInternal
+swag init \
+    -g internal/commands/api/api.go \
+    -o internal/adapters/http/docs \
+    --parseDependency \
+    --parseInternal
 ```
+
+> **为什么不需要 `--exclude` 参数？**
+> swag 会智能地只解析带有 Swagger 注解的代码和它们引用的类型，无需手动排除无关目录。极简配置性能最优且维护成本最低。
 
 ### 3. API 测试
 

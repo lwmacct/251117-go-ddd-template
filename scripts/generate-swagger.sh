@@ -26,9 +26,7 @@ swag init \
     -g internal/commands/api/api.go \
     -o internal/adapters/http/docs \
     --parseDependency \
-    --parseInternal \
-    --parseDepth 2 \
-    --exclude internal/infrastructure/database,internal/infrastructure/queue,internal/infrastructure/redis,internal/bootstrap,internal/commands/migrate,internal/commands/seed,internal/commands/worker
+    --parseInternal
 
 echo ""
 echo -e "${GREEN}✅ Swagger documentation generated successfully!${NC}"
