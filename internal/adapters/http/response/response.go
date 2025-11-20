@@ -6,6 +6,12 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// Response 通用成功响应结构（用于 Swagger 文档）
+type Response struct {
+	Message string      `json:"message,omitempty"` // 成功消息
+	Data    interface{} `json:"data,omitempty"`    // 响应数据
+}
+
 // ErrorResponse 错误响应 (符合 RFC 7807 Problem Details)
 type ErrorResponse struct {
 	Error ErrorDetail `json:"error"`

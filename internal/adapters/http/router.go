@@ -10,6 +10,11 @@ import (
 	"github.com/redis/go-redis/v9"
 	"gorm.io/gorm"
 
+	// Swagger 文档
+	_ "github.com/lwmacct/251117-go-ddd-template/internal/adapters/http/docs" // Swagger docs
+	ginSwagger "github.com/swaggo/gin-swagger"
+	swaggerFiles "github.com/swaggo/files"
+
 	// 引入处理器和中间件包
 	"github.com/lwmacct/251117-go-ddd-template/internal/adapters/http/handler"
 	"github.com/lwmacct/251117-go-ddd-template/internal/adapters/http/middleware"
@@ -58,6 +63,9 @@ func SetupRouter(
 	// 健康检查 (包含数据库和 Redis 连接检查)
 	healthHandler := handler.NewHealthHandler(db, redisClient)
 	r.GET("/health", healthHandler.Check)
+
+	// Swagger API 文档
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	// API 路由组
 	api := r.Group("/api")
