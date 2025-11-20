@@ -11,7 +11,7 @@ import type { PaginatedResponse, PaginationParams } from "@/types/common";
  */
 export const listRoles = async (params: Partial<PaginationParams>): Promise<PaginatedResponse<Role>> => {
   try {
-    const { data } = await apiClient.get<ApiResponse<PaginatedResponse<Role>>>("/admin/roles", {
+    const { data } = await apiClient.get<ApiResponse<PaginatedResponse<Role>>>("/api/admin/roles", {
       params,
     });
 
@@ -47,7 +47,7 @@ export const getRole = async (id: number): Promise<Role> => {
  */
 export const createRole = async (params: CreateRoleRequest): Promise<Role> => {
   try {
-    const { data } = await apiClient.post<ApiResponse<Role>>("/admin/roles", params);
+    const { data } = await apiClient.post<ApiResponse<Role>>("/api/admin/roles", params);
 
     if (data.data) {
       return data.data;

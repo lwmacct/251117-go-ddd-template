@@ -10,7 +10,7 @@ import type { SettingGroup, UpdateSettingsRequest } from "@/types/admin";
  */
 export const getSettings = async (): Promise<SettingGroup[]> => {
   try {
-    const { data } = await apiClient.get<ApiResponse<SettingGroup[]>>("/admin/settings");
+    const { data } = await apiClient.get<ApiResponse<SettingGroup[]>>("/api/admin/settings");
 
     if (data.data) {
       return data.data;
@@ -27,7 +27,7 @@ export const getSettings = async (): Promise<SettingGroup[]> => {
  */
 export const updateSettings = async (params: UpdateSettingsRequest): Promise<void> => {
   try {
-    await apiClient.put("/admin/settings", params);
+    await apiClient.put("/api/admin/settings", params);
   } catch (error: any) {
     throw new Error(error.response?.data?.error || error.message || "更新设置失败");
   }

@@ -10,7 +10,7 @@ import type { SystemStats } from "@/types/admin";
  */
 export const getSystemStats = async (): Promise<SystemStats> => {
   try {
-    const { data } = await apiClient.get<ApiResponse<SystemStats>>("/admin/overview/stats");
+    const { data } = await apiClient.get<ApiResponse<SystemStats>>("/api/admin/overview/stats");
 
     if (data.data) {
       return data.data;

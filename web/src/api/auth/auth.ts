@@ -10,7 +10,7 @@ import type { LoginRequest, RegisterRequest, AuthResponse, ApiResponse } from "@
  * 用户登录
  */
 export const login = async (req: LoginRequest): Promise<AuthResponse> => {
-  const { data } = await apiClient.post<ApiResponse<AuthResponse>>("/login", req);
+  const { data } = await apiClient.post<ApiResponse<AuthResponse>>("/api/auth/login", req);
 
   if (data.data) {
     // 保存 token
@@ -26,7 +26,7 @@ export const login = async (req: LoginRequest): Promise<AuthResponse> => {
  * 用户注册
  */
 export const register = async (req: RegisterRequest): Promise<AuthResponse> => {
-  const { data } = await apiClient.post<ApiResponse<AuthResponse>>("/register", req);
+  const { data } = await apiClient.post<ApiResponse<AuthResponse>>("/api/auth/register", req);
 
   if (data.data) {
     // 保存 token
@@ -42,7 +42,7 @@ export const register = async (req: RegisterRequest): Promise<AuthResponse> => {
  * 刷新访问令牌
  */
 export const refreshToken = async (refreshToken: string): Promise<AuthResponse> => {
-  const { data } = await apiClient.post<ApiResponse<AuthResponse>>("/refresh", {
+  const { data} = await apiClient.post<ApiResponse<AuthResponse>>("/api/auth/refresh", {
     refresh_token: refreshToken,
   });
 

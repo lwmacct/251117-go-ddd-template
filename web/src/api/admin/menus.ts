@@ -10,7 +10,7 @@ import type { Menu, CreateMenuRequest, UpdateMenuRequest, ReorderMenusRequest } 
  */
 export const listMenus = async (): Promise<Menu[]> => {
   try {
-    const { data } = await apiClient.get<ApiResponse<Menu[]>>("/admin/menus");
+    const { data } = await apiClient.get<ApiResponse<Menu[]>>("/api/admin/menus");
 
     if (data.data) {
       return data.data;
@@ -44,7 +44,7 @@ export const getMenu = async (id: number): Promise<Menu> => {
  */
 export const createMenu = async (params: CreateMenuRequest): Promise<Menu> => {
   try {
-    const { data } = await apiClient.post<ApiResponse<Menu>>("/admin/menus", params);
+    const { data } = await apiClient.post<ApiResponse<Menu>>("/api/admin/menus", params);
 
     if (data.data) {
       return data.data;
@@ -89,7 +89,7 @@ export const deleteMenu = async (id: number): Promise<void> => {
  */
 export const reorderMenus = async (params: ReorderMenusRequest): Promise<void> => {
   try {
-    await apiClient.put("/admin/menus/reorder", params);
+    await apiClient.put("/api/admin/menus/reorder", params);
   } catch (error: any) {
     throw new Error(error.response?.data?.error || error.message || "更新排序失败");
   }

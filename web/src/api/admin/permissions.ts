@@ -11,7 +11,7 @@ import type { PaginatedResponse, PaginationParams } from "@/types/common";
  */
 export const listPermissions = async (params: Partial<PaginationParams> = {}): Promise<PaginatedResponse<Permission>> => {
   try {
-    const { data } = await apiClient.get<ApiResponse<PaginatedResponse<Permission>>>("/admin/permissions", { params });
+    const { data } = await apiClient.get<ApiResponse<PaginatedResponse<Permission>>>("/api/admin/permissions", { params });
 
     if (data.data) {
       return data.data;
@@ -28,7 +28,7 @@ export const listPermissions = async (params: Partial<PaginationParams> = {}): P
  */
 export const getAllPermissions = async (): Promise<Permission[]> => {
   try {
-    const { data } = await apiClient.get<ApiResponse<PaginatedResponse<Permission>>>("/admin/permissions", {
+    const { data } = await apiClient.get<ApiResponse<PaginatedResponse<Permission>>>("/api/admin/permissions", {
       params: { page: 1, limit: 1000 },
     });
 

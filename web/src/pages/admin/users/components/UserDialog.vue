@@ -143,10 +143,18 @@ const handleSave = async () => {
           <v-select
             v-model="formData.status"
             label="状态"
-            :items="[
-              { title: '启用', value: 'active' },
-              { title: '禁用', value: 'inactive' },
-            ]"
+            :items="
+              mode === 'create'
+                ? [
+                    { title: '启用', value: 'active' },
+                    { title: '禁用', value: 'inactive' },
+                  ]
+                : [
+                    { title: '启用', value: 'active' },
+                    { title: '禁用', value: 'inactive' },
+                    { title: '封禁', value: 'banned' },
+                  ]
+            "
             variant="outlined"
             density="comfortable"
             class="mb-2"

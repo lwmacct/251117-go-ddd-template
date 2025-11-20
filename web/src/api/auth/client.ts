@@ -5,11 +5,8 @@ import axios from "axios";
 import { getAccessToken, getRefreshToken, saveAccessToken, saveRefreshToken, clearAuthTokens } from "@/utils/auth";
 import type { ApiResponse, AuthResponse } from "@/types/auth";
 
-const API_BASE_URL = "/api/auth";
-
 /** axios 实例 */
 export const apiClient = axios.create({
-  baseURL: API_BASE_URL,
   timeout: 10000,
 });
 
@@ -40,7 +37,7 @@ apiClient.interceptors.response.use(
       try {
         const refreshToken = getRefreshToken();
         if (refreshToken) {
-          const { data } = await axios.post<ApiResponse<AuthResponse>>(`${API_BASE_URL}/refresh`, {
+          const { data } = await axios.post<ApiResponse<AuthResponse>>("/api/auth/refresh", {
             refresh_token: refreshToken,
           });
 

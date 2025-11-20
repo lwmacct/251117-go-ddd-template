@@ -8,7 +8,7 @@ import type { User, ApiResponse } from "@/types/auth";
  * 获取当前用户信息
  */
 export const getCurrentUser = async (): Promise<User> => {
-  const { data } = await apiClient.get<ApiResponse<User>>("/me");
+  const { data } = await apiClient.get<ApiResponse<User>>("/api/auth/me");
 
   if (data.data) {
     return data.data;
@@ -30,7 +30,7 @@ export interface ChangePasswordRequest {
  */
 export const changePassword = async (params: ChangePasswordRequest): Promise<void> => {
   try {
-    await apiClient.put<ApiResponse<null>>("/user/me/password", params);
+    await apiClient.put<ApiResponse<null>>("/api/user/me/password", params);
   } catch (error: any) {
     throw new Error(error.response?.data?.error || error.message || "修改密码失败");
   }
@@ -50,7 +50,7 @@ export interface UpdateProfileRequest {
  */
 export const updateProfile = async (params: UpdateProfileRequest): Promise<User> => {
   try {
-    const { data } = await apiClient.put<ApiResponse<User>>("/user/me", params);
+    const { data } = await apiClient.put<ApiResponse<User>>("/api/user/me", params);
 
     if (data.data) {
       return data.data;

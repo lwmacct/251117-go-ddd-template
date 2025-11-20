@@ -11,7 +11,7 @@ import type { PaginatedResponse, PaginationParams } from "@/types/common";
  */
 export const listUsers = async (params: Partial<PaginationParams>): Promise<PaginatedResponse<AdminUser>> => {
   try {
-    const { data } = await apiClient.get<ApiResponse<PaginatedResponse<AdminUser>>>("/admin/users", { params });
+    const { data } = await apiClient.get<ApiResponse<PaginatedResponse<AdminUser>>>("/api/admin/users", { params });
 
     if (data.data) {
       return data.data;
@@ -45,7 +45,7 @@ export const getUser = async (id: number): Promise<AdminUser> => {
  */
 export const createUser = async (params: CreateUserRequest): Promise<AdminUser> => {
   try {
-    const { data } = await apiClient.post<ApiResponse<AdminUser>>("/admin/users", params);
+    const { data } = await apiClient.post<ApiResponse<AdminUser>>("/api/admin/users", params);
 
     if (data.data) {
       return data.data;
