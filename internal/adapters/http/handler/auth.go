@@ -88,7 +88,7 @@ func (h *AuthHandler) Register(c *gin.Context) {
 
 // LoginRequest 登录请求
 type LoginRequest struct {
-	Login     string `json:"login" binding:"required" example:"admin"`              // 用户名或邮箱
+	Account   string `json:"account" binding:"required" example:"admin"`            // 手机号/用户名/邮箱
 	Password  string `json:"password" binding:"required" example:"admin123"`        // 密码
 	CaptchaID string `json:"captcha_id" binding:"required" example:"dev-123456"`    // 验证码ID
 	Captcha   string `json:"captcha" binding:"required" example:"9999"`             // 验证码
@@ -97,7 +97,7 @@ type LoginRequest struct {
 // Login 用户登录
 //
 // @Summary      用户登录
-// @Description  使用用户名/邮箱和密码登录系统，需要提供图形验证码。如果启用了2FA，返回session_token用于后续2FA验证
+// @Description  使用手机号/用户名/邮箱和密码登录系统，需要提供图形验证码。如果启用了2FA，返回session_token用于后续2FA验证
 // @Tags         认证 (Authentication)
 // @Accept       json
 // @Produce      json
@@ -115,7 +115,7 @@ func (h *AuthHandler) Login(c *gin.Context) {
 
 	// 调用 Use Case Handler
 	result, err := h.loginHandler.Handle(c.Request.Context(), authCommand.LoginCommand{
-		Login:     req.Login,
+		Login:     req.Account, // 前端使用 account，内部使用 login
 		Password:  req.Password,
 		CaptchaID: req.CaptchaID,
 		Captcha:   req.Captcha,

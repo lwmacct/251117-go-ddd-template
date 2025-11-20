@@ -69,12 +69,12 @@ def get_captcha():
     return None, None
 
 
-def test_login(login, password, captcha_id, captcha, test_name=""):
+def test_login(account, password, captcha_id, captcha, test_name=""):
     """
     测试登录接口
 
     Args:
-        login: 用户名或邮箱
+        account: 手机号/用户名/邮箱
         password: 密码
         captcha_id: 验证码ID
         captcha: 验证码
@@ -85,18 +85,13 @@ def test_login(login, password, captcha_id, captcha, test_name=""):
     """
     url = f"{BASE_URL}/api/auth/login"
 
-    payload = {
-        "login": login,
-        "password": password,
-        "captcha_id": captcha_id,
-        "captcha": captcha
-    }
+    payload = {"account": account, "password": password, "captcha_id": captcha_id, "captcha": captcha}
 
     print_separator(test_name if test_name else "登录测试")
 
     print(f"📡 正在测试登录: {url}")
     print(f"   请求参数:")
-    print(f"      login: {login}")
+    print(f"      account: {account}")
     print(f"      password: {'*' * len(password)}")
     print(f"      captcha_id: {captcha_id}")
     print(f"      captcha: {captcha}")
@@ -161,13 +156,7 @@ def main():
     captcha_id, captcha_answer = get_captcha()
 
     if captcha_id and captcha_answer:
-        test_login(
-            login="admin",
-            password="admin123",
-            captcha_id=captcha_id,
-            captcha=captcha_answer,
-            test_name="测试 1: 使用正确凭证登录"
-        )
+        test_login(account="admin", password="admin123", captcha_id=captcha_id, captcha=captcha_answer, test_name="测试 1: 使用正确凭证登录")
     else:
         print("❌ 无法获取验证码,跳过测试 1")
 
@@ -176,13 +165,7 @@ def main():
     captcha_id, captcha_answer = get_captcha()
 
     if captcha_id and captcha_answer:
-        test_login(
-            login="admin",
-            password="wrong_password",
-            captcha_id=captcha_id,
-            captcha=captcha_answer,
-            test_name="测试 2: 错误的密码"
-        )
+        test_login(account="admin", password="wrong_password", captcha_id=captcha_id, captcha=captcha_answer, test_name="测试 2: 错误的密码")
     else:
         print("❌ 无法获取验证码,跳过测试 2")
 
@@ -191,13 +174,7 @@ def main():
     captcha_id, _ = get_captcha()
 
     if captcha_id:
-        test_login(
-            login="admin",
-            password="admin123",
-            captcha_id=captcha_id,
-            captcha="0000",  # 错误的验证码
-            test_name="测试 3: 错误的验证码"
-        )
+        test_login(account="admin", password="admin123", captcha_id=captcha_id, captcha="0000", test_name="测试 3: 错误的验证码")  # 错误的验证码
     else:
         print("❌ 无法获取验证码,跳过测试 3")
 
@@ -206,13 +183,7 @@ def main():
     captcha_id, captcha_answer = get_captcha()
 
     if captcha_id and captcha_answer:
-        test_login(
-            login="nonexistent_user",
-            password="password123",
-            captcha_id=captcha_id,
-            captcha=captcha_answer,
-            test_name="测试 4: 不存在的用户"
-        )
+        test_login(account="nonexistent_user", password="password123", captcha_id=captcha_id, captcha=captcha_answer, test_name="测试 4: 不存在的用户")
     else:
         print("❌ 无法获取验证码,跳过测试 4")
 
