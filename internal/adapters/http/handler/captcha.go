@@ -38,8 +38,17 @@ type GenerateCaptchaResponse struct {
 }
 
 // GetCaptcha 获取验证码
-// GET /api/auth/captcha
-// 开发模式：?code=9999&secret=your-secret
+//
+// @Summary      获取图形验证码
+// @Description  生成图形验证码用于登录。支持开发模式（通过code和secret参数指定验证码值）
+// @Tags         认证 (Authentication)
+// @Accept       json
+// @Produce      json
+// @Param        code query string false "开发模式：指定验证码值" example:"9999"
+// @Param        secret query string false "开发模式：密钥" example:"dev-secret"
+// @Success      200 {object} response.Response{data=GenerateCaptchaResponse} "验证码生成成功"
+// @Failure      500 {object} response.ErrorResponse "生成失败"
+// @Router       /api/auth/captcha [get]
 func (h *CaptchaHandler) GetCaptcha(c *gin.Context) {
 	ctx := c.Request.Context()
 

@@ -40,6 +40,20 @@ func NewSettingHandler(
 }
 
 // GetSettings 获取配置列表
+//
+// @Summary      获取系统配置列表
+// @Description  获取所有系统配置，可按类别筛选
+// @Tags         管理员 - 系统配置 (Admin - Settings)
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        category query string false "配置类别" example:"system"
+// @Success      200 {object} response.Response{data=[]object{key=string,value=string,category=string,value_type=string,label=string}} "配置列表"
+// @Failure      401 {object} response.ErrorResponse "未授权"
+// @Failure      403 {object} response.ErrorResponse "权限不足"
+// @Failure      500 {object} response.ErrorResponse "服务器内部错误"
+// @Router       /api/admin/settings [get]
+// @x-permission {"scope":"admin:settings:read"}
 func (h *SettingHandler) GetSettings(c *gin.Context) {
 	category := c.Query("category")
 
@@ -57,6 +71,20 @@ func (h *SettingHandler) GetSettings(c *gin.Context) {
 }
 
 // GetSetting 获取单个配置
+//
+// @Summary      获取单个配置
+// @Description  根据配置键获取配置详情
+// @Tags         管理员 - 系统配置 (Admin - Settings)
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        key path string true "配置键" example:"site_name"
+// @Success      200 {object} response.Response{data=object{key=string,value=string,category=string,value_type=string,label=string}} "配置详情"
+// @Failure      401 {object} response.ErrorResponse "未授权"
+// @Failure      403 {object} response.ErrorResponse "权限不足"
+// @Failure      404 {object} response.ErrorResponse "配置不存在"
+// @Router       /api/admin/settings/{key} [get]
+// @x-permission {"scope":"admin:settings:read"}
 func (h *SettingHandler) GetSetting(c *gin.Context) {
 	key := c.Param("key")
 
@@ -75,14 +103,29 @@ func (h *SettingHandler) GetSetting(c *gin.Context) {
 
 // CreateSettingRequest 创建配置请求
 type CreateSettingRequest struct {
-	Key       string `json:"key" binding:"required"`
-	Value     string `json:"value" binding:"required"`
-	Category  string `json:"category" binding:"required"`
-	ValueType string `json:"value_type"`
-	Label     string `json:"label"`
+	Key       string `json:"key" binding:"required" example:"site_name"`
+	Value     string `json:"value" binding:"required" example:"My Website"`
+	Category  string `json:"category" binding:"required" example:"general"`
+	ValueType string `json:"value_type" example:"string"`
+	Label     string `json:"label" example:"网站名称"`
 }
 
 // CreateSetting 创建配置
+//
+// @Summary      创建配置
+// @Description  管理员创建新的系统配置项
+// @Tags         管理员 - 系统配置 (Admin - Settings)
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        request body CreateSettingRequest true "配置信息"
+// @Success      201 {object} response.Response{data=object{key=string,value=string,category=string}} "配置创建成功"
+// @Failure      400 {object} response.ErrorResponse "参数错误"
+// @Failure      401 {object} response.ErrorResponse "未授权"
+// @Failure      403 {object} response.ErrorResponse "权限不足"
+// @Failure      500 {object} response.ErrorResponse "服务器内部错误"
+// @Router       /api/admin/settings [post]
+// @x-permission {"scope":"admin:settings:create"}
 func (h *SettingHandler) CreateSetting(c *gin.Context) {
 	var req CreateSettingRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -109,12 +152,29 @@ func (h *SettingHandler) CreateSetting(c *gin.Context) {
 
 // UpdateSettingRequest 更新配置请求
 type UpdateSettingRequest struct {
-	Value     string `json:"value" binding:"required"`
-	ValueType string `json:"value_type"`
-	Label     string `json:"label"`
+	Value     string `json:"value" binding:"required" example:"Updated Value"`
+	ValueType string `json:"value_type" example:"string"`
+	Label     string `json:"label" example:"更新后的标签"`
 }
 
 // UpdateSetting 更新配置
+//
+// @Summary      更新配置
+// @Description  管理员更新指定配置项的值和标签
+// @Tags         管理员 - 系统配置 (Admin - Settings)
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        key path string true "配置键" example:"site_name"
+// @Param        request body UpdateSettingRequest true "更新信息"
+// @Success      200 {object} response.Response{data=object{key=string,value=string,category=string}} "配置更新成功"
+// @Failure      400 {object} response.ErrorResponse "参数错误"
+// @Failure      401 {object} response.ErrorResponse "未授权"
+// @Failure      403 {object} response.ErrorResponse "权限不足"
+// @Failure      404 {object} response.ErrorResponse "配置不存在"
+// @Failure      500 {object} response.ErrorResponse "服务器内部错误"
+// @Router       /api/admin/settings/{key} [put]
+// @x-permission {"scope":"admin:settings:update"}
 func (h *SettingHandler) UpdateSetting(c *gin.Context) {
 	key := c.Param("key")
 
@@ -141,6 +201,21 @@ func (h *SettingHandler) UpdateSetting(c *gin.Context) {
 }
 
 // DeleteSetting 删除配置
+//
+// @Summary      删除配置
+// @Description  管理员删除指定的系统配置项
+// @Tags         管理员 - 系统配置 (Admin - Settings)
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        key path string true "配置键" example:"site_name"
+// @Success      204 "配置删除成功"
+// @Failure      401 {object} response.ErrorResponse "未授权"
+// @Failure      403 {object} response.ErrorResponse "权限不足"
+// @Failure      404 {object} response.ErrorResponse "配置不存在"
+// @Failure      500 {object} response.ErrorResponse "服务器内部错误"
+// @Router       /api/admin/settings/{key} [delete]
+// @x-permission {"scope":"admin:settings:delete"}
 func (h *SettingHandler) DeleteSetting(c *gin.Context) {
 	key := c.Param("key")
 
@@ -166,6 +241,21 @@ type BatchUpdateSettingsRequest struct {
 }
 
 // BatchUpdateSettings 批量更新配置
+//
+// @Summary      批量更新配置
+// @Description  管理员批量更新多个系统配置项的值
+// @Tags         管理员 - 系统配置 (Admin - Settings)
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        request body BatchUpdateSettingsRequest true "配置列表"
+// @Success      200 {object} response.Response{message=string} "批量更新成功"
+// @Failure      400 {object} response.ErrorResponse "参数错误"
+// @Failure      401 {object} response.ErrorResponse "未授权"
+// @Failure      403 {object} response.ErrorResponse "权限不足"
+// @Failure      500 {object} response.ErrorResponse "服务器内部错误"
+// @Router       /api/admin/settings/batch [post]
+// @x-permission {"scope":"admin:settings:update"}
 func (h *SettingHandler) BatchUpdateSettings(c *gin.Context) {
 	var req BatchUpdateSettingsRequest
 	if err := c.ShouldBindJSON(&req); err != nil {

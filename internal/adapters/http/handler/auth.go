@@ -35,14 +35,23 @@ func NewAuthHandler(
 
 // RegisterRequest 注册请求
 type RegisterRequest struct {
-	Username string `json:"username" binding:"required,min=3,max=50"`
-	Email    string `json:"email" binding:"required,email"`
-	Password string `json:"password" binding:"required,min=6"`
-	FullName string `json:"full_name" binding:"max=100"`
+	Username string `json:"username" binding:"required,min=3,max=50" example:"john_doe"`
+	Email    string `json:"email" binding:"required,email" example:"john@example.com"`
+	Password string `json:"password" binding:"required,min=6" example:"password123"`
+	FullName string `json:"full_name" binding:"max=100" example:"John Doe"`
 }
 
 // Register 用户注册
-// POST /api/auth/register
+//
+// @Summary      用户注册
+// @Description  创建新用户账号，注册成功后自动登录并返回访问令牌
+// @Tags         认证 (Authentication)
+// @Accept       json
+// @Produce      json
+// @Param        request body RegisterRequest true "注册信息"
+// @Success      201 {object} response.Response{data=object{user_id=uint,username=string,email=string,access_token=string,refresh_token=string,token_type=string,expires_in=int}} "注册成功"
+// @Failure      400 {object} response.ErrorResponse "参数错误或用户名/邮箱已存在"
+// @Router       /api/auth/register [post]
 func (h *AuthHandler) Register(c *gin.Context) {
 	var req RegisterRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -79,14 +88,24 @@ func (h *AuthHandler) Register(c *gin.Context) {
 
 // LoginRequest 登录请求
 type LoginRequest struct {
-	Login     string `json:"login" binding:"required"`      // 用户名或邮箱
-	Password  string `json:"password" binding:"required"`   // 密码
-	CaptchaID string `json:"captcha_id" binding:"required"` // 验证码ID
-	Captcha   string `json:"captcha" binding:"required"`    // 验证码
+	Login     string `json:"login" binding:"required" example:"admin"`              // 用户名或邮箱
+	Password  string `json:"password" binding:"required" example:"admin123"`        // 密码
+	CaptchaID string `json:"captcha_id" binding:"required" example:"dev-123456"`    // 验证码ID
+	Captcha   string `json:"captcha" binding:"required" example:"9999"`             // 验证码
 }
 
 // Login 用户登录
-// POST /api/auth/login
+//
+// @Summary      用户登录
+// @Description  使用用户名/邮箱和密码登录系统，需要提供图形验证码。如果启用了2FA，返回session_token用于后续2FA验证
+// @Tags         认证 (Authentication)
+// @Accept       json
+// @Produce      json
+// @Param        request body LoginRequest true "登录凭证"
+// @Success      200 {object} response.Response{data=object{access_token=string,refresh_token=string,token_type=string,expires_in=int,user=object{user_id=uint,username=string}}} "登录成功"
+// @Success      200 {object} response.Response{data=object{requires_2fa=bool,session_token=string}} "需要2FA验证"
+// @Failure      401 {object} response.ErrorResponse "登录失败：凭证无效、验证码错误或账户被禁用"
+// @Router       /api/auth/login [post]
 func (h *AuthHandler) Login(c *gin.Context) {
 	var req LoginRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -137,11 +156,20 @@ func (h *AuthHandler) Login(c *gin.Context) {
 
 // RefreshTokenRequest 刷新令牌请求
 type RefreshTokenRequest struct {
-	RefreshToken string `json:"refresh_token" binding:"required"`
+	RefreshToken string `json:"refresh_token" binding:"required" example:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."`
 }
 
 // RefreshToken 刷新访问令牌
-// POST /api/auth/refresh
+//
+// @Summary      刷新访问令牌
+// @Description  使用refresh_token获取新的access_token和refresh_token，延长会话有效期
+// @Tags         认证 (Authentication)
+// @Accept       json
+// @Produce      json
+// @Param        request body RefreshTokenRequest true "刷新令牌"
+// @Success      200 {object} response.Response{data=object{access_token=string,refresh_token=string,token_type=string,expires_in=int}} "令牌刷新成功"
+// @Failure      401 {object} response.ErrorResponse "刷新令牌无效或已过期"
+// @Router       /api/auth/refresh [post]
 func (h *AuthHandler) RefreshToken(c *gin.Context) {
 	var req RefreshTokenRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -176,7 +204,17 @@ func (h *AuthHandler) RefreshToken(c *gin.Context) {
 }
 
 // Me 获取当前用户信息
-// GET /api/auth/me
+//
+// @Summary      获取当前用户信息
+// @Description  获取当前登录用户的详细信息，包括角色和权限
+// @Tags         认证 (Authentication)
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Success      200 {object} response.Response{data=object{id=uint,username=string,email=string,full_name=string,status=string,roles=array}} "用户信息"
+// @Failure      401 {object} response.ErrorResponse "未授权"
+// @Failure      404 {object} response.ErrorResponse "用户不存在"
+// @Router       /api/auth/me [get]
 func (h *AuthHandler) Me(c *gin.Context) {
 	// 从上下文获取用户信息 (由 JWT 中间件设置)
 	userIDRaw, exists := c.Get("user_id")

@@ -40,6 +40,21 @@ func NewAdminUserHandler(
 }
 
 // CreateUser creates a new user (admin only)
+//
+// @Summary      创建用户
+// @Description  管理员创建新用户账号，可同时分配角色
+// @Tags         管理员 - 用户管理 (Admin - User Management)
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        request body appUserDTO.CreateUserDTO true "用户信息"
+// @Success      201 {object} response.Response{data=object{message=string,user=appUserDTO.UserWithRolesResponse}} "用户创建成功"
+// @Failure      400 {object} response.ErrorResponse "参数错误或用户名/邮箱已存在"
+// @Failure      401 {object} response.ErrorResponse "未授权"
+// @Failure      403 {object} response.ErrorResponse "权限不足"
+// @Failure      500 {object} response.ErrorResponse "服务器内部错误"
+// @Router       /api/admin/users [post]
+// @x-permission {"scope":"admin:users:create"}
 func (h *AdminUserHandler) CreateUser(c *gin.Context) {
 	var dto appUserDTO.CreateUserDTO
 	if err := c.ShouldBindJSON(&dto); err != nil {
@@ -75,6 +90,21 @@ func (h *AdminUserHandler) CreateUser(c *gin.Context) {
 }
 
 // ListUsers lists all users with pagination (admin only)
+//
+// @Summary      获取用户列表
+// @Description  分页获取所有用户列表（包含角色信息）
+// @Tags         管理员 - 用户管理 (Admin - User Management)
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        page query int false "页码" default(1) minimum(1)
+// @Param        limit query int false "每页数量" default(20) minimum(1) maximum(100)
+// @Success      200 {object} response.Response{data=object{users=[]appUserDTO.UserWithRolesResponse},meta=response.PaginationMeta} "用户列表"
+// @Failure      401 {object} response.ErrorResponse "未授权"
+// @Failure      403 {object} response.ErrorResponse "权限不足"
+// @Failure      500 {object} response.ErrorResponse "服务器内部错误"
+// @Router       /api/admin/users [get]
+// @x-permission {"scope":"admin:users:read"}
 func (h *AdminUserHandler) ListUsers(c *gin.Context) {
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "20"))
@@ -104,6 +134,21 @@ func (h *AdminUserHandler) ListUsers(c *gin.Context) {
 }
 
 // GetUser gets a user by ID (admin only)
+//
+// @Summary      获取用户详情
+// @Description  根据用户ID获取用户详细信息（包含角色信息）
+// @Tags         管理员 - 用户管理 (Admin - User Management)
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        id path int true "用户ID" minimum(1)
+// @Success      200 {object} response.Response{data=appUserDTO.UserWithRolesResponse} "用户详情"
+// @Failure      400 {object} response.ErrorResponse "无效的用户ID"
+// @Failure      401 {object} response.ErrorResponse "未授权"
+// @Failure      403 {object} response.ErrorResponse "权限不足"
+// @Failure      404 {object} response.ErrorResponse "用户不存在"
+// @Router       /api/admin/users/{id} [get]
+// @x-permission {"scope":"admin:users:read"}
 func (h *AdminUserHandler) GetUser(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
@@ -124,6 +169,23 @@ func (h *AdminUserHandler) GetUser(c *gin.Context) {
 }
 
 // UpdateUser updates a user (admin only)
+//
+// @Summary      更新用户信息
+// @Description  管理员更新用户的基本信息和状态
+// @Tags         管理员 - 用户管理 (Admin - User Management)
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        id path int true "用户ID" minimum(1)
+// @Param        request body appUserDTO.UpdateUserDTO true "更新信息"
+// @Success      200 {object} response.Response{data=object{message=string,user=appUserDTO.UserWithRolesResponse}} "用户更新成功"
+// @Failure      400 {object} response.ErrorResponse "无效的用户ID或参数错误"
+// @Failure      401 {object} response.ErrorResponse "未授权"
+// @Failure      403 {object} response.ErrorResponse "权限不足"
+// @Failure      404 {object} response.ErrorResponse "用户不存在"
+// @Failure      500 {object} response.ErrorResponse "服务器内部错误"
+// @Router       /api/admin/users/{id} [put]
+// @x-permission {"scope":"admin:users:update"}
 func (h *AdminUserHandler) UpdateUser(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
@@ -165,6 +227,22 @@ func (h *AdminUserHandler) UpdateUser(c *gin.Context) {
 }
 
 // DeleteUser deletes a user (admin only)
+//
+// @Summary      删除用户
+// @Description  管理员删除指定用户（物理删除或软删除）
+// @Tags         管理员 - 用户管理 (Admin - User Management)
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        id path int true "用户ID" minimum(1)
+// @Success      200 {object} response.Response{data=object{message=string}} "用户删除成功"
+// @Failure      400 {object} response.ErrorResponse "无效的用户ID"
+// @Failure      401 {object} response.ErrorResponse "未授权"
+// @Failure      403 {object} response.ErrorResponse "权限不足"
+// @Failure      404 {object} response.ErrorResponse "用户不存在"
+// @Failure      500 {object} response.ErrorResponse "服务器内部错误"
+// @Router       /api/admin/users/{id} [delete]
+// @x-permission {"scope":"admin:users:delete"}
 func (h *AdminUserHandler) DeleteUser(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
@@ -183,6 +261,23 @@ func (h *AdminUserHandler) DeleteUser(c *gin.Context) {
 }
 
 // AssignRoles assigns roles to a user (admin only)
+//
+// @Summary      分配用户角色
+// @Description  管理员为指定用户分配角色（会覆盖现有角色）
+// @Tags         管理员 - 用户管理 (Admin - User Management)
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        id path int true "用户ID" minimum(1)
+// @Param        request body appUserDTO.AssignRolesDTO true "角色ID列表"
+// @Success      200 {object} response.Response{data=object{message=string}} "角色分配成功"
+// @Failure      400 {object} response.ErrorResponse "无效的用户ID或参数错误"
+// @Failure      401 {object} response.ErrorResponse "未授权"
+// @Failure      403 {object} response.ErrorResponse "权限不足"
+// @Failure      404 {object} response.ErrorResponse "用户不存在"
+// @Failure      500 {object} response.ErrorResponse "服务器内部错误"
+// @Router       /api/admin/users/{id}/roles [post]
+// @x-permission {"scope":"admin:users:update"}
 func (h *AdminUserHandler) AssignRoles(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {

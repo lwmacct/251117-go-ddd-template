@@ -19,7 +19,18 @@ func NewTwoFAHandler(twofaService *twofaService.Service) *TwoFAHandler {
 }
 
 // Setup 设置 2FA（生成密钥和二维码）
-// POST /api/auth/2fa/setup
+//
+// @Summary      初始化两步验证
+// @Description  为当前用户生成2FA密钥和二维码，用于配置身份验证器应用
+// @Tags         认证 - 两步验证 (Authentication - 2FA)
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Success      200 {object} response.Response{data=object{secret=string,qr_code=string}} "2FA初始化成功"
+// @Failure      400 {object} response.ErrorResponse "设置失败"
+// @Failure      401 {object} response.ErrorResponse "未授权"
+// @Router       /api/auth/2fa/setup [post]
+// @x-permission {"scope":"user:2fa:setup"}
 func (h *TwoFAHandler) Setup(c *gin.Context) {
 	ctx := c.Request.Context()
 
@@ -44,11 +55,23 @@ func (h *TwoFAHandler) Setup(c *gin.Context) {
 
 // VerifyAndEnableRequest 验证并启用 2FA 请求
 type VerifyAndEnableRequest struct {
-	Code string `json:"code" binding:"required"` // TOTP 验证码
+	Code string `json:"code" binding:"required" example:"123456"` // TOTP 验证码
 }
 
 // VerifyAndEnable 验证 TOTP 代码并启用 2FA
-// POST /api/auth/2fa/verify
+//
+// @Summary      验证并启用两步验证
+// @Description  验证身份验证器应用生成的TOTP代码，成功后启用2FA并返回恢复代码
+// @Tags         认证 - 两步验证 (Authentication - 2FA)
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        request body VerifyAndEnableRequest true "TOTP验证码"
+// @Success      200 {object} response.Response{data=object{recovery_codes=[]string,message=string}} "2FA启用成功"
+// @Failure      400 {object} response.ErrorResponse "验证码错误"
+// @Failure      401 {object} response.ErrorResponse "未授权"
+// @Router       /api/auth/2fa/verify [post]
+// @x-permission {"scope":"user:2fa:setup"}
 func (h *TwoFAHandler) VerifyAndEnable(c *gin.Context) {
 	ctx := c.Request.Context()
 
@@ -81,7 +104,18 @@ func (h *TwoFAHandler) VerifyAndEnable(c *gin.Context) {
 }
 
 // Disable 禁用 2FA
-// POST /api/auth/2fa/disable
+//
+// @Summary      禁用两步验证
+// @Description  禁用当前用户的两步验证功能
+// @Tags         认证 - 两步验证 (Authentication - 2FA)
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Success      200 {object} response.Response{message=string} "2FA禁用成功"
+// @Failure      400 {object} response.ErrorResponse "禁用失败"
+// @Failure      401 {object} response.ErrorResponse "未授权"
+// @Router       /api/auth/2fa/disable [post]
+// @x-permission {"scope":"user:2fa:disable"}
 func (h *TwoFAHandler) Disable(c *gin.Context) {
 	ctx := c.Request.Context()
 
@@ -103,7 +137,18 @@ func (h *TwoFAHandler) Disable(c *gin.Context) {
 }
 
 // GetStatus 获取 2FA 状态
-// GET /api/auth/2fa/status
+//
+// @Summary      获取两步验证状态
+// @Description  获取当前用户的2FA启用状态和剩余恢复代码数量
+// @Tags         认证 - 两步验证 (Authentication - 2FA)
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Success      200 {object} response.Response{data=object{enabled=bool,recovery_codes_count=int}} "2FA状态"
+// @Failure      400 {object} response.ErrorResponse "获取失败"
+// @Failure      401 {object} response.ErrorResponse "未授权"
+// @Router       /api/auth/2fa/status [get]
+// @x-permission {"scope":"user:2fa:read"}
 func (h *TwoFAHandler) GetStatus(c *gin.Context) {
 	ctx := c.Request.Context()
 

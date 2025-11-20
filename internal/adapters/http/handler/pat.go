@@ -37,6 +37,19 @@ func NewPATHandler(
 }
 
 // CreateToken creates a new Personal Access Token
+//
+// @Summary      创建个人访问令牌
+// @Description  用户创建新的个人访问令牌(PAT)，用于API访问。令牌仅在创建时显示一次
+// @Tags         用户 - 个人访问令牌 (User - Personal Access Token)
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        request body patdto.CreateTokenRequest true "令牌信息"
+// @Success      201 {object} response.Response{data=object{id=uint,name=string,token=string,expires_at=string},warning=string} "令牌创建成功"
+// @Failure      400 {object} response.ErrorResponse "参数错误"
+// @Failure      401 {object} response.ErrorResponse "未授权"
+// @Router       /api/user/pats [post]
+// @x-permission {"scope":"user:pats:create"}
 func (h *PATHandler) CreateToken(c *gin.Context) {
 	var req patdto.CreateTokenRequest
 
@@ -79,6 +92,18 @@ func (h *PATHandler) CreateToken(c *gin.Context) {
 }
 
 // ListTokens lists all tokens for the current user
+//
+// @Summary      获取个人访问令牌列表
+// @Description  获取当前用户的所有个人访问令牌（不包含令牌值）
+// @Tags         用户 - 个人访问令牌 (User - Personal Access Token)
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Success      200 {object} response.Response{data=[]object{id=uint,name=string,last_used_at=string,expires_at=string,created_at=string},count=int} "令牌列表"
+// @Failure      401 {object} response.ErrorResponse "未授权"
+// @Failure      500 {object} response.ErrorResponse "服务器内部错误"
+// @Router       /api/user/pats [get]
+// @x-permission {"scope":"user:pats:read"}
 func (h *PATHandler) ListTokens(c *gin.Context) {
 	userID, exists := c.Get("user_id")
 	if !exists {
@@ -108,6 +133,20 @@ func (h *PATHandler) ListTokens(c *gin.Context) {
 }
 
 // RevokeToken revokes a specific token
+//
+// @Summary      撤销个人访问令牌
+// @Description  用户撤销（删除）指定的个人访问令牌
+// @Tags         用户 - 个人访问令牌 (User - Personal Access Token)
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        id path int true "令牌ID" minimum(1)
+// @Success      200 {object} response.Response{message=string} "令牌撤销成功"
+// @Failure      400 {object} response.ErrorResponse "无效的令牌ID"
+// @Failure      401 {object} response.ErrorResponse "未授权"
+// @Failure      404 {object} response.ErrorResponse "令牌不存在"
+// @Router       /api/user/pats/{id} [delete]
+// @x-permission {"scope":"user:pats:delete"}
 func (h *PATHandler) RevokeToken(c *gin.Context) {
 	userID, exists := c.Get("user_id")
 	if !exists {
@@ -145,6 +184,20 @@ func (h *PATHandler) RevokeToken(c *gin.Context) {
 }
 
 // GetToken retrieves details of a specific token
+//
+// @Summary      获取个人访问令牌详情
+// @Description  获取指定个人访问令牌的详细信息（不包含令牌值）
+// @Tags         用户 - 个人访问令牌 (User - Personal Access Token)
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        id path int true "令牌ID" minimum(1)
+// @Success      200 {object} response.Response{data=object{id=uint,name=string,last_used_at=string,expires_at=string,created_at=string}} "令牌详情"
+// @Failure      400 {object} response.ErrorResponse "无效的令牌ID"
+// @Failure      401 {object} response.ErrorResponse "未授权"
+// @Failure      404 {object} response.ErrorResponse "令牌不存在"
+// @Router       /api/user/pats/{id} [get]
+// @x-permission {"scope":"user:pats:read"}
 func (h *PATHandler) GetToken(c *gin.Context) {
 	userID, exists := c.Get("user_id")
 	if !exists {

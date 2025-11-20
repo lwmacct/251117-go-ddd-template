@@ -44,13 +44,31 @@ func NewRoleHandler(
 	}
 }
 
+// CreateRoleRequest 创建角色请求
+type CreateRoleRequest struct {
+	Name        string `json:"name" binding:"required,min=2,max=50" example:"developer"`
+	DisplayName string `json:"display_name" binding:"required,max=100" example:"开发者"`
+	Description string `json:"description" binding:"max=255" example:"系统开发人员角色"`
+}
+
 // CreateRole creates a new role
+//
+// @Summary      创建角色
+// @Description  管理员创建新的系统角色
+// @Tags         管理员 - 角色管理 (Admin - Role Management)
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        request body CreateRoleRequest true "角色信息"
+// @Success      201 {object} response.Response{data=object{role_id=uint,name=string,display_name=string}} "角色创建成功"
+// @Failure      400 {object} response.ErrorResponse "参数错误或角色名已存在"
+// @Failure      401 {object} response.ErrorResponse "未授权"
+// @Failure      403 {object} response.ErrorResponse "权限不足"
+// @Failure      500 {object} response.ErrorResponse "服务器内部错误"
+// @Router       /api/admin/roles [post]
+// @x-permission {"scope":"admin:roles:create"}
 func (h *RoleHandler) CreateRole(c *gin.Context) {
-	var req struct {
-		Name        string `json:"name" binding:"required,min=2,max=50"`
-		DisplayName string `json:"display_name" binding:"required,max=100"`
-		Description string `json:"description" binding:"max=255"`
-	}
+	var req CreateRoleRequest
 
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -76,6 +94,21 @@ func (h *RoleHandler) CreateRole(c *gin.Context) {
 }
 
 // ListRoles lists all roles
+//
+// @Summary      获取角色列表
+// @Description  分页获取所有系统角色
+// @Tags         管理员 - 角色管理 (Admin - Role Management)
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        page query int false "页码" default(1) minimum(1)
+// @Param        limit query int false "每页数量" default(20) minimum(1) maximum(100)
+// @Success      200 {object} response.Response{data=[]object{id=uint,name=string,display_name=string,description=string},pagination=object{page=int,limit=int,total=int64}} "角色列表"
+// @Failure      401 {object} response.ErrorResponse "未授权"
+// @Failure      403 {object} response.ErrorResponse "权限不足"
+// @Failure      500 {object} response.ErrorResponse "服务器内部错误"
+// @Router       /api/admin/roles [get]
+// @x-permission {"scope":"admin:roles:read"}
 func (h *RoleHandler) ListRoles(c *gin.Context) {
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "20"))
@@ -109,6 +142,21 @@ func (h *RoleHandler) ListRoles(c *gin.Context) {
 }
 
 // GetRole gets a role by ID
+//
+// @Summary      获取角色详情
+// @Description  根据角色ID获取角色详细信息（包含权限列表）
+// @Tags         管理员 - 角色管理 (Admin - Role Management)
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        id path int true "角色ID" minimum(1)
+// @Success      200 {object} response.Response{data=object{id=uint,name=string,display_name=string,description=string,permissions=[]object}} "角色详情"
+// @Failure      400 {object} response.ErrorResponse "无效的角色ID"
+// @Failure      401 {object} response.ErrorResponse "未授权"
+// @Failure      403 {object} response.ErrorResponse "权限不足"
+// @Failure      404 {object} response.ErrorResponse "角色不存在"
+// @Router       /api/admin/roles/{id} [get]
+// @x-permission {"scope":"admin:roles:read"}
 func (h *RoleHandler) GetRole(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
@@ -129,7 +177,30 @@ func (h *RoleHandler) GetRole(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"data": result})
 }
 
+// UpdateRoleRequest 更新角色请求
+type UpdateRoleRequest struct {
+	DisplayName *string `json:"display_name" binding:"omitempty,max=100" example:"高级开发者"`
+	Description *string `json:"description" binding:"omitempty,max=255" example:"具有更多权限的开发人员"`
+}
+
 // UpdateRole updates a role
+//
+// @Summary      更新角色信息
+// @Description  管理员更新角色的显示名称和描述
+// @Tags         管理员 - 角色管理 (Admin - Role Management)
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        id path int true "角色ID" minimum(1)
+// @Param        request body UpdateRoleRequest true "更新信息"
+// @Success      200 {object} response.Response{data=object{id=uint,name=string,display_name=string,description=string}} "角色更新成功"
+// @Failure      400 {object} response.ErrorResponse "无效的角色ID或参数错误"
+// @Failure      401 {object} response.ErrorResponse "未授权"
+// @Failure      403 {object} response.ErrorResponse "权限不足"
+// @Failure      404 {object} response.ErrorResponse "角色不存在"
+// @Failure      500 {object} response.ErrorResponse "服务器内部错误"
+// @Router       /api/admin/roles/{id} [put]
+// @x-permission {"scope":"admin:roles:update"}
 func (h *RoleHandler) UpdateRole(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
@@ -137,10 +208,7 @@ func (h *RoleHandler) UpdateRole(c *gin.Context) {
 		return
 	}
 
-	var req struct {
-		DisplayName *string `json:"display_name" binding:"omitempty,max=100"`
-		Description *string `json:"description" binding:"omitempty,max=255"`
-	}
+	var req UpdateRoleRequest
 
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -166,6 +234,22 @@ func (h *RoleHandler) UpdateRole(c *gin.Context) {
 }
 
 // DeleteRole deletes a role
+//
+// @Summary      删除角色
+// @Description  管理员删除指定角色（如果角色被用户使用，可能会失败）
+// @Tags         管理员 - 角色管理 (Admin - Role Management)
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        id path int true "角色ID" minimum(1)
+// @Success      200 {object} response.Response{data=object{message=string}} "角色删除成功"
+// @Failure      400 {object} response.ErrorResponse "无效的角色ID"
+// @Failure      401 {object} response.ErrorResponse "未授权"
+// @Failure      403 {object} response.ErrorResponse "权限不足"
+// @Failure      404 {object} response.ErrorResponse "角色不存在"
+// @Failure      500 {object} response.ErrorResponse "服务器内部错误或角色被使用中"
+// @Router       /api/admin/roles/{id} [delete]
+// @x-permission {"scope":"admin:roles:delete"}
 func (h *RoleHandler) DeleteRole(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
@@ -186,7 +270,29 @@ func (h *RoleHandler) DeleteRole(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "role deleted successfully"})
 }
 
+// SetPermissionsRequest 设置权限请求
+type SetPermissionsRequest struct {
+	PermissionIDs []uint `json:"permission_ids" binding:"required" example:"1,2,3"`
+}
+
 // SetPermissions sets permissions for a role
+//
+// @Summary      设置角色权限
+// @Description  管理员为指定角色设置权限（会覆盖现有权限）
+// @Tags         管理员 - 角色管理 (Admin - Role Management)
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        id path int true "角色ID" minimum(1)
+// @Param        request body SetPermissionsRequest true "权限ID列表"
+// @Success      200 {object} response.Response{data=object{message=string}} "权限设置成功"
+// @Failure      400 {object} response.ErrorResponse "无效的角色ID或参数错误"
+// @Failure      401 {object} response.ErrorResponse "未授权"
+// @Failure      403 {object} response.ErrorResponse "权限不足"
+// @Failure      404 {object} response.ErrorResponse "角色不存在"
+// @Failure      500 {object} response.ErrorResponse "服务器内部错误"
+// @Router       /api/admin/roles/{id}/permissions [post]
+// @x-permission {"scope":"admin:roles:update"}
 func (h *RoleHandler) SetPermissions(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
@@ -194,9 +300,7 @@ func (h *RoleHandler) SetPermissions(c *gin.Context) {
 		return
 	}
 
-	var req struct {
-		PermissionIDs []uint `json:"permission_ids" binding:"required"`
-	}
+	var req SetPermissionsRequest
 
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -218,6 +322,21 @@ func (h *RoleHandler) SetPermissions(c *gin.Context) {
 }
 
 // ListPermissions lists all permissions
+//
+// @Summary      获取权限列表
+// @Description  分页获取所有系统权限
+// @Tags         管理员 - 角色管理 (Admin - Role Management)
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        page query int false "页码" default(1) minimum(1)
+// @Param        limit query int false "每页数量" default(50) minimum(1) maximum(100)
+// @Success      200 {object} response.Response{data=[]object{id=uint,name=string,display_name=string,resource=string,action=string},pagination=object{page=int,limit=int,total=int64}} "权限列表"
+// @Failure      401 {object} response.ErrorResponse "未授权"
+// @Failure      403 {object} response.ErrorResponse "权限不足"
+// @Failure      500 {object} response.ErrorResponse "服务器内部错误"
+// @Router       /api/admin/permissions [get]
+// @x-permission {"scope":"admin:permissions:read"}
 func (h *RoleHandler) ListPermissions(c *gin.Context) {
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "50"))

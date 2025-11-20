@@ -28,6 +28,27 @@ func NewAuditLogHandler(
 }
 
 // ListLogs lists audit logs with filtering
+//
+// @Summary      获取审计日志列表
+// @Description  分页获取审计日志，支持按用户、操作、资源、状态、时间范围筛选
+// @Tags         管理员 - 审计日志 (Admin - Audit Log)
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        page query int false "页码" default(1) minimum(1)
+// @Param        limit query int false "每页数量" default(20) minimum(1) maximum(100)
+// @Param        user_id query int false "用户ID"
+// @Param        action query string false "操作类型" Enums(create, update, delete, login, logout)
+// @Param        resource query string false "资源类型" Enums(user, role, menu, setting)
+// @Param        status query string false "状态" Enums(success, failure)
+// @Param        start_date query string false "开始时间(RFC3339格式)" example:"2024-01-01T00:00:00Z"
+// @Param        end_date query string false "结束时间(RFC3339格式)" example:"2024-12-31T23:59:59Z"
+// @Success      200 {object} response.Response{logs=[]object{id=uint,user_id=uint,action=string,resource=string,status=string,created_at=string},pagination=object{page=int,limit=int,total=int64}} "审计日志列表"
+// @Failure      401 {object} response.ErrorResponse "未授权"
+// @Failure      403 {object} response.ErrorResponse "权限不足"
+// @Failure      500 {object} response.ErrorResponse "服务器内部错误"
+// @Router       /api/admin/auditlogs [get]
+// @x-permission {"scope":"admin:auditlogs:read"}
 func (h *AuditLogHandler) ListLogs(c *gin.Context) {
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "20"))
@@ -94,6 +115,21 @@ func (h *AuditLogHandler) ListLogs(c *gin.Context) {
 }
 
 // GetLog gets an audit log by ID
+//
+// @Summary      获取审计日志详情
+// @Description  根据日志ID获取审计日志详细信息
+// @Tags         管理员 - 审计日志 (Admin - Audit Log)
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        id path int true "日志ID" minimum(1)
+// @Success      200 {object} response.Response{data=object{id=uint,user_id=uint,username=string,action=string,resource=string,resource_id=uint,status=string,ip_address=string,user_agent=string,created_at=string}} "日志详情"
+// @Failure      400 {object} response.ErrorResponse "无效的日志ID"
+// @Failure      401 {object} response.ErrorResponse "未授权"
+// @Failure      403 {object} response.ErrorResponse "权限不足"
+// @Failure      404 {object} response.ErrorResponse "日志不存在"
+// @Router       /api/admin/auditlogs/{id} [get]
+// @x-permission {"scope":"admin:auditlogs:read"}
 func (h *AuditLogHandler) GetLog(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
