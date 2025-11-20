@@ -5,33 +5,40 @@ import (
 	"path/filepath"
 	"strings"
 
+	// 引入第三方包
 	"github.com/gin-gonic/gin"
+	"github.com/redis/go-redis/v9"
+	"gorm.io/gorm"
+
+	// 引入处理器和中间件包
 	"github.com/lwmacct/251117-go-ddd-template/internal/adapters/http/handler"
 	"github.com/lwmacct/251117-go-ddd-template/internal/adapters/http/middleware"
+
+	// 引入领域包
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/auditlog"
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/captcha"
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/user"
-	infraauth "github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/auth"
-	infracaptcha "github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/captcha"
-	"github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/config"
-	infratwofa "github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/twofa"
-	"github.com/redis/go-redis/v9"
-	"gorm.io/gorm"
+
+	// 引入基础设施包
+	infra_auth "github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/auth"
+	infra_captcha "github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/captcha"
+	infra_config "github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/config"
+	infra_twofa "github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/twofa"
 )
 
 // SetupRouter 配置路由 (完全符合 DDD+CQRS 架构)
 func SetupRouter(
-	cfg *config.Config,
+	cfg *infra_config.Config,
 	db *gorm.DB,
 	redisClient *redis.Client,
 	userQueryRepo user.QueryRepository,
 	auditLogCommandRepo auditlog.CommandRepository,
 	captchaCommandRepo captcha.CommandRepository,
-	jwtManager *infraauth.JWTManager,
-	patService *infraauth.PATService,
-	authService *infraauth.Service,
-	captchaService *infracaptcha.Service,
-	twofaService *infratwofa.Service,
+	jwtManager *infra_auth.JWTManager,
+	patService *infra_auth.PATService,
+	authService *infra_auth.Service,
+	captchaService *infra_captcha.Service,
+	twofaService *infra_twofa.Service,
 	authHandler *handler.AuthHandler,
 	roleHandler *handler.RoleHandler,
 	menuHandler *handler.MenuHandler,

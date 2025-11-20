@@ -269,12 +269,13 @@ func NewContainer(cfg *_config.Config, opts *ContainerOptions) (*Container, erro
 		authServiceForRouter,
 		captchaService,
 		twofaService,
-		authHandler,     // 使用新的 DDD+CQRS AuthHandler
-		roleHandler,     // 使用新的 DDD+CQRS RoleHandler
-		menuHandler,     // 使用新的 DDD+CQRS MenuHandler
-		settingHandler,  // 使用新的 DDD+CQRS SettingHandler
-		patHandler,      // 使用新的 DDD+CQRS PATHandler
-		auditLogHandler, // 使用新的 DDD+CQRS AuditLogHandler
+		// Handlers
+		authHandler,
+		roleHandler,
+		menuHandler,
+		settingHandler,
+		patHandler,
+		auditLogHandler,
 		adminUserHandler,
 		userProfileHandler,
 	)
