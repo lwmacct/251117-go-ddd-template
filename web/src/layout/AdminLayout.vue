@@ -28,6 +28,11 @@ const menuItems: MenuItem[] = [
     icon: "mdi-menu",
   },
   {
+    title: "审计日志",
+    path: "/admin/auditlogs",
+    icon: "mdi-file-document-outline",
+  },
+  {
     title: "系统设置",
     path: "/admin/settings",
     icon: "mdi-cog",
