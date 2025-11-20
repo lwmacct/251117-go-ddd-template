@@ -22,12 +22,10 @@ const activeTab = ref("twoFactor");
       <v-col cols="12">
         <v-card>
           <v-tabs v-model="activeTab" bg-color="primary">
-            <v-tab value="twoFactor">
-              <v-icon class="mr-2">mdi-shield-key</v-icon>
+            <v-tab value="twoFactor" prepend-icon="mdi-shield-key">
               双因素认证
             </v-tab>
-            <v-tab value="password">
-              <v-icon class="mr-2">mdi-lock-reset</v-icon>
+            <v-tab value="password" prepend-icon="mdi-lock-reset">
               修改密码
             </v-tab>
           </v-tabs>
