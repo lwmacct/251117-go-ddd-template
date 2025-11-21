@@ -28,6 +28,9 @@ fi
 export CI=true
 export npm_config_progress=false
 export npm_config_loglevel=silent
+# 提升 Node 可用内存，避免在 CI/预提交阶段 OOM (337/137)
+: "${NODE_OPTIONS:=--max-old-space-size=4096}"
+export NODE_OPTIONS
 
 # 运行构建（捕获输出，仅在失败时显示）
 BUILD_OUTPUT=$(cd "$ROOT_DIR/docs" && npm run build --silent 2>&1)
