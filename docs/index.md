@@ -76,3 +76,7 @@ curl http://localhost:8080/health
 - ✅ 健康检查
 - ✅ 优雅关闭
 - ✅ 开发热重载
+
+## pre-commit-hook-start
+
+- 2025-11-21 12:47:07
