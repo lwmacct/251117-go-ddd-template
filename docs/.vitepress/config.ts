@@ -31,14 +31,6 @@ export default defineConfig({
         link: "/architecture/",
       },
       {
-        text: "后端能力",
-        link: "/backend/",
-      },
-      {
-        text: "前端",
-        link: "/frontend/",
-      },
-      {
         text: "工程实践",
         link: "/development/",
       },
@@ -60,6 +52,10 @@ export default defineConfig({
             {
               text: "快速开始",
               link: "/guide/getting-started",
+            },
+            {
+              text: "前端概览",
+              link: "/frontend/",
             },
             {
               text: "配置系统",
