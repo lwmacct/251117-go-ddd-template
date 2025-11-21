@@ -17,7 +17,7 @@ repos:
       # Swagger/OpenAPI 文档生成
       - id: swagger-generate
         name: Generate Swagger/OpenAPI docs
-        entry: scripts/swagger-pre-commit.sh
+        entry: scripts/hooks/swagger-pre-commit.sh
         language: script
         pass_filenames: false
         stages: [pre-commit]
@@ -26,7 +26,7 @@ repos:
       # VitePress 文档构建检查
       - id: vitepress-build
         name: Build VitePress docs when docs/ changes
-        entry: scripts/docs-build-pre-commit.sh
+        entry: scripts/hooks/docs-build-pre-commit.sh
         language: script
         pass_filenames: true
         stages: [pre-commit]

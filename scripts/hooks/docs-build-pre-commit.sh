@@ -5,15 +5,11 @@
 
 set -euo pipefail
 
-ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+ROOT_DIR="$(git rev-parse --show-toplevel 2>/dev/null || (cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd))"
 cd "$ROOT_DIR"
 
-# 优先使用传入的文件列表 (pre-commit),否则回退到暂存区差异检查
-if [ "$#" -gt 0 ]; then
-    DOCS_CHANGED_FILES="$*"
-else
-    DOCS_CHANGED_FILES="$(git diff --cached --name-only -- 'docs/**' 'docs/*' || true)"
-fi
+# 仅在 docs/ 有已暂存改动时运行（不受 --all-files 影响）
+DOCS_CHANGED_FILES="$(git diff --cached --name-only -- 'docs/**' 'docs/*' || true)"
 
 # 静默跳过：无文档变更
 [ -z "$DOCS_CHANGED_FILES" ] && exit 0

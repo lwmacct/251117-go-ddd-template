@@ -44,8 +44,8 @@ graph TB
 
 4. Pre-commit 框架启动
    ├─ 读取 .pre-commit-config.yaml
-   ├─ 检测到 docs/ 文件变更
-   └─ 调用 scripts/docs-build-pre-commit.sh
+   ├─ 检测到 docs/ 已暂存变更
+   └─ 调用 scripts/hooks/docs-build-pre-commit.sh
 
 5. 构建脚本执行
    ├─ 检查 Node.js 依赖
@@ -94,7 +94,7 @@ repos:
     hooks:
       - id: docs-build
         name: Build VitePress docs when docs/ changes
-        entry: scripts/docs-build-pre-commit.sh
+        entry: scripts/hooks/docs-build-pre-commit.sh
         language: script
         pass_filenames: true
         stages: [pre-commit]
@@ -114,7 +114,7 @@ repos:
 
 ### 构建脚本逻辑
 
-`scripts/docs-build-pre-commit.sh` 核心逻辑：
+`scripts/hooks/docs-build-pre-commit.sh` 核心逻辑：
 
 ```bash
 # 1. 检测是否有文档变更
@@ -461,7 +461,7 @@ cd ..
 
 ```bash
 # 使用 Git Bash 运行
-bash scripts/docs-build-pre-commit.sh
+bash scripts/hooks/docs-build-pre-commit.sh
 
 # 或在 WSL 中工作
 wsl
