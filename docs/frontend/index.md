@@ -232,7 +232,7 @@ export default defineConfig({
 
 ### 后端集成
 
-- [API 文档](/api/) - 后端 API 接口文档
+- API 文档：运行服务后访问 `/swagger/index.html`
 - [认证授权](/backend/authentication) - 认证机制说明
 - [RBAC 权限](/backend/rbac) - 权限系统详解
 

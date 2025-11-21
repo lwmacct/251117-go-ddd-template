@@ -40,12 +40,12 @@
 
 1. 阅读 [贡献指南](./contributing)
 2. 了解 [测试指南](./testing)
-3. 查看 [架构文档](/backend/)
+3. 查看 [架构文档](/architecture/)
 
 ## 🔗 相关文档
 
-- **[架构文档](/backend/)** - 深入了解系统设计和实现原理
-- **[API 文档](/api/)** - API 接口详细说明
+- **[架构文档](/architecture/)** - 深入了解系统设计和实现原理
+- **API 文档** - 运行服务后访问 `/swagger/index.html`
 - **[前端文档](/frontend/)** - Vue 3 前端开发指南
 - **[开发文档](/development/)** - VitePress 文档系统使用
 
@@ -93,8 +93,8 @@ configs/config.example.yaml
 ## ❓ 需要帮助？
 
 - 查看 [常见问题](./getting-started#常见问题)
-- 阅读 [架构文档](/backend/) 了解设计原理
-- 查看 [API 文档](/api/) 了解接口详情
+- 阅读 [架构文档](/architecture/) 了解设计原理
+- API 文档：运行服务后访问 `/swagger/index.html`
 - 提交 [GitHub Issue](https://github.com/lwmacct/251117-go-ddd-template/issues)
 
 ---

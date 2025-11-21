@@ -27,7 +27,11 @@ export default defineConfig({
         link: "/guide/",
       },
       {
-        text: "后端",
+        text: "架构",
+        link: "/architecture/",
+      },
+      {
+        text: "后端能力",
         link: "/backend/",
       },
       {
@@ -35,12 +39,12 @@ export default defineConfig({
         link: "/frontend/",
       },
       {
-        text: "API 文档",
-        link: "/api/",
+        text: "工程实践",
+        link: "/development/",
       },
       {
-        text: "开发文档",
-        link: "/development/",
+        text: "参考",
+        link: "/reference/",
       },
     ],
 
@@ -54,10 +58,6 @@ export default defineConfig({
               link: "/guide/",
             },
             {
-              text: "AI Agent",
-              link: "/guide/ai-agent",
-            },
-            {
               text: "快速开始",
               link: "/guide/getting-started",
             },
@@ -65,14 +65,10 @@ export default defineConfig({
               text: "配置系统",
               link: "/guide/configuration",
             },
-            {
-              text: "CLI 命令",
-              link: "/guide/cli-commands",
-            },
           ],
         },
         {
-          text: "部署运维",
+          text: "部署与运维",
           items: [
             {
               text: "应用部署",
@@ -85,12 +81,21 @@ export default defineConfig({
           ],
         },
         {
-          text: "开发指南",
+          text: "工具与质量",
           items: [
+            {
+              text: "CLI 命令",
+              link: "/guide/cli-commands",
+            },
             {
               text: "测试指南",
               link: "/guide/testing",
             },
+          ],
+        },
+        {
+          text: "协作与贡献",
+          items: [
             {
               text: "贡献指南",
               link: "/guide/contributing",
@@ -98,31 +103,50 @@ export default defineConfig({
           ],
         },
       ],
-      "/backend/": [
+      "/architecture/": [
         {
-          text: "系统架构",
+          text: "架构蓝图",
           items: [
             {
-              text: "架构概览",
-              link: "/backend/",
+              text: "概览",
+              link: "/architecture/",
             },
             {
-              text: "架构设计概览",
-              link: "/backend/overview",
+              text: "DDD + CQRS",
+              link: "/architecture/ddd-cqrs",
             },
             {
-              text: "DDD + CQRS 架构",
-              link: "/backend/ddd-cqrs",
+              text: "分层与目录",
+              link: "/architecture/architecture-layers",
             },
             {
-              text: "架构迁移指南",
-              link: "/backend/migration-guide",
+              text: "迁移指南",
+              link: "/architecture/migration-guide",
             },
           ],
         },
         {
-          text: "认证与授权",
+          text: "数据与基础设施",
           items: [
+            {
+              text: "PostgreSQL 架构",
+              link: "/architecture/data-postgresql",
+            },
+            {
+              text: "Redis 架构",
+              link: "/architecture/data-redis",
+            },
+          ],
+        },
+      ],
+      "/backend/": [
+        {
+          text: "身份与访问控制",
+          items: [
+            {
+              text: "能力总览",
+              link: "/backend/",
+            },
             {
               text: "认证机制",
               link: "/backend/authentication",
@@ -134,19 +158,6 @@ export default defineConfig({
             {
               text: "Personal Access Token",
               link: "/backend/pat",
-            },
-          ],
-        },
-        {
-          text: "数据层",
-          items: [
-            {
-              text: "PostgreSQL 架构",
-              link: "/backend/postgresql",
-            },
-            {
-              text: "Redis 架构",
-              link: "/backend/redis",
             },
           ],
         },
@@ -174,60 +185,27 @@ export default defineConfig({
           ],
         },
       ],
-      "/api/": [
-        {
-          text: "API 参考",
-          items: [
-            {
-              text: "概览",
-              link: "/api/",
-            },
-            {
-              text: "认证接口",
-              link: "/api/auth",
-            },
-            {
-              text: "用户接口",
-              link: "/api/users",
-            },
-            {
-              text: "缓存接口",
-              link: "/api/cache",
-            },
-          ],
-        },
-      ],
       "/development/": [
         {
-          text: "开发文档",
+          text: "开发指南",
           items: [
             {
               text: "概览",
               link: "/development/",
             },
-          ],
-        },
-        {
-          text: "开发工具",
-          collapsed: false,
-          items: [
             {
-              text: "Pre-commit 代码检查",
-              link: "/development/pre-commit",
+              text: "AI Agent",
+              link: "/development/ai-agent",
             },
           ],
         },
         {
-          text: "文档工作流",
+          text: "交付与升级",
           collapsed: false,
           items: [
             {
               text: "部署指南",
               link: "/development/deployment",
-            },
-            {
-              text: "文档集成",
-              link: "/development/docs-integration",
             },
             {
               text: "升级记录",
@@ -236,12 +214,12 @@ export default defineConfig({
           ],
         },
         {
-          text: "写作与组件",
+          text: "质量与效率",
           collapsed: false,
           items: [
             {
-              text: "Mermaid 图表",
-              link: "/development/mermaid-integration",
+              text: "Pre-commit 代码检查",
+              link: "/development/pre-commit",
             },
             {
               text: "功能示例",
@@ -250,6 +228,35 @@ export default defineConfig({
             {
               text: "主题与高级能力",
               link: "/development/advanced",
+            },
+          ],
+        },
+        {
+          text: "文档与可视化",
+          collapsed: false,
+          items: [
+            {
+              text: "文档集成",
+              link: "/development/docs-integration",
+            },
+            {
+              text: "Mermaid 图表",
+              link: "/development/mermaid-integration",
+            },
+          ],
+        },
+      ],
+      "/reference/": [
+        {
+          text: "参考资料",
+          items: [
+            {
+              text: "概览",
+              link: "/reference/",
+            },
+            {
+              text: "Admin Users API",
+              link: "/reference/admin-users-api",
             },
           ],
         },

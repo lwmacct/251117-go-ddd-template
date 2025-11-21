@@ -304,7 +304,7 @@ openssl rand -base64 32
 | PUT    | `/api/users/:id` | 更新用户         |
 | DELETE | `/api/users/:id` | 删除用户         |
 
-详细的 API 文档请参考 [认证接口](/api/auth) 和 [用户接口](/api/users)。
+详细的 API 文档请通过 Swagger UI (`/swagger/index.html`) 查看。
 
 ## 安全特性
 
@@ -576,6 +576,6 @@ env | grep APP_JWT_SECRET
 
 ## 下一步
 
-- 查看 [API 认证接口文档](/api/auth)
-- 了解 [用户管理接口](/api/users)
+- 查看 Swagger UI (`/swagger/index.html`)
+- 了解用户管理接口：参见 Swagger UI (`/swagger/index.html`)
 - 学习 [配置系统](/guide/configuration)
