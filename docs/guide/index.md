@@ -47,6 +47,7 @@
 - **[架构文档](/architecture/)** - 深入了解系统设计和实现原理
 - **API 文档** - 运行服务后访问 `/swagger/index.html`
 - **[前端文档](/guide/frontend-overview)** - Vue 3 前端开发指南
+- **[参考资料](/guide/reference)** - API 与对接类补充文档
 - **[开发文档](/development/)** - VitePress 文档系统使用
 
 ## 💡 快速链接

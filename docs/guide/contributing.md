@@ -110,7 +110,7 @@ docs/
 -- 包含架构图和流程图
 -- 适合理解系统工作原理与演进
 
-#### 3. 参考资料 (`/reference/`)
+#### 3. 参考资料 (`/guide/reference`)
 
 **目标读者**: API 使用者、前端开发者、集成开发者
 
@@ -176,7 +176,7 @@ func main() {
 ```markdown
 - 查看 [快速开始](/guide/getting-started)
 - 了解 [项目架构](/architecture/)
-- 探索 [参考资料](/reference/)
+- 探索 [参考资料](/guide/reference)
 ```
 
 ### 修改配置

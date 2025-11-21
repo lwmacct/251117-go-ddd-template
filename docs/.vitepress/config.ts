@@ -34,10 +34,6 @@ export default defineConfig({
         text: "工程实践",
         link: "/development/",
       },
-      {
-        text: "参考",
-        link: "/reference/",
-      },
     ],
 
     sidebar: {
@@ -55,7 +51,7 @@ export default defineConfig({
             },
             {
               text: "前端概览",
-              link: "/frontend/",
+              link: "/guide/frontend-overview",
             },
             {
               text: "配置系统",
@@ -116,6 +112,10 @@ export default defineConfig({
             {
               text: "贡献指南",
               link: "/guide/contributing",
+            },
+            {
+              text: "参考资料",
+              link: "/guide/reference",
             },
           ],
         },
