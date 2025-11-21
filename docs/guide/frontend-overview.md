@@ -84,9 +84,9 @@ npm run type-check
 
 ### 基础
 
-- **[快速开始](./getting-started)** - 环境搭建、项目启动
-- **[项目结构](./project-structure)** - 目录组织、文件命名规范
-- **[API 集成](./api-integration)** - Axios 封装、请求拦截器
+- **[快速开始](./frontend-getting-started)** - 环境搭建、项目启动
+- **[项目结构](./frontend-project-structure)** - 目录组织、文件命名规范
+- **[API 集成](./frontend-api-integration)** - Axios 封装、请求拦截器
 
 <!-- TODO: 待完善的文档
 - **[开发规范](./coding-standards)** - 代码风格、最佳实践
@@ -233,8 +233,8 @@ export default defineConfig({
 ### 后端集成
 
 - API 文档：运行服务后访问 `/swagger/index.html`
-- [认证授权](/backend/authentication) - 认证机制说明
-- [RBAC 权限](/backend/rbac) - 权限系统详解
+- [认证授权](/architecture/identity-authentication) - 认证机制说明
+- [RBAC 权限](/architecture/identity-rbac) - 权限系统详解
 
 ## 贡献指南
 
@@ -251,7 +251,7 @@ export default defineConfig({
 
 ### Q: 如何添加新的 API 接口？
 
-**A**: 在 `src/api/` 目录下创建接口文件，使用 Axios 封装。详见 [API 集成](./api-integration)。
+**A**: 在 `src/api/` 目录下创建接口文件，使用 Axios 封装。详见 [API 集成](./frontend-api-integration)。
 
 <!-- TODO: 待完善的文档
 ### Q: 如何管理应用状态？
@@ -269,8 +269,8 @@ export default defineConfig({
 
 ## 下一步
 
-- 阅读 [快速开始](./getting-started) 开始开发
-- 了解 [项目结构](./project-structure) 熟悉代码组织
-- 学习 [API 集成](./api-integration) 了解后端对接
+- 阅读 [快速开始](./frontend-getting-started) 开始开发
+- 了解 [项目结构](./frontend-project-structure) 熟悉代码组织
+- 学习 [API 集成](./frontend-api-integration) 了解后端对接
 
 开始构建出色的前端应用吧！ 🚀

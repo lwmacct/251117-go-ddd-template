@@ -32,9 +32,10 @@
 
 ### 身份与访问控制
 
-- **[认证机制](/backend/authentication)** - JWT 认证流程、会话管理、安全机制
-- **[RBAC 权限系统](/backend/rbac)** - 三段式权限格式、通配符匹配、审计日志
-- **[Personal Access Token](/backend/pat)** - PAT 使用指南、API Token 管理
+- **[身份能力总览](./identity-overview.md)** - 身份能力一览、推荐阅读顺序
+- **[认证机制](./identity-authentication.md)** - JWT 认证流程、会话管理、安全机制
+- **[RBAC 权限系统](./identity-rbac.md)** - 三段式权限格式、通配符匹配、审计日志
+- **[Personal Access Token](./identity-pat.md)** - PAT 使用指南、API Token 管理
 
 ## 🎯 文档定位
 
@@ -58,14 +59,14 @@
 
 #### 权限系统如何工作？
 
-1. 先阅读 [RBAC 权限系统](/backend/rbac) 了解三段式权限格式
+1. 先阅读 [RBAC 权限系统](./identity-rbac.md) 了解三段式权限格式
 2. 理解 JWT Token 如何携带权限信息
 3. 学习中间件如何进行权限检查
 4. 查看通配符权限的匹配规则
 
 #### 如何使用 Personal Access Token？
 
-1. 阅读 [Personal Access Token](/backend/pat) 完整指南
+1. 阅读 [Personal Access Token](./identity-pat.md) 完整指南
 2. 了解 PAT vs JWT 的区别
 3. 学习如何创建和管理 Token
 4. 查看多语言使用示例

@@ -395,7 +395,7 @@ c.Set("auth_type", "pat")
 c.Set("pat_id", pat.ID)
 ```
 
-详细的 PAT 使用说明请参考 [Personal Access Token 文档](./pat.md)。
+详细的 PAT 使用说明请参考 [Personal Access Token 文档](./identity-pat.md)。
 
 ## 中间件系统
 

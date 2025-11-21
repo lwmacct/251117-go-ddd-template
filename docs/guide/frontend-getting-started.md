@@ -259,7 +259,7 @@ web/
 └── dist/              # 构建输出
 ```
 
-详见 [项目结构](./project-structure)。
+详见 [项目结构](./frontend-project-structure)。
 
 ## 后端集成
 
@@ -348,8 +348,8 @@ npm run type-check
 
 ## 下一步
 
-- 了解 [项目结构](./project-structure)
-- 开始 [API 集成](./api-integration)
+- 了解 [项目结构](./frontend-project-structure)
+- 开始 [API 集成](./frontend-api-integration)
 <!-- TODO: 待完善的文档
 - 学习 [开发规范](./coding-standards)
 - 探索 [Vuetify 组件](./vuetify)

@@ -300,7 +300,7 @@ docker-compose -f docker-compose.yml up --detach
 #### 示例：权限系统文档的分类
 
 - **用户指南** (`/guide/`): 如何使用权限功能、如何分配角色
-- **架构文档** (`/backend/rbac`): RBAC 系统的工作原理、三段式权限格式、中间件实现
+- **架构文档** (`/architecture/identity-rbac`): RBAC 系统的工作原理、三段式权限格式、中间件实现
 - **API 文档** (`/api/`): 权限相关的 API 端点、请求格式
 
 ### 文档编写最佳实践

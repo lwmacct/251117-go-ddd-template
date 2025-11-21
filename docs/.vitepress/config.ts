@@ -90,6 +90,27 @@ export default defineConfig({
           ],
         },
         {
+          text: "前端指南",
+          items: [
+            {
+              text: "前端概览",
+              link: "/guide/frontend-overview",
+            },
+            {
+              text: "前端快速开始",
+              link: "/guide/frontend-getting-started",
+            },
+            {
+              text: "前端项目结构",
+              link: "/guide/frontend-project-structure",
+            },
+            {
+              text: "前端 API 集成",
+              link: "/guide/frontend-api-integration",
+            },
+          ],
+        },
+        {
           text: "协作与贡献",
           items: [
             {
@@ -134,49 +155,24 @@ export default defineConfig({
             },
           ],
         },
-      ],
-      "/backend/": [
         {
           text: "身份与访问控制",
           items: [
             {
-              text: "能力总览",
-              link: "/backend/",
+              text: "身份能力总览",
+              link: "/architecture/identity-overview",
             },
             {
               text: "认证机制",
-              link: "/backend/authentication",
+              link: "/architecture/identity-authentication",
             },
             {
               text: "RBAC 权限系统",
-              link: "/backend/rbac",
+              link: "/architecture/identity-rbac",
             },
             {
               text: "Personal Access Token",
-              link: "/backend/pat",
-            },
-          ],
-        },
-      ],
-      "/frontend/": [
-        {
-          text: "前端文档",
-          items: [
-            {
-              text: "概览",
-              link: "/frontend/",
-            },
-            {
-              text: "快速开始",
-              link: "/frontend/getting-started",
-            },
-            {
-              text: "项目结构",
-              link: "/frontend/project-structure",
-            },
-            {
-              text: "API 集成",
-              link: "/frontend/api-integration",
+              link: "/architecture/identity-pat",
             },
           ],
         },

@@ -514,8 +514,8 @@ curl -X GET http://localhost:8080/api/user/tokens/<token_id> \
 
 ## 相关文档
 
-- [RBAC 权限系统](./rbac.md) - 了解权限模型和三段式权限格式
-- [认证授权](./authentication.md) - JWT 认证流程
+- [RBAC 权限系统](./identity-rbac.md) - 了解权限模型和三段式权限格式
+- [认证授权](./identity-authentication.md) - JWT 认证流程
 - [API 参考](/reference/admin-users-api) - API 端点详细文档
 
 ## 技术实现

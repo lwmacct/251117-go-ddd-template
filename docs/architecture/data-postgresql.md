@@ -604,7 +604,7 @@ db.Use(dbresolver.Register(dbresolver.Config{
 
 ## 下一步
 
-- 了解 [认证授权](/backend/authentication)
+- 了解 [认证授权](/architecture/identity-authentication)
 - 学习 [Redis 缓存](/architecture/data-redis)
 - 在 Swagger UI 查看 API 文档 (`/swagger/index.html`)
 - 探索 [项目架构](/architecture/)

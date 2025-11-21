@@ -109,7 +109,7 @@ type CommandRepository interface {
 ### 容器样式
 
 ::: tip 架构校验
-提交前需确保 `docs/architecture/*` 与 `docs/backend/*` 与真实代码保持一致，禁止出现旧的三层描述。
+提交前需确保 `docs/architecture/*`（含身份与访问控制）与真实代码保持一致，禁止出现旧的三层描述或 `/backend/` 残留路径。
 :::
 
 ## 组合示例

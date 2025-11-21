@@ -427,7 +427,7 @@ const users = ref<any>([]);
 
 ## 扩展阅读
 
-- [API 集成](./api-integration) - API 使用指南
+- [API 集成](./frontend-api-integration) - API 使用指南
 
 <!-- TODO: 待完善的文档
 - [开发规范](./coding-standards) - 代码风格指南

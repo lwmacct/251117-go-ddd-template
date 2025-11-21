@@ -4,15 +4,15 @@
 
 ## 内容导航
 
-- **认证机制**：JWT 生命周期、刷新策略、中间件接入 → [查看](/backend/authentication)
-- **RBAC 权限系统**：三段式权限格式、通配符匹配、审计日志 → [查看](/backend/rbac)
-- **Personal Access Token**：长周期 Token、权限子集、最佳实践 → [查看](/backend/pat)
+- **认证机制**：JWT 生命周期、刷新策略、中间件接入 → [查看](./identity-authentication.md)
+- **RBAC 权限系统**：三段式权限格式、通配符匹配、审计日志 → [查看](./identity-rbac.md)
+- **Personal Access Token**：长周期 Token、权限子集、最佳实践 → [查看](./identity-pat.md)
 
 ## 推荐阅读顺序
 
-1. 先读 [认证机制](/backend/authentication) 理解令牌与中间件
-2. 再读 [RBAC 权限系统](/backend/rbac) 明确授权模型
-3. 最后看 [Personal Access Token](/backend/pat) 处理自动化和集成场景
+1. 先读 [认证机制](./identity-authentication.md) 理解令牌与中间件
+2. 再读 [RBAC 权限系统](./identity-rbac.md) 明确授权模型
+3. 最后看 [Personal Access Token](./identity-pat.md) 处理自动化和集成场景
 
 ## 相关入口
 

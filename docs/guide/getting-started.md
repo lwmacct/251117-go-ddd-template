@@ -188,7 +188,7 @@ curl http://localhost:8080/api/auth/me \
 - 了解[项目架构](/architecture/)
 - 查看[配置系统](/guide/configuration)
 - 学习[CLI 命令](/guide/cli-commands)
-- 学习[认证授权](/backend/authentication)
+- 学习[认证授权](/architecture/identity-authentication)
 - 探索 Swagger UI (`/swagger/index.html`)
 
 ## 故障排查
