@@ -286,6 +286,9 @@ export default defineConfig({
         timeStyle: "medium",
       },
     },
+
+    // 右侧大纲展示 H2-H3
+    outline: [2, 3],
   },
 
   // Markdown 配置
