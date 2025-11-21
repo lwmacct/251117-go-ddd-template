@@ -185,7 +185,7 @@ curl http://localhost:8080/api/auth/me \
 
 ## 下一步
 
-- 了解[项目架构](/backend/)
+- 了解[项目架构](/architecture/)
 - 查看[配置系统](/guide/configuration)
 - 学习[CLI 命令](/guide/cli-commands)
 - 学习[认证授权](/backend/authentication)

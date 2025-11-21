@@ -46,7 +46,7 @@
 - [ ] `npm --prefix docs run dev` HMR 正常，Markdown/组件无报错。
 - [ ] `npm --prefix docs run build` 通过，无 `mermaid` 渲染错误。
 - [ ] `npm --prefix docs run preview` 可访问。
-- [ ] `task go:run -- api` 下访问 `http://localhost:8080/docs/backend/` 正常。
+- [ ] `task go:run -- api` 下访问 `http://localhost:8080/docs/architecture/` 正常。
 - [ ] GitHub Actions `Deploy VitePress Docs to Pages` 成功。
 
 ## 常见问题

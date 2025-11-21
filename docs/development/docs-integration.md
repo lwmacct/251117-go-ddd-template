@@ -63,7 +63,7 @@ if cfg.Server.DocsDir != "" {
 
 ### 行为说明
 
-1. **清洁 URL**：`/docs/backend/ddd-cqrs` 会被映射到 `docs/.vitepress/dist/backend/ddd-cqrs.html`。
+1. **清洁 URL**：`/docs/architecture/ddd-cqrs` 会被映射到 `docs/.vitepress/dist/architecture/ddd-cqrs.html`。
 2. **静态文件优先**：若请求恰好匹配物理文件直接返回。
 3. **SPA 回退**：不存在的路径会回退到 `index.html`，由 VitePress 前端路由处理。
 4. **完全隔离**：逻辑位于 adapters 层，未侵入 application/domain 层，符合 DDD 依赖方向。
@@ -73,9 +73,12 @@ if cfg.Server.DocsDir != "" {
 ```
 docs/.vitepress/dist/
 ├── index.html
-├── guide/
+├── architecture/
 ├── backend/
-├── api/
+├── development/
+├── frontend/
+├── guide/
+├── reference/
 └── assets/
 ```
 

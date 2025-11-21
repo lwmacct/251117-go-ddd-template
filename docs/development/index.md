@@ -10,7 +10,7 @@
 | `docs/`     | VitePress 2.0 文档系统  | 包含 `package.json`、`.vitepress/` 主题扩展、自定义组件与 Markdown 内容。            |
 | `web/`      | 前端 SPA                | 与 backend 通过 `/api` 对接，与本章节无直接耦合。                                    |
 
-> 🌱 **单一事实来源**：架构细节以 `docs/backend/*` 和源代码为准；如发现旧的三层描述，需立即清理。
+> 🌱 **单一事实来源**：架构细节以 `docs/architecture/*`（分层与数据平面）与 `docs/backend/*`（身份与权限能力）及源代码为准；如发现旧的三层描述，需立即清理。
 
 ## 文档系统技术栈
 
