@@ -107,7 +107,7 @@ on:
 // docs/.vitepress/config.ts
 export default defineConfig({
   // 自动适配：本地 /docs/，GitHub Pages /仓库名/
-  base: process.env.VITEPRESS_BASE || "/docs/",
+  base: process.env.BASE || "/docs/",
   // ...
 });
 ```
@@ -115,7 +115,7 @@ export default defineConfig({
 **工作原理：**
 
 - **本地开发/Go 服务器**：使用默认值 `/docs/`
-- **GitHub Pages**：GitHub Actions 自动设置 `VITEPRESS_BASE` 为仓库名
+- **GitHub Pages**：GitHub Actions 自动设置 `BASE` 为仓库名
 - **零配置**：无需手动修改配置文件
 
 > 📖 **详细技术说明**：查看 [VitePress 多环境部署指南](/development/deployment) 了解自动化方案的完整原理

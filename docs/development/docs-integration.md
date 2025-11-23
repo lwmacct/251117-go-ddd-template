@@ -98,7 +98,7 @@ docs/.vitepress/dist/
 | 现象                  | 解决方案                                                                                                                        |
 | --------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
 | 访问 `/docs` 提示 404 | 检查 `docs/.vitepress/dist/index.html` 是否存在，以及 `server.docs_dir` 是否配置正确。                                          |
-| 静态资源丢失          | 构建命令必须保持 `base=/docs/`。若 `VITEPRESS_BASE` 设置错误，重新以 `VITEPRESS_BASE=/docs/ npm --prefix docs run build` 构建。 |
+| 静态资源丢失          | 构建命令必须保持 `base=/docs/`。若 `BASE` 设置错误，重新以 `BASE=/docs/ npm --prefix docs run build` 构建。 |
 | 生产环境需要缓存控制  | 在 `docsGroup.Use` 中添加自定义中间件，或在上游 Nginx/CDN 层处理 Cache-Control 头。                                             |
 
 ## 相关命令速查

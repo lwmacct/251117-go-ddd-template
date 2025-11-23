@@ -5,29 +5,29 @@ description: 当用户要求"创建文档"、"更新文档"、"写文档"、"添
 
 # VitePress 文档管理器
 
-在 `docs/` 目录下创建或更新符合 VitePress 2.0 规范的 Markdown 文档，并自动维护导航配置。
+创建或更新符合 VitePress 规范的 Markdown 文档，并自动维护导航配置。
 
 ## 何时使用此技能
 
-- ✅ 用户要求"创建 XXX 文档"
-- ✅ 用户要求"更新 XXX 文档"
-- ✅ 用户要求"添加 XXX 指南"
-- ✅ 用户要求"写 API 文档"
-- ✅ 用户提到在 docs 目录创建内容
+- ✅ 用户要求"创建/更新文档"
+- ✅ 用户要求"添加指南/API 文档"
 - ✅ 用户提到 VitePress 相关操作
 
-## 工作流程
+## 核心工作流程
 
-### 1. 确定文档类型和目标目录
+### 1. 探索项目结构
 
-询问或推断文档类型，选择合适目录：
+首先使用 `Glob` 或 `Bash` 探索项目的文档目录结构：
 
-| 文档类型 | 目录                | 示例                         |
-| -------- | ------------------- | ---------------------------- |
-| 用户指南 | `docs/guide/`       | 快速开始、配置说明、部署指南 |
-| API 文档 | `docs/api/`         | 接口文档、参数说明、示例     |
-| 开发文档 | `docs/development/` | 技术方案、升级记录、最佳实践 |
-| 首页内容 | `docs/`             | index.md                     |
+```bash
+# 查看文档根目录结构
+tree docs -L 2 -I node_modules
+
+# 或查看 VitePress 配置
+cat docs/.vitepress/config.ts
+```
+
+了解现有的文档分类和目录组织方式。
 
 ### 2. 创建或更新 Markdown 文件
 
@@ -36,9 +36,7 @@ description: 当用户要求"创建文档"、"更新文档"、"写文档"、"添
 - 使用 **小写字母** 和 **短横线** (kebab-case)
 - 扩展名必须是 `.md`
 - ✅ `getting-started.md`
-- ✅ `vitepress-deployment.md`
-- ❌ `Getting_Started.md`
-- ❌ `快速开始.md`
+- ❌ `Getting_Started.md` / `快速开始.md`
 
 #### Frontmatter (可选)
 
@@ -46,61 +44,57 @@ description: 当用户要求"创建文档"、"更新文档"、"写文档"、"添
 ---
 title: 文档标题
 description: 文档描述
-outline: [2, 3] # 目录层级
+outline: [2, 3]
 ---
 ```
 
 #### 内容规范
 
-**必须遵循**：
-
 - 使用清晰的标题层级 (# H1、## H2、### H3)
 - 代码块指定语言 (\`\`\`typescript、\`\`\`bash)
 - 使用相对链接引用其他文档
-- 避免使用绝对 URL (本地服务器地址)
-- 避免使用 `${{ }}` GitHub Actions 语法 (会导致 Vue 编译错误)
+- 避免使用绝对 URL
+- 避免使用 `${{ }}` 语法 (会导致 Vue 编译错误)
 
 ### 3. 更新 VitePress 配置
 
-编辑 `docs/.vitepress/config.ts`：
+查找并编辑 VitePress 配置文件（通常是 `docs/.vitepress/config.ts` 或 `config.mts`）
 
-#### 添加顶部导航 (如需新分类)
+#### 添加顶部导航
 
 ```typescript
 nav: [
   { text: "首页", link: "/" },
-  { text: "指南", link: "/guide/getting-started" },
-  { text: "新分类", link: "/new-category/" },  // ← 添加
-],
+  { text: "新分类", link: "/new-category/" }, // ← 添加
+];
 ```
 
-#### 添加侧边栏链接 (必须)
+#### 添加侧边栏链接（必须）
 
 ```typescript
 sidebar: {
-  "/guide/": [
+  "/category/": [
     {
-      text: "指南",
+      text: "分类名",
       items: [
-        { text: "快速开始", link: "/guide/getting-started" },
-        { text: "新文档", link: "/guide/new-doc" },  // ← 添加
+        { text: "文档标题", link: "/category/doc-name" }, // ← 添加
       ],
     },
   ],
-},
+};
 ```
 
-### 4. 验证和构建
+### 4. 验证
 
 ```bash
 # 开发模式预览
 npm run dev
 
-# 构建验证 (检查死链接)
+# 构建验证
 npm run build
 ```
 
-## VitePress 2.0 特性支持
+## VitePress 特性支持
 
 ### 代码块增强
 
@@ -109,7 +103,7 @@ npm run build
 ````markdown
 ```typescript
 const config = defineConfig({
-  base: process.env.VITEPRESS_BASE || "/docs/",
+  title: "My Site",
 });
 ```
 ````
@@ -118,9 +112,9 @@ const config = defineConfig({
 
 ````markdown
 ```typescript{2}
-export default defineConfig({
-  base: "/docs/",  // [!code highlight]
-});
+export default {
+  title: "highlighted line", // [!code highlight]
+};
 ```
 ````
 
@@ -138,20 +132,15 @@ export default defineConfig({
 ::: danger 危险
 这是危险提示
 :::
-
-::: info 信息
-这是信息提示
-:::
 ```
 
 ### 链接规范
 
-**内部链接** (推荐) ：
+**内部链接**（推荐）：
 
 ```markdown
-[快速开始](./getting-started)
-[API 文档](/api/)
-[认证接口](/api/auth)
+[同级文档](./other-doc)
+[其他分类](/category/doc)
 ```
 
 **外部链接**：
@@ -165,135 +154,35 @@ export default defineConfig({
 ### ❌ 使用绝对 URL
 
 ```markdown
-<!-- ❌ 错误 - 会被标记为死链接 -->
-
-[文档](http://localhost:8080/docs/guide/getting-started)
+<!-- ❌ 错误 -->
+[文档](http://localhost:8080/docs/guide)
 
 <!-- ✅ 正确 -->
-
-[文档](../guide/getting-started)
+[文档](./guide)
 ```
 
-### ❌ 使用 GitHub Actions 模板语法
+### ❌ 使用模板语法
 
 ```markdown
-<!-- ❌ 错误 - 会导致 Vue 编译错误 -->
-
-环境变量：${{ github.event.repository.name }}
+<!-- ❌ 错误 -->
+变量：${{ variable }}
 
 <!-- ✅ 正确 -->
-
-环境变量：通过 GitHub Actions 上下文获取仓库名
+变量：使用环境变量
 ```
 
 ### ❌ 忘记更新侧边栏
 
-创建文档后必须在 `config.ts` 中添加侧边栏链接，否则无法导航。
+创建文档后必须在配置文件中添加侧边栏链接，否则无法导航。
 
 ### ❌ 中文文件名
 
 ```markdown
 <!-- ❌ 错误 -->
-
-docs/guide/快速开始.md
+docs/快速开始.md
 
 <!-- ✅ 正确 -->
-
-docs/guide/getting-started.md
-```
-
-## 输出清单
-
-完成后提供以下信息：
-
-- [x] 创建/更新的文件路径
-- [x] 修改的配置文件 (如果有)
-- [x] 预览命令
-- [x] 访问 URL (本地、Go 服务器、GitHub Pages)
-
-## 示例
-
-### 示例 1：创建用户指南
-
-**用户请求**：
-
-```
-创建一个关于数据库迁移的指南文档
-```
-
-**执行步骤**：
-
-1. 在 `docs/guide/` 创建 `database-migration.md`
-2. 编写内容 (包含迁移步骤、示例)
-3. 更新 `docs/.vitepress/config.ts` 侧边栏：
-   ```typescript
-   { text: "数据库迁移", link: "/guide/database-migration" }
-   ```
-4. 运行 `npm run build` 验证
-
-**输出**：
-
-```
-✅ 已创建：docs/guide/database-migration.md
-✅ 已更新：docs/.vitepress/config.ts
-   - 添加侧边栏链接：/guide/database-migration
-
-📝 预览：npm run dev
-🌐 访问：
-   - 本地：http://localhost:5173/guide/database-migration
-   - Go 服务器：http://localhost:8080/docs/guide/database-migration
-```
-
-### 示例 2：更新 API 文档
-
-**用户请求**：
-
-```
-更新缓存接口的 API 文档，添加分布式锁示例
-```
-
-**执行步骤**：
-
-1. 读取 `docs/api/cache.md` (如不存在则创建)
-2. 添加分布式锁部分
-3. 添加代码示例和参数说明
-4. 验证构建
-
-**输出**：
-
-```
-✅ 已更新：docs/api/cache.md
-   - 新增"分布式锁"章节
-   - 添加代码示例
-
-📝 预览：npm run dev
-🌐 访问：http://localhost:5173/api/cache
-```
-
-### 示例 3：创建开发文档
-
-**用户请求**：
-
-```
-写一个关于 Docker 部署的开发文档
-```
-
-**执行步骤**：
-
-1. 在 `docs/development/` 创建 `docker-deployment.md`
-2. 编写 Dockerfile、docker-compose.yml 说明
-3. 更新侧边栏配置
-4. 验证构建
-
-**输出**：
-
-```
-✅ 已创建：docs/development/docker-deployment.md
-✅ 已更新：docs/.vitepress/config.ts
-   - 添加到开发文档侧边栏
-
-📝 预览：npm run dev
-🌐 访问：http://localhost:5173/development/docker-deployment
+docs/getting-started.md
 ```
 
 ## 文档模板
@@ -320,7 +209,6 @@ docs/guide/getting-started.md
 # 示例命令
 command here
 ```
-````
 
 ### 2. 第二步
 
@@ -336,12 +224,11 @@ A: 解答...
 
 - [相关文档](./related-doc)
 - [外部资源](https://example.com)
-
 ````
 
 ### API 文档模板
 
-```markdown
+````markdown
 # API 名称
 
 简短描述
@@ -354,9 +241,9 @@ A: 解答...
 
 **请求参数**：
 
-| 参数 | 类型 | 必填 | 说明 |
-|------|------|------|------|
-| name | string | 是 | 名称 |
+| 参数 | 类型   | 必填 | 说明 |
+| ---- | ------ | ---- | ---- |
+| name | string | 是   | 名称 |
 
 **请求示例**：
 
@@ -364,7 +251,7 @@ A: 解答...
 {
   "name": "example"
 }
-````
+```
 
 **响应示例**：
 
@@ -381,20 +268,12 @@ A: 解答...
 | ------ | -------- |
 | 400    | 参数错误 |
 | 401    | 未授权   |
+````
 
-```
+## 完成清单
 
-## 项目配置
+完成后提供以下信息：
 
-当前项目 VitePress 配置：
-- 版本：2.0.0-alpha.13
-- 环境变量：`VITEPRESS_BASE` (控制 base 路径)
-- 本地 base：`/docs/`
-- GitHub Pages base：自动从仓库名获取
-
-## 相关文件
-
-- `docs/.vitepress/config.ts` - 导航和侧边栏配置
-- `docs/.vitepress/dist/` - 构建输出目录
-- `.github/workflows/deploy-docs.yml` - GitHub Pages 自动部署
-```
+- [ ] 创建/更新的文件路径
+- [ ] 修改的配置文件（如果有）
+- [ ] 预览命令（如 `npm run dev`）

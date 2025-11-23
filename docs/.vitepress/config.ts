@@ -8,8 +8,8 @@ export default defineConfig({
   //
   // 使用方式：
   //   本地/Go服务器: npm run build
-  //   GitHub Pages:  由 GitHub Actions 自动设置 VITEPRESS_BASE
-  base: process.env.VITEPRESS_BASE || "/docs/",
+  //   GitHub Pages:  由 GitHub Actions 自动设置 BASE
+  base: process.env.BASE || "/docs/",
 
   title: "Go DDD Template",
   description: "基于 Go 的领域驱动设计 (DDD) 模板应用文档",

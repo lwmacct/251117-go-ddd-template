@@ -30,7 +30,7 @@ npm --prefix docs run build
 ls docs/.vitepress/dist
 ```
 
-构建过程中，`docs/.vitepress/config.ts` 会根据 `process.env.VITEPRESS_BASE` 设置 `base`，默认 `/docs/`，与 Go 服务器的 `/docs` 前缀保持一致。
+构建过程中，`docs/.vitepress/config.ts` 会根据 `process.env.BASE` 设置 `base`，默认 `/docs/`，与 Go 服务器的 `/docs` 前缀保持一致。
 
 ## 与 Go API 服务器的联动部署
 
@@ -50,7 +50,7 @@ ls docs/.vitepress/dist
 
   ```yaml
   env:
-    VITEPRESS_BASE: /${{ github.event.repository.name }}/
+    BASE: /${{ github.event.repository.name }}/
   ```
 
   GitHub Actions 会根据仓库名自动设置 `base`，因此无需硬编码。
@@ -63,7 +63,7 @@ ls docs/.vitepress/dist
 ## 手动验证 GitHub Pages 构建
 
 ```bash
-VITEPRESS_BASE=/your-repo/ npm --prefix docs run build
+BASE=/your-repo/ npm --prefix docs run build
 sed -n '1,5p' docs/.vitepress/dist/index.html | grep '<base'
 ```
 
@@ -74,7 +74,7 @@ sed -n '1,5p' docs/.vitepress/dist/index.html | grep '<base'
 | 现象                | 排查                                                                                                   |
 | ------------------- | ------------------------------------------------------------------------------------------------------ |
 | 文档 404            | 确认 `npm --prefix docs run build` 是否成功，`DocsDir` 是否指向 dist 目录。                            |
-| 静态资源路径错误    | 检查 `VITEPRESS_BASE` 是否与部署路径一致，例如 Go 服务器必须保持 `/docs/`。                            |
+| 静态资源路径错误    | 检查 `BASE` 是否与部署路径一致，例如 Go 服务器必须保持 `/docs/`。                            |
 | GitHub Actions 失败 | 查看工作流日志中的 `npm install`、`npm run build`、`upload` 步骤；大多为 Node 版本或锁文件不一致导致。 |
 | 浏览器缓存旧版本    | 尝试访问 `http://localhost:8080/docs/index.html?t=$(date +%s)` 或清理缓存。                            |
 
