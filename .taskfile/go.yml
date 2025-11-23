@@ -14,13 +14,13 @@ vars:
   GO_BUILD_PATH: "{{.PATH_BIN}}/{{.GO_MODE_APP}}"
   GO_BUILD_LDFLAGS_SW: -s -w
   GO_BUILD_LDFLAGS_X: >-
-    -X '{{.GO_MODE_NAME}}/app/version.AppRawName={{.GO_MODE_APP}}'
-    -X '{{.GO_MODE_NAME}}/app/version.AppProject={{.GO_MODE_PROJ}}'
-    -X '{{.GO_MODE_NAME}}/app/version.AppVersion={{.GIT_TAG_LATEST}}'
-    -X '{{.GO_MODE_NAME}}/app/version.GitCommit={{.GIT_COMMIT}}'
-    -X '{{.GO_MODE_NAME}}/app/version.BuildTime={{.TIME_NOW}}'
-    -X '{{.GO_MODE_NAME}}/app/version.Developer={{.DEVELOPER}}'
-    -X '{{.GO_MODE_NAME}}/app/version.Workspace={{.PATH_REALPATH}}'
+    -X '{{.GO_MODE_NAME}}/internal/commands/version.AppRawName={{.GO_MODE_APP}}'
+    -X '{{.GO_MODE_NAME}}/internal/commands/version.AppProject={{.GO_MODE_PROJ}}'
+    -X '{{.GO_MODE_NAME}}/internal/commands/version.AppVersion={{.GIT_TAG_LATEST}}'
+    -X '{{.GO_MODE_NAME}}/internal/commands/version.GitCommit={{.GIT_COMMIT}}'
+    -X '{{.GO_MODE_NAME}}/internal/commands/version.BuildTime={{.TIME_NOW}}'
+    -X '{{.GO_MODE_NAME}}/internal/commands/version.Developer={{.DEVELOPER}}'
+    -X '{{.GO_MODE_NAME}}/internal/commands/version.Workspace={{.PATH_REALPATH}}'
   GO_BUILD_LDFLAGS: "{{.GO_BUILD_LDFLAGS_SW}} {{.GO_BUILD_LDFLAGS_X}}"
 
 tasks:
@@ -43,6 +43,9 @@ tasks:
   release:
     desc: "发布所有架构"
     deps:
+      - task: build:web
+      - task: build:docs
+    cmds:
       - task: release:x86_64
 
   release:x86_64:
@@ -72,6 +75,18 @@ tasks:
             echo;
         WORKDIR /apps/data
         COPY .local/bin/{{.GO_MODE_APP}}-{{.VERSION}} /usr/local/bin/app
+        COPY web/dist /apps/data/public/web
+        COPY docs/.vitepress/dist /apps/data/public/docs
+
+        # 创建生产环境配置文件（仅包含非敏感的基础配置，敏感信息通过环境变量传递）
+        RUN mkdir -p /apps/data/configs && cat > /apps/data/configs/config.yaml <<'YAMLEOF'
+        server:
+          addr: "0.0.0.0:8080"
+          env: "production"
+          static_dir: "/apps/data/public/web"
+          docs_dir: "/apps/data/public/docs"
+        YAMLEOF
+
         ENTRYPOINT ["tini", "--"]
         CMD ["app", "version", "run"]
 
@@ -89,6 +104,19 @@ tasks:
     cmds:
       - go build -ldflags "{{.GO_BUILD_LDFLAGS_X}}" -o {{.GO_BUILD_PATH}} .
 
+  build:web:
+    desc: "编译 Web 版本"
+    silent: true
+    cmds:
+      - |
+        (cd web && npm run build)
+
+  build:docs:
+    desc: "构建文档网站"
+    silent: true
+    cmds:
+      - |
+        (cd docs && npx vitepress build)
   run:
     desc: "先编译再运行"
     silent: true

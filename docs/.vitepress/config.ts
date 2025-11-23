@@ -63,7 +63,11 @@ export default defineConfig({
           text: "部署与运维",
           items: [
             {
-              text: "应用部署",
+              text: "生产环境快速部署",
+              link: "/guide/production-quickstart",
+            },
+            {
+              text: "应用部署（完整指南）",
               link: "/guide/application-deployment",
             },
             {

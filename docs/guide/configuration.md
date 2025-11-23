@@ -43,6 +43,11 @@ jwt:
   secret: "change-me-in-production"
   access_token_expiry: "15m"
   refresh_token_expiry: "168h"
+
+auth:
+  dev_secret: "dev-secret-change-me"
+  twofa_issuer: "Go-DDD-Template"
+  captcha_required: true
 ```
 
 ## 环境变量
@@ -54,6 +59,25 @@ jwt:
 - 前缀：`APP_`
 - 层级分隔：使用 `_` (下划线)
 - 大小写：不敏感，但推荐全大写
+
+### 环境变量完整列表
+
+| 环境变量                        | 对应配置           | 类型     | 默认值                                                   | 说明                                         |
+| ------------------------------- | ------------------ | -------- | -------------------------------------------------------- | -------------------------------------------- |
+| `APP_SERVER_ADDR`               | server.addr        | string   | `0.0.0.0:8080`                                           | 服务器监听地址                               |
+| `APP_SERVER_ENV`                | server.env         | string   | `development`                                            | 运行环境 (development/production)            |
+| `APP_SERVER_STATIC_DIR`         | server.static_dir  | string   | `web/dist`                                               | 静态资源目录路径                             |
+| `APP_SERVER_DOCS_DIR`           | server.docs_dir    | string   | `docs/.vitepress/dist`                                   | 文档目录路径                                 |
+| `APP_DATA_PGSQL_URL`            | data.pgsql_url     | string   | `postgresql://postgres@localhost:5432/myapp?sslmode=disable` | PostgreSQL 连接 URL                          |
+| `APP_DATA_REDIS_URL`            | data.redis_url     | string   | `redis://localhost:6379/0`                               | Redis 连接 URL                               |
+| `APP_DATA_REDIS_KEY_PREFIX`     | data.redis_key_prefix | string   | `myapp:`                                                 | Redis key 前缀                               |
+| `APP_DATA_AUTO_MIGRATE`         | data.auto_migrate  | bool     | `false`                                                  | 是否自动执行数据库迁移                       |
+| `APP_JWT_SECRET`                | jwt.secret         | string   | `change-me-in-production`                                | JWT 签名密钥 (⚠️ 生产环境必须修改)           |
+| `APP_JWT_ACCESS_TOKEN_EXPIRY`   | jwt.access_token_expiry | duration | `15m`                                                    | 访问令牌过期时间                             |
+| `APP_JWT_REFRESH_TOKEN_EXPIRY`  | jwt.refresh_token_expiry | duration | `168h` (7天)                                             | 刷新令牌过期时间                             |
+| `APP_AUTH_DEV_SECRET`           | auth.dev_secret    | string   | `dev-secret-change-me`                                   | 开发模式密钥 (⚠️ 生产环境必须修改)           |
+| `APP_AUTH_TWOFA_ISSUER`         | auth.twofa_issuer  | string   | `Go-DDD-Template`                                        | 2FA TOTP 发行者名称                          |
+| `APP_AUTH_CAPTCHA_REQUIRED`     | auth.captcha_required | bool     | `true`                                                   | 是否需要验证码                               |
 
 ### 示例
 
@@ -74,6 +98,11 @@ export APP_DATA_AUTO_MIGRATE="false"
 export APP_JWT_SECRET="your-secret-key"
 export APP_JWT_ACCESS_TOKEN_EXPIRY="15m"
 export APP_JWT_REFRESH_TOKEN_EXPIRY="168h"
+
+# 认证配置
+export APP_AUTH_DEV_SECRET="dev-secret-change-me"
+export APP_AUTH_TWOFA_ISSUER="Go-DDD-Template"
+export APP_AUTH_CAPTCHA_REQUIRED="true"
 ```
 
 ## 命令行参数
@@ -97,6 +126,7 @@ type Config struct {
     Server ServerConfig `koanf:"server"`
     Data   DataConfig   `koanf:"data"`
     JWT    JWTConfig    `koanf:"jwt"`
+    Auth   AuthConfig   `koanf:"auth"`
 }
 
 type ServerConfig struct {
@@ -117,6 +147,12 @@ type JWTConfig struct {
     Secret             string        `koanf:"secret"`
     AccessTokenExpiry  time.Duration `koanf:"access_token_expiry"`
     RefreshTokenExpiry time.Duration `koanf:"refresh_token_expiry"`
+}
+
+type AuthConfig struct {
+    DevSecret       string `koanf:"dev_secret"`       // 开发模式密钥
+    TwoFAIssuer     string `koanf:"twofa_issuer"`     // 2FA TOTP 发行者名称
+    CaptchaRequired bool   `koanf:"captcha_required"` // 是否需要验证码
 }
 ```
 
@@ -141,6 +177,11 @@ jwt:
   secret: "change-me-in-production"
   access_token_expiry: "15m"
   refresh_token_expiry: "168h" # 7 天
+
+auth:
+  dev_secret: "dev-secret-change-me"
+  twofa_issuer: "Go-DDD-Template"
+  captcha_required: true
 ```
 
 ## 配置加载流程
