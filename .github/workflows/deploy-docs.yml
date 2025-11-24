@@ -27,8 +27,41 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  # 预检查任务：检测 GitHub Pages 是否已启用
+  check-pages:
+    runs-on: ubuntu-latest
+    outputs:
+      enabled: ${{ steps.check.outputs.enabled }}
+    steps:
+      - name: 检测 GitHub Pages 是否已启用
+        id: check
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # 尝试获取 Pages 配置信息
+          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${{ github.repository }}/pages")
+
+          if [ "$HTTP_STATUS" = "200" ]; then
+            echo "✅ GitHub Pages 已启用"
+            echo "enabled=true" >> $GITHUB_OUTPUT
+          else
+            echo "enabled=false" >> $GITHUB_OUTPUT
+            echo ""
+            echo "::warning::GitHub Pages 未启用，将跳过部署流程"
+            echo ""
+            echo "请按以下步骤启用 GitHub Pages："
+            echo "  1. 进入仓库 Settings → Pages"
+            echo "  2. 在 'Build and deployment' 下选择 'GitHub Actions' 作为构建源"
+            echo "  3. 重新运行此工作流"
+          fi
+
   # 构建任务
   build:
+    needs: check-pages
+    if: needs.check-pages.outputs.enabled == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -64,9 +97,13 @@ jobs:
   # 部署任务
   deploy:
     environment:
+      # 如果 安装了 Github Actions 但是 Pages 未启用，这里有错误提示, 这是正常的, 请按以下步骤启用 GitHub Pages：
+      # 1. 进入仓库 Settings → Pages
+      # 2. 在 'Build and deployment' 下选择 'GitHub Actions' 作为构建源
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    needs: build
+    needs: [check-pages, build]
+    if: needs.check-pages.outputs.enabled == 'true'
     runs-on: ubuntu-latest
     name: Deploy
     steps:
