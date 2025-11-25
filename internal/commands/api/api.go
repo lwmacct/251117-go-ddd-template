@@ -36,6 +36,7 @@ import (
 	httpserver "github.com/lwmacct/251117-go-ddd-template/internal/adapters/http"
 	"github.com/lwmacct/251117-go-ddd-template/internal/bootstrap"
 	"github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/config"
+	"github.com/lwmacct/251125-go-mod-logger/pkg/logger"
 	"github.com/urfave/cli/v3"
 )
 
@@ -88,6 +89,19 @@ func runAPIServer(ctx context.Context, cmd *cli.Command) error {
 		cfg.Server.StaticDir = cmd.String("static")
 	}
 
+	// 初始化日志系统 (必须最先初始化，以便后续代码使用 logger)
+
+	if err := logger.Init(&logger.Config{
+		Level:      cfg.Log.Level,
+		Format:     cfg.Log.Format,
+		Output:     cfg.Log.Output,
+		AddSource:  cfg.Log.AddSource,
+		TimeFormat: cfg.Log.TimeFormat,
+		Timezone:   cfg.Log.Timezone,
+	}); err != nil {
+		return err
+	}
+
 	// 初始化容器 (依赖注入) - 使用 DDD+CQRS 架构容器
 	opts := &bootstrap.ContainerOptions{
 		AutoMigrate: cfg.Data.AutoMigrate, // 从配置读取是否自动迁移
@@ -130,6 +144,11 @@ func runAPIServer(ctx context.Context, cmd *cli.Command) error {
 
 	shutdownCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
+
+	// 关闭日志系统（确保文件正确关闭）
+	if err := logger.Close(); err != nil {
+		return err
+	}
 
 	if err := server.Shutdown(shutdownCtx); err != nil {
 		slog.Error("Server forced to shutdown", "error", err)

@@ -1,6 +1,7 @@
 package http
 
 import (
+	"io"
 	"os"
 	"path/filepath"
 	"strings"
@@ -54,11 +55,23 @@ func SetupRouter(
 	adminUserHandler *handler.AdminUserHandler,
 	userProfileHandler *handler.UserProfileHandler,
 ) *gin.Engine {
+	// 配置 Gin 模式和日志输出
+	if cfg.Server.Env == "production" {
+		gin.SetMode(gin.ReleaseMode)
+	} else {
+		gin.SetMode(gin.DebugMode)
+	}
+	// 禁用 Gin 的默认调试输出（路由注册信息等），我们使用 slog
+	gin.DefaultWriter = io.Discard
+	gin.DefaultErrorWriter = io.Discard
+
 	r := gin.New()
 
 	// 全局中间件
 	r.Use(gin.Recovery())
 	r.Use(middleware.CORS())
+	// 使用基于 slog 的日志中间件，跳过健康检查端点
+	r.Use(middleware.LoggerSkipPaths("/health"))
 
 	// 健康检查 (包含数据库和 Redis 连接检查)
 	healthHandler := handler.NewHealthHandler(db, redisClient)

@@ -53,12 +53,23 @@ type AuthConfig struct {
 	CaptchaRequired bool   `koanf:"captcha_required"` // 是否需要验证码（可在生产环境强制开启）
 }
 
+// LogConfig 日志配置
+type LogConfig struct {
+	Level      string `koanf:"level"`       // 日志级别: DEBUG, INFO, WARN, ERROR
+	Format     string `koanf:"format"`      // 输出格式: json, text, color
+	Output     string `koanf:"output"`      // 输出目标: stdout, stderr, 或文件路径
+	AddSource  bool   `koanf:"add_source"`  // 是否添加源代码位置信息
+	TimeFormat string `koanf:"time_format"` // 时间格式: datetime, rfc3339, rfc3339ms, unix, unixms
+	Timezone   string `koanf:"timezone"`    // 时区，例如 "Asia/Shanghai" 或 "+08:00"
+}
+
 // Config 应用配置
 type Config struct {
 	Server ServerConfig `koanf:"server"`
 	Data   DataConfig   `koanf:"data"`
 	JWT    JWTConfig    `koanf:"jwt"`
 	Auth   AuthConfig   `koanf:"auth"`
+	Log    LogConfig    `koanf:"log"`
 }
 
 // defaultConfig 返回默认配置
@@ -85,6 +96,14 @@ func defaultConfig() Config {
 			DevSecret:       "dev-secret-change-me",
 			TwoFAIssuer:     "Go-DDD-Template",
 			CaptchaRequired: true, // 默认开启验证码
+		},
+		Log: LogConfig{
+			Level:      "DEBUG",
+			Format:     "color",         // 开发环境默认使用彩色输出
+			Output:     "stdout",        // 输出到标准输出
+			AddSource:  false,           // 默认不添加源代码位置信息
+			TimeFormat: "datetime",      // 默认使用易读的时间格式
+			Timezone:   "Asia/Shanghai", // 默认使用上海时区
 		},
 	}
 }
