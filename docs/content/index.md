@@ -8,7 +8,7 @@ hero:
   actions:
     - theme: brand
       text: 快速开始
-      link: /guide/getting-started
+      link: /guide/quick-start
     - theme: alt
       text: 查看 GitHub
       link: https://github.com/lwmacct/251117-go-ddd-template

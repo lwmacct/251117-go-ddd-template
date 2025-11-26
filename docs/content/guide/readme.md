@@ -16,7 +16,7 @@ docker-compose up -d
 task go:run -- api
 ```
 
-详细安装步骤请参阅 [快速开始指南](./getting-started.md)。
+详细安装步骤请参阅 [快速开始指南](./quick-start.md)。
 
 ## 🏗️ 项目架构
 

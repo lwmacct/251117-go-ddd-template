@@ -4,7 +4,7 @@
 
 ## 📚 指南内容
 
-- [快速开始](./getting-started.md) - 5分钟快速上手
+- [快速开始](./quick-start.md) - 5分钟快速上手
 - [项目介绍](./introduction.md) - 了解项目背景和特性
 - [目录结构](./project-structure.md) - 熟悉项目组织方式
 - [配置管理](./configuration.md) - 掌握配置系统
@@ -14,7 +14,7 @@
 
 如果您是第一次使用，建议按以下顺序阅读：
 
-1. **[快速开始](./getting-started.md)** - 环境准备和初始化
+1. **[快速开始](./quick-start.md)** - 环境准备和初始化
 2. **[项目介绍](./introduction.md)** - 理解核心概念
 3. **[目录结构](./project-structure.md)** - 熟悉代码组织
 
