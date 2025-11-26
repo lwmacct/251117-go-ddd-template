@@ -1,1 +1,1 @@
-docs/guide/ai-agent.md
+docs/content/guide/agents.md

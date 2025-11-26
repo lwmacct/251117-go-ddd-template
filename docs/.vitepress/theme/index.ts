@@ -1,45 +1,41 @@
-// .vitepress/theme/index.ts
-import { h } from "vue";
-import type { Theme } from "vitepress";
 import DefaultTheme from "vitepress/theme";
 import { onMounted, watch, nextTick } from "vue";
 import { useRoute } from "vitepress";
-import mediumZoom from "medium-zoom";
+import mermaid from "mermaid";
+import type { Theme } from "vitepress";
 
-import Mermaid from "./components/Mermaid.vue";
-import ApiEndpoint from "./components/ApiEndpoint.vue";
-import FeatureCard from "./components/FeatureCard.vue";
-import StepsGuide from "./components/StepsGuide.vue";
-import "./style.css";
+import "./mermaid.css";
 
-export default {
+// Mermaid 初始化配置
+mermaid.initialize({
+  startOnLoad: false,
+  securityLevel: "loose",
+  theme: "default",
+});
+
+const theme: Theme = {
   extends: DefaultTheme,
-  Layout: () => {
-    return h(DefaultTheme.Layout, null, {
-      // https://vitepress.dev/guide/extending-default-theme#layout-slots
-    });
-  },
-  enhanceApp({ app }) {
-    // 注册全局组件
-    app.component("Mermaid", Mermaid);
-    app.component("ApiEndpoint", ApiEndpoint);
-    app.component("FeatureCard", FeatureCard);
-    app.component("StepsGuide", StepsGuide);
-  },
   setup() {
     const route = useRoute();
-    const initZoom = () => {
-      // 为所有文档中的图片添加缩放功能
-      mediumZoom(".main img", {
-        background: "var(--vp-c-bg)",
+
+    const initMermaid = async () => {
+      await nextTick();
+      await mermaid.run({
+        querySelector: ".mermaid",
       });
     };
+
     onMounted(() => {
-      initZoom();
+      initMermaid();
     });
+
     watch(
       () => route.path,
-      () => nextTick(() => initZoom()),
+      () => {
+        initMermaid();
+      }
     );
   },
-} satisfies Theme;
+};
+
+export default theme;
