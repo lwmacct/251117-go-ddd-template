@@ -33,10 +33,9 @@ auth:
 
 # 日志配置
 log:
-  level: "INFO" # 日志级别: DEBUG | INFO | WARN | ERROR (大小写不敏感)
+  level: "DEBUG" # 日志级别: DEBUG | INFO | WARN | ERROR (大小写不敏感)
   format: "color" # 输出格式: json | text | color (开发环境推荐 color，生产环境推荐 json)
   output: "stdout" # 输出目标: stdout | stderr | 文件路径 (如 "/var/log/app.log")
   add_source: false # 是否添加源代码位置信息 (调试时可开启，会显示文件名和行号)
   time_format: "datetime" # 时间格式: datetime | rfc3339 | rfc3339ms | unix | unixms (datetime 最易读)
   timezone: "Asia/Shanghai" # 时区设置，例如 "Asia/Shanghai" 或 "+08:00"
-
