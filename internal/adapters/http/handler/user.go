@@ -1,3 +1,17 @@
+// Package handler 提供 HTTP 请求处理器。
+//
+// 本包是适配器层的核心组件，职责：
+//   - 请求绑定：解析 HTTP 请求参数到 DTO
+//   - 响应转换：将 Use Case 结果转换为 HTTP 响应
+//   - 错误处理：统一的错误响应格式
+//
+// 设计原则：
+//   - Handler 不包含业务逻辑，仅做 HTTP 适配
+//   - 业务逻辑委托给 Application 层的 Command/Query Handler
+//   - 使用 response 包提供统一的响应格式
+//
+// 文件命名：{module}.go（单数形式）
+// 例如：user.go, role.go, auth.go
 package handler
 
 import (

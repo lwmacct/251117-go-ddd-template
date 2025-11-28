@@ -1,4 +1,20 @@
-// Package auth 提供认证领域服务的实现
+// Package auth 提供认证领域服务的基础设施实现。
+//
+// 本包实现 domain/auth.Service 接口，提供：
+//   - 密码管理：BCrypt 哈希生成与验证
+//   - JWT 令牌：访问令牌和刷新令牌的生成与验证
+//   - PAT 令牌：个人访问令牌的生成与哈希
+//   - 密码策略：可配置的密码强度验证
+//
+// 组件：
+//   - JWTManager: JWT 令牌的生成、签名和验证
+//   - TokenGenerator: PAT 等安全令牌的生成
+//   - authServiceImpl: domain/auth.Service 的完整实现
+//
+// 安全特性：
+//   - 使用 BCrypt 进行密码哈希（默认 cost=10）
+//   - JWT 使用 HS256 签名算法
+//   - Token 过期时间可配置
 package auth
 
 import (

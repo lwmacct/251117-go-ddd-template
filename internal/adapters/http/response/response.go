@@ -1,3 +1,38 @@
+// Package response 提供统一的 HTTP 响应格式。
+//
+// 本包定义了前后端约定的响应结构，确保 API 响应的一致性：
+//
+// 成功响应格式：
+//
+//	{
+//	  "code": 200,
+//	  "message": "success",
+//	  "data": { ... }
+//	}
+//
+// 错误响应格式：
+//
+//	{
+//	  "code": 400,
+//	  "message": "error message",
+//	  "error": { ... }
+//	}
+//
+// 列表响应格式：
+//
+//	{
+//	  "code": 200,
+//	  "message": "success",
+//	  "data": [...],
+//	  "meta": { "total": 100, "page": 1, "per_page": 10 }
+//	}
+//
+// 使用示例：
+//
+//	response.OK(c, "success", user)
+//	response.Created(c, "created", nil)
+//	response.BadRequest(c, "invalid input")
+//	response.List(c, "success", users, response.NewPaginationMeta(total, page, limit))
 package response
 
 import (

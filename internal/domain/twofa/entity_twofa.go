@@ -1,3 +1,14 @@
+// Package twofa 定义双因素认证 (Two-Factor Authentication) 领域模型。
+//
+// 本包实现基于 TOTP (时间同步一次性密码) 的双因素认证，兼容：
+//   - Google Authenticator
+//   - Microsoft Authenticator
+//   - 其他标准 TOTP 应用
+//
+// 核心功能：
+//   - TwoFA 实体：存储用户的 2FA 配置和状态
+//   - RecoveryCodes：一次性恢复码，用于设备丢失时的账户恢复
+//   - TOTP 密钥管理：Secret 字段存储 Base32 编码的密钥
 package twofa
 
 import "time"

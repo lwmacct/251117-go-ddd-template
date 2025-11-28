@@ -1,3 +1,22 @@
+// Package bootstrap 提供应用程序的依赖注入容器。
+//
+// 本包是 DDD+CQRS 架构的核心组装点，负责：
+//   - 初始化所有基础设施组件（数据库、Redis、JWT）
+//   - 创建 CQRS Repositories（Command/Query 分离）
+//   - 实例化 Use Case Handlers（业务逻辑编排）
+//   - 装配 HTTP Handlers（适配器层）
+//   - 配置路由和中间件
+//
+// 依赖注入顺序：
+//  1. 基础设施 → 2. Repositories → 3. Domain Services
+//  4. Use Case Handlers → 5. HTTP Handlers → 6. Router
+//
+// 使用方式：
+//
+//	container, err := bootstrap.NewContainer(cfg, nil)
+//	if err != nil { ... }
+//	defer container.Close()
+//	container.Router.Run(":8080")
 package bootstrap
 
 import (

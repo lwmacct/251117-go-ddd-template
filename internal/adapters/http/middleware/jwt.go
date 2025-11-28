@@ -1,3 +1,23 @@
+// Package middleware 提供 HTTP 中间件。
+//
+// 本包实现了 Gin 框架的中间件，用于请求处理管道：
+//
+// 认证中间件：
+//   - Auth: 统一认证（支持 JWT 和 PAT 双模式）
+//   - JWTAuth: 仅 JWT 认证（已废弃，保留向后兼容）
+//
+// 授权中间件：
+//   - RequireRole: 角色检查（如 RequireRole("admin")）
+//   - RequirePermission: 权限检查（如 RequirePermission("admin:users:read")）
+//
+// 通用中间件：
+//   - CORS: 跨域资源共享配置
+//   - Logger: 基于 slog 的请求日志
+//   - AuditMiddleware: 审计日志记录
+//
+// 权限缓存机制：
+// 新架构中，JWT/PAT 仅存储 user_id，权限信息从 PermissionCacheService
+// 实时查询，支持权限变更后立即生效。
 package middleware
 
 import (

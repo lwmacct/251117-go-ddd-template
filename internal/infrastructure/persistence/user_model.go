@@ -1,3 +1,19 @@
+// Package persistence 提供领域模型的持久化实现。
+//
+// 本包是 DDD 架构中基础设施层的核心组件，职责：
+//   - 定义 GORM Model：包含数据库映射的持久化模型（带 GORM Tag）
+//   - 实现 Repository：实现领域层定义的仓储接口
+//   - 模型映射：提供 Domain Entity ↔ GORM Model 的双向转换
+//
+// CQRS 模式：
+//   - CommandRepository：处理写操作（Create, Update, Delete）
+//   - QueryRepository：处理读操作（Get, List, Search, Count）
+//
+// 文件命名规范：
+//   - {module}_model.go: GORM 模型定义和映射函数
+//   - {module}_command_repository.go: 写仓储实现
+//   - {module}_query_repository.go: 读仓储实现
+//   - {module}_repositories.go: 仓储聚合（可选）
 package persistence
 
 import (

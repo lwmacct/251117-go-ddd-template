@@ -6,7 +6,13 @@ import (
 	"errors"
 )
 
-// PermissionList is a custom type for JSON array of permissions
+// PermissionList 是 PAT 权限列表的值对象。
+//
+// 实现 sql.Scanner 和 driver.Valuer 接口，支持：
+//   - 数据库 JSON 字段的自动序列化/反序列化
+//   - 空值安全处理（nil 转为空数组）
+//
+// 示例权限格式: ["user:read", "user:write", "role:read"]
 type PermissionList []string
 
 // Scan implements sql.Scanner interface
@@ -32,7 +38,9 @@ func (p PermissionList) Value() (driver.Value, error) {
 	return json.Marshal(p)
 }
 
-// StringList is a custom type for JSON array of strings
+// StringList 是字符串数组的值对象，用于 IP 白名单等场景。
+//
+// 实现 sql.Scanner 和 driver.Valuer 接口，支持数据库 JSON 字段存储。
 type StringList []string
 
 // Scan implements sql.Scanner interface

@@ -1,3 +1,15 @@
+// Package pat 定义个人访问令牌 (Personal Access Token) 领域模型。
+//
+// PAT 是一种长期有效的 API 认证凭证，适用于：
+//   - CI/CD 自动化脚本
+//   - 第三方应用集成
+//   - 命令行工具认证
+//
+// 安全特性：
+//   - Token 以哈希形式存储，原始值仅在创建时返回一次
+//   - 支持细粒度权限控制 (PermissionList)
+//   - 可配置过期时间和 IP 白名单
+//   - 提供 TokenPrefix 用于识别（不暴露完整 Token）
 package pat
 
 import "time"

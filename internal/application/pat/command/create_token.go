@@ -1,4 +1,15 @@
-// Package command 定义 PAT 命令处理器
+// Package command 定义个人访问令牌 (PAT) 的写操作命令。
+//
+// 本包处理 PAT 的生命周期管理：
+//   - CreateTokenCommand: 创建新 PAT（返回明文 Token，仅此一次）
+//   - DeleteTokenCommand: 删除 PAT
+//   - DisableTokenCommand: 禁用 PAT
+//   - EnableTokenCommand: 启用已禁用的 PAT
+//
+// 安全特性：
+//   - PlainToken 仅在创建时返回，之后无法再次获取
+//   - 支持过期时间和 IP 白名单配置
+//   - 删除/禁用操作立即生效
 package command
 
 import (

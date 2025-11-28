@@ -1,3 +1,20 @@
+// Package http 提供 HTTP 适配器层的实现。
+//
+// 本包是 DDD 架构的适配器层入口，负责：
+//   - 路由配置：基于 Gin 框架的 RESTful API 路由定义
+//   - 中间件集成：认证、授权、日志、CORS 等中间件
+//   - 静态文件服务：前端 SPA 和文档服务
+//
+// 路由结构：
+//   - /api/auth/*: 认证相关（登录、注册、刷新令牌）
+//   - /api/admin/*: 管理后台（用户、角色、权限、菜单管理）
+//   - /api/user/*: 用户中心（个人资料、PAT 管理）
+//   - /swagger/*: API 文档
+//   - /docs/*: VitePress 文档
+//   - /health: 健康检查
+//
+// 权限控制采用三段式格式：domain:resource:action
+// 例如：admin:users:create, user:profile:read
 package http
 
 import (

@@ -1,4 +1,18 @@
-// Package user 定义用户领域模型
+// Package user 定义用户领域模型和仓储接口。
+//
+// 本包是用户管理的核心领域层，采用 CQRS 模式分离读写操作：
+//   - User: 用户聚合根，包含 RBAC 角色关联和领域行为方法
+//   - CommandRepository: 写操作接口（Create, Update, Delete, AssignRoles）
+//   - QueryRepository: 读操作接口（GetByID, List, Search, Exists）
+//
+// 领域行为：
+//   - 状态管理：Activate, Deactivate, Ban, CanLogin
+//   - 角色管理：HasRole, AssignRole, RemoveRole, GetPermissions
+//   - 权限检查：HasPermission, IsAdmin
+//
+// 设计原则：
+//   - 富领域模型：业务逻辑封装在实体方法中
+//   - 无基础设施依赖：不包含 GORM Tag，仅使用 JSON Tag 用于序列化
 package user
 
 import (
