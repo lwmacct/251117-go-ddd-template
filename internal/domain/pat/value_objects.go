@@ -16,7 +16,7 @@ import (
 type PermissionList []string
 
 // Scan implements sql.Scanner interface
-func (p *PermissionList) Scan(value interface{}) error {
+func (p *PermissionList) Scan(value any) error {
 	if value == nil {
 		*p = []string{}
 		return nil
@@ -44,7 +44,7 @@ func (p PermissionList) Value() (driver.Value, error) {
 type StringList []string
 
 // Scan implements sql.Scanner interface
-func (s *StringList) Scan(value interface{}) error {
+func (s *StringList) Scan(value any) error {
 	if value == nil {
 		*s = []string{}
 		return nil

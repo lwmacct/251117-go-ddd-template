@@ -13,15 +13,15 @@ import (
 // CacheRepository Redis 缓存仓储接口
 type CacheRepository interface {
 	// Get 获取缓存值
-	Get(ctx context.Context, key string, dest interface{}) error
+	Get(ctx context.Context, key string, dest any) error
 	// Set 设置缓存值
-	Set(ctx context.Context, key string, value interface{}, expiration time.Duration) error
+	Set(ctx context.Context, key string, value any, expiration time.Duration) error
 	// Delete 删除缓存值
 	Delete(ctx context.Context, key string) error
 	// Exists 检查键是否存在
 	Exists(ctx context.Context, key string) (bool, error)
 	// SetNX 仅当键不存在时设置值 (分布式锁)
-	SetNX(ctx context.Context, key string, value interface{}, expiration time.Duration) (bool, error)
+	SetNX(ctx context.Context, key string, value any, expiration time.Duration) (bool, error)
 }
 
 // cacheRepository Redis 缓存仓储实现
@@ -45,7 +45,7 @@ func (r *cacheRepository) buildKey(key string) string {
 }
 
 // Get 获取缓存值并反序列化到目标对象
-func (r *cacheRepository) Get(ctx context.Context, key string, dest interface{}) error {
+func (r *cacheRepository) Get(ctx context.Context, key string, dest any) error {
 	fullKey := r.buildKey(key)
 	val, err := r.client.Get(ctx, fullKey).Result()
 	if err != nil {
@@ -63,7 +63,7 @@ func (r *cacheRepository) Get(ctx context.Context, key string, dest interface{})
 }
 
 // Set 序列化并设置缓存值
-func (r *cacheRepository) Set(ctx context.Context, key string, value interface{}, expiration time.Duration) error {
+func (r *cacheRepository) Set(ctx context.Context, key string, value any, expiration time.Duration) error {
 	fullKey := r.buildKey(key)
 	data, err := json.Marshal(value)
 	if err != nil {
@@ -97,7 +97,7 @@ func (r *cacheRepository) Exists(ctx context.Context, key string) (bool, error) 
 }
 
 // SetNX 仅当键不存在时设置值 (用于分布式锁)
-func (r *cacheRepository) SetNX(ctx context.Context, key string, value interface{}, expiration time.Duration) (bool, error) {
+func (r *cacheRepository) SetNX(ctx context.Context, key string, value any, expiration time.Duration) (bool, error) {
 	fullKey := r.buildKey(key)
 	data, err := json.Marshal(value)
 	if err != nil {

@@ -16,6 +16,7 @@
 package user
 
 import (
+	"slices"
 	"time"
 
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/role"
@@ -52,12 +53,7 @@ func (u *User) HasRole(roleName string) bool {
 
 // HasAnyRole checks if the user has any of the specified roles
 func (u *User) HasAnyRole(roleNames ...string) bool {
-	for _, roleName := range roleNames {
-		if u.HasRole(roleName) {
-			return true
-		}
-	}
-	return false
+	return slices.ContainsFunc(roleNames, u.HasRole)
 }
 
 // HasPermission checks if the user has a specific permission

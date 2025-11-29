@@ -218,7 +218,7 @@ func (s *Service) GetStatus(ctx context.Context, userID uint) (bool, int, error)
 func GenerateRecoveryCodes(count int) ([]string, error) {
 	codes := make([]string, count)
 
-	for i := 0; i < count; i++ {
+	for i := range count {
 		// 生成 8 位随机数字
 		b := make([]byte, 4)
 		if _, err := rand.Read(b); err != nil {

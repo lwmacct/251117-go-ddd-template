@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"slices"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -162,24 +163,19 @@ func splitPath(path string) []string {
 // isAction checks if a segment is an action (not a resource ID)
 func isAction(segment string) bool {
 	actions := []string{"permissions", "roles", "status", "password", "email"}
-	for _, action := range actions {
-		if segment == action {
-			return true
-		}
-	}
-	return false
+	return slices.Contains(actions, segment)
 }
 
 // formatDetails formats request details for audit log
 func formatDetails(method string, requestBody []byte, statusCode int, duration time.Duration) string {
-	details := make(map[string]interface{})
+	details := make(map[string]any)
 	details["method"] = method
 	details["status_code"] = statusCode
 	details["duration_ms"] = duration.Milliseconds()
 
 	// Try to parse request body as JSON
 	if len(requestBody) > 0 && len(requestBody) < 10000 { // Limit to 10KB
-		var bodyJSON map[string]interface{}
+		var bodyJSON map[string]any
 		if err := json.Unmarshal(requestBody, &bodyJSON); err == nil {
 			// Remove sensitive fields
 			delete(bodyJSON, "password")

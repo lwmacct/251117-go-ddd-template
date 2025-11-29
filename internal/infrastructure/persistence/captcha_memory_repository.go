@@ -124,7 +124,7 @@ func (r *captchaMemoryRepository) Delete(ctx context.Context, captchaID string) 
 }
 
 // GetStats 获取统计信息
-func (r *captchaMemoryRepository) GetStats(ctx context.Context) map[string]interface{} {
+func (r *captchaMemoryRepository) GetStats(ctx context.Context) map[string]any {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 
@@ -135,7 +135,7 @@ func (r *captchaMemoryRepository) GetStats(ctx context.Context) map[string]inter
 		}
 	}
 
-	return map[string]interface{}{
+	return map[string]any{
 		"total":   len(r.data),
 		"expired": expired,
 		"active":  len(r.data) - expired,

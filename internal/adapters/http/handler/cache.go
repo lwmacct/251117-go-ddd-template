@@ -26,9 +26,9 @@ func NewCacheHandler(redisClient *redis.Client, keyPrefix string) *CacheHandler 
 // Body: {"key": "test", "value": "hello", "ttl": 60}
 func (h *CacheHandler) SetCache(c *gin.Context) {
 	var req struct {
-		Key   string      `json:"key" binding:"required"`
-		Value interface{} `json:"value" binding:"required"`
-		TTL   int         `json:"ttl"` // 秒，默认 60
+		Key   string `json:"key" binding:"required"`
+		Value any    `json:"value" binding:"required"`
+		TTL   int    `json:"ttl"` // 秒，默认 60
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -62,7 +62,7 @@ func (h *CacheHandler) GetCache(c *gin.Context) {
 		return
 	}
 
-	var value interface{}
+	var value any
 	if err := h.cacheRepo.Get(c.Request.Context(), key, &value); err != nil {
 		c.JSON(404, gin.H{"error": err.Error()})
 		return

@@ -61,7 +61,7 @@ func (r *menuCommandRepository) UpdateOrder(ctx context.Context, menus []struct 
 		for _, m := range menus {
 			if err := tx.Model(&MenuModel{}).
 				Where("id = ?", m.ID).
-				Updates(map[string]interface{}{
+				Updates(map[string]any{
 					"order":     m.Order,
 					"parent_id": m.ParentID,
 				}).Error; err != nil {

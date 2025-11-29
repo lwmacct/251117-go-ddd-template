@@ -17,7 +17,7 @@ import (
 type RecoveryCodes []string
 
 // Scan 实现 sql.Scanner 接口，从数据库读取时自动处理空值
-func (r *RecoveryCodes) Scan(value interface{}) error {
+func (r *RecoveryCodes) Scan(value any) error {
 	if value == nil {
 		*r = []string{}
 		return nil

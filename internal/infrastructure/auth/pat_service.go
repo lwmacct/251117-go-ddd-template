@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"slices"
 	"time"
 
 	patdto "github.com/lwmacct/251117-go-ddd-template/internal/application/pat"
@@ -222,14 +223,7 @@ func (s *PATService) ValidateTokenWithIP(ctx context.Context, plainToken, client
 
 	// Check IP whitelist if configured
 	if len(token.IPWhitelist) > 0 {
-		allowed := false
-		for _, ip := range token.IPWhitelist {
-			if ip == clientIP {
-				allowed = true
-				break
-			}
-		}
-		if !allowed {
+		if !slices.Contains(token.IPWhitelist, clientIP) {
 			return nil, fmt.Errorf("access denied: IP %s not in whitelist", clientIP)
 		}
 	}

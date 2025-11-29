@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"slices"
 	"strconv"
 	"strings"
 
@@ -25,15 +26,7 @@ func RequireRole(role string) gin.HandlerFunc {
 			return
 		}
 
-		hasRole := false
-		for _, r := range rolesList {
-			if r == role {
-				hasRole = true
-				break
-			}
-		}
-
-		if !hasRole {
+		if !slices.Contains(rolesList, role) {
 			response.Forbidden(c, "Insufficient permissions")
 			c.Abort()
 			return
@@ -60,18 +53,9 @@ func RequireAnyRole(roles ...string) gin.HandlerFunc {
 			return
 		}
 
-		hasRole := false
-		for _, requiredRole := range roles {
-			for _, userRole := range rolesList {
-				if userRole == requiredRole {
-					hasRole = true
-					break
-				}
-			}
-			if hasRole {
-				break
-			}
-		}
+		hasRole := slices.ContainsFunc(roles, func(requiredRole string) bool {
+			return slices.Contains(rolesList, requiredRole)
+		})
 
 		if !hasRole {
 			response.Forbidden(c, "Insufficient permissions")
@@ -210,11 +194,9 @@ func RequireAdminOrOwnership(paramName ...string) gin.HandlerFunc {
 		roles, exists := c.Get("roles")
 		if exists {
 			if rolesList, ok := roles.([]string); ok {
-				for _, role := range rolesList {
-					if role == "admin" {
-						c.Next()
-						return
-					}
+				if slices.Contains(rolesList, "admin") {
+					c.Next()
+					return
 				}
 			}
 		}
@@ -283,7 +265,7 @@ func matchPermission(userPerm, requiredPerm string) bool {
 	}
 
 	// Check each part: domain, resource, action
-	for i := 0; i < 3; i++ {
+	for i := range 3 {
 		// Wildcard in user permission matches anything
 		if userParts[i] == "*" {
 			continue

@@ -124,7 +124,7 @@ func HealthCheck(ctx context.Context, db *gorm.DB) error {
 }
 
 // GetStats 获取数据库连接池统计信息
-func GetStats(db *gorm.DB) (map[string]interface{}, error) {
+func GetStats(db *gorm.DB) (map[string]any, error) {
 	if db == nil {
 		return nil, fmt.Errorf("database connection is nil")
 	}
@@ -135,7 +135,7 @@ func GetStats(db *gorm.DB) (map[string]interface{}, error) {
 	}
 
 	stats := sqlDB.Stats()
-	return map[string]interface{}{
+	return map[string]any{
 		"max_open_connections": stats.MaxOpenConnections,
 		"open_connections":     stats.OpenConnections,
 		"in_use":               stats.InUse,
