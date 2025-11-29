@@ -1,4 +1,3 @@
-// Package auth 定义认证领域服务接口
 package auth
 
 import (
@@ -6,7 +5,8 @@ import (
 	"time"
 )
 
-// PasswordPolicy 密码策略值对象
+// PasswordPolicy 密码策略值对象。
+// 定义密码强度要求，可根据安全需求配置。
 type PasswordPolicy struct {
 	MinLength      int
 	RequireUpper   bool

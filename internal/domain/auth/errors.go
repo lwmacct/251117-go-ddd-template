@@ -1,4 +1,3 @@
-// Package auth 定义认证领域的错误
 package auth
 
 import "errors"

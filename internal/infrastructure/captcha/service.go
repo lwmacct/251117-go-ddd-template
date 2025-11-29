@@ -8,8 +8,9 @@ import (
 	"github.com/mojocn/base64Captcha"
 )
 
+// 验证码默认配置。
 const (
-	// DefaultExpiration 默认过期时间（5分钟）
+	// DefaultExpiration 默认过期时间（5分钟）。
 	DefaultExpiration = 5 * time.Minute
 	// DefaultLength 验证码长度
 	DefaultLength = 4
