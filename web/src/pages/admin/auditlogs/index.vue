@@ -9,7 +9,7 @@ import type { AuditLog } from "@/types/admin/audit";
  */
 
 // 使用 composable
-const { logs, loading, errorMessage, filters, pagination, fetchLogs, applyFilters, resetFilters, changePage, clearMessages } = useAuditLogs();
+const { logs, loading, exporting, errorMessage, successMessage, filters, pagination, fetchLogs, applyFilters, resetFilters, changePage, clearMessages, exportLogs } = useAuditLogs();
 
 // 对话框状态
 const detailDialog = ref(false);
@@ -121,9 +121,12 @@ const getStatusText = (status: string) => {
     </v-row>
 
     <!-- 消息提示 -->
-    <v-row v-if="errorMessage">
+    <v-row v-if="errorMessage || successMessage">
       <v-col cols="12">
-        <v-alert type="error" closable @click:close="clearMessages">
+        <v-alert v-if="successMessage" type="success" closable @click:close="clearMessages" class="mb-2">
+          {{ successMessage }}
+        </v-alert>
+        <v-alert v-if="errorMessage" type="error" closable @click:close="clearMessages">
           {{ errorMessage }}
         </v-alert>
       </v-col>
@@ -160,7 +163,7 @@ const getStatusText = (status: string) => {
                 <v-select v-model="filters.status" :items="statusOptions" item-title="text" item-value="value" label="状态" variant="outlined" density="compact" hide-details></v-select>
               </v-col>
 
-              <v-col cols="12" md="3" class="d-flex gap-2">
+              <v-col cols="12" md="3" class="d-flex gap-2 flex-wrap">
                 <v-btn color="primary" @click="applyFilters" :loading="loading">
                   <v-icon start>mdi-magnify</v-icon>
                   查询
@@ -168,6 +171,10 @@ const getStatusText = (status: string) => {
                 <v-btn variant="outlined" @click="resetFilters">
                   <v-icon start>mdi-refresh</v-icon>
                   重置
+                </v-btn>
+                <v-btn color="success" variant="outlined" @click="exportLogs" :loading="exporting" :disabled="loading">
+                  <v-icon start>mdi-download</v-icon>
+                  导出
                 </v-btn>
               </v-col>
             </v-row>

@@ -62,3 +62,22 @@ export const updateProfile = async (params: UpdateProfileRequest): Promise<User>
     throw new Error(error.response?.data?.error || error.message || "更新个人资料失败");
   }
 };
+
+/**
+ * 删除账户请求参数
+ */
+export interface DeleteAccountRequest {
+  password: string;
+}
+
+/**
+ * 删除账户
+ * 需要用户输入密码确认身份
+ */
+export const deleteAccount = async (params: DeleteAccountRequest): Promise<void> => {
+  try {
+    await apiClient.delete<ApiResponse<null>>("/api/user/account", { data: params });
+  } catch (error: any) {
+    throw new Error(error.response?.data?.error || error.message || "删除账户失败");
+  }
+};

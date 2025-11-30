@@ -108,3 +108,45 @@ export const assignRoles = async (id: number, params: AssignRolesRequest): Promi
     throw new Error(error.response?.data?.error || error.message || "分配角色失败");
   }
 };
+
+/**
+ * 批量创建用户请求
+ */
+export interface BatchCreateUserRequest {
+  username: string;
+  email: string;
+  password: string;
+  full_name?: string;
+  status?: string;
+}
+
+/**
+ * 批量创建用户响应
+ */
+export interface BatchCreateResult {
+  success: number;
+  failed: number;
+  errors: Array<{
+    index: number;
+    username: string;
+    error: string;
+  }>;
+}
+
+/**
+ * 批量创建用户
+ * TODO: 后端 API 未实现，需要实现 POST /api/admin/users/batch
+ */
+export const batchCreateUsers = async (users: BatchCreateUserRequest[]): Promise<BatchCreateResult> => {
+  try {
+    const { data } = await apiClient.post<ApiResponse<BatchCreateResult>>("/api/admin/users/batch", { users });
+
+    if (data.data) {
+      return data.data;
+    }
+
+    throw new Error(data.error || "批量创建用户失败");
+  } catch (error: any) {
+    throw new Error(error.response?.data?.error || error.message || "批量创建用户失败");
+  }
+};

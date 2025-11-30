@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { ref } from "vue";
 import { changePassword } from "@/api/auth/user";
+import PasswordStrengthIndicator from "@/components/PasswordStrengthIndicator.vue";
 
 // 表单数据
 const oldPassword = ref("");
@@ -16,37 +17,6 @@ const showConfirmPassword = ref(false);
 // 消息
 const errorMessage = ref("");
 const successMessage = ref("");
-
-/**
- * 密码强度检查
- */
-const passwordStrength = computed(() => {
-  if (!newPassword.value) return { level: 0, text: "", color: "" };
-
-  let strength = 0;
-  const pwd = newPassword.value;
-
-  // 长度检查
-  if (pwd.length >= 8) strength++;
-  if (pwd.length >= 12) strength++;
-
-  // 包含小写字母
-  if (/[a-z]/.test(pwd)) strength++;
-
-  // 包含大写字母
-  if (/[A-Z]/.test(pwd)) strength++;
-
-  // 包含数字
-  if (/\d/.test(pwd)) strength++;
-
-  // 包含特殊字符
-  if (/[!@#$%^&*(),.?":{}|<>]/.test(pwd)) strength++;
-
-  // 计算强度等级
-  if (strength <= 2) return { level: strength, text: "弱", color: "error" };
-  if (strength <= 4) return { level: strength, text: "中", color: "warning" };
-  return { level: strength, text: "强", color: "success" };
-});
 
 /**
  * 密码验证规则
@@ -163,13 +133,7 @@ function resetForm() {
       />
 
       <!-- 密码强度指示器 -->
-      <div v-if="newPassword" class="mb-4">
-        <div class="d-flex align-center gap-2 mb-2">
-          <span class="text-caption">密码强度：</span>
-          <v-chip :color="passwordStrength.color" size="x-small">{{ passwordStrength.text }}</v-chip>
-        </div>
-        <v-progress-linear :model-value="(passwordStrength.level / 6) * 100" :color="passwordStrength.color" height="4" rounded></v-progress-linear>
-      </div>
+      <PasswordStrengthIndicator :password="newPassword" class="mb-4" />
 
       <!-- 确认新密码 -->
       <v-text-field

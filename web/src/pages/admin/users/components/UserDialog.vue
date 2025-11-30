@@ -2,6 +2,7 @@
 import { ref, watch, computed } from "vue";
 import type { AdminUser, CreateUserRequest, UpdateUserRequest } from "@/types/admin";
 import RoleSelector from "./RoleSelector.vue";
+import PasswordStrengthIndicator from "@/components/PasswordStrengthIndicator.vue";
 
 /**
  * 用户创建/编辑对话框
@@ -143,6 +144,9 @@ const handleSave = async () => {
           <v-text-field v-model="formData.email" label="邮箱" type="email" :rules="rules.email" variant="outlined" density="comfortable" class="mb-2"></v-text-field>
 
           <v-text-field v-model="formData.password" label="密码" type="password" :rules="rules.password" variant="outlined" density="comfortable" class="mb-2" :hint="mode === 'edit' ? '留空则不修改密码' : '至少6个字符'" persistent-hint></v-text-field>
+
+          <!-- 密码强度指示器（仅创建模式显示） -->
+          <PasswordStrengthIndicator v-if="mode === 'create'" :password="formData.password" :show-hints="false" class="mb-4" />
 
           <v-text-field v-model="formData.full_name" label="全名（可选）" variant="outlined" density="comfortable" class="mb-2"></v-text-field>
 

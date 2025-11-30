@@ -5,7 +5,7 @@ import MenuDialog from "./components/MenuDialog.vue";
 import MenuTree from "./components/MenuTree.vue";
 import type { Menu, CreateMenuRequest, UpdateMenuRequest } from "@/types/admin";
 
-const { menus, loading, errorMessage, successMessage, fetchMenus, createMenu, updateMenu, deleteMenu, reorderMenus, clearMessages } = useMenus();
+const { menus, loading, errorMessage, successMessage, fetchMenus, createMenu, updateMenu, deleteMenu, reorderMenus, clearMessages, exportMenus } = useMenus();
 
 const menuDialog = ref(false);
 const deleteDialog = ref(false);
@@ -123,6 +123,10 @@ const handleMenusReorder = async (updatedMenus: Menu[]) => {
                 </v-btn-toggle>
               </v-col>
               <v-col cols="12" md="6" class="text-right">
+                <v-btn variant="outlined" class="mr-2" @click="exportMenus" :loading="loading">
+                  <v-icon start>mdi-download</v-icon>
+                  导出
+                </v-btn>
                 <v-btn color="primary" @click="openCreateDialog">
                   <v-icon start>mdi-plus</v-icon>
                   新建菜单

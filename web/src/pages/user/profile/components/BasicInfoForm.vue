@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, watch } from "vue";
 import { updateProfile, type UpdateProfileRequest } from "@/api/auth/user";
+import AvatarUploader from "@/components/AvatarUploader.vue";
 
 // Props
 const props = defineProps<{
@@ -85,6 +86,20 @@ watch(dialogVisible, (isOpen, wasOpen) => {
 
 <template>
   <div>
+    <!-- 头像显示区 -->
+    <div class="d-flex align-center mb-4">
+      <v-avatar :size="80" class="mr-4">
+        <v-img v-if="user.avatar" :src="user.avatar" cover />
+        <v-icon v-else size="48" color="grey">mdi-account-circle</v-icon>
+      </v-avatar>
+      <div>
+        <div class="text-h6">{{ user.full_name || user.username }}</div>
+        <div class="text-body-2 text-grey">{{ user.bio || "这个人很懒，什么都没写" }}</div>
+      </div>
+    </div>
+
+    <v-divider class="mb-4" />
+
     <v-list density="compact">
       <v-list-item>
         <template #prepend>
@@ -92,14 +107,6 @@ watch(dialogVisible, (isOpen, wasOpen) => {
         </template>
         <v-list-item-title>姓名</v-list-item-title>
         <v-list-item-subtitle>{{ user.full_name || "未设置" }}</v-list-item-subtitle>
-      </v-list-item>
-
-      <v-list-item>
-        <template #prepend>
-          <v-icon>mdi-image-account</v-icon>
-        </template>
-        <v-list-item-title>头像 URL</v-list-item-title>
-        <v-list-item-subtitle>{{ user.avatar || "未设置" }}</v-list-item-subtitle>
       </v-list-item>
 
       <v-list-item>
@@ -130,9 +137,12 @@ watch(dialogVisible, (isOpen, wasOpen) => {
             {{ errorMessage }}
           </v-alert>
           <v-form @submit.prevent="handleSubmit">
-            <v-text-field v-model="formData.full_name" label="姓名" variant="outlined" placeholder="请输入您的姓名" class="mb-4" />
+            <!-- 头像上传 -->
+            <div class="d-flex justify-center mb-6">
+              <AvatarUploader v-model="formData.avatar" :size="120" :max-size="2" />
+            </div>
 
-            <v-text-field v-model="formData.avatar" label="头像 URL" variant="outlined" placeholder="https://example.com/avatar.jpg" class="mb-4" />
+            <v-text-field v-model="formData.full_name" label="姓名" variant="outlined" placeholder="请输入您的姓名" class="mb-4" />
 
             <v-textarea v-model="formData.bio" label="个人简介" variant="outlined" placeholder="介绍一下自己..." rows="3" class="mb-4" />
 

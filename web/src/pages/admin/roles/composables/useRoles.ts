@@ -1,8 +1,10 @@
 /**
  * Admin 角色管理 Composable
  */
-import { ref, reactive } from "vue";
+import { ref, reactive, watch } from "vue";
 import { AdminRolesAPI } from "@/api/admin";
+import { exportToCSV, type CSVColumn } from "@/utils/export";
+import { useDebouncedRef } from "@/composables/useDebounce";
 import type { Role, CreateRoleRequest, UpdateRoleRequest } from "@/types/admin";
 import type { PaginationMeta } from "@/types/common";
 
@@ -10,6 +12,8 @@ export function useRoles() {
   const roles = ref<Role[]>([]);
   const loading = ref(false);
   const searchQuery = ref("");
+  // 防抖搜索值，300ms 延迟
+  const debouncedSearchQuery = useDebouncedRef(searchQuery, { delay: 300 });
   const pagination = reactive<PaginationMeta>({
     page: 1,
     limit: 20,
@@ -28,7 +32,7 @@ export function useRoles() {
       const response = await AdminRolesAPI.listRoles({
         page: pagination.page,
         limit: pagination.limit,
-        search: searchQuery.value || undefined,
+        search: debouncedSearchQuery.value || undefined,
       });
 
       roles.value = response.data;
@@ -122,11 +126,11 @@ export function useRoles() {
     }
   };
 
-  const searchRoles = (query: string) => {
-    searchQuery.value = query;
+  // 监听防抖搜索值变化，自动触发搜索
+  watch(debouncedSearchQuery, () => {
     pagination.page = 1;
     fetchRoles();
-  };
+  });
 
   const changePage = (page: number) => {
     pagination.page = page;
@@ -138,10 +142,76 @@ export function useRoles() {
     successMessage.value = "";
   };
 
+  /**
+   * 导出角色列表为 CSV
+   */
+  const exportRoles = async () => {
+    loading.value = true;
+    errorMessage.value = "";
+
+    try {
+      // 获取所有角色（最多 1000 条）
+      const response = await AdminRolesAPI.listRoles({
+        page: 1,
+        limit: 1000,
+        search: searchQuery.value || undefined,
+      });
+
+      if (response.data.length === 0) {
+        errorMessage.value = "没有可导出的数据";
+        return;
+      }
+
+      // 定义 CSV 列
+      const columns: CSVColumn<Role>[] = [
+        { header: "ID", key: "id" },
+        { header: "角色标识", key: "name" },
+        { header: "显示名称", key: "display_name" },
+        { header: "描述", key: (item) => item.description || "-" },
+        { header: "系统角色", key: (item) => (item.is_system ? "是" : "否") },
+        {
+          header: "权限数量",
+          key: (item) => item.permissions?.length || 0,
+        },
+        {
+          header: "权限列表",
+          key: (item) => item.permissions?.map((p) => p.code).join(", ") || "-",
+        },
+        {
+          header: "创建时间",
+          key: (item) =>
+            item.created_at
+              ? new Date(item.created_at).toLocaleString("zh-CN", {
+                  year: "numeric",
+                  month: "2-digit",
+                  day: "2-digit",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })
+              : "-",
+        },
+      ];
+
+      // 生成文件名
+      const timestamp = new Date().toISOString().slice(0, 10);
+      const filename = `角色列表_${timestamp}.csv`;
+
+      // 导出
+      exportToCSV(response.data, columns, { filename, withBOM: true });
+      successMessage.value = `成功导出 ${response.data.length} 个角色`;
+    } catch (error: any) {
+      errorMessage.value = error.message || "导出失败";
+      console.error("Failed to export roles:", error);
+    } finally {
+      loading.value = false;
+    }
+  };
+
   return {
     roles,
     loading,
     searchQuery,
+    debouncedSearchQuery,
     pagination,
     errorMessage,
     successMessage,
@@ -151,8 +221,8 @@ export function useRoles() {
     updateRole,
     deleteRole,
     setPermissions,
-    searchRoles,
     changePage,
     clearMessages,
+    exportRoles,
   };
 }

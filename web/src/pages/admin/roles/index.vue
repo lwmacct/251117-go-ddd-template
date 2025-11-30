@@ -5,7 +5,8 @@ import RoleDialog from "./components/RoleDialog.vue";
 import PermissionSelector from "./components/PermissionSelector.vue";
 import type { Role, CreateRoleRequest, UpdateRoleRequest } from "@/types/admin";
 
-const { roles, loading, searchQuery, pagination, errorMessage, successMessage, fetchRoles, createRole, updateRole, deleteRole, setPermissions, searchRoles, changePage, clearMessages } = useRoles();
+// 使用 composable（搜索现在通过 watch 自动触发）
+const { roles, loading, searchQuery, pagination, errorMessage, successMessage, fetchRoles, createRole, updateRole, deleteRole, setPermissions, changePage, clearMessages, exportRoles } = useRoles();
 
 const roleDialog = ref(false);
 const permissionDialog = ref(false);
@@ -92,10 +93,6 @@ const confirmDelete = async () => {
   }
 };
 
-const handleSearch = () => {
-  searchRoles(searchQuery.value);
-};
-
 const formatDate = (dateString?: string) => {
   if (!dateString) return "-";
   return new Date(dateString).toLocaleString("zh-CN", {
@@ -137,9 +134,13 @@ const formatPermissions = (role: Role) => {
           <v-card-title>
             <v-row align="center">
               <v-col cols="12" md="6">
-                <v-text-field v-model="searchQuery" prepend-inner-icon="mdi-magnify" label="搜索角色" single-line hide-details variant="outlined" density="compact" @keyup.enter="handleSearch"></v-text-field>
+                <v-text-field v-model="searchQuery" prepend-inner-icon="mdi-magnify" label="搜索角色" single-line hide-details clearable variant="outlined" density="compact" placeholder="输入后自动搜索..."></v-text-field>
               </v-col>
               <v-col cols="12" md="6" class="text-right">
+                <v-btn variant="outlined" class="mr-2" @click="exportRoles" :loading="loading">
+                  <v-icon start>mdi-download</v-icon>
+                  导出
+                </v-btn>
                 <v-btn color="primary" @click="openCreateDialog">
                   <v-icon start>mdi-plus</v-icon>
                   新建角色

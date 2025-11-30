@@ -2,7 +2,9 @@
 import { ref, onMounted } from "vue";
 import { useAdminUsers } from "./composables/useAdminUsers";
 import UserDialog from "./components/UserDialog.vue";
+import UserImportDialog from "./components/UserImportDialog.vue";
 import RoleSelector from "./components/RoleSelector.vue";
+import CopyButton from "@/components/CopyButton.vue";
 import type { AdminUser, CreateUserRequest, UpdateUserRequest } from "@/types/admin";
 
 /**
@@ -10,11 +12,12 @@ import type { AdminUser, CreateUserRequest, UpdateUserRequest } from "@/types/ad
  * 用于查看和管理系统用户
  */
 
-// 使用 composable
-const { users, loading, searchQuery, pagination, errorMessage, successMessage, fetchUsers, createUser, updateUser, deleteUser, assignRoles, searchUsers, changePage, clearMessages } = useAdminUsers();
+// 使用 composable（移除 searchUsers，搜索现在通过 watch 自动触发）
+const { users, loading, searchQuery, pagination, errorMessage, successMessage, fetchUsers, createUser, updateUser, deleteUser, assignRoles, changePage, clearMessages, exportUsers } = useAdminUsers();
 
 // 对话框状态
 const userDialog = ref(false);
+const importDialog = ref(false);
 const roleSelectorDialog = ref(false);
 const deleteDialog = ref(false);
 
@@ -102,9 +105,11 @@ const confirmDelete = async () => {
   }
 };
 
-// 搜索处理
-const handleSearch = () => {
-  searchUsers(searchQuery.value);
+// 导入完成处理
+const handleImported = (result: { success: number; failed: number }) => {
+  if (result.success > 0) {
+    fetchUsers(); // 刷新用户列表
+  }
 };
 
 // 格式化日期
@@ -174,9 +179,17 @@ const getStatusText = (status: string) => {
           <v-card-title>
             <v-row align="center">
               <v-col cols="12" md="6">
-                <v-text-field v-model="searchQuery" prepend-inner-icon="mdi-magnify" label="搜索用户（用户名或邮箱）" single-line hide-details variant="outlined" density="compact" @keyup.enter="handleSearch"></v-text-field>
+                <v-text-field v-model="searchQuery" prepend-inner-icon="mdi-magnify" label="搜索用户（用户名或邮箱）" single-line hide-details clearable variant="outlined" density="compact" placeholder="输入后自动搜索..."></v-text-field>
               </v-col>
               <v-col cols="12" md="6" class="text-right">
+                <v-btn variant="outlined" class="mr-2" @click="exportUsers" :loading="loading">
+                  <v-icon start>mdi-download</v-icon>
+                  导出
+                </v-btn>
+                <v-btn variant="outlined" class="mr-2" @click="importDialog = true">
+                  <v-icon start>mdi-upload</v-icon>
+                  批量导入
+                </v-btn>
                 <v-btn color="primary" @click="openCreateDialog">
                   <v-icon start>mdi-plus</v-icon>
                   新建用户
@@ -197,6 +210,14 @@ const getStatusText = (status: string) => {
               no-data-text="暂无用户数据"
               @update:page="changePage"
             >
+              <!-- ID 列 -->
+              <template #item.id="{ item }">
+                <div class="d-flex align-center">
+                  <span>{{ item.id }}</span>
+                  <CopyButton :text="String(item.id)" size="x-small" />
+                </div>
+              </template>
+
               <!-- 角色列 -->
               <template #item.roles="{ item }">
                 <span class="text-body-2">{{ formatRoles(item) }}</span>
@@ -242,6 +263,9 @@ const getStatusText = (status: string) => {
 
     <!-- 创建/编辑对话框 -->
     <UserDialog v-model="userDialog" :user="selectedUser" :mode="dialogMode" @save="handleSaveUser" />
+
+    <!-- 批量导入对话框 -->
+    <UserImportDialog v-model="importDialog" @imported="handleImported" />
 
     <!-- 角色选择器 -->
     <RoleSelector v-if="selectedUser && roleSelectorDialog" v-model="roleSelectorDialog" :user-id="selectedUser.id" :user-roles="selectedUser.roles || []" @save="handleSaveRoles" />

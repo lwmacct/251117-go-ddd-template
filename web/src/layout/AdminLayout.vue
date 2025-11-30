@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import AppBars from "@/views/AppBars/index.vue";
 import Navigation from "@/views/Navigation/index.vue";
+import AppBreadcrumb from "@/components/AppBreadcrumb.vue";
+import PageTransition from "@/components/PageTransition.vue";
 import type { MenuItem } from "@/views/Navigation/types";
 
 /**
@@ -49,7 +51,14 @@ const menuItems: MenuItem[] = [
     <Navigation :items="menuItems" :show-icon="true" :width="200" />
     <!-- 主内容区域 -->
     <v-container fluid class="kso-content pa-6">
-      <router-view />
+      <!-- 面包屑导航 -->
+      <AppBreadcrumb class="mb-4" />
+      <!-- 页面内容（带过渡动画） -->
+      <router-view v-slot="{ Component }">
+        <PageTransition name="fade">
+          <component :is="Component" />
+        </PageTransition>
+      </router-view>
     </v-container>
   </v-main>
 </template>
