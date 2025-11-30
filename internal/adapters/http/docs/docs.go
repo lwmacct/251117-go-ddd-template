@@ -2840,7 +2840,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.LoginRequest"
+                            "$ref": "#/definitions/auth.LoginDTO"
                         }
                     }
                 ],
@@ -2972,7 +2972,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.RefreshTokenRequest"
+                            "$ref": "#/definitions/auth.RefreshTokenDTO"
                         }
                     }
                 ],
@@ -3038,7 +3038,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.RegisterRequest"
+                            "$ref": "#/definitions/auth.RegisterDTO"
                         }
                     }
                 ],
@@ -3870,6 +3870,79 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "auth.LoginDTO": {
+            "type": "object",
+            "required": [
+                "account",
+                "captcha",
+                "captcha_id",
+                "password"
+            ],
+            "properties": {
+                "account": {
+                    "description": "手机号/用户名/邮箱",
+                    "type": "string",
+                    "example": "admin"
+                },
+                "captcha": {
+                    "description": "验证码",
+                    "type": "string",
+                    "example": "9999"
+                },
+                "captcha_id": {
+                    "description": "验证码ID",
+                    "type": "string",
+                    "example": "dev-123456"
+                },
+                "password": {
+                    "description": "密码",
+                    "type": "string",
+                    "example": "admin123"
+                }
+            }
+        },
+        "auth.RefreshTokenDTO": {
+            "type": "object",
+            "required": [
+                "refresh_token"
+            ],
+            "properties": {
+                "refresh_token": {
+                    "type": "string",
+                    "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                }
+            }
+        },
+        "auth.RegisterDTO": {
+            "type": "object",
+            "required": [
+                "email",
+                "password",
+                "username"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "example": "john@example.com"
+                },
+                "full_name": {
+                    "type": "string",
+                    "maxLength": 100,
+                    "example": "John Doe"
+                },
+                "password": {
+                    "type": "string",
+                    "minLength": 6,
+                    "example": "password123"
+                },
+                "username": {
+                    "type": "string",
+                    "maxLength": 50,
+                    "minLength": 3,
+                    "example": "john_doe"
+                }
+            }
+        },
         "handler.BatchUpdateSettingsRequest": {
             "type": "object",
             "required": [
@@ -4006,79 +4079,6 @@ const docTemplate = `{
                 "image": {
                     "description": "Base64编码的图片",
                     "type": "string"
-                }
-            }
-        },
-        "handler.LoginRequest": {
-            "type": "object",
-            "required": [
-                "account",
-                "captcha",
-                "captcha_id",
-                "password"
-            ],
-            "properties": {
-                "account": {
-                    "description": "手机号/用户名/邮箱",
-                    "type": "string",
-                    "example": "admin"
-                },
-                "captcha": {
-                    "description": "验证码",
-                    "type": "string",
-                    "example": "9999"
-                },
-                "captcha_id": {
-                    "description": "验证码ID",
-                    "type": "string",
-                    "example": "dev-123456"
-                },
-                "password": {
-                    "description": "密码",
-                    "type": "string",
-                    "example": "admin123"
-                }
-            }
-        },
-        "handler.RefreshTokenRequest": {
-            "type": "object",
-            "required": [
-                "refresh_token"
-            ],
-            "properties": {
-                "refresh_token": {
-                    "type": "string",
-                    "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-                }
-            }
-        },
-        "handler.RegisterRequest": {
-            "type": "object",
-            "required": [
-                "email",
-                "password",
-                "username"
-            ],
-            "properties": {
-                "email": {
-                    "type": "string",
-                    "example": "john@example.com"
-                },
-                "full_name": {
-                    "type": "string",
-                    "maxLength": 100,
-                    "example": "John Doe"
-                },
-                "password": {
-                    "type": "string",
-                    "minLength": 6,
-                    "example": "password123"
-                },
-                "username": {
-                    "type": "string",
-                    "maxLength": 50,
-                    "minLength": 3,
-                    "example": "john_doe"
                 }
             }
         },

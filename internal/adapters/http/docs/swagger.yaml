@@ -1,5 +1,60 @@
 basePath: /api
 definitions:
+  auth.LoginDTO:
+    properties:
+      account:
+        description: 手机号/用户名/邮箱
+        example: admin
+        type: string
+      captcha:
+        description: 验证码
+        example: "9999"
+        type: string
+      captcha_id:
+        description: 验证码ID
+        example: dev-123456
+        type: string
+      password:
+        description: 密码
+        example: admin123
+        type: string
+    required:
+    - account
+    - captcha
+    - captcha_id
+    - password
+    type: object
+  auth.RefreshTokenDTO:
+    properties:
+      refresh_token:
+        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        type: string
+    required:
+    - refresh_token
+    type: object
+  auth.RegisterDTO:
+    properties:
+      email:
+        example: john@example.com
+        type: string
+      full_name:
+        example: John Doe
+        maxLength: 100
+        type: string
+      password:
+        example: password123
+        minLength: 6
+        type: string
+      username:
+        example: john_doe
+        maxLength: 50
+        minLength: 3
+        type: string
+    required:
+    - email
+    - password
+    - username
+    type: object
   handler.BatchUpdateSettingsRequest:
     properties:
       settings:
@@ -100,61 +155,6 @@ definitions:
       image:
         description: Base64编码的图片
         type: string
-    type: object
-  handler.LoginRequest:
-    properties:
-      account:
-        description: 手机号/用户名/邮箱
-        example: admin
-        type: string
-      captcha:
-        description: 验证码
-        example: "9999"
-        type: string
-      captcha_id:
-        description: 验证码ID
-        example: dev-123456
-        type: string
-      password:
-        description: 密码
-        example: admin123
-        type: string
-    required:
-    - account
-    - captcha
-    - captcha_id
-    - password
-    type: object
-  handler.RefreshTokenRequest:
-    properties:
-      refresh_token:
-        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-        type: string
-    required:
-    - refresh_token
-    type: object
-  handler.RegisterRequest:
-    properties:
-      email:
-        example: john@example.com
-        type: string
-      full_name:
-        example: John Doe
-        maxLength: 100
-        type: string
-      password:
-        example: password123
-        minLength: 6
-        type: string
-      username:
-        example: john_doe
-        maxLength: 50
-        minLength: 3
-        type: string
-    required:
-    - email
-    - password
-    - username
     type: object
   handler.ReorderMenusRequest:
     properties:
@@ -2185,7 +2185,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/handler.LoginRequest'
+          $ref: '#/definitions/auth.LoginDTO'
       produces:
       - application/json
       responses:
@@ -2264,7 +2264,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/handler.RefreshTokenRequest'
+          $ref: '#/definitions/auth.RefreshTokenDTO'
       produces:
       - application/json
       responses:
@@ -2304,7 +2304,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/handler.RegisterRequest'
+          $ref: '#/definitions/auth.RegisterDTO'
       produces:
       - application/json
       responses:

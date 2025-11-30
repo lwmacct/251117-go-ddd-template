@@ -5,6 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/lwmacct/251117-go-ddd-template/internal/adapters/http/response"
+	appAuth "github.com/lwmacct/251117-go-ddd-template/internal/application/auth"
 	authCommand "github.com/lwmacct/251117-go-ddd-template/internal/application/auth/command"
 	userQuery "github.com/lwmacct/251117-go-ddd-template/internal/application/user/query"
 	domainAuth "github.com/lwmacct/251117-go-ddd-template/internal/domain/auth"
@@ -33,14 +34,6 @@ func NewAuthHandler(
 	}
 }
 
-// RegisterRequest 注册请求
-type RegisterRequest struct {
-	Username string `json:"username" binding:"required,min=3,max=50" example:"john_doe"`
-	Email    string `json:"email" binding:"required,email" example:"john@example.com"`
-	Password string `json:"password" binding:"required,min=6" example:"password123"`
-	FullName string `json:"full_name" binding:"max=100" example:"John Doe"`
-}
-
 // Register 用户注册
 //
 // @Summary      用户注册
@@ -48,12 +41,12 @@ type RegisterRequest struct {
 // @Tags         认证 (Authentication)
 // @Accept       json
 // @Produce      json
-// @Param        request body RegisterRequest true "注册信息"
+// @Param        request body appAuth.RegisterDTO true "注册信息"
 // @Success      201 {object} response.Response{data=object{user_id=uint,username=string,email=string,access_token=string,refresh_token=string,token_type=string,expires_in=int}} "注册成功"
 // @Failure      400 {object} response.ErrorResponse "参数错误或用户名/邮箱已存在"
 // @Router       /api/auth/register [post]
 func (h *AuthHandler) Register(c *gin.Context) {
-	var req RegisterRequest
+	var req appAuth.RegisterDTO
 	if err := c.ShouldBindJSON(&req); err != nil {
 		response.ValidationError(c, err.Error())
 		return
@@ -83,14 +76,6 @@ func (h *AuthHandler) Register(c *gin.Context) {
 	})
 }
 
-// LoginRequest 登录请求
-type LoginRequest struct {
-	Account   string `json:"account" binding:"required" example:"admin"`         // 手机号/用户名/邮箱
-	Password  string `json:"password" binding:"required" example:"admin123"`     // 密码
-	CaptchaID string `json:"captcha_id" binding:"required" example:"dev-123456"` // 验证码ID
-	Captcha   string `json:"captcha" binding:"required" example:"9999"`          // 验证码
-}
-
 // Login 用户登录
 //
 // @Summary      用户登录
@@ -98,13 +83,13 @@ type LoginRequest struct {
 // @Tags         认证 (Authentication)
 // @Accept       json
 // @Produce      json
-// @Param        request body LoginRequest true "登录凭证"
+// @Param        request body appAuth.LoginDTO true "登录凭证"
 // @Success      200 {object} response.Response{data=object{access_token=string,refresh_token=string,token_type=string,expires_in=int,user=object{user_id=uint,username=string}}} "登录成功"
 // @Success      200 {object} response.Response{data=object{requires_2fa=bool,session_token=string}} "需要2FA验证"
 // @Failure      401 {object} response.ErrorResponse "登录失败：凭证无效、验证码错误或账户被禁用"
 // @Router       /api/auth/login [post]
 func (h *AuthHandler) Login(c *gin.Context) {
-	var req LoginRequest
+	var req appAuth.LoginDTO
 	if err := c.ShouldBindJSON(&req); err != nil {
 		response.ValidationError(c, err.Error())
 		return
@@ -145,11 +130,6 @@ func (h *AuthHandler) Login(c *gin.Context) {
 	})
 }
 
-// RefreshTokenRequest 刷新令牌请求
-type RefreshTokenRequest struct {
-	RefreshToken string `json:"refresh_token" binding:"required" example:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."`
-}
-
 // RefreshToken 刷新访问令牌
 //
 // @Summary      刷新访问令牌
@@ -157,12 +137,12 @@ type RefreshTokenRequest struct {
 // @Tags         认证 (Authentication)
 // @Accept       json
 // @Produce      json
-// @Param        request body RefreshTokenRequest true "刷新令牌"
+// @Param        request body appAuth.RefreshTokenDTO true "刷新令牌"
 // @Success      200 {object} response.Response{data=object{access_token=string,refresh_token=string,token_type=string,expires_in=int}} "令牌刷新成功"
 // @Failure      401 {object} response.ErrorResponse "刷新令牌无效或已过期"
 // @Router       /api/auth/refresh [post]
 func (h *AuthHandler) RefreshToken(c *gin.Context) {
-	var req RefreshTokenRequest
+	var req appAuth.RefreshTokenDTO
 	if err := c.ShouldBindJSON(&req); err != nil {
 		response.ValidationError(c, err.Error())
 		return
