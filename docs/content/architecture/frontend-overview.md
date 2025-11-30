@@ -104,6 +104,37 @@ web/
 | 前端开发服务器 | 40013 | Vite dev server |
 | 后端 API | 40012 | Go HTTP server |
 
+## 开发工具链
+
+项目配置了完整的代码质量工具链：
+
+| 工具 | 用途 | 命令 |
+|------|------|------|
+| **ESLint 9.x** | 代码检查 | `npm run lint` |
+| **Prettier** | 代码格式化 | `npm run format` |
+| **Vitest** | 单元测试 | `npm run test` |
+| **vue-tsc** | 类型检查 | `npm run type-check` |
+| **vite-plugin-vuetify** | Vuetify 按需导入 | 自动 |
+| **unplugin-auto-import** | Vue API 自动导入 | 自动 |
+
+### 自动导入
+
+项目配置了自动导入功能，无需手动导入常用 API：
+
+```vue
+<script setup lang="ts">
+// 无需手动导入，以下 API 自动可用：
+// - Vue: ref, computed, watch, onMounted, etc.
+// - Vue Router: useRouter, useRoute
+// - Pinia: defineStore, storeToRefs
+// - 所有 composables
+
+const count = ref(0)
+const router = useRouter()
+const { copy } = useClipboard()
+</script>
+```
+
 ## 快速开始
 
 ```bash
@@ -116,6 +147,15 @@ npm install
 # 启动开发服务器
 npm run dev
 
+# 代码检查
+npm run lint
+
+# 代码格式化
+npm run format
+
+# 运行测试
+npm run test
+
 # 类型检查
 npm run type-check
 
@@ -125,6 +165,7 @@ npm run build
 
 ## 下一步
 
+- [代码规范](./frontend-code-style) - 了解 ESLint、Prettier、测试规范
 - [路由配置](./frontend-router) - 了解路由系统和守卫
 - [状态管理](./frontend-state) - 了解 Pinia 状态管理
 - [API 层设计](./frontend-api) - 了解 API 请求封装

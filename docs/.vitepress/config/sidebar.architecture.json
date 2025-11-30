@@ -12,6 +12,7 @@
     "text": "前端架构",
     "items": [
       { "text": "概述", "link": "/architecture/frontend-overview" },
+      { "text": "代码规范", "link": "/architecture/frontend-code-style" },
       { "text": "路由配置", "link": "/architecture/frontend-router" },
       { "text": "状态管理", "link": "/architecture/frontend-state" },
       { "text": "API 层设计", "link": "/architecture/frontend-api" },
