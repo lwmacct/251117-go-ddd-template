@@ -199,12 +199,7 @@ export function watchThrottled<T>(
   callback: (value: T, oldValue: T | undefined) => void,
   options: WatchThrottledOptions = {}
 ): WatchStopHandle {
-  const {
-    throttle = 100,
-    leading = true,
-    trailing = true,
-    ...watchOptions
-  } = options;
+  const { throttle = 100, leading = true, trailing = true, ...watchOptions } = options;
 
   let lastCallTime = 0;
   let timer: ReturnType<typeof setTimeout> | null = null;
@@ -647,9 +642,7 @@ export interface UntilReturn<T> {
 export function until<T>(source: WatchSource<T>): UntilReturn<T> {
   let timeoutMs: number | null = null;
 
-  const createPromise = (
-    predicate: (value: T) => boolean
-  ): Promise<T> => {
+  const createPromise = (predicate: (value: T) => boolean): Promise<T> => {
     return new Promise((resolve, reject) => {
       let timer: ReturnType<typeof setTimeout> | null = null;
 
@@ -677,10 +670,7 @@ export function until<T>(source: WatchSource<T>): UntilReturn<T> {
   const result: UntilReturn<T> = {
     toBe: (expected: T) => createPromise((value) => value === expected),
     toBeTruthy: () => createPromise((value) => !!value),
-    toBeNotNull: () =>
-      createPromise((value) => value !== null && value !== undefined) as Promise<
-        NonNullable<T>
-      >,
+    toBeNotNull: () => createPromise((value) => value !== null && value !== undefined) as Promise<NonNullable<T>>,
     toMatch: (predicate: (value: T) => boolean) => createPromise(predicate),
     timeout: (ms: number) => {
       timeoutMs = ms;

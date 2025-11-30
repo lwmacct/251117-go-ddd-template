@@ -14,22 +14,13 @@ export type UnsubscribeFn = () => void;
 
 export interface EventBus<Events extends Record<string, unknown>> {
   /** 订阅事件 */
-  on: <K extends keyof Events>(
-    event: K,
-    handler: EventHandler<Events[K]>
-  ) => UnsubscribeFn;
+  on: <K extends keyof Events>(event: K, handler: EventHandler<Events[K]>) => UnsubscribeFn;
   /** 取消订阅 */
-  off: <K extends keyof Events>(
-    event: K,
-    handler?: EventHandler<Events[K]>
-  ) => void;
+  off: <K extends keyof Events>(event: K, handler?: EventHandler<Events[K]>) => void;
   /** 触发事件 */
   emit: <K extends keyof Events>(event: K, payload: Events[K]) => void;
   /** 订阅一次 */
-  once: <K extends keyof Events>(
-    event: K,
-    handler: EventHandler<Events[K]>
-  ) => UnsubscribeFn;
+  once: <K extends keyof Events>(event: K, handler: EventHandler<Events[K]>) => UnsubscribeFn;
   /** 清除所有事件 */
   clear: () => void;
   /** 获取事件监听器数量 */
@@ -63,16 +54,11 @@ const globalListeners = new Map<string, Set<EventHandler>>();
  * // 触发
  * bus.emit('user:login', { userId: '123' })
  */
-export function createEventBus<
-  Events extends Record<string, unknown> = Record<string, unknown>
->(): EventBus<Events> {
+export function createEventBus<Events extends Record<string, unknown> = Record<string, unknown>>(): EventBus<Events> {
   const listeners = new Map<keyof Events, Set<EventHandler>>();
 
   // 订阅事件
-  const on = <K extends keyof Events>(
-    event: K,
-    handler: EventHandler<Events[K]>
-  ): UnsubscribeFn => {
+  const on = <K extends keyof Events>(event: K, handler: EventHandler<Events[K]>): UnsubscribeFn => {
     if (!listeners.has(event)) {
       listeners.set(event, new Set());
     }
@@ -82,10 +68,7 @@ export function createEventBus<
   };
 
   // 取消订阅
-  const off = <K extends keyof Events>(
-    event: K,
-    handler?: EventHandler<Events[K]>
-  ) => {
+  const off = <K extends keyof Events>(event: K, handler?: EventHandler<Events[K]>) => {
     if (!listeners.has(event)) return;
 
     if (handler) {
@@ -105,10 +88,7 @@ export function createEventBus<
   };
 
   // 订阅一次
-  const once = <K extends keyof Events>(
-    event: K,
-    handler: EventHandler<Events[K]>
-  ): UnsubscribeFn => {
+  const once = <K extends keyof Events>(event: K, handler: EventHandler<Events[K]>): UnsubscribeFn => {
     const wrappedHandler: EventHandler<Events[K]> = (payload) => {
       off(event, wrappedHandler);
       handler(payload);
@@ -176,27 +156,19 @@ export function getGlobalEventBus(): EventBus<GlobalEvents> {
  * // 触发
  * emit('user:login', { userId: '123' })
  */
-export function useEventBus<
-  Events extends Record<string, unknown> = GlobalEvents
->(bus?: EventBus<Events>) {
+export function useEventBus<Events extends Record<string, unknown> = GlobalEvents>(bus?: EventBus<Events>) {
   const eventBus = bus ?? (getGlobalEventBus() as unknown as EventBus<Events>);
   const unsubscribers: UnsubscribeFn[] = [];
 
   // 订阅（自动清理）
-  const on = <K extends keyof Events>(
-    event: K,
-    handler: EventHandler<Events[K]>
-  ) => {
+  const on = <K extends keyof Events>(event: K, handler: EventHandler<Events[K]>) => {
     const unsubscribe = eventBus.on(event, handler);
     unsubscribers.push(unsubscribe);
     return unsubscribe;
   };
 
   // 订阅一次（自动清理）
-  const once = <K extends keyof Events>(
-    event: K,
-    handler: EventHandler<Events[K]>
-  ) => {
+  const once = <K extends keyof Events>(event: K, handler: EventHandler<Events[K]>) => {
     const unsubscribe = eventBus.once(event, handler);
     unsubscribers.push(unsubscribe);
     return unsubscribe;
@@ -229,10 +201,7 @@ export function useEventBus<
  *   console.log('用户登录:', data)
  * })
  */
-export function useEventListener<
-  Events extends Record<string, unknown>,
-  K extends keyof Events
->(
+export function useEventListener<Events extends Record<string, unknown>, K extends keyof Events>(
   event: K,
   handler: EventHandler<Events[K]>,
   bus?: EventBus<Events>
@@ -253,10 +222,7 @@ export function useEventListener<
  *
  * // value 会自动更新为最新的 notification 事件 payload
  */
-export function useEventValue<
-  Events extends Record<string, unknown>,
-  K extends keyof Events
->(
+export function useEventValue<Events extends Record<string, unknown>, K extends keyof Events>(
   event: K,
   initialValue?: Events[K],
   bus?: EventBus<Events>

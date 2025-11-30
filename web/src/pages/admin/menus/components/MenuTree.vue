@@ -31,15 +31,15 @@ const handleDragEnd = () => {
 <template>
   <draggable
     v-model="localMenus"
+    item-key="id"
+    handle=".drag-handle"
+    :group="{ name: 'menus' }"
+    class="menu-tree"
     @start="drag = true"
     @end="
       drag = false;
       handleDragEnd();
     "
-    item-key="id"
-    handle=".drag-handle"
-    :group="{ name: 'menus' }"
-    class="menu-tree"
   >
     <template #item="{ element }">
       <div class="menu-item" :style="{ marginLeft: `${level * 24}px` }">
@@ -61,13 +61,25 @@ const handleDragEnd = () => {
 
             <template #append>
               <v-btn icon="mdi-pencil" size="small" variant="text" @click="emit('edit', element)"></v-btn>
-              <v-btn icon="mdi-delete" size="small" variant="text" color="error" @click="emit('delete', element)"></v-btn>
+              <v-btn
+                icon="mdi-delete"
+                size="small"
+                variant="text"
+                color="error"
+                @click="emit('delete', element)"
+              ></v-btn>
             </template>
           </v-list-item>
 
           <!-- 递归渲染子菜单 -->
           <div v-if="element.children && element.children.length > 0" class="ml-4">
-            <MenuTree :menus="element.children" :level="level + 1" @edit="emit('edit', $event)" @delete="emit('delete', $event)" @update:menus="emit('update:menus', $event)" />
+            <MenuTree
+              :menus="element.children"
+              :level="level + 1"
+              @edit="emit('edit', $event)"
+              @delete="emit('delete', $event)"
+              @update:menus="emit('update:menus', $event)"
+            />
           </div>
         </v-card>
       </div>

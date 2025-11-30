@@ -77,10 +77,7 @@ export function elementExists(target: ElementTarget): boolean {
  * @example
  * await waitForElement('#dynamic-element')
  */
-export function waitForElement(
-  selector: string,
-  timeout: number = 5000
-): Promise<Element> {
+export function waitForElement(selector: string, timeout: number = 5000): Promise<Element> {
   return new Promise((resolve, reject) => {
     const element = document.querySelector(selector);
     if (element) {
@@ -118,10 +115,7 @@ export function waitForElement(
  * addClass('#my-id', 'active')
  * addClass(element, ['a', 'b'])
  */
-export function addClass(
-  target: ElementTarget,
-  ...classNames: (string | string[])[]
-): void {
+export function addClass(target: ElementTarget, ...classNames: (string | string[])[]): void {
   const element = getElement(target);
   if (!element) return;
 
@@ -134,10 +128,7 @@ export function addClass(
  * @example
  * removeClass('#my-id', 'active')
  */
-export function removeClass(
-  target: ElementTarget,
-  ...classNames: (string | string[])[]
-): void {
+export function removeClass(target: ElementTarget, ...classNames: (string | string[])[]): void {
   const element = getElement(target);
   if (!element) return;
 
@@ -151,11 +142,7 @@ export function removeClass(
  * toggleClass('#my-id', 'active')
  * toggleClass('#my-id', 'active', true) // 强制添加
  */
-export function toggleClass(
-  target: ElementTarget,
-  className: string,
-  force?: boolean
-): boolean {
+export function toggleClass(target: ElementTarget, className: string, force?: boolean): boolean {
   const element = getElement(target);
   if (!element) return false;
 
@@ -179,11 +166,7 @@ export function hasClass(target: ElementTarget, className: string): boolean {
  * @example
  * replaceClass('#my-id', 'old-class', 'new-class')
  */
-export function replaceClass(
-  target: ElementTarget,
-  oldClass: string,
-  newClass: string
-): boolean {
+export function replaceClass(target: ElementTarget, oldClass: string, newClass: string): boolean {
   const element = getElement(target);
   if (!element) return false;
 
@@ -221,17 +204,11 @@ export function setStyle(
   if (!element) return;
 
   if (typeof property === "string") {
-    element.style.setProperty(
-      property,
-      typeof value === "number" ? `${value}px` : (value as string)
-    );
+    element.style.setProperty(property, typeof value === "number" ? `${value}px` : (value as string));
   } else {
     for (const [key, val] of Object.entries(property)) {
       const cssKey = key.replace(/([A-Z])/g, "-$1").toLowerCase();
-      element.style.setProperty(
-        cssKey,
-        typeof val === "number" ? `${val}px` : val
-      );
+      element.style.setProperty(cssKey, typeof val === "number" ? `${val}px` : val);
     }
   }
 }
@@ -263,11 +240,7 @@ export function getCSSVariable(name: string, element?: Element): string {
  * @example
  * setCSSVariable('--primary-color', '#3498db')
  */
-export function setCSSVariable(
-  name: string,
-  value: string,
-  element?: Element
-): void {
+export function setCSSVariable(name: string, value: string, element?: Element): void {
   const target = (element || document.documentElement) as HTMLElement;
   target.style.setProperty(name, value);
 }
@@ -281,10 +254,7 @@ export function setCSSVariable(
  * @example
  * getAttribute('#my-id', 'data-value') // '123'
  */
-export function getAttribute(
-  target: ElementTarget,
-  name: string
-): string | null {
+export function getAttribute(target: ElementTarget, name: string): string | null {
   const element = getElement(target);
   if (!element) return null;
 
@@ -297,11 +267,7 @@ export function getAttribute(
  * setAttribute('#my-id', 'data-value', '123')
  * setAttribute('#my-id', { 'data-a': '1', 'data-b': '2' })
  */
-export function setAttribute(
-  target: ElementTarget,
-  name: string | Record<string, string>,
-  value?: string
-): void {
+export function setAttribute(target: ElementTarget, name: string | Record<string, string>, value?: string): void {
   const element = getElement(target);
   if (!element) return;
 
@@ -343,10 +309,7 @@ export function hasAttribute(target: ElementTarget, name: string): boolean {
  * @example
  * getDataAttribute('#my-id', 'value') // 等同于 data-value
  */
-export function getDataAttribute(
-  target: ElementTarget,
-  name: string
-): string | undefined {
+export function getDataAttribute(target: ElementTarget, name: string): string | undefined {
   const element = getElement(target) as HTMLElement;
   if (!element) return undefined;
 
@@ -358,11 +321,7 @@ export function getDataAttribute(
  * @example
  * setDataAttribute('#my-id', 'value', '123')
  */
-export function setDataAttribute(
-  target: ElementTarget,
-  name: string,
-  value: string
-): void {
+export function setDataAttribute(target: ElementTarget, name: string, value: string): void {
   const element = getElement(target) as HTMLElement;
   if (!element) return;
 
@@ -446,14 +405,8 @@ export function getWindowSize(): Size {
  */
 export function getDocumentSize(): Size {
   return {
-    width: Math.max(
-      document.body.scrollWidth,
-      document.documentElement.scrollWidth
-    ),
-    height: Math.max(
-      document.body.scrollHeight,
-      document.documentElement.scrollHeight
-    ),
+    width: Math.max(document.body.scrollWidth, document.documentElement.scrollWidth),
+    height: Math.max(document.body.scrollHeight, document.documentElement.scrollHeight),
   };
 }
 
@@ -489,10 +442,7 @@ export function getScrollPosition(target?: ElementTarget): Position {
  * scrollTo(0, 500) // 滚动到 y=500
  * scrollTo('#section', { behavior: 'smooth' })
  */
-export function scrollTo(
-  target: ElementTarget | number,
-  options?: ScrollOptions | number
-): void {
+export function scrollTo(target: ElementTarget | number, options?: ScrollOptions | number): void {
   if (typeof target === "number") {
     const y = typeof options === "number" ? options : target;
     const x = typeof options === "number" ? target : 0;
@@ -541,10 +491,7 @@ export function scrollToBottom(options?: ScrollOptions): void {
  * @example
  * isInViewport('#my-id') // true/false
  */
-export function isInViewport(
-  target: ElementTarget,
-  threshold: number = 0
-): boolean {
+export function isInViewport(target: ElementTarget, threshold: number = 0): boolean {
   const element = getElement(target);
   if (!element) return false;
 
@@ -571,12 +518,7 @@ export function isPartiallyInViewport(target: ElementTarget): boolean {
   const rect = element.getBoundingClientRect();
   const { width, height } = getWindowSize();
 
-  return (
-    rect.top < height &&
-    rect.bottom > 0 &&
-    rect.left < width &&
-    rect.right > 0
-  );
+  return rect.top < height && rect.bottom > 0 && rect.left < width && rect.right > 0;
 }
 
 // ============================================================================
@@ -686,10 +628,7 @@ export function removeElement(target: ElementTarget): void {
  * @example
  * cloneElement('#my-id', true) // 深克隆
  */
-export function cloneElement<T extends Element>(
-  target: ElementTarget,
-  deep: boolean = true
-): T | null {
+export function cloneElement<T extends Element>(target: ElementTarget, deep: boolean = true): T | null {
   const element = getElement(target);
   if (!element) return null;
 
@@ -701,10 +640,7 @@ export function cloneElement<T extends Element>(
  * @example
  * insertBefore('#target', newElement)
  */
-export function insertBefore(
-  target: ElementTarget,
-  newElement: Element
-): void {
+export function insertBefore(target: ElementTarget, newElement: Element): void {
   const element = getElement(target);
   if (!element || !element.parentNode) return;
 
@@ -826,11 +762,7 @@ export function once<K extends keyof HTMLElementEventMap>(
  * trigger('#my-id', 'click')
  * trigger('#my-id', 'custom-event', { detail: { foo: 'bar' } })
  */
-export function trigger(
-  target: ElementTarget,
-  eventName: string,
-  options?: CustomEventInit
-): void {
+export function trigger(target: ElementTarget, eventName: string, options?: CustomEventInit): void {
   const element = getElement(target);
   if (!element) return;
 
@@ -875,9 +807,7 @@ export function toggle(target: ElementTarget, force?: boolean): void {
   const element = getElement(target) as HTMLElement;
   if (!element) return;
 
-  const isHidden =
-    element.style.display === "none" ||
-    getComputedStyle(element).display === "none";
+  const isHidden = element.style.display === "none" || getComputedStyle(element).display === "none";
 
   const shouldShow = force !== undefined ? force : isHidden;
 
@@ -893,11 +823,7 @@ export function isVisible(target: ElementTarget): boolean {
   const element = getElement(target) as HTMLElement;
   if (!element) return false;
 
-  return !!(
-    element.offsetWidth ||
-    element.offsetHeight ||
-    element.getClientRects().length
-  );
+  return !!(element.offsetWidth || element.offsetHeight || element.getClientRects().length);
 }
 
 /**

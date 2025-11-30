@@ -89,17 +89,8 @@ export interface FieldProps<V> {
  *   }
  * })
  */
-export function useForm<T extends Record<string, unknown>>(
-  options: UseFormOptions<T>
-): UseFormReturn<T> {
-  const {
-    initialValues: initialValuesOption,
-    onSubmit,
-    validate,
-    onChange,
-    onSuccess,
-    onError,
-  } = options;
+export function useForm<T extends Record<string, unknown>>(options: UseFormOptions<T>): UseFormReturn<T> {
+  const { initialValues: initialValuesOption, onSubmit, validate, onChange, onSuccess, onError } = options;
 
   // 存储初始值的副本
   const initialValues = reactive({ ...initialValuesOption }) as T;
@@ -278,11 +269,7 @@ export interface UseFormDirtyGuardOptions {
  * useFormDirtyGuard({ isDirty })
  */
 export function useFormDirtyGuard(options: UseFormDirtyGuardOptions) {
-  const {
-    isDirty,
-    message = "您有未保存的更改，确定要离开吗？",
-    onBeforeLeave,
-  } = options;
+  const { isDirty, message = "您有未保存的更改，确定要离开吗？", onBeforeLeave } = options;
 
   // 浏览器关闭/刷新警告
   const handleBeforeUnload = (e: BeforeUnloadEvent) => {

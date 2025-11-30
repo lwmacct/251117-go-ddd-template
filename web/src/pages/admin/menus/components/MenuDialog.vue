@@ -70,7 +70,7 @@ watch(
       resetForm();
     }
   },
-  { immediate: true },
+  { immediate: true }
 );
 
 function resetForm() {
@@ -100,7 +100,12 @@ const handleSave = async () => {
 </script>
 
 <template>
-  <v-dialog :model-value="modelValue" @update:model-value="emit('update:modelValue', $event)" max-width="600" persistent>
+  <v-dialog
+    :model-value="modelValue"
+    max-width="600"
+    persistent
+    @update:model-value="emit('update:modelValue', $event)"
+  >
     <v-card>
       <v-card-title>
         <span class="text-h5">{{ dialogTitle }}</span>
@@ -108,11 +113,33 @@ const handleSave = async () => {
 
       <v-card-text>
         <v-form ref="form" v-model="valid">
-          <v-text-field v-model="formData.title" label="菜单标题" :rules="rules.title" variant="outlined" density="comfortable" class="mb-2"></v-text-field>
+          <v-text-field
+            v-model="formData.title"
+            label="菜单标题"
+            :rules="rules.title"
+            variant="outlined"
+            density="comfortable"
+            class="mb-2"
+          ></v-text-field>
 
-          <v-text-field v-model="formData.path" label="路由路径" :rules="rules.path" variant="outlined" density="comfortable" class="mb-2" hint="如: /admin/users"></v-text-field>
+          <v-text-field
+            v-model="formData.path"
+            label="路由路径"
+            :rules="rules.path"
+            variant="outlined"
+            density="comfortable"
+            class="mb-2"
+            hint="如: /admin/users"
+          ></v-text-field>
 
-          <v-text-field v-model="formData.icon" label="图标（可选）" variant="outlined" density="comfortable" class="mb-2" hint="MDI 图标名称，如: mdi-account"></v-text-field>
+          <v-text-field
+            v-model="formData.icon"
+            label="图标（可选）"
+            variant="outlined"
+            density="comfortable"
+            class="mb-2"
+            hint="MDI 图标名称，如: mdi-account"
+          ></v-text-field>
 
           <v-select
             v-model="formData.parent_id"
@@ -126,7 +153,15 @@ const handleSave = async () => {
             clearable
           ></v-select>
 
-          <v-text-field v-model.number="formData.order" label="排序" type="number" variant="outlined" density="comfortable" class="mb-2" hint="数字越小越靠前"></v-text-field>
+          <v-text-field
+            v-model.number="formData.order"
+            label="排序"
+            type="number"
+            variant="outlined"
+            density="comfortable"
+            class="mb-2"
+            hint="数字越小越靠前"
+          ></v-text-field>
 
           <v-switch v-model="formData.visible" label="是否可见" color="primary"></v-switch>
         </v-form>
@@ -135,7 +170,7 @@ const handleSave = async () => {
       <v-card-actions>
         <v-spacer></v-spacer>
         <v-btn variant="text" @click="closeDialog">取消</v-btn>
-        <v-btn color="primary" variant="elevated" @click="handleSave" :disabled="!valid">保存</v-btn>
+        <v-btn color="primary" variant="elevated" :disabled="!valid" @click="handleSave">保存</v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>

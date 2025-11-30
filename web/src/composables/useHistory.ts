@@ -82,17 +82,8 @@ function defaultEquals<T>(a: T, b: T): boolean {
  * // 重做
  * redo()
  */
-export function useHistory<T>(
-  source: Ref<T>,
-  options: UseHistoryOptions<T> = {}
-): UseHistoryReturn<T> {
-  const {
-    capacity = Infinity,
-    deep = true,
-    immediate = true,
-    clone = defaultClone,
-    equals = defaultEquals,
-  } = options;
+export function useHistory<T>(source: Ref<T>, options: UseHistoryOptions<T> = {}): UseHistoryReturn<T> {
+  const { capacity = Infinity, deep = true, immediate = true, clone = defaultClone, equals = defaultEquals } = options;
 
   // 历史记录栈
   const history = ref<T[]>([]) as Ref<T[]>;
@@ -238,10 +229,7 @@ export function useHistory<T>(
  * // 手动提交
  * commit()
  */
-export function useManualHistory<T>(
-  initialValue: T,
-  options: Omit<UseHistoryOptions<T>, "immediate"> = {}
-) {
+export function useManualHistory<T>(initialValue: T, options: Omit<UseHistoryOptions<T>, "immediate"> = {}) {
   const source = ref(initialValue) as Ref<T>;
   const history = useHistory(source, { ...options, immediate: false });
 
@@ -263,10 +251,7 @@ export interface HistoryEntry<T> {
 /**
  * 带时间戳的历史记录
  */
-export function useTimestampedHistory<T>(
-  source: Ref<T>,
-  options: UseHistoryOptions<T> = {}
-) {
+export function useTimestampedHistory<T>(source: Ref<T>, options: UseHistoryOptions<T> = {}) {
   const entries = ref<HistoryEntry<T>[]>([]) as Ref<HistoryEntry<T>[]>;
   const index = ref(-1);
 
@@ -326,10 +311,7 @@ export interface UseSnapshotOptions<T> {
  * // 恢复快照
  * restore('before-edit')
  */
-export function useSnapshot<T>(
-  source: Ref<T>,
-  options: UseSnapshotOptions<T> = {}
-) {
+export function useSnapshot<T>(source: Ref<T>, options: UseSnapshotOptions<T> = {}) {
   const { maxSnapshots = 10, clone = defaultClone } = options;
 
   const snapshots = ref<Map<string, T>>(new Map()) as Ref<Map<string, T>>;

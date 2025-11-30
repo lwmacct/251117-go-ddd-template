@@ -29,7 +29,10 @@ const passwordRules = [
   (v: string) => /\d/.test(v) || "密码必须包含数字",
 ];
 
-const confirmPasswordRules = [(v: string) => !!v || "请确认新密码", (v: string) => v === newPassword.value || "两次输入的密码不一致"];
+const confirmPasswordRules = [
+  (v: string) => !!v || "请确认新密码",
+  (v: string) => v === newPassword.value || "两次输入的密码不一致",
+];
 
 /**
  * 提交修改密码
@@ -156,7 +159,14 @@ function resetForm() {
     </v-form>
 
     <!-- 成功/错误消息 -->
-    <v-alert v-if="successMessage" type="success" density="compact" class="mt-4" closable @click:close="successMessage = ''">
+    <v-alert
+      v-if="successMessage"
+      type="success"
+      density="compact"
+      class="mt-4"
+      closable
+      @click:close="successMessage = ''"
+    >
       {{ successMessage }}
     </v-alert>
 

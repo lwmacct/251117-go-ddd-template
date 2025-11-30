@@ -157,10 +157,7 @@ export interface TemplateRefReturn<T> {
  * console.log(value.value) // 'default'
  * ```
  */
-export function refDefault<T>(
-  source: Ref<T | null | undefined>,
-  defaultValue: T
-): Ref<T> {
+export function refDefault<T>(source: Ref<T | null | undefined>, defaultValue: T): Ref<T> {
   return computed({
     get: () => source.value ?? defaultValue,
     set: (value) => {
@@ -182,10 +179,7 @@ export function refDefault<T>(
  * text.value = 'hello' // debouncedText 在 300ms 后变为 'hello'
  * ```
  */
-export function refDebounced<T>(
-  source: Ref<T>,
-  options: RefDebouncedOptions = {}
-): Readonly<Ref<T>> {
+export function refDebounced<T>(source: Ref<T>, options: RefDebouncedOptions = {}): Readonly<Ref<T>> {
   const { delay = 250, maxWait } = options;
 
   return customRef<T>((track, trigger) => {
@@ -238,10 +232,7 @@ export function refDebounced<T>(
  * const throttledScrollY = refThrottled(scrollY, { delay: 100 })
  * ```
  */
-export function refThrottled<T>(
-  source: Ref<T>,
-  options: RefThrottledOptions = {}
-): Readonly<Ref<T>> {
+export function refThrottled<T>(source: Ref<T>, options: RefThrottledOptions = {}): Readonly<Ref<T>> {
   const { delay = 100, leading = true, trailing = true } = options;
 
   return customRef<T>((track, trigger) => {
@@ -311,10 +302,7 @@ export function refThrottled<T>(
  * console.log(value.value) // 2
  * ```
  */
-export function refHistory<T>(
-  initialValue: T,
-  options: RefHistoryOptions<T> = {}
-): RefHistoryReturn<T> {
+export function refHistory<T>(initialValue: T, options: RefHistoryOptions<T> = {}): RefHistoryReturn<T> {
   const {
     capacity = 10,
     deep = false,
@@ -432,10 +420,7 @@ export function refHistory<T>(
  * notification.value = '保存成功' // 3秒后自动清空
  * ```
  */
-export function refAutoReset<T>(
-  defaultValue: T,
-  options: RefAutoResetOptions = {}
-): Ref<T> {
+export function refAutoReset<T>(defaultValue: T, options: RefAutoResetOptions = {}): Ref<T> {
   const { delay = 1000 } = options;
 
   const value = ref<T>(defaultValue) as Ref<T>;
@@ -518,10 +503,7 @@ export function syncRefs<T>(
  * })
  * ```
  */
-export function refWithControl<T>(
-  initialValue: T,
-  options: RefWithControlOptions<T> = {}
-): RefWithControlReturn<T> {
+export function refWithControl<T>(initialValue: T, options: RefWithControlOptions<T> = {}): RefWithControlReturn<T> {
   const { onGet, onSet, onBeforeSet } = options;
 
   let internalValue = initialValue;
@@ -586,9 +568,7 @@ export function refWithControl<T>(
  * // 在模板中: <input ref="inputRef" />
  * ```
  */
-export function templateRef<
-  T extends HTMLElement | ComponentPublicInstance,
->(): TemplateRefReturn<T> {
+export function templateRef<T extends HTMLElement | ComponentPublicInstance>(): TemplateRefReturn<T> {
   const elementRef = ref<T | null>(null);
   const isMounted = ref(false);
   const callbacks: ((el: T) => void)[] = [];
@@ -867,9 +847,7 @@ export function useObject<T extends Record<string, unknown>>(
  * clear() // []
  * ```
  */
-export function useArray<T>(
-  initialValue: T[] = []
-): {
+export function useArray<T>(initialValue: T[] = []): {
   array: Ref<T[]>;
   push: (...items: T[]) => void;
   pop: () => T | undefined;
@@ -938,9 +916,7 @@ export function useArray<T>(
  * has(3) // true
  * ```
  */
-export function useSet<T>(
-  initialValue: Iterable<T> = []
-): {
+export function useSet<T>(initialValue: Iterable<T> = []): {
   set: Ref<Set<T>>;
   add: (value: T) => void;
   remove: (value: T) => void;

@@ -3,16 +3,7 @@
  * 提供 HTTP 请求的响应式管理
  */
 
-import {
-  ref,
-  computed,
-  watch,
-  onMounted,
-  onUnmounted,
-  type Ref,
-  type ComputedRef,
-  type MaybeRef,
-} from "vue";
+import { ref, computed, watch, onMounted, onUnmounted, type Ref, type ComputedRef, type MaybeRef } from "vue";
 
 // ============================================================================
 // 类型定义
@@ -30,17 +21,11 @@ export interface UseFetchOptions<T = unknown> extends RequestInit {
   /** 重试延迟（毫秒） */
   retryDelay?: number;
   /** 请求前回调 */
-  beforeFetch?: (
-    ctx: { url: string; options: RequestInit }
-  ) => { url: string; options: RequestInit } | false | void;
+  beforeFetch?: (ctx: { url: string; options: RequestInit }) => { url: string; options: RequestInit } | false | void;
   /** 请求后回调 */
   afterFetch?: (ctx: { data: T; response: Response }) => T;
   /** 错误回调 */
-  onFetchError?: (ctx: {
-    error: Error;
-    data: unknown;
-    response: Response | null;
-  }) => void;
+  onFetchError?: (ctx: { error: Error; data: unknown; response: Response | null }) => void;
   /** 响应类型 */
   responseType?: "json" | "text" | "blob" | "arrayBuffer" | "formData";
   /** 是否在组件卸载时取消请求 */
@@ -81,10 +66,7 @@ export interface UseFetchReturn<T = unknown> {
 }
 
 // 请求缓存
-const fetchCache = new Map<
-  string,
-  { data: unknown; timestamp: number; promise?: Promise<unknown> }
->();
+const fetchCache = new Map<string, { data: unknown; timestamp: number; promise?: Promise<unknown> }>();
 
 // ============================================================================
 // useFetch - HTTP 请求
@@ -104,10 +86,7 @@ const fetchCache = new Map<
  * // 取消请求
  * abort()
  */
-export function useFetch<T = unknown>(
-  url: MaybeRef<string>,
-  options: UseFetchOptions<T> = {}
-): UseFetchReturn<T> {
+export function useFetch<T = unknown>(url: MaybeRef<string>, options: UseFetchOptions<T> = {}): UseFetchReturn<T> {
   const {
     immediate = true,
     timeout = 30000,
@@ -132,9 +111,7 @@ export function useFetch<T = unknown>(
   const aborted = ref(false);
 
   const isLoading = computed(() => status.value === "pending");
-  const isFinished = computed(
-    () => status.value === "success" || status.value === "error"
-  );
+  const isFinished = computed(() => status.value === "success" || status.value === "error");
   const canAbort = computed(() => isLoading.value);
 
   let abortController: AbortController | null = null;
@@ -273,15 +250,12 @@ export function useFetch<T = unknown>(
           throw new Error("Request aborted");
         }
 
-        const fetchError =
-          err instanceof Error ? err : new Error(String(err));
+        const fetchError = err instanceof Error ? err : new Error(String(err));
 
         // 重试
         if (retryCount < retry) {
           retryCount++;
-          await new Promise((resolve) =>
-            setTimeout(resolve, retryDelay * retryCount)
-          );
+          await new Promise((resolve) => setTimeout(resolve, retryDelay * retryCount));
           return doFetch();
         }
 
@@ -374,48 +348,23 @@ export interface CreateFetchOptions {
   options?: UseFetchOptions;
   /** 请求拦截器 */
   interceptors?: {
-    request?: (ctx: {
-      url: string;
-      options: RequestInit;
-    }) => { url: string; options: RequestInit } | void;
+    request?: (ctx: { url: string; options: RequestInit }) => { url: string; options: RequestInit } | void;
     response?: (ctx: { data: unknown; response: Response }) => unknown;
-    error?: (ctx: {
-      error: Error;
-      data: unknown;
-      response: Response | null;
-    }) => void;
+    error?: (ctx: { error: Error; data: unknown; response: Response | null }) => void;
   };
 }
 
 export interface CreateFetchReturn {
   /** 发起 GET 请求 */
-  get: <T = unknown>(
-    url: string,
-    options?: UseFetchOptions<T>
-  ) => UseFetchReturn<T>;
+  get: <T = unknown>(url: string, options?: UseFetchOptions<T>) => UseFetchReturn<T>;
   /** 发起 POST 请求 */
-  post: <T = unknown>(
-    url: string,
-    body?: unknown,
-    options?: UseFetchOptions<T>
-  ) => UseFetchReturn<T>;
+  post: <T = unknown>(url: string, body?: unknown, options?: UseFetchOptions<T>) => UseFetchReturn<T>;
   /** 发起 PUT 请求 */
-  put: <T = unknown>(
-    url: string,
-    body?: unknown,
-    options?: UseFetchOptions<T>
-  ) => UseFetchReturn<T>;
+  put: <T = unknown>(url: string, body?: unknown, options?: UseFetchOptions<T>) => UseFetchReturn<T>;
   /** 发起 PATCH 请求 */
-  patch: <T = unknown>(
-    url: string,
-    body?: unknown,
-    options?: UseFetchOptions<T>
-  ) => UseFetchReturn<T>;
+  patch: <T = unknown>(url: string, body?: unknown, options?: UseFetchOptions<T>) => UseFetchReturn<T>;
   /** 发起 DELETE 请求 */
-  delete: <T = unknown>(
-    url: string,
-    options?: UseFetchOptions<T>
-  ) => UseFetchReturn<T>;
+  delete: <T = unknown>(url: string, options?: UseFetchOptions<T>) => UseFetchReturn<T>;
 }
 
 /**
@@ -518,16 +467,13 @@ export function createFetch(config: CreateFetchOptions = {}): CreateFetchReturn 
   };
 
   return {
-    get: <T>(url: string, options?: UseFetchOptions<T>) =>
-      createRequest<T>("GET", url, undefined, options),
+    get: <T>(url: string, options?: UseFetchOptions<T>) => createRequest<T>("GET", url, undefined, options),
     post: <T>(url: string, body?: unknown, options?: UseFetchOptions<T>) =>
       createRequest<T>("POST", url, body, options),
-    put: <T>(url: string, body?: unknown, options?: UseFetchOptions<T>) =>
-      createRequest<T>("PUT", url, body, options),
+    put: <T>(url: string, body?: unknown, options?: UseFetchOptions<T>) => createRequest<T>("PUT", url, body, options),
     patch: <T>(url: string, body?: unknown, options?: UseFetchOptions<T>) =>
       createRequest<T>("PATCH", url, body, options),
-    delete: <T>(url: string, options?: UseFetchOptions<T>) =>
-      createRequest<T>("DELETE", url, undefined, options),
+    delete: <T>(url: string, options?: UseFetchOptions<T>) => createRequest<T>("DELETE", url, undefined, options),
   };
 }
 
@@ -565,8 +511,7 @@ export interface UsePaginatedFetchOptions<T> extends UseFetchOptions<T> {
   pageSizeParam?: string;
 }
 
-export interface UsePaginatedFetchReturn<T>
-  extends Omit<UseFetchReturn<T>, "data"> {
+export interface UsePaginatedFetchReturn<T> extends Omit<UseFetchReturn<T>, "data"> {
   /** 当前页数据 */
   data: Ref<T | null>;
   /** 当前页码 */
@@ -603,22 +548,14 @@ export function usePaginatedFetch<T = unknown>(
   baseUrl: MaybeRef<string>,
   options: UsePaginatedFetchOptions<T> = {}
 ): UsePaginatedFetchReturn<T> {
-  const {
-    pageSize: initialPageSize = 10,
-    pageParam = "page",
-    pageSizeParam = "pageSize",
-    ...fetchOptions
-  } = options;
+  const { pageSize: initialPageSize = 10, pageParam = "page", pageSizeParam = "pageSize", ...fetchOptions } = options;
 
   const page = ref(1);
   const pageSize = ref(initialPageSize);
   const hasMore = ref(true);
 
   const getUrl = () => {
-    const base =
-      typeof baseUrl === "object" && "value" in baseUrl
-        ? baseUrl.value
-        : baseUrl;
+    const base = typeof baseUrl === "object" && "value" in baseUrl ? baseUrl.value : baseUrl;
     const separator = base.includes("?") ? "&" : "?";
     return `${base}${separator}${pageParam}=${page.value}&${pageSizeParam}=${pageSize.value}`;
   };
@@ -675,8 +612,7 @@ export interface UseInfiniteFetchOptions<T> extends UsePaginatedFetchOptions<T> 
   merge?: (prev: T[], next: T[]) => T[];
 }
 
-export interface UseInfiniteFetchReturn<T>
-  extends Omit<UsePaginatedFetchReturn<T[]>, "data"> {
+export interface UseInfiniteFetchReturn<T> extends Omit<UsePaginatedFetchReturn<T[]>, "data"> {
   /** 所有数据 */
   data: Ref<T[]>;
   /** 重置数据 */
@@ -698,8 +634,7 @@ export function useInfiniteFetch<T = unknown>(
   baseUrl: MaybeRef<string>,
   options: UseInfiniteFetchOptions<T> = {}
 ): UseInfiniteFetchReturn<T> {
-  const { merge = (prev, next) => [...prev, ...next], ...paginatedOptions } =
-    options;
+  const { merge = (prev, next) => [...prev, ...next], ...paginatedOptions } = options;
 
   const allData = ref<T[]>([]) as Ref<T[]>;
 

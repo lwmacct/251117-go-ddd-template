@@ -56,11 +56,7 @@ export function truncate(str: string, options: TruncateOptions = {}): string {
  * @example
  * padStart("5", 3, "0") // "005"
  */
-export function padStart(
-  str: string | number,
-  length: number,
-  char: string = " "
-): string {
+export function padStart(str: string | number, length: number, char: string = " "): string {
   return String(str).padStart(length, char);
 }
 
@@ -69,11 +65,7 @@ export function padStart(
  * @example
  * padEnd("5", 3, "0") // "500"
  */
-export function padEnd(
-  str: string | number,
-  length: number,
-  char: string = " "
-): string {
+export function padEnd(str: string | number, length: number, char: string = " "): string {
   return String(str).padEnd(length, char);
 }
 
@@ -113,9 +105,7 @@ export function titleCase(str: string): string {
  */
 export function camelCase(str: string): string {
   if (!str) return str;
-  return str
-    .toLowerCase()
-    .replace(/[-_\s]+(.)?/g, (_, char) => (char ? char.toUpperCase() : ""));
+  return str.toLowerCase().replace(/[-_\s]+(.)?/g, (_, char) => (char ? char.toUpperCase() : ""));
 }
 
 /**
@@ -229,11 +219,7 @@ export function containsIgnoreCase(str: string, search: string): boolean {
  * @example
  * highlight("Hello World", "world") // "Hello <mark>World</mark>"
  */
-export function highlight(
-  str: string,
-  search: string,
-  tag: string = "mark"
-): string {
+export function highlight(str: string, search: string, tag: string = "mark"): string {
   if (!search) return str;
   const regex = new RegExp(`(${escapeRegExp(search)})`, "gi");
   return str.replace(regex, `<${tag}>$1</${tag}>`);
@@ -430,10 +416,7 @@ export function isNotBlank(str: string | null | undefined): boolean {
  * @example
  * template("Hello, {name}!", { name: "World" }) // "Hello, World!"
  */
-export function template(
-  str: string,
-  data: Record<string, string | number>
-): string {
+export function template(str: string, data: Record<string, string | number>): string {
   return str.replace(/\{(\w+)\}/g, (_, key) => String(data[key] ?? ""));
 }
 

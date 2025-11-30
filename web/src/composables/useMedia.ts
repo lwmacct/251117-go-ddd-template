@@ -3,15 +3,7 @@
  * 提供媒体（音频/视频）相关的工具函数
  */
 
-import {
-  ref,
-  computed,
-  watch,
-  onMounted,
-  onUnmounted,
-  type Ref,
-  type ComputedRef,
-} from "vue";
+import { ref, computed, watch, onMounted, onUnmounted, type Ref, type ComputedRef } from "vue";
 
 // ============================================================================
 // 类型定义
@@ -510,9 +502,7 @@ export function useAudio(
  * console.log(frequencyData.value) // Uint8Array
  * ```
  */
-export function useAudioVisualizer(
-  options: AudioVisualizerOptions = {}
-): AudioVisualizerReturn {
+export function useAudioVisualizer(options: AudioVisualizerOptions = {}): AudioVisualizerReturn {
   const { fftSize = 256, smoothingTimeConstant = 0.8 } = options;
 
   const frequencyData = ref<Uint8Array>(new Uint8Array(fftSize / 2));
@@ -612,11 +602,7 @@ export function useAudioVisualizer(
  * ```
  */
 export function useRecorder(options: RecorderOptions = {}): UseRecorderReturn {
-  const {
-    mimeType = "audio/webm",
-    audioBitsPerSecond = 128000,
-    videoBitsPerSecond,
-  } = options;
+  const { mimeType = "audio/webm", audioBitsPerSecond = 128000, videoBitsPerSecond } = options;
 
   const isRecording = ref(false);
   const isPaused = ref(false);
@@ -800,9 +786,7 @@ export function useScreenShare(): {
   const isSharing = ref(false);
   const error = ref<Error | null>(null);
 
-  const start = async (
-    options: DisplayMediaStreamOptions = { video: true, audio: false }
-  ): Promise<MediaStream> => {
+  const start = async (options: DisplayMediaStreamOptions = { video: true, audio: false }): Promise<MediaStream> => {
     try {
       error.value = null;
       const mediaStream = await navigator.mediaDevices.getDisplayMedia(options);

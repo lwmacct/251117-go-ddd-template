@@ -7,9 +7,7 @@
 // 类型定义
 // ============================================================================
 
-type DeepPartial<T> = T extends object
-  ? { [P in keyof T]?: DeepPartial<T[P]> }
-  : T;
+type DeepPartial<T> = T extends object ? { [P in keyof T]?: DeepPartial<T[P]> } : T;
 
 type Path = string | (string | number)[];
 
@@ -82,10 +80,7 @@ export function deepMerge<T extends object>(target: T, ...sources: DeepPartial<T
       const targetValue = (target as Record<string, unknown>)[key];
 
       if (isObject(sourceValue) && isObject(targetValue)) {
-        (target as Record<string, unknown>)[key] = deepMerge(
-          targetValue as object,
-          sourceValue as object
-        );
+        (target as Record<string, unknown>)[key] = deepMerge(targetValue as object, sourceValue as object);
       } else {
         (target as Record<string, unknown>)[key] = deepClone(sourceValue);
       }
@@ -124,12 +119,7 @@ export function deepEqual(a: unknown, b: unknown): boolean {
 
     if (keysA.length !== keysB.length) return false;
 
-    return keysA.every((key) =>
-      deepEqual(
-        (a as Record<string, unknown>)[key],
-        (b as Record<string, unknown>)[key]
-      )
-    );
+    return keysA.every((key) => deepEqual((a as Record<string, unknown>)[key], (b as Record<string, unknown>)[key]));
   }
 
   return false;
@@ -172,11 +162,7 @@ export function parsePath(path: Path): (string | number)[] {
  * get({ a: [1, 2] }, 'a[1]') // 2
  * get({ a: 1 }, 'b.c', 'default') // 'default'
  */
-export function get<T = unknown>(
-  obj: unknown,
-  path: Path,
-  defaultValue?: T
-): T | undefined {
+export function get<T = unknown>(obj: unknown, path: Path, defaultValue?: T): T | undefined {
   const keys = parsePath(path);
   let result: unknown = obj;
 
@@ -196,11 +182,7 @@ export function get<T = unknown>(
  * set({}, 'a.b.c', 1) // { a: { b: { c: 1 } } }
  * set({}, 'a[0].b', 1) // { a: [{ b: 1 }] }
  */
-export function set<T extends object>(
-  obj: T,
-  path: Path,
-  value: unknown
-): T {
+export function set<T extends object>(obj: T, path: Path, value: unknown): T {
   const keys = parsePath(path);
   const result = deepClone(obj);
   let current: Record<string | number, unknown> = result as Record<string | number, unknown>;
@@ -277,10 +259,7 @@ export function unset<T extends object>(obj: T, path: Path): T {
  * @example
  * pick({ a: 1, b: 2, c: 3 }, ['a', 'b']) // { a: 1, b: 2 }
  */
-export function pick<T extends object, K extends keyof T>(
-  obj: T,
-  keys: K[]
-): Pick<T, K> {
+export function pick<T extends object, K extends keyof T>(obj: T, keys: K[]): Pick<T, K> {
   const result = {} as Pick<T, K>;
   for (const key of keys) {
     if (Object.prototype.hasOwnProperty.call(obj, key)) {
@@ -295,10 +274,7 @@ export function pick<T extends object, K extends keyof T>(
  * @example
  * omit({ a: 1, b: 2, c: 3 }, ['c']) // { a: 1, b: 2 }
  */
-export function omit<T extends object, K extends keyof T>(
-  obj: T,
-  keys: K[]
-): Omit<T, K> {
+export function omit<T extends object, K extends keyof T>(obj: T, keys: K[]): Omit<T, K> {
   const result = { ...obj };
   for (const key of keys) {
     delete result[key];
@@ -318,10 +294,7 @@ export function filterObject<T extends object>(
 ): Partial<T> {
   const result: Partial<T> = {};
   for (const key in obj) {
-    if (
-      Object.prototype.hasOwnProperty.call(obj, key) &&
-      predicate(obj[key], key)
-    ) {
+    if (Object.prototype.hasOwnProperty.call(obj, key) && predicate(obj[key], key)) {
       result[key] = obj[key];
     }
   }
@@ -351,9 +324,7 @@ export function mapObject<T extends object, U>(
  * @example
  * invert({ a: 'x', b: 'y' }) // { x: 'a', y: 'b' }
  */
-export function invert<T extends Record<string, string | number>>(
-  obj: T
-): Record<string, keyof T> {
+export function invert<T extends Record<string, string | number>>(obj: T): Record<string, keyof T> {
   const result: Record<string, keyof T> = {};
   for (const key in obj) {
     if (Object.prototype.hasOwnProperty.call(obj, key)) {
@@ -404,10 +375,7 @@ export function isPlainObject(value: unknown): value is Record<string, unknown> 
  *   console.log(key, value)
  * })
  */
-export function forEachObject<T extends object>(
-  obj: T,
-  fn: (value: T[keyof T], key: keyof T) => void
-): void {
+export function forEachObject<T extends object>(obj: T, fn: (value: T[keyof T], key: keyof T) => void): void {
   for (const key in obj) {
     if (Object.prototype.hasOwnProperty.call(obj, key)) {
       fn(obj[key], key);
@@ -422,11 +390,7 @@ export function forEachObject<T extends object>(
  *   console.log(path.join('.'), value)
  * })
  */
-export function deepForEach(
-  obj: unknown,
-  fn: (value: unknown, path: string[]) => void,
-  path: string[] = []
-): void {
+export function deepForEach(obj: unknown, fn: (value: unknown, path: string[]) => void, path: string[] = []): void {
   if (isObject(obj)) {
     for (const key in obj) {
       if (Object.prototype.hasOwnProperty.call(obj, key)) {
@@ -515,10 +479,7 @@ export function compact<T extends object>(obj: T): Partial<T> {
  * @example
  * defaults({ a: 1 }, { a: 0, b: 2 }) // { a: 1, b: 2 }
  */
-export function defaults<T extends object>(
-  obj: Partial<T>,
-  ...defaultsObjects: Partial<T>[]
-): T {
+export function defaults<T extends object>(obj: Partial<T>, ...defaultsObjects: Partial<T>[]): T {
   const result = { ...obj } as T;
 
   for (const defaults of defaultsObjects) {
@@ -548,8 +509,6 @@ export function entries<T extends object>(obj: T): [keyof T, T[keyof T]][] {
  * @example
  * fromEntries([['a', 1], ['b', 2]]) // { a: 1, b: 2 }
  */
-export function fromEntries<K extends string | number | symbol, V>(
-  entries: [K, V][]
-): Record<K, V> {
+export function fromEntries<K extends string | number | symbol, V>(entries: [K, V][]): Record<K, V> {
   return Object.fromEntries(entries) as Record<K, V>;
 }

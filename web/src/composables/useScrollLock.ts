@@ -188,10 +188,7 @@ export function useScrollLock(options: UseScrollLockOptions = {}) {
  * // 打开模态框时自动锁定
  * isOpen.value = true
  */
-export function useScrollLockWhenTrue(
-  source: Ref<boolean>,
-  options?: UseScrollLockOptions
-) {
+export function useScrollLockWhenTrue(source: Ref<boolean>, options?: UseScrollLockOptions) {
   const { isLocked, lock, unlock } = useScrollLock(options);
 
   watch(
@@ -300,10 +297,7 @@ export function useScrollPosition() {
     });
   };
 
-  const scrollTo = (
-    position: { x?: number; y?: number },
-    behavior: ScrollBehavior = "smooth"
-  ) => {
+  const scrollTo = (position: { x?: number; y?: number }, behavior: ScrollBehavior = "smooth") => {
     window.scrollTo({
       left: position.x ?? window.scrollX,
       top: position.y ?? window.scrollY,

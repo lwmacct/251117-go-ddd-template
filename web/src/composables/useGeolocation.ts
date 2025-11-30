@@ -76,19 +76,10 @@ export interface UseGeolocationReturn {
  * // 使用响应式坐标
  * console.log(coords.value?.latitude, coords.value?.longitude)
  */
-export function useGeolocation(
-  options: UseGeolocationOptions = {}
-): UseGeolocationReturn {
-  const {
-    immediate = true,
-    enableHighAccuracy = true,
-    maximumAge = 30000,
-    timeout = 27000,
-  } = options;
+export function useGeolocation(options: UseGeolocationOptions = {}): UseGeolocationReturn {
+  const { immediate = true, enableHighAccuracy = true, maximumAge = 30000, timeout = 27000 } = options;
 
-  const isSupported = ref(
-    typeof navigator !== "undefined" && "geolocation" in navigator
-  );
+  const isSupported = ref(typeof navigator !== "undefined" && "geolocation" in navigator);
   const coords = ref<GeolocationCoordinates | null>(null);
   const locatedAt = ref<number | null>(null);
   const error = ref<GeolocationPositionError | null>(null);
@@ -159,11 +150,7 @@ export function useGeolocation(
       return;
     }
 
-    watchId = navigator.geolocation.watchPosition(
-      updatePosition,
-      handleError,
-      positionOptions
-    );
+    watchId = navigator.geolocation.watchPosition(updatePosition, handleError, positionOptions);
   };
 
   if (immediate && isSupported.value) {
@@ -228,10 +215,7 @@ export function calculateDistance(
 
   const a =
     Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos(toRad(from.latitude)) *
-      Math.cos(toRad(to.latitude)) *
-      Math.sin(dLon / 2) *
-      Math.sin(dLon / 2);
+    Math.cos(toRad(from.latitude)) * Math.cos(toRad(to.latitude)) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
 
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   const distanceInMeters = R * c;
@@ -275,9 +259,7 @@ export interface UseGeolocationWatchOptions extends UseGeolocationOptions {
  *   minDistance: 10, // 移动超过 10 米才更新
  * })
  */
-export function useGeolocationWatch(
-  options: UseGeolocationWatchOptions = {}
-): UseGeolocationReturn {
+export function useGeolocationWatch(options: UseGeolocationWatchOptions = {}): UseGeolocationReturn {
   const { onPositionChange, onError, minDistance = 0, ...restOptions } = options;
 
   const geolocation = useGeolocation({
@@ -370,9 +352,10 @@ export interface UseGeolocationBoundsOptions {
  *   onLeave: () => console.log('离开区域'),
  * })
  */
-export function useGeolocationBounds(
-  options: UseGeolocationBoundsOptions
-): { isInBounds: Ref<boolean>; geolocation: UseGeolocationReturn } {
+export function useGeolocationBounds(options: UseGeolocationBoundsOptions): {
+  isInBounds: Ref<boolean>;
+  geolocation: UseGeolocationReturn;
+} {
   const { bounds, onEnter, onLeave } = options;
 
   const geolocation = useGeolocation({ immediate: true });
@@ -451,14 +434,7 @@ export function decimalToDms(
   seconds: number;
   direction: "N" | "S" | "E" | "W";
 } {
-  const direction =
-    type === "lat"
-      ? decimal >= 0
-        ? "N"
-        : "S"
-      : decimal >= 0
-      ? "E"
-      : "W";
+  const direction = type === "lat" ? (decimal >= 0 ? "N" : "S") : decimal >= 0 ? "E" : "W";
 
   const absolute = Math.abs(decimal);
   const degrees = Math.floor(absolute);
@@ -480,11 +456,7 @@ export function decimalToDms(
  * formatCoordinates(40.7128, -74.0060)
  * // '40.7128°N, 74.0060°W'
  */
-export function formatCoordinates(
-  latitude: number,
-  longitude: number,
-  precision: number = 4
-): string {
+export function formatCoordinates(latitude: number, longitude: number, precision: number = 4): string {
   const latDir = latitude >= 0 ? "N" : "S";
   const lngDir = longitude >= 0 ? "E" : "W";
 
@@ -497,11 +469,7 @@ export function formatCoordinates(
  * getGoogleMapsUrl(40.7128, -74.0060)
  * // 'https://www.google.com/maps?q=40.7128,-74.006'
  */
-export function getGoogleMapsUrl(
-  latitude: number,
-  longitude: number,
-  zoom: number = 15
-): string {
+export function getGoogleMapsUrl(latitude: number, longitude: number, zoom: number = 15): string {
   return `https://www.google.com/maps?q=${latitude},${longitude}&z=${zoom}`;
 }
 
@@ -510,11 +478,7 @@ export function getGoogleMapsUrl(
  * @example
  * getAppleMapsUrl(40.7128, -74.0060)
  */
-export function getAppleMapsUrl(
-  latitude: number,
-  longitude: number,
-  zoom: number = 15
-): string {
+export function getAppleMapsUrl(latitude: number, longitude: number, zoom: number = 15): string {
   return `https://maps.apple.com/?ll=${latitude},${longitude}&z=${zoom}`;
 }
 
@@ -523,14 +487,9 @@ export function getAppleMapsUrl(
  * @example
  * getNavigationUrl(40.7128, -74.0060)
  */
-export function getNavigationUrl(
-  latitude: number,
-  longitude: number
-): string {
+export function getNavigationUrl(latitude: number, longitude: number): string {
   // 检测平台
-  const isIOS =
-    typeof navigator !== "undefined" &&
-    /iPad|iPhone|iPod/.test(navigator.userAgent);
+  const isIOS = typeof navigator !== "undefined" && /iPad|iPhone|iPod/.test(navigator.userAgent);
 
   if (isIOS) {
     return getAppleMapsUrl(latitude, longitude);

@@ -191,7 +191,12 @@ onMounted(() => {
                 <span>{{ status.label }}</span>
                 <span>{{ status.value }} 人 ({{ status.percent }}%)</span>
               </div>
-              <v-progress-linear :model-value="status.percent" :color="status.color" height="10" rounded></v-progress-linear>
+              <v-progress-linear
+                :model-value="status.percent"
+                :color="status.color"
+                height="10"
+                rounded
+              ></v-progress-linear>
             </div>
           </v-card-text>
         </v-card>

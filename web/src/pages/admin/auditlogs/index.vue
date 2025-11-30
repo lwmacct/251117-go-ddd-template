@@ -9,7 +9,21 @@ import type { AuditLog } from "@/types/admin/audit";
  */
 
 // 使用 composable
-const { logs, loading, exporting, errorMessage, successMessage, filters, pagination, fetchLogs, applyFilters, resetFilters, changePage, clearMessages, exportLogs } = useAuditLogs();
+const {
+  logs,
+  loading,
+  exporting,
+  errorMessage,
+  successMessage,
+  filters,
+  pagination,
+  fetchLogs,
+  applyFilters,
+  resetFilters,
+  changePage,
+  clearMessages,
+  exportLogs,
+} = useAuditLogs();
 
 // 对话框状态
 const detailDialog = ref(false);
@@ -123,7 +137,7 @@ const getStatusText = (status: string) => {
     <!-- 消息提示 -->
     <v-row v-if="errorMessage || successMessage">
       <v-col cols="12">
-        <v-alert v-if="successMessage" type="success" closable @click:close="clearMessages" class="mb-2">
+        <v-alert v-if="successMessage" type="success" closable class="mb-2" @click:close="clearMessages">
           {{ successMessage }}
         </v-alert>
         <v-alert v-if="errorMessage" type="error" closable @click:close="clearMessages">
@@ -148,23 +162,58 @@ const getStatusText = (status: string) => {
           <v-card-text>
             <v-row dense>
               <v-col cols="12" md="3">
-                <v-text-field v-model.number="filters.user_id" label="用户ID" type="number" variant="outlined" density="compact" hide-details clearable></v-text-field>
+                <v-text-field
+                  v-model.number="filters.user_id"
+                  label="用户ID"
+                  type="number"
+                  variant="outlined"
+                  density="compact"
+                  hide-details
+                  clearable
+                ></v-text-field>
               </v-col>
 
               <v-col cols="12" md="2">
-                <v-select v-model="filters.action" :items="actionOptions" item-title="text" item-value="value" label="操作类型" variant="outlined" density="compact" hide-details></v-select>
+                <v-select
+                  v-model="filters.action"
+                  :items="actionOptions"
+                  item-title="text"
+                  item-value="value"
+                  label="操作类型"
+                  variant="outlined"
+                  density="compact"
+                  hide-details
+                ></v-select>
               </v-col>
 
               <v-col cols="12" md="2">
-                <v-select v-model="filters.resource" :items="resourceOptions" item-title="text" item-value="value" label="资源类型" variant="outlined" density="compact" hide-details></v-select>
+                <v-select
+                  v-model="filters.resource"
+                  :items="resourceOptions"
+                  item-title="text"
+                  item-value="value"
+                  label="资源类型"
+                  variant="outlined"
+                  density="compact"
+                  hide-details
+                ></v-select>
               </v-col>
 
               <v-col cols="12" md="2">
-                <v-select v-model="filters.status" :items="statusOptions" item-title="text" item-value="value" label="状态" variant="outlined" density="compact" hide-details></v-select>
+                <v-select
+                  v-model="filters.status"
+                  :items="statusOptions"
+                  item-title="text"
+                  item-value="value"
+                  label="状态"
+                  variant="outlined"
+                  density="compact"
+                  hide-details
+                ></v-select>
               </v-col>
 
               <v-col cols="12" md="3" class="d-flex gap-2 flex-wrap">
-                <v-btn color="primary" @click="applyFilters" :loading="loading">
+                <v-btn color="primary" :loading="loading" @click="applyFilters">
                   <v-icon start>mdi-magnify</v-icon>
                   查询
                 </v-btn>
@@ -172,7 +221,7 @@ const getStatusText = (status: string) => {
                   <v-icon start>mdi-refresh</v-icon>
                   重置
                 </v-btn>
-                <v-btn color="success" variant="outlined" @click="exportLogs" :loading="exporting" :disabled="loading">
+                <v-btn color="success" variant="outlined" :loading="exporting" :disabled="loading" @click="exportLogs">
                   <v-icon start>mdi-download</v-icon>
                   导出
                 </v-btn>
@@ -294,10 +343,12 @@ const getStatusText = (status: string) => {
               <div class="text-body-2" style="word-break: break-all">{{ selectedLog.user_agent || "-" }}</div>
             </v-col>
 
-            <v-col cols="12" v-if="selectedLog.details">
+            <v-col v-if="selectedLog.details" cols="12">
               <div class="text-subtitle-2 text-grey-darken-1 mb-1">详细信息</div>
               <v-card variant="outlined" class="pa-3">
-                <pre class="text-body-2" style="white-space: pre-wrap; word-break: break-word">{{ selectedLog.details }}</pre>
+                <pre class="text-body-2" style="white-space: pre-wrap; word-break: break-word">{{
+                  selectedLog.details
+                }}</pre>
               </v-card>
             </v-col>
 

@@ -3,7 +3,13 @@
  */
 import { defineStore } from "pinia";
 import { ref, computed } from "vue";
-import { login as basicLogin, register as basicRegister, logout as apiLogout, getCurrentUser, AuthAPI } from "@/api/auth";
+import {
+  login as basicLogin,
+  register as basicRegister,
+  logout as apiLogout,
+  getCurrentUser,
+  AuthAPI,
+} from "@/api/auth";
 import { getAccessToken, clearAuthTokens, saveAccessToken, saveRefreshToken } from "@/utils/auth";
 import type { LoginRequest, BasicLoginRequest, BasicRegisterRequest, User, LoginResult } from "@/types/auth";
 

@@ -3,16 +3,7 @@
  * 提供增强的 computed 工具函数
  */
 
-import {
-  computed,
-  ref,
-  watch,
-  shallowRef,
-  triggerRef,
-  type Ref,
-  type ComputedRef,
-  type WatchSource,
-} from "vue";
+import { computed, ref, watch, shallowRef, triggerRef, type Ref, type ComputedRef, type WatchSource } from "vue";
 
 // ============================================================================
 // 类型定义
@@ -145,13 +136,7 @@ export function computedAsync<T>(
   getter: () => Promise<T>,
   options: ComputedAsyncOptions<T> = {}
 ): ComputedAsyncReturn<T> {
-  const {
-    initialValue = undefined as T,
-    lazy = false,
-    onError,
-    shallow = false,
-    debounce = 0,
-  } = options;
+  const { initialValue = undefined as T, lazy = false, onError, shallow = false, debounce = 0 } = options;
 
   const state = shallow ? shallowRef<T>(initialValue) : ref<T>(initialValue);
   const isLoading = ref(false);
@@ -239,7 +224,7 @@ export function computedWithControl<T>(
 
   const state = computed(() => {
     // 触发依赖追踪
-    trigger$.value;
+    void trigger$.value;
     return getter();
   });
 
@@ -291,10 +276,7 @@ export function computedWithControl<T>(
  * // basicInfo.value = { id: 1, name: 'John' }
  * ```
  */
-export function computedPick<T extends object, K extends keyof T>(
-  source: T,
-  keys: K[]
-): ComputedRef<Pick<T, K>> {
+export function computedPick<T extends object, K extends keyof T>(source: T, keys: K[]): ComputedRef<Pick<T, K>> {
   return computed(() => {
     const result = {} as Pick<T, K>;
     for (const key of keys) {
@@ -316,10 +298,7 @@ export function computedPick<T extends object, K extends keyof T>(
  * // safeUser.value = { id: 1, name: 'John' }
  * ```
  */
-export function computedOmit<T extends object, K extends keyof T>(
-  source: T,
-  keys: K[]
-): ComputedRef<Omit<T, K>> {
+export function computedOmit<T extends object, K extends keyof T>(source: T, keys: K[]): ComputedRef<Omit<T, K>> {
   return computed(() => {
     const result = { ...source };
     for (const key of keys) {
@@ -391,10 +370,7 @@ export function computedFrom<T extends readonly unknown[], R>(
  * )
  * ```
  */
-export function computedDebounced<T>(
-  getter: () => T,
-  options: ComputedDebouncedOptions = {}
-): Readonly<Ref<T>> {
+export function computedDebounced<T>(getter: () => T, options: ComputedDebouncedOptions = {}): Readonly<Ref<T>> {
   const { debounce = 250, maxWait } = options;
 
   const result = shallowRef<T>(getter());
@@ -451,10 +427,7 @@ export function computedDebounced<T>(
  * )
  * ```
  */
-export function computedThrottled<T>(
-  getter: () => T,
-  options: ComputedThrottledOptions = {}
-): Readonly<Ref<T>> {
+export function computedThrottled<T>(getter: () => T, options: ComputedThrottledOptions = {}): Readonly<Ref<T>> {
   const { throttle = 100, leading = true, trailing = true } = options;
 
   const result = shallowRef<T>(getter());
@@ -581,8 +554,7 @@ export function computedIf<T, F>(
   falsy: () => F
 ): ComputedRef<T | F> {
   return computed(() => {
-    const cond =
-      typeof condition === "function" ? condition() : condition.value;
+    const cond = typeof condition === "function" ? condition() : condition.value;
     return cond ? truthy() : falsy();
   });
 }
@@ -602,10 +574,7 @@ export function computedIf<T, F>(
  * upperValue.value = 'WORLD' // rawValue 变为 'world'
  * ```
  */
-export function writableComputed<T>(
-  getter: () => T,
-  setter: (value: T) => void
-): Ref<T> {
+export function writableComputed<T>(getter: () => T, setter: (value: T) => void): Ref<T> {
   return computed({
     get: getter,
     set: setter,
@@ -623,9 +592,7 @@ export function writableComputed<T>(
  * const { sum, avg, min, max, count } = computedArray(numbers)
  * ```
  */
-export function computedArray<T>(
-  source: Ref<T[]>
-): {
+export function computedArray<T>(source: Ref<T[]>): {
   sum: ComputedRef<number>;
   avg: ComputedRef<number>;
   min: ComputedRef<T | undefined>;
@@ -702,10 +669,7 @@ export function computedArray<T>(
  * const delayedQuery = computedDelayed(() => query.value, 500)
  * ```
  */
-export function computedDelayed<T>(
-  getter: () => T,
-  delay: number
-): Readonly<Ref<T>> {
+export function computedDelayed<T>(getter: () => T, delay: number): Readonly<Ref<T>> {
   const result = shallowRef<T>(getter());
   let timer: ReturnType<typeof setTimeout> | null = null;
 
@@ -736,10 +700,7 @@ export function computedDelayed<T>(
  * const safeData = computedDefault(() => data.value, 'default')
  * ```
  */
-export function computedDefault<T>(
-  getter: () => T | null | undefined,
-  defaultValue: T
-): ComputedRef<T> {
+export function computedDefault<T>(getter: () => T | null | undefined, defaultValue: T): ComputedRef<T> {
   return computed(() => getter() ?? defaultValue);
 }
 
@@ -781,10 +742,7 @@ export function computedObject<T extends Record<string, () => unknown>>(
  * const names = computedMap(users, user => user.name)
  * ```
  */
-export function computedMap<T, R>(
-  source: Ref<T[]>,
-  mapper: (item: T, index: number) => R
-): ComputedRef<R[]> {
+export function computedMap<T, R>(source: Ref<T[]>, mapper: (item: T, index: number) => R): ComputedRef<R[]> {
   return computed(() => source.value.map(mapper));
 }
 
@@ -799,10 +757,7 @@ export function computedMap<T, R>(
  * const evens = computedFilter(numbers, n => n % 2 === 0)
  * ```
  */
-export function computedFilter<T>(
-  source: Ref<T[]>,
-  predicate: (item: T, index: number) => boolean
-): ComputedRef<T[]> {
+export function computedFilter<T>(source: Ref<T[]>, predicate: (item: T, index: number) => boolean): ComputedRef<T[]> {
   return computed(() => source.value.filter(predicate));
 }
 
@@ -868,9 +823,6 @@ export function computedGroupBy<T, K extends string | number>(
  * const sorted = computedSort(users, (a, b) => a.name.localeCompare(b.name))
  * ```
  */
-export function computedSort<T>(
-  source: Ref<T[]>,
-  compareFn?: (a: T, b: T) => number
-): ComputedRef<T[]> {
+export function computedSort<T>(source: Ref<T[]>, compareFn?: (a: T, b: T) => number): ComputedRef<T[]> {
   return computed(() => [...source.value].sort(compareFn));
 }

@@ -4,4 +4,13 @@
 export * from "./auth";
 
 // 同时导出常用的类型定义
-export type { CaptchaData, LoginRequest, RegisterRequest, BasicLoginRequest, BasicRegisterRequest, AuthResponse, LoginResult, User } from "@/types";
+export type {
+  CaptchaData,
+  LoginRequest,
+  RegisterRequest,
+  BasicLoginRequest,
+  BasicRegisterRequest,
+  AuthResponse,
+  LoginResult,
+  User,
+} from "@/types";

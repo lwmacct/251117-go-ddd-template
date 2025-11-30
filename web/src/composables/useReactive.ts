@@ -171,11 +171,7 @@ export function reactiveHistory<T extends object>(
   initial: T,
   options: ReactiveHistoryOptions = {}
 ): ReactiveHistoryReturn<T> {
-  const {
-    capacity = 10,
-    deep = true,
-    clone = (v) => JSON.parse(JSON.stringify(v)),
-  } = options;
+  const { capacity = 10, deep = true, clone = (v) => JSON.parse(JSON.stringify(v)) } = options;
 
   const state = reactive(clone(initial)) as UnwrapNestedRefs<T>;
   const history = ref<T[]>([]) as Ref<T[]>;
@@ -271,9 +267,7 @@ export function reactiveHistory<T extends object>(
  * })
  * ```
  */
-export function reactiveForm<T extends object>(
-  initial: T
-): ReactiveFormReturn<T> {
+export function reactiveForm<T extends object>(initial: T): ReactiveFormReturn<T> {
   const initialSnapshot = JSON.parse(JSON.stringify(initial));
   const data = reactive(JSON.parse(JSON.stringify(initial))) as UnwrapNestedRefs<T>;
   const isSubmitting = ref(false);
@@ -338,10 +332,7 @@ export function reactiveForm<T extends object>(
  * // picked = reactive({ id: 1, name: 'John' })
  * ```
  */
-export function reactivePick<T extends object, K extends keyof T>(
-  source: T,
-  keys: K[]
-): UnwrapNestedRefs<Pick<T, K>> {
+export function reactivePick<T extends object, K extends keyof T>(source: T, keys: K[]): UnwrapNestedRefs<Pick<T, K>> {
   const picked = {} as Pick<T, K>;
   for (const key of keys) {
     picked[key] = source[key];
@@ -361,10 +352,7 @@ export function reactivePick<T extends object, K extends keyof T>(
  * // safe = reactive({ id: 1, name: 'John' })
  * ```
  */
-export function reactiveOmit<T extends object, K extends keyof T>(
-  source: T,
-  keys: K[]
-): UnwrapNestedRefs<Omit<T, K>> {
+export function reactiveOmit<T extends object, K extends keyof T>(source: T, keys: K[]): UnwrapNestedRefs<Omit<T, K>> {
   const omitted = { ...source };
   for (const key of keys) {
     delete omitted[key];
@@ -387,9 +375,7 @@ export function reactiveOmit<T extends object, K extends keyof T>(
  * // merged = reactive({ a: 1, b: 2, c: 3 })
  * ```
  */
-export function reactiveMerge<T extends object[]>(
-  ...sources: T
-): UnwrapNestedRefs<T[number]> {
+export function reactiveMerge<T extends object[]>(...sources: T): UnwrapNestedRefs<T[number]> {
   const merged = Object.assign({}, ...sources);
   return reactive(merged) as UnwrapNestedRefs<T[number]>;
 }
@@ -405,9 +391,7 @@ export function reactiveMerge<T extends object[]>(
  * state.name = null // 自动回退到 ''
  * ```
  */
-export function reactiveDefault<T extends object>(
-  defaults: T
-): UnwrapNestedRefs<T> {
+export function reactiveDefault<T extends object>(defaults: T): UnwrapNestedRefs<T> {
   const state = reactive(JSON.parse(JSON.stringify(defaults))) as UnwrapNestedRefs<T>;
 
   return new Proxy(state, {
@@ -435,10 +419,7 @@ export function reactiveDefault<T extends object>(
  * // extended 包含 name 和 age
  * ```
  */
-export function reactiveExtend<T extends object, E extends object>(
-  source: T,
-  extension: E
-): UnwrapNestedRefs<T & E> {
+export function reactiveExtend<T extends object, E extends object>(source: T, extension: E): UnwrapNestedRefs<T & E> {
   const extended = Object.assign({}, toRaw(source), extension);
   return reactive(extended) as UnwrapNestedRefs<T & E>;
 }

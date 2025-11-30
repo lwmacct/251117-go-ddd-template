@@ -43,7 +43,11 @@ const form = ref();
 
 // 验证规则
 const rules = {
-  username: [(v: string) => !!v || "用户名不能为空", (v: string) => (v && v.length >= 3) || "用户名至少3个字符", (v: string) => /^[a-zA-Z0-9_]+$/.test(v) || "用户名只能包含字母、数字和下划线"],
+  username: [
+    (v: string) => !!v || "用户名不能为空",
+    (v: string) => (v && v.length >= 3) || "用户名至少3个字符",
+    (v: string) => /^[a-zA-Z0-9_]+$/.test(v) || "用户名只能包含字母、数字和下划线",
+  ],
   email: [(v: string) => !!v || "邮箱不能为空", (v: string) => /.+@.+\..+/.test(v) || "邮箱格式不正确"],
   password: [
     (v: string) => {
@@ -94,7 +98,7 @@ watch(
       resetForm();
     }
   },
-  { immediate: true },
+  { immediate: true }
 );
 
 // 关闭对话框
@@ -131,7 +135,12 @@ const handleSave = async () => {
 </script>
 
 <template>
-  <v-dialog :model-value="modelValue" @update:model-value="emit('update:modelValue', $event)" max-width="600" persistent>
+  <v-dialog
+    :model-value="modelValue"
+    max-width="600"
+    persistent
+    @update:model-value="emit('update:modelValue', $event)"
+  >
     <v-card>
       <v-card-title>
         <span class="text-h5">{{ dialogTitle }}</span>
@@ -139,16 +148,55 @@ const handleSave = async () => {
 
       <v-card-text>
         <v-form ref="form" v-model="valid">
-          <v-text-field v-model="formData.username" label="用户名" :rules="rules.username" :disabled="mode === 'edit'" variant="outlined" density="comfortable" class="mb-2" hint="只能包含字母、数字和下划线" persistent-hint></v-text-field>
+          <v-text-field
+            v-model="formData.username"
+            label="用户名"
+            :rules="rules.username"
+            :disabled="mode === 'edit'"
+            variant="outlined"
+            density="comfortable"
+            class="mb-2"
+            hint="只能包含字母、数字和下划线"
+            persistent-hint
+          ></v-text-field>
 
-          <v-text-field v-model="formData.email" label="邮箱" type="email" :rules="rules.email" variant="outlined" density="comfortable" class="mb-2"></v-text-field>
+          <v-text-field
+            v-model="formData.email"
+            label="邮箱"
+            type="email"
+            :rules="rules.email"
+            variant="outlined"
+            density="comfortable"
+            class="mb-2"
+          ></v-text-field>
 
-          <v-text-field v-model="formData.password" label="密码" type="password" :rules="rules.password" variant="outlined" density="comfortable" class="mb-2" :hint="mode === 'edit' ? '留空则不修改密码' : '至少6个字符'" persistent-hint></v-text-field>
+          <v-text-field
+            v-model="formData.password"
+            label="密码"
+            type="password"
+            :rules="rules.password"
+            variant="outlined"
+            density="comfortable"
+            class="mb-2"
+            :hint="mode === 'edit' ? '留空则不修改密码' : '至少6个字符'"
+            persistent-hint
+          ></v-text-field>
 
           <!-- 密码强度指示器（仅创建模式显示） -->
-          <PasswordStrengthIndicator v-if="mode === 'create'" :password="formData.password" :show-hints="false" class="mb-4" />
+          <PasswordStrengthIndicator
+            v-if="mode === 'create'"
+            :password="formData.password"
+            :show-hints="false"
+            class="mb-4"
+          />
 
-          <v-text-field v-model="formData.full_name" label="全名（可选）" variant="outlined" density="comfortable" class="mb-2"></v-text-field>
+          <v-text-field
+            v-model="formData.full_name"
+            label="全名（可选）"
+            variant="outlined"
+            density="comfortable"
+            class="mb-2"
+          ></v-text-field>
 
           <v-select
             v-model="formData.status"
@@ -175,7 +223,7 @@ const handleSave = async () => {
       <v-card-actions>
         <v-spacer></v-spacer>
         <v-btn variant="text" @click="closeDialog">取消</v-btn>
-        <v-btn color="primary" variant="elevated" @click="handleSave" :disabled="!valid">保存</v-btn>
+        <v-btn color="primary" variant="elevated" :disabled="!valid" @click="handleSave">保存</v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>

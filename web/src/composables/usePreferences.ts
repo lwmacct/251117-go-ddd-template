@@ -59,9 +59,7 @@ export interface UsePreferredColorSchemeReturn {
  * })
  */
 export function usePreferredDark(): UsePreferredDarkReturn {
-  const isSupported = computed(
-    () => typeof window !== "undefined" && "matchMedia" in window
-  );
+  const isSupported = computed(() => typeof window !== "undefined" && "matchMedia" in window);
 
   const isDark = ref(false);
   let mediaQuery: MediaQueryList | null = null;
@@ -101,17 +99,11 @@ export function usePreferredDark(): UsePreferredDarkReturn {
  * console.log(language.value) // 'zh-CN'
  */
 export function usePreferredLanguage(): UsePreferredLanguageReturn {
-  const isSupported = computed(
-    () => typeof navigator !== "undefined" && "languages" in navigator
-  );
+  const isSupported = computed(() => typeof navigator !== "undefined" && "languages" in navigator);
 
-  const language = ref(
-    typeof navigator !== "undefined" ? navigator.language : "en"
-  );
+  const language = ref(typeof navigator !== "undefined" ? navigator.language : "en");
 
-  const languages = ref<readonly string[]>(
-    typeof navigator !== "undefined" ? navigator.languages : ["en"]
-  );
+  const languages = ref<readonly string[]>(typeof navigator !== "undefined" ? navigator.languages : ["en"]);
 
   if (isSupported.value) {
     const handleLanguageChange = () => {
@@ -142,9 +134,7 @@ export function usePreferredLanguage(): UsePreferredLanguageReturn {
  * )
  */
 export function usePreferredReducedMotion(): UsePreferredReducedMotionReturn {
-  const isSupported = computed(
-    () => typeof window !== "undefined" && "matchMedia" in window
-  );
+  const isSupported = computed(() => typeof window !== "undefined" && "matchMedia" in window);
 
   const isReduced = ref(false);
   let mediaQuery: MediaQueryList | null = null;
@@ -183,13 +173,9 @@ export function usePreferredReducedMotion(): UsePreferredReducedMotionReturn {
  * // contrast.value: 'more' | 'less' | 'custom' | 'no-preference'
  */
 export function usePreferredContrast(): UsePreferredContrastReturn {
-  const isSupported = computed(
-    () => typeof window !== "undefined" && "matchMedia" in window
-  );
+  const isSupported = computed(() => typeof window !== "undefined" && "matchMedia" in window);
 
-  const contrast = ref<"more" | "less" | "custom" | "no-preference">(
-    "no-preference"
-  );
+  const contrast = ref<"more" | "less" | "custom" | "no-preference">("no-preference");
 
   const update = () => {
     if (window.matchMedia("(prefers-contrast: more)").matches) {
@@ -239,9 +225,7 @@ export function usePreferredContrast(): UsePreferredContrastReturn {
  * // colorScheme.value: 'light' | 'dark' | 'no-preference'
  */
 export function usePreferredColorScheme(): UsePreferredColorSchemeReturn {
-  const isSupported = computed(
-    () => typeof window !== "undefined" && "matchMedia" in window
-  );
+  const isSupported = computed(() => typeof window !== "undefined" && "matchMedia" in window);
 
   const colorScheme = ref<"light" | "dark" | "no-preference">("no-preference");
 
@@ -554,9 +538,7 @@ export interface UsePreferredTransparencyReturn {
  * const { isReduced } = usePreferredTransparency()
  */
 export function usePreferredTransparency(): UsePreferredTransparencyReturn {
-  const isSupported = computed(
-    () => typeof window !== "undefined" && "matchMedia" in window
-  );
+  const isSupported = computed(() => typeof window !== "undefined" && "matchMedia" in window);
 
   const isReduced = ref(false);
 

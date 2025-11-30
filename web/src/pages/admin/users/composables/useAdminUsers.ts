@@ -199,10 +199,13 @@ export function useAdminUsers() {
         { header: "用户名", key: "username" },
         { header: "邮箱", key: "email" },
         { header: "姓名", key: "full_name" },
-        { header: "状态", key: (item) => (item.status === "active" ? "启用" : item.status === "inactive" ? "禁用" : "封禁") },
+        {
+          header: "状态",
+          key: (item) => (item.status === "active" ? "启用" : item.status === "inactive" ? "禁用" : "封禁"),
+        },
         {
           header: "角色",
-          key: (item) => (item.roles?.map((r) => r.display_name).join(", ") || "-"),
+          key: (item) => item.roles?.map((r) => r.display_name).join(", ") || "-",
         },
         {
           header: "创建时间",

@@ -92,10 +92,7 @@ const navigateTo = (item: BreadcrumbItem) => {
 
         <!-- 面包屑项 -->
         <span
-          :class="[
-            'd-flex align-center',
-            item.disabled ? 'text-medium-emphasis' : 'breadcrumb-link cursor-pointer',
-          ]"
+          :class="['d-flex align-center', item.disabled ? 'text-medium-emphasis' : 'breadcrumb-link cursor-pointer']"
           @click="!item.disabled && navigateTo(item)"
         >
           <v-icon v-if="item.icon && index === 0" :icon="item.icon" size="small" class="mr-1" />

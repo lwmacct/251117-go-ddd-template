@@ -150,20 +150,14 @@ export function useStorage<T>(
 /**
  * 快捷方法：localStorage
  */
-export function useLocalStorage<T>(
-  key: string,
-  options: Omit<UseStorageOptions<T>, "storage"> = {}
-) {
+export function useLocalStorage<T>(key: string, options: Omit<UseStorageOptions<T>, "storage"> = {}) {
   return useStorage<T>(key, { ...options, storage: "local" });
 }
 
 /**
  * 快捷方法：sessionStorage
  */
-export function useSessionStorage<T>(
-  key: string,
-  options: Omit<UseStorageOptions<T>, "storage"> = {}
-) {
+export function useSessionStorage<T>(key: string, options: Omit<UseStorageOptions<T>, "storage"> = {}) {
   return useStorage<T>(key, { ...options, storage: "session" });
 }
 

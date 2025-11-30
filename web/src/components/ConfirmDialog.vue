@@ -110,12 +110,7 @@ const handleConfirm = () => {
         <v-btn variant="text" :disabled="loading" @click="handleClose">
           {{ cancelText }}
         </v-btn>
-        <v-btn
-          :color="typeConfig.confirmColor"
-          variant="elevated"
-          :loading="loading"
-          @click="handleConfirm"
-        >
+        <v-btn :color="typeConfig.confirmColor" variant="elevated" :loading="loading" @click="handleConfirm">
           {{ typeConfig.confirmText }}
         </v-btn>
       </v-card-actions>

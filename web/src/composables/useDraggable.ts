@@ -73,10 +73,7 @@ export interface DragContainerProps {
  * //   {{ item }}
  * // </div>
  */
-export function useSortable<T>(
-  items: Ref<T[]>,
-  options: UseSortableOptions<T> = {}
-): UseDraggableReturn<T> {
+export function useSortable<T>(items: Ref<T[]>, options: UseSortableOptions<T> = {}): UseDraggableReturn<T> {
   const { onDragStart, onDragEnd, onSort, disabled = false } = options;
 
   const isDragging = ref(false);
@@ -130,11 +127,7 @@ export function useSortable<T>(
       const oldIndex = dragIndex.value;
       const newIndex = overIndex.value;
 
-      if (
-        oldIndex !== null &&
-        newIndex !== null &&
-        oldIndex !== newIndex
-      ) {
+      if (oldIndex !== null && newIndex !== null && oldIndex !== newIndex) {
         onDragEnd?.(items.value[oldIndex], oldIndex, newIndex);
       }
 
@@ -252,13 +245,7 @@ export interface UseFileDropOptions {
  * })
  */
 export function useFileDrop(options: UseFileDropOptions = {}) {
-  const {
-    accept = [],
-    multiple = true,
-    maxSize,
-    onDrop,
-    onError,
-  } = options;
+  const { accept = [], multiple = true, maxSize, onDrop, onError } = options;
 
   const isDragOver = ref(false);
   const files = ref<File[]>([]);

@@ -5,12 +5,10 @@ import App from "./App.vue";
 import router from "./router";
 import { useAuthStore } from "@/stores/auth";
 
-// https://vuetifyjs.com/en/introduction/why-vuetify/
+// Vuetify 样式和图标
 import "vuetify/styles";
 import "@mdi/font/css/materialdesignicons.css";
 import { createVuetify } from "vuetify";
-import * as components from "vuetify/components";
-import * as directives from "vuetify/directives";
 import { aliases, mdi } from "vuetify/iconsets/mdi";
 
 const app = createApp(App);
@@ -27,9 +25,8 @@ function getDefaultTheme(): string {
   return storedTheme === "dark" ? "dark" : "light";
 }
 
+// Vuetify 配置 - 组件和指令由 vite-plugin-vuetify 自动按需导入
 const vuetify = createVuetify({
-  components,
-  directives,
   icons: {
     defaultSet: "mdi",
     aliases,

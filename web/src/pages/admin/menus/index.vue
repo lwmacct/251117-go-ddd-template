@@ -5,7 +5,19 @@ import MenuDialog from "./components/MenuDialog.vue";
 import MenuTree from "./components/MenuTree.vue";
 import type { Menu, CreateMenuRequest, UpdateMenuRequest } from "@/types/admin";
 
-const { menus, loading, errorMessage, successMessage, fetchMenus, createMenu, updateMenu, deleteMenu, reorderMenus, clearMessages, exportMenus } = useMenus();
+const {
+  menus,
+  loading,
+  errorMessage,
+  successMessage,
+  fetchMenus,
+  createMenu,
+  updateMenu,
+  deleteMenu,
+  reorderMenus,
+  clearMessages,
+  exportMenus,
+} = useMenus();
 
 const menuDialog = ref(false);
 const deleteDialog = ref(false);
@@ -123,7 +135,7 @@ const handleMenusReorder = async (updatedMenus: Menu[]) => {
                 </v-btn-toggle>
               </v-col>
               <v-col cols="12" md="6" class="text-right">
-                <v-btn variant="outlined" class="mr-2" @click="exportMenus" :loading="loading">
+                <v-btn variant="outlined" class="mr-2" :loading="loading" @click="exportMenus">
                   <v-icon start>mdi-download</v-icon>
                   导出
                 </v-btn>
@@ -140,7 +152,13 @@ const handleMenusReorder = async (updatedMenus: Menu[]) => {
 
             <!-- 树形视图 -->
             <div v-if="viewMode === 'tree' && !loading">
-              <MenuTree v-if="menus.length > 0" :menus="menus" @edit="openEditDialog" @delete="openDeleteDialog" @update:menus="handleMenusReorder" />
+              <MenuTree
+                v-if="menus.length > 0"
+                :menus="menus"
+                @edit="openEditDialog"
+                @delete="openDeleteDialog"
+                @update:menus="handleMenusReorder"
+              />
               <v-alert v-else type="info">暂无菜单，点击"新建菜单"创建第一个菜单</v-alert>
             </div>
 
@@ -174,11 +192,19 @@ const handleMenusReorder = async (updatedMenus: Menu[]) => {
                         </td>
                         <td>{{ menu.order }}</td>
                         <td>
-                          <v-chip :color="menu.visible ? 'success' : 'error'" size="small">{{ menu.visible ? "是" : "否" }}</v-chip>
+                          <v-chip :color="menu.visible ? 'success' : 'error'" size="small">{{
+                            menu.visible ? "是" : "否"
+                          }}</v-chip>
                         </td>
                         <td>
                           <v-btn icon="mdi-pencil" size="small" variant="text" @click="openEditDialog(menu)"></v-btn>
-                          <v-btn icon="mdi-delete" size="small" variant="text" color="error" @click="openDeleteDialog(menu)"></v-btn>
+                          <v-btn
+                            icon="mdi-delete"
+                            size="small"
+                            variant="text"
+                            color="error"
+                            @click="openDeleteDialog(menu)"
+                          ></v-btn>
                         </td>
                       </tr>
                     </template>
@@ -191,19 +217,32 @@ const handleMenusReorder = async (updatedMenus: Menu[]) => {
       </v-col>
     </v-row>
 
-    <MenuDialog v-model="menuDialog" :menu="selectedMenu" :mode="dialogMode" :parent-menus="menus" @save="handleSaveMenu" />
+    <MenuDialog
+      v-model="menuDialog"
+      :menu="selectedMenu"
+      :mode="dialogMode"
+      :parent-menus="menus"
+      @save="handleSaveMenu"
+    />
 
     <v-dialog v-model="deleteDialog" max-width="400">
       <v-card>
         <v-card-title class="text-h5">确认删除</v-card-title>
         <v-card-text>
           确定要删除菜单 <strong>{{ menuToDelete?.title }}</strong> 吗？
-          <v-alert v-if="menuToDelete?.children && menuToDelete.children.length > 0" type="warning" class="mt-2" density="compact"> 该菜单有子菜单，请先删除子菜单 </v-alert>
+          <v-alert
+            v-if="menuToDelete?.children && menuToDelete.children.length > 0"
+            type="warning"
+            class="mt-2"
+            density="compact"
+          >
+            该菜单有子菜单，请先删除子菜单
+          </v-alert>
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn variant="text" @click="deleteDialog = false">取消</v-btn>
-          <v-btn color="error" variant="elevated" @click="confirmDelete" :loading="loading">删除</v-btn>
+          <v-btn color="error" variant="elevated" :loading="loading" @click="confirmDelete">删除</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>

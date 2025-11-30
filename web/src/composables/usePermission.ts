@@ -162,9 +162,7 @@ export interface UseNotificationPermissionReturn {
  */
 export function useNotificationPermission(): UseNotificationPermissionReturn {
   const isSupported = ref(typeof window !== "undefined" && "Notification" in window);
-  const permission = ref<NotificationPermission>(
-    isSupported.value ? Notification.permission : "denied"
-  );
+  const permission = ref<NotificationPermission>(isSupported.value ? Notification.permission : "denied");
 
   const isGranted = computed(() => permission.value === "granted");
   const isDenied = computed(() => permission.value === "denied");
@@ -182,10 +180,7 @@ export function useNotificationPermission(): UseNotificationPermissionReturn {
     }
   };
 
-  const notify = (
-    title: string,
-    options?: NotificationOptions
-  ): Notification | null => {
+  const notify = (title: string, options?: NotificationOptions): Notification | null => {
     if (!isSupported.value || !isGranted.value) {
       return null;
     }

@@ -41,7 +41,7 @@ watch(
   (newUser) => {
     resetFormFromUser(newUser);
   },
-  { immediate: true },
+  { immediate: true }
 );
 
 /**
@@ -122,7 +122,14 @@ watch(dialogVisible, (isOpen, wasOpen) => {
       <v-btn color="primary" prepend-icon="mdi-pencil" @click="openDialog"> 编辑资料 </v-btn>
     </div>
 
-    <v-alert v-if="successMessage" type="success" density="compact" class="mt-4" closable @click:close="successMessage = ''">
+    <v-alert
+      v-if="successMessage"
+      type="success"
+      density="compact"
+      class="mt-4"
+      closable
+      @click:close="successMessage = ''"
+    >
       {{ successMessage }}
     </v-alert>
 
@@ -133,7 +140,14 @@ watch(dialogVisible, (isOpen, wasOpen) => {
           编辑个人资料
         </v-card-title>
         <v-card-text>
-          <v-alert v-if="errorMessage" type="error" density="compact" class="mb-4" closable @click:close="errorMessage = ''">
+          <v-alert
+            v-if="errorMessage"
+            type="error"
+            density="compact"
+            class="mb-4"
+            closable
+            @click:close="errorMessage = ''"
+          >
             {{ errorMessage }}
           </v-alert>
           <v-form @submit.prevent="handleSubmit">
@@ -142,9 +156,22 @@ watch(dialogVisible, (isOpen, wasOpen) => {
               <AvatarUploader v-model="formData.avatar" :size="120" :max-size="2" />
             </div>
 
-            <v-text-field v-model="formData.full_name" label="姓名" variant="outlined" placeholder="请输入您的姓名" class="mb-4" />
+            <v-text-field
+              v-model="formData.full_name"
+              label="姓名"
+              variant="outlined"
+              placeholder="请输入您的姓名"
+              class="mb-4"
+            />
 
-            <v-textarea v-model="formData.bio" label="个人简介" variant="outlined" placeholder="介绍一下自己..." rows="3" class="mb-4" />
+            <v-textarea
+              v-model="formData.bio"
+              label="个人简介"
+              variant="outlined"
+              placeholder="介绍一下自己..."
+              rows="3"
+              class="mb-4"
+            />
 
             <v-divider class="my-4" />
 

@@ -200,8 +200,7 @@ export function useAsyncRetry<T, P extends unknown[] = []>(
 
   const retryCount = ref(0);
 
-  const sleep = (ms: number) =>
-    new Promise((resolve) => setTimeout(resolve, ms));
+  const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
   const wrappedFn = async (...args: P): Promise<T> => {
     retryCount.value = 0;
@@ -261,12 +260,7 @@ export function usePolling<T, P extends unknown[] = []>(
   fn: (...args: P) => Promise<T>,
   options: UsePollingOptions<T> = {}
 ) {
-  const {
-    interval = 5000,
-    immediate = false,
-    pauseOnHidden = true,
-    ...asyncOptions
-  } = options;
+  const { interval = 5000, immediate = false, pauseOnHidden = true, ...asyncOptions } = options;
 
   const isPolling = ref(false);
   let timer: ReturnType<typeof setInterval> | null = null;
@@ -344,10 +338,7 @@ export function usePolling<T, P extends unknown[] = []>(
  *   watch: [userId]
  * })
  */
-export function useAsyncRef<T>(
-  fn: () => Promise<T>,
-  options: UseAsyncStateOptions<T> & { watch?: unknown[] } = {}
-) {
+export function useAsyncRef<T>(fn: () => Promise<T>, options: UseAsyncStateOptions<T> & { watch?: unknown[] } = {}) {
   const { watch: watchSources, immediate = true, ...asyncOptions } = options;
 
   const asyncState = useAsyncState(fn, { ...asyncOptions, immediate });

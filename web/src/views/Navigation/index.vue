@@ -79,10 +79,27 @@ const activeItem = computed(() => {
 </script>
 
 <template>
-  <v-navigation-drawer :model-value="true" :rail="rail" :width="width" :rail-width="railWidth" :border="border" :permanent="permanent" :color="color">
+  <v-navigation-drawer
+    :model-value="true"
+    :rail="rail"
+    :width="width"
+    :rail-width="railWidth"
+    :border="border"
+    :permanent="permanent"
+    :color="color"
+  >
     <!-- 菜单列表 -->
     <v-list nav density="compact" bg-color="transparent">
-      <v-list-item v-for="item in items" :key="item.path" :to="item.path" :active="isActive(item)" :prepend-icon="showIcon ? item.icon : undefined" :title="item.title" :value="item.path" rounded="lg">
+      <v-list-item
+        v-for="item in items"
+        :key="item.path"
+        :to="item.path"
+        :active="isActive(item)"
+        :prepend-icon="showIcon ? item.icon : undefined"
+        :title="item.title"
+        :value="item.path"
+        rounded="lg"
+      >
         <!-- 折叠状态下的 Tooltip -->
         <v-tooltip v-if="rail" activator="parent" location="end" :text="item.title" />
 

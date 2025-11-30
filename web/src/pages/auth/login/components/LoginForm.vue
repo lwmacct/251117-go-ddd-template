@@ -61,7 +61,16 @@ onMounted(() => {
             persistent-hint
           ></v-text-field>
 
-          <v-text-field v-model="loginStore.password.value" label="密码" prepend-inner-icon="mdi-lock" variant="outlined" type="password" required class="mb-4" :disabled="loginStore.isLoading.value"></v-text-field>
+          <v-text-field
+            v-model="loginStore.password.value"
+            label="密码"
+            prepend-inner-icon="mdi-lock"
+            variant="outlined"
+            type="password"
+            required
+            class="mb-4"
+            :disabled="loginStore.isLoading.value"
+          ></v-text-field>
 
           <!-- 验证码 -->
           <div class="mb-4">
@@ -79,7 +88,12 @@ onMounted(() => {
               ></v-text-field>
 
               <!-- 验证码图片 -->
-              <div v-if="loginStore.captchaData" class="captcha-image" @click="loginStore.fetchCaptcha" title="点击刷新验证码">
+              <div
+                v-if="loginStore.captchaData"
+                class="captcha-image"
+                title="点击刷新验证码"
+                @click="loginStore.fetchCaptcha"
+              >
                 <img :src="loginStore.captchaImage.value" alt="验证码" />
               </div>
 
@@ -90,14 +104,31 @@ onMounted(() => {
             </div>
           </div>
 
-          <v-btn color="primary" variant="elevated" prepend-icon="mdi-login" block size="large" type="submit" :loading="loginStore.isLoading.value" :disabled="!loginStore.isFormValid.value" class="mt-2">
+          <v-btn
+            color="primary"
+            variant="elevated"
+            prepend-icon="mdi-login"
+            block
+            size="large"
+            type="submit"
+            :loading="loginStore.isLoading.value"
+            :disabled="!loginStore.isFormValid.value"
+            class="mt-2"
+          >
             {{ loginStore.isLoading.value ? "登录中..." : "登录" }}
           </v-btn>
 
           <!-- 错误提示区域 - 预留固定空间 -->
           <div class="error-message-area mt-3">
             <v-fade-transition>
-              <v-alert v-if="loginStore.errorMessage.value" type="error" density="compact" variant="tonal" closable @click:close="loginStore.errorMessage.value = ''">
+              <v-alert
+                v-if="loginStore.errorMessage.value"
+                type="error"
+                density="compact"
+                variant="tonal"
+                closable
+                @click:close="loginStore.errorMessage.value = ''"
+              >
                 {{ loginStore.errorMessage.value }}
               </v-alert>
             </v-fade-transition>
@@ -112,7 +143,9 @@ onMounted(() => {
       </v-card-text>
 
       <v-card-actions class="justify-center pb-6 flex-column gap-2">
-        <v-btn @click="router.push('/auth/register')" variant="text" prepend-icon="mdi-account-plus"> 没有账号？去注册 </v-btn>
+        <v-btn variant="text" prepend-icon="mdi-account-plus" @click="router.push('/auth/register')">
+          没有账号？去注册
+        </v-btn>
       </v-card-actions>
     </v-card>
   </div>

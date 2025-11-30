@@ -29,7 +29,10 @@ function parseKeyString(keyString: string): {
   alt: boolean;
   meta: boolean;
 } {
-  const parts = keyString.toLowerCase().split("+").map((p) => p.trim());
+  const parts = keyString
+    .toLowerCase()
+    .split("+")
+    .map((p) => p.trim());
   const key = parts[parts.length - 1] || "";
 
   return {
@@ -44,10 +47,7 @@ function parseKeyString(keyString: string): {
 /**
  * 检查事件是否匹配快捷键
  */
-function matchesShortcut(
-  event: KeyboardEvent,
-  parsed: ReturnType<typeof parseKeyString>
-): boolean {
+function matchesShortcut(event: KeyboardEvent, parsed: ReturnType<typeof parseKeyString>): boolean {
   const eventKey = event.key.toLowerCase();
 
   // 检查修饰键
@@ -76,10 +76,7 @@ export function useKeyboard(shortcuts: KeyboardShortcut[]) {
 
     // 跳过输入框中的快捷键（除非是 Escape）
     const target = event.target as HTMLElement;
-    const isInput =
-      target.tagName === "INPUT" ||
-      target.tagName === "TEXTAREA" ||
-      target.isContentEditable;
+    const isInput = target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable;
 
     for (const shortcut of parsedShortcuts) {
       // 检查是否匹配

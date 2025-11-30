@@ -67,7 +67,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <v-dialog :model-value="modelValue" @update:model-value="emit('update:modelValue', $event)" max-width="500">
+  <v-dialog :model-value="modelValue" max-width="500" @update:model-value="emit('update:modelValue', $event)">
     <v-card>
       <v-card-title>
         <span class="text-h5">分配角色</span>
@@ -103,7 +103,7 @@ onMounted(() => {
       <v-card-actions>
         <v-spacer></v-spacer>
         <v-btn variant="text" @click="closeDialog">取消</v-btn>
-        <v-btn color="primary" variant="elevated" @click="handleSave" :disabled="loading">保存</v-btn>
+        <v-btn color="primary" variant="elevated" :disabled="loading" @click="handleSave">保存</v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>

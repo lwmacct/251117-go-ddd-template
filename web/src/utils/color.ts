@@ -69,9 +69,7 @@ export function parseHex(hex: string): RGBA {
  * parseRgb('rgba(255, 0, 0, 0.5)') // { r: 255, g: 0, b: 0, a: 0.5 }
  */
 export function parseRgb(rgb: string): RGBA {
-  const match = rgb.match(
-    /rgba?\s*\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*(?:,\s*([\d.]+))?\s*\)/i
-  );
+  const match = rgb.match(/rgba?\s*\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*(?:,\s*([\d.]+))?\s*\)/i);
 
   if (!match) {
     throw new Error(`Invalid RGB string: ${rgb}`);
@@ -91,9 +89,7 @@ export function parseRgb(rgb: string): RGBA {
  * parseHsl('hsl(0, 100%, 50%)') // { h: 0, s: 100, l: 50, a: 1 }
  */
 export function parseHsl(hsl: string): HSLA {
-  const match = hsl.match(
-    /hsla?\s*\(\s*([\d.]+)\s*,\s*([\d.]+)%\s*,\s*([\d.]+)%\s*(?:,\s*([\d.]+))?\s*\)/i
-  );
+  const match = hsl.match(/hsla?\s*\(\s*([\d.]+)\s*,\s*([\d.]+)%\s*,\s*([\d.]+)%\s*(?:,\s*([\d.]+))?\s*\)/i);
 
   if (!match) {
     throw new Error(`Invalid HSL string: ${hsl}`);

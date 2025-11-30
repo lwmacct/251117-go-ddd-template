@@ -130,12 +130,8 @@ export function structuredClonePolyfill<T>(source: T): T {
  * // 重置为源值
  * reset()
  */
-export function useCloned<T>(
-  source: Ref<T> | T,
-  options: UseClonedOptions<T> = {}
-): UseClonedReturn<T> {
-  const { deep = true, immediate = true, clone = deepClone, manual = false } =
-    options;
+export function useCloned<T>(source: Ref<T> | T, options: UseClonedOptions<T> = {}): UseClonedReturn<T> {
+  const { deep = true, immediate = true, clone = deepClone, manual = false } = options;
 
   const getSource = () => {
     const value = isRef(source) ? source.value : source;
@@ -219,10 +215,7 @@ export interface UseManualCloneReturn<T> {
  *   reset()
  * }
  */
-export function useManualClone<T>(
-  source: Ref<T>,
-  cloneFn: (source: T) => T = deepClone
-): UseManualCloneReturn<T> {
+export function useManualClone<T>(source: Ref<T>, cloneFn: (source: T) => T = deepClone): UseManualCloneReturn<T> {
   const cloned = ref<T>(cloneFn(toRaw(source.value))) as Ref<T>;
 
   const clone = () => {
@@ -238,10 +231,7 @@ export function useManualClone<T>(
   };
 
   const isModified = computed(() => {
-    return (
-      JSON.stringify(toRaw(cloned.value)) !==
-      JSON.stringify(toRaw(source.value))
-    );
+    return JSON.stringify(toRaw(cloned.value)) !== JSON.stringify(toRaw(source.value));
   });
 
   return {
@@ -290,17 +280,12 @@ export interface UseDirtyStateReturn<T> {
  * // 或重置为初始状态
  * reset()
  */
-export function useDirtyState<T extends object>(
-  initialState: T
-): UseDirtyStateReturn<T> {
+export function useDirtyState<T extends object>(initialState: T): UseDirtyStateReturn<T> {
   const cleanState = ref<T>(deepClone(initialState)) as Ref<T>;
   const state = ref<T>(deepClone(initialState)) as Ref<T>;
 
   const isDirty = computed(() => {
-    return (
-      JSON.stringify(toRaw(state.value)) !==
-      JSON.stringify(toRaw(cleanState.value))
-    );
+    return JSON.stringify(toRaw(state.value)) !== JSON.stringify(toRaw(cleanState.value));
   });
 
   const dirtyFields = computed(() => {
@@ -466,10 +451,7 @@ export interface UseSyncedRefReturn<T> {
  * local.value = 'World'
  * // 500ms 后自动同步到 external
  */
-export function useSyncedRef<T>(
-  source: Ref<T>,
-  options: UseSyncedRefOptions = {}
-): UseSyncedRefReturn<T> {
+export function useSyncedRef<T>(source: Ref<T>, options: UseSyncedRefOptions = {}): UseSyncedRefReturn<T> {
   const { delay = 0, deep = true } = options;
 
   const local = ref<T>(unref(source)) as Ref<T>;

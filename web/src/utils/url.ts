@@ -130,10 +130,7 @@ export function parseQuery(query: string): QueryParams {
  * buildQuery({ a: '1', b: '2' }) // 'a=1&b=2'
  * buildQuery({ a: ['1', '2'] }) // 'a=1&a=2'
  */
-export function buildQuery(
-  params: QueryParams,
-  options: { encode?: boolean; prefix?: boolean } = {}
-): string {
+export function buildQuery(params: QueryParams, options: { encode?: boolean; prefix?: boolean } = {}): string {
   const { encode = true, prefix = false } = options;
 
   const searchParams = new URLSearchParams();
@@ -162,10 +159,7 @@ export function buildQuery(
  * getQueryParam('https://example.com?a=1&b=2', 'a') // '1'
  * getQueryParam('?a=1&a=2', 'a') // ['1', '2']
  */
-export function getQueryParam(
-  url: string,
-  key: string
-): string | string[] | undefined {
+export function getQueryParam(url: string, key: string): string | string[] | undefined {
   const search = url.includes("?") ? url.split("?")[1].split("#")[0] : url;
   const params = parseQuery(search);
   return params[key];
@@ -177,11 +171,7 @@ export function getQueryParam(
  * setQueryParam('https://example.com?a=1', 'b', '2')
  * // 'https://example.com?a=1&b=2'
  */
-export function setQueryParam(
-  url: string,
-  key: string,
-  value: string | string[]
-): string {
+export function setQueryParam(url: string, key: string, value: string | string[]): string {
   const parsed = new URL(url, "http://localhost");
   const params = parseQuery(parsed.search);
 
@@ -447,16 +437,7 @@ export interface URLBuilderOptions {
  * // 'https://example.com/path?a=1&b=2'
  */
 export function buildURL(options: URLBuilderOptions): string {
-  const {
-    protocol = "https",
-    hostname = "localhost",
-    port,
-    pathname = "/",
-    query,
-    hash,
-    username,
-    password,
-  } = options;
+  const { protocol = "https", hostname = "localhost", port, pathname = "/", query, hash, username, password } = options;
 
   let url = `${protocol}://${hostname}`;
 

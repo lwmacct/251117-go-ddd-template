@@ -63,13 +63,7 @@ export interface UseMousePressedReturn {
  * // x.value 和 y.value 会随鼠标移动自动更新
  */
 export function useMouse(options: UseMouseOptions = {}): UseMouseReturn {
-  const {
-    target,
-    type = "page",
-    touch = true,
-    immediate = true,
-    initialValue = { x: 0, y: 0 },
-  } = options;
+  const { target, type = "page", touch = true, immediate = true, initialValue = { x: 0, y: 0 } } = options;
 
   const x = ref(initialValue.x);
   const y = ref(initialValue.y);
@@ -166,9 +160,7 @@ export function useMouse(options: UseMouseOptions = {}): UseMouseReturn {
  * const { pressed, button } = useMousePressed()
  * // pressed.value 为 true 时表示鼠标按下
  */
-export function useMousePressed(
-  options: UseMousePressedOptions = {}
-): UseMousePressedReturn {
+export function useMousePressed(options: UseMousePressedOptions = {}): UseMousePressedReturn {
   const { target, touch = true } = options;
 
   const pressed = ref(false);
@@ -312,11 +304,7 @@ export function useMouseInElement(
     x.value = clientX - rect.left;
     y.value = clientY - rect.top;
 
-    isOutside.value =
-      x.value < 0 ||
-      y.value < 0 ||
-      x.value > rect.width ||
-      y.value > rect.height;
+    isOutside.value = x.value < 0 || y.value < 0 || x.value > rect.width || y.value > rect.height;
   };
 
   const handleMouseEnter = () => {
@@ -391,10 +379,7 @@ export interface UseHoverReturn {
  * const target = ref<HTMLElement | null>(null)
  * const { isHovered } = useHover(target)
  */
-export function useHover(
-  target: Ref<HTMLElement | null>,
-  options: UseHoverOptions = {}
-): UseHoverReturn {
+export function useHover(target: Ref<HTMLElement | null>, options: UseHoverOptions = {}): UseHoverReturn {
   const { delayEnter = 0, delayLeave = 0 } = options;
 
   const isHovered = ref(false);
@@ -516,9 +501,7 @@ export interface UseCursorReturn {
  * setCursor('pointer')
  * // 或者直接修改 cursor.value = 'grab'
  */
-export function useCursor(
-  initialValue: CursorType = "auto"
-): UseCursorReturn {
+export function useCursor(initialValue: CursorType = "auto"): UseCursorReturn {
   const cursor = ref<CursorType>(initialValue);
   const originalCursor = ref<string>("");
 
@@ -588,17 +571,8 @@ export interface UseDropZoneReturn {
  *   onDrop: (files) => uploadFiles(files)
  * })
  */
-export function useDropZone(
-  target: Ref<HTMLElement | null>,
-  options: UseDropZoneOptions = {}
-): UseDropZoneReturn {
-  const {
-    preventDefault = true,
-    accept,
-    onDragEnter,
-    onDragLeave,
-    onDrop,
-  } = options;
+export function useDropZone(target: Ref<HTMLElement | null>, options: UseDropZoneOptions = {}): UseDropZoneReturn {
+  const { preventDefault = true, accept, onDragEnter, onDragLeave, onDrop } = options;
 
   const isOverDropZone = ref(false);
   const files = ref<File[]>([]);

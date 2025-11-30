@@ -3,16 +3,7 @@
  * 提供图片加载和处理的响应式管理
  */
 
-import {
-  ref,
-  computed,
-  watch,
-  onMounted,
-  onUnmounted,
-  type Ref,
-  type ComputedRef,
-  type MaybeRef,
-} from "vue";
+import { ref, computed, watch, onMounted, onUnmounted, type Ref, type ComputedRef, type MaybeRef } from "vue";
 
 // ============================================================================
 // 类型定义
@@ -73,20 +64,8 @@ export interface UseImageReturn {
  * const { load, isReady } = useImage('/large-image.jpg', { immediate: false })
  * await load()
  */
-export function useImage(
-  src: MaybeRef<string>,
-  options: UseImageOptions = {}
-): UseImageReturn {
-  const {
-    immediate = true,
-    delay = 0,
-    fallback,
-    crossOrigin,
-    referrerPolicy,
-    timeout,
-    onLoad,
-    onError,
-  } = options;
+export function useImage(src: MaybeRef<string>, options: UseImageOptions = {}): UseImageReturn {
+  const { immediate = true, delay = 0, fallback, crossOrigin, referrerPolicy, timeout, onLoad, onError } = options;
 
   const image = ref<HTMLImageElement | null>(null);
   const isLoading = ref(false);
@@ -261,9 +240,7 @@ export interface UseImagePreloadReturn {
  * await preload()
  * console.log('所有图片已预加载')
  */
-export function useImagePreload(
-  sources: MaybeRef<string[]>
-): UseImagePreloadReturn {
+export function useImagePreload(sources: MaybeRef<string[]>): UseImagePreloadReturn {
   const isLoading = ref(false);
   const progress = ref(0);
   const loaded = ref(0);
@@ -273,9 +250,7 @@ export function useImagePreload(
   let aborted = false;
 
   const getSources = () => {
-    return typeof sources === "object" && "value" in sources
-      ? sources.value
-      : sources;
+    return typeof sources === "object" && "value" in sources ? sources.value : sources;
   };
 
   const preload = async (): Promise<void> => {
@@ -369,12 +344,8 @@ export interface UseLazyImageReturn extends UseImageReturn {
  * //   <img v-if="isReady" :src="src" />
  * // </div>
  */
-export function useLazyImage(
-  src: MaybeRef<string>,
-  options: UseLazyImageOptions = {}
-): UseLazyImageReturn {
-  const { threshold = 0.1, rootMargin = "50px", root = null, ...imageOptions } =
-    options;
+export function useLazyImage(src: MaybeRef<string>, options: UseLazyImageOptions = {}): UseLazyImageReturn {
+  const { threshold = 0.1, rootMargin = "50px", root = null, ...imageOptions } = options;
 
   const targetRef = ref<HTMLElement | null>(null);
   const isVisible = ref(false);
@@ -643,9 +614,7 @@ export async function validateImage(
   if (aspectRatio) {
     const diff = Math.abs(currentAspectRatio - aspectRatio);
     if (diff > aspectRatioTolerance) {
-      errors.push(
-        `宽高比不符合要求: ${currentAspectRatio.toFixed(2)} != ${aspectRatio.toFixed(2)}`
-      );
+      errors.push(`宽高比不符合要求: ${currentAspectRatio.toFixed(2)} != ${aspectRatio.toFixed(2)}`);
     }
   }
 
@@ -701,11 +670,8 @@ export interface UseImageCompressionReturn {
  *
  * const compressedBlob = await compress(file)
  */
-export function useImageCompression(
-  options: UseImageCompressionOptions = {}
-): UseImageCompressionReturn {
-  const { maxWidth = 1920, maxHeight = 1080, quality = 0.8, type = "image/jpeg" } =
-    options;
+export function useImageCompression(options: UseImageCompressionOptions = {}): UseImageCompressionReturn {
+  const { maxWidth = 1920, maxHeight = 1080, quality = 0.8, type = "image/jpeg" } = options;
 
   const isCompressing = ref(false);
   const progress = ref(0);

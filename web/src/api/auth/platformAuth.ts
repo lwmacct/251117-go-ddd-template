@@ -8,7 +8,8 @@ import type { LoginRequest, RegisterRequest, CaptchaData } from "@/types/auth";
 import type { ApiResponse } from "@/types/response";
 
 const getErrorMessage = (error: any, fallback: string) => {
-  const messageFromResponse = error?.response?.data?.message || error?.response?.data?.error?.message || error?.response?.data?.error;
+  const messageFromResponse =
+    error?.response?.data?.message || error?.response?.data?.error?.message || error?.response?.data?.error;
   if (messageFromResponse) {
     return typeof messageFromResponse === "string" ? messageFromResponse : fallback;
   }
@@ -69,7 +70,11 @@ export class AuthAPI {
   /**
    * 验证邮箱
    */
-  static async verifyEmail(params: { session_token?: string; email?: string; code: string }): Promise<ApiResponse<any>> {
+  static async verifyEmail(params: {
+    session_token?: string;
+    email?: string;
+    code: string;
+  }): Promise<ApiResponse<any>> {
     try {
       const { data } = await apiClient.post<ApiResponse<any>>("/api/auth/verify-email", params);
       return data;

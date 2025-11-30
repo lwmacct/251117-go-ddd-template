@@ -2,7 +2,17 @@
 import { ref, onMounted, computed } from "vue";
 import { useSettings } from "./composables/useSettings";
 
-const { settings, loading, saving, errorMessage, successMessage, fetchSettings, getSetting, batchUpdateSettings, clearMessages } = useSettings();
+const {
+  settings,
+  loading,
+  saving,
+  errorMessage,
+  successMessage,
+  fetchSettings,
+  getSetting,
+  batchUpdateSettings,
+  clearMessages,
+} = useSettings();
 
 const tabs = ref("general");
 
@@ -189,16 +199,39 @@ const saveAllSettings = async () => {
                 <v-form>
                   <v-row>
                     <v-col cols="12" md="6">
-                      <v-text-field v-model="generalForm.siteName" label="站点名称" variant="outlined" hint="网站显示名称"></v-text-field>
+                      <v-text-field
+                        v-model="generalForm.siteName"
+                        label="站点名称"
+                        variant="outlined"
+                        hint="网站显示名称"
+                      ></v-text-field>
                     </v-col>
                     <v-col cols="12" md="6">
-                      <v-text-field v-model="generalForm.siteUrl" label="站点 URL" variant="outlined" hint="网站访问地址" placeholder="https://example.com"></v-text-field>
+                      <v-text-field
+                        v-model="generalForm.siteUrl"
+                        label="站点 URL"
+                        variant="outlined"
+                        hint="网站访问地址"
+                        placeholder="https://example.com"
+                      ></v-text-field>
                     </v-col>
                     <v-col cols="12" md="6">
-                      <v-text-field v-model="generalForm.adminEmail" label="管理员邮箱" type="email" variant="outlined" hint="接收系统通知的邮箱"></v-text-field>
+                      <v-text-field
+                        v-model="generalForm.adminEmail"
+                        label="管理员邮箱"
+                        type="email"
+                        variant="outlined"
+                        hint="接收系统通知的邮箱"
+                      ></v-text-field>
                     </v-col>
                     <v-col cols="12" md="6">
-                      <v-select v-model="generalForm.timezone" label="时区" :items="timezoneOptions" variant="outlined" hint="系统默认时区"></v-select>
+                      <v-select
+                        v-model="generalForm.timezone"
+                        label="时区"
+                        :items="timezoneOptions"
+                        variant="outlined"
+                        hint="系统默认时区"
+                      ></v-select>
                     </v-col>
                     <v-col cols="12" md="6">
                       <v-select
@@ -238,16 +271,46 @@ const saveAllSettings = async () => {
                 <v-form>
                   <v-row>
                     <v-col cols="12" md="6">
-                      <v-text-field v-model.number="securityForm.sessionTimeout" label="会话超时时间 (分钟)" type="number" variant="outlined" hint="用户无活动后自动登出的时间" :min="5" :max="1440"></v-text-field>
+                      <v-text-field
+                        v-model.number="securityForm.sessionTimeout"
+                        label="会话超时时间 (分钟)"
+                        type="number"
+                        variant="outlined"
+                        hint="用户无活动后自动登出的时间"
+                        :min="5"
+                        :max="1440"
+                      ></v-text-field>
                     </v-col>
                     <v-col cols="12" md="6">
-                      <v-text-field v-model.number="securityForm.passwordMinLength" label="密码最小长度" type="number" variant="outlined" hint="用户密码的最小字符数" :min="6" :max="32"></v-text-field>
+                      <v-text-field
+                        v-model.number="securityForm.passwordMinLength"
+                        label="密码最小长度"
+                        type="number"
+                        variant="outlined"
+                        hint="用户密码的最小字符数"
+                        :min="6"
+                        :max="32"
+                      ></v-text-field>
                     </v-col>
                     <v-col cols="12" md="6">
-                      <v-text-field v-model.number="securityForm.maxLoginAttempts" label="最大登录尝试次数" type="number" variant="outlined" hint="超过此次数后锁定账户" :min="3" :max="10"></v-text-field>
+                      <v-text-field
+                        v-model.number="securityForm.maxLoginAttempts"
+                        label="最大登录尝试次数"
+                        type="number"
+                        variant="outlined"
+                        hint="超过此次数后锁定账户"
+                        :min="3"
+                        :max="10"
+                      ></v-text-field>
                     </v-col>
                     <v-col cols="12">
-                      <v-switch v-model="securityForm.enableTwoFA" label="强制启用两步验证" color="primary" hint="要求所有用户启用 2FA" persistent-hint></v-switch>
+                      <v-switch
+                        v-model="securityForm.enableTwoFA"
+                        label="强制启用两步验证"
+                        color="primary"
+                        hint="要求所有用户启用 2FA"
+                        persistent-hint
+                      ></v-switch>
                     </v-col>
                   </v-row>
                 </v-form>
@@ -258,13 +321,36 @@ const saveAllSettings = async () => {
                 <v-form>
                   <v-row>
                     <v-col cols="12">
-                      <v-switch v-model="notificationForm.enableNotifications" label="启用系统通知" color="primary" hint="开启/关闭所有系统通知" persistent-hint class="mb-4"></v-switch>
+                      <v-switch
+                        v-model="notificationForm.enableNotifications"
+                        label="启用系统通知"
+                        color="primary"
+                        hint="开启/关闭所有系统通知"
+                        persistent-hint
+                        class="mb-4"
+                      ></v-switch>
                     </v-col>
                     <v-col cols="12">
-                      <v-switch v-model="notificationForm.enableEmailNotifications" label="启用邮件通知" color="primary" :disabled="!notificationForm.enableNotifications" hint="通过邮件发送通知" persistent-hint class="mb-4"></v-switch>
+                      <v-switch
+                        v-model="notificationForm.enableEmailNotifications"
+                        label="启用邮件通知"
+                        color="primary"
+                        :disabled="!notificationForm.enableNotifications"
+                        hint="通过邮件发送通知"
+                        persistent-hint
+                        class="mb-4"
+                      ></v-switch>
                     </v-col>
                     <v-col cols="12">
-                      <v-switch v-model="notificationForm.enableSMSNotifications" label="启用短信通知" color="primary" :disabled="!notificationForm.enableNotifications" hint="通过短信发送通知" persistent-hint class="mb-4"></v-switch>
+                      <v-switch
+                        v-model="notificationForm.enableSMSNotifications"
+                        label="启用短信通知"
+                        color="primary"
+                        :disabled="!notificationForm.enableNotifications"
+                        hint="通过短信发送通知"
+                        persistent-hint
+                        class="mb-4"
+                      ></v-switch>
                     </v-col>
                     <v-col cols="12">
                       <v-alert type="info" variant="tonal">
@@ -281,15 +367,40 @@ const saveAllSettings = async () => {
                 <v-form>
                   <v-row>
                     <v-col cols="12">
-                      <v-switch v-model="backupForm.enableBackup" label="启用自动备份" color="primary" hint="定期自动备份系统数据" persistent-hint class="mb-4"></v-switch>
+                      <v-switch
+                        v-model="backupForm.enableBackup"
+                        label="启用自动备份"
+                        color="primary"
+                        hint="定期自动备份系统数据"
+                        persistent-hint
+                        class="mb-4"
+                      ></v-switch>
                     </v-col>
                     <v-col cols="12" md="6">
-                      <v-text-field v-model.number="backupForm.backupFrequency" label="备份频率 (小时)" type="number" variant="outlined" :disabled="!backupForm.enableBackup" hint="自动备份的时间间隔" :min="1" :max="168"></v-text-field>
+                      <v-text-field
+                        v-model.number="backupForm.backupFrequency"
+                        label="备份频率 (小时)"
+                        type="number"
+                        variant="outlined"
+                        :disabled="!backupForm.enableBackup"
+                        hint="自动备份的时间间隔"
+                        :min="1"
+                        :max="168"
+                      ></v-text-field>
                     </v-col>
                     <v-col cols="12" md="6">
-                      <v-text-field v-model.number="backupForm.backupRetentionDays" label="备份保留天数" type="number" variant="outlined" :disabled="!backupForm.enableBackup" hint="备份文件保留时长" :min="1" :max="365"></v-text-field>
+                      <v-text-field
+                        v-model.number="backupForm.backupRetentionDays"
+                        label="备份保留天数"
+                        type="number"
+                        variant="outlined"
+                        :disabled="!backupForm.enableBackup"
+                        hint="备份文件保留时长"
+                        :min="1"
+                        :max="365"
+                      ></v-text-field>
                     </v-col>
-                    <v-col cols="12" v-if="backupForm.enableBackup">
+                    <v-col v-if="backupForm.enableBackup" cols="12">
                       <v-alert type="warning" variant="tonal">
                         <v-icon start>mdi-alert</v-icon>
                         <div>
@@ -310,9 +421,9 @@ const saveAllSettings = async () => {
 
           <v-card-actions class="pa-6">
             <v-spacer></v-spacer>
-            <v-btn variant="text" @click="loadFormValues" :disabled="saving">重置</v-btn>
-            <v-btn color="secondary" variant="tonal" @click="saveCurrentTab" :loading="saving">保存当前页</v-btn>
-            <v-btn color="primary" @click="saveAllSettings" :loading="saving">保存所有设置</v-btn>
+            <v-btn variant="text" :disabled="saving" @click="loadFormValues">重置</v-btn>
+            <v-btn color="secondary" variant="tonal" :loading="saving" @click="saveCurrentTab">保存当前页</v-btn>
+            <v-btn color="primary" :loading="saving" @click="saveAllSettings">保存所有设置</v-btn>
           </v-card-actions>
         </v-card>
       </v-col>

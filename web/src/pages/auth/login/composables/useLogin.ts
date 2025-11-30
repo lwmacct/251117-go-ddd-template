@@ -37,7 +37,12 @@ export function useLogin() {
 
   // === 计算属性 ===
   const isFormValid = computed(() => {
-    return account.value.length > 0 && password.value.length > 0 && captchaCode.value.length > 0 && captchaData.value !== null;
+    return (
+      account.value.length > 0 &&
+      password.value.length > 0 &&
+      captchaCode.value.length > 0 &&
+      captchaData.value !== null
+    );
   });
 
   const isLoading = computed(() => authStore.isLoading);

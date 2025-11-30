@@ -120,7 +120,12 @@ onMounted(() => {
 </script>
 
 <template>
-  <v-dialog :model-value="modelValue" @update:model-value="emit('update:modelValue', $event)" max-width="800" scrollable>
+  <v-dialog
+    :model-value="modelValue"
+    max-width="800"
+    scrollable
+    @update:model-value="emit('update:modelValue', $event)"
+  >
     <v-card>
       <v-card-title>
         <span class="text-h5">设置权限</span>
@@ -154,7 +159,15 @@ onMounted(() => {
                     {{ resourceNode.label }}
                   </div>
                   <div class="ml-6">
-                    <v-checkbox v-for="actionNode in resourceNode.children" :key="actionNode.key" v-model="selectedPermissionIds" :value="actionNode.permission!.id" :label="actionNode.label" density="compact" hide-details></v-checkbox>
+                    <v-checkbox
+                      v-for="actionNode in resourceNode.children"
+                      :key="actionNode.key"
+                      v-model="selectedPermissionIds"
+                      :value="actionNode.permission!.id"
+                      :label="actionNode.label"
+                      density="compact"
+                      hide-details
+                    ></v-checkbox>
                   </div>
                 </div>
               </v-expansion-panel-text>
@@ -168,7 +181,7 @@ onMounted(() => {
       <v-card-actions>
         <v-spacer></v-spacer>
         <v-btn variant="text" @click="closeDialog">取消</v-btn>
-        <v-btn color="primary" variant="elevated" @click="handleSave" :disabled="loading">保存</v-btn>
+        <v-btn color="primary" variant="elevated" :disabled="loading" @click="handleSave">保存</v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>

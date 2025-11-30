@@ -90,12 +90,7 @@ export function throttle<T extends (...args: unknown[]) => unknown>(
     const timeSinceLastCall = time - (lastCallTime ?? 0);
     const timeSinceLastInvoke = time - lastInvokeTime;
 
-    return (
-      lastCallTime === null ||
-      timeSinceLastCall >= wait ||
-      timeSinceLastCall < 0 ||
-      timeSinceLastInvoke >= wait
-    );
+    return lastCallTime === null || timeSinceLastCall >= wait || timeSinceLastCall < 0 || timeSinceLastInvoke >= wait;
   };
 
   // 定时器到期处理
@@ -153,10 +148,7 @@ export function throttle<T extends (...args: unknown[]) => unknown>(
   };
 
   // 主函数
-  const throttled = function (
-    this: unknown,
-    ...args: Parameters<T>
-  ): ReturnType<T> | undefined {
+  const throttled = function (this: unknown, ...args: Parameters<T>): ReturnType<T> | undefined {
     const time = now();
     const isInvoking = shouldInvoke(time);
 
@@ -213,7 +205,7 @@ export function debounce<T extends (...args: unknown[]) => unknown>(
   let timerId: ReturnType<typeof setTimeout> | null = null;
   let lastCallTime: number | undefined;
   let lastInvokeTime = 0;
-  let maxing = maxWait !== undefined;
+  const maxing = maxWait !== undefined;
   let maxTimerId: ReturnType<typeof setTimeout> | null = null;
 
   const now = () => Date.now();
@@ -259,9 +251,7 @@ export function debounce<T extends (...args: unknown[]) => unknown>(
     const timeSinceLastInvoke = time - lastInvokeTime;
     const timeWaiting = wait - timeSinceLastCall;
 
-    return maxing
-      ? Math.min(timeWaiting, maxWait! - timeSinceLastInvoke)
-      : timeWaiting;
+    return maxing ? Math.min(timeWaiting, maxWait! - timeSinceLastInvoke) : timeWaiting;
   };
 
   const shouldInvoke = (time: number): boolean => {
@@ -321,10 +311,7 @@ export function debounce<T extends (...args: unknown[]) => unknown>(
     return timerId !== null;
   };
 
-  const debounced = function (
-    this: unknown,
-    ...args: Parameters<T>
-  ): ReturnType<T> | undefined {
+  const debounced = function (this: unknown, ...args: Parameters<T>): ReturnType<T> | undefined {
     const time = now();
     const isInvoking = shouldInvoke(time);
 
@@ -372,10 +359,7 @@ export function debounce<T extends (...args: unknown[]) => unknown>(
  *
  * limiter.execute(() => callApi())
  */
-export function createRateLimiter(options: {
-  maxRequests: number;
-  interval: number;
-}) {
+export function createRateLimiter(options: { maxRequests: number; interval: number }) {
   const { maxRequests, interval } = options;
   const queue: Array<{
     fn: () => Promise<unknown>;
@@ -455,17 +439,8 @@ export interface RetryOptions {
  *   { maxRetries: 3, delay: 1000 }
  * )
  */
-export async function retry<T>(
-  fn: () => Promise<T>,
-  options: RetryOptions = {}
-): Promise<T> {
-  const {
-    maxRetries = 3,
-    delay = 1000,
-    factor = 2,
-    shouldRetry = () => true,
-    onRetry,
-  } = options;
+export async function retry<T>(fn: () => Promise<T>, options: RetryOptions = {}): Promise<T> {
+  const { maxRetries = 3, delay = 1000, factor = 2, shouldRetry = () => true, onRetry } = options;
 
   let lastError: unknown;
   let currentDelay = delay;

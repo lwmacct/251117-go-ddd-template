@@ -3,51 +3,43 @@
  * 提供 WebSocket 连接的响应式管理
  */
 
-import {
-  ref,
-  computed,
-  watch,
-  onMounted,
-  onUnmounted,
-  type Ref,
-  type ComputedRef,
-} from "vue";
+import { ref, computed, watch, onMounted, onUnmounted, type Ref, type ComputedRef } from "vue";
 
 // ============================================================================
 // 类型定义
 // ============================================================================
 
-export type WebSocketStatus =
-  | "CONNECTING"
-  | "OPEN"
-  | "CLOSING"
-  | "CLOSED";
+export type WebSocketStatus = "CONNECTING" | "OPEN" | "CLOSING" | "CLOSED";
 
 export interface UseWebSocketOptions {
   /** 是否自动连接 */
   immediate?: boolean;
   /** 是否自动重连 */
-  autoReconnect?: boolean | {
-    /** 最大重连次数 */
-    retries?: number;
-    /** 重连延迟（毫秒） */
-    delay?: number;
-    /** 延迟递增因子 */
-    multiplier?: number;
-    /** 最大延迟 */
-    maxDelay?: number;
-    /** 是否在页面可见时重连 */
-    onVisibilityChange?: boolean;
-  };
+  autoReconnect?:
+    | boolean
+    | {
+        /** 最大重连次数 */
+        retries?: number;
+        /** 重连延迟（毫秒） */
+        delay?: number;
+        /** 延迟递增因子 */
+        multiplier?: number;
+        /** 最大延迟 */
+        maxDelay?: number;
+        /** 是否在页面可见时重连 */
+        onVisibilityChange?: boolean;
+      };
   /** 心跳配置 */
-  heartbeat?: boolean | {
-    /** 心跳消息 */
-    message?: string | ArrayBuffer | Blob;
-    /** 心跳间隔（毫秒） */
-    interval?: number;
-    /** 心跳超时（毫秒） */
-    timeout?: number;
-  };
+  heartbeat?:
+    | boolean
+    | {
+        /** 心跳消息 */
+        message?: string | ArrayBuffer | Blob;
+        /** 心跳间隔（毫秒） */
+        interval?: number;
+        /** 心跳超时（毫秒） */
+        timeout?: number;
+      };
   /** 子协议 */
   protocols?: string | string[];
   /** 连接打开回调 */
@@ -127,28 +119,30 @@ export function useWebSocket<T = unknown>(
   } = options;
 
   // 解析自动重连配置
-  const autoReconnectOptions = typeof autoReconnect === "object"
-    ? {
-        retries: autoReconnect.retries ?? 3,
-        delay: autoReconnect.delay ?? 1000,
-        multiplier: autoReconnect.multiplier ?? 2,
-        maxDelay: autoReconnect.maxDelay ?? 30000,
-        onVisibilityChange: autoReconnect.onVisibilityChange ?? true,
-      }
-    : autoReconnect
-    ? { retries: 3, delay: 1000, multiplier: 2, maxDelay: 30000, onVisibilityChange: true }
-    : null;
+  const autoReconnectOptions =
+    typeof autoReconnect === "object"
+      ? {
+          retries: autoReconnect.retries ?? 3,
+          delay: autoReconnect.delay ?? 1000,
+          multiplier: autoReconnect.multiplier ?? 2,
+          maxDelay: autoReconnect.maxDelay ?? 30000,
+          onVisibilityChange: autoReconnect.onVisibilityChange ?? true,
+        }
+      : autoReconnect
+        ? { retries: 3, delay: 1000, multiplier: 2, maxDelay: 30000, onVisibilityChange: true }
+        : null;
 
   // 解析心跳配置
-  const heartbeatOptions = typeof heartbeat === "object"
-    ? {
-        message: heartbeat.message ?? "ping",
-        interval: heartbeat.interval ?? 30000,
-        timeout: heartbeat.timeout ?? 10000,
-      }
-    : heartbeat
-    ? { message: "ping", interval: 30000, timeout: 10000 }
-    : null;
+  const heartbeatOptions =
+    typeof heartbeat === "object"
+      ? {
+          message: heartbeat.message ?? "ping",
+          interval: heartbeat.interval ?? 30000,
+          timeout: heartbeat.timeout ?? 10000,
+        }
+      : heartbeat
+        ? { message: "ping", interval: 30000, timeout: 10000 }
+        : null;
 
   // 响应式状态
   const ws = ref<WebSocket | null>(null);
@@ -196,9 +190,7 @@ export function useWebSocket<T = unknown>(
     heartbeatTimer = setInterval(() => {
       if (ws.value?.readyState === WebSocket.OPEN) {
         ws.value.send(
-          typeof heartbeatOptions.message === "string"
-            ? heartbeatOptions.message
-            : heartbeatOptions.message
+          typeof heartbeatOptions.message === "string" ? heartbeatOptions.message : heartbeatOptions.message
         );
 
         // 设置超时检测
@@ -228,8 +220,7 @@ export function useWebSocket<T = unknown>(
 
     // 计算延迟
     const delay = Math.min(
-      autoReconnectOptions.delay *
-        Math.pow(autoReconnectOptions.multiplier, retryCount.value),
+      autoReconnectOptions.delay * Math.pow(autoReconnectOptions.multiplier, retryCount.value),
       autoReconnectOptions.maxDelay
     );
 
@@ -272,9 +263,7 @@ export function useWebSocket<T = unknown>(
     manualClose = false;
     status.value = "CONNECTING";
 
-    const socket = protocols
-      ? new WebSocket(getUrl(), protocols)
-      : new WebSocket(getUrl());
+    const socket = protocols ? new WebSocket(getUrl(), protocols) : new WebSocket(getUrl());
 
     socket.onopen = (event) => {
       status.value = "OPEN";
@@ -342,10 +331,7 @@ export function useWebSocket<T = unknown>(
   };
 
   // 发送消息
-  const send = (
-    message: string | ArrayBuffer | Blob,
-    useBuffer = true
-  ): boolean => {
+  const send = (message: string | ArrayBuffer | Blob, useBuffer = true): boolean => {
     if (ws.value?.readyState === WebSocket.OPEN) {
       ws.value.send(message);
       return true;
@@ -371,11 +357,7 @@ export function useWebSocket<T = unknown>(
   // 页面可见性变化时重连
   if (autoReconnectOptions?.onVisibilityChange) {
     const handleVisibilityChange = () => {
-      if (
-        document.visibilityState === "visible" &&
-        !isConnected.value &&
-        !manualClose
-      ) {
+      if (document.visibilityState === "visible" && !isConnected.value && !manualClose) {
         open();
       }
     };
@@ -416,14 +398,12 @@ export function useWebSocket<T = unknown>(
 // useWebSocketJSON - JSON 格式的 WebSocket
 // ============================================================================
 
-export interface UseWebSocketJSONOptions<T>
-  extends Omit<UseWebSocketOptions, "onMessage"> {
+export interface UseWebSocketJSONOptions<T> extends Omit<UseWebSocketOptions, "onMessage"> {
   /** 消息回调 */
   onMessage?: (ws: WebSocket, data: T) => void;
 }
 
-export interface UseWebSocketJSONReturn<T, S = T>
-  extends Omit<UseWebSocketReturn<T>, "send"> {
+export interface UseWebSocketJSONReturn<T, S = T> extends Omit<UseWebSocketReturn<T>, "send"> {
   /** 发送 JSON 消息 */
   send: (data: S, useBuffer?: boolean) => boolean;
 }
@@ -473,16 +453,14 @@ export function useWebSocketJSON<T = unknown, S = T>(
 // useWebSocketBinary - 二进制 WebSocket
 // ============================================================================
 
-export interface UseWebSocketBinaryOptions
-  extends Omit<UseWebSocketOptions, "onMessage"> {
+export interface UseWebSocketBinaryOptions extends Omit<UseWebSocketOptions, "onMessage"> {
   /** 二进制类型 */
   binaryType?: "blob" | "arraybuffer";
   /** 消息回调 */
   onMessage?: (ws: WebSocket, data: ArrayBuffer | Blob) => void;
 }
 
-export interface UseWebSocketBinaryReturn
-  extends Omit<UseWebSocketReturn<ArrayBuffer | Blob>, "data"> {
+export interface UseWebSocketBinaryReturn extends Omit<UseWebSocketReturn<ArrayBuffer | Blob>, "data"> {
   /** 最后接收的二进制数据 */
   data: Ref<ArrayBuffer | Blob | null>;
 }
@@ -565,11 +543,7 @@ export interface WebSocketManager {
 export function createWebSocketManager(): WebSocketManager {
   const connections = new Map<string, UseWebSocketReturn>();
 
-  const create = (
-    name: string,
-    url: string,
-    options?: UseWebSocketOptions
-  ): UseWebSocketReturn => {
+  const create = (name: string, url: string, options?: UseWebSocketOptions): UseWebSocketReturn => {
     // 关闭现有连接
     if (connections.has(name)) {
       connections.get(name)?.close();

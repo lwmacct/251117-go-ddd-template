@@ -13,7 +13,10 @@ interface PaginationFallback {
 /**
  * normalizeListResponse 将后端 ListResponse 转换为前端统一的 PaginatedResponse
  */
-export function normalizeListResponse<T>(payload: ListApiResponse<T[]>, fallback: PaginationFallback): PaginatedResponse<T> {
+export function normalizeListResponse<T>(
+  payload: ListApiResponse<T[]>,
+  fallback: PaginationFallback
+): PaginatedResponse<T> {
   if (!Array.isArray(payload.data)) {
     throw new Error(payload.message || "Invalid list response");
   }

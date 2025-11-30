@@ -3,16 +3,7 @@
  * 提供过渡和动画相关的工具函数
  */
 
-import {
-  ref,
-  computed,
-  watch,
-  nextTick,
-  onMounted,
-  onUnmounted,
-  type Ref,
-  type ComputedRef,
-} from "vue";
+import { ref, computed, watch, nextTick, onMounted, onUnmounted, type Ref, type ComputedRef } from "vue";
 
 // ============================================================================
 // 类型定义
@@ -26,14 +17,7 @@ export type TransitionState = "idle" | "enter" | "leave";
 /**
  * 动画缓动函数类型
  */
-export type EasingFunction =
-  | "linear"
-  | "ease"
-  | "ease-in"
-  | "ease-out"
-  | "ease-in-out"
-  | "cubic-bezier"
-  | string;
+export type EasingFunction = "linear" | "ease" | "ease-in" | "ease-out" | "ease-in-out" | "cubic-bezier" | string;
 
 /**
  * 过渡配置
@@ -163,9 +147,7 @@ export interface SlideConfig extends FadeConfig {
  * // <div v-show="isVisible" :class="transitionClass">Content</div>
  * ```
  */
-export function useTransition(
-  config: TransitionConfig = {}
-): UseTransitionReturn {
+export function useTransition(config: TransitionConfig = {}): UseTransitionReturn {
   const {
     duration = 300,
     easing = "ease",
@@ -179,9 +161,7 @@ export function useTransition(
   const isVisible = ref(false);
   const state = ref<TransitionState>("idle");
 
-  const isTransitioning = computed(
-    () => state.value === "enter" || state.value === "leave"
-  );
+  const isTransitioning = computed(() => state.value === "enter" || state.value === "leave");
 
   const show = async (): Promise<void> => {
     if (isVisible.value && state.value === "idle") return;
@@ -339,12 +319,7 @@ export function useSlide(config: SlideConfig = {}): {
   toggle: () => Promise<void>;
   style: ComputedRef<Record<string, string>>;
 } {
-  const {
-    duration = 300,
-    easing = "ease",
-    direction = "up",
-    distance = "20px",
-  } = config;
+  const { duration = 300, easing = "ease", direction = "up", distance = "20px" } = config;
 
   const isVisible = ref(false);
   const progress = ref(0);
@@ -416,9 +391,7 @@ export function useSlide(config: SlideConfig = {}): {
  * })
  * ```
  */
-export function useScale(
-  config: FadeConfig & { fromScale?: number } = {}
-): {
+export function useScale(config: FadeConfig & { fromScale?: number } = {}): {
   isVisible: Ref<boolean>;
   scale: Ref<number>;
   show: () => Promise<void>;
@@ -609,11 +582,7 @@ export function useTransitionGroup<T extends { id: string | number }>(
     return {
       transition: `all ${duration}ms ${easing}`,
       opacity: isEntering || isLeaving ? "0" : "1",
-      transform: isEntering
-        ? "translateY(-10px)"
-        : isLeaving
-          ? "translateY(10px)"
-          : "none",
+      transform: isEntering ? "translateY(-10px)" : isLeaving ? "translateY(10px)" : "none",
     };
   };
 
@@ -788,9 +757,7 @@ export function useShake(config: { duration?: number; intensity?: number } = {})
  * // <div :style="style">Content</div>
  * ```
  */
-export function usePulse(
-  config: { scale?: number; duration?: number } = {}
-): {
+export function usePulse(config: { scale?: number; duration?: number } = {}): {
   pulse: () => void;
   isPulsing: Ref<boolean>;
   stop: () => void;

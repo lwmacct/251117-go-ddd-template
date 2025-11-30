@@ -193,11 +193,7 @@ export {
 // 验证工具
 // ============================================================================
 
-export {
-  rules,
-  createValidator,
-  type ValidationRule,
-} from "./validation";
+export { rules, createValidator, type ValidationRule } from "./validation";
 
 // ============================================================================
 // 平台检测

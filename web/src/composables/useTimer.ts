@@ -78,10 +78,7 @@ export interface UseTimestampReturn {
  * start()
  * watch(ready, (val) => { if (val) console.log('Timeout!') })
  */
-export function useTimeout(
-  ms: number | Ref<number>,
-  options: UseTimeoutOptions = {}
-): UseTimeoutReturn {
+export function useTimeout(ms: number | Ref<number>, options: UseTimeoutOptions = {}): UseTimeoutReturn {
   const { immediate = false, callback } = options;
 
   const ready = ref(false);
@@ -199,10 +196,7 @@ export function useTimeoutFn<T extends (...args: unknown[]) => unknown>(
  * const { counter, pause, resume, reset } = useInterval(1000)
  * // counter 每秒加 1
  */
-export function useInterval(
-  ms: number | Ref<number>,
-  options: UseIntervalOptions = {}
-): UseIntervalReturn {
+export function useInterval(ms: number | Ref<number>, options: UseIntervalOptions = {}): UseIntervalReturn {
   const { immediate = true, immediateCallback = false } = options;
 
   const counter = ref(0);
@@ -420,10 +414,7 @@ export interface UseRafFnReturn {
  *   updateAnimation()
  * })
  */
-export function useRafFn(
-  fn: (timestamp: number) => void,
-  options: UseRafFnOptions = {}
-): UseRafFnReturn {
+export function useRafFn(fn: (timestamp: number) => void, options: UseRafFnOptions = {}): UseRafFnReturn {
   const { immediate = true } = options;
 
   const isActive = ref(false);
@@ -487,9 +478,7 @@ export function useDateFormat(
 
   const getDate = () => {
     if (!date) return new Date();
-    const d = typeof date === "number" || date instanceof Date
-      ? date
-      : date.value;
+    const d = typeof date === "number" || date instanceof Date ? date : date.value;
     return d instanceof Date ? d : new Date(d);
   };
 
@@ -575,10 +564,7 @@ export interface UseIdleCallbackReturn {
  *   heavyComputation()
  * })
  */
-export function useIdleCallback(
-  fn: IdleRequestCallback,
-  options: UseIdleCallbackOptions = {}
-): UseIdleCallbackReturn {
+export function useIdleCallback(fn: IdleRequestCallback, options: UseIdleCallbackOptions = {}): UseIdleCallbackReturn {
   const { timeout } = options;
 
   const isSupported = typeof window !== "undefined" && "requestIdleCallback" in window;

@@ -158,10 +158,7 @@ export function useSlotsInfo(): {
  * const renderHeader = useConditionalSlot('header', () => h('div', 'Default Header'))
  * ```
  */
-export function useConditionalSlot(
-  name: string,
-  fallback?: () => unknown
-): () => unknown {
+export function useConditionalSlot(name: string, fallback?: () => unknown): () => unknown {
   const slots = useSlots();
 
   return () => {
@@ -559,9 +556,7 @@ export function useComponentRefs<T>(): {
  * // 父组件可以通过 ref 调用这些方法
  * ```
  */
-export function useExposeMethod<T extends Record<string, (...args: unknown[]) => unknown>>(
-  methods: T
-): void {
+export function useExposeMethod<T extends Record<string, (...args: unknown[]) => unknown>>(methods: T): void {
   const instance = getCurrentInstance();
   if (instance) {
     // 直接赋值到 exposed
@@ -662,9 +657,10 @@ export function useForceUpdate(): {
  * emit('submit')
  * ```
  */
-export function useComponentEmit<
-  T extends Record<string, unknown[]>,
->(): <K extends keyof T>(event: K, ...args: T[K]) => void {
+export function useComponentEmit<T extends Record<string, unknown[]>>(): <K extends keyof T>(
+  event: K,
+  ...args: T[K]
+) => void {
   const instance = getCurrentInstance();
 
   return <K extends keyof T>(event: K, ...args: T[K]) => {
@@ -729,9 +725,7 @@ export function useComponentType(): {
  * })
  * ```
  */
-export function useCustomProperties(
-  properties: Record<string, unknown>
-): void {
+export function useCustomProperties(properties: Record<string, unknown>): void {
   const instance = getCurrentInstance();
   if (instance) {
     Object.assign(instance.appContext.config.globalProperties, properties);

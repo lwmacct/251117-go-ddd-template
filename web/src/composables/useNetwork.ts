@@ -25,15 +25,7 @@ export interface NetworkState {
   /** 是否启用数据节省模式 */
   saveData?: boolean;
   /** 连接类型 */
-  type?:
-    | "bluetooth"
-    | "cellular"
-    | "ethernet"
-    | "none"
-    | "wifi"
-    | "wimax"
-    | "other"
-    | "unknown";
+  type?: "bluetooth" | "cellular" | "ethernet" | "none" | "wifi" | "wimax" | "other" | "unknown";
 }
 
 export interface UseNetworkOptions {
@@ -51,15 +43,7 @@ interface NetworkInformation extends EventTarget {
   effectiveType?: "slow-2g" | "2g" | "3g" | "4g";
   rtt?: number;
   saveData?: boolean;
-  type?:
-    | "bluetooth"
-    | "cellular"
-    | "ethernet"
-    | "none"
-    | "wifi"
-    | "wimax"
-    | "other"
-    | "unknown";
+  type?: "bluetooth" | "cellular" | "ethernet" | "none" | "wifi" | "wimax" | "other" | "unknown";
   onchange?: EventListener;
 }
 
@@ -100,11 +84,7 @@ export function useNetwork(options: UseNetworkOptions = {}) {
 
   // 获取网络连接对象
   const getConnection = (): NetworkInformation | undefined => {
-    return (
-      navigator.connection ||
-      navigator.mozConnection ||
-      navigator.webkitConnection
-    );
+    return navigator.connection || navigator.mozConnection || navigator.webkitConnection;
   };
 
   // 更新网络信息

@@ -117,10 +117,7 @@ export interface I18nContext {
  * const user = UserContext.inject()
  * ```
  */
-export function createContext<T>(
-  name: string,
-  defaultValue?: T
-): CreateContextReturn<T> {
+export function createContext<T>(name: string, defaultValue?: T): CreateContextReturn<T> {
   const key = Symbol(name) as InjectionKey<T>;
 
   const provideContext = (value: T) => {
@@ -159,9 +156,7 @@ export function createContext<T>(
  * setState(state.value + 1)
  * ```
  */
-export function createStateContext<T>(
-  name: string
-): CreateStateContextReturn<T> {
+export function createStateContext<T>(name: string): CreateStateContextReturn<T> {
   const key = Symbol(name) as InjectionKey<{
     state: Ref<T>;
     setState: (value: T) => void;
@@ -215,9 +210,7 @@ export function createStateContext<T>(
  * state.user = { id: 1, name: 'John' }
  * ```
  */
-export function createReactiveContext<T extends object>(
-  name: string
-): CreateReactiveContextReturn<T> {
+export function createReactiveContext<T extends object>(name: string): CreateReactiveContextReturn<T> {
   const key = Symbol(name) as InjectionKey<T>;
 
   const provideContext = (initialValue: T): T => {
@@ -258,9 +251,7 @@ export function createReactiveContext<T extends object>(
  * // config 是只读的
  * ```
  */
-export function createReadonlyContext<T extends object>(
-  name: string
-): CreateContextReturn<Readonly<T>> {
+export function createReadonlyContext<T extends object>(name: string): CreateContextReturn<Readonly<T>> {
   const key = Symbol(name) as InjectionKey<Readonly<T>>;
 
   const provideContext = (value: T) => {
@@ -328,10 +319,7 @@ export function createEventBusContext<T extends Record<string, unknown>>(
       handlers?.forEach((handler) => handler(payload));
     };
 
-    const on = <K extends keyof T>(
-      event: K,
-      handler: (payload: T[K]) => void
-    ): (() => void) => {
+    const on = <K extends keyof T>(event: K, handler: (payload: T[K]) => void): (() => void) => {
       if (!listeners.has(event)) {
         listeners.set(event, new Set());
       }
@@ -340,10 +328,7 @@ export function createEventBusContext<T extends Record<string, unknown>>(
       return () => off(event, handler);
     };
 
-    const off = <K extends keyof T>(
-      event: K,
-      handler: (payload: T[K]) => void
-    ) => {
+    const off = <K extends keyof T>(event: K, handler: (payload: T[K]) => void) => {
       listeners.get(event)?.delete(handler as (payload: unknown) => void);
     };
 
@@ -470,9 +455,7 @@ export function createI18nContext(
 
       if (!params) return message;
 
-      return message.replace(/\{(\w+)\}/g, (_, param) =>
-        String(params[param] ?? `{${param}}`)
-      );
+      return message.replace(/\{(\w+)\}/g, (_, param) => String(params[param] ?? `{${param}}`));
     };
 
     const context: I18nContext = { locale, availableLocales, setLocale, t };
@@ -508,10 +491,7 @@ export function createI18nContext(
  * }
  * ```
  */
-export function useOptionalInject<T>(
-  key: InjectionKey<T> | string,
-  defaultValue?: T
-): T | undefined {
+export function useOptionalInject<T>(key: InjectionKey<T> | string, defaultValue?: T): T | undefined {
   return inject(key, defaultValue);
 }
 
@@ -526,10 +506,7 @@ export function useOptionalInject<T>(
  * // 如果 Config 未提供，会抛出错误
  * ```
  */
-export function useRequiredInject<T>(
-  key: InjectionKey<T> | string,
-  name: string
-): T {
+export function useRequiredInject<T>(key: InjectionKey<T> | string, name: string): T {
   const value = inject(key);
   if (value === undefined) {
     throw new Error(`[${name}] 必须在提供者组件内使用`);

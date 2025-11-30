@@ -52,11 +52,7 @@ interface FullscreenElement extends Element {
 function getFullscreenElement(): Element | null {
   const doc = document as FullscreenDocument;
   return (
-    doc.fullscreenElement ||
-    doc.mozFullScreenElement ||
-    doc.webkitFullscreenElement ||
-    doc.msFullscreenElement ||
-    null
+    doc.fullscreenElement || doc.mozFullScreenElement || doc.webkitFullscreenElement || doc.msFullscreenElement || null
   );
 }
 
@@ -236,22 +232,12 @@ export function useDocumentFullscreen(options?: UseFullscreenOptions) {
  * @example
  * const { icon, tooltip, toggle } = useFullscreenButton()
  */
-export function useFullscreenButton(
-  target?: Ref<Element | null | undefined>,
-  options?: UseFullscreenOptions
-) {
-  const { isFullscreen, isSupported, toggle, enter, exit } = useFullscreen(
-    target,
-    options
-  );
+export function useFullscreenButton(target?: Ref<Element | null | undefined>, options?: UseFullscreenOptions) {
+  const { isFullscreen, isSupported, toggle, enter, exit } = useFullscreen(target, options);
 
-  const icon = computed(() =>
-    isFullscreen.value ? "mdi-fullscreen-exit" : "mdi-fullscreen"
-  );
+  const icon = computed(() => (isFullscreen.value ? "mdi-fullscreen-exit" : "mdi-fullscreen"));
 
-  const tooltip = computed(() =>
-    isFullscreen.value ? "退出全屏" : "全屏显示"
-  );
+  const tooltip = computed(() => (isFullscreen.value ? "退出全屏" : "全屏显示"));
 
   return {
     isFullscreen,

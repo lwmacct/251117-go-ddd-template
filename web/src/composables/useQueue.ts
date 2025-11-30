@@ -3,14 +3,7 @@
  * 提供队列相关的工具函数
  */
 
-import {
-  ref,
-  computed,
-  watch,
-  onUnmounted,
-  type Ref,
-  type ComputedRef,
-} from "vue";
+import { ref, computed, watch, onUnmounted, type Ref, type ComputedRef } from "vue";
 
 // ============================================================================
 // 类型定义
@@ -412,33 +405,17 @@ export function useStack<T>(config: { maxSize?: number } = {}): {
  * pause()
  * ```
  */
-export function useTaskQueue<T = unknown>(
-  config: TaskQueueConfig = {}
-): UseTaskQueueReturn<T> {
-  const {
-    concurrency = 1,
-    interval = 0,
-    retries = 0,
-    retryDelay = 1000,
-    autoStart = false,
-  } = config;
+export function useTaskQueue<T = unknown>(config: TaskQueueConfig = {}): UseTaskQueueReturn<T> {
+  const { concurrency = 1, interval = 0, retries = 0, retryDelay = 1000, autoStart = false } = config;
 
   const tasks = ref<Task<T>[]>([]) as Ref<Task<T>[]>;
   const isRunning = ref(false);
   const isPaused = ref(false);
 
-  const pendingCount = computed(
-    () => tasks.value.filter((t) => t.status === "pending").length
-  );
-  const runningCount = computed(
-    () => tasks.value.filter((t) => t.status === "running").length
-  );
-  const completedCount = computed(
-    () => tasks.value.filter((t) => t.status === "completed").length
-  );
-  const failedCount = computed(
-    () => tasks.value.filter((t) => t.status === "failed").length
-  );
+  const pendingCount = computed(() => tasks.value.filter((t) => t.status === "pending").length);
+  const runningCount = computed(() => tasks.value.filter((t) => t.status === "running").length);
+  const completedCount = computed(() => tasks.value.filter((t) => t.status === "completed").length);
+  const failedCount = computed(() => tasks.value.filter((t) => t.status === "failed").length);
 
   let processing = false;
 
@@ -562,9 +539,7 @@ export function useTaskQueue<T = unknown>(
   const waitAll = (): Promise<void> => {
     return new Promise((resolve) => {
       const checkComplete = () => {
-        const hasActive = tasks.value.some(
-          (t) => t.status === "pending" || t.status === "running"
-        );
+        const hasActive = tasks.value.some((t) => t.status === "pending" || t.status === "running");
         if (!hasActive) {
           resolve();
         } else {
@@ -618,21 +593,13 @@ export function useTaskQueue<T = unknown>(
  * })
  * ```
  */
-export function useNotificationQueue(
-  config: NotificationQueueConfig = {}
-): UseNotificationQueueReturn {
-  const {
-    maxVisible = 5,
-    defaultDuration = 3000,
-    position = "top",
-  } = config;
+export function useNotificationQueue(config: NotificationQueueConfig = {}): UseNotificationQueueReturn {
+  const { maxVisible = 5, defaultDuration = 3000, position = "top" } = config;
 
   const notifications = ref<Notification[]>([]);
   const timers = new Map<string | number, ReturnType<typeof setTimeout>>();
 
-  const add = (
-    notification: Omit<Notification, "id" | "createdAt">
-  ): string | number => {
+  const add = (notification: Omit<Notification, "id" | "createdAt">): string | number => {
     const id = generateId();
     const item: Notification = {
       ...notification,
@@ -651,9 +618,7 @@ export function useNotificationQueue(
 
     // 限制可见数量
     if (notifications.value.length > maxVisible) {
-      const oldest = position === "top"
-        ? notifications.value[notifications.value.length - 1]
-        : notifications.value[0];
+      const oldest = position === "top" ? notifications.value[notifications.value.length - 1] : notifications.value[0];
       remove(oldest.id);
     }
 

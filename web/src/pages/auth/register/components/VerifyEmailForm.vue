@@ -148,7 +148,15 @@ function goBack() {
           <div class="text-body-1 text-medium-emphasis mb-4 text-center">
             {{ registerStore.sessionToken.value ? "正在跳转到登录页面..." : "您可以立即登录使用" }}
           </div>
-          <v-btn v-if="!registerStore.sessionToken.value" color="primary" variant="elevated" block @click="router.push('/auth/login')"> 立即登录 </v-btn>
+          <v-btn
+            v-if="!registerStore.sessionToken.value"
+            color="primary"
+            variant="elevated"
+            block
+            @click="router.push('/auth/login')"
+          >
+            立即登录
+          </v-btn>
         </template>
 
         <!-- 验证表单 -->
@@ -183,7 +191,17 @@ function goBack() {
               persistent-hint
             ></v-text-field>
 
-            <v-btn color="primary" variant="elevated" prepend-icon="mdi-check" block size="large" type="submit" :loading="isLoading" :disabled="!isCodeValid || isLoading" class="mt-2">
+            <v-btn
+              color="primary"
+              variant="elevated"
+              prepend-icon="mdi-check"
+              block
+              size="large"
+              type="submit"
+              :loading="isLoading"
+              :disabled="!isCodeValid || isLoading"
+              class="mt-2"
+            >
               {{ isLoading ? "验证中..." : "验证邮箱" }}
             </v-btn>
           </v-form>

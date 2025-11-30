@@ -3,15 +3,7 @@
  * 提供 Server-Sent Events (SSE) 的响应式管理
  */
 
-import {
-  ref,
-  computed,
-  watch,
-  onMounted,
-  onUnmounted,
-  type Ref,
-  type ComputedRef,
-} from "vue";
+import { ref, computed, watch, onMounted, onUnmounted, type Ref, type ComputedRef } from "vue";
 
 // ============================================================================
 // 类型定义
@@ -23,16 +15,18 @@ export interface UseEventSourceOptions {
   /** 是否自动连接 */
   immediate?: boolean;
   /** 是否自动重连 */
-  autoReconnect?: boolean | {
-    /** 最大重连次数 */
-    retries?: number;
-    /** 重连延迟（毫秒） */
-    delay?: number;
-    /** 延迟递增因子 */
-    multiplier?: number;
-    /** 最大延迟 */
-    maxDelay?: number;
-  };
+  autoReconnect?:
+    | boolean
+    | {
+        /** 最大重连次数 */
+        retries?: number;
+        /** 重连延迟（毫秒） */
+        delay?: number;
+        /** 延迟递增因子 */
+        multiplier?: number;
+        /** 最大延迟 */
+        maxDelay?: number;
+      };
   /** 是否携带凭证 */
   withCredentials?: boolean;
   /** 连接打开回调 */
@@ -105,16 +99,17 @@ export function useEventSource<T = unknown>(
   } = options;
 
   // 解析自动重连配置
-  const autoReconnectOptions = typeof autoReconnect === "object"
-    ? {
-        retries: autoReconnect.retries ?? 3,
-        delay: autoReconnect.delay ?? 1000,
-        multiplier: autoReconnect.multiplier ?? 2,
-        maxDelay: autoReconnect.maxDelay ?? 30000,
-      }
-    : autoReconnect
-    ? { retries: 3, delay: 1000, multiplier: 2, maxDelay: 30000 }
-    : null;
+  const autoReconnectOptions =
+    typeof autoReconnect === "object"
+      ? {
+          retries: autoReconnect.retries ?? 3,
+          delay: autoReconnect.delay ?? 1000,
+          multiplier: autoReconnect.multiplier ?? 2,
+          maxDelay: autoReconnect.maxDelay ?? 30000,
+        }
+      : autoReconnect
+        ? { retries: 3, delay: 1000, multiplier: 2, maxDelay: 30000 }
+        : null;
 
   // 响应式状态
   const eventSource = ref<EventSource | null>(null);
@@ -148,8 +143,7 @@ export function useEventSource<T = unknown>(
 
     // 计算延迟
     const delay = Math.min(
-      autoReconnectOptions.delay *
-        Math.pow(autoReconnectOptions.multiplier, retryCount.value),
+      autoReconnectOptions.delay * Math.pow(autoReconnectOptions.multiplier, retryCount.value),
       autoReconnectOptions.maxDelay
     );
 
@@ -285,8 +279,7 @@ export interface NamedEventData<T = unknown> {
   id: string | null;
 }
 
-export interface UseEventSourceNamedReturn<T = unknown>
-  extends Omit<UseEventSourceReturn<T>, "data" | "event"> {
+export interface UseEventSourceNamedReturn<T = unknown> extends Omit<UseEventSourceReturn<T>, "data" | "event"> {
   /** 所有事件数据 */
   events: Ref<Map<string, T>>;
   /** 最后接收的命名事件 */
@@ -428,11 +421,7 @@ export interface EventSourceManager {
   /** 连接列表 */
   connections: Map<string, UseEventSourceReturn>;
   /** 创建连接 */
-  create: (
-    name: string,
-    url: string,
-    options?: UseEventSourceOptions
-  ) => UseEventSourceReturn;
+  create: (name: string, url: string, options?: UseEventSourceOptions) => UseEventSourceReturn;
   /** 获取连接 */
   get: (name: string) => UseEventSourceReturn | undefined;
   /** 关闭连接 */
@@ -459,11 +448,7 @@ export interface EventSourceManager {
 export function createEventSourceManager(): EventSourceManager {
   const connections = new Map<string, UseEventSourceReturn>();
 
-  const create = (
-    name: string,
-    url: string,
-    options?: UseEventSourceOptions
-  ): UseEventSourceReturn => {
+  const create = (name: string, url: string, options?: UseEventSourceOptions): UseEventSourceReturn => {
     // 关闭现有连接
     if (connections.has(name)) {
       connections.get(name)?.close();

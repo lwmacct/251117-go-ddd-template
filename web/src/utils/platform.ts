@@ -247,10 +247,7 @@ export function isStandalone(): boolean {
 export function supportsWebGL(): boolean {
   try {
     const canvas = document.createElement("canvas");
-    return !!(
-      window.WebGLRenderingContext &&
-      (canvas.getContext("webgl") || canvas.getContext("experimental-webgl"))
-    );
+    return !!(window.WebGLRenderingContext && (canvas.getContext("webgl") || canvas.getContext("experimental-webgl")));
   } catch {
     return false;
   }
@@ -264,8 +261,7 @@ export async function supportsWebP(): Promise<boolean> {
     const img = new Image();
     img.onload = () => resolve(img.width === 1);
     img.onerror = () => resolve(false);
-    img.src =
-      "data:image/webp;base64,UklGRiQAAABXRUJQVlA4IBgAAAAwAQCdASoBAAEAAwA0JaQAA3AA/vuUAAA=";
+    img.src = "data:image/webp;base64,UklGRiQAAABXRUJQVlA4IBgAAAAwAQCdASoBAAEAAwA0JaQAA3AA/vuUAAA=";
   });
 }
 

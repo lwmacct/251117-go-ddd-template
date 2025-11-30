@@ -60,9 +60,16 @@ onMounted(() => {
             <v-chip :color="statusColor" variant="flat" size="small">{{ statusText }}</v-chip>
           </v-card-title>
           <v-card-text class="pt-0">
-            <div class="text-body-2 mb-2" v-if="enabled">恢复码剩余 {{ recoveryCodesCount }} 个</div>
+            <div v-if="enabled" class="text-body-2 mb-2">恢复码剩余 {{ recoveryCodesCount }} 个</div>
             <div class="d-flex gap-2">
-              <v-btn v-if="!enabled || setupStep !== 'status'" color="primary" prepend-icon="mdi-shield-plus" :loading="loading" :disabled="loading" @click="startSetup">
+              <v-btn
+                v-if="!enabled || setupStep !== 'status'"
+                color="primary"
+                prepend-icon="mdi-shield-plus"
+                :loading="loading"
+                :disabled="loading"
+                @click="startSetup"
+              >
                 立即启用
               </v-btn>
               <v-btn
@@ -76,7 +83,14 @@ onMounted(() => {
               >
                 禁用 2FA
               </v-btn>
-              <v-btn v-if="setupStep !== 'status' && !loading" variant="text" prepend-icon="mdi-arrow-left" @click="resetToStatus"> 返回状态 </v-btn>
+              <v-btn
+                v-if="setupStep !== 'status' && !loading"
+                variant="text"
+                prepend-icon="mdi-arrow-left"
+                @click="resetToStatus"
+              >
+                返回状态
+              </v-btn>
             </div>
           </v-card-text>
         </v-card>
@@ -84,7 +98,14 @@ onMounted(() => {
     </v-row>
 
     <!-- 成功/错误消息 -->
-    <v-alert v-if="successMessage" type="success" density="compact" class="mb-4" closable @click:close="successMessage = ''">
+    <v-alert
+      v-if="successMessage"
+      type="success"
+      density="compact"
+      class="mb-4"
+      closable
+      @click:close="successMessage = ''"
+    >
       {{ successMessage }}
     </v-alert>
 
@@ -96,7 +117,7 @@ onMounted(() => {
     <div v-if="setupStep === 'setup' || setupStep === 'verify'" class="mb-6">
       <v-alert type="warning" variant="tonal" class="mb-4">
         <div class="text-body-2">
-          <strong>步骤 {{ setupStep === 'setup' ? '1' : '2' }}：</strong>
+          <strong>步骤 {{ setupStep === "setup" ? "1" : "2" }}：</strong>
           <span v-if="setupStep === 'setup'">使用 Google/Microsoft Authenticator 扫描二维码或手动输入密钥。</span>
           <span v-else>输入手机验证器显示的 6 位验证码完成绑定。</span>
         </div>
@@ -121,7 +142,14 @@ onMounted(() => {
           <v-card class="mb-4">
             <v-card-text>
               <div class="text-subtitle-2 mb-3">手动输入密钥</div>
-              <v-text-field :value="secret" readonly variant="outlined" density="compact" append-inner-icon="mdi-content-copy" @click:append-inner="copyToClipboard(secret)" />
+              <v-text-field
+                :value="secret"
+                readonly
+                variant="outlined"
+                density="compact"
+                append-inner-icon="mdi-content-copy"
+                @click:append-inner="copyToClipboard(secret)"
+              />
               <div class="text-caption text-medium-emphasis mt-2">无法扫码时可输入此密钥</div>
             </v-card-text>
           </v-card>
@@ -147,7 +175,12 @@ onMounted(() => {
                 <v-btn variant="text" @click="setupStep = 'setup'"> 上一步 </v-btn>
                 <div class="d-flex gap-2">
                   <v-btn variant="outlined" @click="resetToStatus"> 取消 </v-btn>
-                  <v-btn color="primary" @click="verifyAndEnable" :loading="loading" :disabled="!verifyCode || verifyCode.length !== 6">
+                  <v-btn
+                    color="primary"
+                    :loading="loading"
+                    :disabled="!verifyCode || verifyCode.length !== 6"
+                    @click="verifyAndEnable"
+                  >
                     验证并启用
                   </v-btn>
                 </div>
@@ -177,8 +210,17 @@ onMounted(() => {
           </div>
 
           <div class="d-flex flex-wrap gap-2 mb-4">
-            <v-btn variant="outlined" size="small" prepend-icon="mdi-content-copy" @click="copyToClipboard(recoveryCodes.join('\\n'))"> 复制所有 </v-btn>
-            <v-btn variant="outlined" size="small" prepend-icon="mdi-download" @click="downloadRecoveryCodes"> 下载保存 </v-btn>
+            <v-btn
+              variant="outlined"
+              size="small"
+              prepend-icon="mdi-content-copy"
+              @click="copyToClipboard(recoveryCodes.join('\\n'))"
+            >
+              复制所有
+            </v-btn>
+            <v-btn variant="outlined" size="small" prepend-icon="mdi-download" @click="downloadRecoveryCodes">
+              下载保存
+            </v-btn>
           </div>
 
           <v-btn color="primary" @click="resetToStatus"> 完成 </v-btn>

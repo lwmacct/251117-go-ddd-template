@@ -3,15 +3,7 @@
  * 提供 v-model 双向绑定的工具函数
  */
 
-import {
-  ref,
-  computed,
-  watch,
-  getCurrentInstance,
-  type Ref,
-  type WritableComputedRef,
-  type ModelRef,
-} from "vue";
+import { ref, computed, watch, getCurrentInstance, type Ref, type WritableComputedRef, type ModelRef } from "vue";
 
 // ============================================================================
 // 类型定义
@@ -241,8 +233,7 @@ export function useProxyModel<P extends object, K extends keyof P>(
   watch(
     proxy,
     (newValue) => {
-      isModified.value =
-        JSON.stringify(newValue) !== JSON.stringify(original.value);
+      isModified.value = JSON.stringify(newValue) !== JSON.stringify(original.value);
       onChange?.(newValue);
     },
     { deep }
@@ -318,9 +309,7 @@ export function useControlled<P extends object, K extends keyof P>(
   const isControlled = props[key] !== undefined;
 
   // 非受控模式使用本地状态
-  const localValue = ref(
-    isControlled ? props[key] : defaultValue
-  ) as Ref<NonNullable<P[K]>>;
+  const localValue = ref(isControlled ? props[key] : defaultValue) as Ref<NonNullable<P[K]>>;
 
   // 受控模式监听 props 变化
   if (isControlled) {
@@ -475,11 +464,14 @@ export function useThrottledVModel<P extends object, K extends keyof P>(
         if (timer) {
           clearTimeout(timer);
         }
-        timer = setTimeout(() => {
-          lastUpdate = Date.now();
-          emitFn?.(eventName, newValue);
-          onChange?.(newValue);
-        }, throttle - (now - lastUpdate));
+        timer = setTimeout(
+          () => {
+            lastUpdate = Date.now();
+            emitFn?.(eventName, newValue);
+            onChange?.(newValue);
+          },
+          throttle - (now - lastUpdate)
+        );
       }
     },
     { deep: restOptions.deep }
@@ -520,10 +512,7 @@ export interface UseToggleReturn {
  * setTrue() // true
  * setFalse() // false
  */
-export function useToggle(
-  initialValue: boolean = false,
-  options: UseToggleOptions = {}
-): UseToggleReturn {
+export function useToggle(initialValue: boolean = false, options: UseToggleOptions = {}): UseToggleReturn {
   const { truthyValue = true, falsyValue = false } = options;
 
   const value = ref(initialValue);
@@ -580,10 +569,7 @@ export interface UseCycleListReturn<T> {
  * next() // 'light'
  * prev() // 'auto'
  */
-export function useCycleList<T>(
-  list: T[],
-  initialIndex: number = 0
-): UseCycleListReturn<T> {
+export function useCycleList<T>(list: T[], initialIndex: number = 0): UseCycleListReturn<T> {
   const index = ref(initialIndex);
   const value = computed({
     get: () => list[index.value],

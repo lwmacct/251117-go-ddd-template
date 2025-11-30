@@ -33,7 +33,7 @@ const toggleTheme = () => {
     <v-spacer />
 
     <!-- 主题切换 -->
-    <v-btn icon size="small" @click="toggleTheme" title="切换主题">
+    <v-btn icon size="small" title="切换主题" @click="toggleTheme">
       <v-icon :icon="isDark ? 'mdi-weather-sunny' : 'mdi-weather-night'" />
     </v-btn>
   </v-app-bar>

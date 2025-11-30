@@ -63,13 +63,7 @@ export interface UseCountdownReturn {
  * start() // 开始倒计时
  */
 export function useCountdown(options: UseCountdownOptions): UseCountdownReturn {
-  const {
-    seconds: initialSeconds,
-    immediate = false,
-    onEnd,
-    onTick,
-    interval = 1000,
-  } = options;
+  const { seconds: initialSeconds, immediate = false, onEnd, onTick, interval = 1000 } = options;
 
   const remaining = ref(initialSeconds);
   const isRunning = ref(false);
@@ -318,12 +312,7 @@ export interface UseVerificationCodeOptions {
  * })
  */
 export function useVerificationCode(options: UseVerificationCodeOptions = {}) {
-  const {
-    seconds = 60,
-    onSend,
-    onSendSuccess,
-    onSendError,
-  } = options;
+  const { seconds = 60, onSend, onSendSuccess, onSendError } = options;
 
   const isSending = ref(false);
 

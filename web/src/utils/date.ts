@@ -145,9 +145,7 @@ export function isToday(date: string | Date | number): boolean {
   const today = new Date();
 
   return (
-    d.getDate() === today.getDate() &&
-    d.getMonth() === today.getMonth() &&
-    d.getFullYear() === today.getFullYear()
+    d.getDate() === today.getDate() && d.getMonth() === today.getMonth() && d.getFullYear() === today.getFullYear()
   );
 }
 

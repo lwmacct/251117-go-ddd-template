@@ -82,9 +82,7 @@ export function useWindowSize(options: UseWindowSizeOptions = {}) {
   const isMobile = computed(() => width.value < BREAKPOINTS.md);
 
   // 断点判断 - 平板 (md)
-  const isTablet = computed(
-    () => width.value >= BREAKPOINTS.md && width.value < BREAKPOINTS.lg
-  );
+  const isTablet = computed(() => width.value >= BREAKPOINTS.md && width.value < BREAKPOINTS.lg);
 
   // 断点判断 - 桌面端 (lg+)
   const isDesktop = computed(() => width.value >= BREAKPOINTS.lg);
@@ -109,9 +107,7 @@ export function useWindowSize(options: UseWindowSizeOptions = {}) {
   const isPortrait = computed(() => height.value >= width.value);
 
   // 设备像素比
-  const pixelRatio = ref(
-    typeof window !== "undefined" ? window.devicePixelRatio : 1
-  );
+  const pixelRatio = ref(typeof window !== "undefined" ? window.devicePixelRatio : 1);
 
   // 生命周期
   onMounted(() => {
@@ -181,10 +177,7 @@ export interface UseMediaQueryOptions {
  * const isDark = useMediaQuery("(prefers-color-scheme: dark)")
  * const isRetina = useMediaQuery("(min-resolution: 2dppx)")
  */
-export function useMediaQuery(
-  query: string,
-  options: UseMediaQueryOptions = {}
-) {
+export function useMediaQuery(query: string, options: UseMediaQueryOptions = {}) {
   const { initialValue = false } = options;
 
   const matches = ref(initialValue);
@@ -288,10 +281,7 @@ export interface UseElementSizeOptions {
  * const el = ref<HTMLElement>()
  * const { width, height } = useElementSize(el)
  */
-export function useElementSize(
-  target: () => HTMLElement | null | undefined,
-  options: UseElementSizeOptions = {}
-) {
+export function useElementSize(target: () => HTMLElement | null | undefined, options: UseElementSizeOptions = {}) {
   const { initialWidth = 0, initialHeight = 0, box = "content-box" } = options;
 
   const width = ref(initialWidth);

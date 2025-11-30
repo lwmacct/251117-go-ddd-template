@@ -206,9 +206,7 @@ export function useMounted(callback: () => CleanupFn | void): void {
  * console.log('mounted')
  * ```
  */
-export function useAsyncMounted(
-  options: AsyncMountedOptions = {}
-): Promise<void> {
+export function useAsyncMounted(options: AsyncMountedOptions = {}): Promise<void> {
   const { timeout, onTimeout } = options;
 
   return new Promise((resolve, reject) => {
@@ -312,9 +310,7 @@ export function useDeactivated(callback: () => void): void {
  * // [{ event: 'beforeMount', timestamp: 1234567890 }, ...]
  * ```
  */
-export function useLifecycleTracker(
-  options: LifecycleTrackerOptions = {}
-): LifecycleTrackerReturn {
+export function useLifecycleTracker(options: LifecycleTrackerOptions = {}): LifecycleTrackerReturn {
   const { log = false, prefix = "Component" } = options;
 
   const history = ref<Array<{ event: LifecycleEvent; timestamp: number }>>([]);
@@ -493,10 +489,7 @@ export function useMountedNextTick(callback: () => void): void {
  * isReady.value = true // 触发回调
  * ```
  */
-export function useMountedWhen(
-  condition: Ref<boolean>,
-  callback: () => CleanupFn | void
-): void {
+export function useMountedWhen(condition: Ref<boolean>, callback: () => CleanupFn | void): void {
   const { isMounted } = useMountedState();
   let cleanup: CleanupFn | void;
 
@@ -598,11 +591,7 @@ export function useRenderCount(): {
  * ```
  */
 export function useErrorCapture(
-  handler?: (
-    err: Error,
-    instance: ComponentInternalInstance | null,
-    info: string
-  ) => boolean | void
+  handler?: (err: Error, instance: ComponentInternalInstance | null, info: string) => boolean | void
 ): {
   error: Ref<Error | null>;
   clearError: () => void;

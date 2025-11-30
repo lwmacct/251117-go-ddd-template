@@ -135,7 +135,12 @@ function goBack() {
             persistent-hint
           >
             <template #append-inner>
-              <v-btn icon="mdi-help-circle-outline" variant="text" size="small" @click="showRecoveryCodeHelp = !showRecoveryCodeHelp"></v-btn>
+              <v-btn
+                icon="mdi-help-circle-outline"
+                variant="text"
+                size="small"
+                @click="showRecoveryCodeHelp = !showRecoveryCodeHelp"
+              ></v-btn>
             </template>
           </v-text-field>
 
@@ -149,7 +154,17 @@ function goBack() {
             </v-alert>
           </v-expand-transition>
 
-          <v-btn color="primary" variant="elevated" prepend-icon="mdi-check" block size="large" type="submit" :loading="isLoading" :disabled="!isCodeValid || isLoading" class="mt-2">
+          <v-btn
+            color="primary"
+            variant="elevated"
+            prepend-icon="mdi-check"
+            block
+            size="large"
+            type="submit"
+            :loading="isLoading"
+            :disabled="!isCodeValid || isLoading"
+            class="mt-2"
+          >
             {{ isLoading ? "验证中..." : "验证" }}
           </v-btn>
         </v-form>

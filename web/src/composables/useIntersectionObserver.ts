@@ -45,18 +45,10 @@ export interface UseIntersectionObserverReturn {
  */
 export function useIntersectionObserver(
   target: Ref<Element | null | undefined>,
-  callback?: (
-    entries: IntersectionObserverEntry[],
-    observer: IntersectionObserver
-  ) => void,
+  callback?: (entries: IntersectionObserverEntry[], observer: IntersectionObserver) => void,
   options: UseIntersectionObserverOptions = {}
 ): UseIntersectionObserverReturn {
-  const {
-    root = null,
-    rootMargin = "0px",
-    threshold = 0,
-    immediate = true,
-  } = options;
+  const { root = null, rootMargin = "0px", threshold = 0, immediate = true } = options;
 
   const isVisible = ref(false);
   const hasBeenVisible = ref(false);
@@ -151,32 +143,28 @@ export interface UseLazyLoadOptions extends UseIntersectionObserverOptions {
  * const { shouldLoad } = useLazyLoad(imageRef)
  * // <img v-if="shouldLoad" :src="imageSrc" />
  */
-export function useLazyLoad(
-  target: Ref<Element | null | undefined>,
-  options: UseLazyLoadOptions = {}
-) {
+export function useLazyLoad(target: Ref<Element | null | undefined>, options: UseLazyLoadOptions = {}) {
   const { once = true, ...observerOptions } = options;
 
   const shouldLoad = ref(false);
 
-  const { isVisible, hasBeenVisible, observe, unobserve } =
-    useIntersectionObserver(
-      target,
-      (entries) => {
-        const entry = entries[0];
-        if (entry?.isIntersecting) {
-          shouldLoad.value = true;
+  const { isVisible, hasBeenVisible, observe, unobserve } = useIntersectionObserver(
+    target,
+    (entries) => {
+      const entry = entries[0];
+      if (entry?.isIntersecting) {
+        shouldLoad.value = true;
 
-          if (once) {
-            unobserve();
-          }
+        if (once) {
+          unobserve();
         }
-      },
-      {
-        rootMargin: "50px", // 提前 50px 开始加载
-        ...observerOptions,
       }
-    );
+    },
+    {
+      rootMargin: "50px", // 提前 50px 开始加载
+      ...observerOptions,
+    }
+  );
 
   return {
     shouldLoad,
@@ -217,28 +205,15 @@ export interface UseInfiniteScrollOptions extends UseIntersectionObserverOptions
  *   }
  * })
  */
-export function useInfiniteScroll(
-  target: Ref<Element | null | undefined>,
-  options: UseInfiniteScrollOptions = {}
-) {
-  const {
-    loading = ref(false),
-    hasMore = ref(true),
-    onLoadMore,
-    ...observerOptions
-  } = options;
+export function useInfiniteScroll(target: Ref<Element | null | undefined>, options: UseInfiniteScrollOptions = {}) {
+  const { loading = ref(false), hasMore = ref(true), onLoadMore, ...observerOptions } = options;
 
   const { isVisible, observe, unobserve } = useIntersectionObserver(
     target,
     async (entries) => {
       const entry = entries[0];
 
-      if (
-        entry?.isIntersecting &&
-        !loading.value &&
-        hasMore.value &&
-        onLoadMore
-      ) {
+      if (entry?.isIntersecting && !loading.value && hasMore.value && onLoadMore) {
         await onLoadMore();
       }
     },
@@ -278,43 +253,34 @@ export interface UseAnimateOnScrollOptions extends UseIntersectionObserverOption
  *   animationClass: 'fade-in'
  * })
  */
-export function useAnimateOnScroll(
-  target: Ref<Element | null | undefined>,
-  options: UseAnimateOnScrollOptions = {}
-) {
-  const {
-    animationClass = "animate-in",
-    once = true,
-    threshold = 0.1,
-    ...observerOptions
-  } = options;
+export function useAnimateOnScroll(target: Ref<Element | null | undefined>, options: UseAnimateOnScrollOptions = {}) {
+  const { animationClass = "animate-in", once = true, threshold = 0.1, ...observerOptions } = options;
 
   const isAnimated = ref(false);
 
-  const { isVisible, hasBeenVisible, observe, unobserve } =
-    useIntersectionObserver(
-      target,
-      (entries) => {
-        const entry = entries[0];
-        const element = target.value;
+  const { isVisible, hasBeenVisible, observe, unobserve } = useIntersectionObserver(
+    target,
+    (entries) => {
+      const entry = entries[0];
+      const element = target.value;
 
-        if (entry?.isIntersecting && element) {
-          isAnimated.value = true;
-          element.classList.add(animationClass);
+      if (entry?.isIntersecting && element) {
+        isAnimated.value = true;
+        element.classList.add(animationClass);
 
-          if (once) {
-            unobserve();
-          }
-        } else if (!once && element) {
-          isAnimated.value = false;
-          element.classList.remove(animationClass);
+        if (once) {
+          unobserve();
         }
-      },
-      {
-        threshold,
-        ...observerOptions,
+      } else if (!once && element) {
+        isAnimated.value = false;
+        element.classList.remove(animationClass);
       }
-    );
+    },
+    {
+      threshold,
+      ...observerOptions,
+    }
+  );
 
   return {
     isAnimated,
@@ -345,31 +311,27 @@ export interface UseVisibilityOptions extends UseIntersectionObserverOptions {
  *   onLeave: () => console.log('离开视口')
  * })
  */
-export function useVisibility(
-  target: Ref<Element | null | undefined>,
-  options: UseVisibilityOptions = {}
-) {
+export function useVisibility(target: Ref<Element | null | undefined>, options: UseVisibilityOptions = {}) {
   const { onEnter, onLeave, ...observerOptions } = options;
 
   let wasVisible = false;
 
-  const { isVisible, hasBeenVisible, intersectionRatio, observe, unobserve } =
-    useIntersectionObserver(
-      target,
-      (entries) => {
-        const entry = entries[0];
-        if (!entry) return;
+  const { isVisible, hasBeenVisible, intersectionRatio, observe, unobserve } = useIntersectionObserver(
+    target,
+    (entries) => {
+      const entry = entries[0];
+      if (!entry) return;
 
-        if (entry.isIntersecting && !wasVisible) {
-          wasVisible = true;
-          onEnter?.();
-        } else if (!entry.isIntersecting && wasVisible) {
-          wasVisible = false;
-          onLeave?.();
-        }
-      },
-      observerOptions
-    );
+      if (entry.isIntersecting && !wasVisible) {
+        wasVisible = true;
+        onEnter?.();
+      } else if (!entry.isIntersecting && wasVisible) {
+        wasVisible = false;
+        onLeave?.();
+      }
+    },
+    observerOptions
+  );
 
   return {
     isVisible,

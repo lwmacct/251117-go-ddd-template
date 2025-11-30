@@ -3,14 +3,7 @@
  * 提供跨标签页通信的响应式管理
  */
 
-import {
-  ref,
-  computed,
-  onMounted,
-  onUnmounted,
-  type Ref,
-  type ComputedRef,
-} from "vue";
+import { ref, computed, onMounted, onUnmounted, type Ref, type ComputedRef } from "vue";
 
 // ============================================================================
 // 类型定义
@@ -122,8 +115,7 @@ export function useBroadcastChannel<T = unknown, P = T>(
 // useBroadcastChannelJSON - JSON 格式的广播频道
 // ============================================================================
 
-export interface UseBroadcastChannelJSONOptions<T>
-  extends Omit<UseBroadcastChannelOptions<T>, "onMessage"> {
+export interface UseBroadcastChannelJSONOptions<T> extends Omit<UseBroadcastChannelOptions<T>, "onMessage"> {
   /** 消息回调 */
   onMessage?: (data: T) => void;
 }
@@ -200,10 +192,7 @@ interface TabSyncMessage<T> {
  * // 部分更新
  * mergeState({ theme: 'dark' })
  */
-export function useTabSync<T extends object>(
-  channelName: string,
-  options: UseTabSyncOptions<T>
-): UseTabSyncReturn<T> {
+export function useTabSync<T extends object>(channelName: string, options: UseTabSyncOptions<T>): UseTabSyncReturn<T> {
   const { initialState, immediate = true, onSync } = options;
 
   const isSupported = computed(() => typeof BroadcastChannel !== "undefined");
@@ -352,25 +341,15 @@ interface LeaderMessage {
  *   performExpensiveOperation()
  * }
  */
-export function useTabLeader(
-  channelName: string,
-  options: UseTabLeaderOptions = {}
-): UseTabLeaderReturn {
-  const {
-    heartbeatInterval = 1000,
-    heartbeatTimeout = 3000,
-    onBecomeLeader,
-    onLoseLeadership,
-  } = options;
+export function useTabLeader(channelName: string, options: UseTabLeaderOptions = {}): UseTabLeaderReturn {
+  const { heartbeatInterval = 1000, heartbeatTimeout = 3000, onBecomeLeader, onLoseLeadership } = options;
 
   const isSupported = computed(() => typeof BroadcastChannel !== "undefined");
   const isLeader = ref(false);
 
   // 生成唯一 ID
   const tabId =
-    typeof crypto !== "undefined"
-      ? crypto.randomUUID()
-      : `tab-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    typeof crypto !== "undefined" ? crypto.randomUUID() : `tab-${Date.now()}-${Math.random().toString(36).slice(2)}`;
 
   let channel: BroadcastChannel | null = null;
   let heartbeatTimer: ReturnType<typeof setInterval> | null = null;
@@ -566,15 +545,11 @@ interface MessengerMessage<T = unknown> {
  * // 请求-响应模式
  * const result = await messenger.request('getData', { key: 'user' })
  */
-export function useTabMessenger<T = unknown>(
-  channelName: string
-): UseTabMessengerReturn<T> {
+export function useTabMessenger<T = unknown>(channelName: string): UseTabMessengerReturn<T> {
   const isSupported = computed(() => typeof BroadcastChannel !== "undefined");
 
   const tabId =
-    typeof crypto !== "undefined"
-      ? crypto.randomUUID()
-      : `tab-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    typeof crypto !== "undefined" ? crypto.randomUUID() : `tab-${Date.now()}-${Math.random().toString(36).slice(2)}`;
 
   const handlers = new Map<string, Set<MessageHandler<T>>>();
   const pendingRequests = new Map<
@@ -614,11 +589,7 @@ export function useTabMessenger<T = unknown>(
     }
   };
 
-  const request = <R = unknown>(
-    type: string,
-    data: T,
-    timeout = 5000
-  ): Promise<R> => {
+  const request = <R = unknown>(type: string, data: T, timeout = 5000): Promise<R> => {
     return new Promise((resolve, reject) => {
       const requestId = `${tabId}-${Date.now()}-${Math.random().toString(36).slice(2)}`;
 

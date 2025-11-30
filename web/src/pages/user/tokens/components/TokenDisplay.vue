@@ -34,7 +34,12 @@ const closeDialog = () => {
 </script>
 
 <template>
-  <v-dialog :model-value="modelValue" @update:model-value="emit('update:modelValue', $event)" max-width="700" persistent>
+  <v-dialog
+    :model-value="modelValue"
+    max-width="700"
+    persistent
+    @update:model-value="emit('update:modelValue', $event)"
+  >
     <v-card>
       <v-card-title class="bg-primary">
         <v-icon start>mdi-key-variant</v-icon>
@@ -66,7 +71,9 @@ const closeDialog = () => {
           </v-btn>
         </div>
 
-        <v-alert type="info" class="mt-4" density="compact"> <strong>使用方式：</strong>在 API 请求中添加 Header: <code>Authorization: Bearer YOUR_TOKEN</code> </v-alert>
+        <v-alert type="info" class="mt-4" density="compact">
+          <strong>使用方式：</strong>在 API 请求中添加 Header: <code>Authorization: Bearer YOUR_TOKEN</code>
+        </v-alert>
       </v-card-text>
 
       <v-card-actions>

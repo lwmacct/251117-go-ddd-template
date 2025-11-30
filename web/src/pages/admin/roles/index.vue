@@ -6,7 +6,22 @@ import PermissionSelector from "./components/PermissionSelector.vue";
 import type { Role, CreateRoleRequest, UpdateRoleRequest } from "@/types/admin";
 
 // 使用 composable（搜索现在通过 watch 自动触发）
-const { roles, loading, searchQuery, pagination, errorMessage, successMessage, fetchRoles, createRole, updateRole, deleteRole, setPermissions, changePage, clearMessages, exportRoles } = useRoles();
+const {
+  roles,
+  loading,
+  searchQuery,
+  pagination,
+  errorMessage,
+  successMessage,
+  fetchRoles,
+  createRole,
+  updateRole,
+  deleteRole,
+  setPermissions,
+  changePage,
+  clearMessages,
+  exportRoles,
+} = useRoles();
 
 const roleDialog = ref(false);
 const permissionDialog = ref(false);
@@ -134,10 +149,20 @@ const formatPermissions = (role: Role) => {
           <v-card-title>
             <v-row align="center">
               <v-col cols="12" md="6">
-                <v-text-field v-model="searchQuery" prepend-inner-icon="mdi-magnify" label="搜索角色" single-line hide-details clearable variant="outlined" density="compact" placeholder="输入后自动搜索..."></v-text-field>
+                <v-text-field
+                  v-model="searchQuery"
+                  prepend-inner-icon="mdi-magnify"
+                  label="搜索角色"
+                  single-line
+                  hide-details
+                  clearable
+                  variant="outlined"
+                  density="compact"
+                  placeholder="输入后自动搜索..."
+                ></v-text-field>
               </v-col>
               <v-col cols="12" md="6" class="text-right">
-                <v-btn variant="outlined" class="mr-2" @click="exportRoles" :loading="loading">
+                <v-btn variant="outlined" class="mr-2" :loading="loading" @click="exportRoles">
                   <v-icon start>mdi-download</v-icon>
                   导出
                 </v-btn>
@@ -177,19 +202,41 @@ const formatPermissions = (role: Role) => {
               <template #item.actions="{ item }">
                 <v-tooltip text="编辑">
                   <template #activator="{ props }">
-                    <v-btn icon="mdi-pencil" size="small" variant="text" v-bind="props" :disabled="item.is_system" @click="openEditDialog(item)"></v-btn>
+                    <v-btn
+                      icon="mdi-pencil"
+                      size="small"
+                      variant="text"
+                      v-bind="props"
+                      :disabled="item.is_system"
+                      @click="openEditDialog(item)"
+                    ></v-btn>
                   </template>
                 </v-tooltip>
 
                 <v-tooltip text="设置权限">
                   <template #activator="{ props }">
-                    <v-btn icon="mdi-shield-lock" size="small" variant="text" color="primary" v-bind="props" @click="openPermissionSelector(item)"></v-btn>
+                    <v-btn
+                      icon="mdi-shield-lock"
+                      size="small"
+                      variant="text"
+                      color="primary"
+                      v-bind="props"
+                      @click="openPermissionSelector(item)"
+                    ></v-btn>
                   </template>
                 </v-tooltip>
 
                 <v-tooltip text="删除">
                   <template #activator="{ props }">
-                    <v-btn icon="mdi-delete" size="small" variant="text" color="error" v-bind="props" :disabled="item.is_system" @click="openDeleteDialog(item)"></v-btn>
+                    <v-btn
+                      icon="mdi-delete"
+                      size="small"
+                      variant="text"
+                      color="error"
+                      v-bind="props"
+                      :disabled="item.is_system"
+                      @click="openDeleteDialog(item)"
+                    ></v-btn>
                   </template>
                 </v-tooltip>
               </template>
@@ -201,7 +248,13 @@ const formatPermissions = (role: Role) => {
 
     <RoleDialog v-model="roleDialog" :role="selectedRole" :mode="dialogMode" @save="handleSaveRole" />
 
-    <PermissionSelector v-if="selectedRole && permissionDialog" v-model="permissionDialog" :role-id="selectedRole.id" :role-permissions="selectedRole.permissions || []" @save="handleSavePermissions" />
+    <PermissionSelector
+      v-if="selectedRole && permissionDialog"
+      v-model="permissionDialog"
+      :role-id="selectedRole.id"
+      :role-permissions="selectedRole.permissions || []"
+      @save="handleSavePermissions"
+    />
 
     <v-dialog v-model="deleteDialog" max-width="400">
       <v-card>
@@ -212,7 +265,7 @@ const formatPermissions = (role: Role) => {
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn variant="text" @click="deleteDialog = false">取消</v-btn>
-          <v-btn color="error" variant="elevated" @click="confirmDelete" :loading="loading">删除</v-btn>
+          <v-btn color="error" variant="elevated" :loading="loading" @click="confirmDelete">删除</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>

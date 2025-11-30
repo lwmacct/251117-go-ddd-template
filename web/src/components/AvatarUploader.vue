@@ -227,9 +227,7 @@ watch(
     </v-alert>
 
     <!-- 提示信息 -->
-    <div class="text-caption text-grey mt-1" style="max-width: 200px">
-      支持 JPG、PNG、GIF，最大 {{ maxSize }}MB
-    </div>
+    <div class="text-caption text-grey mt-1" style="max-width: 200px">支持 JPG、PNG、GIF，最大 {{ maxSize }}MB</div>
   </div>
 </template>
 

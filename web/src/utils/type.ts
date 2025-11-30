@@ -153,10 +153,7 @@ export function isArray(value: unknown): value is unknown[] {
  * isArrayOf([1, 2, 3], isNumber) // true
  * isArrayOf([1, '2', 3], isNumber) // false
  */
-export function isArrayOf<T>(
-  value: unknown,
-  guard: (item: unknown) => item is T
-): value is T[] {
+export function isArrayOf<T>(value: unknown, guard: (item: unknown) => item is T): value is T[] {
   return isArray(value) && value.every(guard);
 }
 
@@ -186,13 +183,8 @@ export function isFunction(value: unknown): value is (...args: unknown[]) => unk
  * isAsyncFunction(async () => {}) // true
  * isAsyncFunction(() => {}) // false
  */
-export function isAsyncFunction(
-  value: unknown
-): value is (...args: unknown[]) => Promise<unknown> {
-  return (
-    isFunction(value) &&
-    value.constructor.name === "AsyncFunction"
-  );
+export function isAsyncFunction(value: unknown): value is (...args: unknown[]) => Promise<unknown> {
+  return isFunction(value) && value.constructor.name === "AsyncFunction";
 }
 
 /**
@@ -281,9 +273,7 @@ export function isSet<T = unknown>(value: unknown): value is Set<T> {
  * @example
  * isWeakMap(new WeakMap()) // true
  */
-export function isWeakMap<K extends object = object, V = unknown>(
-  value: unknown
-): value is WeakMap<K, V> {
+export function isWeakMap<K extends object = object, V = unknown>(value: unknown): value is WeakMap<K, V> {
   return value instanceof WeakMap;
 }
 
@@ -292,9 +282,7 @@ export function isWeakMap<K extends object = object, V = unknown>(
  * @example
  * isWeakSet(new WeakSet()) // true
  */
-export function isWeakSet<T extends object = object>(
-  value: unknown
-): value is WeakSet<T> {
+export function isWeakSet<T extends object = object>(value: unknown): value is WeakSet<T> {
   return value instanceof WeakSet;
 }
 
@@ -522,10 +510,7 @@ export function assertDefined<T>(
  * @example
  * assert(condition, 'Condition must be true')
  */
-export function assert(
-  condition: unknown,
-  message: string = "Assertion failed"
-): asserts condition {
+export function assert(condition: unknown, message: string = "Assertion failed"): asserts condition {
   if (!condition) {
     throw new Error(message);
   }
@@ -555,9 +540,7 @@ export function assertNever(value: never, message?: string): never {
  * isStringOrNumber('hello') // true
  * isStringOrNumber(123) // true
  */
-export function unionGuard<T extends (value: unknown) => boolean>(
-  ...guards: T[]
-): (value: unknown) => boolean {
+export function unionGuard<T extends (value: unknown) => boolean>(...guards: T[]): (value: unknown) => boolean {
   return (value: unknown) => guards.some((guard) => guard(value));
 }
 
@@ -566,9 +549,7 @@ export function unionGuard<T extends (value: unknown) => boolean>(
  * @example
  * const isNonEmptyStringArray = intersectionGuard(isArray, isNonEmptyArray);
  */
-export function intersectionGuard<T extends (value: unknown) => boolean>(
-  ...guards: T[]
-): (value: unknown) => boolean {
+export function intersectionGuard<T extends (value: unknown) => boolean>(...guards: T[]): (value: unknown) => boolean {
   return (value: unknown) => guards.every((guard) => guard(value));
 }
 
@@ -577,9 +558,7 @@ export function intersectionGuard<T extends (value: unknown) => boolean>(
  * @example
  * const isNotNull = notGuard(isNull);
  */
-export function notGuard<T extends (value: unknown) => boolean>(
-  guard: T
-): (value: unknown) => boolean {
+export function notGuard<T extends (value: unknown) => boolean>(guard: T): (value: unknown) => boolean {
   return (value: unknown) => !guard(value);
 }
 
@@ -624,9 +603,7 @@ export function isSameType(a: unknown, b: unknown): boolean {
  * isPrimitive('hello') // true
  * isPrimitive({}) // false
  */
-export function isPrimitive(
-  value: unknown
-): value is string | number | boolean | null | undefined | symbol | bigint {
+export function isPrimitive(value: unknown): value is string | number | boolean | null | undefined | symbol | bigint {
   return (
     value === null ||
     value === undefined ||

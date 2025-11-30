@@ -17,10 +17,7 @@ export interface UseDebounceOptions {
  * @param options 配置选项
  * @returns 防抖后的值
  */
-export function useDebouncedRef<T>(
-  source: Ref<T>,
-  options: UseDebounceOptions = {}
-): Ref<T> {
+export function useDebouncedRef<T>(source: Ref<T>, options: UseDebounceOptions = {}): Ref<T> {
   const { delay = 300, immediate = false } = options;
 
   const debouncedValue = ref(source.value) as Ref<T>;

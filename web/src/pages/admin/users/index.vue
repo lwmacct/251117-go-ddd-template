@@ -13,7 +13,22 @@ import type { AdminUser, CreateUserRequest, UpdateUserRequest } from "@/types/ad
  */
 
 // 使用 composable（移除 searchUsers，搜索现在通过 watch 自动触发）
-const { users, loading, searchQuery, pagination, errorMessage, successMessage, fetchUsers, createUser, updateUser, deleteUser, assignRoles, changePage, clearMessages, exportUsers } = useAdminUsers();
+const {
+  users,
+  loading,
+  searchQuery,
+  pagination,
+  errorMessage,
+  successMessage,
+  fetchUsers,
+  createUser,
+  updateUser,
+  deleteUser,
+  assignRoles,
+  changePage,
+  clearMessages,
+  exportUsers,
+} = useAdminUsers();
 
 // 对话框状态
 const userDialog = ref(false);
@@ -179,10 +194,20 @@ const getStatusText = (status: string) => {
           <v-card-title>
             <v-row align="center">
               <v-col cols="12" md="6">
-                <v-text-field v-model="searchQuery" prepend-inner-icon="mdi-magnify" label="搜索用户（用户名或邮箱）" single-line hide-details clearable variant="outlined" density="compact" placeholder="输入后自动搜索..."></v-text-field>
+                <v-text-field
+                  v-model="searchQuery"
+                  prepend-inner-icon="mdi-magnify"
+                  label="搜索用户（用户名或邮箱）"
+                  single-line
+                  hide-details
+                  clearable
+                  variant="outlined"
+                  density="compact"
+                  placeholder="输入后自动搜索..."
+                ></v-text-field>
               </v-col>
               <v-col cols="12" md="6" class="text-right">
-                <v-btn variant="outlined" class="mr-2" @click="exportUsers" :loading="loading">
+                <v-btn variant="outlined" class="mr-2" :loading="loading" @click="exportUsers">
                   <v-icon start>mdi-download</v-icon>
                   导出
                 </v-btn>
@@ -239,19 +264,39 @@ const getStatusText = (status: string) => {
               <template #item.actions="{ item }">
                 <v-tooltip text="编辑">
                   <template #activator="{ props }">
-                    <v-btn icon="mdi-pencil" size="small" variant="text" v-bind="props" @click="openEditDialog(item)"></v-btn>
+                    <v-btn
+                      icon="mdi-pencil"
+                      size="small"
+                      variant="text"
+                      v-bind="props"
+                      @click="openEditDialog(item)"
+                    ></v-btn>
                   </template>
                 </v-tooltip>
 
                 <v-tooltip text="分配角色">
                   <template #activator="{ props }">
-                    <v-btn icon="mdi-shield-account" size="small" variant="text" color="primary" v-bind="props" @click="openRoleSelector(item)"></v-btn>
+                    <v-btn
+                      icon="mdi-shield-account"
+                      size="small"
+                      variant="text"
+                      color="primary"
+                      v-bind="props"
+                      @click="openRoleSelector(item)"
+                    ></v-btn>
                   </template>
                 </v-tooltip>
 
                 <v-tooltip text="删除">
                   <template #activator="{ props }">
-                    <v-btn icon="mdi-delete" size="small" variant="text" color="error" v-bind="props" @click="openDeleteDialog(item)"></v-btn>
+                    <v-btn
+                      icon="mdi-delete"
+                      size="small"
+                      variant="text"
+                      color="error"
+                      v-bind="props"
+                      @click="openDeleteDialog(item)"
+                    ></v-btn>
                   </template>
                 </v-tooltip>
               </template>
@@ -268,7 +313,13 @@ const getStatusText = (status: string) => {
     <UserImportDialog v-model="importDialog" @imported="handleImported" />
 
     <!-- 角色选择器 -->
-    <RoleSelector v-if="selectedUser && roleSelectorDialog" v-model="roleSelectorDialog" :user-id="selectedUser.id" :user-roles="selectedUser.roles || []" @save="handleSaveRoles" />
+    <RoleSelector
+      v-if="selectedUser && roleSelectorDialog"
+      v-model="roleSelectorDialog"
+      :user-id="selectedUser.id"
+      :user-roles="selectedUser.roles || []"
+      @save="handleSaveRoles"
+    />
 
     <!-- 删除确认对话框 -->
     <v-dialog v-model="deleteDialog" max-width="400">
@@ -280,7 +331,7 @@ const getStatusText = (status: string) => {
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn variant="text" @click="deleteDialog = false">取消</v-btn>
-          <v-btn color="error" variant="elevated" @click="confirmDelete" :loading="loading">删除</v-btn>
+          <v-btn color="error" variant="elevated" :loading="loading" @click="confirmDelete">删除</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>

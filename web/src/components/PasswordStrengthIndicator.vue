@@ -83,7 +83,12 @@ const requirements = computed(() => {
 
     <!-- 密码要求提示 -->
     <div v-if="showHints" class="requirements mt-2">
-      <div v-for="(req, index) in requirements" :key="index" class="d-flex align-center text-body-2" :class="req.met ? 'text-success' : 'text-grey'">
+      <div
+        v-for="(req, index) in requirements"
+        :key="index"
+        class="d-flex align-center text-body-2"
+        :class="req.met ? 'text-success' : 'text-grey'"
+      >
         <v-icon size="14" class="mr-1">
           {{ req.met ? "mdi-check-circle" : "mdi-circle-outline" }}
         </v-icon>

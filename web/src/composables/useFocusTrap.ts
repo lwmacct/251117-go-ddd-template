@@ -55,17 +55,11 @@ const FOCUSABLE_SELECTORS = [
  * 获取容器内所有可聚焦元素
  */
 function getFocusableElements(container: HTMLElement): HTMLElement[] {
-  const elements = Array.from(
-    container.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTORS)
-  );
+  const elements = Array.from(container.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTORS));
 
   // 过滤不可见元素
   return elements.filter((el) => {
-    return (
-      el.offsetWidth > 0 &&
-      el.offsetHeight > 0 &&
-      getComputedStyle(el).visibility !== "hidden"
-    );
+    return el.offsetWidth > 0 && el.offsetHeight > 0 && getComputedStyle(el).visibility !== "hidden";
   });
 }
 
@@ -101,10 +95,7 @@ function getLastFocusable(container: HTMLElement): HTMLElement | null {
  * // 关闭时停用
  * deactivate()
  */
-export function useFocusTrap(
-  target: Ref<HTMLElement | null | undefined>,
-  options: UseFocusTrapOptions = {}
-) {
+export function useFocusTrap(target: Ref<HTMLElement | null | undefined>, options: UseFocusTrapOptions = {}) {
   const {
     immediate = false,
     autoFocus = true,

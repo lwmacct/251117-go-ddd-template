@@ -139,13 +139,21 @@ function resetForm() {
             请输入 <strong class="text-error">{{ CONFIRM_TEXT }}</strong> 确认删除：
           </p>
 
-          <v-text-field v-model="confirmText" label="确认文本" variant="outlined" :placeholder="`请输入 ${CONFIRM_TEXT}`" autofocus />
+          <v-text-field
+            v-model="confirmText"
+            label="确认文本"
+            variant="outlined"
+            :placeholder="`请输入 ${CONFIRM_TEXT}`"
+            autofocus
+          />
         </v-card-text>
 
         <v-card-actions>
           <v-spacer />
           <v-btn variant="outlined" @click="closeConfirmDialog"> 取消 </v-btn>
-          <v-btn color="error" :loading="loading" :disabled="confirmText !== CONFIRM_TEXT" @click="handleDelete"> 确认删除 </v-btn>
+          <v-btn color="error" :loading="loading" :disabled="confirmText !== CONFIRM_TEXT" @click="handleDelete">
+            确认删除
+          </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>

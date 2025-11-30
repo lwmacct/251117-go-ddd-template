@@ -3,15 +3,7 @@
  * 提供数据缓存和重新验证的策略
  */
 
-import {
-  ref,
-  computed,
-  watch,
-  onMounted,
-  onUnmounted,
-  type Ref,
-  type ComputedRef,
-} from "vue";
+import { ref, computed, watch, onMounted, onUnmounted, type Ref, type ComputedRef } from "vue";
 
 // ============================================================================
 // 类型定义
@@ -95,11 +87,7 @@ const subscribers = new Map<string, Set<() => void>>();
  *   }
  * )
  */
-export function useSWR<T>(
-  key: string,
-  fetcher: () => Promise<T>,
-  options: UseSWROptions<T> = {}
-): UseSWRReturn<T> {
+export function useSWR<T>(key: string, fetcher: () => Promise<T>, options: UseSWROptions<T> = {}): UseSWRReturn<T> {
   const {
     initialData,
     immediate = true,
@@ -121,9 +109,7 @@ export function useSWR<T>(
   const status = ref<SWRStatus>("idle");
   const isValidating = ref(false);
 
-  const isLoading = computed(
-    () => status.value === "loading" && data.value === null
-  );
+  const isLoading = computed(() => status.value === "loading" && data.value === null);
 
   let retryCount = 0;
   let intervalTimer: ReturnType<typeof setInterval> | null = null;
@@ -174,11 +160,7 @@ export function useSWR<T>(
     const now = Date.now();
 
     // 去重：如果最近刚获取过，跳过
-    if (
-      cached &&
-      cached.promise &&
-      now - cached.timestamp < dedupingInterval
-    ) {
+    if (cached && cached.promise && now - cached.timestamp < dedupingInterval) {
       return cached.promise;
     }
 
@@ -222,8 +204,7 @@ export function useSWR<T>(
 
       return result;
     } catch (err) {
-      const fetchError =
-        err instanceof Error ? err : new Error(String(err));
+      const fetchError = err instanceof Error ? err : new Error(String(err));
       error.value = fetchError;
       status.value = "error";
       onError?.(fetchError);
@@ -254,9 +235,7 @@ export function useSWR<T>(
   };
 
   // 手动更新数据
-  const mutate = async (
-    newData?: T | ((prev: T | null) => T)
-  ): Promise<void> => {
+  const mutate = async (newData?: T | ((prev: T | null) => T)): Promise<void> => {
     if (newData === undefined) {
       // 不传参数则重新获取
       await revalidate();
@@ -264,10 +243,7 @@ export function useSWR<T>(
     }
 
     // 乐观更新
-    const resolvedData =
-      typeof newData === "function"
-        ? (newData as (prev: T | null) => T)(data.value)
-        : newData;
+    const resolvedData = typeof newData === "function" ? (newData as (prev: T | null) => T)(data.value) : newData;
 
     data.value = resolvedData;
     updateCache(resolvedData);
@@ -457,8 +433,7 @@ export function useSWRMutation<T, A = void>(
       onSuccess?.(result, arg);
       return result;
     } catch (err) {
-      const mutationError =
-        err instanceof Error ? err : new Error(String(err));
+      const mutationError = err instanceof Error ? err : new Error(String(err));
       error.value = mutationError;
 
       // 回滚
@@ -597,16 +572,14 @@ export function useSWRInfinite<T>(
       const lastPage = pages[pages.length - 1] || [];
       hasMore.value = hasMoreFn(lastPage, size.value - 1);
     } catch (err) {
-      error.value =
-        err instanceof Error ? err : new Error(String(err));
+      error.value = err instanceof Error ? err : new Error(String(err));
     } finally {
       isValidating.value = false;
     }
   };
 
   const setSize = (newSize: number | ((prev: number) => number)) => {
-    size.value =
-      typeof newSize === "function" ? newSize(size.value) : newSize;
+    size.value = typeof newSize === "function" ? newSize(size.value) : newSize;
     fetchAllPages();
   };
 
@@ -631,8 +604,7 @@ export function useSWRInfinite<T>(
 
       hasMore.value = hasMoreFn(pageData, pageIndex);
     } catch (err) {
-      error.value =
-        err instanceof Error ? err : new Error(String(err));
+      error.value = err instanceof Error ? err : new Error(String(err));
     } finally {
       isLoadingMore.value = false;
     }

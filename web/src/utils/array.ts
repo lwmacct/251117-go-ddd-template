@@ -28,14 +28,10 @@ export function chunk<T>(arr: T[], size: number): T[][] {
  * groupBy([{ type: 'a', value: 1 }, { type: 'b', value: 2 }], 'type')
  * // { a: [{ type: 'a', value: 1 }], b: [{ type: 'b', value: 2 }] }
  */
-export function groupBy<T>(
-  arr: T[],
-  key: keyof T | ((item: T) => string | number)
-): Record<string, T[]> {
+export function groupBy<T>(arr: T[], key: keyof T | ((item: T) => string | number)): Record<string, T[]> {
   return arr.reduce(
     (groups, item) => {
-      const groupKey =
-        typeof key === "function" ? String(key(item)) : String(item[key]);
+      const groupKey = typeof key === "function" ? String(key(item)) : String(item[key]);
 
       if (!groups[groupKey]) {
         groups[groupKey] = [];
@@ -53,10 +49,7 @@ export function groupBy<T>(
  * @example
  * partition([1, 2, 3, 4, 5], n => n % 2 === 0) // [[2, 4], [1, 3, 5]]
  */
-export function partition<T>(
-  arr: T[],
-  predicate: (item: T, index: number) => boolean
-): [T[], T[]] {
+export function partition<T>(arr: T[], predicate: (item: T, index: number) => boolean): [T[], T[]] {
   const pass: T[] = [];
   const fail: T[] = [];
 
@@ -137,10 +130,7 @@ export function union<T>(...arrays: T[][]): T[] {
  * @example
  * findIndex([{ id: 1 }, { id: 2 }], item => item.id === 2) // 1
  */
-export function findIndex<T>(
-  arr: T[],
-  predicate: (item: T, index: number) => boolean
-): number {
+export function findIndex<T>(arr: T[], predicate: (item: T, index: number) => boolean): number {
   for (let i = 0; i < arr.length; i++) {
     if (predicate(arr[i], i)) {
       return i;
@@ -154,10 +144,7 @@ export function findIndex<T>(
  * @example
  * findLastIndex([1, 2, 1, 2], n => n === 1) // 2
  */
-export function findLastIndex<T>(
-  arr: T[],
-  predicate: (item: T, index: number) => boolean
-): number {
+export function findLastIndex<T>(arr: T[], predicate: (item: T, index: number) => boolean): number {
   for (let i = arr.length - 1; i >= 0; i--) {
     if (predicate(arr[i], i)) {
       return i;
@@ -171,10 +158,7 @@ export function findLastIndex<T>(
  * @example
  * findAllIndices([1, 2, 1, 2], n => n === 1) // [0, 2]
  */
-export function findAllIndices<T>(
-  arr: T[],
-  predicate: (item: T, index: number) => boolean
-): number[] {
+export function findAllIndices<T>(arr: T[], predicate: (item: T, index: number) => boolean): number[] {
   const indices: number[] = [];
   arr.forEach((item, index) => {
     if (predicate(item, index)) {
@@ -194,11 +178,7 @@ export function findAllIndices<T>(
  * sortBy([{ name: 'b' }, { name: 'a' }], 'name') // [{ name: 'a' }, { name: 'b' }]
  * sortBy(users, 'age', 'desc')
  */
-export function sortBy<T>(
-  arr: T[],
-  key: keyof T | ((item: T) => number | string),
-  order: "asc" | "desc" = "asc"
-): T[] {
+export function sortBy<T>(arr: T[], key: keyof T | ((item: T) => number | string), order: "asc" | "desc" = "asc"): T[] {
   const multiplier = order === "asc" ? 1 : -1;
 
   return [...arr].sort((a, b) => {
@@ -347,10 +327,7 @@ export function average<T>(arr: T[], getter?: (item: T) => number): number {
  * @example
  * maxBy([{ score: 1 }, { score: 3 }], 'score') // { score: 3 }
  */
-export function maxBy<T>(
-  arr: T[],
-  key: keyof T | ((item: T) => number)
-): T | undefined {
+export function maxBy<T>(arr: T[], key: keyof T | ((item: T) => number)): T | undefined {
   if (arr.length === 0) return undefined;
 
   return arr.reduce((max, item) => {
@@ -365,10 +342,7 @@ export function maxBy<T>(
  * @example
  * minBy([{ score: 1 }, { score: 3 }], 'score') // { score: 1 }
  */
-export function minBy<T>(
-  arr: T[],
-  key: keyof T | ((item: T) => number)
-): T | undefined {
+export function minBy<T>(arr: T[], key: keyof T | ((item: T) => number)): T | undefined {
   if (arr.length === 0) return undefined;
 
   return arr.reduce((min, item) => {
@@ -406,12 +380,7 @@ export function arrayToTree<T extends Record<string, unknown>>(
     rootValue?: unknown;
   } = {}
 ): (T & { children: T[] })[] {
-  const {
-    idKey = "id",
-    parentKey = "parentId",
-    childrenKey = "children",
-    rootValue = null,
-  } = options;
+  const { idKey = "id", parentKey = "parentId", childrenKey = "children", rootValue = null } = options;
 
   const itemMap = new Map<unknown, T & { children: T[] }>();
   const roots: (T & { children: T[] })[] = [];
@@ -444,10 +413,7 @@ export function arrayToTree<T extends Record<string, unknown>>(
  * @example
  * treeToArray(tree, 'children')
  */
-export function treeToArray<T extends TreeNode<T>>(
-  tree: T[],
-  childrenKey: string = "children"
-): T[] {
+export function treeToArray<T extends TreeNode<T>>(tree: T[], childrenKey: string = "children"): T[] {
   const result: T[] = [];
 
   const traverse = (nodes: T[]) => {
@@ -501,16 +467,14 @@ export function filterTree<T extends TreeNode<T>>(
   predicate: (node: T) => boolean,
   childrenKey: string = "children"
 ): T[] {
-  return tree
-    .filter(predicate)
-    .map((node) => {
-      const children = node[childrenKey] as T[] | undefined;
-      if (children && children.length > 0) {
-        return {
-          ...node,
-          [childrenKey]: filterTree(children, predicate, childrenKey),
-        };
-      }
-      return { ...node };
-    });
+  return tree.filter(predicate).map((node) => {
+    const children = node[childrenKey] as T[] | undefined;
+    if (children && children.length > 0) {
+      return {
+        ...node,
+        [childrenKey]: filterTree(children, predicate, childrenKey),
+      };
+    }
+    return { ...node };
+  });
 }

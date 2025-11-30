@@ -39,13 +39,7 @@ export function useClickOutside(
   callback?: (event: PointerEvent | MouseEvent) => void,
   options: UseClickOutsideOptions = {}
 ) {
-  const {
-    immediate = true,
-    event = "pointerdown",
-    detectRightClick = true,
-    ignore = [],
-    capture = true,
-  } = options;
+  const { immediate = true, event = "pointerdown", detectRightClick = true, ignore = [], capture = true } = options;
 
   const isOutside = ref(false);
   let isActive = immediate;
@@ -53,9 +47,7 @@ export function useClickOutside(
   // 获取所有目标元素
   const getTargets = (): HTMLElement[] => {
     const targets = Array.isArray(target) ? target : [target];
-    return targets
-      .map((t) => t.value)
-      .filter((el): el is HTMLElement => el != null);
+    return targets.map((t) => t.value).filter((el): el is HTMLElement => el != null);
   };
 
   // 检查是否应该忽略
@@ -216,16 +208,9 @@ export interface ClickOutsideBinding {
  * <div v-click-outside="{ handler: handleClickOutside, ignore: ['.ignore-class'] }">...</div>
  */
 export const vClickOutside = {
-  mounted(
-    el: HTMLElement,
-    binding: { value: ((e: Event) => void) | ClickOutsideBinding }
-  ) {
-    const handler =
-      typeof binding.value === "function"
-        ? binding.value
-        : binding.value.handler;
-    const ignore =
-      typeof binding.value === "function" ? [] : binding.value.ignore || [];
+  mounted(el: HTMLElement, binding: { value: ((e: Event) => void) | ClickOutsideBinding }) {
+    const handler = typeof binding.value === "function" ? binding.value : binding.value.handler;
+    const ignore = typeof binding.value === "function" ? [] : binding.value.ignore || [];
 
     const handleClick = (event: Event) => {
       const e = event as PointerEvent | MouseEvent;
@@ -250,15 +235,13 @@ export const vClickOutside = {
     };
 
     // 存储处理函数以便卸载
-    (el as HTMLElement & { __clickOutside: (e: Event) => void }).__clickOutside =
-      handleClick;
+    (el as HTMLElement & { __clickOutside: (e: Event) => void }).__clickOutside = handleClick;
 
     window.addEventListener("pointerdown", handleClick, { capture: true });
   },
 
   unmounted(el: HTMLElement) {
-    const handleClick = (el as HTMLElement & { __clickOutside?: (e: Event) => void })
-      .__clickOutside;
+    const handleClick = (el as HTMLElement & { __clickOutside?: (e: Event) => void }).__clickOutside;
     if (handleClick) {
       window.removeEventListener("pointerdown", handleClick, { capture: true });
     }

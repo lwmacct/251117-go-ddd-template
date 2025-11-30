@@ -5,7 +5,18 @@ import TokenDialog from "./components/TokenDialog.vue";
 import TokenDisplay from "./components/TokenDisplay.vue";
 import type { CreateTokenRequest } from "@/types/user";
 
-const { tokens, loading, errorMessage, successMessage, fetchTokens, createToken, deleteToken, disableToken, enableToken, clearMessages } = useTokens();
+const {
+  tokens,
+  loading,
+  errorMessage,
+  successMessage,
+  fetchTokens,
+  createToken,
+  deleteToken,
+  disableToken,
+  enableToken,
+  clearMessages,
+} = useTokens();
 
 const tokenDialog = ref(false);
 const tokenDisplayDialog = ref(false);
@@ -138,7 +149,13 @@ const isTokenExpired = (expiresAt?: string) => {
           </v-card-title>
 
           <v-card-text>
-            <v-data-table :headers="headers" :items="tokens" :loading="loading" loading-text="加载中..." no-data-text="暂无 Token">
+            <v-data-table
+              :headers="headers"
+              :items="tokens"
+              :loading="loading"
+              loading-text="加载中..."
+              no-data-text="暂无 Token"
+            >
               <template #item.token_prefix="{ item }">
                 <code>{{ item.token_prefix }}...</code>
               </template>
@@ -147,7 +164,9 @@ const isTokenExpired = (expiresAt?: string) => {
                 <v-chip :color="getStatusColor(item.status)" size="small">
                   {{ getStatusText(item.status) }}
                 </v-chip>
-                <v-chip v-if="isTokenExpired(item.expires_at)" color="warning" size="small" class="ml-1"> 已过期 </v-chip>
+                <v-chip v-if="isTokenExpired(item.expires_at)" color="warning" size="small" class="ml-1">
+                  已过期
+                </v-chip>
               </template>
 
               <template #item.last_used_at="{ item }">
@@ -166,17 +185,38 @@ const isTokenExpired = (expiresAt?: string) => {
                 <div class="d-flex align-center ga-2">
                   <v-tooltip v-if="item.status === 'active'" text="禁用">
                     <template #activator="{ props }">
-                      <v-btn icon="mdi-pause-circle" size="small" variant="text" color="warning" v-bind="props" @click="handleDisable(item.id)"></v-btn>
+                      <v-btn
+                        icon="mdi-pause-circle"
+                        size="small"
+                        variant="text"
+                        color="warning"
+                        v-bind="props"
+                        @click="handleDisable(item.id)"
+                      ></v-btn>
                     </template>
                   </v-tooltip>
                   <v-tooltip v-else-if="item.status === 'disabled'" text="启用">
                     <template #activator="{ props }">
-                      <v-btn icon="mdi-play-circle" size="small" variant="text" color="success" v-bind="props" @click="handleEnable(item.id)"></v-btn>
+                      <v-btn
+                        icon="mdi-play-circle"
+                        size="small"
+                        variant="text"
+                        color="success"
+                        v-bind="props"
+                        @click="handleEnable(item.id)"
+                      ></v-btn>
                     </template>
                   </v-tooltip>
                   <v-tooltip text="删除">
                     <template #activator="{ props }">
-                      <v-btn icon="mdi-delete" size="small" variant="text" color="error" v-bind="props" @click="openDeleteDialog(item.id)"></v-btn>
+                      <v-btn
+                        icon="mdi-delete"
+                        size="small"
+                        variant="text"
+                        color="error"
+                        v-bind="props"
+                        @click="openDeleteDialog(item.id)"
+                      ></v-btn>
                     </template>
                   </v-tooltip>
                 </div>
@@ -198,7 +238,7 @@ const isTokenExpired = (expiresAt?: string) => {
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn variant="text" @click="deleteDialog = false">取消</v-btn>
-          <v-btn color="error" variant="elevated" @click="confirmDelete" :loading="loading">删除</v-btn>
+          <v-btn color="error" variant="elevated" :loading="loading" @click="confirmDelete">删除</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>

@@ -41,8 +41,7 @@ export function shortUuid(): string {
  * isValidUuid('550e8400-e29b-41d4-a716-446655440000') // true
  */
 export function isValidUuid(id: string): boolean {
-  const uuidRegex =
-    /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
   return uuidRegex.test(id);
 }
 
@@ -50,10 +49,8 @@ export function isValidUuid(id: string): boolean {
 // NanoID 风格生成
 // ============================================================================
 
-const DEFAULT_ALPHABET =
-  "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-const URL_SAFE_ALPHABET =
-  "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-_";
+const DEFAULT_ALPHABET = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+const URL_SAFE_ALPHABET = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-_";
 
 /**
  * 生成随机字节数组
@@ -214,10 +211,7 @@ export function prefixedId(prefix: string, size: number = 12): string {
  * const userIdGen = createPrefixedIdGenerator('user')
  * userIdGen() // 'user_a1b2c3d4e5f6'
  */
-export function createPrefixedIdGenerator(
-  prefix: string,
-  size: number = 12
-): () => string {
+export function createPrefixedIdGenerator(prefix: string, size: number = 12): () => string {
   return () => prefixedId(prefix, size);
 }
 
@@ -245,11 +239,7 @@ export function createSequence(start: number = 1): () => number {
  * orderSeq() // 'ORD000001'
  * orderSeq() // 'ORD000002'
  */
-export function createFormattedSequence(
-  prefix: string,
-  padding: number = 6,
-  start: number = 1
-): () => string {
+export function createFormattedSequence(prefix: string, padding: number = 6, start: number = 1): () => string {
   let current = start;
   return () => {
     const id = String(current++).padStart(padding, "0");
@@ -416,9 +406,7 @@ export function uniqueDomId(prefix: string = "el"): string {
  * })
  * idFactory.user() // 'usr_a1b2c3d4e5f6'
  */
-export function createIdFactory<T extends Record<string, () => string>>(
-  generators: T
-): T {
+export function createIdFactory<T extends Record<string, () => string>>(generators: T): T {
   return generators;
 }
 
@@ -428,10 +416,7 @@ export function createIdFactory<T extends Record<string, () => string>>(
  * generateIds(5) // ['a1b2...', 'c3d4...', ...]
  * generateIds(3, () => uuid()) // [uuid(), uuid(), uuid()]
  */
-export function generateIds(
-  count: number,
-  generator: () => string = nanoid
-): string[] {
+export function generateIds(count: number, generator: () => string = nanoid): string[] {
   return Array.from({ length: count }, generator);
 }
 

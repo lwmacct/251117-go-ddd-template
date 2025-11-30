@@ -36,7 +36,13 @@ export function useRegister() {
 
   // === 计算属性 ===
   const isFormValid = computed(() => {
-    return email.value.includes("@") && password.value.length >= 6 && confirmPassword.value === password.value && captchaCode.value.length > 0 && captchaData.value !== null;
+    return (
+      email.value.includes("@") &&
+      password.value.length >= 6 &&
+      confirmPassword.value === password.value &&
+      captchaCode.value.length > 0 &&
+      captchaData.value !== null
+    );
   });
 
   const passwordMatch = computed(() => {

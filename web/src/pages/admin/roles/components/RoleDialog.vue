@@ -45,7 +45,7 @@ watch(
       resetForm();
     }
   },
-  { immediate: true },
+  { immediate: true }
 );
 
 function resetForm() {
@@ -81,7 +81,12 @@ const handleSave = async () => {
 </script>
 
 <template>
-  <v-dialog :model-value="modelValue" @update:model-value="emit('update:modelValue', $event)" max-width="600" persistent>
+  <v-dialog
+    :model-value="modelValue"
+    max-width="600"
+    persistent
+    @update:model-value="emit('update:modelValue', $event)"
+  >
     <v-card>
       <v-card-title>
         <span class="text-h5">{{ dialogTitle }}</span>
@@ -89,18 +94,42 @@ const handleSave = async () => {
 
       <v-card-text>
         <v-form ref="form" v-model="valid">
-          <v-text-field v-model="formData.name" label="角色标识" :rules="rules.name" :disabled="mode === 'edit'" variant="outlined" density="comfortable" class="mb-2" hint="如: admin, editor, viewer" persistent-hint></v-text-field>
+          <v-text-field
+            v-model="formData.name"
+            label="角色标识"
+            :rules="rules.name"
+            :disabled="mode === 'edit'"
+            variant="outlined"
+            density="comfortable"
+            class="mb-2"
+            hint="如: admin, editor, viewer"
+            persistent-hint
+          ></v-text-field>
 
-          <v-text-field v-model="formData.display_name" label="显示名称" :rules="rules.display_name" variant="outlined" density="comfortable" class="mb-2" hint="如: 管理员, 编辑者"></v-text-field>
+          <v-text-field
+            v-model="formData.display_name"
+            label="显示名称"
+            :rules="rules.display_name"
+            variant="outlined"
+            density="comfortable"
+            class="mb-2"
+            hint="如: 管理员, 编辑者"
+          ></v-text-field>
 
-          <v-textarea v-model="formData.description" label="描述（可选）" variant="outlined" density="comfortable" rows="3"></v-textarea>
+          <v-textarea
+            v-model="formData.description"
+            label="描述（可选）"
+            variant="outlined"
+            density="comfortable"
+            rows="3"
+          ></v-textarea>
         </v-form>
       </v-card-text>
 
       <v-card-actions>
         <v-spacer></v-spacer>
         <v-btn variant="text" @click="closeDialog">取消</v-btn>
-        <v-btn color="primary" variant="elevated" @click="handleSave" :disabled="!valid">保存</v-btn>
+        <v-btn color="primary" variant="elevated" :disabled="!valid" @click="handleSave">保存</v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>

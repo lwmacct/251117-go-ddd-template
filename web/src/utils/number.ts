@@ -21,10 +21,7 @@ const defaultOptions: NumberFormatOptions = {
 /**
  * 格式化数字（添加千分位分隔符）
  */
-export function formatNumber(
-  value: number | string | null | undefined,
-  options: NumberFormatOptions = {}
-): string {
+export function formatNumber(value: number | string | null | undefined, options: NumberFormatOptions = {}): string {
   const opts = { ...defaultOptions, ...options };
 
   if (value === null || value === undefined || value === "") {
@@ -100,10 +97,7 @@ export function formatPercent(
 /**
  * 格式化大数字（如 1.2万、3.5亿）
  */
-export function formatCompact(
-  value: number | string | null | undefined,
-  options: NumberFormatOptions = {}
-): string {
+export function formatCompact(value: number | string | null | undefined, options: NumberFormatOptions = {}): string {
   const opts = { ...defaultOptions, decimals: 1, ...options };
 
   if (value === null || value === undefined || value === "") {

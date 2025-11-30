@@ -34,11 +34,18 @@ const handleLoginSuccess = async () => {
   <!-- 登录页面不显示头部 -->
 
   <!-- 主要内容区域 -->
-  <v-main class="d-flex align-center justify-center" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh">
+  <v-main
+    class="d-flex align-center justify-center"
+    style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh"
+  >
     <v-container>
       <v-row justify="center">
         <v-col cols="12" sm="8" md="6" lg="4">
-          <LoginForm v-if="!showTwoFactor" @login-success="handleLoginSuccess" @requires-two-factor="showTwoFactor = true" />
+          <LoginForm
+            v-if="!showTwoFactor"
+            @login-success="handleLoginSuccess"
+            @requires-two-factor="showTwoFactor = true"
+          />
           <TwoFactorForm v-else @verified="handleLoginSuccess" />
         </v-col>
       </v-row>

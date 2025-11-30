@@ -67,23 +67,12 @@ export function getCookie(name: string): string | null {
  * setCookie('token', 'abc123', { expires: 3600, secure: true })
  * setCookie('token', 'abc123', { expires: new Date('2024-12-31') })
  */
-export function setCookie(
-  name: string,
-  value: string,
-  options: CookieOptions = {}
-): void {
+export function setCookie(name: string, value: string, options: CookieOptions = {}): void {
   if (typeof document === "undefined") {
     return;
   }
 
-  const {
-    expires,
-    path = "/",
-    domain,
-    secure,
-    sameSite = "Lax",
-    maxAge,
-  } = options;
+  const { expires, path = "/", domain, secure, sameSite = "Lax", maxAge } = options;
 
   let cookieString = `${encodeURIComponent(name)}=${encodeURIComponent(value)}`;
 
@@ -129,10 +118,7 @@ export function setCookie(
  * removeCookie('token')
  * removeCookie('token', { path: '/', domain: '.example.com' })
  */
-export function removeCookie(
-  name: string,
-  options: Pick<CookieOptions, "path" | "domain"> = {}
-): void {
+export function removeCookie(name: string, options: Pick<CookieOptions, "path" | "domain"> = {}): void {
   setCookie(name, "", {
     ...options,
     expires: new Date(0),
@@ -204,10 +190,7 @@ export function getCookies(names: string[]): Record<string, string | null> {
  * @example
  * setCookies({ token: 'abc', user: 'john' }, { expires: 3600 })
  */
-export function setCookies(
-  cookies: Record<string, string>,
-  options: CookieOptions = {}
-): void {
+export function setCookies(cookies: Record<string, string>, options: CookieOptions = {}): void {
   for (const [name, value] of Object.entries(cookies)) {
     setCookie(name, value, options);
   }
@@ -218,10 +201,7 @@ export function setCookies(
  * @example
  * removeCookies(['token', 'user'])
  */
-export function removeCookies(
-  names: string[],
-  options: Pick<CookieOptions, "path" | "domain"> = {}
-): void {
+export function removeCookies(names: string[], options: Pick<CookieOptions, "path" | "domain"> = {}): void {
   for (const name of names) {
     removeCookie(name, options);
   }
@@ -232,9 +212,7 @@ export function removeCookies(
  * @example
  * clearAllCookies()
  */
-export function clearAllCookies(
-  options: Pick<CookieOptions, "path" | "domain"> = {}
-): void {
+export function clearAllCookies(options: Pick<CookieOptions, "path" | "domain"> = {}): void {
   const cookies = getAllCookies();
 
   for (const name of Object.keys(cookies)) {
@@ -270,11 +248,7 @@ export function getJsonCookie<T>(name: string): T | null {
  * @example
  * setJsonCookie('user', { id: 1, name: 'John' })
  */
-export function setJsonCookie<T>(
-  name: string,
-  value: T,
-  options: CookieOptions = {}
-): void {
+export function setJsonCookie<T>(name: string, value: T, options: CookieOptions = {}): void {
   setCookie(name, JSON.stringify(value), options);
 }
 
@@ -316,19 +290,8 @@ export function parseCookieString(cookieString: string): Record<string, string> 
  * serializeCookie('token', 'abc', { expires: 3600, secure: true })
  * // 'token=abc; expires=...; path=/; secure; samesite=Lax'
  */
-export function serializeCookie(
-  name: string,
-  value: string,
-  options: CookieOptions = {}
-): string {
-  const {
-    expires,
-    path = "/",
-    domain,
-    secure,
-    sameSite = "Lax",
-    maxAge,
-  } = options;
+export function serializeCookie(name: string, value: string, options: CookieOptions = {}): string {
+  const { expires, path = "/", domain, secure, sameSite = "Lax", maxAge } = options;
 
   let cookieString = `${encodeURIComponent(name)}=${encodeURIComponent(value)}`;
 
@@ -461,9 +424,7 @@ export interface CookieManager {
  * cookies.set('token', 'abc')
  * cookies.get('token') // 'abc'
  */
-export function createCookieManager(
-  defaultOptions: CookieOptions = {}
-): CookieManager {
+export function createCookieManager(defaultOptions: CookieOptions = {}): CookieManager {
   return {
     get(name: string) {
       return getCookie(name);

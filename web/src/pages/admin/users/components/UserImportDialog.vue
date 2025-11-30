@@ -1,6 +1,12 @@
 <script setup lang="ts">
 import { ref, computed } from "vue";
-import { parseUserCSV, readFileAsText, generateUserCSVTemplate, type ParsedUser, type ParseError } from "@/utils/import";
+import {
+  parseUserCSV,
+  readFileAsText,
+  generateUserCSVTemplate,
+  type ParsedUser,
+  type ParseError,
+} from "@/utils/import";
 import { batchCreateUsers, type BatchCreateUserRequest } from "@/api/admin/users";
 
 /**
@@ -180,7 +186,12 @@ const backToUpload = () => {
 </script>
 
 <template>
-  <v-dialog :model-value="modelValue" @update:model-value="emit('update:modelValue', $event)" max-width="900" persistent>
+  <v-dialog
+    :model-value="modelValue"
+    max-width="900"
+    persistent
+    @update:model-value="emit('update:modelValue', $event)"
+  >
     <v-card>
       <v-card-title class="d-flex align-center">
         <v-icon class="mr-2">mdi-upload</v-icon>
@@ -206,7 +217,14 @@ const backToUpload = () => {
 
       <v-card-text>
         <!-- 错误提示 -->
-        <v-alert v-if="errorMessage" type="error" density="compact" class="mb-4" closable @click:close="errorMessage = ''">
+        <v-alert
+          v-if="errorMessage"
+          type="error"
+          density="compact"
+          class="mb-4"
+          closable
+          @click:close="errorMessage = ''"
+        >
           {{ errorMessage }}
         </v-alert>
 
@@ -227,7 +245,12 @@ const backToUpload = () => {
             <input ref="fileInput" type="file" accept=".csv" hidden @change="handleFileSelect" />
 
             <div class="mt-4">
-              <v-btn color="primary" variant="elevated" @click="($refs.fileInput as HTMLInputElement).click()" :loading="loading">
+              <v-btn
+                color="primary"
+                variant="elevated"
+                :loading="loading"
+                @click="($refs.fileInput as HTMLInputElement).click()"
+              >
                 <v-icon left>mdi-folder-open</v-icon>
                 选择文件
               </v-btn>
@@ -283,11 +306,19 @@ const backToUpload = () => {
             <div v-for="(err, index) in parseErrors.slice(0, 10)" :key="index" class="text-body-2">
               第 {{ err.row }} 行 - {{ err.field }}: {{ err.message }}
             </div>
-            <div v-if="parseErrors.length > 10" class="text-body-2 mt-2">... 还有 {{ parseErrors.length - 10 }} 个错误</div>
+            <div v-if="parseErrors.length > 10" class="text-body-2 mt-2">
+              ... 还有 {{ parseErrors.length - 10 }} 个错误
+            </div>
           </v-alert>
 
           <!-- 数据预览表格 -->
-          <v-data-table :headers="previewHeaders" :items="parsedData" :items-per-page="10" density="compact" class="elevation-1">
+          <v-data-table
+            :headers="previewHeaders"
+            :items="parsedData"
+            :items-per-page="10"
+            density="compact"
+            class="elevation-1"
+          >
             <template #item.password>
               <span class="text-grey">••••••••</span>
             </template>
@@ -329,12 +360,19 @@ const backToUpload = () => {
             </v-row>
 
             <!-- 失败详情 -->
-            <v-alert v-if="importResult?.errors && importResult.errors.length > 0" type="error" variant="tonal" class="mt-6 text-left">
+            <v-alert
+              v-if="importResult?.errors && importResult.errors.length > 0"
+              type="error"
+              variant="tonal"
+              class="mt-6 text-left"
+            >
               <div class="text-subtitle-2 mb-2">失败详情：</div>
               <div v-for="(err, index) in importResult.errors.slice(0, 10)" :key="index" class="text-body-2">
                 用户 "{{ err.username }}": {{ err.error }}
               </div>
-              <div v-if="importResult.errors.length > 10" class="text-body-2 mt-2">... 还有 {{ importResult.errors.length - 10 }} 个错误</div>
+              <div v-if="importResult.errors.length > 10" class="text-body-2 mt-2">
+                ... 还有 {{ importResult.errors.length - 10 }} 个错误
+              </div>
             </v-alert>
           </div>
         </div>
@@ -351,7 +389,14 @@ const backToUpload = () => {
         <v-btn variant="text" @click="closeDialog">
           {{ step === "result" ? "关闭" : "取消" }}
         </v-btn>
-        <v-btn v-if="step === 'preview'" color="primary" variant="elevated" :disabled="!canProceed" :loading="loading" @click="handleImport">
+        <v-btn
+          v-if="step === 'preview'"
+          color="primary"
+          variant="elevated"
+          :disabled="!canProceed"
+          :loading="loading"
+          @click="handleImport"
+        >
           <v-icon left>mdi-upload</v-icon>
           开始导入 ({{ validRows }} 条)
         </v-btn>

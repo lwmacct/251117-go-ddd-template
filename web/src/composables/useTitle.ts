@@ -3,16 +3,7 @@
  * 提供文档标题的响应式管理
  */
 
-import {
-  ref,
-  watch,
-  computed,
-  onMounted,
-  onUnmounted,
-  type Ref,
-  type ComputedRef,
-  type MaybeRef,
-} from "vue";
+import { ref, watch, computed, onMounted, onUnmounted, type Ref, type ComputedRef, type MaybeRef } from "vue";
 
 // ============================================================================
 // 类型定义
@@ -84,19 +75,16 @@ export function useTitle(
 ): UseTitleReturn {
   const { template, restoreOnUnmount = false, observe = false } = options;
 
-  const isSupported = computed(
-    () => typeof document !== "undefined" && "title" in document
-  );
+  const isSupported = computed(() => typeof document !== "undefined" && "title" in document);
 
   // 保存原始标题
-  const originalTitle =
-    typeof document !== "undefined" ? document.title : "";
+  const originalTitle = typeof document !== "undefined" ? document.title : "";
 
   // 创建响应式标题
   const title = ref(
     typeof newTitle === "object" && newTitle !== null && "value" in newTitle
-      ? (newTitle as Ref<string | null | undefined>).value ?? originalTitle
-      : (newTitle as string | null | undefined) ?? originalTitle
+      ? ((newTitle as Ref<string | null | undefined>).value ?? originalTitle)
+      : ((newTitle as string | null | undefined) ?? originalTitle)
   );
 
   // 应用标题到文档
@@ -126,10 +114,7 @@ export function useTitle(
   if (observe && isSupported.value) {
     const observer = new MutationObserver((mutations) => {
       mutations.forEach((mutation) => {
-        if (
-          mutation.type === "childList" &&
-          mutation.target === document.querySelector("title")
-        ) {
+        if (mutation.type === "childList" && mutation.target === document.querySelector("title")) {
           title.value = document.title;
         }
       });
@@ -178,14 +163,8 @@ export function useTitle(
  * setPageTitle('Home')
  * // fullTitle.value: 'Home - My App'
  */
-export function useTitleTemplate(
-  options: UseTitleTemplateOptions = {}
-): UseTitleTemplateReturn {
-  const {
-    separator = " | ",
-    siteName = "",
-    siteNamePosition = "suffix",
-  } = options;
+export function useTitleTemplate(options: UseTitleTemplateOptions = {}): UseTitleTemplateReturn {
+  const { separator = " | ", siteName = "", siteNamePosition = "suffix" } = options;
 
   const pageTitle = ref("");
 
@@ -265,9 +244,7 @@ export function useFavicon(
   // 获取当前 favicon
   const getCurrentFavicon = (): string | null => {
     if (!isSupported.value) return null;
-    const link = document.querySelector<HTMLLinkElement>(
-      'link[rel="icon"], link[rel="shortcut icon"]'
-    );
+    const link = document.querySelector<HTMLLinkElement>('link[rel="icon"], link[rel="shortcut icon"]');
     return link?.href ?? null;
   };
 
@@ -277,8 +254,8 @@ export function useFavicon(
   // 创建响应式 favicon
   const favicon = ref<string | null>(
     typeof newIcon === "object" && newIcon !== null && "value" in newIcon
-      ? (newIcon as Ref<string | null | undefined>).value ?? null
-      : (newIcon as string | null | undefined) ?? null
+      ? ((newIcon as Ref<string | null | undefined>).value ?? null)
+      : ((newIcon as string | null | undefined) ?? null)
   );
 
   // 应用 favicon
@@ -351,10 +328,7 @@ export interface UsePageLeaveReturn {
  *   }
  * })
  */
-export function usePageLeave(
-  callback?: () => void,
-  options: UsePageLeaveOptions = {}
-): UsePageLeaveReturn {
+export function usePageLeave(callback?: () => void, options: UsePageLeaveOptions = {}): UsePageLeaveReturn {
   const { enabled = true } = options;
 
   const isLeft = ref(false);
@@ -435,14 +409,10 @@ export interface UseDocumentVisibilityReturn {
  * })
  */
 export function useDocumentVisibility(): UseDocumentVisibilityReturn {
-  const isSupported = computed(
-    () => typeof document !== "undefined" && "visibilityState" in document
-  );
+  const isSupported = computed(() => typeof document !== "undefined" && "visibilityState" in document);
 
   const visibility = ref<DocumentVisibilityState>(
-    isSupported.value
-      ? (document.visibilityState as DocumentVisibilityState)
-      : "visible"
+    isSupported.value ? (document.visibilityState as DocumentVisibilityState) : "visible"
   );
 
   const isVisible = computed(() => visibility.value === "visible");
@@ -597,10 +567,7 @@ export interface UseScriptReturn {
  * // 或手动加载
  * await load()
  */
-export function useScript(
-  src: string,
-  options: UseScriptOptions = {}
-): UseScriptReturn {
+export function useScript(src: string, options: UseScriptOptions = {}): UseScriptReturn {
   const {
     immediate = true,
     async = true,
@@ -626,9 +593,7 @@ export function useScript(
       }
 
       // 检查是否已存在
-      const existing = document.querySelector<HTMLScriptElement>(
-        `script[src="${src}"]`
-      );
+      const existing = document.querySelector<HTMLScriptElement>(`script[src="${src}"]`);
       if (existing) {
         scriptElement = existing;
         isLoaded.value = true;
@@ -729,10 +694,7 @@ export interface UseStylesheetReturn {
  *   media: '(prefers-color-scheme: dark)'
  * })
  */
-export function useStylesheet(
-  href: string,
-  options: UseStylesheetOptions = {}
-): UseStylesheetReturn {
+export function useStylesheet(href: string, options: UseStylesheetOptions = {}): UseStylesheetReturn {
   const { immediate = true, media, removeOnUnmount = false } = options;
 
   const isLoading = ref(false);
@@ -749,9 +711,7 @@ export function useStylesheet(
       }
 
       // 检查是否已存在
-      const existing = document.querySelector<HTMLLinkElement>(
-        `link[href="${href}"]`
-      );
+      const existing = document.querySelector<HTMLLinkElement>(`link[href="${href}"]`);
       if (existing) {
         linkElement = existing;
         isLoaded.value = true;
