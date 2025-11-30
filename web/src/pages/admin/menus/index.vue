@@ -165,7 +165,7 @@ const handleMenusReorder = async (updatedMenus: Menu[]) => {
             <!-- 表格视图（可选实现） -->
             <div v-if="viewMode === 'table' && !loading">
               <v-alert type="info" class="mb-4"> 表格视图展示所有菜单（扁平化） </v-alert>
-              <v-simple-table v-if="menus.length > 0">
+              <v-table v-if="menus.length > 0">
                 <template #default>
                   <thead>
                     <tr>
@@ -210,7 +210,7 @@ const handleMenusReorder = async (updatedMenus: Menu[]) => {
                     </template>
                   </tbody>
                 </template>
-              </v-simple-table>
+              </v-table>
             </div>
           </v-card-text>
         </v-card>
