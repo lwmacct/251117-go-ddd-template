@@ -82,20 +82,36 @@ infrastructure/
 
 ### web/ - 前端应用
 
-Vue 3 + TypeScript 的单页应用。
+Vue 3 + TypeScript + Vuetify 的单页管理应用。
 
 ```
 web/
 ├── src/
-│   ├── api/            # API 客户端
-│   ├── components/     # 组件
-│   ├── views/          # 页面
-│   ├── stores/         # Pinia 状态管理
-│   ├── router/         # 路由配置
-│   └── utils/          # 工具函数
-├── public/             # 静态资源
-└── package.json        # 依赖管理
+│   ├── api/               # API 层（按模块划分）
+│   │   ├── admin/         # 管理端 API
+│   │   ├── auth/          # 认证 API（含 Axios 客户端）
+│   │   ├── user/          # 用户端 API
+│   │   └── helpers/       # 工具函数
+│   ├── types/             # TypeScript 类型定义
+│   │   ├── admin/         # 管理端类型
+│   │   ├── auth/          # 认证类型
+│   │   ├── user/          # 用户类型
+│   │   └── common/        # 通用类型
+│   ├── stores/            # Pinia 状态管理
+│   ├── router/            # Vue Router 路由
+│   ├── layout/            # 布局组件
+│   ├── views/             # 共享视图组件
+│   ├── pages/             # 页面组件（按模块划分）
+│   │   ├── admin/         # 管理后台页面
+│   │   ├── auth/          # 认证页面
+│   │   └── user/          # 用户中心页面
+│   └── utils/             # 工具函数
+├── public/                # 静态资源
+├── vite.config.ts         # Vite 配置
+└── package.json           # 依赖管理
 ```
+
+详细前端架构请参阅 [前端架构概述](/architecture/frontend-overview)。
 
 ### docs/ - 文档系统
 
@@ -148,10 +164,13 @@ testing/
 
 | 类型 | 命名规范 | 示例 |
 |-----|---------|-----|
-| 组件 | PascalCase | `UserList.vue` |
-| 视图 | PascalCase | `DashboardView.vue` |
-| Store | camelCase | `useUserStore.ts` |
-| Utils | camelCase | `formatDate.ts` |
+| 页面入口 | `index.vue` | `pages/admin/users/index.vue` |
+| 页面组件 | PascalCase | `UserDialog.vue`, `RoleSelector.vue` |
+| Composable | camelCase，use 前缀 | `useAdminUsers.ts`, `useLogin.ts` |
+| API 模块 | camelCase | `users.ts`, `roles.ts` |
+| 类型定义 | camelCase | `user.ts`, `auth.ts` |
+| Store | camelCase，use 前缀 | `auth.ts`（导出 `useAuthStore`） |
+| 工具函数 | camelCase | `storage.ts`, `validation.ts` |
 
 ## 构建产物
 

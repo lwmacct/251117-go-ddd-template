@@ -1,0 +1,11 @@
+[
+  {
+    "text": "开发计划",
+    "items": [
+      { "text": "计划总览", "link": "/roadmap/" },
+      { "text": "账户删除功能", "link": "/roadmap/account-deletion" },
+      { "text": "审计日志导出", "link": "/roadmap/auditlog-export" },
+      { "text": "用户头像上传", "link": "/roadmap/avatar-upload" }
+    ]
+  }
+]

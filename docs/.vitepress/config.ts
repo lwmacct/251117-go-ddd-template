@@ -4,6 +4,7 @@ import sidebarGuide from "./config/sidebar.guide.json";
 import sidebarArchitecture from "./config/sidebar.architecture.json";
 import sidebarDevelopment from "./config/sidebar.development.json";
 import sidebarApi from "./config/sidebar.api.json";
+import sidebarRoadmap from "./config/sidebar.roadmap.json";
 import cfgSearch from "./config/search.json";
 import viteConfig from "./config/vite";
 import markdownConfig from "./config/markdown";
@@ -21,7 +22,7 @@ export default defineConfig({
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
     nav,
-    sidebar: [...sidebarGuide, ...sidebarArchitecture, ...sidebarDevelopment, ...sidebarApi],
+    sidebar: [...sidebarGuide, ...sidebarArchitecture, ...sidebarDevelopment, ...sidebarApi, ...sidebarRoadmap],
 
     // 本地搜索 - 使用 MiniSearch 实现浏览器内索引
     search: cfgSearch as DefaultTheme.Config["search"],
