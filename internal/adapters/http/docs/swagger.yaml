@@ -1,4 +1,3 @@
-basePath: /api
 definitions:
   auth.LoginDTO:
     properties:
@@ -430,19 +429,8 @@ definitions:
       username:
         type: string
     type: object
-host: localhost:40012
 info:
-  contact:
-    email: lwmacct@icloud.com
-    name: API Support
-    url: https://github.com/lwmacct/251117-go-ddd-template/issues
-  description: 基于 DDD+CQRS 架构的 Go Web 应用 API 文档
-  license:
-    name: MIT
-    url: https://opensource.org/licenses/MIT
-  termsOfService: https://github.com/lwmacct/251117-go-ddd-template
-  title: Go DDD Template API
-  version: 1.0.3
+  contact: {}
 paths:
   /api/admin/auditlogs:
     get:
@@ -2802,10 +2790,4 @@ paths:
       - 用户 - 个人访问令牌 (User - Personal Access Token)
       x-permission:
         scope: user:tokens:enable
-securityDefinitions:
-  BearerAuth:
-    description: 'Bearer token authentication. Format: "Bearer {token}"'
-    in: header
-    name: Authorization
-    type: apiKey
 swagger: "2.0"

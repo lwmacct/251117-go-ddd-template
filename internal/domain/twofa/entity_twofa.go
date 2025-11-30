@@ -41,3 +41,74 @@ type TwoFA struct {
 func (t *TwoFA) HasRecoveryCodes() bool {
 	return len(t.RecoveryCodes) > 0
 }
+
+// IsEnabled 检查 2FA 是否已启用
+func (t *TwoFA) IsEnabled() bool {
+	return t.Enabled
+}
+
+// IsSetupComplete 检查 2FA 设置是否已完成
+func (t *TwoFA) IsSetupComplete() bool {
+	return t.SetupCompletedAt != nil
+}
+
+// Enable 启用 2FA
+func (t *TwoFA) Enable() {
+	t.Enabled = true
+	now := time.Now()
+	t.SetupCompletedAt = &now
+}
+
+// Disable 禁用 2FA
+func (t *TwoFA) Disable() {
+	t.Enabled = false
+}
+
+// MarkUsed 标记最后使用时间
+func (t *TwoFA) MarkUsed() {
+	now := time.Now()
+	t.LastUsedAt = &now
+}
+
+// UseRecoveryCode 使用恢复码（从列表中移除已使用的码）
+// 返回 true 表示恢复码有效并已使用，false 表示无效
+func (t *TwoFA) UseRecoveryCode(code string) bool {
+	for i, rc := range t.RecoveryCodes {
+		if rc == code {
+			// 移除已使用的恢复码
+			t.RecoveryCodes = append(t.RecoveryCodes[:i], t.RecoveryCodes[i+1:]...)
+			t.MarkUsed()
+			return true
+		}
+	}
+	return false
+}
+
+// GetRecoveryCodesCount 获取剩余恢复码数量
+func (t *TwoFA) GetRecoveryCodesCount() int {
+	return len(t.RecoveryCodes)
+}
+
+// SetRecoveryCodes 设置恢复码（覆盖现有的）
+func (t *TwoFA) SetRecoveryCodes(codes []string) {
+	t.RecoveryCodes = codes
+}
+
+// HasSecret 检查是否已配置 TOTP 密钥
+func (t *TwoFA) HasSecret() bool {
+	return t.Secret != ""
+}
+
+// ClearSecret 清除 TOTP 密钥（禁用时使用）
+func (t *TwoFA) ClearSecret() {
+	t.Secret = ""
+}
+
+// Reset 重置 2FA 配置到初始状态
+func (t *TwoFA) Reset() {
+	t.Enabled = false
+	t.Secret = ""
+	t.RecoveryCodes = nil
+	t.SetupCompletedAt = nil
+	t.LastUsedAt = nil
+}

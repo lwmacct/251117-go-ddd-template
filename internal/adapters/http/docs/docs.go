@@ -9,16 +9,7 @@ const docTemplate = `{
     "info": {
         "description": "{{escape .Description}}",
         "title": "{{.Title}}",
-        "termsOfService": "https://github.com/lwmacct/251117-go-ddd-template",
-        "contact": {
-            "name": "API Support",
-            "url": "https://github.com/lwmacct/251117-go-ddd-template/issues",
-            "email": "lwmacct@icloud.com"
-        },
-        "license": {
-            "name": "MIT",
-            "url": "https://opensource.org/licenses/MIT"
-        },
+        "contact": {},
         "version": "{{.Version}}"
     },
     "host": "{{.Host}}",
@@ -4479,25 +4470,17 @@ const docTemplate = `{
                 }
             }
         }
-    },
-    "securityDefinitions": {
-        "BearerAuth": {
-            "description": "Bearer token authentication. Format: \"Bearer {token}\"",
-            "type": "apiKey",
-            "name": "Authorization",
-            "in": "header"
-        }
     }
 }`
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "1.0.3",
-	Host:             "localhost:40012",
-	BasePath:         "/api",
+	Version:          "",
+	Host:             "",
+	BasePath:         "",
 	Schemes:          []string{},
-	Title:            "Go DDD Template API",
-	Description:      "基于 DDD+CQRS 架构的 Go Web 应用 API 文档",
+	Title:            "",
+	Description:      "",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

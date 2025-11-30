@@ -1,22 +1,8 @@
 {
     "swagger": "2.0",
     "info": {
-        "description": "基于 DDD+CQRS 架构的 Go Web 应用 API 文档",
-        "title": "Go DDD Template API",
-        "termsOfService": "https://github.com/lwmacct/251117-go-ddd-template",
-        "contact": {
-            "name": "API Support",
-            "url": "https://github.com/lwmacct/251117-go-ddd-template/issues",
-            "email": "lwmacct@icloud.com"
-        },
-        "license": {
-            "name": "MIT",
-            "url": "https://opensource.org/licenses/MIT"
-        },
-        "version": "1.0.3"
+        "contact": {}
     },
-    "host": "localhost:40012",
-    "basePath": "/api",
     "paths": {
         "/api/admin/auditlogs": {
             "get": {
@@ -4472,14 +4458,6 @@
                     "type": "string"
                 }
             }
-        }
-    },
-    "securityDefinitions": {
-        "BearerAuth": {
-            "description": "Bearer token authentication. Format: \"Bearer {token}\"",
-            "type": "apiKey",
-            "name": "Authorization",
-            "in": "header"
         }
     }
 }
