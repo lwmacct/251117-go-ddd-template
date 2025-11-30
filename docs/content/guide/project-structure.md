@@ -96,7 +96,10 @@ web/
 │   │   ├── admin/         # 管理端类型
 │   │   ├── auth/          # 认证类型
 │   │   ├── user/          # 用户类型
+│   │   ├── response/      # 响应类型
 │   │   └── common/        # 通用类型
+│   ├── composables/       # 组合式函数（自动导入）
+│   ├── components/        # 共享组件（自动注册）
 │   ├── stores/            # Pinia 状态管理
 │   ├── router/            # Vue Router 路由
 │   ├── layout/            # 布局组件
@@ -166,7 +169,9 @@ testing/
 |-----|---------|-----|
 | 页面入口 | `index.vue` | `pages/admin/users/index.vue` |
 | 页面组件 | PascalCase | `UserDialog.vue`, `RoleSelector.vue` |
-| Composable | camelCase，use 前缀 | `useAdminUsers.ts`, `useLogin.ts` |
+| 共享组件 | PascalCase | `ConfirmDialog.vue`, `EmptyState.vue` |
+| Composable（全局） | camelCase，use 前缀 | `useClipboard.ts`, `useConfirm.ts` |
+| Composable（页面级） | camelCase，use 前缀 | `useAdminUsers.ts`, `useLogin.ts` |
 | API 模块 | camelCase | `users.ts`, `roles.ts` |
 | 类型定义 | camelCase | `user.ts`, `auth.ts` |
 | Store | camelCase，use 前缀 | `auth.ts`（导出 `useAuthStore`） |

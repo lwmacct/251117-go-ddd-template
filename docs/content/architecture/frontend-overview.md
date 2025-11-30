@@ -22,7 +22,7 @@ web/
 ├── src/
 │   ├── api/                    # API 请求层
 │   │   ├── admin/              # 管理员 API
-│   │   ├── auth/               # 认证 API
+│   │   ├── auth/               # 认证 API（含 Axios 客户端）
 │   │   ├── user/               # 用户 API
 │   │   └── helpers/            # 工具函数
 │   ├── types/                  # TypeScript 类型定义
@@ -31,6 +31,8 @@ web/
 │   │   ├── user/               # 用户类型
 │   │   ├── response/           # 响应类型
 │   │   └── common/             # 通用类型
+│   ├── composables/            # 组合式函数（自动导入）
+│   ├── components/             # 共享组件（自动注册）
 │   ├── stores/                 # Pinia 状态管理
 │   ├── router/                 # Vue Router 路由
 │   ├── utils/                  # 工具函数
