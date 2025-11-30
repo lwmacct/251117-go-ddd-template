@@ -27,8 +27,8 @@ repos:
       # Swagger/OpenAPI 文档生成
       - id: swagger-generate
         name: Generate Swagger/OpenAPI docs
-        entry: scripts/hooks/swagger-pre-commit.sh
-        language: script
+        entry: swag init -g internal/commands/api/api.go -o internal/adapters/http/docs --parseDependency --parseInternal
+        language: system
         pass_filenames: false
         stages: [pre-commit]
         files: ^internal/(adapters/http/handler|commands/api)/.*\.go$
@@ -36,11 +36,20 @@ repos:
       # VitePress 文档构建检查
       - id: vitepress-build
         name: Build VitePress docs when docs/ changes
-        entry: scripts/hooks/docs-build-pre-commit.sh
-        language: script
+        entry: npm run build --prefix docs
+        language: system
         pass_filenames: false
         stages: [pre-commit]
         files: ^docs/
+
+      # 配置示例文件同步 + 验证
+      - id: config-sync
+        name: Sync and validate config files
+        entry: go test -run "TestGenerateExample|TestConfigKeysValid" ./internal/infrastructure/config/...
+        language: system
+        pass_filenames: false
+        stages: [pre-commit]
+        files: ^(internal/infrastructure/config/config\.go|configs/config\.yaml)$
 
 # 全局配置
 default_stages: [pre-commit]
