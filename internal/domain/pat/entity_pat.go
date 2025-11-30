@@ -50,6 +50,87 @@ func (p *PersonalAccessToken) IsActive() bool {
 	return p.Status == "active" && !p.IsExpired()
 }
 
+// Token 状态常量
+const (
+	StatusActive   = "active"
+	StatusDisabled = "disabled"
+	StatusExpired  = "expired"
+)
+
+// IsIPAllowed 检查给定 IP 是否允许使用此 Token。
+// 如果 IP 白名单为空，则允许所有 IP。
+func (p *PersonalAccessToken) IsIPAllowed(ip string) bool {
+	if len(p.IPWhitelist) == 0 {
+		return true
+	}
+	for _, allowed := range p.IPWhitelist {
+		if allowed == ip {
+			return true
+		}
+	}
+	return false
+}
+
+// HasPermission 检查 Token 是否有指定权限
+func (p *PersonalAccessToken) HasPermission(scope string) bool {
+	for _, perm := range p.Permissions {
+		if perm == scope {
+			return true
+		}
+	}
+	return false
+}
+
+// HasAnyPermission 检查 Token 是否有任一指定权限
+func (p *PersonalAccessToken) HasAnyPermission(scopes ...string) bool {
+	for _, scope := range scopes {
+		if p.HasPermission(scope) {
+			return true
+		}
+	}
+	return false
+}
+
+// HasAllPermissions 检查 Token 是否有所有指定权限
+func (p *PersonalAccessToken) HasAllPermissions(scopes ...string) bool {
+	for _, scope := range scopes {
+		if !p.HasPermission(scope) {
+			return false
+		}
+	}
+	return true
+}
+
+// Disable 禁用 Token
+func (p *PersonalAccessToken) Disable() {
+	p.Status = StatusDisabled
+}
+
+// Enable 启用 Token
+func (p *PersonalAccessToken) Enable() {
+	p.Status = StatusActive
+}
+
+// MarkExpired 标记 Token 为已过期
+func (p *PersonalAccessToken) MarkExpired() {
+	p.Status = StatusExpired
+}
+
+// IsDisabled 检查 Token 是否被禁用
+func (p *PersonalAccessToken) IsDisabled() bool {
+	return p.Status == StatusDisabled
+}
+
+// GetPermissionCount 返回权限数量
+func (p *PersonalAccessToken) GetPermissionCount() int {
+	return len(p.Permissions)
+}
+
+// CanBeUsed 检查 Token 是否可以被使用（活跃且 IP 允许）
+func (p *PersonalAccessToken) CanBeUsed(ip string) bool {
+	return p.IsActive() && p.IsIPAllowed(ip)
+}
+
 // ToListItem converts PAT to TokenListItem
 func (p *PersonalAccessToken) ToListItem() *TokenListItem {
 	return &TokenListItem{

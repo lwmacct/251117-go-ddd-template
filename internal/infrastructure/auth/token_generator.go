@@ -86,6 +86,7 @@ func (g *TokenGenerator) ExtractPrefix(token string) (string, error) {
 
 // generateRandomString generates a cryptographically secure random string
 // Using base64 URL-safe encoding without padding
+// Note: Replaces '-' and '_' with alphanumeric chars to avoid delimiter conflicts
 func (g *TokenGenerator) generateRandomString(length int) (string, error) {
 	// Calculate required bytes (base64 encodes 3 bytes to 4 characters)
 	// We need slightly more bytes than the target length
@@ -99,6 +100,11 @@ func (g *TokenGenerator) generateRandomString(length int) (string, error) {
 
 	// Encode to base64 URL-safe without padding
 	encoded := base64.RawURLEncoding.EncodeToString(randomBytes)
+
+	// Replace '-' and '_' with alphanumeric characters to avoid delimiter conflicts
+	// '-' -> 'A', '_' -> 'Z' (arbitrary safe replacements)
+	encoded = strings.ReplaceAll(encoded, "-", "A")
+	encoded = strings.ReplaceAll(encoded, "_", "Z")
 
 	// Trim to exact length
 	if len(encoded) > length {

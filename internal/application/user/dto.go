@@ -71,3 +71,34 @@ type UserListResponse struct {
 	Users []*UserResponse `json:"users"`
 	Total int64           `json:"total"`
 }
+
+// BatchCreateUserDTO 批量创建用户请求 DTO
+type BatchCreateUserDTO struct {
+	Users []BatchUserItemDTO `json:"users" binding:"required,min=1,max=100,dive"`
+}
+
+// BatchUserItemDTO 批量创建中的单个用户 DTO
+type BatchUserItemDTO struct {
+	Username string `json:"username" binding:"required,min=3,max=50"`
+	Email    string `json:"email" binding:"required,email"`
+	Password string `json:"password" binding:"required,min=6"`
+	FullName string `json:"full_name" binding:"max=100"`
+	Status   string `json:"status" binding:"omitempty,oneof=active inactive"`
+	RoleIDs  []uint `json:"role_ids" binding:"omitempty,dive,gt=0"`
+}
+
+// BatchCreateUserResponse 批量创建用户响应 DTO
+type BatchCreateUserResponse struct {
+	Total   int                      `json:"total"`
+	Success int                      `json:"success"`
+	Failed  int                      `json:"failed"`
+	Errors  []BatchCreateErrorDetail `json:"errors,omitempty"`
+}
+
+// BatchCreateErrorDetail 批量创建错误详情
+type BatchCreateErrorDetail struct {
+	Index    int    `json:"index"`
+	Username string `json:"username"`
+	Email    string `json:"email"`
+	Error    string `json:"error"`
+}

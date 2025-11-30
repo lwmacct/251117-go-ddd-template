@@ -136,6 +136,7 @@ func SetupRouter(
 		{
 			// 用户管理
 			admin.POST("/users", middleware.RequirePermission("admin:users:create"), adminUserHandler.CreateUser)
+			admin.POST("/users/batch", middleware.RequirePermission("admin:users:create"), adminUserHandler.BatchCreateUsers)
 			admin.GET("/users", middleware.RequirePermission("admin:users:read"), adminUserHandler.ListUsers)
 			admin.GET("/users/:id", middleware.RequirePermission("admin:users:read"), adminUserHandler.GetUser)
 			admin.PUT("/users/:id", middleware.RequirePermission("admin:users:update"), adminUserHandler.UpdateUser)

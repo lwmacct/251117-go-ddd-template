@@ -111,13 +111,14 @@ type Container struct {
 	RefreshTokenHandler *authCommand.RefreshTokenHandler
 
 	// Use Case Handlers - User
-	CreateUserHandler     *userCommand.CreateUserHandler
-	UpdateUserHandler     *userCommand.UpdateUserHandler
-	DeleteUserHandler     *userCommand.DeleteUserHandler
-	AssignRolesHandler    *userCommand.AssignRolesHandler
-	ChangePasswordHandler *userCommand.ChangePasswordHandler
-	GetUserHandler        *userQuery.GetUserHandler
-	ListUsersHandler      *userQuery.ListUsersHandler
+	CreateUserHandler      *userCommand.CreateUserHandler
+	UpdateUserHandler      *userCommand.UpdateUserHandler
+	DeleteUserHandler      *userCommand.DeleteUserHandler
+	AssignRolesHandler     *userCommand.AssignRolesHandler
+	ChangePasswordHandler  *userCommand.ChangePasswordHandler
+	BatchCreateUserHandler *userCommand.BatchCreateUsersHandler
+	GetUserHandler         *userQuery.GetUserHandler
+	ListUsersHandler       *userQuery.ListUsersHandler
 
 	// HTTP Handlers
 	AuthHandler        *handler.AuthHandler
@@ -205,6 +206,7 @@ func NewContainer(cfg *_config.Config, opts *ContainerOptions) (*Container, erro
 	deleteUserHandler := userCommand.NewDeleteUserHandler(userRepos.Command, userRepos.Query)
 	assignRolesHandler := userCommand.NewAssignRolesHandler(userRepos.Command, userRepos.Query)
 	changePasswordHandler := userCommand.NewChangePasswordHandler(userRepos.Command, userRepos.Query, authService)
+	batchCreateUserHandler := userCommand.NewBatchCreateUsersHandler(userRepos.Command, userRepos.Query, authService)
 	getUserHandler := userQuery.NewGetUserHandler(userRepos.Query)
 	listUsersHandler := userQuery.NewListUsersHandler(userRepos.Query)
 
@@ -260,7 +262,7 @@ func NewContainer(cfg *_config.Config, opts *ContainerOptions) (*Container, erro
 	// =================================================================
 	authHandler := handler.NewAuthHandler(loginHandler, registerHandler, refreshTokenHandler, getUserHandler)
 	userHandler := handler.NewUserHandler(createUserHandler, updateUserHandler, deleteUserHandler, getUserHandler, listUsersHandler)
-	adminUserHandler := handler.NewAdminUserHandler(createUserHandler, updateUserHandler, deleteUserHandler, assignRolesHandler, getUserHandler, listUsersHandler)
+	adminUserHandler := handler.NewAdminUserHandler(createUserHandler, updateUserHandler, deleteUserHandler, assignRolesHandler, batchCreateUserHandler, getUserHandler, listUsersHandler)
 	userProfileHandler := handler.NewUserProfileHandler(getUserHandler, updateUserHandler, changePasswordHandler, deleteUserHandler)
 	roleHandler := handler.NewRoleHandler(createRoleHandler, updateRoleHandler, deleteRoleHandler, setPermissionsHandler, getRoleHandler, listRolesHandler, listPermissionsHandler)
 	menuHandler := handler.NewMenuHandler(createMenuHandler, updateMenuHandler, deleteMenuHandler, reorderMenusHandler, getMenuHandler, listMenusHandler)
@@ -348,13 +350,14 @@ func NewContainer(cfg *_config.Config, opts *ContainerOptions) (*Container, erro
 		RefreshTokenHandler: refreshTokenHandler,
 
 		// Use Case Handlers - User
-		CreateUserHandler:     createUserHandler,
-		UpdateUserHandler:     updateUserHandler,
-		DeleteUserHandler:     deleteUserHandler,
-		AssignRolesHandler:    assignRolesHandler,
-		ChangePasswordHandler: changePasswordHandler,
-		GetUserHandler:        getUserHandler,
-		ListUsersHandler:      listUsersHandler,
+		CreateUserHandler:      createUserHandler,
+		UpdateUserHandler:      updateUserHandler,
+		DeleteUserHandler:      deleteUserHandler,
+		AssignRolesHandler:     assignRolesHandler,
+		ChangePasswordHandler:  changePasswordHandler,
+		BatchCreateUserHandler: batchCreateUserHandler,
+		GetUserHandler:         getUserHandler,
+		ListUsersHandler:       listUsersHandler,
 
 		// HTTP Handlers
 		AuthHandler:        authHandler,

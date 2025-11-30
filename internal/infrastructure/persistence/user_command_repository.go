@@ -61,6 +61,14 @@ func (r *userCommandRepository) AssignRoles(ctx context.Context, userID uint, ro
 		return fmt.Errorf("failed to find user: %w", err)
 	}
 
+	// 如果 roleIDs 为空，清空用户的所有角色
+	if len(roleIDs) == 0 {
+		if err := r.db.WithContext(ctx).Model(&u).Association("Roles").Clear(); err != nil {
+			return fmt.Errorf("failed to clear roles: %w", err)
+		}
+		return nil
+	}
+
 	var roles []RoleModel
 	if err := r.db.WithContext(ctx).Find(&roles, roleIDs).Error; err != nil {
 		return fmt.Errorf("failed to find roles: %w", err)

@@ -1,3 +1,4 @@
+basePath: /api
 definitions:
   auth.LoginDTO:
     properties:
@@ -342,6 +343,69 @@ definitions:
     required:
     - role_ids
     type: object
+  user.BatchCreateErrorDetail:
+    properties:
+      email:
+        type: string
+      error:
+        type: string
+      index:
+        type: integer
+      username:
+        type: string
+    type: object
+  user.BatchCreateUserDTO:
+    properties:
+      users:
+        items:
+          $ref: '#/definitions/user.BatchUserItemDTO'
+        maxItems: 100
+        minItems: 1
+        type: array
+    required:
+    - users
+    type: object
+  user.BatchCreateUserResponse:
+    properties:
+      errors:
+        items:
+          $ref: '#/definitions/user.BatchCreateErrorDetail'
+        type: array
+      failed:
+        type: integer
+      success:
+        type: integer
+      total:
+        type: integer
+    type: object
+  user.BatchUserItemDTO:
+    properties:
+      email:
+        type: string
+      full_name:
+        maxLength: 100
+        type: string
+      password:
+        minLength: 6
+        type: string
+      role_ids:
+        items:
+          type: integer
+        type: array
+      status:
+        enum:
+        - active
+        - inactive
+        type: string
+      username:
+        maxLength: 50
+        minLength: 3
+        type: string
+    required:
+    - email
+    - password
+    - username
+    type: object
   user.ChangePasswordDTO:
     properties:
       new_password:
@@ -429,8 +493,19 @@ definitions:
       username:
         type: string
     type: object
+host: localhost:40012
 info:
-  contact: {}
+  contact:
+    email: lwmacct@icloud.com
+    name: API Support
+    url: https://github.com/lwmacct/251117-go-ddd-template/issues
+  description: 基于 DDD+CQRS 架构的 Go Web 应用 API 文档
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  termsOfService: https://github.com/lwmacct/251117-go-ddd-template
+  title: Go DDD Template API
+  version: 1.0.3
 paths:
   /api/admin/auditlogs:
     get:
@@ -1977,6 +2052,53 @@ paths:
       - 管理员 - 用户管理 (Admin - User Management)
       x-permission:
         scope: admin:users:update
+  /api/admin/users/batch:
+    post:
+      consumes:
+      - application/json
+      description: 管理员从 CSV 等来源批量创建用户，支持部分失败（单个失败不影响其他用户）
+      parameters:
+      - description: 用户列表（最多 100 个）
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/user.BatchCreateUserDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 批量创建结果
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/user.BatchCreateUserResponse'
+              type: object
+        "400":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: 权限不足
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 批量创建用户
+      tags:
+      - 管理员 - 用户管理 (Admin - User Management)
+      x-permission:
+        scope: admin:users:create
   /api/auth/2fa/disable:
     post:
       consumes:
@@ -2790,4 +2912,10 @@ paths:
       - 用户 - 个人访问令牌 (User - Personal Access Token)
       x-permission:
         scope: user:tokens:enable
+securityDefinitions:
+  BearerAuth:
+    description: 'Bearer token authentication. Format: "Bearer {token}"'
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"

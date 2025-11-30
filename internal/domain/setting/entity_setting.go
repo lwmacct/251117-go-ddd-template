@@ -1,6 +1,9 @@
 package setting
 
 import (
+	"encoding/json"
+	"strconv"
+	"strings"
 	"time"
 )
 
@@ -15,6 +18,109 @@ type Setting struct {
 	Label     string    `json:"label"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
+}
+
+// IsValidValueType 检查 ValueType 是否有效
+func (s *Setting) IsValidValueType() bool {
+	switch s.ValueType {
+	case ValueTypeString, ValueTypeNumber, ValueTypeBoolean, ValueTypeJSON:
+		return true
+	default:
+		return false
+	}
+}
+
+// IsValidCategory 检查 Category 是否有效
+func (s *Setting) IsValidCategory() bool {
+	switch s.Category {
+	case CategoryGeneral, CategorySecurity, CategoryNotification, CategoryBackup:
+		return true
+	default:
+		return false
+	}
+}
+
+// ParseBool 将 Value 解析为布尔值
+func (s *Setting) ParseBool() (bool, error) {
+	if s.ValueType != ValueTypeBoolean {
+		return false, ErrValueTypeMismatch
+	}
+	lower := strings.ToLower(s.Value)
+	switch lower {
+	case "true", "1", "yes", "on":
+		return true, nil
+	case "false", "0", "no", "off":
+		return false, nil
+	default:
+		return false, ErrInvalidBoolValue
+	}
+}
+
+// ParseInt 将 Value 解析为整数
+func (s *Setting) ParseInt() (int, error) {
+	if s.ValueType != ValueTypeNumber {
+		return 0, ErrValueTypeMismatch
+	}
+	val, err := strconv.Atoi(s.Value)
+	if err != nil {
+		return 0, ErrInvalidNumberValue
+	}
+	return val, nil
+}
+
+// ParseFloat 将 Value 解析为浮点数
+func (s *Setting) ParseFloat() (float64, error) {
+	if s.ValueType != ValueTypeNumber {
+		return 0, ErrValueTypeMismatch
+	}
+	val, err := strconv.ParseFloat(s.Value, 64)
+	if err != nil {
+		return 0, ErrInvalidNumberValue
+	}
+	return val, nil
+}
+
+// ParseJSON 将 Value 解析为 JSON 对象
+func (s *Setting) ParseJSON(v interface{}) error {
+	if s.ValueType != ValueTypeJSON {
+		return ErrValueTypeMismatch
+	}
+	if err := json.Unmarshal([]byte(s.Value), v); err != nil {
+		return ErrInvalidJSONValue
+	}
+	return nil
+}
+
+// SetBool 设置布尔值
+func (s *Setting) SetBool(val bool) {
+	s.ValueType = ValueTypeBoolean
+	if val {
+		s.Value = "true"
+	} else {
+		s.Value = "false"
+	}
+}
+
+// SetInt 设置整数值
+func (s *Setting) SetInt(val int) {
+	s.ValueType = ValueTypeNumber
+	s.Value = strconv.Itoa(val)
+}
+
+// SetJSON 设置 JSON 值
+func (s *Setting) SetJSON(v interface{}) error {
+	data, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+	s.ValueType = ValueTypeJSON
+	s.Value = string(data)
+	return nil
+}
+
+// IsEmpty 检查值是否为空
+func (s *Setting) IsEmpty() bool {
+	return s.Value == ""
 }
 
 // 配置分类常量。

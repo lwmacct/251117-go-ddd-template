@@ -12,12 +12,13 @@ import (
 
 // AdminUserHandler handles admin user management operations
 type AdminUserHandler struct {
-	createUserHandler  *userCommand.CreateUserHandler
-	updateUserHandler  *userCommand.UpdateUserHandler
-	deleteUserHandler  *userCommand.DeleteUserHandler
-	assignRolesHandler *userCommand.AssignRolesHandler
-	getUserHandler     *userQuery.GetUserHandler
-	listUsersHandler   *userQuery.ListUsersHandler
+	createUserHandler      *userCommand.CreateUserHandler
+	updateUserHandler      *userCommand.UpdateUserHandler
+	deleteUserHandler      *userCommand.DeleteUserHandler
+	assignRolesHandler     *userCommand.AssignRolesHandler
+	batchCreateUserHandler *userCommand.BatchCreateUsersHandler
+	getUserHandler         *userQuery.GetUserHandler
+	listUsersHandler       *userQuery.ListUsersHandler
 }
 
 // NewAdminUserHandler creates a new AdminUserHandler instance
@@ -26,16 +27,18 @@ func NewAdminUserHandler(
 	updateUserHandler *userCommand.UpdateUserHandler,
 	deleteUserHandler *userCommand.DeleteUserHandler,
 	assignRolesHandler *userCommand.AssignRolesHandler,
+	batchCreateUserHandler *userCommand.BatchCreateUsersHandler,
 	getUserHandler *userQuery.GetUserHandler,
 	listUsersHandler *userQuery.ListUsersHandler,
 ) *AdminUserHandler {
 	return &AdminUserHandler{
-		createUserHandler:  createUserHandler,
-		updateUserHandler:  updateUserHandler,
-		deleteUserHandler:  deleteUserHandler,
-		assignRolesHandler: assignRolesHandler,
-		getUserHandler:     getUserHandler,
-		listUsersHandler:   listUsersHandler,
+		createUserHandler:      createUserHandler,
+		updateUserHandler:      updateUserHandler,
+		deleteUserHandler:      deleteUserHandler,
+		assignRolesHandler:     assignRolesHandler,
+		batchCreateUserHandler: batchCreateUserHandler,
+		getUserHandler:         getUserHandler,
+		listUsersHandler:       listUsersHandler,
 	}
 }
 
@@ -309,4 +312,67 @@ func (h *AdminUserHandler) AssignRoles(c *gin.Context) {
 	}
 
 	response.OK(c, "roles assigned successfully", updatedUser)
+}
+
+// BatchCreateUsers creates multiple users at once (admin only)
+//
+// @Summary      批量创建用户
+// @Description  管理员从 CSV 等来源批量创建用户，支持部分失败（单个失败不影响其他用户）
+// @Tags         管理员 - 用户管理 (Admin - User Management)
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        request body appUserDTO.BatchCreateUserDTO true "用户列表（最多 100 个）"
+// @Success      200 {object} response.Response{data=appUserDTO.BatchCreateUserResponse} "批量创建结果"
+// @Failure      400 {object} response.ErrorResponse "参数错误"
+// @Failure      401 {object} response.ErrorResponse "未授权"
+// @Failure      403 {object} response.ErrorResponse "权限不足"
+// @Failure      500 {object} response.ErrorResponse "服务器内部错误"
+// @Router       /api/admin/users/batch [post]
+// @x-permission {"scope":"admin:users:create"}
+func (h *AdminUserHandler) BatchCreateUsers(c *gin.Context) {
+	var dto appUserDTO.BatchCreateUserDTO
+	if err := c.ShouldBindJSON(&dto); err != nil {
+		response.ValidationError(c, err.Error())
+		return
+	}
+
+	// 构建 Command
+	users := make([]userCommand.BatchUserItem, len(dto.Users))
+	for i, u := range dto.Users {
+		users[i] = userCommand.BatchUserItem{
+			Username: u.Username,
+			Email:    u.Email,
+			Password: u.Password,
+			FullName: u.FullName,
+			Status:   u.Status,
+			RoleIDs:  u.RoleIDs,
+		}
+	}
+
+	result, err := h.batchCreateUserHandler.Handle(c.Request.Context(), userCommand.BatchCreateUsersCommand{
+		Users: users,
+	})
+	if err != nil {
+		response.InternalError(c, err.Error())
+		return
+	}
+
+	// 构建响应
+	resp := appUserDTO.BatchCreateUserResponse{
+		Total:   result.Total,
+		Success: result.Success,
+		Failed:  result.Failed,
+		Errors:  make([]appUserDTO.BatchCreateErrorDetail, len(result.Errors)),
+	}
+	for i, e := range result.Errors {
+		resp.Errors[i] = appUserDTO.BatchCreateErrorDetail{
+			Index:    e.Index,
+			Username: e.Username,
+			Email:    e.Email,
+			Error:    e.Error,
+		}
+	}
+
+	response.OK(c, "batch import completed", resp)
 }

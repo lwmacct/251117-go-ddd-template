@@ -50,6 +50,9 @@ func (r *auditLogQueryRepository) List(ctx context.Context, filter auditlog.Filt
 	if filter.Action != "" {
 		query = query.Where("action = ?", filter.Action)
 	}
+	if filter.Status != "" {
+		query = query.Where("status = ?", filter.Status)
+	}
 	if filter.StartDate != nil {
 		query = query.Where("created_at >= ?", *filter.StartDate)
 	}
@@ -181,6 +184,9 @@ func (r *auditLogQueryRepository) Count(ctx context.Context, filter auditlog.Fil
 	}
 	if filter.Action != "" {
 		query = query.Where("action = ?", filter.Action)
+	}
+	if filter.Status != "" {
+		query = query.Where("status = ?", filter.Status)
 	}
 	if filter.StartDate != nil {
 		query = query.Where("created_at >= ?", *filter.StartDate)
