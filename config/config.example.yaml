@@ -7,16 +7,16 @@
 
 # 服务器配置
 server:
-  addr: "0.0.0.0:8080" # 监听地址，格式: host:port，例如 "0.0.0.0:8080" 或 ":8080"
+  addr: "0.0.0.0:8080" # 监听地址，格式: host:port，例如 '0.0.0.0:8080' 或 ':8080'
   env: "development" # 运行环境: development | production
   static_dir: "web/dist" # 静态资源目录路径，用于提供前端文件服务 (如 SPA 应用)
   docs_dir: "docs/.vitepress/dist" # 文档目录路径，用于提供 VitePress 构建的文档服务，通过 /docs 路由访问
 
 # 数据源配置
 data:
-  pgsql_url: "postgresql://postgres@localhost:5432/myapp?sslmode=disable" # PostgreSQL 连接 URL，格式: postgresql://user:password@host:port/dbname?sslmode=disable
+  pgsql_url: "postgresql://postgres@localhost:5432/app?sslmode=disable" # PostgreSQL 连接 URL，格式: postgresql://user:password@host:port/dbname?sslmode=disable
   redis_url: "redis://localhost:6379/0" # Redis 连接 URL，格式: redis://:password@host:port/db
-  redis_key_prefix: "myapp:" # Redis key 前缀，所有 key 读写都会自动拼接此前缀，例如 "myapp:"
+  redis_key_prefix: "app:" # Redis key 前缀，所有 key 读写都会自动拼接此前缀，例如 'app:'
   auto_migrate: false # 是否在应用启动时自动执行数据库迁移 (仅推荐在开发环境使用，生产环境应使用 migrate 命令)
 
 # JWT 认证配置
@@ -33,9 +33,9 @@ auth:
 
 # 日志配置
 log:
-  level: "DEBUG" # 日志级别: DEBUG | INFO | WARN | ERROR (大小写不敏感)
+  level: "debug" # 日志级别: DEBUG | INFO | WARN | ERROR (大小写不敏感)
   format: "color" # 输出格式: json | text | color (开发环境推荐 color，生产环境推荐 json)
-  output: "stdout" # 输出目标: stdout | stderr | 文件路径 (如 "/var/log/app.log")
+  output: "stdout" # 输出目标: stdout | stderr | 文件路径 (如 '/var/log/app.log')
   add_source: false # 是否添加源代码位置信息 (调试时可开启，会显示文件名和行号)
   time_format: "datetime" # 时间格式: datetime | rfc3339 | rfc3339ms | unix | unixms (datetime 最易读)
-  timezone: "Asia/Shanghai" # 时区设置，例如 "Asia/Shanghai" 或 "+08:00"
+  timezone: "Asia/Shanghai" # 时区设置，例如 'Asia/Shanghai' 或 '+08:00'

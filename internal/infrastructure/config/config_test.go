@@ -148,6 +148,7 @@ func findProjectRoot() (string, error) {
 }
 
 // writeConfigYAML 将配置结构体转换为带注释的 YAML 格式
+// 通过反射读取 koanf 和 comment tag 自动生成 YAML
 func writeConfigYAML(buf *bytes.Buffer, cfg Config) {
 	// 写入文件头注释
 	buf.WriteString(`# 示例配置文件
@@ -159,86 +160,61 @@ func writeConfigYAML(buf *bytes.Buffer, cfg Config) {
 
 `)
 
-	// 写入各配置段
-	writeServerConfig(buf, cfg.Server)
-	buf.WriteString("\n")
-	writeDataConfig(buf, cfg.Data)
-	buf.WriteString("\n")
-	writeJWTConfig(buf, cfg.JWT)
-	buf.WriteString("\n")
-	writeAuthConfig(buf, cfg.Auth)
-	buf.WriteString("\n")
-	writeLogConfig(buf, cfg.Log)
+	// 通过反射遍历 Config 结构体的字段
+	cfgVal := reflect.ValueOf(cfg)
+	cfgType := cfgVal.Type()
+
+	for i := 0; i < cfgType.NumField(); i++ {
+		field := cfgType.Field(i)
+		fieldVal := cfgVal.Field(i)
+
+		koanfKey := field.Tag.Get("koanf")
+		sectionComment := field.Tag.Get("comment")
+
+		// 写入配置段注释和名称
+		fmt.Fprintf(buf, "# %s\n", sectionComment)
+		fmt.Fprintf(buf, "%s:\n", koanfKey)
+
+		// 写入该配置段下的所有字段
+		writeStructFields(buf, fieldVal)
+
+		// 配置段之间添加空行（最后一个除外）
+		if i < cfgType.NumField()-1 {
+			buf.WriteString("\n")
+		}
+	}
 }
 
-// writeServerConfig 写入服务器配置段
-func writeServerConfig(buf *bytes.Buffer, cfg ServerConfig) {
-	buf.WriteString("# 服务器配置\n")
-	buf.WriteString("server:\n")
-	writeField(buf, "addr", cfg.Addr, `监听地址，格式: host:port，例如 "0.0.0.0:8080" 或 ":8080"`)
-	writeField(buf, "env", cfg.Env, "运行环境: development | production")
-	writeField(buf, "static_dir", cfg.StaticDir, "静态资源目录路径，用于提供前端文件服务 (如 SPA 应用)")
-	writeField(buf, "docs_dir", cfg.DocsDir, "文档目录路径，用于提供 VitePress 构建的文档服务，通过 /docs 路由访问")
-}
+// writeStructFields 通过反射写入结构体的所有字段
+func writeStructFields(buf *bytes.Buffer, structVal reflect.Value) {
+	structType := structVal.Type()
 
-// writeDataConfig 写入数据源配置段
-func writeDataConfig(buf *bytes.Buffer, cfg DataConfig) {
-	buf.WriteString("# 数据源配置\n")
-	buf.WriteString("data:\n")
-	writeField(buf, "pgsql_url", cfg.PgsqlURL, "PostgreSQL 连接 URL，格式: postgresql://user:password@host:port/dbname?sslmode=disable")
-	writeField(buf, "redis_url", cfg.RedisURL, "Redis 连接 URL，格式: redis://:password@host:port/db")
-	writeField(buf, "redis_key_prefix", cfg.RedisKeyPrefix, `Redis key 前缀，所有 key 读写都会自动拼接此前缀，例如 "myapp:"`)
-	writeFieldBool(buf, "auto_migrate", cfg.AutoMigrate, "是否在应用启动时自动执行数据库迁移 (仅推荐在开发环境使用，生产环境应使用 migrate 命令)")
-}
+	for i := 0; i < structType.NumField(); i++ {
+		field := structType.Field(i)
+		fieldVal := structVal.Field(i)
 
-// writeJWTConfig 写入 JWT 配置段
-func writeJWTConfig(buf *bytes.Buffer, cfg JWTConfig) {
-	buf.WriteString("# JWT 认证配置\n")
-	buf.WriteString("jwt:\n")
-	writeFieldSensitive(buf, "secret", cfg.Secret, "JWT 签名密钥 - ⚠️ 生产环境务必修改! 建议通过环境变量 APP_JWT_SECRET 设置")
-	writeFieldDuration(buf, "access_token_expiry", cfg.AccessTokenExpiry, "访问令牌过期时间 (格式: 15m, 1h, 24h 等)")
-	writeFieldDuration(buf, "refresh_token_expiry", cfg.RefreshTokenExpiry, "刷新令牌过期时间 (168h = 7天)")
-}
+		koanfKey := field.Tag.Get("koanf")
+		comment := field.Tag.Get("comment")
 
-// writeAuthConfig 写入认证配置段
-func writeAuthConfig(buf *bytes.Buffer, cfg AuthConfig) {
-	buf.WriteString("# 认证配置\n")
-	buf.WriteString("auth:\n")
-	writeFieldSensitive(buf, "dev_secret", cfg.DevSecret, "开发模式密钥 (用于验证码开发模式) - ⚠️ 生产环境务必修改! 建议通过环境变量 APP_AUTH_DEV_SECRET 设置")
-	writeField(buf, "twofa_issuer", cfg.TwoFAIssuer, "2FA TOTP 发行者名称，显示在用户的验证器应用中")
-	writeFieldBool(buf, "captcha_required", cfg.CaptchaRequired, "是否需要验证码 (可在生产环境强制开启以提升安全性)")
-}
-
-// writeLogConfig 写入日志配置段
-func writeLogConfig(buf *bytes.Buffer, cfg LogConfig) {
-	buf.WriteString("# 日志配置\n")
-	buf.WriteString("log:\n")
-	writeField(buf, "level", cfg.Level, "日志级别: DEBUG | INFO | WARN | ERROR (大小写不敏感)")
-	writeField(buf, "format", cfg.Format, "输出格式: json | text | color (开发环境推荐 color，生产环境推荐 json)")
-	writeField(buf, "output", cfg.Output, `输出目标: stdout | stderr | 文件路径 (如 "/var/log/app.log")`)
-	writeFieldBool(buf, "add_source", cfg.AddSource, "是否添加源代码位置信息 (调试时可开启，会显示文件名和行号)")
-	writeField(buf, "time_format", cfg.TimeFormat, "时间格式: datetime | rfc3339 | rfc3339ms | unix | unixms (datetime 最易读)")
-	writeField(buf, "timezone", cfg.Timezone, `时区设置，例如 "Asia/Shanghai" 或 "+08:00"`)
-}
-
-// writeField 写入字符串字段
-func writeField(buf *bytes.Buffer, key, value, comment string) {
-	fmt.Fprintf(buf, "  %s: %q # %s\n", key, value, comment)
-}
-
-// writeFieldBool 写入布尔字段
-func writeFieldBool(buf *bytes.Buffer, key string, value bool, comment string) {
-	fmt.Fprintf(buf, "  %s: %t # %s\n", key, value, comment)
-}
-
-// writeFieldDuration 写入 Duration 字段（转换为字符串格式）
-func writeFieldDuration(buf *bytes.Buffer, key string, value time.Duration, comment string) {
-	fmt.Fprintf(buf, "  %s: %q # %s\n", key, formatDuration(value), comment)
-}
-
-// writeFieldSensitive 写入敏感字段（添加安全警告）
-func writeFieldSensitive(buf *bytes.Buffer, key, value, comment string) {
-	fmt.Fprintf(buf, "  %s: %q # %s\n", key, value, comment)
+		// 根据字段类型输出不同格式
+		switch fieldVal.Kind() {
+		case reflect.String:
+			fmt.Fprintf(buf, "  %s: %q # %s\n", koanfKey, fieldVal.String(), comment)
+		case reflect.Bool:
+			fmt.Fprintf(buf, "  %s: %t # %s\n", koanfKey, fieldVal.Bool(), comment)
+		case reflect.Int64:
+			// 处理 time.Duration 类型
+			if field.Type == reflect.TypeOf(time.Duration(0)) {
+				duration := time.Duration(fieldVal.Int())
+				fmt.Fprintf(buf, "  %s: %q # %s\n", koanfKey, formatDuration(duration), comment)
+			} else {
+				fmt.Fprintf(buf, "  %s: %d # %s\n", koanfKey, fieldVal.Int(), comment)
+			}
+		default:
+			// 其他类型使用默认格式
+			fmt.Fprintf(buf, "  %s: %v # %s\n", koanfKey, fieldVal.Interface(), comment)
+		}
+	}
 }
 
 // formatDuration 将 time.Duration 转换为人类可读的字符串格式
