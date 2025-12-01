@@ -16,7 +16,7 @@ import (
 	"github.com/knadh/koanf/v2"
 )
 
-// TestGenerateExample 生成 configs/config.example.yaml 配置示例文件
+// TestGenerateExample 生成 config/config.example.yaml 配置示例文件
 //
 // 此测试会从 defaultConfig() 提取默认配置值，并生成符合规范的 YAML 配置示例文件。
 // 设计为可被 pre-commit hook 调用，在 config.go 变更时自动执行。
@@ -39,7 +39,7 @@ func TestGenerateExample(t *testing.T) {
 	writeConfigYAML(&buf, cfg)
 
 	// 写入文件
-	outputPath := filepath.Join(projectRoot, "configs", "config.example.yaml")
+	outputPath := filepath.Join(projectRoot, "config", "config.example.yaml")
 	if err := os.WriteFile(outputPath, buf.Bytes(), 0644); err != nil {
 		t.Fatalf("写入配置文件失败: %v", err)
 	}
@@ -57,8 +57,8 @@ func TestConfigKeysValid(t *testing.T) {
 		t.Fatalf("无法找到项目根目录: %v", err)
 	}
 
-	configPath := filepath.Join(projectRoot, "configs", "config.yaml")
-	examplePath := filepath.Join(projectRoot, "configs", "config.example.yaml")
+	configPath := filepath.Join(projectRoot, "config", "config.yaml")
+	examplePath := filepath.Join(projectRoot, "config", "config.example.yaml")
 
 	// 如果 config.yaml 不存在，跳过测试
 	if _, err := os.Stat(configPath); os.IsNotExist(err) {

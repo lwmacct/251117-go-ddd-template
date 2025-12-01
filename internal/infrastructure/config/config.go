@@ -2,12 +2,12 @@
 //
 // 配置加载优先级 (从低到高) ：
 // 1. 默认值 - defaultConfig() 函数中定义
-// 2. 配置文件 - config.yaml 或 configs/config.yaml
+// 2. 配置文件 - config.yaml 或 config/config.yaml
 // 3. 环境变量 - 以 APP_ 为前缀 (如 APP_SERVER_ADDR)
 //
 // 重要提示：
-// - 如果修改了 defaultConfig() 中的默认值，请同步更新 configs/config.example.yaml 示例文件
-// - 配置文件路径硬编码在 Load() 函数中：[]string{"config.yaml", "configs/config.yaml"}
+// - 如果修改了 defaultConfig() 中的默认值，请同步更新 config/config.example.yaml 示例文件
+// - 配置文件路径硬编码在 Load() 函数中：[]string{"config.yaml", "config/config.yaml"}
 package config
 
 import (
@@ -121,8 +121,8 @@ func Load() (*Config, error) {
 	}
 
 	// 2️⃣ 加载 YAML 配置文件 (可选，文件不存在不报错)
-	// 按优先级搜索：当前目录 -> configs 目录
-	configPaths := []string{"config.yaml", "configs/config.yaml"}
+	// 按优先级搜索：当前目录 -> config 目录
+	configPaths := []string{"config.yaml", "config/config.yaml"}
 	configLoaded := false
 	for _, path := range configPaths {
 		if err := k.Load(file.Provider(path), yaml.Parser()); err == nil {
