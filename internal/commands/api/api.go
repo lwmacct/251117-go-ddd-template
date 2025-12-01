@@ -73,7 +73,7 @@ var Command = &cli.Command{
 // runAPIServer 执行 API 服务器启动逻辑
 func runAPIServer(ctx context.Context, cmd *cli.Command) error {
 	// 加载配置 (优先级：默认值 -> 配置文件 -> 环境变量)
-	cfg, err := config.LoadWithDefaults()
+	cfg, err := config.Load()
 	if err != nil {
 		slog.Error("Failed to load config", "error", err)
 		os.Exit(1)

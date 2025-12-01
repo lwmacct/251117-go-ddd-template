@@ -159,8 +159,3 @@ func Load() (*Config, error) {
 
 	return &cfg, nil
 }
-
-// LoadWithDefaults 加载配置的别名函数 (保持向后兼容)
-func LoadWithDefaults() (*Config, error) {
-	return Load()
-}
