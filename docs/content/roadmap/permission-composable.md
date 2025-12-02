@@ -1,5 +1,28 @@
 # Permission Composable
 
+<!--TOC-->
+
+- [需求背景](#需求背景) `:30:33`
+- [已实现功能](#已实现功能) `:34:35`
+  - [通用权限](#通用权限) `:36:41`
+  - [专用权限](#专用权限) `:42:50`
+- [使用方式](#使用方式) `:51:52`
+  - [通用权限查询](#通用权限查询) `:53:69`
+  - [通知权限](#通知权限) `:70:90`
+  - [摄像头权限](#摄像头权限) `:91:111`
+  - [麦克风权限](#麦克风权限) `:112:128`
+  - [屏幕唤醒锁](#屏幕唤醒锁) `:129:147`
+  - [批量查询权限](#批量查询权限) `:148:156`
+- [API](#api) `:157:158`
+  - [usePermission](#usepermission) `:159:169`
+  - [useNotificationPermission](#usenotificationpermission) `:170:180`
+  - [useCameraPermission / useMicrophonePermission](#usecamerapermission-usemicrophonepermission) `:181:191`
+  - [useScreenWakeLock](#usescreenwakelock) `:192:200`
+- [支持的权限类型](#支持的权限类型) `:201:212`
+- [代码位置](#代码位置) `:213:219`
+
+<!--TOC-->
+
 > **状态**: ✅ 已完成
 > **优先级**: 中
 > **完成日期**: 2024-11-30
@@ -127,11 +150,7 @@ function onVideoPause() {
 ```typescript
 import { queryPermissions } from "@/composables/usePermission";
 
-const permissions = await queryPermissions([
-  "camera",
-  "microphone",
-  "notifications",
-]);
+const permissions = await queryPermissions(["camera", "microphone", "notifications"]);
 // { camera: 'granted', microphone: 'prompt', notifications: 'denied' }
 ```
 
@@ -139,57 +158,57 @@ const permissions = await queryPermissions([
 
 ### usePermission
 
-| 返回值      | 类型                            | 说明               |
-| ----------- | ------------------------------- | ------------------ |
-| state       | `Ref<PermissionState>           ` | 权限状态           |
-| isGranted   | `Ref<boolean>                   ` | 是否已授权         |
-| isDenied    | `Ref<boolean>                   ` | 是否被拒绝         |
-| isPrompt    | `Ref<boolean>                   ` | 是否等待用户选择   |
-| isSupported | `Ref<boolean>                   ` | 是否支持此权限     |
-| query       | `() => Promise<PermissionState> ` | 刷新权限状态       |
+| 返回值      | 类型                              | 说明             |
+| ----------- | --------------------------------- | ---------------- |
+| state       | `Ref<PermissionState>           ` | 权限状态         |
+| isGranted   | `Ref<boolean>                   ` | 是否已授权       |
+| isDenied    | `Ref<boolean>                   ` | 是否被拒绝       |
+| isPrompt    | `Ref<boolean>                   ` | 是否等待用户选择 |
+| isSupported | `Ref<boolean>                   ` | 是否支持此权限   |
+| query       | `() => Promise<PermissionState> ` | 刷新权限状态     |
 
 ### useNotificationPermission
 
-| 返回值      | 说明               |
-| ----------- | ------------------ |
-| permission  | 权限状态           |
-| isGranted   | 是否已授权         |
-| isDenied    | 是否被拒绝         |
-| isSupported | 是否支持通知       |
-| request     | 请求权限           |
-| notify      | 发送通知           |
+| 返回值      | 说明         |
+| ----------- | ------------ |
+| permission  | 权限状态     |
+| isGranted   | 是否已授权   |
+| isDenied    | 是否被拒绝   |
+| isSupported | 是否支持通知 |
+| request     | 请求权限     |
+| notify      | 发送通知     |
 
 ### useCameraPermission / useMicrophonePermission
 
-| 返回值      | 说明               |
-| ----------- | ------------------ |
-| state       | 权限状态           |
-| isGranted   | 是否已授权         |
-| isSupported | 是否支持           |
-| request     | 请求权限并获取流   |
-| stop        | 停止所有轨道       |
-| stream      | 当前媒体流         |
+| 返回值      | 说明             |
+| ----------- | ---------------- |
+| state       | 权限状态         |
+| isGranted   | 是否已授权       |
+| isSupported | 是否支持         |
+| request     | 请求权限并获取流 |
+| stop        | 停止所有轨道     |
+| stream      | 当前媒体流       |
 
 ### useScreenWakeLock
 
-| 返回值      | 说明               |
-| ----------- | ------------------ |
-| isActive    | 是否已锁定         |
-| isSupported | 是否支持           |
-| request     | 请求锁定           |
-| release     | 释放锁定           |
+| 返回值      | 说明       |
+| ----------- | ---------- |
+| isActive    | 是否已锁定 |
+| isSupported | 是否支持   |
+| request     | 请求锁定   |
+| release     | 释放锁定   |
 
 ## 支持的权限类型
 
-| 权限名称             | 说明               |
-| -------------------- | ------------------ |
-| geolocation          | 地理位置           |
-| notifications        | 通知               |
-| camera               | 摄像头             |
-| microphone           | 麦克风             |
-| clipboard-read       | 剪贴板读取         |
-| clipboard-write      | 剪贴板写入         |
-| screen-wake-lock     | 屏幕唤醒锁         |
+| 权限名称         | 说明       |
+| ---------------- | ---------- |
+| geolocation      | 地理位置   |
+| notifications    | 通知       |
+| camera           | 摄像头     |
+| microphone       | 麦克风     |
+| clipboard-read   | 剪贴板读取 |
+| clipboard-write  | 剪贴板写入 |
+| screen-wake-lock | 屏幕唤醒锁 |
 
 ## 代码位置
 

@@ -1,5 +1,28 @@
 # Geolocation Composable
 
+<!--TOC-->
+
+- [需求背景](#需求背景) `:30:33`
+- [已实现功能](#已实现功能) `:34:35`
+  - [位置获取](#位置获取) `:36:41`
+  - [距离计算](#距离计算) `:42:46`
+  - [坐标工具](#坐标工具) `:47:52`
+  - [地图链接](#地图链接) `:53:58`
+- [使用方式](#使用方式) `:59:60`
+  - [基础用法](#基础用法) `:61:79`
+  - [持续监听](#持续监听) `:80:95`
+  - [边界检测](#边界检测) `:96:112`
+  - [距离计算](#距离计算-1) `:113:130`
+  - [坐标转换](#坐标转换) `:131:147`
+  - [生成地图链接](#生成地图链接) `:148:161`
+- [API](#api) `:162:163`
+  - [useGeolocation](#usegeolocation) `:164:183`
+  - [GeolocationCoordinates](#geolocationcoordinates) `:184:195`
+  - [calculateDistance](#calculatedistance) `:196:203`
+- [代码位置](#代码位置) `:204:210`
+
+<!--TOC-->
+
 > **状态**: ✅ 已完成
 > **优先级**: 中
 > **完成日期**: 2024-11-30
@@ -40,8 +63,7 @@
 ```typescript
 import { useGeolocation } from "@/composables/useGeolocation";
 
-const { coords, isLoading, error, isSupported, getCurrentPosition } =
-  useGeolocation();
+const { coords, isLoading, error, isSupported, getCurrentPosition } = useGeolocation();
 
 // 检查支持
 if (!isSupported.value) {
@@ -91,16 +113,13 @@ const { isInBounds } = useGeolocationBounds({
 ### 距离计算
 
 ```typescript
-import {
-  calculateDistance,
-  formatDistance,
-} from "@/composables/useGeolocation";
+import { calculateDistance, formatDistance } from "@/composables/useGeolocation";
 
 // 计算两点距离
 const distance = calculateDistance(
   { latitude: 40.7128, longitude: -74.006 }, // 纽约
   { latitude: 34.0522, longitude: -118.2437 }, // 洛杉矶
-  "km"
+  "km",
 );
 // 约 3936 公里
 
@@ -112,11 +131,7 @@ formatDistance(500); // '500 m'
 ### 坐标转换
 
 ```typescript
-import {
-  dmsToDecimal,
-  decimalToDms,
-  formatCoordinates,
-} from "@/composables/useGeolocation";
+import { dmsToDecimal, decimalToDms, formatCoordinates } from "@/composables/useGeolocation";
 
 // 度分秒转十进制
 const lat = dmsToDecimal(40, 42, 46, "N"); // 40.7128
@@ -133,10 +148,7 @@ formatCoordinates(40.7128, -74.006);
 ### 生成地图链接
 
 ```typescript
-import {
-  getGoogleMapsUrl,
-  getNavigationUrl,
-} from "@/composables/useGeolocation";
+import { getGoogleMapsUrl, getNavigationUrl } from "@/composables/useGeolocation";
 
 // Google Maps 链接
 const googleUrl = getGoogleMapsUrl(40.7128, -74.006);
@@ -151,43 +163,43 @@ const navUrl = getNavigationUrl(40.7128, -74.006);
 
 ### useGeolocation
 
-| 选项               | 类型    | 默认值 | 说明               |
-| ------------------ | ------- | ------ | ------------------ |
-| immediate          | boolean | true   | 是否立即获取位置   |
-| enableHighAccuracy | boolean | true   | 是否启用高精度     |
-| maximumAge         | number  | 30000  | 缓存最大时间(ms)   |
-| timeout            | number  | 27000  | 超时时间(ms)       |
+| 选项               | 类型    | 默认值 | 说明             |
+| ------------------ | ------- | ------ | ---------------- |
+| immediate          | boolean | true   | 是否立即获取位置 |
+| enableHighAccuracy | boolean | true   | 是否启用高精度   |
+| maximumAge         | number  | 30000  | 缓存最大时间(ms) |
+| timeout            | number  | 27000  | 超时时间(ms)     |
 
-| 返回值             | 类型                          | 说明               |
-| ------------------ | ----------------------------- | ------------------ |
-| coords             | `Ref<GeolocationCoordinates>  ` | 当前坐标           |
-| locatedAt          | `Ref<number>                  ` | 位置时间戳         |
-| isLoading          | `Ref<boolean>                 ` | 是否正在定位       |
-| error              | `Ref<GeolocationPositionError>` | 错误信息           |
-| isSupported        | `Ref<boolean>                 ` | 是否支持           |
-| getCurrentPosition | `() => Promise                ` | 获取当前位置       |
-| pause              | `() => void                   ` | 暂停监听           |
-| resume             | `() => void                   ` | 恢复监听           |
+| 返回值             | 类型                            | 说明         |
+| ------------------ | ------------------------------- | ------------ |
+| coords             | `Ref<GeolocationCoordinates>  ` | 当前坐标     |
+| locatedAt          | `Ref<number>                  ` | 位置时间戳   |
+| isLoading          | `Ref<boolean>                 ` | 是否正在定位 |
+| error              | `Ref<GeolocationPositionError>` | 错误信息     |
+| isSupported        | `Ref<boolean>                 ` | 是否支持     |
+| getCurrentPosition | `() => Promise                ` | 获取当前位置 |
+| pause              | `() => void                   ` | 暂停监听     |
+| resume             | `() => void                   ` | 恢复监听     |
 
 ### GeolocationCoordinates
 
-| 属性             | 类型          | 说明               |
-| ---------------- | ------------- | ------------------ |
-| latitude         | number        | 纬度               |
-| longitude        | number        | 经度               |
-| altitude         | number\|null  | 海拔(米)           |
-| accuracy         | number        | 精度(米)           |
-| altitudeAccuracy | number\|null  | 海拔精度(米)       |
-| heading          | number\|null  | 方向(0-360度)      |
-| speed            | number\|null  | 速度(米/秒)        |
+| 属性             | 类型         | 说明          |
+| ---------------- | ------------ | ------------- |
+| latitude         | number       | 纬度          |
+| longitude        | number       | 经度          |
+| altitude         | number\|null | 海拔(米)      |
+| accuracy         | number       | 精度(米)      |
+| altitudeAccuracy | number\|null | 海拔精度(米)  |
+| heading          | number\|null | 方向(0-360度) |
+| speed            | number\|null | 速度(米/秒)   |
 
 ### calculateDistance
 
-| 参数 | 类型                   | 说明               |
-| ---- | ---------------------- | ------------------ |
-| from | {latitude, longitude}  | 起点坐标           |
-| to   | {latitude, longitude}  | 终点坐标           |
-| unit | 'm'\|'km'\|'mi'\|'ft'  | 单位，默认米       |
+| 参数 | 类型                  | 说明         |
+| ---- | --------------------- | ------------ |
+| from | {latitude, longitude} | 起点坐标     |
+| to   | {latitude, longitude} | 终点坐标     |
+| unit | 'm'\|'km'\|'mi'\|'ft' | 单位，默认米 |
 
 ## 代码位置
 

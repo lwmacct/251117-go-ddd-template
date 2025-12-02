@@ -1,5 +1,31 @@
 # Timer Composable
 
+<!--TOC-->
+
+- [需求背景](#需求背景) `:33:36`
+- [已实现功能](#已实现功能) `:37:38`
+  - [超时定时器](#超时定时器) `:39:43`
+  - [间隔定时器](#间隔定时器) `:44:48`
+  - [时间戳](#时间戳) `:49:53`
+  - [动画帧](#动画帧) `:54:57`
+  - [日期格式化](#日期格式化) `:58:61`
+  - [高级功能](#高级功能) `:62:66`
+- [使用方式](#使用方式) `:67:68`
+  - [超时定时器](#超时定时器-1) `:69:87`
+  - [间隔定时器](#间隔定时器-1) `:88:107`
+  - [实时时间](#实时时间) `:108:118`
+  - [requestAnimationFrame](#requestanimationframe) `:119:130`
+  - [日期格式化](#日期格式化-1) `:131:146`
+  - [任务调度器](#任务调度器) `:147:164`
+  - [空闲回调](#空闲回调) `:165:178`
+- [API](#api) `:179:180`
+  - [useTimeout](#usetimeout) `:181:189`
+  - [useInterval](#useinterval) `:190:199`
+  - [useScheduler](#usescheduler) `:200:212`
+- [代码位置](#代码位置) `:213:219`
+
+<!--TOC-->
+
 > **状态**: ✅ 已完成
 > **优先级**: 中
 > **完成日期**: 2024-11-30
@@ -75,7 +101,7 @@ useIntervalFn(
     fetchData();
   },
   5000,
-  { immediate: true }
+  { immediate: true },
 );
 ```
 
@@ -146,7 +172,7 @@ const { cancel } = useIdleCallback(
   () => {
     heavyComputation();
   },
-  { timeout: 2000 }
+  { timeout: 2000 },
 );
 ```
 
@@ -154,35 +180,35 @@ const { cancel } = useIdleCallback(
 
 ### useTimeout
 
-| 返回值    | 类型          | 说明             |
-| --------- | ------------- | ---------------- |
-| ready     | `Ref<boolean> ` | 是否已超时       |
-| isPending | `Ref<boolean> ` | 是否正在等待     |
-| start     | `() => void   ` | 启动定时器       |
-| stop      | `() => void   ` | 停止定时器       |
+| 返回值    | 类型            | 说明         |
+| --------- | --------------- | ------------ |
+| ready     | `Ref<boolean> ` | 是否已超时   |
+| isPending | `Ref<boolean> ` | 是否正在等待 |
+| start     | `() => void   ` | 启动定时器   |
+| stop      | `() => void   ` | 停止定时器   |
 
 ### useInterval
 
-| 返回值   | 类型          | 说明             |
-| -------- | ------------- | ---------------- |
-| counter  | `Ref<number>  ` | 触发次数         |
-| isActive | `Ref<boolean> ` | 是否正在运行     |
-| pause    | `() => void   ` | 暂停             |
-| resume   | `() => void   ` | 恢复             |
-| reset    | `() => void   ` | 重置计数         |
+| 返回值   | 类型            | 说明         |
+| -------- | --------------- | ------------ |
+| counter  | `Ref<number>  ` | 触发次数     |
+| isActive | `Ref<boolean> ` | 是否正在运行 |
+| pause    | `() => void   ` | 暂停         |
+| resume   | `() => void   ` | 恢复         |
+| reset    | `() => void   ` | 重置计数     |
 
 ### useScheduler
 
-| 返回值      | 说明               |
-| ----------- | ------------------ |
-| tasks       | 所有任务列表       |
-| addTask     | 添加任务           |
-| removeTask  | 移除任务           |
-| pauseTask   | 暂停任务           |
-| resumeTask  | 恢复任务           |
-| pauseAll    | 暂停所有           |
-| resumeAll   | 恢复所有           |
-| clearAll    | 清除所有           |
+| 返回值     | 说明         |
+| ---------- | ------------ |
+| tasks      | 所有任务列表 |
+| addTask    | 添加任务     |
+| removeTask | 移除任务     |
+| pauseTask  | 暂停任务     |
+| resumeTask | 恢复任务     |
+| pauseAll   | 暂停所有     |
+| resumeAll  | 恢复所有     |
+| clearAll   | 清除所有     |
 
 ## 代码位置
 

@@ -1,5 +1,24 @@
 # 网络状态检测 Composable
 
+<!--TOC-->
+
+- [需求背景](#需求背景) `:26:29`
+- [已实现功能](#已实现功能) `:30:31`
+  - [useNetwork](#usenetwork) `:32:39`
+  - [useOnline](#useonline) `:40:44`
+  - [useNetworkSpeed](#usenetworkspeed) `:45:49`
+  - [useNetworkBanner](#usenetworkbanner) `:50:54`
+- [使用方式](#使用方式) `:55:56`
+  - [基础用法](#基础用法) `:57:71`
+  - [简化用法](#简化用法) `:72:82`
+  - [网络速度测试](#网络速度测试) `:83:94`
+  - [网络状态提示](#网络状态提示) `:95:108`
+- [API](#api) `:109:110`
+  - [useNetwork 返回值](#usenetwork-返回值) `:111:122`
+- [代码位置](#代码位置) `:123:129`
+
+<!--TOC-->
+
 > **状态**: ✅ 已完成
 > **优先级**: 中
 > **完成日期**: 2024-11-30
@@ -40,13 +59,7 @@
 ```typescript
 import { useNetwork } from "@/composables/useNetwork";
 
-const {
-  isOnline,
-  effectiveType,
-  downlink,
-  isSlowConnection,
-  connectionStatus
-} = useNetwork();
+const { isOnline, effectiveType, downlink, isSlowConnection, connectionStatus } = useNetwork();
 
 // 监听网络变化
 watch(isOnline, (online) => {
@@ -63,7 +76,7 @@ import { useOnline } from "@/composables/useNetwork";
 
 const isOnline = useOnline({
   onOffline: () => toast.warning("网络已断开"),
-  onOnline: () => toast.success("网络已恢复")
+  onOnline: () => toast.success("网络已恢复"),
 });
 ```
 
@@ -89,11 +102,7 @@ const { shouldShowBanner, bannerType, bannerMessage } = useNetworkBanner();
 
 ```vue
 <template>
-  <v-banner
-    v-if="shouldShowBanner"
-    :type="bannerType"
-    :text="bannerMessage"
-  />
+  <v-banner v-if="shouldShowBanner" :type="bannerType" :text="bannerMessage" />
 </template>
 ```
 
@@ -101,15 +110,15 @@ const { shouldShowBanner, bannerType, bannerMessage } = useNetworkBanner();
 
 ### useNetwork 返回值
 
-| 属性 | 类型 | 说明 |
-|------|------|------|
-| isOnline | `Ref<boolean>` | 是否在线 |
-| effectiveType | `Ref<string>` | 有效连接类型 |
-| downlink | `Ref<number>` | 下行速度 (Mbps) |
-| rtt | `Ref<number>` | 往返时间 (ms) |
-| saveData | `Ref<boolean>` | 数据节省模式 |
-| isSlowConnection | `ComputedRef<boolean>` | 是否慢速连接 |
-| connectionStatus | `ComputedRef<string>` | good/moderate/poor/offline |
+| 属性             | 类型                   | 说明                       |
+| ---------------- | ---------------------- | -------------------------- |
+| isOnline         | `Ref<boolean>`         | 是否在线                   |
+| effectiveType    | `Ref<string>`          | 有效连接类型               |
+| downlink         | `Ref<number>`          | 下行速度 (Mbps)            |
+| rtt              | `Ref<number>`          | 往返时间 (ms)              |
+| saveData         | `Ref<boolean>`         | 数据节省模式               |
+| isSlowConnection | `ComputedRef<boolean>` | 是否慢速连接               |
+| connectionStatus | `ComputedRef<string>`  | good/moderate/poor/offline |
 
 ## 代码位置
 

@@ -12,13 +12,7 @@ export default mergeConfig(
       coverage: {
         provider: "v8",
         reporter: ["text", "html", "lcov"],
-        exclude: [
-          "node_modules/**",
-          "dist/**",
-          "**/*.d.ts",
-          "**/*.config.*",
-          "**/types/**",
-        ],
+        exclude: ["node_modules/**", "dist/**", "**/*.d.ts", "**/*.config.*", "**/types/**"],
       },
       // 全局 API 可用
       globals: true,

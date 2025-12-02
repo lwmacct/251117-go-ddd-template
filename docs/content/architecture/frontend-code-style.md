@@ -6,18 +6,50 @@ outline: [2, 3]
 
 # 前端代码规范
 
+<!--TOC-->
+
+- [工具链概览](#工具链概览) `:43:53`
+- [ESLint 配置](#eslint-配置) `:54:78`
+  - [常用命令](#常用命令) `:79:88`
+- [Prettier 配置](#prettier-配置) `:89:105`
+  - [常用命令](#常用命令-1) `:106:115`
+- [组件编写规范](#组件编写规范) `:116:117`
+  - [文件命名](#文件命名) `:118:129`
+  - [组件结构](#组件结构) `:130:179`
+  - [Props 定义](#props-定义) `:180:200`
+- [Composables 规范](#composables-规范) `:201:202`
+  - [命名规范](#命名规范) `:203:207`
+  - [结构模板](#结构模板) `:208:254`
+- [TypeScript 规范](#typescript-规范) `:255:256`
+  - [类型定义](#类型定义) `:257:280`
+  - [未使用变量](#未使用变量) `:281:296`
+- [测试规范](#测试规范) `:297:298`
+  - [文件位置](#文件位置) `:299:311`
+  - [测试结构](#测试结构) `:312:334`
+  - [常用命令](#常用命令-2) `:335:347`
+- [Git 提交规范](#git-提交规范) `:348:349`
+  - [Commit Message 格式](#commit-message-格式) `:350:359`
+  - [类型说明](#类型说明) `:360:371`
+  - [示例](#示例) `:372:383`
+- [IDE 配置](#ide-配置) `:384:385`
+  - [VS Code 推荐扩展](#vs-code-推荐扩展) `:386:392`
+  - [推荐设置](#推荐设置) `:393:406`
+- [下一步](#下一步) `:407:411`
+
+<!--TOC-->
+
 本文档定义了前端项目的代码规范和最佳实践，确保代码质量和团队协作效率。
 
 ## 工具链概览
 
 项目使用以下工具保证代码质量：
 
-| 工具 | 版本 | 用途 |
-|------|------|------|
-| ESLint | 9.x | 代码静态分析 |
-| Prettier | 3.x | 代码格式化 |
-| Vitest | 4.x | 单元测试 |
-| vue-tsc | 3.x | TypeScript 类型检查 |
+| 工具     | 版本 | 用途                |
+| -------- | ---- | ------------------- |
+| ESLint   | 9.x  | 代码静态分析        |
+| Prettier | 3.x  | 代码格式化          |
+| Vitest   | 4.x  | 单元测试            |
+| vue-tsc  | 3.x  | TypeScript 类型检查 |
 
 ## ESLint 配置
 
@@ -25,26 +57,23 @@ outline: [2, 3]
 
 ```javascript
 // eslint.config.js 核心配置
-export default tseslint.config(
-  js.configs.recommended,
-  ...tseslint.configs.recommended,
-  ...pluginVue.configs["flat/recommended"],
-  prettier,
-  {
-    rules: {
-      // Vue 规则
-      "vue/multi-word-component-names": "off",
-      "vue/valid-v-slot": ["error", { allowModifiers: true }],
+export default tseslint.config(js.configs.recommended, ...tseslint.configs.recommended, ...pluginVue.configs["flat/recommended"], prettier, {
+  rules: {
+    // Vue 规则
+    "vue/multi-word-component-names": "off",
+    "vue/valid-v-slot": ["error", { allowModifiers: true }],
 
-      // TypeScript 规则
-      "@typescript-eslint/no-explicit-any": "warn",
-      "@typescript-eslint/no-unused-vars": ["warn", {
+    // TypeScript 规则
+    "@typescript-eslint/no-explicit-any": "warn",
+    "@typescript-eslint/no-unused-vars": [
+      "warn",
+      {
         argsIgnorePattern: "^_",
         varsIgnorePattern: "^_",
-      }],
-    },
-  }
-);
+      },
+    ],
+  },
+});
 ```
 
 ### 常用命令
@@ -126,9 +155,7 @@ const emit = defineEmits<{
 const isEditing = ref(false);
 
 // 6. 计算属性
-const displayName = computed(() =>
-  `${props.user.firstName} ${props.user.lastName}`
-);
+const displayName = computed(() => `${props.user.firstName} ${props.user.lastName}`);
 
 // 7. 方法
 const handleSubmit = async () => {
@@ -194,9 +221,7 @@ export interface UseExampleReturn {
   update: (newValue: string) => Promise<void>;
 }
 
-export function useExample(
-  options: UseExampleOptions = {}
-): UseExampleReturn {
+export function useExample(options: UseExampleOptions = {}): UseExampleReturn {
   const { initialValue = "" } = options;
 
   // 状态
@@ -334,15 +359,15 @@ npm run test:coverage
 
 ### 类型说明
 
-| Type | 说明 |
-|------|------|
-| `feat` | 新功能 |
-| `fix` | Bug 修复 |
-| `docs` | 文档更新 |
-| `style` | 代码格式（不影响功能） |
-| `refactor` | 重构 |
-| `test` | 测试相关 |
-| `chore` | 构建/工具相关 |
+| Type       | 说明                   |
+| ---------- | ---------------------- |
+| `feat`     | 新功能                 |
+| `fix`      | Bug 修复               |
+| `docs`     | 文档更新               |
+| `style`    | 代码格式（不影响功能） |
+| `refactor` | 重构                   |
+| `test`     | 测试相关               |
+| `chore`    | 构建/工具相关          |
 
 ### 示例
 

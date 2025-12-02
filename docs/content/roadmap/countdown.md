@@ -1,5 +1,24 @@
 # 倒计时 Composable
 
+<!--TOC-->
+
+- [需求背景](#需求背景) `:26:29`
+- [已实现功能](#已实现功能) `:30:31`
+  - [useCountdown](#usecountdown) `:32:38`
+  - [useStopwatch](#usestopwatch) `:39:43`
+  - [useVerificationCode](#useverificationcode) `:44:49`
+  - [useTargetDateCountdown](#usetargetdatecountdown) `:50:54`
+- [使用方式](#使用方式) `:55:56`
+  - [基础倒计时](#基础倒计时) `:57:74`
+  - [验证码倒计时](#验证码倒计时) `:75:97`
+  - [秒表](#秒表) `:98:110`
+  - [活动倒计时](#活动倒计时) `:111:133`
+- [API](#api) `:134:135`
+  - [useCountdown 返回值](#usecountdown-返回值) `:136:150`
+- [代码位置](#代码位置) `:151:157`
+
+<!--TOC-->
+
 > **状态**: ✅ 已完成
 > **优先级**: 中
 > **完成日期**: 2024-11-30
@@ -44,7 +63,7 @@ const { remaining, formatted, start, pause, reset, isRunning, isFinished } = use
   seconds: 60,
   onEnd: () => {
     toast.info("倒计时结束");
-  }
+  },
 });
 
 // 开始倒计时
@@ -64,16 +83,13 @@ const { buttonText, isDisabled, send } = useVerificationCode({
     await api.sendVerificationCode(phone);
   },
   onSendSuccess: () => toast.success("验证码已发送"),
-  onSendError: (err) => toast.error(err.message)
+  onSendError: (err) => toast.error(err.message),
 });
 ```
 
 ```vue
 <template>
-  <v-btn
-    :disabled="isDisabled"
-    @click="send"
-  >
+  <v-btn :disabled="isDisabled" @click="send">
     {{ buttonText }}
   </v-btn>
 </template>
@@ -99,7 +115,7 @@ import { useTargetDateCountdown } from "@/composables/useCountdown";
 
 const { days, hours, minutes, seconds, isFinished } = useTargetDateCountdown({
   targetDate: "2024-12-31T23:59:59",
-  onEnd: () => toast.info("活动已结束")
+  onEnd: () => toast.info("活动已结束"),
 });
 ```
 
@@ -119,18 +135,18 @@ const { days, hours, minutes, seconds, isFinished } = useTargetDateCountdown({
 
 ### useCountdown 返回值
 
-| 属性 | 类型 | 说明 |
-|------|------|------|
-| remaining | `Ref<number>` | 剩余秒数 |
-| isRunning | `Ref<boolean>` | 是否运行中 |
-| isFinished | `Ref<boolean>` | 是否已结束 |
-| formatted | `ComputedRef<string>` | 格式化时间 |
-| days/hours/minutes/seconds | `ComputedRef<number>` | 时间部分 |
-| start | `() => void` | 开始 |
-| pause | `() => void` | 暂停 |
-| stop | `() => void` | 停止并重置 |
-| reset | `(seconds?) => void` | 重置 |
-| restart | `() => void` | 重新开始 |
+| 属性                       | 类型                  | 说明       |
+| -------------------------- | --------------------- | ---------- |
+| remaining                  | `Ref<number>`         | 剩余秒数   |
+| isRunning                  | `Ref<boolean>`        | 是否运行中 |
+| isFinished                 | `Ref<boolean>`        | 是否已结束 |
+| formatted                  | `ComputedRef<string>` | 格式化时间 |
+| days/hours/minutes/seconds | `ComputedRef<number>` | 时间部分   |
+| start                      | `() => void`          | 开始       |
+| pause                      | `() => void`          | 暂停       |
+| stop                       | `() => void`          | 停止并重置 |
+| reset                      | `(seconds?) => void`  | 重置       |
+| restart                    | `() => void`          | 重新开始   |
 
 ## 代码位置
 

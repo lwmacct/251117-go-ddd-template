@@ -1,5 +1,18 @@
 # 防抖搜索
 
+<!--TOC-->
+
+- [需求背景](#需求背景) `:20:23`
+- [已实现功能](#已实现功能) `:24:25`
+  - [useDebounce Composable](#usedebounce-composable) `:26:33`
+  - [使用方式](#使用方式) `:34:49`
+  - [页面集成](#页面集成) `:50:57`
+- [配置选项](#配置选项) `:58:64`
+- [代码位置](#代码位置) `:65:72`
+- [已集成页面](#已集成页面) `:73:76`
+
+<!--TOC-->
+
 > **状态**: ✅ 已完成
 > **优先级**: 中
 > **完成日期**: 2024-11-30
@@ -38,22 +51,16 @@ watch(debouncedSearchQuery, () => {
 
 ```vue
 <template>
-  <v-text-field
-    v-model="searchQuery"
-    prepend-inner-icon="mdi-magnify"
-    label="搜索"
-    clearable
-    placeholder="输入后自动搜索..."
-  />
+  <v-text-field v-model="searchQuery" prepend-inner-icon="mdi-magnify" label="搜索" clearable placeholder="输入后自动搜索..." />
 </template>
 ```
 
 ## 配置选项
 
-| 选项 | 类型 | 默认值 | 说明 |
-|------|------|--------|------|
-| delay | number | 300 | 延迟时间（毫秒） |
-| immediate | boolean | false | 是否立即执行第一次 |
+| 选项      | 类型    | 默认值 | 说明               |
+| --------- | ------- | ------ | ------------------ |
+| delay     | number  | 300    | 延迟时间（毫秒）   |
+| immediate | boolean | false  | 是否立即执行第一次 |
 
 ## 代码位置
 

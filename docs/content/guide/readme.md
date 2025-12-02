@@ -1,8 +1,25 @@
 # Go DDD Template
 
+<!--TOC-->
+
+- [快速开始](#快速开始) `:22:37`
+- [项目架构](#项目架构) `:38:52`
+- [核心特性](#核心特性) `:53:63`
+- [项目结构](#项目结构) `:64:78`
+- [开发](#开发) `:79:80`
+  - [使用 Taskfile](#使用-taskfile) `:81:99`
+  - [使用 Pre-commit](#使用-pre-commit) `:100:109`
+  - [热重载开发](#热重载开发) `:110:121`
+- [文档](#文档) `:122:128`
+- [贡献](#贡献) `:129:138`
+- [许可证](#许可证) `:139:142`
+- [链接](#链接) `:143:151`
+
+<!--TOC-->
+
 基于领域驱动设计（DDD）和 CQRS 模式的企业级 Go 应用模板。
 
-## 🚀 快速开始
+## 快速开始
 
 ```bash
 # 克隆项目
@@ -18,7 +35,7 @@ task go:run -- api
 
 详细安装步骤请参阅 [快速开始指南](./quick-start.md)。
 
-## 🏗️ 项目架构
+## 项目架构
 
 本项目采用 **DDD 四层架构 + CQRS 模式**：
 
@@ -33,7 +50,7 @@ Adapters → Application → Domain ← Infrastructure
 
 详见 [架构文档](/architecture/ddd-cqrs)。
 
-## ✨ 核心特性
+## 核心特性
 
 - 🏗️ **DDD + CQRS**: 完整的领域驱动设计实现
 - 🔐 **双重认证**: JWT + PAT 支持不同场景
@@ -44,7 +61,7 @@ Adapters → Application → Domain ← Infrastructure
 - 🐳 **Docker 支持**: 容器化部署
 - 📝 **Swagger API**: 自动生成 API 文档
 
-## 📁 项目结构
+## 项目结构
 
 ```
 internal/
@@ -59,7 +76,7 @@ docs/              # VitePress 文档
 testing/           # 测试脚本
 ```
 
-## 🔨 开发
+## 开发
 
 ### 使用 Taskfile
 
@@ -102,27 +119,28 @@ air
 
 详见 [开发文档](/development/setup)。
 
-## 📚 文档
+## 文档
 
 - [用户指南](/guide/) - 快速上手和基础使用
 - [架构文档](/architecture/) - 深入理解系统设计
 - [API 文档](/api/overview) - 接口规范和示例
 - [开发指南](/development/) - 开发环境和最佳实践
 
-## 🤝 贡献
+## 贡献
 
 欢迎提交 Issue 和 Pull Request！
 
 贡献前请确保：
+
 1. 遵循代码规范
 2. 编写充分的测试
 3. 更新相关文档
 
-## 📄 许可证
+## 许可证
 
 MIT License
 
-## 🔗 链接
+## 链接
 
 - [GitHub 仓库](https://github.com/lwmacct/251117-go-ddd-template)
 - [作者主页](https://github.com/lwmacct)
@@ -130,4 +148,4 @@ MIT License
 
 ---
 
-*本项目是一个持续演进的模板，欢迎社区贡献和改进建议。*
+_本项目是一个持续演进的模板，欢迎社区贡献和改进建议。_

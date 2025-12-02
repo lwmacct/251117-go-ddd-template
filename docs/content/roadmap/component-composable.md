@@ -1,5 +1,37 @@
 # Component Composable
 
+<!--TOC-->
+
+- [需求背景](#需求背景) `:39:42`
+- [已实现功能](#已实现功能) `:43:44`
+  - [插槽工具](#插槽工具) `:45:50`
+  - [属性工具](#属性工具) `:51:56`
+  - [组件信息](#组件信息) `:57:63`
+  - [组件引用](#组件引用) `:64:68`
+  - [暴露工具](#暴露工具) `:69:73`
+  - [其他工具](#其他工具) `:74:79`
+- [使用方式](#使用方式) `:80:81`
+  - [插槽信息](#插槽信息) `:82:110`
+  - [条件插槽](#条件插槽) `:111:127`
+  - [插槽传递](#插槽传递) `:128:142`
+  - [增强属性](#增强属性) `:143:165`
+  - [类名合并](#类名合并) `:166:180`
+  - [样式合并](#样式合并) `:181:197`
+  - [组件信息](#组件信息-1) `:198:215`
+  - [单组件引用](#单组件引用) `:216:244`
+  - [多组件引用](#多组件引用) `:245:275`
+  - [暴露方法](#暴露方法) `:276:312`
+  - [强制更新](#强制更新) `:313:329`
+  - [类型安全的事件](#类型安全的事件) `:330:354`
+- [API](#api) `:355:356`
+  - [useSlotsInfo](#useslotsinfo) `:357:366`
+  - [useAttrsEnhanced](#useattrsenhanced) `:367:377`
+  - [useComponentRef](#usecomponentref) `:378:385`
+  - [useComponentRefs](#usecomponentrefs) `:386:396`
+- [代码位置](#代码位置) `:397:403`
+
+<!--TOC-->
+
 > **状态**: ✅ 已完成
 > **优先级**: 中
 > **完成日期**: 2024-11-30
@@ -50,25 +82,25 @@
 ### 插槽信息
 
 ```typescript
-import { useSlotsInfo } from '@/composables/useComponent'
+import { useSlotsInfo } from "@/composables/useComponent";
 
-const { hasSlot, isEmpty, getSlotNames, slotInfo, slots } = useSlotsInfo()
+const { hasSlot, isEmpty, getSlotNames, slotInfo, slots } = useSlotsInfo();
 
 // 检查插槽是否存在
-if (hasSlot('header')) {
+if (hasSlot("header")) {
   // 渲染 header 插槽
 }
 
 // 检查插槽是否为空
-if (!isEmpty('content')) {
+if (!isEmpty("content")) {
   // content 插槽有内容
 }
 
 // 获取所有插槽名称
-console.log(getSlotNames()) // ['default', 'header', 'footer']
+console.log(getSlotNames()); // ['default', 'header', 'footer']
 
 // 获取详细信息
-console.log(slotInfo.value)
+console.log(slotInfo.value);
 // [
 //   { name: 'default', exists: true, isEmpty: false },
 //   { name: 'header', exists: true, isEmpty: true },
@@ -111,24 +143,24 @@ const allSlots = useSlotPass()
 ### 增强属性
 
 ```typescript
-import { useAttrsEnhanced } from '@/composables/useComponent'
+import { useAttrsEnhanced } from "@/composables/useComponent";
 
-const { attrs, hasAttr, getAttr, attrsWithout, attrsOnly, attrNames } = useAttrsEnhanced()
+const { attrs, hasAttr, getAttr, attrsWithout, attrsOnly, attrNames } = useAttrsEnhanced();
 
 // 检查属性
-if (hasAttr('disabled')) {
+if (hasAttr("disabled")) {
   // ...
 }
 
 // 获取属性值（带默认值）
-const className = getAttr('class', 'default-class')
+const className = getAttr("class", "default-class");
 
 // 排除某些属性
-const restAttrs = attrsWithout(['class', 'style'])
+const restAttrs = attrsWithout(["class", "style"]);
 // 传递给内部元素: <div v-bind="restAttrs" />
 
 // 只保留某些属性
-const inputAttrs = attrsOnly(['type', 'placeholder', 'disabled'])
+const inputAttrs = attrsOnly(["type", "placeholder", "disabled"]);
 ```
 
 ### 类名合并
@@ -166,44 +198,44 @@ const mergedStyle = useStyleMerge({
 ### 组件信息
 
 ```typescript
-import { useComponentInfo, useParentComponent, useRootComponent } from '@/composables/useComponent'
+import { useComponentInfo, useParentComponent, useRootComponent } from "@/composables/useComponent";
 
-const { name, uid, isMounted, parent, root } = useComponentInfo()
+const { name, uid, isMounted, parent, root } = useComponentInfo();
 
-console.log(`组件 ${name} (UID: ${uid})`)
-console.log(`已挂载: ${isMounted.value}`)
+console.log(`组件 ${name} (UID: ${uid})`);
+console.log(`已挂载: ${isMounted.value}`);
 
 // 获取父组件
-const parentComponent = useParentComponent()
-console.log('父组件:', parentComponent?.type.name)
+const parentComponent = useParentComponent();
+console.log("父组件:", parentComponent?.type.name);
 
 // 获取根组件
-const rootComponent = useRootComponent()
+const rootComponent = useRootComponent();
 ```
 
 ### 单组件引用
 
 ```typescript
-import { useComponentRef } from '@/composables/useComponent'
+import { useComponentRef } from "@/composables/useComponent";
 
 interface FormInstance {
-  validate: () => Promise<boolean>
-  reset: () => void
+  validate: () => Promise<boolean>;
+  reset: () => void;
 }
 
-const { ref: formRef, isLoaded, whenLoaded } = useComponentRef<FormInstance>()
+const { ref: formRef, isLoaded, whenLoaded } = useComponentRef<FormInstance>();
 
 // 在模板中: <Form ref="formRef" />
 
 // 检查是否加载
 if (isLoaded.value) {
-  formRef.value?.validate()
+  formRef.value?.validate();
 }
 
 // 等待组件加载
 async function submit() {
-  const form = await whenLoaded()
-  const valid = await form.validate()
+  const form = await whenLoaded();
+  const valid = await form.validate();
   if (valid) {
     // 提交表单
   }
@@ -244,34 +276,34 @@ function clearAll() {
 ### 暴露方法
 
 ```typescript
-import { useExposeMethod, useExposeState } from '@/composables/useComponent'
+import { useExposeMethod, useExposeState } from "@/composables/useComponent";
 
 // 方式 1: 只暴露方法
-const count = ref(0)
+const count = ref(0);
 
 useExposeMethod({
   increment: () => count.value++,
   decrement: () => count.value--,
-  reset: () => count.value = 0,
-  getValue: () => count.value
-})
+  reset: () => (count.value = 0),
+  getValue: () => count.value,
+});
 
 // 父组件可以调用:
 // childRef.value.increment()
 // childRef.value.getValue()
 
 // 方式 2: 暴露状态和方法
-const name = ref('')
-const loading = ref(false)
+const name = ref("");
+const loading = ref(false);
 
 useExposeState(
   { name, loading },
   {
-    setName: (n: string) => name.value = n,
-    startLoading: () => loading.value = true,
-    stopLoading: () => loading.value = false
-  }
-)
+    setName: (n: string) => (name.value = n),
+    startLoading: () => (loading.value = true),
+    stopLoading: () => (loading.value = false),
+  },
+);
 
 // 父组件可以访问:
 // childRef.value.name.value
@@ -298,22 +330,22 @@ function handleReset() {
 ### 类型安全的事件
 
 ```typescript
-import { useComponentEmit } from '@/composables/useComponent'
+import { useComponentEmit } from "@/composables/useComponent";
 
 interface Events {
-  'update:value': [value: string]
-  'change': [newValue: string, oldValue: string]
-  'submit': []
-  'error': [error: Error]
+  "update:value": [value: string];
+  change: [newValue: string, oldValue: string];
+  submit: [];
+  error: [error: Error];
 }
 
-const emit = useComponentEmit<Events>()
+const emit = useComponentEmit<Events>();
 
 // 类型安全的事件发射
-emit('update:value', 'new value')
-emit('change', 'new', 'old')
-emit('submit')
-emit('error', new Error('Something went wrong'))
+emit("update:value", "new value");
+emit("change", "new", "old");
+emit("submit");
+emit("error", new Error("Something went wrong"));
 
 // 错误示例（TypeScript 会报错）:
 // emit('update:value', 123) // 类型错误
@@ -324,43 +356,43 @@ emit('error', new Error('Something went wrong'))
 
 ### useSlotsInfo
 
-| 返回值 | 类型 | 说明 |
-|--------|------|------|
-| hasSlot | `(name) => boolean` | 检查插槽是否存在 |
-| isEmpty | `(name) => boolean` | 检查插槽是否为空 |
-| getSlotNames | `() => string[]` | 获取所有插槽名称 |
-| slotInfo | ComputedRef\<SlotInfo[]\> | 插槽详细信息 |
-| slots | Slots | 原始插槽对象 |
+| 返回值       | 类型                      | 说明             |
+| ------------ | ------------------------- | ---------------- |
+| hasSlot      | `(name) => boolean`       | 检查插槽是否存在 |
+| isEmpty      | `(name) => boolean`       | 检查插槽是否为空 |
+| getSlotNames | `() => string[]`          | 获取所有插槽名称 |
+| slotInfo     | ComputedRef\<SlotInfo[]\> | 插槽详细信息     |
+| slots        | Slots                     | 原始插槽对象     |
 
 ### useAttrsEnhanced
 
-| 返回值 | 类型 | 说明 |
-|--------|------|------|
-| attrs | object | 原始属性对象 |
-| hasAttr | `(name) => boolean` | 检查属性是否存在 |
-| getAttr | `(name, default?) => T` | 获取属性值 |
-| attrsWithout | `(names) => object` | 排除指定属性 |
-| attrsOnly | `(names) => object` | 只包含指定属性 |
-| attrNames | ComputedRef\<string[]\> | 属性名列表 |
+| 返回值       | 类型                    | 说明             |
+| ------------ | ----------------------- | ---------------- |
+| attrs        | object                  | 原始属性对象     |
+| hasAttr      | `(name) => boolean`     | 检查属性是否存在 |
+| getAttr      | `(name, default?) => T` | 获取属性值       |
+| attrsWithout | `(names) => object`     | 排除指定属性     |
+| attrsOnly    | `(names) => object`     | 只包含指定属性   |
+| attrNames    | ComputedRef\<string[]\> | 属性名列表       |
 
 ### useComponentRef
 
-| 返回值 | 类型 | 说明 |
-|--------|------|------|
-| ref | Ref\<T \| null\> | 组件引用 |
-| isLoaded | ComputedRef\<boolean\> | 是否已加载 |
-| whenLoaded | `() => Promise\<T\>` | 等待加载完成 |
+| 返回值     | 类型                   | 说明         |
+| ---------- | ---------------------- | ------------ |
+| ref        | Ref\<T \| null\>       | 组件引用     |
+| isLoaded   | ComputedRef\<boolean\> | 是否已加载   |
+| whenLoaded | `() => Promise\<T\>`   | 等待加载完成 |
 
 ### useComponentRefs
 
-| 返回值 | 类型 | 说明 |
-|--------|------|------|
-| refs | Ref\<Map\> | 引用映射 |
-| setRef | `(key, el) => void` | 设置引用 |
-| getRef | `(key) => T` | 获取引用 |
-| getAllRefs | `() => T[]` | 获取所有引用 |
-| clearRef | `(key) => void` | 清除引用 |
-| clearAll | `() => void` | 清除所有引用 |
+| 返回值     | 类型                | 说明         |
+| ---------- | ------------------- | ------------ |
+| refs       | Ref\<Map\>          | 引用映射     |
+| setRef     | `(key, el) => void` | 设置引用     |
+| getRef     | `(key) => T`        | 获取引用     |
+| getAllRefs | `() => T[]`         | 获取所有引用 |
+| clearRef   | `(key) => void`     | 清除引用     |
+| clearAll   | `() => void`        | 清除所有引用 |
 
 ## 代码位置
 

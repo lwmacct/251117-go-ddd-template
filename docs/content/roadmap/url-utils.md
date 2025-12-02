@@ -1,5 +1,27 @@
 # URL 工具函数
 
+<!--TOC-->
+
+- [需求背景](#需求背景) `:29:32`
+- [已实现功能](#已实现功能) `:33:34`
+  - [URL 解析](#url-解析) `:35:41`
+  - [查询参数](#查询参数) `:42:50`
+  - [URL 操作](#url-操作) `:51:60`
+  - [URL 编码](#url-编码) `:61:67`
+  - [URL 构建](#url-构建) `:68:72`
+  - [特殊 URL](#特殊-url) `:73:79`
+- [使用方式](#使用方式) `:80:81`
+  - [URL 解析](#url-解析-1) `:82:103`
+  - [查询参数](#查询参数-1) `:104:121`
+  - [路径操作](#路径操作) `:122:139`
+  - [URL 构建器](#url-构建器) `:140:148`
+  - [Data URL](#data-url) `:149:162`
+- [API](#api) `:163:164`
+  - [主要函数](#主要函数) `:165:176`
+- [代码位置](#代码位置) `:177:183`
+
+<!--TOC-->
+
 > **状态**: ✅ 已完成
 > **优先级**: 中
 > **完成日期**: 2024-11-30
@@ -120,11 +142,7 @@ getFileName("https://example.com/path/to/file.pdf");
 ```typescript
 import { createURLBuilder } from "@/utils/url";
 
-const url = createURLBuilder("https://example.com")
-  .setPath("/api/users")
-  .setQuery({ page: "1", limit: "10" })
-  .setHash("top")
-  .toString();
+const url = createURLBuilder("https://example.com").setPath("/api/users").setQuery({ page: "1", limit: "10" }).setHash("top").toString();
 // 'https://example.com/api/users?page=1&limit=10#top'
 ```
 
@@ -146,15 +164,15 @@ const parsed = parseDataURL(dataURL);
 
 ### 主要函数
 
-| 函数                             | 说明               |
-| -------------------------------- | ------------------ |
-| parseURL(url)                    | 解析 URL           |
-| parseQuery(query)                | 解析查询字符串     |
-| buildQuery(params)               | 构建查询字符串     |
-| joinURL(...parts)                | 连接 URL 路径      |
-| setQueryParam(url, key, value)   | 设置查询参数       |
-| createURLBuilder(base)           | 创建 URL 构建器    |
-| createDataURL(data, type)        | 创建 Data URL      |
+| 函数                           | 说明            |
+| ------------------------------ | --------------- |
+| parseURL(url)                  | 解析 URL        |
+| parseQuery(query)              | 解析查询字符串  |
+| buildQuery(params)             | 构建查询字符串  |
+| joinURL(...parts)              | 连接 URL 路径   |
+| setQueryParam(url, key, value) | 设置查询参数    |
+| createURLBuilder(base)         | 创建 URL 构建器 |
+| createDataURL(data, type)      | 创建 Data URL   |
 
 ## 代码位置
 

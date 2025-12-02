@@ -1,5 +1,23 @@
 # 项目结构
 
+<!--TOC-->
+
+- [目录概览](#目录概览) `:23:46`
+- [核心目录详解](#核心目录详解) `:47:48`
+  - [internal/ - 业务核心](#internal-业务核心) `:49:52`
+  - [web/ - 前端应用](#web-前端应用) `:105:140`
+  - [docs/ - 文档系统](#docs-文档系统) `:141:158`
+  - [configs/ - 配置文件](#configs-配置文件) `:159:166`
+  - [testing/ - 测试脚本](#testing-测试脚本) `:167:174`
+- [文件命名规范](#文件命名规范) `:175:176`
+  - [Go 文件](#go-文件) `:177:187`
+  - [前端文件](#前端文件) `:188:201`
+- [构建产物](#构建产物) `:202:213`
+- [配置优先级](#配置优先级) `:214:220`
+- [开发工具配置](#开发工具配置) `:221:227`
+
+<!--TOC-->
+
 本文档详细介绍 Go DDD Template 的目录结构和文件组织方式。
 
 ## 目录概览
@@ -33,6 +51,7 @@
 遵循 Go 语言约定，使用 internal 包确保代码不被外部引用。
 
 #### internal/adapters/ - 适配器层
+
 ```
 adapters/
 └── http/
@@ -43,6 +62,7 @@ adapters/
 ```
 
 #### internal/application/ - 应用层
+
 ```
 application/
 ├── user/
@@ -55,6 +75,7 @@ application/
 ```
 
 #### internal/domain/ - 领域层
+
 ```
 domain/
 ├── user/
@@ -68,6 +89,7 @@ domain/
 ```
 
 #### internal/infrastructure/ - 基础设施层
+
 ```
 infrastructure/
 ├── persistence/          # 数据持久化
@@ -154,28 +176,28 @@ testing/
 
 ### Go 文件
 
-| 类型 | 命名规范 | 示例 |
-|-----|---------|-----|
-| 实体 | `entity_{模块}.go` | `entity_user.go` |
-| 仓储接口 | `{操作}_repository.go` | `command_repository.go` |
+| 类型     | 命名规范                      | 示例                         |
+| -------- | ----------------------------- | ---------------------------- |
+| 实体     | `entity_{模块}.go`            | `entity_user.go`             |
+| 仓储接口 | `{操作}_repository.go`        | `command_repository.go`      |
 | 仓储实现 | `{模块}_{操作}_repository.go` | `user_command_repository.go` |
-| Use Case | `{动作}_{模块}.go` | `create_user.go` |
-| Handler | `{模块}.go`（单数） | `user.go` |
-| 模型 | `{模块}_model.go` | `user_model.go` |
+| Use Case | `{动作}_{模块}.go`            | `create_user.go`             |
+| Handler  | `{模块}.go`（单数）           | `user.go`                    |
+| 模型     | `{模块}_model.go`             | `user_model.go`              |
 
 ### 前端文件
 
-| 类型 | 命名规范 | 示例 |
-|-----|---------|-----|
-| 页面入口 | `index.vue` | `pages/admin/users/index.vue` |
-| 页面组件 | PascalCase | `UserDialog.vue`, `RoleSelector.vue` |
-| 共享组件 | PascalCase | `ConfirmDialog.vue`, `EmptyState.vue` |
-| Composable（全局） | camelCase，use 前缀 | `useClipboard.ts`, `useConfirm.ts` |
-| Composable（页面级） | camelCase，use 前缀 | `useAdminUsers.ts`, `useLogin.ts` |
-| API 模块 | camelCase | `users.ts`, `roles.ts` |
-| 类型定义 | camelCase | `user.ts`, `auth.ts` |
-| Store | camelCase，use 前缀 | `auth.ts`（导出 `useAuthStore`） |
-| 工具函数 | camelCase | `storage.ts`, `validation.ts` |
+| 类型                 | 命名规范            | 示例                                  |
+| -------------------- | ------------------- | ------------------------------------- |
+| 页面入口             | `index.vue`         | `pages/admin/users/index.vue`         |
+| 页面组件             | PascalCase          | `UserDialog.vue`, `RoleSelector.vue`  |
+| 共享组件             | PascalCase          | `ConfirmDialog.vue`, `EmptyState.vue` |
+| Composable（全局）   | camelCase，use 前缀 | `useClipboard.ts`, `useConfirm.ts`    |
+| Composable（页面级） | camelCase，use 前缀 | `useAdminUsers.ts`, `useLogin.ts`     |
+| API 模块             | camelCase           | `users.ts`, `roles.ts`                |
+| 类型定义             | camelCase           | `user.ts`, `auth.ts`                  |
+| Store                | camelCase，use 前缀 | `auth.ts`（导出 `useAuthStore`）      |
+| 工具函数             | camelCase           | `storage.ts`, `validation.ts`         |
 
 ## 构建产物
 
@@ -192,7 +214,7 @@ docs/.vitepress/dist/  # 文档站点
 ## 配置优先级
 
 1. CLI 参数（最高优先级）
-2. 环境变量（APP_ 前缀）
+2. 环境变量（APP\_ 前缀）
 3. 配置文件（config.yaml）
 4. 默认值（最低优先级）
 

@@ -1,5 +1,27 @@
 # 事件总线 Composable
 
+<!--TOC-->
+
+- [需求背景](#需求背景) `:29:32`
+- [已实现功能](#已实现功能) `:33:34`
+  - [createEventBus](#createeventbus) `:35:41`
+  - [useEventBus](#useeventbus) `:42:47`
+  - [useEventListener](#useeventlistener) `:48:52`
+  - [useEventValue](#useeventvalue) `:53:57`
+  - [appEventBus](#appeventbus) `:58:62`
+- [使用方式](#使用方式) `:63:64`
+  - [定义事件类型](#定义事件类型) `:65:78`
+  - [创建事件总线](#创建事件总线) `:79:87`
+  - [在组件中使用](#在组件中使用) `:88:108`
+  - [响应式事件值](#响应式事件值) `:109:125`
+  - [一次性订阅](#一次性订阅) `:126:136`
+- [API](#api) `:137:138`
+  - [createEventBus 返回值](#createeventbus-返回值) `:139:149`
+  - [预定义事件类型](#预定义事件类型) `:150:158`
+- [代码位置](#代码位置) `:159:165`
+
+<!--TOC-->
+
 > **状态**: ✅ 已完成
 > **优先级**: 中
 > **完成日期**: 2024-11-30
@@ -90,9 +112,7 @@ on("user:login", (data) => {
 import { useEventValue } from "@/composables/useEventBus";
 
 // 最新的通知会自动更新到 value
-const { value: notification } = useEventValue<AppEvents, "notification:show">(
-  "notification:show"
-);
+const { value: notification } = useEventValue<AppEvents, "notification:show">("notification:show");
 ```
 
 ```vue
@@ -118,23 +138,23 @@ once("user:login", (data) => {
 
 ### createEventBus 返回值
 
-| 方法 | 类型 | 说明 |
-|------|------|------|
-| on | `(event, handler) => unsubscribe` | 订阅事件 |
-| off | `(event, handler?) => void` | 取消订阅 |
-| emit | `(event, payload) => void` | 触发事件 |
-| once | `(event, handler) => unsubscribe` | 一次性订阅 |
-| clear | `() => void` | 清除所有 |
-| listenerCount | `(event) => number` | 监听器数量 |
+| 方法          | 类型                              | 说明       |
+| ------------- | --------------------------------- | ---------- |
+| on            | `(event, handler) => unsubscribe` | 订阅事件   |
+| off           | `(event, handler?) => void`       | 取消订阅   |
+| emit          | `(event, payload) => void`        | 触发事件   |
+| once          | `(event, handler) => unsubscribe` | 一次性订阅 |
+| clear         | `() => void`                      | 清除所有   |
+| listenerCount | `(event) => number`               | 监听器数量 |
 
 ### 预定义事件类型
 
-| 事件 | Payload | 说明 |
-|------|---------|------|
-| user:login | { userId, username } | 用户登录 |
-| user:logout | void | 用户登出 |
-| theme:change | { theme } | 主题变化 |
-| notification:show | { message, type } | 显示通知 |
+| 事件              | Payload              | 说明     |
+| ----------------- | -------------------- | -------- |
+| user:login        | { userId, username } | 用户登录 |
+| user:logout       | void                 | 用户登出 |
+| theme:change      | { theme }            | 主题变化 |
+| notification:show | { message, type }    | 显示通知 |
 
 ## 代码位置
 

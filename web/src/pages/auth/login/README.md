@@ -1,6 +1,21 @@
 # Login 页面架构说明
 
-## 📁 目录结构
+<!--TOC-->
+
+- [目录结构](#目录结构) `:18:30`
+- [页面职责](#页面职责) `:31:34`
+- [🎨 布局设计](#布局设计) `:35:52`
+  - [登录表单组件 (LoginForm.vue)](#登录表单组件-loginformvue) `:53:65`
+- [🔐 安全特性](#安全特性) `:66:72`
+- [📋 类型定义 (types.ts)](#类型定义-typests) `:73:104`
+- [状态管理 (composables/useLogin.ts)](#状态管理-composablesuselogints) `:105:123`
+  - [使用方式](#使用方式) `:124:133`
+- [🔄 数据流](#数据流) `:134:160`
+- [🎨 UI 组件](#ui-组件) `:161:168`
+
+<!--TOC-->
+
+## 目录结构
 
 ```mermaid
 graph TD
@@ -13,7 +28,7 @@ graph TD
     E --> H[TwoFactorForm.vue]
 ```
 
-## 🎯 页面职责
+## 页面职责
 
 提供用户登录功能，采用简洁的居中布局设计
 
@@ -87,7 +102,7 @@ classDiagram
     }
 ```
 
-## 📦 状态管理 (composables/useLogin.ts)
+## 状态管理 (composables/useLogin.ts)
 
 页面级状态管理，使用 Composition API 实现，不依赖 Pinia。
 

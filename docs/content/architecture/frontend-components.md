@@ -1,5 +1,27 @@
 # 组件开发
 
+<!--TOC-->
+
+- [页面结构](#页面结构) `:27:40`
+- [页面模块](#页面模块) `:41:42`
+  - [Auth 模块](#auth-模块) `:43:62`
+  - [Admin 模块](#admin-模块) `:63:89`
+  - [User 模块](#user-模块) `:90:111`
+- [Composable 模式](#composable-模式) `:112:206`
+- [页面组件示例](#页面组件示例) `:207:260`
+- [对话框组件示例](#对话框组件示例) `:261:358`
+- [布局组件](#布局组件) `:359:360`
+  - [AdminLayout](#adminlayout) `:361:389`
+- [共享视图组件](#共享视图组件) `:390:391`
+  - [导航菜单](#导航菜单) `:392:424`
+- [最佳实践](#最佳实践) `:425:426`
+  - [1. 组件职责单一](#1-组件职责单一) `:427:432`
+  - [2. Props/Events 明确](#2-propsevents-明确) `:433:450`
+  - [3. v-model 双向绑定](#3-v-model-双向绑定) `:451:463`
+  - [4. 异步状态处理](#4-异步状态处理) `:464:481`
+
+<!--TOC-->
+
 前端采用基于页面的组件组织方式，每个页面包含独立的组件、Composables 和类型定义。
 
 ## 页面结构
@@ -93,75 +115,73 @@ pages/user/
 
 ```typescript
 // src/pages/admin/users/composables/useAdminUsers.ts
-import { ref, reactive, computed, onMounted } from 'vue'
-import { listUsers, createUser, updateUser, deleteUser } from '@/api/admin/users'
-import type { AdminUser, CreateUserRequest, UpdateUserRequest } from '@/types/admin'
+import { ref, reactive, computed, onMounted } from "vue";
+import { listUsers, createUser, updateUser, deleteUser } from "@/api/admin/users";
+import type { AdminUser, CreateUserRequest, UpdateUserRequest } from "@/types/admin";
 
 export function useAdminUsers() {
   // ========== 状态 ==========
-  const users = ref<AdminUser[]>([])
-  const loading = ref(false)
-  const dialogVisible = ref(false)
-  const editingUser = ref<AdminUser | null>(null)
+  const users = ref<AdminUser[]>([]);
+  const loading = ref(false);
+  const dialogVisible = ref(false);
+  const editingUser = ref<AdminUser | null>(null);
 
   const pagination = reactive({
     page: 1,
     limit: 10,
-    total: 0
-  })
+    total: 0,
+  });
 
   // ========== 计算属性 ==========
-  const isEditing = computed(() => !!editingUser.value)
-  const dialogTitle = computed(() =>
-    isEditing.value ? '编辑用户' : '创建用户'
-  )
+  const isEditing = computed(() => !!editingUser.value);
+  const dialogTitle = computed(() => (isEditing.value ? "编辑用户" : "创建用户"));
 
   // ========== 方法 ==========
   async function fetchUsers() {
-    loading.value = true
+    loading.value = true;
     try {
       const response = await listUsers({
         page: pagination.page,
-        limit: pagination.limit
-      })
-      users.value = response.data
-      pagination.total = response.pagination.total
+        limit: pagination.limit,
+      });
+      users.value = response.data;
+      pagination.total = response.pagination.total;
     } catch (error) {
-      console.error('Failed to fetch users:', error)
+      console.error("Failed to fetch users:", error);
     } finally {
-      loading.value = false
+      loading.value = false;
     }
   }
 
   function openCreateDialog() {
-    editingUser.value = null
-    dialogVisible.value = true
+    editingUser.value = null;
+    dialogVisible.value = true;
   }
 
   function openEditDialog(user: AdminUser) {
-    editingUser.value = { ...user }
-    dialogVisible.value = true
+    editingUser.value = { ...user };
+    dialogVisible.value = true;
   }
 
   async function handleSubmit(data: CreateUserRequest | UpdateUserRequest) {
     if (isEditing.value) {
-      await updateUser(editingUser.value!.id, data as UpdateUserRequest)
+      await updateUser(editingUser.value!.id, data as UpdateUserRequest);
     } else {
-      await createUser(data as CreateUserRequest)
+      await createUser(data as CreateUserRequest);
     }
-    dialogVisible.value = false
-    await fetchUsers()
+    dialogVisible.value = false;
+    await fetchUsers();
   }
 
   async function handleDelete(id: number) {
-    await deleteUser(id)
-    await fetchUsers()
+    await deleteUser(id);
+    await fetchUsers();
   }
 
   // ========== 生命周期 ==========
   onMounted(() => {
-    fetchUsers()
-  })
+    fetchUsers();
+  });
 
   // ========== 导出 ==========
   return {
@@ -179,8 +199,8 @@ export function useAdminUsers() {
     openCreateDialog,
     openEditDialog,
     handleSubmit,
-    handleDelete
-  }
+    handleDelete,
+  };
 }
 ```
 
@@ -189,29 +209,18 @@ export function useAdminUsers() {
 ```vue
 <!-- src/pages/admin/users/index.vue -->
 <script setup lang="ts">
-import { useAdminUsers } from './composables/useAdminUsers'
-import UserDialog from './components/UserDialog.vue'
+import { useAdminUsers } from "./composables/useAdminUsers";
+import UserDialog from "./components/UserDialog.vue";
 
-const {
-  users,
-  loading,
-  dialogVisible,
-  editingUser,
-  pagination,
-  dialogTitle,
-  openCreateDialog,
-  openEditDialog,
-  handleSubmit,
-  handleDelete
-} = useAdminUsers()
+const { users, loading, dialogVisible, editingUser, pagination, dialogTitle, openCreateDialog, openEditDialog, handleSubmit, handleDelete } = useAdminUsers();
 
 const headers = [
-  { title: 'ID', key: 'id' },
-  { title: '用户名', key: 'username' },
-  { title: '邮箱', key: 'email' },
-  { title: '状态', key: 'status' },
-  { title: '操作', key: 'actions', sortable: false }
-]
+  { title: "ID", key: "id" },
+  { title: "用户名", key: "username" },
+  { title: "邮箱", key: "email" },
+  { title: "状态", key: "status" },
+  { title: "操作", key: "actions", sortable: false },
+];
 </script>
 
 <template>
@@ -226,12 +235,7 @@ const headers = [
         </v-btn>
       </v-card-title>
 
-      <v-data-table
-        :headers="headers"
-        :items="users"
-        :loading="loading"
-        :items-per-page="pagination.limit"
-      >
+      <v-data-table :headers="headers" :items="users" :loading="loading" :items-per-page="pagination.limit">
         <template #item.status="{ item }">
           <v-chip :color="item.status === 'active' ? 'success' : 'error'">
             {{ item.status }}
@@ -249,12 +253,7 @@ const headers = [
       </v-data-table>
     </v-card>
 
-    <UserDialog
-      v-model="dialogVisible"
-      :title="dialogTitle"
-      :user="editingUser"
-      @submit="handleSubmit"
-    />
+    <UserDialog v-model="dialogVisible" :title="dialogTitle" :user="editingUser" @submit="handleSubmit" />
   </v-container>
 </template>
 ```
@@ -264,58 +263,62 @@ const headers = [
 ```vue
 <!-- src/pages/admin/users/components/UserDialog.vue -->
 <script setup lang="ts">
-import { ref, watch, computed } from 'vue'
-import type { AdminUser, CreateUserRequest } from '@/types/admin'
+import { ref, watch, computed } from "vue";
+import type { AdminUser, CreateUserRequest } from "@/types/admin";
 
 const props = defineProps<{
-  modelValue: boolean
-  title: string
-  user: AdminUser | null
-}>()
+  modelValue: boolean;
+  title: string;
+  user: AdminUser | null;
+}>();
 
 const emit = defineEmits<{
-  'update:modelValue': [value: boolean]
-  submit: [data: CreateUserRequest]
-}>()
+  "update:modelValue": [value: boolean];
+  submit: [data: CreateUserRequest];
+}>();
 
 const form = ref({
-  username: '',
-  email: '',
-  password: '',
-  full_name: '',
-  status: 'active' as const
-})
+  username: "",
+  email: "",
+  password: "",
+  full_name: "",
+  status: "active" as const,
+});
 
-const isEditing = computed(() => !!props.user)
+const isEditing = computed(() => !!props.user);
 
 // 编辑时填充表单
-watch(() => props.user, (user) => {
-  if (user) {
-    form.value = {
-      username: user.username,
-      email: user.email,
-      password: '',
-      full_name: user.full_name ?? '',
-      status: user.status
+watch(
+  () => props.user,
+  (user) => {
+    if (user) {
+      form.value = {
+        username: user.username,
+        email: user.email,
+        password: "",
+        full_name: user.full_name ?? "",
+        status: user.status,
+      };
+    } else {
+      // 重置表单
+      form.value = {
+        username: "",
+        email: "",
+        password: "",
+        full_name: "",
+        status: "active",
+      };
     }
-  } else {
-    // 重置表单
-    form.value = {
-      username: '',
-      email: '',
-      password: '',
-      full_name: '',
-      status: 'active'
-    }
-  }
-}, { immediate: true })
+  },
+  { immediate: true },
+);
 
 function handleSubmit() {
-  emit('submit', form.value)
+  emit("submit", form.value);
 }
 
 function handleClose() {
-  emit('update:modelValue', false)
+  emit("update:modelValue", false);
 }
 </script>
 
@@ -326,35 +329,16 @@ function handleClose() {
 
       <v-card-text>
         <v-form @submit.prevent="handleSubmit">
-          <v-text-field
-            v-model="form.username"
-            label="用户名"
-            :disabled="isEditing"
-            required
-          />
-          <v-text-field
-            v-model="form.email"
-            label="邮箱"
-            type="email"
-            required
-          />
-          <v-text-field
-            v-if="!isEditing"
-            v-model="form.password"
-            label="密码"
-            type="password"
-            required
-          />
-          <v-text-field
-            v-model="form.full_name"
-            label="姓名"
-          />
+          <v-text-field v-model="form.username" label="用户名" :disabled="isEditing" required />
+          <v-text-field v-model="form.email" label="邮箱" type="email" required />
+          <v-text-field v-if="!isEditing" v-model="form.password" label="密码" type="password" required />
+          <v-text-field v-model="form.full_name" label="姓名" />
           <v-select
             v-model="form.status"
             label="状态"
             :items="[
               { title: '激活', value: 'active' },
-              { title: '禁用', value: 'inactive' }
+              { title: '禁用', value: 'inactive' },
             ]"
           />
         </v-form>
@@ -364,7 +348,7 @@ function handleClose() {
         <v-spacer />
         <v-btn @click="handleClose">取消</v-btn>
         <v-btn color="primary" @click="handleSubmit">
-          {{ isEditing ? '保存' : '创建' }}
+          {{ isEditing ? "保存" : "创建" }}
         </v-btn>
       </v-card-actions>
     </v-card>
@@ -379,17 +363,17 @@ function handleClose() {
 ```vue
 <!-- src/layout/AdminLayout.vue -->
 <script setup lang="ts">
-import AppBars from '@/views/AppBars/index.vue'
-import Navigation from '@/views/Navigation/index.vue'
+import AppBars from "@/views/AppBars/index.vue";
+import Navigation from "@/views/Navigation/index.vue";
 
 const menuItems = [
-  { title: '数据概览', path: '/admin/overview', icon: 'mdi-speedometer' },
-  { title: '用户管理', path: '/admin/users', icon: 'mdi-account' },
-  { title: '角色管理', path: '/admin/roles', icon: 'mdi-account-group' },
-  { title: '菜单管理', path: '/admin/menus', icon: 'mdi-menu' },
-  { title: '系统设置', path: '/admin/settings', icon: 'mdi-cog' },
-  { title: '审计日志', path: '/admin/auditlogs', icon: 'mdi-file-document-outline' }
-]
+  { title: "数据概览", path: "/admin/overview", icon: "mdi-speedometer" },
+  { title: "用户管理", path: "/admin/users", icon: "mdi-account" },
+  { title: "角色管理", path: "/admin/roles", icon: "mdi-account-group" },
+  { title: "菜单管理", path: "/admin/menus", icon: "mdi-menu" },
+  { title: "系统设置", path: "/admin/settings", icon: "mdi-cog" },
+  { title: "审计日志", path: "/admin/auditlogs", icon: "mdi-file-document-outline" },
+];
 </script>
 
 <template>
@@ -410,29 +394,24 @@ const menuItems = [
 ```vue
 <!-- src/views/Navigation/index.vue -->
 <script setup lang="ts">
-import { useRoute } from 'vue-router'
-import type { MenuItem } from './types'
+import { useRoute } from "vue-router";
+import type { MenuItem } from "./types";
 
 defineProps<{
-  items: MenuItem[]
-}>()
+  items: MenuItem[];
+}>();
 
-const route = useRoute()
+const route = useRoute();
 
 function isActive(path: string) {
-  return route.path === path
+  return route.path === path;
 }
 </script>
 
 <template>
   <v-navigation-drawer permanent>
     <v-list nav>
-      <v-list-item
-        v-for="item in items"
-        :key="item.path"
-        :to="item.path"
-        :active="isActive(item.path)"
-      >
+      <v-list-item v-for="item in items" :key="item.path" :to="item.path" :active="isActive(item.path)">
         <template #prepend>
           <v-icon>{{ item.icon }}</v-icon>
         </template>
@@ -457,15 +436,15 @@ function isActive(path: string) {
 <script setup lang="ts">
 // 明确定义 Props 类型
 defineProps<{
-  user: AdminUser | null
-  loading: boolean
-}>()
+  user: AdminUser | null;
+  loading: boolean;
+}>();
 
 // 明确定义 Events 类型
 defineEmits<{
-  submit: [data: CreateUserRequest]
-  cancel: []
-}>()
+  submit: [data: CreateUserRequest];
+  cancel: [];
+}>();
 </script>
 ```
 
@@ -485,18 +464,18 @@ defineEmits<{ 'update:modelValue': [value: boolean] }>()
 ### 4. 异步状态处理
 
 ```typescript
-const loading = ref(false)
-const error = ref<string | null>(null)
+const loading = ref(false);
+const error = ref<string | null>(null);
 
 async function fetchData() {
-  loading.value = true
-  error.value = null
+  loading.value = true;
+  error.value = null;
   try {
     // ...
   } catch (e) {
-    error.value = formatError(e)
+    error.value = formatError(e);
   } finally {
-    loading.value = false
+    loading.value = false;
   }
 }
 ```

@@ -1,5 +1,25 @@
 # 历史记录工具 Composable
 
+<!--TOC-->
+
+- [需求背景](#需求背景) `:27:30`
+- [已实现功能](#已实现功能) `:31:32`
+  - [useHistory](#usehistory) `:33:39`
+  - [useManualHistory](#usemanualhistory) `:40:44`
+  - [useTimestampedHistory](#usetimestampedhistory) `:45:49`
+  - [useSnapshot](#usesnapshot) `:50:54`
+- [使用方式](#使用方式) `:55:56`
+  - [自动历史记录](#自动历史记录) `:57:80`
+  - [配置选项](#配置选项) `:81:90`
+  - [手动历史记录](#手动历史记录) `:91:108`
+  - [状态快照](#状态快照) `:109:132`
+- [API](#api) `:133:134`
+  - [useHistory 返回值](#usehistory-返回值) `:135:149`
+  - [useSnapshot 返回值](#usesnapshot-返回值) `:150:160`
+- [代码位置](#代码位置) `:161:167`
+
+<!--TOC-->
+
 > **状态**: ✅ 已完成
 > **优先级**: 中
 > **完成日期**: 2024-11-30
@@ -41,14 +61,7 @@ import { ref } from "vue";
 import { useHistory } from "@/composables/useHistory";
 
 const state = ref({ text: "", count: 0 });
-const {
-  current,
-  undo,
-  redo,
-  canUndo,
-  canRedo,
-  historyCount
-} = useHistory(state);
+const { current, undo, redo, canUndo, canRedo, historyCount } = useHistory(state);
 
 // 修改值会自动记录历史
 current.value.text = "Hello";
@@ -69,9 +82,9 @@ if (canRedo.value) {
 
 ```typescript
 const { undo, redo } = useHistory(state, {
-  capacity: 50,      // 最多保留 50 条历史
-  deep: true,        // 深度监听
-  immediate: true,   // 立即记录初始状态
+  capacity: 50, // 最多保留 50 条历史
+  deep: true, // 深度监听
+  immediate: true, // 立即记录初始状态
 });
 ```
 
@@ -82,7 +95,7 @@ import { useManualHistory } from "@/composables/useHistory";
 
 const { current, commit, undo, redo } = useManualHistory({
   name: "",
-  items: []
+  items: [],
 });
 
 // 修改多个字段
@@ -98,7 +111,9 @@ commit();
 ```typescript
 import { useSnapshot } from "@/composables/useHistory";
 
-const state = ref({ /* ... */ });
+const state = ref({
+  /* ... */
+});
 const { save, restore, list, has, remove } = useSnapshot(state);
 
 // 保存当前状态
@@ -119,29 +134,29 @@ console.log(list.value); // ["before-edit"]
 
 ### useHistory 返回值
 
-| 属性 | 类型 | 说明 |
-|------|------|------|
-| current | `Ref<T>` | 当前值 |
-| canUndo | `ComputedRef<boolean>` | 是否可撤销 |
-| canRedo | `ComputedRef<boolean>` | 是否可重做 |
-| historyCount | `ComputedRef<number>` | 历史数量 |
-| undo | `() => void` | 撤销 |
-| redo | `() => void` | 重做 |
-| clear | `() => void` | 清除历史 |
-| commit | `() => void` | 手动提交 |
-| reset | `() => void` | 重置到初始状态 |
-| go | `(delta) => void` | 跳转 |
+| 属性         | 类型                   | 说明           |
+| ------------ | ---------------------- | -------------- |
+| current      | `Ref<T>`               | 当前值         |
+| canUndo      | `ComputedRef<boolean>` | 是否可撤销     |
+| canRedo      | `ComputedRef<boolean>` | 是否可重做     |
+| historyCount | `ComputedRef<number>`  | 历史数量       |
+| undo         | `() => void`           | 撤销           |
+| redo         | `() => void`           | 重做           |
+| clear        | `() => void`           | 清除历史       |
+| commit       | `() => void`           | 手动提交       |
+| reset        | `() => void`           | 重置到初始状态 |
+| go           | `(delta) => void`      | 跳转           |
 
 ### useSnapshot 返回值
 
-| 方法 | 类型 | 说明 |
-|------|------|------|
-| save | `(name) => void` | 保存快照 |
-| restore | `(name) => boolean` | 恢复快照 |
-| remove | `(name) => boolean` | 删除快照 |
-| has | `(name) => boolean` | 检查快照 |
-| list | `ComputedRef<string[]>` | 快照列表 |
-| clear | `() => void` | 清除所有 |
+| 方法    | 类型                    | 说明     |
+| ------- | ----------------------- | -------- |
+| save    | `(name) => void`        | 保存快照 |
+| restore | `(name) => boolean`     | 恢复快照 |
+| remove  | `(name) => boolean`     | 删除快照 |
+| has     | `(name) => boolean`     | 检查快照 |
+| list    | `ComputedRef<string[]>` | 快照列表 |
+| clear   | `() => void`            | 清除所有 |
 
 ## 代码位置
 

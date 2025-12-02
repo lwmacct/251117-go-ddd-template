@@ -1,19 +1,36 @@
 # 前端架构概述
 
+<!--TOC-->
+
+- [技术栈](#技术栈) `:22:34`
+- [项目结构](#项目结构) `:35:68`
+- [架构分层](#架构分层) `:69:96`
+- [模块划分](#模块划分) `:97:100`
+  - [1. Auth 模块 (认证)](#1-auth-模块-认证) `:101:106`
+  - [2. Admin 模块 (管理后台)](#2-admin-模块-管理后台) `:107:112`
+  - [3. User 模块 (用户中心)](#3-user-模块-用户中心) `:113:118`
+- [开发端口](#开发端口) `:119:125`
+- [开发工具链](#开发工具链) `:126:138`
+  - [自动导入](#自动导入) `:139:156`
+- [快速开始](#快速开始) `:157:184`
+- [下一步](#下一步) `:185:191`
+
+<!--TOC-->
+
 本项目前端采用 Vue 3 + TypeScript + Vuetify 技术栈，遵循模块化设计原则，与后端 DDD 架构保持一致的领域划分。
 
 ## 技术栈
 
-| 类别 | 技术 | 版本 | 说明 |
-|------|------|------|------|
-| 框架 | Vue | ^3.5 | 响应式前端框架 |
-| 构建工具 | Vite | ^7.2 | 下一代前端构建工具 |
-| 语言 | TypeScript | ~5.9 | 类型安全的 JavaScript |
-| UI 组件库 | Vuetify | ^3.10 | Material Design 组件库 |
-| 状态管理 | Pinia | ^3.0 | Vue 官方状态管理 |
-| 路由 | Vue Router | ^4.6 | Vue 官方路由 |
-| HTTP 客户端 | Axios | ^1.13 | Promise 风格 HTTP 库 |
-| 图标 | MDI | ^7.4 | Material Design Icons |
+| 类别        | 技术       | 版本  | 说明                   |
+| ----------- | ---------- | ----- | ---------------------- |
+| 框架        | Vue        | ^3.5  | 响应式前端框架         |
+| 构建工具    | Vite       | ^7.2  | 下一代前端构建工具     |
+| 语言        | TypeScript | ~5.9  | 类型安全的 JavaScript  |
+| UI 组件库   | Vuetify    | ^3.10 | Material Design 组件库 |
+| 状态管理    | Pinia      | ^3.0  | Vue 官方状态管理       |
+| 路由        | Vue Router | ^4.6  | Vue 官方路由           |
+| HTTP 客户端 | Axios      | ^1.13 | Promise 风格 HTTP 库   |
+| 图标        | MDI        | ^7.4  | Material Design Icons  |
 
 ## 项目结构
 
@@ -101,23 +118,23 @@ web/
 
 ## 开发端口
 
-| 服务 | 端口 | 说明 |
-|------|------|------|
+| 服务           | 端口  | 说明            |
+| -------------- | ----- | --------------- |
 | 前端开发服务器 | 40013 | Vite dev server |
-| 后端 API | 40012 | Go HTTP server |
+| 后端 API       | 40012 | Go HTTP server  |
 
 ## 开发工具链
 
 项目配置了完整的代码质量工具链：
 
-| 工具 | 用途 | 命令 |
-|------|------|------|
-| **ESLint 9.x** | 代码检查 | `npm run lint` |
-| **Prettier** | 代码格式化 | `npm run format` |
-| **Vitest** | 单元测试 | `npm run test` |
-| **vue-tsc** | 类型检查 | `npm run type-check` |
-| **vite-plugin-vuetify** | Vuetify 按需导入 | 自动 |
-| **unplugin-auto-import** | Vue API 自动导入 | 自动 |
+| 工具                     | 用途             | 命令                 |
+| ------------------------ | ---------------- | -------------------- |
+| **ESLint 9.x**           | 代码检查         | `npm run lint`       |
+| **Prettier**             | 代码格式化       | `npm run format`     |
+| **Vitest**               | 单元测试         | `npm run test`       |
+| **vue-tsc**              | 类型检查         | `npm run type-check` |
+| **vite-plugin-vuetify**  | Vuetify 按需导入 | 自动                 |
+| **unplugin-auto-import** | Vue API 自动导入 | 自动                 |
 
 ### 自动导入
 
@@ -131,9 +148,9 @@ web/
 // - Pinia: defineStore, storeToRefs
 // - 所有 composables
 
-const count = ref(0)
-const router = useRouter()
-const { copy } = useClipboard()
+const count = ref(0);
+const router = useRouter();
+const { copy } = useClipboard();
 </script>
 ```
 

@@ -1,5 +1,20 @@
 # 字符串工具函数
 
+<!--TOC-->
+
+- [需求背景](#需求背景) `:22:25`
+- [已实现功能](#已实现功能) `:26:27`
+  - [截断与填充](#截断与填充) `:28:32`
+  - [大小写转换](#大小写转换) `:33:42`
+  - [URL 与 Slug](#url-与-slug) `:43:46`
+  - [搜索与匹配](#搜索与匹配) `:47:53`
+  - [格式化（脱敏）](#格式化脱敏) `:54:61`
+  - [其他工具](#其他工具) `:62:73`
+- [使用方式](#使用方式) `:74:99`
+- [代码位置](#代码位置) `:100:106`
+
+<!--TOC-->
+
 > **状态**: ✅ 已完成
 > **优先级**: 中
 > **完成日期**: 2024-11-30
@@ -59,31 +74,24 @@
 ## 使用方式
 
 ```typescript
-import {
-  truncate,
-  camelCase,
-  slugify,
-  highlight,
-  maskPhone,
-  template
-} from "@/utils/string";
+import { truncate, camelCase, slugify, highlight, maskPhone, template } from "@/utils/string";
 
 // 截断字符串
-truncate("Hello World", { length: 8 });           // "Hello..."
+truncate("Hello World", { length: 8 }); // "Hello..."
 truncate("Hello World", { length: 8, position: "start" }); // "...World"
 
 // 大小写转换
-camelCase("hello-world");      // "helloWorld"
-snakeCase("helloWorld");       // "hello_world"
+camelCase("hello-world"); // "helloWorld"
+snakeCase("helloWorld"); // "hello_world"
 
 // URL slug
-slugify("Hello World!");       // "hello-world"
+slugify("Hello World!"); // "hello-world"
 
 // 高亮搜索词
-highlight("Hello World", "world");  // "Hello <mark>World</mark>"
+highlight("Hello World", "world"); // "Hello <mark>World</mark>"
 
 // 手机号脱敏
-maskPhone("13812345678");      // "138****5678"
+maskPhone("13812345678"); // "138****5678"
 
 // 模板替换
 template("Hello, {name}!", { name: "World" }); // "Hello, World!"

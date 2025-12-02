@@ -1,5 +1,20 @@
 # 可复用确认对话框
 
+<!--TOC-->
+
+- [需求背景](#需求背景) `:22:25`
+- [已实现功能](#已实现功能) `:26:27`
+  - [ConfirmDialog 组件](#confirmdialog-组件) `:28:34`
+  - [useConfirm Composable](#useconfirm-composable) `:35:40`
+- [组件接口](#组件接口) `:41:42`
+  - [ConfirmDialog](#confirmdialog) `:43:48`
+  - [Props](#props) `:49:61`
+- [Composable 使用](#composable-使用) `:62:84`
+- [代码位置](#代码位置) `:85:94`
+- [类型配置](#类型配置) `:95:101`
+
+<!--TOC-->
+
 > **状态**: ✅ 已完成
 > **优先级**: 中
 > **完成日期**: 2024-11-30
@@ -28,29 +43,21 @@
 ### ConfirmDialog
 
 ```vue
-<ConfirmDialog
-  v-model="visible"
-  type="delete"
-  title="确认删除"
-  message="确定要删除此项吗？"
-  :loading="loading"
-  @confirm="handleConfirm"
-  @cancel="handleCancel"
-/>
+<ConfirmDialog v-model="visible" type="delete" title="确认删除" message="确定要删除此项吗？" :loading="loading" @confirm="handleConfirm" @cancel="handleCancel" />
 ```
 
 ### Props
 
-| 属性 | 类型 | 默认值 | 说明 |
-|------|------|--------|------|
-| modelValue | boolean | 必填 | 显示状态 |
-| title | string | "确认操作" | 标题 |
-| message | string | "" | 消息内容 |
-| type | "delete" \| "warning" \| "info" | "info" | 类型 |
-| confirmText | string | "确认" | 确认按钮文本 |
-| cancelText | string | "取消" | 取消按钮文本 |
-| loading | boolean | false | 加载状态 |
-| persistent | boolean | false | 点击遮罩不关闭 |
+| 属性        | 类型                            | 默认值     | 说明           |
+| ----------- | ------------------------------- | ---------- | -------------- |
+| modelValue  | boolean                         | 必填       | 显示状态       |
+| title       | string                          | "确认操作" | 标题           |
+| message     | string                          | ""         | 消息内容       |
+| type        | "delete" \| "warning" \| "info" | "info"     | 类型           |
+| confirmText | string                          | "确认"     | 确认按钮文本   |
+| cancelText  | string                          | "取消"     | 取消按钮文本   |
+| loading     | boolean                         | false      | 加载状态       |
+| persistent  | boolean                         | false      | 点击遮罩不关闭 |
 
 ## Composable 使用
 
@@ -71,15 +78,7 @@ const handleDelete = async (item: Item) => {
 
 ```vue
 <template>
-  <ConfirmDialog
-    v-model="visible"
-    :type="options.type"
-    :title="options.title"
-    :message="options.message"
-    :loading="loading"
-    @confirm="handleConfirm"
-    @cancel="handleCancel"
-  />
+  <ConfirmDialog v-model="visible" :type="options.type" :title="options.title" :message="options.message" :loading="loading" @confirm="handleConfirm" @cancel="handleCancel" />
 </template>
 ```
 
@@ -95,8 +94,8 @@ web/src/
 
 ## 类型配置
 
-| 类型 | 图标 | 按钮颜色 |
-|------|------|----------|
-| delete | mdi-delete-alert | error (红色) |
-| warning | mdi-alert | warning (黄色) |
-| info | mdi-help-circle | primary (蓝色) |
+| 类型    | 图标             | 按钮颜色       |
+| ------- | ---------------- | -------------- |
+| delete  | mdi-delete-alert | error (红色)   |
+| warning | mdi-alert        | warning (黄色) |
+| info    | mdi-help-circle  | primary (蓝色) |

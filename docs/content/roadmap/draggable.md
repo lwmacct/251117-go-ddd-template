@@ -1,5 +1,23 @@
 # 拖拽排序 Composable
 
+<!--TOC-->
+
+- [需求背景](#需求背景) `:25:28`
+- [已实现功能](#已实现功能) `:29:30`
+  - [useSortable](#usesortable) `:31:37`
+  - [useFileDrop](#usefiledrop) `:38:44`
+  - [getDragItemClasses](#getdragitemclasses) `:45:48`
+- [使用方式](#使用方式) `:49:50`
+  - [列表拖拽排序](#列表拖拽排序) `:51:84`
+  - [文件拖放](#文件拖放) `:85:112`
+- [API](#api) `:113:114`
+  - [useSortable 选项](#usesortable-选项) `:115:123`
+  - [useSortable 返回值](#usesortable-返回值) `:124:133`
+  - [useFileDrop 选项](#usefiledrop-选项) `:134:143`
+- [代码位置](#代码位置) `:144:150`
+
+<!--TOC-->
+
 > **状态**: ✅ 已完成
 > **优先级**: 中
 > **完成日期**: 2024-11-30
@@ -41,19 +59,14 @@ const items = ref(["Item 1", "Item 2", "Item 3"]);
 const { isDragging, dragIndex, overIndex, getDragItemProps } = useSortable(items, {
   onSort: (newItems) => {
     console.log("排序后:", newItems);
-  }
+  },
 });
 ```
 
 ```vue
 <template>
   <div class="sortable-list">
-    <div
-      v-for="(item, index) in items"
-      :key="item"
-      v-bind="getDragItemProps(index)"
-      :class="getDragItemClasses(index, dragIndex, overIndex)"
-    >
+    <div v-for="(item, index) in items" :key="item" v-bind="getDragItemProps(index)" :class="getDragItemClasses(index, dragIndex, overIndex)">
       {{ item }}
     </div>
   </div>
@@ -82,24 +95,16 @@ const { isDragOver, files, getDropZoneProps, clearFiles } = useFileDrop({
   },
   onError: (error) => {
     toast.error(error);
-  }
+  },
 });
 ```
 
 ```vue
 <template>
-  <div
-    class="drop-zone"
-    :class="{ 'is-drag-over': isDragOver }"
-    v-bind="getDropZoneProps()"
-  >
-    <p v-if="files.length === 0">
-      拖放文件到此处，或点击选择
-    </p>
+  <div class="drop-zone" :class="{ 'is-drag-over': isDragOver }" v-bind="getDropZoneProps()">
+    <p v-if="files.length === 0">拖放文件到此处，或点击选择</p>
     <ul v-else>
-      <li v-for="file in files" :key="file.name">
-        {{ file.name }} ({{ formatFileSize(file.size) }})
-      </li>
+      <li v-for="file in files" :key="file.name">{{ file.name }} ({{ formatFileSize(file.size) }})</li>
     </ul>
   </div>
 </template>
@@ -109,32 +114,32 @@ const { isDragOver, files, getDropZoneProps, clearFiles } = useFileDrop({
 
 ### useSortable 选项
 
-| 选项 | 类型 | 说明 |
-|------|------|------|
+| 选项        | 类型     | 说明         |
+| ----------- | -------- | ------------ |
 | onDragStart | Function | 拖拽开始回调 |
-| onDragEnd | Function | 拖拽结束回调 |
-| onSort | Function | 排序变化回调 |
-| disabled | boolean | 是否禁用 |
+| onDragEnd   | Function | 拖拽结束回调 |
+| onSort      | Function | 排序变化回调 |
+| disabled    | boolean  | 是否禁用     |
 
 ### useSortable 返回值
 
-| 属性 | 类型 | 说明 |
-|------|------|------|
-| isDragging | `Ref<boolean>` | 是否正在拖拽 |
-| dragIndex | Ref<number \| null> | 拖拽项索引 |
-| overIndex | Ref<number \| null> | 悬停项索引 |
-| getDragItemProps | Function | 获取拖拽项属性 |
-| moveItem | Function | 移动项 |
+| 属性             | 类型                | 说明           |
+| ---------------- | ------------------- | -------------- |
+| isDragging       | `Ref<boolean>`      | 是否正在拖拽   |
+| dragIndex        | Ref<number \| null> | 拖拽项索引     |
+| overIndex        | Ref<number \| null> | 悬停项索引     |
+| getDragItemProps | Function            | 获取拖拽项属性 |
+| moveItem         | Function            | 移动项         |
 
 ### useFileDrop 选项
 
-| 选项 | 类型 | 说明 |
-|------|------|------|
-| accept | string[] | 接受的文件类型 |
-| multiple | boolean | 是否多文件 |
-| maxSize | number | 最大文件大小 |
-| onDrop | Function | 拖放回调 |
-| onError | Function | 错误回调 |
+| 选项     | 类型     | 说明           |
+| -------- | -------- | -------------- |
+| accept   | string[] | 接受的文件类型 |
+| multiple | boolean  | 是否多文件     |
+| maxSize  | number   | 最大文件大小   |
+| onDrop   | Function | 拖放回调       |
+| onError  | Function | 错误回调       |
 
 ## 代码位置
 

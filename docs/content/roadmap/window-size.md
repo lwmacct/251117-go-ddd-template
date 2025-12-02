@@ -1,5 +1,23 @@
 # 窗口尺寸检测 Composable
 
+<!--TOC-->
+
+- [需求背景](#需求背景) `:25:28`
+- [已实现功能](#已实现功能) `:29:30`
+  - [useWindowSize](#usewindowsize) `:31:38`
+  - [useMediaQuery](#usemediaquery) `:39:43`
+  - [预设媒体查询](#预设媒体查询) `:44:51`
+  - [useElementSize](#useelementsize) `:52:55`
+- [使用方式](#使用方式) `:56:57`
+  - [窗口尺寸](#窗口尺寸) `:58:69`
+  - [媒体查询](#媒体查询) `:70:81`
+  - [元素尺寸](#元素尺寸) `:82:91`
+- [API](#api) `:92:93`
+  - [useWindowSize 返回值](#usewindowsize-返回值) `:94:106`
+- [代码位置](#代码位置) `:107:113`
+
+<!--TOC-->
+
 > **状态**: ✅ 已完成
 > **优先级**: 中
 > **完成日期**: 2024-11-30
@@ -75,16 +93,16 @@ const { width, height } = useElementSize(() => containerRef.value);
 
 ### useWindowSize 返回值
 
-| 属性 | 类型 | 说明 |
-|------|------|------|
-| width | `Ref<number>` | 窗口宽度 |
-| height | `Ref<number>` | 窗口高度 |
-| breakpoint | `ComputedRef<Breakpoint>` | 当前断点 |
-| isMobile | `ComputedRef<boolean>` | 是否移动端 (< md) |
-| isTablet | `ComputedRef<boolean>` | 是否平板 (md) |
-| isDesktop | `ComputedRef<boolean>` | 是否桌面端 (>= lg) |
-| isLandscape | `ComputedRef<boolean>` | 是否横屏 |
-| isPortrait | `ComputedRef<boolean>` | 是否竖屏 |
+| 属性        | 类型                      | 说明               |
+| ----------- | ------------------------- | ------------------ |
+| width       | `Ref<number>`             | 窗口宽度           |
+| height      | `Ref<number>`             | 窗口高度           |
+| breakpoint  | `ComputedRef<Breakpoint>` | 当前断点           |
+| isMobile    | `ComputedRef<boolean>`    | 是否移动端 (< md)  |
+| isTablet    | `ComputedRef<boolean>`    | 是否平板 (md)      |
+| isDesktop   | `ComputedRef<boolean>`    | 是否桌面端 (>= lg) |
+| isLandscape | `ComputedRef<boolean>`    | 是否横屏           |
+| isPortrait  | `ComputedRef<boolean>`    | 是否竖屏           |
 
 ## 代码位置
 

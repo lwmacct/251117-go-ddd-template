@@ -1,5 +1,17 @@
 # 回到顶部按钮
 
+<!--TOC-->
+
+- [需求背景](#需求背景) `:19:22`
+- [已实现功能](#已实现功能) `:23:24`
+  - [BackToTop 组件](#backtotop-组件) `:25:31`
+- [组件接口](#组件接口) `:32:37`
+  - [Props](#props) `:38:47`
+- [代码位置](#代码位置) `:48:55`
+- [使用场景](#使用场景) `:56:60`
+
+<!--TOC-->
+
 > **状态**: ✅ 已完成
 > **优先级**: 低
 > **完成日期**: 2024-11-30
@@ -20,22 +32,18 @@
 ## 组件接口
 
 ```vue
-<BackToTop
-  :threshold="200"
-  position="bottom-right"
-  :offset="24"
-/>
+<BackToTop :threshold="200" position="bottom-right" :offset="24" />
 ```
 
 ### Props
 
-| 属性 | 类型 | 默认值 | 说明 |
-|------|------|--------|------|
-| threshold | number | 200 | 显示阈值（滚动距离） |
-| target | string | "" | 滚动目标元素选择器 |
-| position | string | "bottom-right" | 按钮位置 |
-| offset | number | 24 | 距离边缘的距离 |
-| duration | number | 300 | 滚动动画时长（毫秒） |
+| 属性      | 类型   | 默认值         | 说明                 |
+| --------- | ------ | -------------- | -------------------- |
+| threshold | number | 200            | 显示阈值（滚动距离） |
+| target    | string | ""             | 滚动目标元素选择器   |
+| position  | string | "bottom-right" | 按钮位置             |
+| offset    | number | 24             | 距离边缘的距离       |
+| duration  | number | 300            | 滚动动画时长（毫秒） |
 
 ## 代码位置
 

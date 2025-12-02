@@ -1,5 +1,36 @@
 # Ref Composable
 
+<!--TOC-->
+
+- [需求背景](#需求背景) `:38:41`
+- [已实现功能](#已实现功能) `:42:43`
+  - [值处理](#值处理) `:44:51`
+  - [历史与状态](#历史与状态) `:52:57`
+  - [响应控制](#响应控制) `:58:63`
+  - [数据结构](#数据结构) `:64:72`
+- [使用方式](#使用方式) `:73:74`
+  - [防抖 ref](#防抖-ref) `:75:87`
+  - [节流 ref](#节流-ref) `:88:106`
+  - [历史记录（撤销/重做）](#历史记录撤销重做) `:107:146`
+  - [自动重置](#自动重置) `:147:163`
+  - [可控 ref](#可控-ref) `:164:187`
+  - [同步 ref](#同步-ref) `:188:207`
+  - [模板 ref](#模板-ref) `:208:222`
+  - [计数器](#计数器) `:223:243`
+  - [布尔开关](#布尔开关) `:244:260`
+  - [对象操作](#对象操作) `:261:283`
+  - [数组操作](#数组操作) `:284:298`
+  - [集合操作](#集合操作) `:299:314`
+  - [Map 操作](#map-操作) `:315:331`
+- [API](#api) `:332:333`
+  - [refDebounced](#refdebounced) `:334:340`
+  - [refThrottled](#refthrottled) `:341:348`
+  - [refHistory](#refhistory) `:349:370`
+  - [useCounter](#usecounter) `:371:385`
+- [代码位置](#代码位置) `:386:392`
+
+<!--TOC-->
+
 > **状态**: ✅ 已完成
 > **优先级**: 中
 > **完成日期**: 2024-11-30
@@ -57,26 +88,26 @@ const debouncedText = refDebounced(text, { delay: 300 })
 ### 节流 ref
 
 ```typescript
-import { refThrottled } from '@/composables/useRef'
+import { refThrottled } from "@/composables/useRef";
 
-const scrollY = ref(0)
+const scrollY = ref(0);
 const throttledScrollY = refThrottled(scrollY, {
   delay: 100,
   leading: true,
-  trailing: true
-})
+  trailing: true,
+});
 
 // 滚动监听中使用
-window.addEventListener('scroll', () => {
-  scrollY.value = window.scrollY
-})
+window.addEventListener("scroll", () => {
+  scrollY.value = window.scrollY;
+});
 // throttledScrollY 每 100ms 最多更新一次
 ```
 
 ### 历史记录（撤销/重做）
 
 ```typescript
-import { refHistory } from '@/composables/useRef'
+import { refHistory } from "@/composables/useRef";
 
 const {
   value: content,
@@ -87,91 +118,91 @@ const {
   history,
   clear,
   pause,
-  resume
-} = refHistory('', {
+  resume,
+} = refHistory("", {
   capacity: 50,
   deep: false,
-  debounce: 500 // 防抖，减少历史记录数量
-})
+  debounce: 500, // 防抖，减少历史记录数量
+});
 
 // 编辑器中使用
-content.value = '第一行'
-content.value = '第二行'
-console.log(history.value) // ['', '第一行']
+content.value = "第一行";
+content.value = "第二行";
+console.log(history.value); // ['', '第一行']
 
 // 撤销
-if (canUndo.value) undo()
-console.log(content.value) // '第一行'
+if (canUndo.value) undo();
+console.log(content.value); // '第一行'
 
 // 重做
-if (canRedo.value) redo()
-console.log(content.value) // '第二行'
+if (canRedo.value) redo();
+console.log(content.value); // '第二行'
 
 // 编辑时暂停记录
-pause()
+pause();
 // ... 编辑操作
-resume()
+resume();
 ```
 
 ### 自动重置
 
 ```typescript
-import { refAutoReset } from '@/composables/useRef'
+import { refAutoReset } from "@/composables/useRef";
 
 // 通知消息，3秒后自动清空
-const notification = refAutoReset('', { delay: 3000 })
+const notification = refAutoReset("", { delay: 3000 });
 
-notification.value = '保存成功！'
+notification.value = "保存成功！";
 // 3秒后 notification.value 自动变为 ''
 
 // 错误提示
-const error = refAutoReset<string | null>(null, { delay: 5000 })
-error.value = '网络错误'
+const error = refAutoReset<string | null>(null, { delay: 5000 });
+error.value = "网络错误";
 // 5秒后自动清除
 ```
 
 ### 可控 ref
 
 ```typescript
-import { refWithControl } from '@/composables/useRef'
+import { refWithControl } from "@/composables/useRef";
 
 const { value, pause, resume, silentSet, peek } = refWithControl(0, {
   onGet: (val) => val * 2, // 读取时翻倍
   onSet: (newVal) => Math.max(0, newVal), // 写入时确保非负
-  onBeforeSet: (newVal, oldVal) => newVal !== oldVal // 值变化时才更新
-})
+  onBeforeSet: (newVal, oldVal) => newVal !== oldVal, // 值变化时才更新
+});
 
-console.log(value.value) // 0 (实际值 0 * 2)
-value.value = -5 // 被 onSet 处理为 0
-console.log(peek()) // 0 (原始值)
+console.log(value.value); // 0 (实际值 0 * 2)
+value.value = -5; // 被 onSet 处理为 0
+console.log(peek()); // 0 (原始值)
 
 // 暂停响应
-pause()
-value.value = 10 // 无效
-resume()
+pause();
+value.value = 10; // 无效
+resume();
 
 // 静默设置（不触发响应）
-silentSet(100)
+silentSet(100);
 ```
 
 ### 同步 ref
 
 ```typescript
-import { syncRefs } from '@/composables/useRef'
+import { syncRefs } from "@/composables/useRef";
 
-const source = ref(0)
-const target = ref(0)
+const source = ref(0);
+const target = ref(0);
 
 const stop = syncRefs(source, target, {
   immediate: true,
-  direction: 'both' // 或 'ltr', 'rtl'
-})
+  direction: "both", // 或 'ltr', 'rtl'
+});
 
-source.value = 1 // target.value 也变为 1
-target.value = 2 // source.value 也变为 2
+source.value = 1; // target.value 也变为 1
+target.value = 2; // source.value 也变为 2
 
 // 停止同步
-stop()
+stop();
 ```
 
 ### 模板 ref
@@ -192,22 +223,22 @@ onMounted((el) => {
 ### 计数器
 
 ```typescript
-import { useCounter } from '@/composables/useRef'
+import { useCounter } from "@/composables/useRef";
 
 const { count, inc, dec, reset, set } = useCounter(0, {
   min: 0,
-  max: 100
-})
+  max: 100,
+});
 
-inc() // count = 1
-inc(5) // count = 6
-dec(2) // count = 4
-set(50) // count = 50
-reset() // count = 0
+inc(); // count = 1
+inc(5); // count = 6
+dec(2); // count = 4
+set(50); // count = 50
+reset(); // count = 0
 
 // 超出范围自动限制
-inc(200) // count = 100 (max)
-dec(200) // count = 0 (min)
+inc(200); // count = 100 (max)
+dec(200); // count = 0 (min)
 ```
 
 ### 布尔开关
@@ -230,121 +261,127 @@ setFalse() // false
 ### 对象操作
 
 ```typescript
-import { useObject } from '@/composables/useRef'
+import { useObject } from "@/composables/useRef";
 
-const { state: user, set, merge, reset, patch } = useObject({
-  name: '',
+const {
+  state: user,
+  set,
+  merge,
+  reset,
+  patch,
+} = useObject({
+  name: "",
   age: 0,
-  email: ''
-})
+  email: "",
+});
 
-set({ name: 'John', age: 30, email: 'john@example.com' })
-merge({ name: 'Jane' }) // 只更新 name
-patch('age', 31) // 只更新 age
-reset() // 重置为初始值
+set({ name: "John", age: 30, email: "john@example.com" });
+merge({ name: "Jane" }); // 只更新 name
+patch("age", 31); // 只更新 age
+reset(); // 重置为初始值
 ```
 
 ### 数组操作
 
 ```typescript
-import { useArray } from '@/composables/useRef'
+import { useArray } from "@/composables/useRef";
 
-const { array: items, push, pop, remove, clear, insert, update } = useArray([1, 2, 3])
+const { array: items, push, pop, remove, clear, insert, update } = useArray([1, 2, 3]);
 
-push(4, 5) // [1, 2, 3, 4, 5]
-pop() // [1, 2, 3, 4]
-remove(1) // [1, 3, 4] (移除索引 1)
-insert(1, 2) // [1, 2, 3, 4]
-update(0, 0) // [0, 2, 3, 4]
-clear() // []
+push(4, 5); // [1, 2, 3, 4, 5]
+pop(); // [1, 2, 3, 4]
+remove(1); // [1, 3, 4] (移除索引 1)
+insert(1, 2); // [1, 2, 3, 4]
+update(0, 0); // [0, 2, 3, 4]
+clear(); // []
 ```
 
 ### 集合操作
 
 ```typescript
-import { useSet } from '@/composables/useRef'
+import { useSet } from "@/composables/useRef";
 
-const { set: selected, add, remove, has, toggle, clear, values } = useSet<number>()
+const { set: selected, add, remove, has, toggle, clear, values } = useSet<number>();
 
-add(1)
-add(2)
-has(1) // true
-toggle(1) // 移除 1
-toggle(3) // 添加 3
-values() // [2, 3]
-clear()
+add(1);
+add(2);
+has(1); // true
+toggle(1); // 移除 1
+toggle(3); // 添加 3
+values(); // [2, 3]
+clear();
 ```
 
 ### Map 操作
 
 ```typescript
-import { useMap } from '@/composables/useRef'
+import { useMap } from "@/composables/useRef";
 
-const { map: cache, set, get, remove, has, keys, values, entries } = useMap<string, number>()
+const { map: cache, set, get, remove, has, keys, values, entries } = useMap<string, number>();
 
-set('a', 1)
-set('b', 2)
-get('a') // 1
-has('a') // true
-keys() // ['a', 'b']
-values() // [1, 2]
-entries() // [['a', 1], ['b', 2]]
-remove('a')
+set("a", 1);
+set("b", 2);
+get("a"); // 1
+has("a"); // true
+keys(); // ['a', 'b']
+values(); // [1, 2]
+entries(); // [['a', 1], ['b', 2]]
+remove("a");
 ```
 
 ## API
 
 ### refDebounced
 
-| 选项 | 类型 | 默认值 | 说明 |
-|------|------|--------|------|
-| delay | number | 250 | 防抖延迟（毫秒） |
-| maxWait | number | - | 最大等待时间 |
+| 选项    | 类型   | 默认值 | 说明             |
+| ------- | ------ | ------ | ---------------- |
+| delay   | number | 250    | 防抖延迟（毫秒） |
+| maxWait | number | -      | 最大等待时间     |
 
 ### refThrottled
 
-| 选项 | 类型 | 默认值 | 说明 |
-|------|------|--------|------|
-| delay | number | 100 | 节流间隔（毫秒） |
-| leading | boolean | true | 开始时触发 |
-| trailing | boolean | true | 结束时触发 |
+| 选项     | 类型    | 默认值 | 说明             |
+| -------- | ------- | ------ | ---------------- |
+| delay    | number  | 100    | 节流间隔（毫秒） |
+| leading  | boolean | true   | 开始时触发       |
+| trailing | boolean | true   | 结束时触发       |
 
 ### refHistory
 
-| 选项 | 类型 | 默认值 | 说明 |
-|------|------|--------|------|
-| capacity | number | 10 | 历史记录容量 |
-| deep | boolean | false | 深度克隆 |
-| clone | Function | - | 自定义克隆函数 |
-| debounce | number | 0 | 记录防抖延迟 |
+| 选项     | 类型     | 默认值 | 说明           |
+| -------- | -------- | ------ | -------------- |
+| capacity | number   | 10     | 历史记录容量   |
+| deep     | boolean  | false  | 深度克隆       |
+| clone    | Function | -      | 自定义克隆函数 |
+| debounce | number   | 0      | 记录防抖延迟   |
 
-| 返回值 | 类型 | 说明 |
-|--------|------|------|
-| value | Ref\<T\> | 当前值 |
-| history | Ref\<T[]\> | 历史记录 |
-| future | Ref\<T[]\> | 未来记录 |
+| 返回值  | 类型           | 说明       |
+| ------- | -------------- | ---------- |
+| value   | Ref\<T\>       | 当前值     |
+| history | Ref\<T[]\>     | 历史记录   |
+| future  | Ref\<T[]\>     | 未来记录   |
 | canUndo | Ref\<boolean\> | 是否可撤销 |
 | canRedo | Ref\<boolean\> | 是否可重做 |
-| undo | `() => void` | 撤销 |
-| redo | `() => void` | 重做 |
-| clear | `() => void` | 清空历史 |
-| pause | `() => void` | 暂停记录 |
-| resume | `() => void` | 恢复记录 |
+| undo    | `() => void`   | 撤销       |
+| redo    | `() => void`   | 重做       |
+| clear   | `() => void`   | 清空历史   |
+| pause   | `() => void`   | 暂停记录   |
+| resume  | `() => void`   | 恢复记录   |
 
 ### useCounter
 
-| 选项 | 类型 | 默认值 | 说明 |
-|------|------|--------|------|
-| min | number | -Infinity | 最小值 |
-| max | number | Infinity | 最大值 |
+| 选项 | 类型   | 默认值    | 说明   |
+| ---- | ------ | --------- | ------ |
+| min  | number | -Infinity | 最小值 |
+| max  | number | Infinity  | 最大值 |
 
-| 返回值 | 类型 | 说明 |
-|--------|------|------|
-| count | Ref\<number\> | 当前计数 |
-| inc | `(delta?) => void` | 增加 |
-| dec | `(delta?) => void` | 减少 |
-| reset | `() => void` | 重置 |
-| set | `(value) => void` | 设置值 |
+| 返回值 | 类型               | 说明     |
+| ------ | ------------------ | -------- |
+| count  | Ref\<number\>      | 当前计数 |
+| inc    | `(delta?) => void` | 增加     |
+| dec    | `(delta?) => void` | 减少     |
+| reset  | `() => void`       | 重置     |
+| set    | `(value) => void`  | 设置值   |
 
 ## 代码位置
 

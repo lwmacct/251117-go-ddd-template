@@ -1,5 +1,28 @@
 # 数组工具函数
 
+<!--TOC-->
+
+- [需求背景](#需求背景) `:30:33`
+- [已实现功能](#已实现功能) `:34:35`
+  - [分组与分块](#分组与分块) `:36:41`
+  - [去重与交集](#去重与交集) `:42:48`
+  - [查找与索引](#查找与索引) `:49:54`
+  - [排序](#排序) `:55:59`
+  - [变换](#变换) `:60:65`
+  - [移动与交换](#移动与交换) `:66:70`
+  - [聚合](#聚合) `:71:77`
+  - [树形结构](#树形结构) `:78:84`
+- [使用方式](#使用方式) `:85:86`
+  - [分块与分组](#分块与分组) `:87:107`
+  - [去重与集合操作](#去重与集合操作) `:108:128`
+  - [排序](#排序-1) `:129:144`
+  - [树形操作](#树形操作) `:145:164`
+- [API](#api) `:165:166`
+  - [主要函数](#主要函数) `:167:179`
+- [代码位置](#代码位置) `:180:186`
+
+<!--TOC-->
+
 > **状态**: ✅ 已完成
 > **优先级**: 中
 > **完成日期**: 2024-11-30
@@ -72,13 +95,13 @@ chunk([1, 2, 3, 4, 5], 2); // [[1, 2], [3, 4], [5]]
 // 分组
 const users = [
   { name: "Alice", role: "admin" },
-  { name: "Bob", role: "user" }
+  { name: "Bob", role: "user" },
 ];
 groupBy(users, "role");
 // { admin: [{ name: 'Alice', role: 'admin' }], user: [...] }
 
 // 分区
-partition([1, 2, 3, 4, 5], n => n % 2 === 0);
+partition([1, 2, 3, 4, 5], (n) => n % 2 === 0);
 // [[2, 4], [1, 3, 5]]
 ```
 
@@ -115,7 +138,7 @@ sortBy(users, "age", "desc"); // 按 age 降序
 // 多字段排序
 sortByMultiple(users, [
   { key: "role", order: "asc" },
-  { key: "name", order: "asc" }
+  { key: "name", order: "asc" },
 ]);
 ```
 
@@ -128,12 +151,12 @@ import { arrayToTree, treeToArray, findInTree } from "@/utils/array";
 const items = [
   { id: 1, parentId: null, name: "Root" },
   { id: 2, parentId: 1, name: "Child 1" },
-  { id: 3, parentId: 1, name: "Child 2" }
+  { id: 3, parentId: 1, name: "Child 2" },
 ];
 const tree = arrayToTree(items);
 
 // 在树中查找
-const node = findInTree(tree, n => n.id === 3);
+const node = findInTree(tree, (n) => n.id === 3);
 
 // 树转数组
 const flat = treeToArray(tree);
@@ -143,15 +166,15 @@ const flat = treeToArray(tree);
 
 ### 主要函数
 
-| 函数 | 说明 |
-|------|------|
-| chunk(arr, size) | 分块 |
-| groupBy(arr, key) | 分组 |
-| unique(arr, key?) | 去重 |
-| sortBy(arr, key, order?) | 排序 |
-| flatten(arr, depth?) | 打平 |
-| shuffle(arr) | 洗牌 |
-| sum(arr, getter?) | 求和 |
+| 函数                        | 说明 |
+| --------------------------- | ---- |
+| chunk(arr, size)            | 分块 |
+| groupBy(arr, key)           | 分组 |
+| unique(arr, key?)           | 去重 |
+| sortBy(arr, key, order?)    | 排序 |
+| flatten(arr, depth?)        | 打平 |
+| shuffle(arr)                | 洗牌 |
+| sum(arr, getter?)           | 求和 |
 | arrayToTree(items, options) | 转树 |
 
 ## 代码位置

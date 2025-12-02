@@ -1,5 +1,26 @@
 # 滚动锁定 Composable
 
+<!--TOC-->
+
+- [需求背景](#需求背景) `:28:31`
+- [已实现功能](#已实现功能) `:32:33`
+  - [useScrollLock](#usescrolllock) `:34:40`
+  - [useScrollLockWhenTrue](#usescrolllockwhentrue) `:41:45`
+  - [useElementScrollLock](#useelementscrolllock) `:46:50`
+  - [useScrollPosition](#usescrollposition) `:51:55`
+  - [useScrollDirection](#usescrolldirection) `:56:60`
+- [使用方式](#使用方式) `:61:62`
+  - [基础用法](#基础用法) `:63:82`
+  - [响应式锁定](#响应式锁定) `:83:98`
+  - [滚动方向检测](#滚动方向检测) `:99:113`
+  - [滚动位置控制](#滚动位置控制) `:114:130`
+- [API](#api) `:131:132`
+  - [useScrollLock 返回值](#usescrolllock-返回值) `:133:141`
+  - [useScrollDirection 返回值](#usescrolldirection-返回值) `:142:149`
+- [代码位置](#代码位置) `:150:156`
+
+<!--TOC-->
+
 > **状态**: ✅ 已完成
 > **优先级**: 中
 > **完成日期**: 2024-11-30
@@ -111,20 +132,20 @@ scrollToTop();
 
 ### useScrollLock 返回值
 
-| 属性 | 类型 | 说明 |
-|------|------|------|
+| 属性     | 类型           | 说明       |
+| -------- | -------------- | ---------- |
 | isLocked | `Ref<boolean>` | 是否已锁定 |
-| lock | `() => void` | 锁定滚动 |
-| unlock | `() => void` | 解锁滚动 |
-| toggle | `() => void` | 切换锁定 |
+| lock     | `() => void`   | 锁定滚动   |
+| unlock   | `() => void`   | 解锁滚动   |
+| toggle   | `() => void`   | 切换锁定   |
 
 ### useScrollDirection 返回值
 
-| 属性 | 类型 | 说明 |
-|------|------|------|
-| direction | `Ref<'up' \| 'down' \| 'none'>` | 滚动方向 |
-| isScrollingUp | `Ref<boolean>` | 是否向上滚动 |
-| isScrollingDown | `Ref<boolean>` | 是否向下滚动 |
+| 属性            | 类型                            | 说明         |
+| --------------- | ------------------------------- | ------------ |
+| direction       | `Ref<'up' \| 'down' \| 'none'>` | 滚动方向     |
+| isScrollingUp   | `Ref<boolean>`                  | 是否向上滚动 |
+| isScrollingDown | `Ref<boolean>`                  | 是否向下滚动 |
 
 ## 代码位置
 

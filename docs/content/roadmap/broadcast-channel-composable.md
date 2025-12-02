@@ -1,5 +1,26 @@
 # BroadcastChannel Composable
 
+<!--TOC-->
+
+- [需求背景](#需求背景) `:28:31`
+- [已实现功能](#已实现功能) `:32:33`
+  - [通信管理](#通信管理) `:34:41`
+- [使用方式](#使用方式) `:42:43`
+  - [基础用法](#基础用法) `:44:63`
+  - [状态同步](#状态同步) `:64:99`
+  - [Leader 选举](#leader-选举) `:100:133`
+  - [消息传递](#消息传递) `:134:165`
+  - [JSON 格式广播](#json-格式广播) `:166:185`
+- [API](#api) `:186:187`
+  - [useBroadcastChannel](#usebroadcastchannel) `:188:199`
+  - [useTabSync](#usetabsync) `:200:215`
+  - [useTabLeader](#usetableader) `:216:231`
+  - [useTabMessenger](#usetabmessenger) `:232:242`
+- [使用场景](#使用场景) `:243:252`
+- [代码位置](#代码位置) `:253:259`
+
+<!--TOC-->
+
 > **状态**: ✅ 已完成
 > **优先级**: 中
 > **完成日期**: 2024-11-30
@@ -26,8 +47,7 @@
 import { useBroadcastChannel } from "@/composables/useBroadcastChannel";
 
 // 在多个标签页中使用相同的频道名
-const { data, post, isSupported, close } =
-  useBroadcastChannel<Message>("my-channel");
+const { data, post, isSupported, close } = useBroadcastChannel<Message>("my-channel");
 
 // 发送消息
 post({ type: "update", payload: { id: 1 } });
@@ -52,19 +72,16 @@ interface UserState {
   lastActivity: number;
 }
 
-const { state, setState, mergeState, requestSync } = useTabSync<UserState>(
-  "user-state",
-  {
-    initialState: {
-      name: "",
-      theme: "light",
-      lastActivity: Date.now(),
-    },
-    onSync: (state, source) => {
-      console.log(`状态更新来源: ${source}`, state);
-    },
-  }
-);
+const { state, setState, mergeState, requestSync } = useTabSync<UserState>("user-state", {
+  initialState: {
+    name: "",
+    theme: "light",
+    lastActivity: Date.now(),
+  },
+  onSync: (state, source) => {
+    console.log(`状态更新来源: ${source}`, state);
+  },
+});
 
 // 完整更新状态（同步到所有标签页）
 setState({
@@ -170,31 +187,31 @@ post({ type: "sync", data: { foo: "bar" } });
 
 ### useBroadcastChannel
 
-| 返回值      | 类型                           | 说明             |
-| ----------- | ------------------------------ | ---------------- |
-| channel     | Ref\<BroadcastChannel \| null\> | 频道实例        |
-| isSupported | ComputedRef\<boolean\>         | 是否支持         |
-| isClosed    | Ref\<boolean\>                 | 是否已关闭       |
-| data        | Ref\<T \| null\>               | 最后接收的数据   |
-| error       | Ref\<Event \| null\>           | 错误信息         |
-| post        | `(data: P) => void             ` | 发送消息         |
-| close       | `() => void                    ` | 关闭频道         |
+| 返回值      | 类型                             | 说明           |
+| ----------- | -------------------------------- | -------------- |
+| channel     | Ref\<BroadcastChannel \| null\>  | 频道实例       |
+| isSupported | ComputedRef\<boolean\>           | 是否支持       |
+| isClosed    | Ref\<boolean\>                   | 是否已关闭     |
+| data        | Ref\<T \| null\>                 | 最后接收的数据 |
+| error       | Ref\<Event \| null\>             | 错误信息       |
+| post        | `(data: P) => void             ` | 发送消息       |
+| close       | `() => void                    ` | 关闭频道       |
 
 ### useTabSync
 
-| 选项         | 类型    | 默认值 | 说明             |
-| ------------ | ------- | ------ | ---------------- |
-| initialState | T       | -      | 初始状态         |
-| immediate    | boolean | true   | 是否立即同步     |
-| onSync       | func    | -      | 状态变化回调     |
+| 选项         | 类型    | 默认值 | 说明         |
+| ------------ | ------- | ------ | ------------ |
+| initialState | T       | -      | 初始状态     |
+| immediate    | boolean | true   | 是否立即同步 |
+| onSync       | func    | -      | 状态变化回调 |
 
-| 返回值      | 类型                    | 说明             |
-| ----------- | ----------------------- | ---------------- |
-| state       | Ref\<T\>                | 同步状态         |
-| isSupported | ComputedRef\<boolean\>  | 是否支持         |
-| setState    | `(newState: T) => void  ` | 更新状态并广播   |
-| mergeState  | `(partial: Partial\<T\>) => void` | 合并状态 |
-| requestSync | `() => void             ` | 请求同步         |
+| 返回值      | 类型                              | 说明           |
+| ----------- | --------------------------------- | -------------- |
+| state       | Ref\<T\>                          | 同步状态       |
+| isSupported | ComputedRef\<boolean\>            | 是否支持       |
+| setState    | `(newState: T) => void  `         | 更新状态并广播 |
+| mergeState  | `(partial: Partial\<T\>) => void` | 合并状态       |
+| requestSync | `() => void             `         | 请求同步       |
 
 ### useTabLeader
 
@@ -205,33 +222,33 @@ post({ type: "sync", data: { foo: "bar" } });
 | onBecomeLeader    | func   | -      | 成为 Leader 回调 |
 | onLoseLeadership  | func   | -      | 失去 Leader 回调 |
 
-| 返回值      | 类型                   | 说明             |
-| ----------- | ---------------------- | ---------------- |
-| isLeader    | Ref\<boolean\>         | 是否是 Leader    |
-| isSupported | ComputedRef\<boolean\> | 是否支持         |
-| resign      | `() => void            ` | 放弃 Leader      |
-| elect       | `() => void            ` | 尝试成为 Leader  |
+| 返回值      | 类型                     | 说明            |
+| ----------- | ------------------------ | --------------- |
+| isLeader    | Ref\<boolean\>           | 是否是 Leader   |
+| isSupported | ComputedRef\<boolean\>   | 是否支持        |
+| resign      | `() => void            ` | 放弃 Leader     |
+| elect       | `() => void            ` | 尝试成为 Leader |
 
 ### useTabMessenger
 
-| 返回值      | 类型                           | 说明             |
-| ----------- | ------------------------------ | ---------------- |
-| isSupported | ComputedRef\<boolean\>         | 是否支持         |
-| tabId       | string                         | 当前标签页 ID    |
-| broadcast   | `(type, data) => void          ` | 广播消息         |
-| on          | `(type, handler) => void       ` | 注册处理函数     |
-| off         | `(type, handler?) => void      ` | 移除处理函数     |
-| request     | `(type, data, timeout?) => Promise` | 请求响应     |
+| 返回值      | 类型                                | 说明          |
+| ----------- | ----------------------------------- | ------------- |
+| isSupported | ComputedRef\<boolean\>              | 是否支持      |
+| tabId       | string                              | 当前标签页 ID |
+| broadcast   | `(type, data) => void          `    | 广播消息      |
+| on          | `(type, handler) => void       `    | 注册处理函数  |
+| off         | `(type, handler?) => void      `    | 移除处理函数  |
+| request     | `(type, data, timeout?) => Promise` | 请求响应      |
 
 ## 使用场景
 
-| 场景         | 推荐方案         | 说明                   |
-| ------------ | ---------------- | ---------------------- |
-| 用户登出     | useTabMessenger  | 广播登出事件           |
-| 主题同步     | useTabSync       | 同步主题状态           |
-| 购物车同步   | useTabSync       | 同步购物车数据         |
-| 后台任务     | useTabLeader     | 只在一个标签页执行     |
-| WebSocket    | useTabLeader     | 只在 Leader 维护连接   |
+| 场景       | 推荐方案        | 说明                 |
+| ---------- | --------------- | -------------------- |
+| 用户登出   | useTabMessenger | 广播登出事件         |
+| 主题同步   | useTabSync      | 同步主题状态         |
+| 购物车同步 | useTabSync      | 同步购物车数据       |
+| 后台任务   | useTabLeader    | 只在一个标签页执行   |
+| WebSocket  | useTabLeader    | 只在 Leader 维护连接 |
 
 ## 代码位置
 

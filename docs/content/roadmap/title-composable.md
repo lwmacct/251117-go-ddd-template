@@ -1,5 +1,31 @@
 # Title Composable
 
+<!--TOC-->
+
+- [需求背景](#需求背景) `:33:36`
+- [已实现功能](#已实现功能) `:37:38`
+  - [标题管理](#标题管理) `:39:44`
+  - [文档元素](#文档元素) `:45:49`
+  - [可见性检测](#可见性检测) `:50:54`
+  - [资源加载](#资源加载) `:55:59`
+- [使用方式](#使用方式) `:60:61`
+  - [基础标题管理](#基础标题管理) `:62:84`
+  - [模板标题](#模板标题) `:85:102`
+  - [Favicon 管理](#favicon-管理) `:103:118`
+  - [文档可见性](#文档可见性) `:119:136`
+  - [页面离开检测](#页面离开检测) `:137:153`
+  - [Head 管理](#head-管理) `:154:169`
+  - [动态脚本加载](#动态脚本加载) `:170:192`
+  - [动态样式表加载](#动态样式表加载) `:193:212`
+- [API](#api) `:213:214`
+  - [useTitle](#usetitle) `:215:227`
+  - [useTitleTemplate](#usetitletemplate) `:228:241`
+  - [useDocumentVisibility](#usedocumentvisibility) `:242:249`
+  - [useScript](#usescript) `:250:267`
+- [代码位置](#代码位置) `:268:274`
+
+<!--TOC-->
+
 > **状态**: ✅ 已完成
 > **优先级**: 中
 > **完成日期**: 2024-11-30
@@ -147,13 +173,10 @@ useHead({
 import { useScript } from "@/composables/useTitle";
 
 // 立即加载
-const { isLoaded, error } = useScript(
-  "https://example.com/analytics.js",
-  {
-    immediate: true,
-    async: true,
-  }
-);
+const { isLoaded, error } = useScript("https://example.com/analytics.js", {
+  immediate: true,
+  async: true,
+});
 
 // 延迟加载
 const { load, isLoading } = useScript("https://example.com/heavy.js", {
@@ -191,56 +214,56 @@ const { load, unload } = useStylesheet("/styles/feature.css", {
 
 ### useTitle
 
-| 选项             | 类型    | 默认值 | 说明               |
-| ---------------- | ------- | ------ | ------------------ |
-| template         | string  | -      | 标题模板（%s 占位）|
-| restoreOnUnmount | boolean | false  | 卸载时恢复原标题   |
-| observe          | boolean | false  | 观察外部标题变化   |
+| 选项             | 类型    | 默认值 | 说明                |
+| ---------------- | ------- | ------ | ------------------- |
+| template         | string  | -      | 标题模板（%s 占位） |
+| restoreOnUnmount | boolean | false  | 卸载时恢复原标题    |
+| observe          | boolean | false  | 观察外部标题变化    |
 
-| 返回值      | 类型                | 说明           |
-| ----------- | ------------------- | -------------- |
-| title       | Ref\<string\>       | 当前标题       |
-| isSupported | ComputedRef\<boolean\> | 是否支持    |
+| 返回值      | 类型                   | 说明     |
+| ----------- | ---------------------- | -------- |
+| title       | Ref\<string\>          | 当前标题 |
+| isSupported | ComputedRef\<boolean\> | 是否支持 |
 
 ### useTitleTemplate
 
-| 选项             | 类型                    | 默认值   | 说明           |
-| ---------------- | ----------------------- | -------- | -------------- |
-| separator        | string                  | ' \| '   | 分隔符         |
-| siteName         | string                  | ''       | 网站名称       |
-| siteNamePosition | 'prefix' \| 'suffix'    | 'suffix' | 网站名称位置   |
+| 选项             | 类型                 | 默认值   | 说明         |
+| ---------------- | -------------------- | -------- | ------------ |
+| separator        | string               | ' \| '   | 分隔符       |
+| siteName         | string               | ''       | 网站名称     |
+| siteNamePosition | 'prefix' \| 'suffix' | 'suffix' | 网站名称位置 |
 
-| 返回值       | 类型                  | 说明           |
-| ------------ | --------------------- | -------------- |
-| pageTitle    | Ref\<string\>         | 页面标题       |
-| fullTitle    | ComputedRef\<string\> | 完整标题       |
+| 返回值       | 类型                      | 说明         |
+| ------------ | ------------------------- | ------------ |
+| pageTitle    | Ref\<string\>             | 页面标题     |
+| fullTitle    | ComputedRef\<string\>     | 完整标题     |
 | setPageTitle | `(title: string) => void` | 设置页面标题 |
 
 ### useDocumentVisibility
 
-| 返回值      | 类型                               | 说明           |
-| ----------- | ---------------------------------- | -------------- |
-| visibility  | Ref\<DocumentVisibilityState\>     | 可见状态       |
-| isVisible   | ComputedRef\<boolean\>             | 是否可见       |
-| isSupported | ComputedRef\<boolean\>             | 是否支持       |
+| 返回值      | 类型                           | 说明     |
+| ----------- | ------------------------------ | -------- |
+| visibility  | Ref\<DocumentVisibilityState\> | 可见状态 |
+| isVisible   | ComputedRef\<boolean\>         | 是否可见 |
+| isSupported | ComputedRef\<boolean\>         | 是否支持 |
 
 ### useScript
 
-| 选项            | 类型                           | 默认值 | 说明           |
-| --------------- | ------------------------------ | ------ | -------------- |
-| immediate       | boolean                        | true   | 是否立即加载   |
-| async           | boolean                        | true   | 异步加载       |
-| defer           | boolean                        | false  | 延迟加载       |
-| crossOrigin     | 'anonymous'\|'use-credentials' | -      | 跨域设置       |
-| removeOnUnmount | boolean                        | false  | 卸载时移除     |
+| 选项            | 类型                           | 默认值 | 说明         |
+| --------------- | ------------------------------ | ------ | ------------ |
+| immediate       | boolean                        | true   | 是否立即加载 |
+| async           | boolean                        | true   | 异步加载     |
+| defer           | boolean                        | false  | 延迟加载     |
+| crossOrigin     | 'anonymous'\|'use-credentials' | -      | 跨域设置     |
+| removeOnUnmount | boolean                        | false  | 卸载时移除   |
 
-| 返回值    | 类型                    | 说明           |
-| --------- | ----------------------- | -------------- |
-| isLoading | Ref\<boolean\>          | 是否正在加载   |
-| isLoaded  | Ref\<boolean\>          | 是否已加载     |
-| error     | Ref\<Error \| null\>    | 加载错误       |
-| load      | `() => Promise          ` | 手动加载       |
-| unload    | `() => void             ` | 移除脚本       |
+| 返回值    | 类型                      | 说明         |
+| --------- | ------------------------- | ------------ |
+| isLoading | Ref\<boolean\>            | 是否正在加载 |
+| isLoaded  | Ref\<boolean\>            | 是否已加载   |
+| error     | Ref\<Error \| null\>      | 加载错误     |
+| load      | `() => Promise          ` | 手动加载     |
+| unload    | `() => void             ` | 移除脚本     |
 
 ## 代码位置
 

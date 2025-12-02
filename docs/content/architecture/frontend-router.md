@@ -1,5 +1,24 @@
 # 路由配置
 
+<!--TOC-->
+
+- [路由结构](#路由结构) `:24:33`
+- [路由配置](#路由配置-1) `:34:35`
+  - [认证路由 (auth.ts)](#认证路由-authts) `:36:56`
+  - [管理后台路由 (admin.ts)](#管理后台路由-admints) `:57:75`
+  - [用户中心路由 (user.ts)](#用户中心路由-userts) `:76:91`
+- [路由守卫](#路由守卫) `:92:121`
+- [路由元信息 (Meta)](#路由元信息-meta) `:122:129`
+- [路由跳转](#路由跳转) `:130:131`
+  - [编程式导航](#编程式导航) `:132:148`
+  - [声明式导航](#声明式导航) `:149:156`
+- [布局组件](#布局组件) `:157:158`
+  - [AdminLayout](#adminlayout) `:159:166`
+  - [UserLayout](#userlayout) `:167:170`
+- [路由懒加载](#路由懒加载) `:171:180`
+
+<!--TOC-->
+
 前端使用 Vue Router 进行路由管理，采用 Hash 模式，支持路由守卫和权限控制。
 
 ## 路由结构
@@ -19,20 +38,20 @@ src/router/
 ```typescript
 // 公开路由，无需登录
 export const authRoutes = {
-  path: '/auth',
+  path: "/auth",
   children: [
     {
-      path: 'login',
-      component: () => import('@/pages/auth/login/index.vue'),
-      meta: { requiresAuth: false }
+      path: "login",
+      component: () => import("@/pages/auth/login/index.vue"),
+      meta: { requiresAuth: false },
     },
     {
-      path: 'register',
-      component: () => import('@/pages/auth/register/index.vue'),
-      meta: { requiresAuth: false }
-    }
-  ]
-}
+      path: "register",
+      component: () => import("@/pages/auth/register/index.vue"),
+      meta: { requiresAuth: false },
+    },
+  ],
+};
 ```
 
 ### 管理后台路由 (`admin.ts`)
@@ -40,18 +59,18 @@ export const authRoutes = {
 ```typescript
 // 需要登录，使用 AdminLayout 布局
 export const adminRoutes = {
-  path: '/admin',
-  component: () => import('@/layout/AdminLayout.vue'),
+  path: "/admin",
+  component: () => import("@/layout/AdminLayout.vue"),
   meta: { requiresAuth: true },
   children: [
-    { path: 'overview',   name: '数据概览', icon: 'mdi-speedometer' },
-    { path: 'users',      name: '用户管理', icon: 'mdi-account' },
-    { path: 'roles',      name: '角色管理', icon: 'mdi-account-group' },
-    { path: 'menus',      name: '菜单管理', icon: 'mdi-menu' },
-    { path: 'settings',   name: '系统设置', icon: 'mdi-cog' },
-    { path: 'auditlogs',  name: '审计日志', icon: 'mdi-file-document-outline' }
-  ]
-}
+    { path: "overview", name: "数据概览", icon: "mdi-speedometer" },
+    { path: "users", name: "用户管理", icon: "mdi-account" },
+    { path: "roles", name: "角色管理", icon: "mdi-account-group" },
+    { path: "menus", name: "菜单管理", icon: "mdi-menu" },
+    { path: "settings", name: "系统设置", icon: "mdi-cog" },
+    { path: "auditlogs", name: "审计日志", icon: "mdi-file-document-outline" },
+  ],
+};
 ```
 
 ### 用户中心路由 (`user.ts`)
@@ -59,15 +78,15 @@ export const adminRoutes = {
 ```typescript
 // 需要登录，使用 UserLayout 布局
 export const userRoutes = {
-  path: '/user',
-  component: () => import('@/layout/UserLayout.vue'),
+  path: "/user",
+  component: () => import("@/layout/UserLayout.vue"),
   meta: { requiresAuth: true },
   children: [
-    { path: 'profile',   name: '个人资料', icon: 'mdi-account-circle' },
-    { path: 'security',  name: '安全设置', icon: 'mdi-shield-lock' },
-    { path: 'tokens',    name: '访问令牌', icon: 'mdi-key-variant' }
-  ]
-}
+    { path: "profile", name: "个人资料", icon: "mdi-account-circle" },
+    { path: "security", name: "安全设置", icon: "mdi-shield-lock" },
+    { path: "tokens", name: "访问令牌", icon: "mdi-key-variant" },
+  ],
+};
 ```
 
 ## 路由守卫
@@ -76,55 +95,55 @@ export const userRoutes = {
 
 ```typescript
 router.beforeEach((to, from, next) => {
-  const authStore = useAuthStore()
+  const authStore = useAuthStore();
 
   // 检查路由是否需要认证
   if (to.meta.requiresAuth) {
     if (!authStore.hasToken) {
       // 未登录，重定向到登录页，保存目标路由
       next({
-        path: '/auth/login',
-        query: { redirect: to.fullPath }
-      })
-      return
+        path: "/auth/login",
+        query: { redirect: to.fullPath },
+      });
+      return;
     }
   }
 
   // 已登录用户访问认证页面，重定向到管理后台
-  if (to.path.startsWith('/auth') && authStore.hasToken) {
-    next('/admin/overview')
-    return
+  if (to.path.startsWith("/auth") && authStore.hasToken) {
+    next("/admin/overview");
+    return;
   }
 
-  next()
-})
+  next();
+});
 ```
 
 ## 路由元信息 (Meta)
 
-| 字段 | 类型 | 说明 |
-|------|------|------|
+| 字段           | 类型      | 说明         |
+| -------------- | --------- | ------------ |
 | `requiresAuth` | `boolean` | 是否需要登录 |
-| `title` | `string` | 页面标题 |
-| `icon` | `string` | MDI 图标名称 |
+| `title`        | `string`  | 页面标题     |
+| `icon`         | `string`  | MDI 图标名称 |
 
 ## 路由跳转
 
 ### 编程式导航
 
 ```typescript
-import { useRouter } from 'vue-router'
+import { useRouter } from "vue-router";
 
-const router = useRouter()
+const router = useRouter();
 
 // 跳转到指定路由
-router.push('/admin/users')
+router.push("/admin/users");
 
 // 带参数跳转
-router.push({ path: '/admin/users', query: { page: 1 } })
+router.push({ path: "/admin/users", query: { page: 1 } });
 
 // 返回上一页
-router.back()
+router.back();
 ```
 
 ### 声明式导航
@@ -140,6 +159,7 @@ router.back()
 ### AdminLayout
 
 管理后台布局，包含：
+
 - 顶部导航栏 (AppBars)
 - 左侧菜单 (Navigation)
 - 主内容区 (router-view)
@@ -154,7 +174,7 @@ router.back()
 
 ```typescript
 // 懒加载语法
-component: () => import('@/pages/admin/users/index.vue')
+component: () => import("@/pages/admin/users/index.vue");
 ```
 
 这样可以实现代码分割，按需加载页面，提升首屏加载速度。

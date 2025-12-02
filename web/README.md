@@ -1,5 +1,17 @@
 # web
 
+<!--TOC-->
+
+- [Recommended IDE Setup](#recommended-ide-setup) `:17:20`
+- [Recommended Browser Setup](#recommended-browser-setup) `:21:29`
+- [Type Support for .vue Imports in TS](#type-support-for-vue-imports-in-ts) `:30:33`
+- [Customize configuration](#customize-configuration) `:34:37`
+- [Project Setup](#project-setup) `:38:43`
+  - [Compile and Hot-Reload for Development](#compile-and-hot-reload-for-development) `:44:49`
+  - [Type-Check, Compile and Minify for Production](#type-check-compile-and-minify-for-production) `:50:54`
+
+<!--TOC-->
+
 This template should help get you started developing with Vue 3 in Vite.
 
 ## Recommended IDE Setup

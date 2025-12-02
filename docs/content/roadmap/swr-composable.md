@@ -1,5 +1,28 @@
 # SWR Composable
 
+<!--TOC-->
+
+- [需求背景](#需求背景) `:30:33`
+- [已实现功能](#已实现功能) `:34:35`
+  - [数据获取](#数据获取) `:36:41`
+  - [缓存管理](#缓存管理) `:42:49`
+- [SWR 原理](#swr-原理) `:50:57`
+- [使用方式](#使用方式) `:58:59`
+  - [基础用法](#基础用法) `:60:72`
+  - [自动重新验证](#自动重新验证) `:73:90`
+  - [手动更新数据](#手动更新数据) `:91:106`
+  - [错误处理和重试](#错误处理和重试) `:107:128`
+  - [数据修改](#数据修改) `:129:163`
+  - [无限加载](#无限加载) `:164:191`
+  - [缓存管理](#缓存管理-1) `:192:212`
+- [API](#api) `:213:214`
+  - [useSWR](#useswr) `:215:241`
+  - [useSWRMutation](#useswrmutation) `:242:258`
+  - [useSWRInfinite](#useswrinfinite) `:259:271`
+- [代码位置](#代码位置) `:272:278`
+
+<!--TOC-->
+
 > **状态**: ✅ 已完成
 > **优先级**: 高
 > **完成日期**: 2024-11-30
@@ -39,10 +62,7 @@
 ```typescript
 import { useSWR } from "@/composables/useSWR";
 
-const { data, error, isLoading, isValidating, revalidate, mutate } = useSWR(
-  "users",
-  () => fetch("/api/users").then((r) => r.json())
-);
+const { data, error, isLoading, isValidating, revalidate, mutate } = useSWR("users", () => fetch("/api/users").then((r) => r.json()));
 
 // data: 用户列表数据
 // error: 错误信息
@@ -128,7 +148,7 @@ const { trigger, isMutating, error } = useSWRMutation(
     onSuccess: (data) => {
       console.log("创建成功:", data);
     },
-  }
+  },
 );
 
 // 触发创建
@@ -148,12 +168,11 @@ import { useSWRInfinite } from "@/composables/useSWR";
 
 const { data, loadMore, hasMore, isLoadingMore, reset } = useSWRInfinite(
   (pageIndex) => `users-page-${pageIndex}`,
-  (pageIndex) =>
-    fetch(`/api/users?page=${pageIndex}&size=10`).then((r) => r.json()),
+  (pageIndex) => fetch(`/api/users?page=${pageIndex}&size=10`).then((r) => r.json()),
   {
     pageSize: 10,
     hasMore: (pageData, pageIndex) => pageData.length === 10,
-  }
+  },
 );
 
 // data 包含所有页的数据
@@ -173,13 +192,7 @@ reset();
 ### 缓存管理
 
 ```typescript
-import {
-  getSWRCache,
-  setSWRCache,
-  deleteSWRCache,
-  clearSWRCache,
-  revalidateSWR,
-} from "@/composables/useSWR";
+import { getSWRCache, setSWRCache, deleteSWRCache, clearSWRCache, revalidateSWR } from "@/composables/useSWR";
 
 // 获取缓存
 const users = getSWRCache<User[]>("users");
@@ -201,60 +214,60 @@ revalidateSWR("users");
 
 ### useSWR
 
-| 选项                  | 类型    | 默认值 | 说明               |
-| --------------------- | ------- | ------ | ------------------ |
-| initialData           | T       | -      | 初始数据           |
-| immediate             | boolean | true   | 是否立即获取       |
-| revalidateInterval    | number  | 0      | 重新验证间隔       |
-| revalidateOnFocus     | boolean | true   | 聚焦时重新验证     |
-| revalidateOnReconnect | boolean | true   | 重连时重新验证     |
-| revalidateOnMount     | boolean | true   | 挂载时重新验证     |
-| dedupingInterval      | number  | 2000   | 去重间隔           |
-| errorRetryCount       | number  | 3      | 错误重试次数       |
-| errorRetryInterval    | number  | 5000   | 错误重试间隔       |
-| keepPreviousData      | boolean | false  | 保持之前的数据     |
-| onSuccess             | func    | -      | 成功回调           |
-| onError               | func    | -      | 错误回调           |
+| 选项                  | 类型    | 默认值 | 说明           |
+| --------------------- | ------- | ------ | -------------- |
+| initialData           | T       | -      | 初始数据       |
+| immediate             | boolean | true   | 是否立即获取   |
+| revalidateInterval    | number  | 0      | 重新验证间隔   |
+| revalidateOnFocus     | boolean | true   | 聚焦时重新验证 |
+| revalidateOnReconnect | boolean | true   | 重连时重新验证 |
+| revalidateOnMount     | boolean | true   | 挂载时重新验证 |
+| dedupingInterval      | number  | 2000   | 去重间隔       |
+| errorRetryCount       | number  | 3      | 错误重试次数   |
+| errorRetryInterval    | number  | 5000   | 错误重试间隔   |
+| keepPreviousData      | boolean | false  | 保持之前的数据 |
+| onSuccess             | func    | -      | 成功回调       |
+| onError               | func    | -      | 错误回调       |
 
-| 返回值       | 类型                    | 说明           |
-| ------------ | ----------------------- | -------------- |
-| data         | Ref\<T \| null\>        | 数据           |
-| error        | Ref\<Error \| null\>    | 错误           |
-| status       | Ref\<SWRStatus\>        | 状态           |
-| isValidating | Ref\<boolean\>          | 是否正在验证   |
-| isLoading    | ComputedRef\<boolean\>  | 是否首次加载   |
-| mutate       | `(data?) => Promise     ` | 更新数据       |
-| revalidate   | `() => Promise          ` | 重新获取       |
+| 返回值       | 类型                      | 说明         |
+| ------------ | ------------------------- | ------------ |
+| data         | Ref\<T \| null\>          | 数据         |
+| error        | Ref\<Error \| null\>      | 错误         |
+| status       | Ref\<SWRStatus\>          | 状态         |
+| isValidating | Ref\<boolean\>            | 是否正在验证 |
+| isLoading    | ComputedRef\<boolean\>    | 是否首次加载 |
+| mutate       | `(data?) => Promise     ` | 更新数据     |
+| revalidate   | `() => Promise          ` | 重新获取     |
 
 ### useSWRMutation
 
-| 选项           | 类型    | 默认值 | 说明           |
-| -------------- | ------- | ------ | -------------- |
-| optimisticData | func    | -      | 乐观更新函数   |
-| rollbackOnError | boolean | true  | 错误时回滚     |
-| onSuccess      | func    | -      | 成功回调       |
-| onError        | func    | -      | 错误回调       |
+| 选项            | 类型    | 默认值 | 说明         |
+| --------------- | ------- | ------ | ------------ |
+| optimisticData  | func    | -      | 乐观更新函数 |
+| rollbackOnError | boolean | true   | 错误时回滚   |
+| onSuccess       | func    | -      | 成功回调     |
+| onError         | func    | -      | 错误回调     |
 
-| 返回值     | 类型                 | 说明           |
-| ---------- | -------------------- | -------------- |
-| data       | Ref\<T \| null\>     | 数据           |
-| error      | Ref\<Error \| null\> | 错误           |
-| isMutating | Ref\<boolean\>       | 是否正在执行   |
-| trigger    | `(arg) => Promise    ` | 触发修改       |
-| reset      | `() => void          ` | 重置状态       |
+| 返回值     | 类型                   | 说明         |
+| ---------- | ---------------------- | ------------ |
+| data       | Ref\<T \| null\>       | 数据         |
+| error      | Ref\<Error \| null\>   | 错误         |
+| isMutating | Ref\<boolean\>         | 是否正在执行 |
+| trigger    | `(arg) => Promise    ` | 触发修改     |
+| reset      | `() => void          ` | 重置状态     |
 
 ### useSWRInfinite
 
-| 返回值        | 类型           | 说明           |
-| ------------- | -------------- | -------------- |
-| data          | Ref\<T[]\>     | 所有页数据     |
-| error         | Ref\<Error\>   | 错误           |
-| isValidating  | Ref\<boolean\> | 是否正在验证   |
-| isLoadingMore | Ref\<boolean\> | 是否正在加载更多|
-| hasMore       | Ref\<boolean\> | 是否有更多     |
-| size          | Ref\<number\>  | 当前页数       |
-| loadMore      | `() => Promise ` | 加载更多       |
-| reset         | `() => void    ` | 重置           |
+| 返回值        | 类型             | 说明             |
+| ------------- | ---------------- | ---------------- |
+| data          | Ref\<T[]\>       | 所有页数据       |
+| error         | Ref\<Error\>     | 错误             |
+| isValidating  | Ref\<boolean\>   | 是否正在验证     |
+| isLoadingMore | Ref\<boolean\>   | 是否正在加载更多 |
+| hasMore       | Ref\<boolean\>   | 是否有更多       |
+| size          | Ref\<number\>    | 当前页数         |
+| loadMore      | `() => Promise ` | 加载更多         |
+| reset         | `() => void    ` | 重置             |
 
 ## 代码位置
 

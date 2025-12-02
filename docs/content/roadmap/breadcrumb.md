@@ -1,5 +1,18 @@
 # 面包屑导航
 
+<!--TOC-->
+
+- [需求背景](#需求背景) `:20:23`
+- [已实现功能](#已实现功能) `:24:25`
+  - [AppBreadcrumb 组件](#appbreadcrumb-组件) `:26:34`
+- [组件接口](#组件接口) `:35:40`
+  - [Props](#props) `:41:48`
+- [路由配置要求](#路由配置要求) `:49:64`
+- [代码位置](#代码位置) `:65:74`
+- [效果预览](#效果预览) `:75:79`
+
+<!--TOC-->
+
 > **状态**: ✅ 已完成
 > **优先级**: 中
 > **完成日期**: 2024-11-30
@@ -22,20 +35,16 @@
 ## 组件接口
 
 ```vue
-<AppBreadcrumb
-  home-icon="mdi-home"
-  home-text="首页"
-  :show-home="true"
-/>
+<AppBreadcrumb home-icon="mdi-home" home-text="首页" :show-home="true" />
 ```
 
 ### Props
 
-| 属性 | 类型 | 默认值 | 说明 |
-|------|------|--------|------|
-| homeIcon | string | "mdi-home" | 首页图标 |
-| homeText | string | "首页" | 首页文本 |
-| showHome | boolean | true | 是否显示首页 |
+| 属性     | 类型    | 默认值     | 说明         |
+| -------- | ------- | ---------- | ------------ |
+| homeIcon | string  | "mdi-home" | 首页图标     |
+| homeText | string  | "首页"     | 首页文本     |
+| showHome | boolean | true       | 是否显示首页 |
 
 ## 路由配置要求
 

@@ -1,5 +1,29 @@
 # Clone Composable
 
+<!--TOC-->
+
+- [需求背景](#需求背景) `:31:34`
+- [已实现功能](#已实现功能) `:35:36`
+  - [克隆工具](#克隆工具) `:37:41`
+  - [响应式克隆](#响应式克隆) `:42:47`
+  - [状态管理](#状态管理) `:48:52`
+  - [缓存](#缓存) `:53:56`
+- [使用方式](#使用方式) `:57:58`
+  - [深克隆](#深克隆) `:59:78`
+  - [响应式克隆](#响应式克隆-1) `:79:101`
+  - [表单编辑场景](#表单编辑场景) `:102:133`
+  - [脏状态检测](#脏状态检测) `:134:163`
+  - [状态快照](#状态快照) `:164:192`
+  - [延迟同步](#延迟同步) `:193:213`
+  - [函数记忆化](#函数记忆化) `:214:235`
+- [API](#api) `:236:237`
+  - [useCloned](#usecloned) `:238:253`
+  - [useDirtyState](#usedirtystate) `:254:264`
+  - [useSnapshot](#usesnapshot) `:265:277`
+- [代码位置](#代码位置) `:278:284`
+
+<!--TOC-->
+
 > **状态**: ✅ 已完成
 > **优先级**: 中
 > **完成日期**: 2024-11-30
@@ -112,12 +136,11 @@ const canLeave = computed(() => !isModified.value);
 ```typescript
 import { useDirtyState } from "@/composables/useClone";
 
-const { state, isDirty, dirtyFields, markClean, reset, getChanges } =
-  useDirtyState({
-    name: "John",
-    email: "john@example.com",
-    age: 25,
-  });
+const { state, isDirty, dirtyFields, markClean, reset, getChanges } = useDirtyState({
+  name: "John",
+  email: "john@example.com",
+  age: 25,
+});
 
 // 修改状态
 state.value.name = "Jane";
@@ -214,43 +237,43 @@ clear(); // 清除所有缓存
 
 ### useCloned
 
-| 选项      | 类型              | 默认值    | 说明           |
-| --------- | ----------------- | --------- | -------------- |
-| deep      | boolean           | true      | 是否深克隆     |
-| immediate | boolean           | true      | 是否立即克隆   |
+| 选项      | 类型                | 默认值    | 说明           |
+| --------- | ------------------- | --------- | -------------- |
+| deep      | boolean             | true      | 是否深克隆     |
+| immediate | boolean             | true      | 是否立即克隆   |
 | clone     | `(source: T) => T ` | deepClone | 自定义克隆函数 |
-| manual    | boolean           | false     | 是否手动同步   |
+| manual    | boolean             | false     | 是否手动同步   |
 
-| 返回值     | 类型                   | 说明           |
-| ---------- | ---------------------- | -------------- |
-| cloned     | Ref\<T\>               | 克隆的值       |
-| sync       | `() => void            ` | 同步到源值     |
-| reset      | `() => void            ` | 重置为源值     |
-| isModified | ComputedRef\<boolean\> | 是否已修改     |
+| 返回值     | 类型                     | 说明       |
+| ---------- | ------------------------ | ---------- |
+| cloned     | Ref\<T\>                 | 克隆的值   |
+| sync       | `() => void            ` | 同步到源值 |
+| reset      | `() => void            ` | 重置为源值 |
+| isModified | ComputedRef\<boolean\>   | 是否已修改 |
 
 ### useDirtyState
 
-| 返回值      | 类型                   | 说明           |
-| ----------- | ---------------------- | -------------- |
-| state       | Ref\<T\>               | 当前值         |
-| isDirty     | ComputedRef\<boolean\> | 是否为脏状态   |
-| dirtyFields | ComputedRef\<string[]\> | 脏字段列表    |
+| 返回值      | 类型                     | 说明           |
+| ----------- | ------------------------ | -------------- |
+| state       | Ref\<T\>                 | 当前值         |
+| isDirty     | ComputedRef\<boolean\>   | 是否为脏状态   |
+| dirtyFields | ComputedRef\<string[]\>  | 脏字段列表     |
 | markClean   | `() => void            ` | 标记为干净     |
 | reset       | `() => void            ` | 重置为初始状态 |
 | getChanges  | `() => Partial\<T\>    ` | 获取更改       |
 
 ### useSnapshot
 
-| 返回值           | 类型                   | 说明           |
-| ---------------- | ---------------------- | -------------- |
-| state            | Ref\<T\>               | 当前值         |
-| snapshotIndex    | Ref\<number\>          | 当前快照索引   |
-| snapshotCount    | ComputedRef\<number\>  | 快照数量       |
-| takeSnapshot     | `() => void            ` | 创建快照       |
-| restoreSnapshot  | `(index: number) => void` | 恢复到快照    |
-| restorePrevious  | `() => void            ` | 恢复到上一个   |
-| clearSnapshots   | `() => void            ` | 清除所有快照   |
-| getSnapshots     | `() => T[]             ` | 获取所有快照   |
+| 返回值          | 类型                      | 说明         |
+| --------------- | ------------------------- | ------------ |
+| state           | Ref\<T\>                  | 当前值       |
+| snapshotIndex   | Ref\<number\>             | 当前快照索引 |
+| snapshotCount   | ComputedRef\<number\>     | 快照数量     |
+| takeSnapshot    | `() => void            `  | 创建快照     |
+| restoreSnapshot | `(index: number) => void` | 恢复到快照   |
+| restorePrevious | `() => void            `  | 恢复到上一个 |
+| clearSnapshots  | `() => void            `  | 清除所有快照 |
+| getSnapshots    | `() => T[]             `  | 获取所有快照 |
 
 ## 代码位置
 

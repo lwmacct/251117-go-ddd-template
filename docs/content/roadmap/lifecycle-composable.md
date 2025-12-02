@@ -1,5 +1,38 @@
 # Lifecycle Composable
 
+<!--TOC-->
+
+- [需求背景](#需求背景) `:40:43`
+- [已实现功能](#已实现功能) `:44:45`
+  - [挂载状态](#挂载状态) `:46:52`
+  - [生命周期包装](#生命周期包装) `:53:59`
+  - [延迟执行](#延迟执行) `:60:65`
+  - [条件与控制](#条件与控制) `:66:71`
+  - [追踪与调试](#追踪与调试) `:72:78`
+  - [工具函数](#工具函数) `:79:86`
+- [使用方式](#使用方式) `:87:88`
+  - [安全的异步操作](#安全的异步操作) `:89:109`
+  - [完整挂载状态](#完整挂载状态) `:110:121`
+  - [带清理的挂载](#带清理的挂载) `:122:138`
+  - [异步等待挂载](#异步等待挂载) `:139:152`
+  - [延迟执行](#延迟执行-1) `:153:173`
+  - [条件挂载](#条件挂载) `:174:196`
+  - [生命周期追踪](#生命周期追踪) `:197:215`
+  - [清理函数管理](#清理函数管理) `:216:241`
+  - [渲染计数](#渲染计数) `:242:252`
+  - [错误捕获](#错误捕获) `:253:271`
+  - [keep-alive 支持](#keep-alive-支持) `:272:297`
+  - [组件存活时间](#组件存活时间) `:298:308`
+  - [组合生命周期钩子](#组合生命周期钩子) `:309:333`
+- [API](#api) `:334:335`
+  - [useMountedState](#usemountedstate) `:336:343`
+  - [useLifecycleTracker](#uselifecycletracker) `:344:356`
+  - [useAsyncMounted](#useasyncmounted) `:357:363`
+  - [useErrorCapture](#useerrorcapture) `:364:370`
+- [代码位置](#代码位置) `:371:377`
+
+<!--TOC-->
+
 > **状态**: ✅ 已完成
 > **优先级**: 中
 > **完成日期**: 2024-11-30
@@ -56,22 +89,22 @@
 ### 安全的异步操作
 
 ```typescript
-import { useSafeMounted } from '@/composables/useLifecycle'
+import { useSafeMounted } from "@/composables/useLifecycle";
 
-const data = ref(null)
-const isMounted = useSafeMounted()
+const data = ref(null);
+const isMounted = useSafeMounted();
 
 async function loadData() {
-  const result = await api.fetchData()
+  const result = await api.fetchData();
 
   // 检查组件是否仍然挂载
-  if (!isMounted.value) return
+  if (!isMounted.value) return;
 
   // 安全更新状态
-  data.value = result
+  data.value = result;
 }
 
-onMounted(loadData)
+onMounted(loadData);
 ```
 
 ### 完整挂载状态
@@ -89,90 +122,90 @@ const { isMounted, isMounting, isUnmounted } = useMountedState()
 ### 带清理的挂载
 
 ```typescript
-import { useMounted } from '@/composables/useLifecycle'
+import { useMounted } from "@/composables/useLifecycle";
 
 useMounted(() => {
   // 设置事件监听
-  const handler = (e) => console.log(e)
-  window.addEventListener('resize', handler)
+  const handler = (e) => console.log(e);
+  window.addEventListener("resize", handler);
 
   // 返回清理函数，会在卸载时自动调用
   return () => {
-    window.removeEventListener('resize', handler)
-  }
-})
+    window.removeEventListener("resize", handler);
+  };
+});
 ```
 
 ### 异步等待挂载
 
 ```typescript
-import { useAsyncMounted } from '@/composables/useLifecycle'
+import { useAsyncMounted } from "@/composables/useLifecycle";
 
 async function setup() {
   // 等待组件挂载完成
-  await useAsyncMounted({ timeout: 5000 })
+  await useAsyncMounted({ timeout: 5000 });
 
   // 此时 DOM 已准备就绪
-  initializeChart()
+  initializeChart();
 }
 ```
 
 ### 延迟执行
 
 ```typescript
-import { useMountedDelay, useMountedNextFrame, useMountedNextTick } from '@/composables/useLifecycle'
+import { useMountedDelay, useMountedNextFrame, useMountedNextTick } from "@/composables/useLifecycle";
 
 // 延迟 500ms 执行
 useMountedDelay(() => {
-  showWelcomeMessage()
-}, 500)
+  showWelcomeMessage();
+}, 500);
 
 // 下一帧执行（适合 DOM 测量）
 useMountedNextFrame(() => {
-  measureElementSize()
-})
+  measureElementSize();
+});
 
 // 下一个 Vue tick 执行
 useMountedNextTick(() => {
-  scrollToBottom()
-})
+  scrollToBottom();
+});
 ```
 
 ### 条件挂载
 
 ```typescript
-import { useMountedWhen } from '@/composables/useLifecycle'
+import { useMountedWhen } from "@/composables/useLifecycle";
 
-const isReady = ref(false)
+const isReady = ref(false);
 
 useMountedWhen(isReady, () => {
-  console.log('条件满足且已挂载')
-  initializeFeature()
+  console.log("条件满足且已挂载");
+  initializeFeature();
 
   return () => {
-    cleanupFeature()
-  }
-})
+    cleanupFeature();
+  };
+});
 
 // 稍后设置为 true 触发回调
 onMounted(async () => {
-  await loadDependencies()
-  isReady.value = true
-})
+  await loadDependencies();
+  isReady.value = true;
+});
 ```
 
 ### 生命周期追踪
 
 ```typescript
-import { useLifecycleTracker } from '@/composables/useLifecycle'
+import { useLifecycleTracker } from "@/composables/useLifecycle";
 
 const { history, currentPhase, isActive } = useLifecycleTracker({
   log: import.meta.env.DEV, // 开发环境输出日志
-  prefix: 'UserProfile'
-})
+  prefix: "UserProfile",
+});
 
 // 查看历史
-console.log(history.value)
+console.log(history.value);
 // [
 //   { event: 'beforeMount', timestamp: 1699999000000 },
 //   { event: 'mounted', timestamp: 1699999000010 },
@@ -183,26 +216,26 @@ console.log(history.value)
 ### 清理函数管理
 
 ```typescript
-import { useCleanup } from '@/composables/useLifecycle'
+import { useCleanup } from "@/composables/useLifecycle";
 
-const { onCleanup, cleanup } = useCleanup()
+const { onCleanup, cleanup } = useCleanup();
 
 onMounted(() => {
-  const timer1 = setInterval(() => {}, 1000)
-  const timer2 = setTimeout(() => {}, 5000)
-  const subscription = observable.subscribe()
+  const timer1 = setInterval(() => {}, 1000);
+  const timer2 = setTimeout(() => {}, 5000);
+  const subscription = observable.subscribe();
 
   // 注册多个清理函数
-  onCleanup(() => clearInterval(timer1))
-  onCleanup(() => clearTimeout(timer2))
-  onCleanup(() => subscription.unsubscribe())
+  onCleanup(() => clearInterval(timer1));
+  onCleanup(() => clearTimeout(timer2));
+  onCleanup(() => subscription.unsubscribe());
 
   // 所有清理函数会在卸载时自动执行
-})
+});
 
 // 也可以手动触发清理
 function handleReset() {
-  cleanup()
+  cleanup();
 }
 ```
 
@@ -239,27 +272,27 @@ const { error, clearError } = useErrorCapture((err, instance, info) => {
 ### keep-alive 支持
 
 ```typescript
-import { useMountedOrActivated, useComponentVisible } from '@/composables/useLifecycle'
+import { useMountedOrActivated, useComponentVisible } from "@/composables/useLifecycle";
 
 // 每次显示时刷新数据
 useMountedOrActivated(() => {
-  refreshData()
+  refreshData();
 
   return () => {
-    cancelRequests()
-  }
-})
+    cancelRequests();
+  };
+});
 
 // 追踪可见状态
-const isVisible = useComponentVisible()
+const isVisible = useComponentVisible();
 
 watch(isVisible, (visible) => {
   if (visible) {
-    startPolling()
+    startPolling();
   } else {
-    stopPolling()
+    stopPolling();
   }
-})
+});
 ```
 
 ### 组件存活时间
@@ -276,64 +309,64 @@ const { aliveTime, mountedAt } = useComponentAliveTime()
 ### 组合生命周期钩子
 
 ```typescript
-import { useLifecycle } from '@/composables/useLifecycle'
+import { useLifecycle } from "@/composables/useLifecycle";
 
 useLifecycle({
   onMounted: () => {
-    console.log('挂载完成')
-    initData()
+    console.log("挂载完成");
+    initData();
   },
   onUnmounted: () => {
-    console.log('即将卸载')
-    cleanup()
+    console.log("即将卸载");
+    cleanup();
   },
   onActivated: () => {
-    console.log('激活')
-    refresh()
+    console.log("激活");
+    refresh();
   },
   onDeactivated: () => {
-    console.log('停用')
-    pause()
-  }
-})
+    console.log("停用");
+    pause();
+  },
+});
 ```
 
 ## API
 
 ### useMountedState
 
-| 返回值 | 类型 | 说明 |
-|--------|------|------|
-| isMounted | Ref\<boolean\> | 是否已挂载 |
-| isMounting | Ref\<boolean\> | 是否正在挂载 |
-| isUnmounted | Ref\<boolean\> | 是否已卸载 |
+| 返回值      | 类型           | 说明         |
+| ----------- | -------------- | ------------ |
+| isMounted   | Ref\<boolean\> | 是否已挂载   |
+| isMounting  | Ref\<boolean\> | 是否正在挂载 |
+| isUnmounted | Ref\<boolean\> | 是否已卸载   |
 
 ### useLifecycleTracker
 
-| 选项 | 类型 | 默认值 | 说明 |
-|------|------|--------|------|
-| log | boolean | false | 是否输出日志 |
-| prefix | string | 'Component' | 日志前缀 |
+| 选项   | 类型    | 默认值      | 说明         |
+| ------ | ------- | ----------- | ------------ |
+| log    | boolean | false       | 是否输出日志 |
+| prefix | string  | 'Component' | 日志前缀     |
 
-| 返回值 | 类型 | 说明 |
-|--------|------|------|
-| history | Ref\<Array\> | 事件历史 |
-| currentPhase | Ref\<string\> | 当前阶段 |
-| isActive | Ref\<boolean\> | 是否活跃 |
+| 返回值       | 类型           | 说明     |
+| ------------ | -------------- | -------- |
+| history      | Ref\<Array\>   | 事件历史 |
+| currentPhase | Ref\<string\>  | 当前阶段 |
+| isActive     | Ref\<boolean\> | 是否活跃 |
 
 ### useAsyncMounted
 
-| 选项 | 类型 | 默认值 | 说明 |
-|------|------|--------|------|
-| timeout | number | - | 超时时间 |
-| onTimeout | Function | - | 超时回调 |
+| 选项      | 类型     | 默认值 | 说明     |
+| --------- | -------- | ------ | -------- |
+| timeout   | number   | -      | 超时时间 |
+| onTimeout | Function | -      | 超时回调 |
 
 ### useErrorCapture
 
-| 返回值 | 类型 | 说明 |
-|--------|------|------|
-| error | Ref\<Error \| null\> | 捕获的错误 |
-| clearError | `() => void` | 清除错误 |
+| 返回值     | 类型                 | 说明       |
+| ---------- | -------------------- | ---------- |
+| error      | Ref\<Error \| null\> | 捕获的错误 |
+| clearError | `() => void`         | 清除错误   |
 
 ## 代码位置
 

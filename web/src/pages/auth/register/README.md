@@ -1,6 +1,31 @@
 # Register 页面架构说明
 
-## 📁 目录结构
+<!--TOC-->
+
+- [目录结构](#目录结构) `:28:40`
+- [页面职责](#页面职责) `:41:46`
+- [🎨 布局设计](#布局设计) `:47:68`
+  - [注册表单组件 (RegisterForm.vue)](#注册表单组件-registerformvue) `:69:81`
+  - [邮箱验证表单组件 (VerifyEmailForm.vue)](#邮箱验证表单组件-verifyemailformvue) `:82:91`
+- [🔐 安全特性](#安全特性) `:92:105`
+- [📋 类型定义 (types.ts)](#类型定义-typests) `:106:138`
+- [状态管理 (composables/useRegister.ts)](#状态管理-composablesuseregisterts) `:139:164`
+  - [使用方式](#使用方式) `:165:174`
+- [🔄 数据流](#数据流) `:175:212`
+- [🎨 UI 组件架构](#ui-组件架构) `:213:214`
+  - [注册表单组件 (RegisterForm.vue)](#注册表单组件-registerformvue-1) `:215:234`
+  - [邮箱验证表单组件 (VerifyEmailForm.vue)](#邮箱验证表单组件-verifyemailformvue-1) `:235:244`
+- [🔄 表单验证](#表单验证) `:245:246`
+  - [实时验证](#实时验证) `:247:254`
+  - [错误提示](#错误提示) `:255:260`
+- [使用流程](#使用流程) `:261:262`
+  - [注册流程](#注册流程) `:263:272`
+  - [独立访问验证 (从邮件链接)](#独立访问验证-从邮件链接) `:273:279`
+- [注意事项](#注意事项) `:280:285`
+
+<!--TOC-->
+
+## 目录结构
 
 ```mermaid
 graph TD
@@ -13,7 +38,7 @@ graph TD
     E --> H[VerifyEmailForm.vue]
 ```
 
-## 🎯 页面职责
+## 页面职责
 
 提供用户注册功能，采用简洁的居中布局设计 (风格与登录页面一致)
 
@@ -111,7 +136,7 @@ classDiagram
     }
 ```
 
-## 📦 状态管理 (composables/useRegister.ts)
+## 状态管理 (composables/useRegister.ts)
 
 页面级状态管理，使用 Composition API 实现，不依赖 Pinia。
 
@@ -233,7 +258,7 @@ sequenceDiagram
 - 5 秒后自动消失
 - 可手动关闭
 
-## 🚀 使用流程
+## 使用流程
 
 ### 注册流程
 
@@ -252,7 +277,7 @@ sequenceDiagram
 3. 如果 URL 中有验证码，自动填充并验证
 4. 验证成功后跳转登录页
 
-## 📝 注意事项
+## 注意事项
 
 - 邮箱验证已合并到 Register 页面，不再需要独立路由 `/auth/verify-email`
 - 支持从邮件链接直接访问验证 (通过 query 参数)

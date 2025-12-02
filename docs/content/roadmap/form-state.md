@@ -1,5 +1,23 @@
 # 表单状态 Composable
 
+<!--TOC-->
+
+- [需求背景](#需求背景) `:25:28`
+- [已实现功能](#已实现功能) `:29:30`
+  - [useForm](#useform) `:31:39`
+  - [useFormDirtyGuard](#useformdirtyguard) `:40:45`
+  - [useFieldArray](#usefieldarray) `:46:51`
+- [使用方式](#使用方式) `:52:53`
+  - [基础用法](#基础用法) `:54:81`
+  - [与 Vuetify 结合](#与-vuetify-结合) `:82:94`
+  - [脏状态保护](#脏状态保护) `:95:107`
+  - [动态字段](#动态字段) `:108:131`
+- [API](#api) `:132:133`
+  - [useForm 返回值](#useform-返回值) `:134:149`
+- [代码位置](#代码位置) `:150:156`
+
+<!--TOC-->
+
 > **状态**: ✅ 已完成
 > **优先级**: 高
 > **完成日期**: 2024-11-30
@@ -66,21 +84,9 @@ const form = useForm({
 ```vue
 <template>
   <v-form @submit.prevent="form.submit">
-    <v-text-field
-      label="名称"
-      v-bind="form.getFieldProps('name')"
-    />
-    <v-text-field
-      label="邮箱"
-      v-bind="form.getFieldProps('email')"
-    />
-    <v-btn
-      type="submit"
-      :loading="form.isSubmitting"
-      :disabled="!form.isDirty || !form.isValid"
-    >
-      提交
-    </v-btn>
+    <v-text-field label="名称" v-bind="form.getFieldProps('name')" />
+    <v-text-field label="邮箱" v-bind="form.getFieldProps('email')" />
+    <v-btn type="submit" :loading="form.isSubmitting" :disabled="!form.isDirty || !form.isValid"> 提交 </v-btn>
     <v-btn @click="form.reset()">重置</v-btn>
   </v-form>
 </template>
@@ -127,19 +133,19 @@ remove(0);
 
 ### useForm 返回值
 
-| 属性 | 类型 | 说明 |
-|------|------|------|
-| values | T | 表单值 |
-| errors | Record | 错误信息 |
-| touched | Record | 触摸状态 |
-| isDirty | `Ref<boolean>` | 是否已修改 |
-| isValid | `Ref<boolean>` | 是否有效 |
-| isSubmitting | `Ref<boolean>` | 是否提交中 |
-| setFieldValue | Function | 设置字段值 |
-| setFieldError | Function | 设置字段错误 |
-| reset | Function | 重置表单 |
-| submit | Function | 提交表单 |
-| getFieldProps | Function | 获取字段属性 |
+| 属性          | 类型           | 说明         |
+| ------------- | -------------- | ------------ |
+| values        | T              | 表单值       |
+| errors        | Record         | 错误信息     |
+| touched       | Record         | 触摸状态     |
+| isDirty       | `Ref<boolean>` | 是否已修改   |
+| isValid       | `Ref<boolean>` | 是否有效     |
+| isSubmitting  | `Ref<boolean>` | 是否提交中   |
+| setFieldValue | Function       | 设置字段值   |
+| setFieldError | Function       | 设置字段错误 |
+| reset         | Function       | 重置表单     |
+| submit        | Function       | 提交表单     |
+| getFieldProps | Function       | 获取字段属性 |
 
 ## 代码位置
 

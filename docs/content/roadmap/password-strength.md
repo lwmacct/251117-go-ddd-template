@@ -1,5 +1,20 @@
 # 密码强度指示器
 
+<!--TOC-->
+
+- [需求背景](#需求背景) `:22:25`
+- [已实现功能](#已实现功能) `:26:27`
+  - [可视化强度指示](#可视化强度指示) `:28:33`
+  - [密码要求检查清单](#密码要求检查清单) `:34:41`
+  - [集成位置](#集成位置) `:42:49`
+- [技术实现](#技术实现) `:50:51`
+  - [组件接口](#组件接口) `:52:60`
+  - [Props](#props) `:61:67`
+  - [代码位置](#代码位置) `:68:81`
+- [强度算法](#强度算法) `:82:98`
+
+<!--TOC-->
+
 > **状态**: ✅ 已完成
 > **优先级**: 中
 > **完成日期**: 2024-11-30
@@ -45,10 +60,10 @@
 
 ### Props
 
-| 属性 | 类型 | 默认值 | 说明 |
-|------|------|--------|------|
-| password | string | 必填 | 要检测的密码 |
-| showHints | boolean | true | 是否显示要求清单 |
+| 属性      | 类型    | 默认值 | 说明             |
+| --------- | ------- | ------ | ---------------- |
+| password  | string  | 必填   | 要检测的密码     |
+| showHints | boolean | true   | 是否显示要求清单 |
 
 ### 代码位置
 
@@ -70,11 +85,11 @@ web/src/
 function checkPasswordStrength(password: string): "weak" | "medium" | "strong" {
   let strength = 0;
 
-  if (/[a-z]/.test(password)) strength++;  // 小写字母
-  if (/[A-Z]/.test(password)) strength++;  // 大写字母
-  if (/\d/.test(password)) strength++;     // 数字
-  if (/[^a-zA-Z0-9]/.test(password)) strength++;  // 特殊字符
-  if (password.length >= 8) strength++;    // 长度
+  if (/[a-z]/.test(password)) strength++; // 小写字母
+  if (/[A-Z]/.test(password)) strength++; // 大写字母
+  if (/\d/.test(password)) strength++; // 数字
+  if (/[^a-zA-Z0-9]/.test(password)) strength++; // 特殊字符
+  if (password.length >= 8) strength++; // 长度
 
   if (strength <= 2) return "weak";
   if (strength <= 3) return "medium";

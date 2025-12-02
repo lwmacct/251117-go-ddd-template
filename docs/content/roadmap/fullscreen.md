@@ -1,5 +1,22 @@
 # 全屏 API Composable
 
+<!--TOC-->
+
+- [需求背景](#需求背景) `:24:27`
+- [已实现功能](#已实现功能) `:28:29`
+  - [useFullscreen](#usefullscreen) `:30:37`
+  - [useDocumentFullscreen](#usedocumentfullscreen) `:38:41`
+  - [useFullscreenButton](#usefullscreenbutton) `:42:46`
+- [使用方式](#使用方式) `:47:48`
+  - [元素全屏](#元素全屏) `:49:69`
+  - [文档全屏](#文档全屏) `:70:77`
+  - [全屏按钮](#全屏按钮) `:78:93`
+- [API](#api) `:94:95`
+  - [useFullscreen 返回值](#usefullscreen-返回值) `:96:106`
+- [代码位置](#代码位置) `:107:113`
+
+<!--TOC-->
+
 > **状态**: ✅ 已完成
 > **优先级**: 低
 > **完成日期**: 2024-11-30
@@ -44,7 +61,7 @@ const { isFullscreen, toggle, enter, exit } = useFullscreen(videoRef);
   <div>
     <video ref="videoRef" src="video.mp4" />
     <v-btn @click="toggle">
-      {{ isFullscreen ? '退出全屏' : '全屏播放' }}
+      {{ isFullscreen ? "退出全屏" : "全屏播放" }}
     </v-btn>
   </div>
 </template>
@@ -68,11 +85,7 @@ const { icon, tooltip, toggle, isSupported } = useFullscreenButton();
 
 ```vue
 <template>
-  <v-btn
-    v-if="isSupported"
-    :icon="icon"
-    @click="toggle"
-  >
+  <v-btn v-if="isSupported" :icon="icon" @click="toggle">
     <v-tooltip activator="parent">{{ tooltip }}</v-tooltip>
   </v-btn>
 </template>
@@ -82,14 +95,14 @@ const { icon, tooltip, toggle, isSupported } = useFullscreenButton();
 
 ### useFullscreen 返回值
 
-| 属性 | 类型 | 说明 |
-|------|------|------|
-| isFullscreen | `Ref<boolean>` | 是否全屏 |
-| isSupported | `Ref<boolean>` | 是否支持全屏 |
-| fullscreenElement | Ref<Element \| null> | 当前全屏元素 |
-| enter | `() => Promise<void>` | 进入全屏 |
-| exit | `() => Promise<void>` | 退出全屏 |
-| toggle | `() => Promise<void>` | 切换全屏 |
+| 属性              | 类型                  | 说明         |
+| ----------------- | --------------------- | ------------ |
+| isFullscreen      | `Ref<boolean>`        | 是否全屏     |
+| isSupported       | `Ref<boolean>`        | 是否支持全屏 |
+| fullscreenElement | Ref<Element \| null>  | 当前全屏元素 |
+| enter             | `() => Promise<void>` | 进入全屏     |
+| exit              | `() => Promise<void>` | 退出全屏     |
+| toggle            | `() => Promise<void>` | 切换全屏     |
 
 ## 代码位置
 

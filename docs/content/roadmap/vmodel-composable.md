@@ -1,5 +1,31 @@
 # VModel Composable
 
+<!--TOC-->
+
+- [需求背景](#需求背景) `:33:36`
+- [已实现功能](#已实现功能) `:37:38`
+  - [v-model 处理](#v-model-处理) `:39:46`
+  - [高级功能](#高级功能) `:47:53`
+- [使用方式](#使用方式) `:54:55`
+  - [基础 v-model](#基础-v-model) `:56:76`
+  - [多个 v-model](#多个-v-model) `:77:92`
+  - [代理模式（表单编辑）](#代理模式表单编辑) `:93:117`
+  - [受控/非受控组件](#受控非受控组件) `:118:136`
+  - [防抖 v-model](#防抖-v-model) `:137:149`
+  - [节流 v-model](#节流-v-model) `:150:162`
+  - [切换值](#切换值) `:163:176`
+  - [循环列表](#循环列表) `:177:192`
+- [API](#api) `:193:194`
+  - [useVModel](#usevmodel) `:195:204`
+  - [useProxyModel](#useproxymodel) `:205:213`
+  - [useControlled](#usecontrolled) `:214:226`
+  - [useDebouncedVModel / useThrottledVModel](#usedebouncedvmodel-usethrottledvmodel) `:227:233`
+  - [useToggle](#usetoggle) `:234:242`
+  - [useCycleList](#usecyclelist) `:243:252`
+- [代码位置](#代码位置) `:253:259`
+
+<!--TOC-->
+
 > **状态**: ✅ 已完成
 > **优先级**: 中
 > **完成日期**: 2024-11-30
@@ -67,30 +93,26 @@ const { firstName, lastName } = useVModels(props, emit)
 ### 代理模式（表单编辑）
 
 ```typescript
-const props = defineProps<{ modelValue: User }>()
-const emit = defineEmits<{ 'update:modelValue': [value: User] }>()
+const props = defineProps<{ modelValue: User }>();
+const emit = defineEmits<{ "update:modelValue": [value: User] }>();
 
-const { proxy, isModified, sync, reset } = useProxyModel(
-  props,
-  'modelValue',
-  emit
-)
+const { proxy, isModified, sync, reset } = useProxyModel(props, "modelValue", emit);
 
 // 本地修改不会立即触发更新
-proxy.value.name = 'Jane'
-proxy.value.email = 'jane@example.com'
+proxy.value.name = "Jane";
+proxy.value.email = "jane@example.com";
 
-console.log(isModified.value) // true
+console.log(isModified.value); // true
 
 // 保存时同步
 const handleSave = () => {
-  sync() // 触发 update:modelValue
-}
+  sync(); // 触发 update:modelValue
+};
 
 // 取消时重置
 const handleCancel = () => {
-  reset() // 恢复原值
-}
+  reset(); // 恢复原值
+};
 ```
 
 ### 受控/非受控组件
@@ -101,31 +123,26 @@ const handleCancel = () => {
 // 非受控: <MyInput :defaultValue="initialValue" />
 
 const props = defineProps<{
-  modelValue?: string
-  defaultValue?: string
-}>()
-const emit = defineEmits<{ 'update:modelValue': [value: string] }>()
+  modelValue?: string;
+  defaultValue?: string;
+}>();
+const emit = defineEmits<{ "update:modelValue": [value: string] }>();
 
-const { value, isControlled, setValue } = useControlled(
-  props,
-  'modelValue',
-  emit,
-  { defaultValue: props.defaultValue || '' }
-)
+const { value, isControlled, setValue } = useControlled(props, "modelValue", emit, { defaultValue: props.defaultValue || "" });
 
 // 无论哪种模式，都使用相同的 API
-setValue('new value')
+setValue("new value");
 ```
 
 ### 防抖 v-model
 
 ```typescript
-const props = defineProps<{ modelValue: string }>()
-const emit = defineEmits<{ 'update:modelValue': [value: string] }>()
+const props = defineProps<{ modelValue: string }>();
+const emit = defineEmits<{ "update:modelValue": [value: string] }>();
 
-const model = useDebouncedVModel(props, 'modelValue', emit, {
+const model = useDebouncedVModel(props, "modelValue", emit, {
   debounce: 300, // 300ms 防抖
-})
+});
 
 // 输入时会防抖触发更新
 ```
@@ -133,12 +150,12 @@ const model = useDebouncedVModel(props, 'modelValue', emit, {
 ### 节流 v-model
 
 ```typescript
-const props = defineProps<{ modelValue: number }>()
-const emit = defineEmits<{ 'update:modelValue': [value: number] }>()
+const props = defineProps<{ modelValue: number }>();
+const emit = defineEmits<{ "update:modelValue": [value: number] }>();
 
-const model = useThrottledVModel(props, 'modelValue', emit, {
+const model = useThrottledVModel(props, "modelValue", emit, {
   throttle: 100, // 100ms 节流
-})
+});
 
 // 频繁更新时会节流
 ```
@@ -146,91 +163,91 @@ const model = useThrottledVModel(props, 'modelValue', emit, {
 ### 切换值
 
 ```typescript
-import { useToggle } from '@/composables/useVModel'
+import { useToggle } from "@/composables/useVModel";
 
-const { value, toggle, setTrue, setFalse } = useToggle(false)
+const { value, toggle, setTrue, setFalse } = useToggle(false);
 
-toggle()    // true
-toggle()    // false
-setTrue()   // true
-setFalse()  // false
-toggle(true) // 强制设置为 true
+toggle(); // true
+toggle(); // false
+setTrue(); // true
+setFalse(); // false
+toggle(true); // 强制设置为 true
 ```
 
 ### 循环列表
 
 ```typescript
-import { useCycleList } from '@/composables/useVModel'
+import { useCycleList } from "@/composables/useVModel";
 
-const themes = ['light', 'dark', 'auto']
-const { value, next, prev, go, index } = useCycleList(themes)
+const themes = ["light", "dark", "auto"];
+const { value, next, prev, go, index } = useCycleList(themes);
 
-console.log(value.value) // 'light'
-next()                    // 'dark'
-next()                    // 'auto'
-next()                    // 'light' (循环)
-prev()                    // 'auto'
-go(1)                     // 'dark'
+console.log(value.value); // 'light'
+next(); // 'dark'
+next(); // 'auto'
+next(); // 'light' (循环)
+prev(); // 'auto'
+go(1); // 'dark'
 ```
 
 ## API
 
 ### useVModel
 
-| 选项         | 类型              | 默认值 | 说明           |
-| ------------ | ----------------- | ------ | -------------- |
-| deep         | boolean           | false  | 是否深度监听   |
-| defaultValue | T                 | -      | 默认值         |
-| onChange     | `(value: T) => void` | -     | 值变化回调     |
-| passive      | boolean           | false  | 被动模式       |
-| clone        | `(value: T) => T  ` | -      | 自定义克隆函数 |
+| 选项         | 类型                 | 默认值 | 说明           |
+| ------------ | -------------------- | ------ | -------------- |
+| deep         | boolean              | false  | 是否深度监听   |
+| defaultValue | T                    | -      | 默认值         |
+| onChange     | `(value: T) => void` | -      | 值变化回调     |
+| passive      | boolean              | false  | 被动模式       |
+| clone        | `(value: T) => T  `  | -      | 自定义克隆函数 |
 
 ### useProxyModel
 
-| 返回值     | 类型           | 说明           |
-| ---------- | -------------- | -------------- |
-| proxy      | Ref\<T\>       | 代理值         |
-| isModified | Ref\<boolean\> | 是否已修改     |
-| sync       | `() => void    ` | 同步到源值     |
-| reset      | `() => void    ` | 重置为源值     |
+| 返回值     | 类型             | 说明       |
+| ---------- | ---------------- | ---------- |
+| proxy      | Ref\<T\>         | 代理值     |
+| isModified | Ref\<boolean\>   | 是否已修改 |
+| sync       | `() => void    ` | 同步到源值 |
+| reset      | `() => void    ` | 重置为源值 |
 
 ### useControlled
 
-| 选项         | 类型               | 说明         |
-| ------------ | ------------------ | ------------ |
-| defaultValue | T                  | 默认值       |
-| onChange     | `(value: T) => void` | 值变化回调   |
+| 选项         | 类型                 | 说明       |
+| ------------ | -------------------- | ---------- |
+| defaultValue | T                    | 默认值     |
+| onChange     | `(value: T) => void` | 值变化回调 |
 
-| 返回值       | 类型           | 说明           |
-| ------------ | -------------- | -------------- |
-| value        | Ref\<T\>       | 当前值         |
-| isControlled | boolean        | 是否受控       |
-| setValue     | `(value: T) => void` | 设置值     |
+| 返回值       | 类型                 | 说明     |
+| ------------ | -------------------- | -------- |
+| value        | Ref\<T\>             | 当前值   |
+| isControlled | boolean              | 是否受控 |
+| setValue     | `(value: T) => void` | 设置值   |
 
 ### useDebouncedVModel / useThrottledVModel
 
-| 选项     | 类型   | 默认值 | 说明               |
-| -------- | ------ | ------ | ------------------ |
-| debounce | number | 300    | 防抖延迟（毫秒）   |
-| throttle | number | 100    | 节流间隔（毫秒）   |
+| 选项     | 类型   | 默认值 | 说明             |
+| -------- | ------ | ------ | ---------------- |
+| debounce | number | 300    | 防抖延迟（毫秒） |
+| throttle | number | 100    | 节流间隔（毫秒） |
 
 ### useToggle
 
-| 返回值   | 类型                      | 说明       |
-| -------- | ------------------------- | ---------- |
-| value    | Ref\<boolean\>            | 当前值     |
-| toggle   | `(value?: boolean) => void` | 切换       |
-| setTrue  | `() => void               ` | 设置为真   |
-| setFalse | `() => void               ` | 设置为假   |
+| 返回值   | 类型                        | 说明     |
+| -------- | --------------------------- | -------- |
+| value    | Ref\<boolean\>              | 当前值   |
+| toggle   | `(value?: boolean) => void` | 切换     |
+| setTrue  | `() => void               ` | 设置为真 |
+| setFalse | `() => void               ` | 设置为假 |
 
 ### useCycleList
 
-| 返回值 | 类型                   | 说明           |
-| ------ | ---------------------- | -------------- |
-| value  | Ref\<T\>               | 当前值         |
-| index  | Ref\<number\>          | 当前索引       |
-| next   | `() => void            ` | 下一个         |
-| prev   | `() => void            ` | 上一个         |
+| 返回值 | 类型                      | 说明           |
+| ------ | ------------------------- | -------------- |
+| value  | Ref\<T\>                  | 当前值         |
+| index  | Ref\<number\>             | 当前索引       |
+| next   | `() => void            `  | 下一个         |
+| prev   | `() => void            `  | 上一个         |
 | go     | `(index: number) => void` | 跳转到指定索引 |
 
 ## 代码位置

@@ -1,5 +1,24 @@
 # 异步状态 Composable
 
+<!--TOC-->
+
+- [需求背景](#需求背景) `:26:29`
+- [已实现功能](#已实现功能) `:30:31`
+  - [useAsyncState](#useasyncstate) `:32:38`
+  - [useAsyncRetry](#useasyncretry) `:39:44`
+  - [usePolling](#usepolling) `:45:50`
+  - [usePromiseQueue](#usepromisequeue) `:51:56`
+- [使用方式](#使用方式) `:57:58`
+  - [基础用法](#基础用法) `:59:76`
+  - [自动重试](#自动重试) `:77:88`
+  - [轮询](#轮询) `:89:105`
+  - [Promise 队列](#promise-队列) `:106:117`
+- [API](#api) `:118:119`
+  - [useAsyncState 返回值](#useasyncstate-返回值) `:120:132`
+- [代码位置](#代码位置) `:133:139`
+
+<!--TOC-->
+
 > **状态**: ✅ 已完成
 > **优先级**: 高
 > **完成日期**: 2024-11-30
@@ -42,10 +61,7 @@
 ```typescript
 import { useAsyncState } from "@/composables/useAsync";
 
-const { data, isLoading, error, execute } = useAsyncState(
-  (id: number) => api.getUser(id),
-  { initialData: null }
-);
+const { data, isLoading, error, execute } = useAsyncState((id: number) => api.getUser(id), { initialData: null });
 
 // 执行请求
 await execute(1);
@@ -63,14 +79,11 @@ await execute(1);
 ```typescript
 import { useAsyncRetry } from "@/composables/useAsync";
 
-const { data, execute, retryCount } = useAsyncRetry(
-  () => fetchUnstableApi(),
-  {
-    maxRetries: 3,
-    retryDelay: 1000,
-    retryDelayFactor: 2  // 指数退避
-  }
-);
+const { data, execute, retryCount } = useAsyncRetry(() => fetchUnstableApi(), {
+  maxRetries: 3,
+  retryDelay: 1000,
+  retryDelayFactor: 2, // 指数退避
+});
 ```
 
 ### 轮询
@@ -78,13 +91,10 @@ const { data, execute, retryCount } = useAsyncRetry(
 ```typescript
 import { usePolling } from "@/composables/useAsync";
 
-const { data, isPolling, start, stop } = usePolling(
-  () => fetchStatus(),
-  {
-    interval: 5000,
-    pauseOnHidden: true  // 页面不可见时暂停
-  }
-);
+const { data, isPolling, start, stop } = usePolling(() => fetchStatus(), {
+  interval: 5000,
+  pauseOnHidden: true, // 页面不可见时暂停
+});
 
 // 开始轮询
 start();
@@ -109,16 +119,16 @@ await queue.add(() => fastRequest());
 
 ### useAsyncState 返回值
 
-| 属性 | 类型 | 说明 |
-|------|------|------|
-| data | `Ref<T>` | 数据 |
-| isLoading | `Ref<boolean>` | 是否加载中 |
-| isFinished | `Ref<boolean>` | 是否已完成 |
-| isSuccess | `Ref<boolean>` | 是否成功 |
-| error | Ref<Error \| null> | 错误信息 |
-| execute | Function | 执行函数 |
-| reset | Function | 重置状态 |
-| state | ComputedRef | 状态: idle/loading/success/error |
+| 属性       | 类型               | 说明                             |
+| ---------- | ------------------ | -------------------------------- |
+| data       | `Ref<T>`           | 数据                             |
+| isLoading  | `Ref<boolean>`     | 是否加载中                       |
+| isFinished | `Ref<boolean>`     | 是否已完成                       |
+| isSuccess  | `Ref<boolean>`     | 是否成功                         |
+| error      | Ref<Error \| null> | 错误信息                         |
+| execute    | Function           | 执行函数                         |
+| reset      | Function           | 重置状态                         |
+| state      | ComputedRef        | 状态: idle/loading/success/error |
 
 ## 代码位置
 

@@ -1,8 +1,48 @@
 # 架构迁移指南
 
+<!--TOC-->
+
+- [重构概览](#重构概览) `:45:46`
+  - [解决的核心问题](#解决的核心问题) `:47:53`
+  - [迁移成果](#迁移成果) `:54:64`
+- [迁移阶段](#迁移阶段) `:65:66`
+  - [阶段 1：创建 Application 层结构](#阶段-1创建-application-层结构) `:67:96`
+  - [阶段 2：重构 Domain 层](#阶段-2重构-domain-层) `:97:100`
+  - [阶段 3：实现 CQRS Repository](#阶段-3实现-cqrs-repository) `:193:196`
+  - [阶段 4：创建 Application Use Cases](#阶段-4创建-application-use-cases) `:273:276`
+  - [阶段 5：重构 Infrastructure Service](#阶段-5重构-infrastructure-service) `:408:411`
+  - [阶段 6：更新 Adapter 层](#阶段-6更新-adapter-层) `:464:467`
+  - [阶段 7：更新依赖注入容器](#阶段-7更新依赖注入容器) `:539:542`
+  - [阶段 8：完成核心模块 Application 层](#阶段-8完成核心模块-application-层) `:657:660`
+  - [阶段 9：编译验证](#阶段-9编译验证) `:827:855`
+- [完成模块清单](#完成模块清单) `:856:857`
+  - [核心业务模块 (Application 层 100% 完成)](#核心业务模块-application-层-100-完成) `:858:859`
+  - [已有模块 (Application 层已完成)](#已有模块-application-层已完成) `:1021:1022`
+  - [基础设施模块 (无需 Application 层)](#基础设施模块-无需-application-层) `:1037:1038`
+- [成果对比](#成果对比) `:1051:1064`
+- [最佳实践](#最佳实践) `:1065:1066`
+  - [Use Case 命名规范](#use-case-命名规范) `:1067:1072`
+  - [依赖注入原则](#依赖注入原则) `:1073:1078`
+  - [CQRS 适用场景](#cqrs-适用场景) `:1079:1086`
+- [后续优化建议](#后续优化建议) `:1087:1088`
+  - [1. 性能优化](#1-性能优化) `:1089:1119`
+  - [2. 搜索优化](#2-搜索优化) `:1120:1134`
+  - [3. 测试覆盖](#3-测试覆盖) `:1135:1171`
+- [迁移验证清单](#迁移验证清单) `:1172:1173`
+  - [每个模块迁移完成后检查](#每个模块迁移完成后检查) `:1174:1220`
+- [常见问题](#常见问题) `:1221:1222`
+  - [Q1: 所有模块是否都已完成迁移？](#q1-所有模块是否都已完成迁移) `:1223:1247`
+  - [Q2: Container 新旧代码已清理完成吗？](#q2-container-新旧代码已清理完成吗) `:1248:1274`
+  - [Q3: 如何处理现有的 Service？](#q3-如何处理现有的-service) `:1275:1297`
+  - [Q4: CQRS 是否所有模块都必须？](#q4-cqrs-是否所有模块都必须) `:1298:1324`
+  - [Q5: 如何为新功能添加 Use Case？](#q5-如何为新功能添加-use-case) `:1325:1363`
+- [相关文档](#相关文档) `:1364:1373`
+
+<!--TOC-->
+
 本文档记录了从遗留分层实现升级到 **DDD 四层架构 + CQRS 模式** 的完整过程。
 
-## 📊 重构概览
+## 重构概览
 
 ### 解决的核心问题
 
@@ -22,9 +62,9 @@
 
 ---
 
-## 🏗️ 迁移阶段
+## 迁移阶段
 
-### 阶段 1：创建 Application 层结构 ✅
+### 阶段 1：创建 Application 层结构
 
 **目标**: 建立应用层目录，定义 CQRS 结构
 
@@ -54,7 +94,7 @@ internal/application/
 
 ---
 
-### 阶段 2：重构 Domain 层 ✅
+### 阶段 2：重构 Domain 层
 
 **目标**: 拆分 Repository 为 CQRS，增强 Domain 模型
 
@@ -150,7 +190,7 @@ func (u *User) UpdateProfile(fullName, email string)
 
 ---
 
-### 阶段 3：实现 CQRS Repository ✅
+### 阶段 3：实现 CQRS Repository
 
 **目标**: 实现所有模块的 Command/Query Repository
 
@@ -230,7 +270,7 @@ func (r *userQueryRepository) ExistsByUsername(ctx context.Context, username str
 
 ---
 
-### 阶段 4：创建 Application Use Cases ✅
+### 阶段 4：创建 Application Use Cases
 
 **目标**: 实现核心业务用例
 
@@ -365,7 +405,7 @@ func (h *CreateUserHandler) Handle(ctx context.Context, cmd CreateUserCommand) (
 
 ---
 
-### 阶段 5：重构 Infrastructure Service ✅
+### 阶段 5：重构 Infrastructure Service
 
 **目标**: 实现 Domain Service，保留技术组件
 
@@ -421,7 +461,7 @@ func (s *AuthServiceImpl) VerifyPassword(ctx context.Context, hashedPassword, pa
 
 ---
 
-### 阶段 6：更新 Adapter 层 ✅
+### 阶段 6：更新 Adapter 层
 
 **目标**: 重构所有 HTTP Handler，依赖 Use Case Handler
 
@@ -496,7 +536,7 @@ func (h *AuthHandlerNew) Login(c *gin.Context) {
 
 ---
 
-### 阶段 7：更新依赖注入容器 ✅
+### 阶段 7：更新依赖注入容器
 
 **目标**: 统一依赖注入，使用 CQRS Repository
 
@@ -614,11 +654,11 @@ func NewContainer(cfg *config.Config, opts *ContainerOptions) (*Container, error
 
 ---
 
-### 阶段 8：完成核心模块 Application 层 ✅
+### 阶段 8：完成核心模块 Application 层
 
 **目标**: 实现 Role、Menu、Setting、PAT、AuditLog 五大模块的 Application 层
 
-#### Phase 1-3: Role、Menu、Setting 模块 ✅
+#### Phase 1-3: Role、Menu、Setting 模块
 
 **完成时间**: 2025-11-19
 
@@ -647,7 +687,7 @@ func NewContainer(cfg *config.Config, opts *ContainerOptions) (*Container, error
 - `internal/adapters/http/handler/setting.go` - 重构为 Use Case 模式
 - `internal/bootstrap/container.go` - 注册所有 Use Case Handlers
 
-#### Phase 4: PAT (Personal Access Token) 模块 ✅
+#### Phase 4: PAT (Personal Access Token) 模块
 
 **完成时间**: 2025-11-19
 
@@ -699,7 +739,7 @@ func (h *CreateTokenHandler) Handle(ctx context.Context, cmd CreateTokenCommand)
 - `internal/bootstrap/container.go` - 注册 PAT Use Case Handlers
 - `internal/adapters/http/router.go` - 使用新 PATHandler
 
-#### Phase 5: AuditLog 模块 ✅
+#### Phase 5: AuditLog 模块
 
 **完成时间**: 2025-11-19
 
@@ -756,7 +796,7 @@ func (h *ListLogsHandler) Handle(ctx context.Context, query ListLogsQuery) (*Lis
 - `internal/bootstrap/container.go` - 注册 AuditLog Query Handlers
 - `internal/adapters/http/router.go` - 添加 auditLogHandler 参数
 
-#### 最终统计数据 ✅
+#### 最终统计数据
 
 **Application 层新增文件**:
 
@@ -784,7 +824,7 @@ func (h *ListLogsHandler) Handle(ctx context.Context, query ListLogsQuery) (*Lis
 
 ---
 
-### 阶段 9：编译验证 ✅
+### 阶段 9：编译验证
 
 **验证步骤**:
 
@@ -813,7 +853,7 @@ go test ./...
 
 ---
 
-## 📦 完成模块清单
+## 完成模块清单
 
 ### 核心业务模块 (Application 层 100% 完成)
 
@@ -1008,7 +1048,7 @@ type ListLogsQuery struct {
 
 ---
 
-## 📈 成果对比
+## 成果对比
 
 | 维度             | 迁移前                           | 迁移后                                 |
 | ---------------- | -------------------------------- | -------------------------------------- |
@@ -1022,7 +1062,7 @@ type ListLogsQuery struct {
 
 ---
 
-## 💡 最佳实践
+## 最佳实践
 
 ### Use Case 命名规范
 
@@ -1044,7 +1084,7 @@ type ListLogsQuery struct {
 
 ---
 
-## 🚀 后续优化建议
+## 后续优化建议
 
 ### 1. 性能优化
 
@@ -1129,7 +1169,7 @@ func TestCreateUserHandler_Success(t *testing.T) {
 
 ---
 
-## ✅ 迁移验证清单
+## 迁移验证清单
 
 ### 每个模块迁移完成后检查
 
@@ -1178,7 +1218,7 @@ go test ./internal/adapters/http/handler/...
 
 ---
 
-## 🔍 常见问题
+## 常见问题
 
 ### Q1: 所有模块是否都已完成迁移？
 
@@ -1321,7 +1361,7 @@ userHandler := handler.NewUserHandler(..., batchDeleteUsersHandler)
 
 ---
 
-## 📚 相关文档
+## 相关文档
 
 - [DDD + CQRS 架构详解](./ddd-cqrs.md) - 完整架构说明
 

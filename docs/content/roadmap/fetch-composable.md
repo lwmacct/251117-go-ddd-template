@@ -1,5 +1,27 @@
 # Fetch Composable
 
+<!--TOC-->
+
+- [需求背景](#需求背景) `:29:32`
+- [已实现功能](#已实现功能) `:33:34`
+  - [请求管理](#请求管理) `:35:42`
+  - [缓存](#缓存) `:43:48`
+- [使用方式](#使用方式) `:49:50`
+  - [基础用法](#基础用法) `:51:72`
+  - [请求配置](#请求配置) `:73:106`
+  - [缓存](#缓存-1) `:107:118`
+  - [创建 API 实例](#创建-api-实例) `:119:156`
+  - [懒加载请求](#懒加载请求) `:157:169`
+  - [分页请求](#分页请求) `:170:193`
+  - [无限加载](#无限加载) `:194:213`
+  - [POST 请求](#post-请求) `:214:231`
+- [API](#api) `:232:233`
+  - [useFetch](#usefetch) `:234:265`
+  - [createFetch](#createfetch) `:266:281`
+- [代码位置](#代码位置) `:282:288`
+
+<!--TOC-->
+
 > **状态**: ✅ 已完成
 > **优先级**: 高
 > **完成日期**: 2024-11-30
@@ -31,9 +53,7 @@
 ```typescript
 import { useFetch } from "@/composables/useFetch";
 
-const { data, isLoading, error, execute, abort, retry } = useFetch<User[]>(
-  "/api/users"
-);
+const { data, isLoading, error, execute, abort, retry } = useFetch<User[]>("/api/users");
 
 // 监听数据
 watch(data, (users) => {
@@ -152,12 +172,11 @@ const handleClick = async () => {
 ```typescript
 import { usePaginatedFetch } from "@/composables/useFetch";
 
-const { data, page, pageSize, hasMore, loadMore, refresh, isLoading } =
-  usePaginatedFetch<User[]>("/api/users", {
-    pageSize: 10,
-    pageParam: "page",
-    pageSizeParam: "size",
-  });
+const { data, page, pageSize, hasMore, loadMore, refresh, isLoading } = usePaginatedFetch<User[]>("/api/users", {
+  pageSize: 10,
+  pageParam: "page",
+  pageSizeParam: "size",
+});
 
 // 加载更多
 const handleLoadMore = async () => {
@@ -177,13 +196,10 @@ const handleRefresh = async () => {
 ```typescript
 import { useInfiniteFetch } from "@/composables/useFetch";
 
-const { data, loadMore, hasMore, isLoading, reset } = useInfiniteFetch<User>(
-  "/api/users",
-  {
-    pageSize: 20,
-    merge: (prev, next) => [...prev, ...next], // 自定义合并
-  }
-);
+const { data, loadMore, hasMore, isLoading, reset } = useInfiniteFetch<User>("/api/users", {
+  pageSize: 20,
+  merge: (prev, next) => [...prev, ...next], // 自定义合并
+});
 
 // data 包含所有已加载的数据
 console.log(data.value); // 所有用户
@@ -217,35 +233,35 @@ const handleSubmit = async () => {
 
 ### useFetch
 
-| 选项           | 类型              | 默认值    | 说明             |
-| -------------- | ----------------- | --------- | ---------------- |
-| immediate      | boolean           | true      | 是否立即请求     |
-| timeout        | number            | 30000     | 超时时间（毫秒） |
-| retry          | number            | 0         | 重试次数         |
-| retryDelay     | number            | 1000      | 重试延迟（毫秒） |
-| responseType   | string            | 'json'    | 响应类型         |
-| cacheKey       | string            | -         | 缓存键           |
-| cacheTime      | number            | 0         | 缓存时间（毫秒） |
-| debounce       | number            | 0         | 防抖时间（毫秒） |
-| abortOnUnmount | boolean           | true      | 卸载时取消请求   |
-| beforeFetch    | function          | -         | 请求前拦截       |
-| afterFetch     | function          | -         | 响应后处理       |
-| onFetchError   | function          | -         | 错误回调         |
+| 选项           | 类型     | 默认值 | 说明             |
+| -------------- | -------- | ------ | ---------------- |
+| immediate      | boolean  | true   | 是否立即请求     |
+| timeout        | number   | 30000  | 超时时间（毫秒） |
+| retry          | number   | 0      | 重试次数         |
+| retryDelay     | number   | 1000   | 重试延迟（毫秒） |
+| responseType   | string   | 'json' | 响应类型         |
+| cacheKey       | string   | -      | 缓存键           |
+| cacheTime      | number   | 0      | 缓存时间（毫秒） |
+| debounce       | number   | 0      | 防抖时间（毫秒） |
+| abortOnUnmount | boolean  | true   | 卸载时取消请求   |
+| beforeFetch    | function | -      | 请求前拦截       |
+| afterFetch     | function | -      | 响应后处理       |
+| onFetchError   | function | -      | 错误回调         |
 
-| 返回值     | 类型                        | 说明           |
-| ---------- | --------------------------- | -------------- |
-| data       | Ref\<T \| null\>            | 响应数据       |
-| status     | Ref\<FetchStatus\>          | 请求状态       |
-| isLoading  | ComputedRef\<boolean\>      | 是否正在加载   |
-| isFinished | ComputedRef\<boolean\>      | 是否完成       |
-| error      | Ref\<Error \| null\>        | 错误信息       |
-| response   | Ref\<Response \| null\>     | 原始响应       |
-| statusCode | Ref\<number \| null\>       | 状态码         |
-| execute    | `(throwError?) => Promise   ` | 执行请求       |
-| abort      | `() => void                 ` | 取消请求       |
-| retry      | `() => Promise              ` | 重试请求       |
-| canAbort   | ComputedRef\<boolean\>      | 是否可取消     |
-| aborted    | Ref\<boolean\>              | 是否已取消     |
+| 返回值     | 类型                          | 说明         |
+| ---------- | ----------------------------- | ------------ |
+| data       | Ref\<T \| null\>              | 响应数据     |
+| status     | Ref\<FetchStatus\>            | 请求状态     |
+| isLoading  | ComputedRef\<boolean\>        | 是否正在加载 |
+| isFinished | ComputedRef\<boolean\>        | 是否完成     |
+| error      | Ref\<Error \| null\>          | 错误信息     |
+| response   | Ref\<Response \| null\>       | 原始响应     |
+| statusCode | Ref\<number \| null\>         | 状态码       |
+| execute    | `(throwError?) => Promise   ` | 执行请求     |
+| abort      | `() => void                 ` | 取消请求     |
+| retry      | `() => Promise              ` | 重试请求     |
+| canAbort   | ComputedRef\<boolean\>        | 是否可取消   |
+| aborted    | Ref\<boolean\>                | 是否已取消   |
 
 ### createFetch
 
@@ -255,13 +271,13 @@ const handleSubmit = async () => {
 | options      | object | 默认请求配置 |
 | interceptors | object | 拦截器配置   |
 
-| 方法   | 说明         |
-| ------ | ------------ |
-| get    | GET 请求     |
-| post   | POST 请求    |
-| put    | PUT 请求     |
-| patch  | PATCH 请求   |
-| delete | DELETE 请求  |
+| 方法   | 说明        |
+| ------ | ----------- |
+| get    | GET 请求    |
+| post   | POST 请求   |
+| put    | PUT 请求    |
+| patch  | PATCH 请求  |
+| delete | DELETE 请求 |
 
 ## 代码位置
 

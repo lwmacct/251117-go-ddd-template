@@ -1,5 +1,20 @@
 # 键盘快捷键
 
+<!--TOC-->
+
+- [需求背景](#需求背景) `:22:25`
+- [已实现功能](#已实现功能) `:26:27`
+  - [useKeyboard Composable](#usekeyboard-composable) `:28:34`
+- [使用方式](#使用方式) `:35:36`
+  - [基础用法](#基础用法) `:37:55`
+  - [单个快捷键](#单个快捷键) `:56:63`
+  - [条件触发](#条件触发) `:64:75`
+- [常用快捷键预设](#常用快捷键预设) `:76:91`
+- [代码位置](#代码位置) `:92:99`
+- [注意事项](#注意事项) `:100:104`
+
+<!--TOC-->
+
 > **状态**: ✅ 已完成
 > **优先级**: 低
 > **完成日期**: 2024-11-30
@@ -64,14 +79,14 @@ useKeyboard([
 import { commonShortcuts } from "@/composables/useKeyboard";
 
 // 可用预设
-commonShortcuts.save     // "ctrl+s"
-commonShortcuts.new      // "ctrl+n"
-commonShortcuts.search   // "ctrl+k"
-commonShortcuts.escape   // "escape"
-commonShortcuts.delete   // "delete"
-commonShortcuts.refresh  // "ctrl+r"
-commonShortcuts.undo     // "ctrl+z"
-commonShortcuts.redo     // "ctrl+shift+z"
+commonShortcuts.save; // "ctrl+s"
+commonShortcuts.new; // "ctrl+n"
+commonShortcuts.search; // "ctrl+k"
+commonShortcuts.escape; // "escape"
+commonShortcuts.delete; // "delete"
+commonShortcuts.refresh; // "ctrl+r"
+commonShortcuts.undo; // "ctrl+z"
+commonShortcuts.redo; // "ctrl+shift+z"
 ```
 
 ## 代码位置

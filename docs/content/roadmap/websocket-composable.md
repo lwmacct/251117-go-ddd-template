@@ -1,5 +1,27 @@
 # WebSocket Composable
 
+<!--TOC-->
+
+- [需求背景](#需求背景) `:29:32`
+- [已实现功能](#已实现功能) `:33:34`
+  - [连接管理](#连接管理) `:35:41`
+  - [特性](#特性) `:42:48`
+- [使用方式](#使用方式) `:49:50`
+  - [基础用法](#基础用法) `:51:71`
+  - [自动重连](#自动重连) `:72:91`
+  - [心跳检测](#心跳检测) `:92:103`
+  - [JSON WebSocket](#json-websocket) `:104:128`
+  - [二进制 WebSocket](#二进制-websocket) `:129:149`
+  - [多连接管理](#多连接管理) `:150:179`
+  - [消息缓冲](#消息缓冲) `:180:194`
+- [API](#api) `:195:196`
+  - [useWebSocket](#usewebsocket) `:197:223`
+  - [AutoReconnect 配置](#autoreconnect-配置) `:224:233`
+  - [Heartbeat 配置](#heartbeat-配置) `:234:241`
+- [代码位置](#代码位置) `:242:248`
+
+<!--TOC-->
+
 > **状态**: ✅ 已完成
 > **优先级**: 高
 > **完成日期**: 2024-11-30
@@ -31,9 +53,7 @@
 ```typescript
 import { useWebSocket } from "@/composables/useWebSocket";
 
-const { data, send, isConnected, open, close, status } = useWebSocket(
-  "ws://localhost:8080/ws"
-);
+const { data, send, isConnected, open, close, status } = useWebSocket("ws://localhost:8080/ws");
 
 // 发送消息
 send("Hello Server");
@@ -92,14 +112,11 @@ interface ChatMessage {
   timestamp: number;
 }
 
-const { data, send, isConnected } = useWebSocketJSON<ChatMessage>(
-  "ws://localhost:8080/chat",
-  {
-    onMessage: (ws, data) => {
-      console.log("收到消息:", data.type, data.content);
-    },
-  }
-);
+const { data, send, isConnected } = useWebSocketJSON<ChatMessage>("ws://localhost:8080/chat", {
+  onMessage: (ws, data) => {
+    console.log("收到消息:", data.type, data.content);
+  },
+});
 
 // 发送 JSON 对象（自动序列化）
 send({
@@ -179,48 +196,48 @@ open();
 
 ### useWebSocket
 
-| 选项          | 类型                     | 默认值 | 说明               |
-| ------------- | ------------------------ | ------ | ------------------ |
-| immediate     | boolean                  | true   | 是否立即连接       |
-| autoReconnect | boolean \| object        | false  | 自动重连配置       |
-| heartbeat     | boolean \| object        | false  | 心跳配置           |
-| protocols     | string \| string[]       | -      | 子协议             |
-| onOpen        | `(ws, event) => void     ` | -      | 连接打开回调       |
-| onMessage     | `(ws, event) => void     ` | -      | 消息回调           |
-| onClose       | `(ws, event) => void     ` | -      | 连接关闭回调       |
-| onError       | `(ws, event) => void     ` | -      | 错误回调           |
-| onReconnect   | `(retries) => void       ` | -      | 重连回调           |
-| onFailed      | `() => void              ` | -      | 连接失败回调       |
+| 选项          | 类型                       | 默认值 | 说明         |
+| ------------- | -------------------------- | ------ | ------------ |
+| immediate     | boolean                    | true   | 是否立即连接 |
+| autoReconnect | boolean \| object          | false  | 自动重连配置 |
+| heartbeat     | boolean \| object          | false  | 心跳配置     |
+| protocols     | string \| string[]         | -      | 子协议       |
+| onOpen        | `(ws, event) => void     ` | -      | 连接打开回调 |
+| onMessage     | `(ws, event) => void     ` | -      | 消息回调     |
+| onClose       | `(ws, event) => void     ` | -      | 连接关闭回调 |
+| onError       | `(ws, event) => void     ` | -      | 错误回调     |
+| onReconnect   | `(retries) => void       ` | -      | 重连回调     |
+| onFailed      | `() => void              ` | -      | 连接失败回调 |
 
-| 返回值      | 类型                      | 说明               |
-| ----------- | ------------------------- | ------------------ |
-| ws          | Ref\<WebSocket \| null\>  | WebSocket 实例     |
-| status      | Ref\<WebSocketStatus\>    | 连接状态           |
-| isConnected | ComputedRef\<boolean\>    | 是否已连接         |
-| data        | Ref\<T \| null\>          | 最后接收的数据     |
-| error       | Ref\<Event \| null\>      | 错误信息           |
-| retryCount  | Ref\<number\>             | 重连次数           |
-| open        | `() => void               ` | 打开连接           |
-| close       | `(code?, reason?) => void ` | 关闭连接           |
+| 返回值      | 类型                            | 说明           |
+| ----------- | ------------------------------- | -------------- |
+| ws          | Ref\<WebSocket \| null\>        | WebSocket 实例 |
+| status      | Ref\<WebSocketStatus\>          | 连接状态       |
+| isConnected | ComputedRef\<boolean\>          | 是否已连接     |
+| data        | Ref\<T \| null\>                | 最后接收的数据 |
+| error       | Ref\<Event \| null\>            | 错误信息       |
+| retryCount  | Ref\<number\>                   | 重连次数       |
+| open        | `() => void               `     | 打开连接       |
+| close       | `(code?, reason?) => void `     | 关闭连接       |
 | send        | `(data, useBuffer?) => boolean` | 发送消息       |
 
 ### AutoReconnect 配置
 
-| 选项               | 类型    | 默认值 | 说明               |
-| ------------------ | ------- | ------ | ------------------ |
-| retries            | number  | 3      | 最大重连次数       |
-| delay              | number  | 1000   | 初始延迟（毫秒）   |
-| multiplier         | number  | 2      | 延迟递增因子       |
-| maxDelay           | number  | 30000  | 最大延迟（毫秒）   |
-| onVisibilityChange | boolean | true   | 页面可见时重连     |
+| 选项               | 类型    | 默认值 | 说明             |
+| ------------------ | ------- | ------ | ---------------- |
+| retries            | number  | 3      | 最大重连次数     |
+| delay              | number  | 1000   | 初始延迟（毫秒） |
+| multiplier         | number  | 2      | 延迟递增因子     |
+| maxDelay           | number  | 30000  | 最大延迟（毫秒） |
+| onVisibilityChange | boolean | true   | 页面可见时重连   |
 
 ### Heartbeat 配置
 
-| 选项     | 类型                        | 默认值  | 说明               |
-| -------- | --------------------------- | ------- | ------------------ |
-| message  | string \| ArrayBuffer \| Blob | 'ping' | 心跳消息           |
-| interval | number                      | 30000   | 心跳间隔（毫秒）   |
-| timeout  | number                      | 10000   | 心跳超时（毫秒）   |
+| 选项     | 类型                          | 默认值 | 说明             |
+| -------- | ----------------------------- | ------ | ---------------- |
+| message  | string \| ArrayBuffer \| Blob | 'ping' | 心跳消息         |
+| interval | number                        | 30000  | 心跳间隔（毫秒） |
+| timeout  | number                        | 10000  | 心跳超时（毫秒） |
 
 ## 代码位置
 

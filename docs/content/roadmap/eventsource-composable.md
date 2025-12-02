@@ -1,5 +1,27 @@
 # EventSource Composable
 
+<!--TOC-->
+
+- [需求背景](#需求背景) `:29:32`
+- [已实现功能](#已实现功能) `:33:34`
+  - [连接管理](#连接管理) `:35:41`
+  - [特性](#特性) `:42:48`
+- [使用方式](#使用方式) `:49:50`
+  - [基础用法](#基础用法) `:51:68`
+  - [自动重连](#自动重连) `:69:87`
+  - [监听命名事件](#监听命名事件) `:88:114`
+  - [简化用法](#简化用法) `:115:130`
+  - [多连接管理](#多连接管理) `:131:157`
+  - [携带凭证](#携带凭证) `:158:165`
+- [API](#api) `:166:167`
+  - [useEventSource](#useeventsource) `:168:193`
+  - [useEventSourceNamed 额外返回值](#useeventsourcenamed-额外返回值) `:194:202`
+  - [AutoReconnect 配置](#autoreconnect-配置) `:203:211`
+- [SSE vs WebSocket](#sse-vs-websocket) `:212:221`
+- [代码位置](#代码位置) `:222:228`
+
+<!--TOC-->
+
 > **状态**: ✅ 已完成
 > **优先级**: 高
 > **完成日期**: 2024-11-30
@@ -31,9 +53,7 @@
 ```typescript
 import { useEventSource } from "@/composables/useEventSource";
 
-const { data, isConnected, status, open, close } = useEventSource(
-  "/api/events"
-);
+const { data, isConnected, status, open, close } = useEventSource("/api/events");
 
 // 监听数据
 watch(data, (newData) => {
@@ -71,10 +91,9 @@ const { data, retryCount } = useEventSource("/api/events", {
 import { useEventSourceNamed } from "@/composables/useEventSource";
 
 // 服务器发送: event: update\ndata: {...}\n\n
-const { events, lastEvent, addEventListener, removeEventListener } =
-  useEventSourceNamed("/api/events", {
-    events: ["update", "delete", "create"],
-  });
+const { events, lastEvent, addEventListener, removeEventListener } = useEventSourceNamed("/api/events", {
+  events: ["update", "delete", "create"],
+});
 
 // 获取特定事件的数据
 const updateData = computed(() => events.value.get("update"));
@@ -148,36 +167,36 @@ const { data } = useEventSource("/api/private-events", {
 
 ### useEventSource
 
-| 选项            | 类型              | 默认值 | 说明             |
-| --------------- | ----------------- | ------ | ---------------- |
-| immediate       | boolean           | true   | 是否立即连接     |
-| autoReconnect   | boolean \| object | false  | 自动重连配置     |
-| withCredentials | boolean           | false  | 是否携带凭证     |
-| onOpen          | `(event) => void  ` | -      | 连接打开回调     |
-| onMessage       | `(event) => void  ` | -      | 消息回调         |
-| onError         | `(event) => void  ` | -      | 错误回调         |
-| onReconnect     | `(retries) => void` | -      | 重连回调         |
-| onFailed        | `() => void       ` | -      | 连接失败回调     |
+| 选项            | 类型                | 默认值 | 说明         |
+| --------------- | ------------------- | ------ | ------------ |
+| immediate       | boolean             | true   | 是否立即连接 |
+| autoReconnect   | boolean \| object   | false  | 自动重连配置 |
+| withCredentials | boolean             | false  | 是否携带凭证 |
+| onOpen          | `(event) => void  ` | -      | 连接打开回调 |
+| onMessage       | `(event) => void  ` | -      | 消息回调     |
+| onError         | `(event) => void  ` | -      | 错误回调     |
+| onReconnect     | `(retries) => void` | -      | 重连回调     |
+| onFailed        | `() => void       ` | -      | 连接失败回调 |
 
-| 返回值      | 类型                         | 说明             |
-| ----------- | ---------------------------- | ---------------- |
-| eventSource | Ref\<EventSource \| null\>   | EventSource 实例 |
-| status      | Ref\<EventSourceStatus\>     | 连接状态         |
-| isConnected | ComputedRef\<boolean\>       | 是否已连接       |
-| data        | Ref\<T \| null\>             | 最后接收的数据   |
-| event       | Ref\<string \| null\>        | 最后接收的事件   |
-| lastEventId | Ref\<string \| null\>        | 最后的事件 ID    |
-| error       | Ref\<Event \| null\>         | 错误信息         |
-| retryCount  | Ref\<number\>                | 重连次数         |
+| 返回值      | 类型                           | 说明             |
+| ----------- | ------------------------------ | ---------------- |
+| eventSource | Ref\<EventSource \| null\>     | EventSource 实例 |
+| status      | Ref\<EventSourceStatus\>       | 连接状态         |
+| isConnected | ComputedRef\<boolean\>         | 是否已连接       |
+| data        | Ref\<T \| null\>               | 最后接收的数据   |
+| event       | Ref\<string \| null\>          | 最后接收的事件   |
+| lastEventId | Ref\<string \| null\>          | 最后的事件 ID    |
+| error       | Ref\<Event \| null\>           | 错误信息         |
+| retryCount  | Ref\<number\>                  | 重连次数         |
 | open        | `() => void                  ` | 打开连接         |
 | close       | `() => void                  ` | 关闭连接         |
 
 ### useEventSourceNamed 额外返回值
 
-| 返回值              | 类型                          | 说明         |
-| ------------------- | ----------------------------- | ------------ |
-| events              | Ref\<Map\<string, T\>\>       | 所有事件数据 |
-| lastEvent           | Ref\<NamedEventData \| null\> | 最后命名事件 |
+| 返回值              | 类型                            | 说明         |
+| ------------------- | ------------------------------- | ------------ |
+| events              | Ref\<Map\<string, T\>\>         | 所有事件数据 |
+| lastEvent           | Ref\<NamedEventData \| null\>   | 最后命名事件 |
 | addEventListener    | `(name: string) => void       ` | 添加事件监听 |
 | removeEventListener | `(name: string) => void       ` | 移除事件监听 |
 
@@ -192,13 +211,13 @@ const { data } = useEventSource("/api/private-events", {
 
 ## SSE vs WebSocket
 
-| 特性     | SSE              | WebSocket    |
-| -------- | ---------------- | ------------ |
-| 方向     | 单向（服务器→客户端） | 双向       |
-| 协议     | HTTP             | WS           |
-| 重连     | 自动             | 需手动实现   |
-| 数据格式 | 文本             | 文本/二进制  |
-| 适用场景 | 实时通知、数据推送 | 聊天、游戏 |
+| 特性     | SSE                   | WebSocket   |
+| -------- | --------------------- | ----------- |
+| 方向     | 单向（服务器→客户端） | 双向        |
+| 协议     | HTTP                  | WS          |
+| 重连     | 自动                  | 需手动实现  |
+| 数据格式 | 文本                  | 文本/二进制 |
+| 适用场景 | 实时通知、数据推送    | 聊天、游戏  |
 
 ## 代码位置
 

@@ -1,5 +1,17 @@
 # 加载遮罩组件
 
+<!--TOC-->
+
+- [需求背景](#需求背景) `:19:22`
+- [已实现功能](#已实现功能) `:23:24`
+  - [LoadingOverlay 组件](#loadingoverlay-组件) `:25:31`
+- [组件接口](#组件接口) `:32:39`
+  - [Props](#props) `:40:51`
+- [代码位置](#代码位置) `:52:59`
+- [使用场景](#使用场景) `:60:65`
+
+<!--TOC-->
+
 > **状态**: ✅ 已完成
 > **优先级**: 中
 > **完成日期**: 2024-11-30
@@ -27,15 +39,15 @@
 
 ### Props
 
-| 属性 | 类型 | 默认值 | 说明 |
-|------|------|--------|------|
-| loading | boolean | false | 是否显示加载 |
-| text | string | "" | 加载提示文本 |
-| absolute | boolean | true | 是否绝对定位 |
-| opacity | number | 0.8 | 遮罩透明度 |
-| size | string \| number | 48 | 加载指示器大小 |
-| color | string | "primary" | 加载指示器颜色 |
-| overlayColor | string | "white" | 遮罩背景颜色 |
+| 属性         | 类型             | 默认值    | 说明           |
+| ------------ | ---------------- | --------- | -------------- |
+| loading      | boolean          | false     | 是否显示加载   |
+| text         | string           | ""        | 加载提示文本   |
+| absolute     | boolean          | true      | 是否绝对定位   |
+| opacity      | number           | 0.8       | 遮罩透明度     |
+| size         | string \| number | 48        | 加载指示器大小 |
+| color        | string           | "primary" | 加载指示器颜色 |
+| overlayColor | string           | "white"   | 遮罩背景颜色   |
 
 ## 代码位置
 

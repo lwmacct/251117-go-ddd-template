@@ -1,5 +1,36 @@
 # API 文档概述
 
+<!--TOC-->
+
+- [API 基础信息](#api-基础信息) `:36:42`
+- [Swagger 文档](#swagger-文档) `:43:49`
+- [认证方式](#认证方式) `:50:51`
+  - [JWT Token](#jwt-token) `:52:67`
+  - [Personal Access Token (PAT)](#personal-access-token-pat) `:68:84`
+- [响应格式](#响应格式) `:85:86`
+  - [成功响应](#成功响应) `:87:99`
+  - [错误响应](#错误响应) `:100:113`
+  - [分页响应](#分页响应) `:114:129`
+- [HTTP 状态码](#http-状态码) `:130:145`
+- [API 模块](#api-模块) `:146:147`
+  - [认证管理 (/api/auth)](#认证管理-apiauth) `:148:154`
+  - [用户管理 (/api/users)](#用户管理-apiusers) `:155:160`
+  - [角色管理 (/api/roles)](#角色管理-apiroles) `:161:166`
+  - [菜单管理 (/api/menus)](#菜单管理-apimenus) `:167:172`
+  - [PAT 管理 (/api/pat)](#pat-管理-apipat) `:173:178`
+  - [审计日志 (/api/audit-logs)](#审计日志-apiaudit-logs) `:179:184`
+- [请求示例](#请求示例) `:185:186`
+  - [基础认证流程](#基础认证流程) `:187:213`
+  - [创建资源](#创建资源) `:214:227`
+  - [查询资源](#查询资源) `:228:239`
+- [公共参数](#公共参数) `:240:241`
+  - [分页参数](#分页参数) `:242:249`
+  - [过滤参数](#过滤参数) `:250:258`
+- [限流策略](#限流策略) `:259:270`
+- [最佳实践](#最佳实践) `:271:293`
+
+<!--TOC-->
+
 Go DDD Template 提供了完整的 RESTful API，支持 JWT 和 PAT 两种认证方式。
 
 ## API 基础信息
@@ -98,19 +129,19 @@ Authorization: Bearer pat_xxxxx
 
 ## HTTP 状态码
 
-| 状态码 | 说明 | 使用场景 |
-|-------|------|---------|
-| 200 | OK | 成功的 GET、PUT 请求 |
-| 201 | Created | 成功的 POST 创建请求 |
-| 204 | No Content | 成功的 DELETE 请求 |
-| 400 | Bad Request | 请求参数错误 |
-| 401 | Unauthorized | 未认证或认证失败 |
-| 403 | Forbidden | 无权限访问 |
-| 404 | Not Found | 资源不存在 |
-| 409 | Conflict | 资源冲突（如重复创建） |
-| 422 | Unprocessable Entity | 请求格式正确但语义错误 |
-| 429 | Too Many Requests | 请求频率超限 |
-| 500 | Internal Server Error | 服务器内部错误 |
+| 状态码 | 说明                  | 使用场景               |
+| ------ | --------------------- | ---------------------- |
+| 200    | OK                    | 成功的 GET、PUT 请求   |
+| 201    | Created               | 成功的 POST 创建请求   |
+| 204    | No Content            | 成功的 DELETE 请求     |
+| 400    | Bad Request           | 请求参数错误           |
+| 401    | Unauthorized          | 未认证或认证失败       |
+| 403    | Forbidden             | 无权限访问             |
+| 404    | Not Found             | 资源不存在             |
+| 409    | Conflict              | 资源冲突（如重复创建） |
+| 422    | Unprocessable Entity  | 请求格式正确但语义错误 |
+| 429    | Too Many Requests     | 请求频率超限           |
+| 500    | Internal Server Error | 服务器内部错误         |
 
 ## API 模块
 
@@ -210,19 +241,19 @@ curl "http://localhost:8080/api/users?status=active&role=admin" \
 
 ### 分页参数
 
-| 参数 | 类型 | 默认值 | 说明 |
-|-----|------|-------|------|
-| page | int | 1 | 页码 |
-| page_size | int | 20 | 每页数量 |
-| sort | string | -created_at | 排序字段（-表示降序） |
+| 参数      | 类型   | 默认值      | 说明                  |
+| --------- | ------ | ----------- | --------------------- |
+| page      | int    | 1           | 页码                  |
+| page_size | int    | 20          | 每页数量              |
+| sort      | string | -created_at | 排序字段（-表示降序） |
 
 ### 过滤参数
 
-| 参数 | 类型 | 说明 |
-|-----|------|------|
-| q | string | 全文搜索 |
-| status | string | 状态过滤 |
-| created_after | string | 创建时间起始 |
+| 参数           | 类型   | 说明         |
+| -------------- | ------ | ------------ |
+| q              | string | 全文搜索     |
+| status         | string | 状态过滤     |
+| created_after  | string | 创建时间起始 |
 | created_before | string | 创建时间结束 |
 
 ## 限流策略
@@ -232,6 +263,7 @@ curl "http://localhost:8080/api/users?status=active&role=admin" \
 - **API 限流**: 100 请求/分钟（per token）
 
 超过限流后返回 429 状态码，响应头包含：
+
 - `X-RateLimit-Limit`: 限流阈值
 - `X-RateLimit-Remaining`: 剩余配额
 - `X-RateLimit-Reset`: 重置时间

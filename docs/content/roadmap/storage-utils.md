@@ -1,5 +1,17 @@
 # 存储工具 Composable
 
+<!--TOC-->
+
+- [需求背景](#需求背景) `:19:22`
+- [已实现功能](#已实现功能) `:23:24`
+  - [useStorage Composable](#usestorage-composable) `:25:31`
+- [使用方式](#使用方式) `:32:56`
+- [API](#api) `:57:58`
+  - [useStorage 返回值](#usestorage-返回值) `:59:68`
+- [代码位置](#代码位置) `:69:75`
+
+<!--TOC-->
+
 > **状态**: ✅ 已完成
 > **优先级**: 中
 > **完成日期**: 2024-11-30
@@ -46,13 +58,13 @@ if (isExpired()) {
 
 ### useStorage 返回值
 
-| 属性/方法 | 类型 | 说明 |
-|-----------|------|------|
-| value | Ref<T \| null> | 响应式存储值 |
-| set | `(value: T, expires?: number) => void` | 设置值 |
-| get | () => T \| null | 获取值 |
-| remove | `() => void` | 删除值 |
-| isExpired | `() => boolean` | 检查是否过期 |
+| 属性/方法 | 类型                                   | 说明         |
+| --------- | -------------------------------------- | ------------ |
+| value     | Ref<T \| null>                         | 响应式存储值 |
+| set       | `(value: T, expires?: number) => void` | 设置值       |
+| get       | () => T \| null                        | 获取值       |
+| remove    | `() => void`                           | 删除值       |
+| isExpired | `() => boolean`                        | 检查是否过期 |
 
 ## 代码位置
 

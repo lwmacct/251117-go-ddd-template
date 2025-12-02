@@ -1,5 +1,32 @@
 # Provide Composable
 
+<!--TOC-->
+
+- [需求背景](#需求背景) `:34:37`
+- [已实现功能](#已实现功能) `:38:39`
+  - [上下文创建](#上下文创建) `:40:46`
+  - [特殊上下文](#特殊上下文) `:47:54`
+  - [注入工具](#注入工具) `:55:59`
+- [使用方式](#使用方式) `:60:61`
+  - [基本上下文](#基本上下文) `:62:86`
+  - [状态上下文](#状态上下文) `:87:104`
+  - [响应式上下文](#响应式上下文) `:105:130`
+  - [只读上下文](#只读上下文) `:131:156`
+  - [事件总线上下文](#事件总线上下文) `:157:189`
+  - [主题上下文](#主题上下文) `:190:211`
+  - [国际化上下文](#国际化上下文) `:212:244`
+  - [持久化上下文](#持久化上下文) `:245:276`
+  - [工厂上下文](#工厂上下文) `:277:297`
+  - [注入工具](#注入工具-1) `:298:313`
+- [API](#api) `:314:315`
+  - [createContext](#createcontext) `:316:328`
+  - [createEventBusContext](#createeventbuscontext) `:329:336`
+  - [createThemeContext](#createthemecontext) `:337:345`
+  - [createI18nContext](#createi18ncontext) `:346:354`
+- [代码位置](#代码位置) `:355:361`
+
+<!--TOC-->
+
 > **状态**: ✅ 已完成
 > **优先级**: 中
 > **完成日期**: 2024-11-30
@@ -35,252 +62,252 @@
 ### 基本上下文
 
 ```typescript
-import { createContext } from '@/composables/useProvide'
+import { createContext } from "@/composables/useProvide";
 
 // 定义类型
 interface User {
-  id: number
-  name: string
+  id: number;
+  name: string;
 }
 
 // 创建上下文
-const UserContext = createContext<User>('User')
+const UserContext = createContext<User>("User");
 
 // 父组件 - 提供
-UserContext.provide({ id: 1, name: 'John' })
+UserContext.provide({ id: 1, name: "John" });
 
 // 子组件 - 注入
-const user = UserContext.inject()
-console.log(user.name) // 'John'
+const user = UserContext.inject();
+console.log(user.name); // 'John'
 
 // 带默认值
-const user = UserContext.inject({ id: 0, name: 'Guest' })
+const user = UserContext.inject({ id: 0, name: "Guest" });
 ```
 
 ### 状态上下文
 
 ```typescript
-import { createStateContext } from '@/composables/useProvide'
+import { createStateContext } from "@/composables/useProvide";
 
 // 创建可变状态上下文
-const CountContext = createStateContext<number>('Count')
+const CountContext = createStateContext<number>("Count");
 
 // 父组件
-const { state: count, setState: setCount } = CountContext.provide(0)
+const { state: count, setState: setCount } = CountContext.provide(0);
 
 // 子组件
-const { state: count, setState: setCount } = CountContext.inject()
+const { state: count, setState: setCount } = CountContext.inject();
 
 // 更新状态
-setCount(count.value + 1)
+setCount(count.value + 1);
 ```
 
 ### 响应式上下文
 
 ```typescript
-import { createReactiveContext } from '@/composables/useProvide'
+import { createReactiveContext } from "@/composables/useProvide";
 
 interface AppState {
-  user: User | null
-  settings: Settings
-  notifications: Notification[]
+  user: User | null;
+  settings: Settings;
+  notifications: Notification[];
 }
 
-const AppContext = createReactiveContext<AppState>('App')
+const AppContext = createReactiveContext<AppState>("App");
 
 // 父组件
 const state = AppContext.provide({
   user: null,
-  settings: { theme: 'light' },
-  notifications: []
-})
+  settings: { theme: "light" },
+  notifications: [],
+});
 
 // 子组件 - 直接修改响应式对象
-const state = AppContext.inject()
-state.user = { id: 1, name: 'John' }
-state.notifications.push({ message: 'Hello' })
+const state = AppContext.inject();
+state.user = { id: 1, name: "John" };
+state.notifications.push({ message: "Hello" });
 ```
 
 ### 只读上下文
 
 ```typescript
-import { createReadonlyContext } from '@/composables/useProvide'
+import { createReadonlyContext } from "@/composables/useProvide";
 
 interface Config {
-  apiUrl: string
-  timeout: number
-  features: string[]
+  apiUrl: string;
+  timeout: number;
+  features: string[];
 }
 
-const ConfigContext = createReadonlyContext<Config>('Config')
+const ConfigContext = createReadonlyContext<Config>("Config");
 
 // 父组件
 ConfigContext.provide({
-  apiUrl: '/api',
+  apiUrl: "/api",
   timeout: 5000,
-  features: ['feature-a', 'feature-b']
-})
+  features: ["feature-a", "feature-b"],
+});
 
 // 子组件 - 只能读取，无法修改
-const config = ConfigContext.inject()
-console.log(config.apiUrl) // '/api'
+const config = ConfigContext.inject();
+console.log(config.apiUrl); // '/api'
 // config.apiUrl = '/new-api' // TypeScript 错误
 ```
 
 ### 事件总线上下文
 
 ```typescript
-import { createEventBusContext } from '@/composables/useProvide'
+import { createEventBusContext } from "@/composables/useProvide";
 
 // 定义事件类型
 interface AppEvents {
-  'user:login': { id: number; name: string }
-  'user:logout': void
-  'notification:show': { message: string; type: 'success' | 'error' }
+  "user:login": { id: number; name: string };
+  "user:logout": void;
+  "notification:show": { message: string; type: "success" | "error" };
 }
 
-const EventBus = createEventBusContext<AppEvents>('EventBus')
+const EventBus = createEventBusContext<AppEvents>("EventBus");
 
 // 父组件
-EventBus.provide()
+EventBus.provide();
 
 // 子组件 A - 发送事件
-const bus = EventBus.inject()
-bus.emit('user:login', { id: 1, name: 'John' })
+const bus = EventBus.inject();
+bus.emit("user:login", { id: 1, name: "John" });
 
 // 子组件 B - 监听事件
-const bus = EventBus.inject()
-const unsubscribe = bus.on('user:login', (user) => {
-  console.log('User logged in:', user.name)
-})
+const bus = EventBus.inject();
+const unsubscribe = bus.on("user:login", (user) => {
+  console.log("User logged in:", user.name);
+});
 
 // 取消订阅
-unsubscribe()
+unsubscribe();
 // 或
-bus.off('user:login', handler)
+bus.off("user:login", handler);
 ```
 
 ### 主题上下文
 
 ```typescript
-import { createThemeContext } from '@/composables/useProvide'
+import { createThemeContext } from "@/composables/useProvide";
 
-const ThemeProvider = createThemeContext('Theme')
+const ThemeProvider = createThemeContext("Theme");
 
 // 父组件
-const theme = ThemeProvider.provide('light')
+const theme = ThemeProvider.provide("light");
 
 // 子组件
-const { theme, isDark, setTheme, toggleDark } = ThemeProvider.inject()
+const { theme, isDark, setTheme, toggleDark } = ThemeProvider.inject();
 
 // 使用
-console.log(isDark.value) // false
-setTheme('dark')
-console.log(isDark.value) // true
+console.log(isDark.value); // false
+setTheme("dark");
+console.log(isDark.value); // true
 
 // 切换
-toggleDark() // 切换暗色/亮色模式
+toggleDark(); // 切换暗色/亮色模式
 ```
 
 ### 国际化上下文
 
 ```typescript
-import { createI18nContext } from '@/composables/useProvide'
+import { createI18nContext } from "@/composables/useProvide";
 
 const messages = {
   en: {
-    greeting: 'Hello, {name}!',
-    welcome: 'Welcome to our app'
+    greeting: "Hello, {name}!",
+    welcome: "Welcome to our app",
   },
   zh: {
-    greeting: '你好, {name}!',
-    welcome: '欢迎使用我们的应用'
-  }
-}
+    greeting: "你好, {name}!",
+    welcome: "欢迎使用我们的应用",
+  },
+};
 
-const I18n = createI18nContext('I18n', messages)
+const I18n = createI18nContext("I18n", messages);
 
 // 父组件
-const i18n = I18n.provide('zh')
+const i18n = I18n.provide("zh");
 
 // 子组件
-const { t, locale, setLocale, availableLocales } = I18n.inject()
+const { t, locale, setLocale, availableLocales } = I18n.inject();
 
-console.log(t('greeting', { name: 'World' }))
+console.log(t("greeting", { name: "World" }));
 // 输出: 你好, World!
 
 // 切换语言
-setLocale('en')
-console.log(t('greeting', { name: 'World' }))
+setLocale("en");
+console.log(t("greeting", { name: "World" }));
 // 输出: Hello, World!
 ```
 
 ### 持久化上下文
 
 ```typescript
-import { createStorageContext } from '@/composables/useProvide'
+import { createStorageContext } from "@/composables/useProvide";
 
 interface UserSettings {
-  theme: string
-  fontSize: number
-  notifications: boolean
+  theme: string;
+  fontSize: number;
+  notifications: boolean;
 }
 
-const SettingsContext = createStorageContext<UserSettings>('Settings', {
-  storageKey: 'app-settings',
+const SettingsContext = createStorageContext<UserSettings>("Settings", {
+  storageKey: "app-settings",
   storage: localStorage,
-  defaultValue: { theme: 'light', fontSize: 14, notifications: true }
-})
+  defaultValue: { theme: "light", fontSize: 14, notifications: true },
+});
 
 // 父组件
 const settings = SettingsContext.provide({
-  theme: 'light',
+  theme: "light",
   fontSize: 14,
-  notifications: true
-})
+  notifications: true,
+});
 
 // 子组件
-const settings = SettingsContext.inject()
+const settings = SettingsContext.inject();
 
 // 修改会自动保存到 localStorage
-settings.theme = 'dark'
-settings.fontSize = 16
+settings.theme = "dark";
+settings.fontSize = 16;
 ```
 
 ### 工厂上下文
 
 ```typescript
-import { createFactoryContext } from '@/composables/useProvide'
+import { createFactoryContext } from "@/composables/useProvide";
 
 // 创建 Logger 工厂
-const LoggerContext = createFactoryContext('Logger', (name: string) => ({
+const LoggerContext = createFactoryContext("Logger", (name: string) => ({
   log: (msg: string) => console.log(`[${name}] ${msg}`),
   warn: (msg: string) => console.warn(`[${name}] ${msg}`),
-  error: (msg: string) => console.error(`[${name}] ${msg}`)
-}))
+  error: (msg: string) => console.error(`[${name}] ${msg}`),
+}));
 
 // 父组件
-LoggerContext.provide()
+LoggerContext.provide();
 
 // 子组件 - 每次调用创建新实例
-const createLogger = LoggerContext.inject()
-const logger = createLogger('UserService')
-logger.log('User created')
+const createLogger = LoggerContext.inject();
+const logger = createLogger("UserService");
+logger.log("User created");
 ```
 
 ### 注入工具
 
 ```typescript
-import { useOptionalInject, useRequiredInject } from '@/composables/useProvide'
+import { useOptionalInject, useRequiredInject } from "@/composables/useProvide";
 
 // 可选注入 - 可能返回 undefined
-const user = useOptionalInject(UserKey)
+const user = useOptionalInject(UserKey);
 if (user) {
-  console.log(user.name)
+  console.log(user.name);
 }
 
 // 必需注入 - 不存在则报错
-const config = useRequiredInject(ConfigKey, 'Config')
+const config = useRequiredInject(ConfigKey, "Config");
 // 如果 Config 未提供，会抛出错误：[Config] 必须在提供者组件内使用
 ```
 
@@ -288,42 +315,42 @@ const config = useRequiredInject(ConfigKey, 'Config')
 
 ### createContext
 
-| 参数 | 类型 | 说明 |
-|------|------|------|
-| name | string | 上下文名称 |
-| defaultValue | T | 默认值（可选） |
+| 参数         | 类型   | 说明           |
+| ------------ | ------ | -------------- |
+| name         | string | 上下文名称     |
+| defaultValue | T      | 默认值（可选） |
 
-| 返回值 | 类型 | 说明 |
-|--------|------|------|
+| 返回值  | 类型                 | 说明     |
+| ------- | -------------------- | -------- |
 | provide | `(value: T) => void` | 提供函数 |
-| inject | `(default?: T) => T` | 注入函数 |
-| key | InjectionKey | 注入键 |
+| inject  | `(default?: T) => T` | 注入函数 |
+| key     | InjectionKey         | 注入键   |
 
 ### createEventBusContext
 
-| 返回值方法 | 类型 | 说明 |
-|------------|------|------|
-| emit | `(event, payload) => void` | 发送事件 |
-| on | `(event, handler) => unsubscribe` | 订阅事件 |
-| off | `(event, handler) => void` | 取消订阅 |
+| 返回值方法 | 类型                              | 说明     |
+| ---------- | --------------------------------- | -------- |
+| emit       | `(event, payload) => void`        | 发送事件 |
+| on         | `(event, handler) => unsubscribe` | 订阅事件 |
+| off        | `(event, handler) => void`        | 取消订阅 |
 
 ### createThemeContext
 
-| 返回值 | 类型 | 说明 |
-|--------|------|------|
-| theme | Ref\<string\> | 当前主题 |
-| isDark | ComputedRef\<boolean\> | 是否暗色 |
-| setTheme | `(theme) => void` | 设置主题 |
-| toggleDark | `() => void` | 切换暗色模式 |
+| 返回值     | 类型                   | 说明         |
+| ---------- | ---------------------- | ------------ |
+| theme      | Ref\<string\>          | 当前主题     |
+| isDark     | ComputedRef\<boolean\> | 是否暗色     |
+| setTheme   | `(theme) => void`      | 设置主题     |
+| toggleDark | `() => void`           | 切换暗色模式 |
 
 ### createI18nContext
 
-| 返回值 | 类型 | 说明 |
-|--------|------|------|
-| locale | Ref\<string\> | 当前语言 |
-| availableLocales | string[] | 可用语言 |
-| setLocale | `(locale) => void` | 设置语言 |
-| t | `(key, params?) => string` | 翻译函数 |
+| 返回值           | 类型                       | 说明     |
+| ---------------- | -------------------------- | -------- |
+| locale           | Ref\<string\>              | 当前语言 |
+| availableLocales | string[]                   | 可用语言 |
+| setLocale        | `(locale) => void`         | 设置语言 |
+| t                | `(key, params?) => string` | 翻译函数 |
 
 ## 代码位置
 

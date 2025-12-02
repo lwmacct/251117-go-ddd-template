@@ -1,5 +1,25 @@
 # 状态管理
 
+<!--TOC-->
+
+- [Store 结构](#store-结构) `:25:33`
+- [认证 Store](#认证-store) `:34:37`
+  - [状态定义](#状态定义) `:38:84`
+  - [初始化流程](#初始化流程) `:85:107`
+  - [登录流程](#登录流程) `:108:140`
+  - [登出流程](#登出流程) `:141:155`
+- [在组件中使用](#在组件中使用) `:156:157`
+  - [Options API](#options-api) `:158:176`
+  - [Composition API](#composition-api) `:177:195`
+- [Token 存储](#token-存储) `:196:230`
+- [最佳实践](#最佳实践) `:231:232`
+  - [1. 状态最小化](#1-状态最小化) `:233:236`
+  - [2. 使用 Getters](#2-使用-getters) `:237:240`
+  - [3. Action 异步处理](#3-action-异步处理) `:241:244`
+  - [4. 错误处理](#4-错误处理) `:245:255`
+
+<!--TOC-->
+
 前端使用 Pinia 进行全局状态管理，主要用于认证状态的跨组件共享。
 
 ## Store 结构
@@ -68,15 +88,15 @@ export const useAuthStore = defineStore('auth', {
 
 ```typescript
 // src/main.ts
-const app = createApp(App)
-const pinia = createPinia()
-app.use(pinia)
+const app = createApp(App);
+const pinia = createPinia();
+app.use(pinia);
 
 // 恢复认证状态（在挂载前）
-const authStore = useAuthStore()
-await authStore.initAuth()
+const authStore = useAuthStore();
+await authStore.initAuth();
 
-app.mount('#app')
+app.mount("#app");
 ```
 
 `initAuth()` 方法执行以下操作：
@@ -139,18 +159,18 @@ async logout() {
 
 ```vue
 <script>
-import { useAuthStore } from '@/stores/auth'
+import { useAuthStore } from "@/stores/auth";
 
 export default {
   computed: {
     authStore() {
-      return useAuthStore()
+      return useAuthStore();
     },
     isLoggedIn() {
-      return this.authStore.isAuthenticated
-    }
-  }
-}
+      return this.authStore.isAuthenticated;
+    },
+  },
+};
 </script>
 ```
 
@@ -158,18 +178,18 @@ export default {
 
 ```vue
 <script setup lang="ts">
-import { useAuthStore } from '@/stores/auth'
-import { storeToRefs } from 'pinia'
+import { useAuthStore } from "@/stores/auth";
+import { storeToRefs } from "pinia";
 
-const authStore = useAuthStore()
+const authStore = useAuthStore();
 
 // 解构响应式状态
-const { currentUser, isLoading, error } = storeToRefs(authStore)
+const { currentUser, isLoading, error } = storeToRefs(authStore);
 
 // 直接使用 actions
 const handleLogout = () => {
-  authStore.logout()
-}
+  authStore.logout();
+};
 </script>
 ```
 
@@ -181,30 +201,30 @@ Token 存储在 localStorage 中，通过工具函数管理：
 // src/utils/auth/storage.ts
 
 // 存储键名
-const ACCESS_TOKEN_KEY = 'access_token'
-const REFRESH_TOKEN_KEY = 'refresh_token'
-const TOKEN_EXPIRY_KEY = 'token_expiry'
+const ACCESS_TOKEN_KEY = "access_token";
+const REFRESH_TOKEN_KEY = "refresh_token";
+const TOKEN_EXPIRY_KEY = "token_expiry";
 
 // 保存访问令牌
 export function saveAccessToken(token: string) {
-  localStorage.setItem(ACCESS_TOKEN_KEY, token)
+  localStorage.setItem(ACCESS_TOKEN_KEY, token);
 }
 
 // 获取访问令牌
 export function getAccessToken(): string | null {
-  return localStorage.getItem(ACCESS_TOKEN_KEY)
+  return localStorage.getItem(ACCESS_TOKEN_KEY);
 }
 
 // 清除所有 Token
 export function clearAuthTokens() {
-  localStorage.removeItem(ACCESS_TOKEN_KEY)
-  localStorage.removeItem(REFRESH_TOKEN_KEY)
-  localStorage.removeItem(TOKEN_EXPIRY_KEY)
+  localStorage.removeItem(ACCESS_TOKEN_KEY);
+  localStorage.removeItem(REFRESH_TOKEN_KEY);
+  localStorage.removeItem(TOKEN_EXPIRY_KEY);
 }
 
 // 检查是否有 Token
 export function hasAccessToken(): boolean {
-  return !!getAccessToken()
+  return !!getAccessToken();
 }
 ```
 

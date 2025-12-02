@@ -1,5 +1,16 @@
 # 数字格式化工具
 
+<!--TOC-->
+
+- [需求背景](#需求背景) `:18:21`
+- [已实现功能](#已实现功能) `:22:23`
+  - [格式化函数](#格式化函数) `:24:32`
+  - [辅助函数](#辅助函数) `:33:37`
+- [使用方式](#使用方式) `:38:49`
+- [代码位置](#代码位置) `:50:56`
+
+<!--TOC-->
+
 > **状态**: ✅ 已完成
 > **优先级**: 中
 > **完成日期**: 2024-11-30
@@ -27,19 +38,13 @@
 ## 使用方式
 
 ```typescript
-import {
-  formatNumber,
-  formatCurrency,
-  formatPercent,
-  formatCompact,
-  formatFileSize
-} from "@/utils/number";
+import { formatNumber, formatCurrency, formatPercent, formatCompact, formatFileSize } from "@/utils/number";
 
-formatNumber(1234567);        // "1,234,567"
-formatCurrency(99.9);         // "¥99.90"
+formatNumber(1234567); // "1,234,567"
+formatCurrency(99.9); // "¥99.90"
 formatPercent(0.156, { multiply: true }); // "15.6%"
-formatCompact(12345678);      // "1234.6万"
-formatFileSize(1073741824);   // "1.00 GB"
+formatCompact(12345678); // "1234.6万"
+formatFileSize(1073741824); // "1.00 GB"
 ```
 
 ## 代码位置

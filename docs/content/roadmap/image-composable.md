@@ -1,5 +1,26 @@
 # Image Composable
 
+<!--TOC-->
+
+- [需求背景](#需求背景) `:28:31`
+- [已实现功能](#已实现功能) `:32:33`
+  - [加载管理](#加载管理) `:34:40`
+  - [处理工具](#处理工具) `:41:45`
+- [使用方式](#使用方式) `:46:47`
+  - [基础加载](#基础加载) `:48:78`
+  - [图片预加载](#图片预加载) `:79:94`
+  - [懒加载](#懒加载) `:95:111`
+  - [渐进式加载](#渐进式加载) `:112:131`
+  - [图片验证](#图片验证) `:132:158`
+  - [图片压缩](#图片压缩) `:159:183`
+- [API](#api) `:184:185`
+  - [useImage](#useimage) `:186:210`
+  - [validateImage](#validateimage) `:211:223`
+  - [useImageCompression](#useimagecompression) `:224:232`
+- [代码位置](#代码位置) `:233:239`
+
+<!--TOC-->
+
 > **状态**: ✅ 已完成
 > **优先级**: 中
 > **完成日期**: 2024-11-30
@@ -29,9 +50,7 @@
 ```typescript
 import { useImage } from "@/composables/useImage";
 
-const { isLoading, isReady, error, width, height, aspectRatio } = useImage(
-  "/image.jpg"
-);
+const { isLoading, isReady, error, width, height, aspectRatio } = useImage("/image.jpg");
 
 // 监听加载状态
 watch(isReady, (ready) => {
@@ -64,8 +83,7 @@ import { useImagePreload } from "@/composables/useImage";
 
 const images = ["/img1.jpg", "/img2.jpg", "/img3.jpg"];
 
-const { preload, progress, isLoading, loaded, total, failed } =
-  useImagePreload(images);
+const { preload, progress, isLoading, loaded, total, failed } = useImagePreload(images);
 
 // 开始预加载
 await preload();
@@ -79,13 +97,10 @@ console.log(`失败: ${failed.value}`);
 ```typescript
 import { useLazyImage } from "@/composables/useImage";
 
-const { targetRef, isVisible, isReady, image } = useLazyImage(
-  "/large-image.jpg",
-  {
-    threshold: 0.1, // 10% 可见时加载
-    rootMargin: "50px", // 提前 50px 开始加载
-  }
-);
+const { targetRef, isVisible, isReady, image } = useLazyImage("/large-image.jpg", {
+  threshold: 0.1, // 10% 可见时加载
+  rootMargin: "50px", // 提前 50px 开始加载
+});
 
 // 在模板中使用
 // <div ref="targetRef">
@@ -146,19 +161,16 @@ const handleFileSelect = async (file: File) => {
 ```typescript
 import { useImageCompression } from "@/composables/useImage";
 
-const { compress, compressMultiple, isCompressing, progress } =
-  useImageCompression({
-    maxWidth: 1920,
-    maxHeight: 1080,
-    quality: 0.8,
-    type: "image/jpeg",
-  });
+const { compress, compressMultiple, isCompressing, progress } = useImageCompression({
+  maxWidth: 1920,
+  maxHeight: 1080,
+  quality: 0.8,
+  type: "image/jpeg",
+});
 
 // 压缩单张图片
 const compressedBlob = await compress(file);
-console.log(
-  `压缩后: ${(compressedBlob.size / 1024).toFixed(2)}KB`
-);
+console.log(`压缩后: ${(compressedBlob.size / 1024).toFixed(2)}KB`);
 
 // 压缩多张图片
 const compressedBlobs = await compressMultiple(files);
@@ -173,50 +185,50 @@ watch(progress, (p) => {
 
 ### useImage
 
-| 选项           | 类型                 | 默认值 | 说明             |
-| -------------- | -------------------- | ------ | ---------------- |
-| immediate      | boolean              | true   | 是否立即加载     |
-| delay          | number               | 0      | 加载延迟（毫秒） |
-| fallback       | string               | -      | 回退图片         |
-| placeholder    | string               | -      | 占位图片         |
-| crossOrigin    | string               | -      | 跨域设置         |
-| timeout        | number               | -      | 超时时间（毫秒） |
-| onLoad         | `(img) => void       ` | -      | 加载成功回调     |
-| onError        | `(err) => void       ` | -      | 加载失败回调     |
+| 选项        | 类型                   | 默认值 | 说明             |
+| ----------- | ---------------------- | ------ | ---------------- |
+| immediate   | boolean                | true   | 是否立即加载     |
+| delay       | number                 | 0      | 加载延迟（毫秒） |
+| fallback    | string                 | -      | 回退图片         |
+| placeholder | string                 | -      | 占位图片         |
+| crossOrigin | string                 | -      | 跨域设置         |
+| timeout     | number                 | -      | 超时时间（毫秒） |
+| onLoad      | `(img) => void       ` | -      | 加载成功回调     |
+| onError     | `(err) => void       ` | -      | 加载失败回调     |
 
-| 返回值      | 类型                          | 说明         |
-| ----------- | ----------------------------- | ------------ |
-| image       | Ref\<HTMLImageElement \| null\> | 图片元素   |
-| isLoading   | Ref\<boolean\>                | 是否正在加载 |
-| isReady     | Ref\<boolean\>                | 是否加载完成 |
-| error       | Ref\<Error \| null\>          | 加载错误     |
-| width       | Ref\<number\>                 | 图片宽度     |
-| height      | Ref\<number\>                 | 图片高度     |
-| aspectRatio | ComputedRef\<number\>         | 宽高比       |
+| 返回值      | 类型                            | 说明         |
+| ----------- | ------------------------------- | ------------ |
+| image       | Ref\<HTMLImageElement \| null\> | 图片元素     |
+| isLoading   | Ref\<boolean\>                  | 是否正在加载 |
+| isReady     | Ref\<boolean\>                  | 是否加载完成 |
+| error       | Ref\<Error \| null\>            | 加载错误     |
+| width       | Ref\<number\>                   | 图片宽度     |
+| height      | Ref\<number\>                   | 图片高度     |
+| aspectRatio | ComputedRef\<number\>           | 宽高比       |
 | load        | `() => Promise                ` | 手动加载     |
 | abort       | `() => void                   ` | 取消加载     |
 
 ### validateImage
 
-| 选项                 | 类型     | 说明               |
-| -------------------- | -------- | ------------------ |
-| maxWidth             | number   | 最大宽度           |
-| maxHeight            | number   | 最大高度           |
-| minWidth             | number   | 最小宽度           |
-| minHeight            | number   | 最小高度           |
-| maxSize              | number   | 最大文件大小（字节）|
-| allowedTypes         | string[] | 允许的 MIME 类型   |
-| aspectRatio          | number   | 固定宽高比         |
-| aspectRatioTolerance | number   | 宽高比容差（默认0.1）|
+| 选项                 | 类型     | 说明                  |
+| -------------------- | -------- | --------------------- |
+| maxWidth             | number   | 最大宽度              |
+| maxHeight            | number   | 最大高度              |
+| minWidth             | number   | 最小宽度              |
+| minHeight            | number   | 最小高度              |
+| maxSize              | number   | 最大文件大小（字节）  |
+| allowedTypes         | string[] | 允许的 MIME 类型      |
+| aspectRatio          | number   | 固定宽高比            |
+| aspectRatioTolerance | number   | 宽高比容差（默认0.1） |
 
 ### useImageCompression
 
-| 选项      | 类型   | 默认值       | 说明               |
-| --------- | ------ | ------------ | ------------------ |
-| maxWidth  | number | 1920         | 最大宽度           |
-| maxHeight | number | 1080         | 最大高度           |
-| quality   | number | 0.8          | 压缩质量 (0-1)     |
-| type      | string | 'image/jpeg' | 输出类型           |
+| 选项      | 类型   | 默认值       | 说明           |
+| --------- | ------ | ------------ | -------------- |
+| maxWidth  | number | 1920         | 最大宽度       |
+| maxHeight | number | 1080         | 最大高度       |
+| quality   | number | 0.8          | 压缩质量 (0-1) |
+| type      | string | 'image/jpeg' | 输出类型       |
 
 ## 代码位置
 

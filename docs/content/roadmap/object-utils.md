@@ -1,5 +1,27 @@
 # 对象工具函数
 
+<!--TOC-->
+
+- [需求背景](#需求背景) `:29:32`
+- [已实现功能](#已实现功能) `:33:34`
+  - [深度操作](#深度操作) `:35:40`
+  - [路径操作](#路径操作) `:41:47`
+  - [筛选与转换](#筛选与转换) `:48:55`
+  - [类型检查](#类型检查) `:56:61`
+  - [遍历](#遍历) `:62:66`
+  - [差异比较](#差异比较) `:67:70`
+  - [其他](#其他) `:71:77`
+- [使用方式](#使用方式) `:78:79`
+  - [深度操作](#深度操作-1) `:80:95`
+  - [路径操作](#路径操作-1) `:96:117`
+  - [筛选与转换](#筛选与转换-1) `:118:139`
+  - [差异比较](#差异比较-1) `:140:152`
+- [API](#api) `:153:154`
+  - [主要函数](#主要函数) `:155:167`
+- [代码位置](#代码位置) `:168:174`
+
+<!--TOC-->
+
 > **状态**: ✅ 已完成
 > **优先级**: 中
 > **完成日期**: 2024-11-30
@@ -64,10 +86,7 @@ import { deepClone, deepMerge, deepEqual } from "@/utils/object";
 const copy = deepClone({ a: { b: 1 } });
 
 // 深度合并
-const merged = deepMerge(
-  { a: { b: 1 } },
-  { a: { c: 2 } }
-);
+const merged = deepMerge({ a: { b: 1 } }, { a: { c: 2 } });
 // { a: { b: 1, c: 2 } }
 
 // 深度比较
@@ -110,11 +129,11 @@ pick(user, ["id", "name"]); // { id: 1, name: "John" }
 omit(user, ["password"]); // { id: 1, name: "John" }
 
 // 过滤
-filterObject({ a: 1, b: null, c: 2 }, v => v !== null);
+filterObject({ a: 1, b: null, c: 2 }, (v) => v !== null);
 // { a: 1, c: 2 }
 
 // 转换
-mapObject({ a: 1, b: 2 }, v => v * 2);
+mapObject({ a: 1, b: 2 }, (v) => v * 2);
 // { a: 2, b: 4 }
 ```
 
@@ -123,10 +142,7 @@ mapObject({ a: 1, b: 2 }, v => v * 2);
 ```typescript
 import { diff } from "@/utils/object";
 
-const changes = diff(
-  { a: 1, b: 2 },
-  { a: 1, c: 3 }
-);
+const changes = diff({ a: 1, b: 2 }, { a: 1, c: 3 });
 // {
 //   added: { c: 3 },
 //   removed: { b: 2 },
@@ -138,16 +154,16 @@ const changes = diff(
 
 ### 主要函数
 
-| 函数 | 说明 |
-|------|------|
-| deepClone(obj) | 深拷贝 |
-| deepMerge(target, ...sources) | 深度合并 |
-| deepEqual(a, b) | 深度比较 |
-| get(obj, path, default?) | 获取嵌套值 |
-| set(obj, path, value) | 设置嵌套值 |
-| pick(obj, keys) | 选取指定键 |
-| omit(obj, keys) | 排除指定键 |
-| diff(prev, next) | 比较差异 |
+| 函数                          | 说明       |
+| ----------------------------- | ---------- |
+| deepClone(obj)                | 深拷贝     |
+| deepMerge(target, ...sources) | 深度合并   |
+| deepEqual(a, b)               | 深度比较   |
+| get(obj, path, default?)      | 获取嵌套值 |
+| set(obj, path, value)         | 设置嵌套值 |
+| pick(obj, keys)               | 选取指定键 |
+| omit(obj, keys)               | 排除指定键 |
+| diff(prev, next)              | 比较差异   |
 
 ## 代码位置
 

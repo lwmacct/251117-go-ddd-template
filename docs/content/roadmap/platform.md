@@ -1,5 +1,25 @@
 # 平台检测工具
 
+<!--TOC-->
+
+- [需求背景](#需求背景) `:27:30`
+- [已实现功能](#已实现功能) `:31:32`
+  - [浏览器检测](#浏览器检测) `:33:37`
+  - [操作系统检测](#操作系统检测) `:38:42`
+  - [设备检测](#设备检测) `:43:47`
+  - [特性检测](#特性检测) `:48:56`
+- [使用方式](#使用方式) `:57:58`
+  - [获取完整信息](#获取完整信息) `:59:69`
+  - [便捷判断函数](#便捷判断函数) `:70:92`
+  - [特性检测](#特性检测-1) `:93:114`
+  - [在 Vue 中使用](#在-vue-中使用) `:115:132`
+- [API](#api) `:133:134`
+  - [getPlatformInfo 返回值](#getplatforminfo-返回值) `:135:146`
+  - [便捷函数](#便捷函数) `:147:155`
+- [代码位置](#代码位置) `:156:162`
+
+<!--TOC-->
+
 > **状态**: ✅ 已完成
 > **优先级**: 低
 > **完成日期**: 2024-11-30
@@ -42,23 +62,15 @@
 import { getPlatformInfo } from "@/utils/platform";
 
 const info = getPlatformInfo();
-console.log(info.browser.name);  // "Chrome"
-console.log(info.os.name);       // "macOS"
-console.log(info.device.type);   // "desktop"
+console.log(info.browser.name); // "Chrome"
+console.log(info.os.name); // "macOS"
+console.log(info.device.type); // "desktop"
 ```
 
 ### 便捷判断函数
 
 ```typescript
-import {
-  isChrome,
-  isSafari,
-  isIOS,
-  isAndroid,
-  isMobile,
-  isDesktop,
-  isTouchDevice
-} from "@/utils/platform";
+import { isChrome, isSafari, isIOS, isAndroid, isMobile, isDesktop, isTouchDevice } from "@/utils/platform";
 
 // 条件渲染
 if (isMobile()) {
@@ -81,12 +93,7 @@ if (isTouchDevice()) {
 ### 特性检测
 
 ```typescript
-import {
-  supportsWebP,
-  supportsWebGL,
-  prefersDarkMode,
-  prefersReducedMotion
-} from "@/utils/platform";
+import { supportsWebP, supportsWebGL, prefersDarkMode, prefersReducedMotion } from "@/utils/platform";
 
 // 异步检测
 const hasWebP = await supportsWebP();
@@ -127,24 +134,24 @@ const isMobileDevice = computed(() => isMobile());
 
 ### getPlatformInfo 返回值
 
-| 属性 | 类型 | 说明 |
-|------|------|------|
-| browser | BrowserInfo | 浏览器信息 |
-| os | OSInfo | 操作系统信息 |
-| device | DeviceInfo | 设备信息 |
-| isTouch | boolean | 是否触摸设备 |
-| isStandalone | boolean | 是否 PWA 模式 |
-| language | string | 用户语言 |
-| cookieEnabled | boolean | Cookie 是否启用 |
+| 属性          | 类型        | 说明            |
+| ------------- | ----------- | --------------- |
+| browser       | BrowserInfo | 浏览器信息      |
+| os            | OSInfo      | 操作系统信息    |
+| device        | DeviceInfo  | 设备信息        |
+| isTouch       | boolean     | 是否触摸设备    |
+| isStandalone  | boolean     | 是否 PWA 模式   |
+| language      | string      | 用户语言        |
+| cookieEnabled | boolean     | Cookie 是否启用 |
 
 ### 便捷函数
 
-| 函数 | 说明 |
-|------|------|
-| isChrome / isFirefox / isSafari / isEdge | 浏览器判断 |
-| isWindows / isMacOS / isIOS / isAndroid | 操作系统判断 |
-| isMobile / isTablet / isDesktop | 设备类型判断 |
-| isTouchDevice / isStandalone | 特性判断 |
+| 函数                                     | 说明         |
+| ---------------------------------------- | ------------ |
+| isChrome / isFirefox / isSafari / isEdge | 浏览器判断   |
+| isWindows / isMacOS / isIOS / isAndroid  | 操作系统判断 |
+| isMobile / isTablet / isDesktop          | 设备类型判断 |
+| isTouchDevice / isStandalone             | 特性判断     |
 
 ## 代码位置
 

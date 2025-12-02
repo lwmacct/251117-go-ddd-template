@@ -1,5 +1,27 @@
 # 配置管理
 
+<!--TOC-->
+
+- [配置优先级](#配置优先级) `:27:35`
+- [配置文件](#配置文件) `:36:37`
+  - [配置示例](#配置示例) `:38:63`
+- [环境变量](#环境变量) `:64:85`
+- [配置结构](#配置结构) `:86:87`
+  - [Server 配置](#server-配置) `:88:96`
+  - [Data 配置](#data-配置) `:97:105`
+  - [JWT 配置](#jwt-配置) `:106:113`
+  - [Log 配置](#log-配置) `:114:120`
+- [生产环境配置](#生产环境配置) `:121:122`
+  - [使用 Docker](#使用-docker) `:123:131`
+  - [使用 Kubernetes](#使用-kubernetes) `:132:145`
+  - [使用 Systemd](#使用-systemd) `:146:155`
+- [配置验证](#配置验证) `:156:163`
+- [动态配置](#动态配置) `:164:171`
+- [安全建议](#安全建议) `:172:188`
+- [配置最佳实践](#配置最佳实践) `:189:207`
+
+<!--TOC-->
+
 Go DDD Template 使用 Koanf 作为配置管理库，支持多层配置优先级和多种配置源。
 
 ## 配置优先级
@@ -36,7 +58,7 @@ jwt:
 
 log:
   level: "info"
-  format: "text"  # text or json
+  format: "text" # text or json
 ```
 
 ## 环境变量
@@ -65,35 +87,35 @@ export APP_LOG_FORMAT="json"
 
 ### Server 配置
 
-| 字段 | 类型 | 默认值 | 说明 |
-|-----|------|-------|------|
-| addr | string | ":8080" | 服务监听地址 |
-| env | string | "development" | 运行环境 |
-| static_dir | string | "web/dist" | 静态文件目录 |
-| docs_dir | string | "docs/.vitepress/dist" | 文档目录 |
+| 字段       | 类型   | 默认值                 | 说明         |
+| ---------- | ------ | ---------------------- | ------------ |
+| addr       | string | ":8080"                | 服务监听地址 |
+| env        | string | "development"          | 运行环境     |
+| static_dir | string | "web/dist"             | 静态文件目录 |
+| docs_dir   | string | "docs/.vitepress/dist" | 文档目录     |
 
 ### Data 配置
 
-| 字段 | 类型 | 默认值 | 说明 |
-|-----|------|-------|------|
-| pgsql_url | string | - | PostgreSQL 连接字符串 |
-| redis_url | string | - | Redis 连接字符串 |
-| redis_key_prefix | string | "app:" | Redis 键前缀 |
-| auto_migrate | bool | false | 自动执行数据库迁移 |
+| 字段             | 类型   | 默认值 | 说明                  |
+| ---------------- | ------ | ------ | --------------------- |
+| pgsql_url        | string | -      | PostgreSQL 连接字符串 |
+| redis_url        | string | -      | Redis 连接字符串      |
+| redis_key_prefix | string | "app:" | Redis 键前缀          |
+| auto_migrate     | bool   | false  | 自动执行数据库迁移    |
 
 ### JWT 配置
 
-| 字段 | 类型 | 默认值 | 说明 |
-|-----|------|-------|------|
-| secret | string | - | JWT 签名密钥 |
-| access_token_expiry | string | "15m" | 访问令牌有效期 |
+| 字段                 | 类型   | 默认值 | 说明           |
+| -------------------- | ------ | ------ | -------------- |
+| secret               | string | -      | JWT 签名密钥   |
+| access_token_expiry  | string | "15m"  | 访问令牌有效期 |
 | refresh_token_expiry | string | "168h" | 刷新令牌有效期 |
 
 ### Log 配置
 
-| 字段 | 类型 | 默认值 | 说明 |
-|-----|------|-------|------|
-| level | string | "info" | 日志级别 |
+| 字段   | 类型   | 默认值 | 说明                 |
+| ------ | ------ | ------ | -------------------- |
+| level  | string | "info" | 日志级别             |
 | format | string | "text" | 日志格式 (text/json) |
 
 ## 生产环境配置
@@ -167,6 +189,7 @@ EnvironmentFile=/etc/app/env
 ## 配置最佳实践
 
 1. **环境分离**
+
    ```
    configs/
    ├── config.dev.yaml      # 开发环境

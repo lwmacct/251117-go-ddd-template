@@ -1,5 +1,30 @@
 # Preferences Composable
 
+<!--TOC-->
+
+- [需求背景](#需求背景) `:32:35`
+- [已实现功能](#已实现功能) `:36:37`
+  - [偏好检测](#偏好检测) `:38:46`
+  - [主题控制](#主题控制) `:47:51`
+- [使用方式](#使用方式) `:52:53`
+  - [检测深色模式偏好](#检测深色模式偏好) `:54:66`
+  - [深色模式控制](#深色模式控制) `:67:89`
+  - [颜色模式管理](#颜色模式管理) `:90:115`
+  - [语言偏好](#语言偏好) `:116:129`
+  - [减少动画偏好](#减少动画偏好) `:130:140`
+  - [对比度偏好](#对比度偏好) `:141:153`
+  - [透明度偏好](#透明度偏好) `:154:166`
+- [API](#api) `:167:168`
+  - [usePreferredDark](#usepreferreddark) `:169:175`
+  - [useDark](#usedark) `:176:195`
+  - [useColorMode](#usecolormode) `:196:212`
+  - [usePreferredLanguage](#usepreferredlanguage) `:213:220`
+  - [usePreferredReducedMotion](#usepreferredreducedmotion) `:221:227`
+  - [usePreferredContrast](#usepreferredcontrast) `:228:234`
+- [代码位置](#代码位置) `:235:241`
+
+<!--TOC-->
+
 > **状态**: ✅ 已完成
 > **优先级**: 中
 > **完成日期**: 2024-11-30
@@ -110,9 +135,7 @@ import { usePreferredReducedMotion } from "@/composables/usePreferences";
 const { isReduced, isSupported } = usePreferredReducedMotion();
 
 // 根据用户偏好调整动画
-const transition = computed(() =>
-  isReduced.value ? "none" : "all 0.3s ease"
-);
+const transition = computed(() => (isReduced.value ? "none" : "all 0.3s ease"));
 ```
 
 ### 对比度偏好
@@ -145,69 +168,69 @@ if (isReduced.value) {
 
 ### usePreferredDark
 
-| 返回值      | 类型                | 说明               |
-| ----------- | ------------------- | ------------------ |
-| isDark      | Ref\<boolean\>      | 是否偏好深色模式   |
-| isSupported | ComputedRef\<boolean\> | 是否支持        |
+| 返回值      | 类型                   | 说明             |
+| ----------- | ---------------------- | ---------------- |
+| isDark      | Ref\<boolean\>         | 是否偏好深色模式 |
+| isSupported | ComputedRef\<boolean\> | 是否支持         |
 
 ### useDark
 
-| 选项        | 类型                    | 默认值           | 说明               |
-| ----------- | ----------------------- | ---------------- | ------------------ |
-| initialValue | boolean \| 'auto'      | 'auto'           | 初始值             |
-| storageKey  | string                  | 'vue-use-dark'   | 存储键名           |
-| selector    | string                  | 'html'           | 目标选择器         |
-| attribute   | string                  | 'class'          | 属性名             |
-| valueDark   | string                  | 'dark'           | 深色值             |
-| valueLight  | string                  | ''               | 浅色值             |
-| onChanged   | `(isDark: boolean) => void` | -              | 变化回调           |
+| 选项         | 类型                        | 默认值         | 说明       |
+| ------------ | --------------------------- | -------------- | ---------- |
+| initialValue | boolean \| 'auto'           | 'auto'         | 初始值     |
+| storageKey   | string                      | 'vue-use-dark' | 存储键名   |
+| selector     | string                      | 'html'         | 目标选择器 |
+| attribute    | string                      | 'class'        | 属性名     |
+| valueDark    | string                      | 'dark'         | 深色值     |
+| valueLight   | string                      | ''             | 浅色值     |
+| onChanged    | `(isDark: boolean) => void` | -              | 变化回调   |
 
-| 返回值       | 类型           | 说明               |
-| ------------ | -------------- | ------------------ |
-| isDark       | Ref\<boolean\> | 是否为深色模式     |
-| toggle       | `() => void    ` | 切换模式           |
-| setDark      | `() => void    ` | 设置为深色         |
-| setLight     | `() => void    ` | 设置为浅色         |
-| systemIsDark | Ref\<boolean\> | 系统偏好           |
+| 返回值       | 类型             | 说明           |
+| ------------ | ---------------- | -------------- |
+| isDark       | Ref\<boolean\>   | 是否为深色模式 |
+| toggle       | `() => void    ` | 切换模式       |
+| setDark      | `() => void    ` | 设置为深色     |
+| setLight     | `() => void    ` | 设置为浅色     |
+| systemIsDark | Ref\<boolean\>   | 系统偏好       |
 
 ### useColorMode
 
-| 选项         | 类型         | 默认值              | 说明               |
-| ------------ | ------------ | ------------------- | ------------------ |
-| initialValue | ColorMode    | 'auto'              | 初始模式           |
-| storageKey   | string       | 'vue-use-color-mode' | 存储键名          |
-| modes        | ColorMode[]  | ['light','dark','auto'] | 可用模式       |
-| selector     | string       | 'html'              | 目标选择器         |
-| attribute    | string       | 'data-theme'        | 属性名             |
+| 选项         | 类型        | 默认值                  | 说明       |
+| ------------ | ----------- | ----------------------- | ---------- |
+| initialValue | ColorMode   | 'auto'                  | 初始模式   |
+| storageKey   | string      | 'vue-use-color-mode'    | 存储键名   |
+| modes        | ColorMode[] | ['light','dark','auto'] | 可用模式   |
+| selector     | string      | 'html'                  | 目标选择器 |
+| attribute    | string      | 'data-theme'            | 属性名     |
 
-| 返回值       | 类型                            | 说明               |
-| ------------ | ------------------------------- | ------------------ |
-| mode         | Ref\<ColorMode\>                | 当前模式           |
-| resolvedMode | ComputedRef\<'light'\|'dark'\>  | 实际应用模式       |
-| setMode      | `(mode: ColorMode) => void      ` | 设置模式           |
-| cycle        | `() => void                     ` | 循环切换           |
+| 返回值       | 类型                              | 说明         |
+| ------------ | --------------------------------- | ------------ |
+| mode         | Ref\<ColorMode\>                  | 当前模式     |
+| resolvedMode | ComputedRef\<'light'\|'dark'\>    | 实际应用模式 |
+| setMode      | `(mode: ColorMode) => void      ` | 设置模式     |
+| cycle        | `() => void                     ` | 循环切换     |
 
 ### usePreferredLanguage
 
-| 返回值      | 类型                     | 说明               |
-| ----------- | ------------------------ | ------------------ |
-| language    | Ref\<string\>            | 首选语言           |
-| languages   | Ref\<readonly string[]\> | 语言列表           |
-| isSupported | ComputedRef\<boolean\>   | 是否支持           |
+| 返回值      | 类型                     | 说明     |
+| ----------- | ------------------------ | -------- |
+| language    | Ref\<string\>            | 首选语言 |
+| languages   | Ref\<readonly string[]\> | 语言列表 |
+| isSupported | ComputedRef\<boolean\>   | 是否支持 |
 
 ### usePreferredReducedMotion
 
-| 返回值      | 类型                | 说明               |
-| ----------- | ------------------- | ------------------ |
-| isReduced   | Ref\<boolean\>      | 是否偏好减少动画   |
-| isSupported | ComputedRef\<boolean\> | 是否支持        |
+| 返回值      | 类型                   | 说明             |
+| ----------- | ---------------------- | ---------------- |
+| isReduced   | Ref\<boolean\>         | 是否偏好减少动画 |
+| isSupported | ComputedRef\<boolean\> | 是否支持         |
 
 ### usePreferredContrast
 
-| 返回值      | 类型                                              | 说明           |
-| ----------- | ------------------------------------------------- | -------------- |
-| contrast    | Ref\<'more'\|'less'\|'custom'\|'no-preference'\>  | 对比度偏好     |
-| isSupported | ComputedRef\<boolean\>                            | 是否支持       |
+| 返回值      | 类型                                             | 说明       |
+| ----------- | ------------------------------------------------ | ---------- |
+| contrast    | Ref\<'more'\|'less'\|'custom'\|'no-preference'\> | 对比度偏好 |
+| isSupported | ComputedRef\<boolean\>                           | 是否支持   |
 
 ## 代码位置
 

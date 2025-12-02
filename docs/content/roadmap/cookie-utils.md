@@ -1,5 +1,29 @@
 # Cookie 工具函数
 
+<!--TOC-->
+
+- [需求背景](#需求背景) `:31:34`
+- [已实现功能](#已实现功能) `:35:36`
+  - [基础操作](#基础操作) `:37:43`
+  - [批量操作](#批量操作) `:44:51`
+  - [JSON Cookie](#json-cookie) `:52:56`
+  - [解析工具](#解析工具) `:57:61`
+  - [工具函数](#工具函数) `:62:69`
+  - [Cookie 管理器](#cookie-管理器) `:70:73`
+  - [预设配置](#预设配置) `:74:80`
+- [使用方式](#使用方式) `:81:82`
+  - [基础操作](#基础操作-1) `:83:109`
+  - [JSON Cookie](#json-cookie-1) `:110:127`
+  - [批量操作](#批量操作-1) `:128:149`
+  - [Cookie 管理器](#cookie-管理器-1) `:150:170`
+  - [使用预设配置](#使用预设配置) `:171:182`
+- [API](#api) `:183:184`
+  - [Cookie 选项](#cookie-选项) `:185:195`
+  - [主要函数](#主要函数) `:196:207`
+- [代码位置](#代码位置) `:208:214`
+
+<!--TOC-->
+
 > **状态**: ✅ 已完成
 > **优先级**: 中
 > **完成日期**: 2024-11-30
@@ -116,7 +140,7 @@ setCookies(
     token: "abc",
     theme: "dark",
   },
-  { expires: 86400 }
+  { expires: 86400 },
 );
 
 // 清除所有
@@ -160,26 +184,26 @@ setCookie("token", "secret", SECURE_COOKIE);
 
 ### Cookie 选项
 
-| 选项     | 类型                         | 说明                   |
-| -------- | ---------------------------- | ---------------------- |
-| expires  | number \| Date               | 过期时间（秒或日期）   |
-| maxAge   | number                       | 最大存活时间（秒）     |
-| path     | string                       | 有效路径               |
-| domain   | string                       | 有效域名               |
-| secure   | boolean                      | 是否仅 HTTPS           |
-| sameSite | 'Strict' \| 'Lax' \| 'None'  | SameSite 策略          |
+| 选项     | 类型                        | 说明                 |
+| -------- | --------------------------- | -------------------- |
+| expires  | number \| Date              | 过期时间（秒或日期） |
+| maxAge   | number                      | 最大存活时间（秒）   |
+| path     | string                      | 有效路径             |
+| domain   | string                      | 有效域名             |
+| secure   | boolean                     | 是否仅 HTTPS         |
+| sameSite | 'Strict' \| 'Lax' \| 'None' | SameSite 策略        |
 
 ### 主要函数
 
-| 函数                         | 说明               |
-| ---------------------------- | ------------------ |
-| getCookie(name)              | 获取 Cookie        |
-| setCookie(name, value, opts) | 设置 Cookie        |
-| removeCookie(name)           | 删除 Cookie        |
-| getJsonCookie(name)          | 获取 JSON Cookie   |
-| setJsonCookie(name, value)   | 设置 JSON Cookie   |
-| getAllCookies()              | 获取所有 Cookie    |
-| createCookieManager(opts)    | 创建管理器         |
+| 函数                         | 说明             |
+| ---------------------------- | ---------------- |
+| getCookie(name)              | 获取 Cookie      |
+| setCookie(name, value, opts) | 设置 Cookie      |
+| removeCookie(name)           | 删除 Cookie      |
+| getJsonCookie(name)          | 获取 JSON Cookie |
+| setJsonCookie(name, value)   | 设置 JSON Cookie |
+| getAllCookies()              | 获取所有 Cookie  |
+| createCookieManager(opts)    | 创建管理器       |
 
 ## 代码位置
 

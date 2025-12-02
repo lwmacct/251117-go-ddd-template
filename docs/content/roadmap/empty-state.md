@@ -1,5 +1,20 @@
 # 空状态组件
 
+<!--TOC-->
+
+- [需求背景](#需求背景) `:22:25`
+- [已实现功能](#已实现功能) `:26:27`
+  - [EmptyState 组件](#emptystate-组件) `:28:34`
+- [组件接口](#组件接口) `:35:36`
+  - [基础用法](#基础用法) `:37:42`
+  - [自定义内容](#自定义内容) `:43:48`
+  - [使用插槽](#使用插槽) `:49:58`
+- [Props](#props) `:59:71`
+- [预设类型](#预设类型) `:72:80`
+- [代码位置](#代码位置) `:81:87`
+
+<!--TOC-->
+
 > **状态**: ✅ 已完成
 > **优先级**: 中
 > **完成日期**: 2024-11-30
@@ -28,14 +43,7 @@
 ### 自定义内容
 
 ```vue
-<EmptyState
-  icon="mdi-file-outline"
-  title="暂无文件"
-  description="上传文件开始使用"
-  action-text="上传文件"
-  :show-action="true"
-  @action="handleUpload"
-/>
+<EmptyState icon="mdi-file-outline" title="暂无文件" description="上传文件开始使用" action-text="上传文件" :show-action="true" @action="handleUpload" />
 ```
 
 ### 使用插槽
@@ -50,25 +58,25 @@
 
 ## Props
 
-| 属性 | 类型 | 默认值 | 说明 |
-|------|------|--------|------|
-| type | "empty" \| "search" \| "error" \| "no-permission" \| "custom" | "custom" | 预设类型 |
-| icon | string | - | 自定义图标 |
-| title | string | - | 自定义标题 |
-| description | string | - | 自定义描述 |
-| iconSize | string \| number | 80 | 图标大小 |
-| iconColor | string | "grey-lighten-1" | 图标颜色 |
-| actionText | string | - | 操作按钮文本 |
-| showAction | boolean | false | 是否显示操作按钮 |
+| 属性        | 类型                                                          | 默认值           | 说明             |
+| ----------- | ------------------------------------------------------------- | ---------------- | ---------------- |
+| type        | "empty" \| "search" \| "error" \| "no-permission" \| "custom" | "custom"         | 预设类型         |
+| icon        | string                                                        | -                | 自定义图标       |
+| title       | string                                                        | -                | 自定义标题       |
+| description | string                                                        | -                | 自定义描述       |
+| iconSize    | string \| number                                              | 80               | 图标大小         |
+| iconColor   | string                                                        | "grey-lighten-1" | 图标颜色         |
+| actionText  | string                                                        | -                | 操作按钮文本     |
+| showAction  | boolean                                                       | false            | 是否显示操作按钮 |
 
 ## 预设类型
 
-| 类型 | 图标 | 标题 | 描述 |
-|------|------|------|------|
-| empty | mdi-inbox-outline | 暂无数据 | 当前列表为空 |
-| search | mdi-file-search-outline | 未找到结果 | 尝试修改搜索条件或清空筛选 |
-| error | mdi-alert-circle-outline | 加载失败 | 数据加载出错，请稍后重试 |
-| no-permission | mdi-lock-outline | 无权限访问 | 您没有权限查看此内容 |
+| 类型          | 图标                     | 标题       | 描述                       |
+| ------------- | ------------------------ | ---------- | -------------------------- |
+| empty         | mdi-inbox-outline        | 暂无数据   | 当前列表为空               |
+| search        | mdi-file-search-outline  | 未找到结果 | 尝试修改搜索条件或清空筛选 |
+| error         | mdi-alert-circle-outline | 加载失败   | 数据加载出错，请稍后重试   |
+| no-permission | mdi-lock-outline         | 无权限访问 | 您没有权限查看此内容       |
 
 ## 代码位置
 

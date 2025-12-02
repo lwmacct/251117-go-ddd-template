@@ -1,5 +1,29 @@
 # Mouse Composable
 
+<!--TOC-->
+
+- [需求背景](#需求背景) `:31:34`
+- [已实现功能](#已实现功能) `:35:36`
+  - [位置跟踪](#位置跟踪) `:37:41`
+  - [状态跟踪](#状态跟踪) `:42:46`
+  - [光标控制](#光标控制) `:47:50`
+  - [拖放](#拖放) `:51:54`
+- [使用方式](#使用方式) `:55:56`
+  - [鼠标位置](#鼠标位置) `:57:72`
+  - [元素内位置](#元素内位置) `:73:85`
+  - [鼠标按下状态](#鼠标按下状态) `:86:100`
+  - [悬停状态](#悬停状态) `:101:115`
+  - [光标控制](#光标控制-1) `:116:132`
+  - [拖放区域](#拖放区域) `:133:154`
+- [API](#api) `:155:156`
+  - [useMouse](#usemouse) `:157:172`
+  - [useMouseInElement](#usemouseinelement) `:173:184`
+  - [useHover](#usehover) `:185:191`
+  - [useDropZone](#usedropzone) `:192:201`
+- [代码位置](#代码位置) `:202:208`
+
+<!--TOC-->
+
 > **状态**: ✅ 已完成
 > **优先级**: 中
 > **完成日期**: 2024-11-30
@@ -52,8 +76,7 @@ const { x, y } = useMouse({ target });
 import { useMouseInElement } from "@/composables/useMouse";
 
 const target = ref<HTMLElement | null>(null);
-const { x, y, isOutside, elementWidth, elementHeight } =
-  useMouseInElement(target);
+const { x, y, isOutside, elementWidth, elementHeight } = useMouseInElement(target);
 
 // 计算百分比位置
 const percentX = computed(() => (x.value / elementWidth.value) * 100);
@@ -133,48 +156,48 @@ const dropZoneClass = computed(() => ({
 
 ### useMouse
 
-| 选项         | 类型                    | 说明               |
-| ------------ | ----------------------- | ------------------ |
-| target       | Window \| HTMLElement   | 目标元素           |
-| type         | 'page'\|'client'\|'screen' | 坐标类型        |
-| touch        | boolean                 | 是否支持触摸       |
-| initialValue | MousePosition           | 初始位置           |
+| 选项         | 类型                       | 说明         |
+| ------------ | -------------------------- | ------------ |
+| target       | Window \| HTMLElement      | 目标元素     |
+| type         | 'page'\|'client'\|'screen' | 坐标类型     |
+| touch        | boolean                    | 是否支持触摸 |
+| initialValue | MousePosition              | 初始位置     |
 
-| 返回值     | 类型                  | 说明               |
-| ---------- | --------------------- | ------------------ |
-| x          | `Ref<number>          ` | X 坐标             |
-| y          | `Ref<number>          ` | Y 坐标             |
-| position   | `Ref<MousePosition>   ` | 位置对象           |
-| sourceType | Ref<'mouse'\|'touch'> | 输入源类型         |
+| 返回值     | 类型                    | 说明       |
+| ---------- | ----------------------- | ---------- |
+| x          | `Ref<number>          ` | X 坐标     |
+| y          | `Ref<number>          ` | Y 坐标     |
+| position   | `Ref<MousePosition>   ` | 位置对象   |
+| sourceType | Ref<'mouse'\|'touch'>   | 输入源类型 |
 
 ### useMouseInElement
 
-| 返回值        | 说明               |
-| ------------- | ------------------ |
-| x             | 相对元素的 X 坐标  |
-| y             | 相对元素的 Y 坐标  |
-| isOutside     | 是否在元素外       |
-| elementX      | 元素左边距         |
-| elementY      | 元素上边距         |
-| elementWidth  | 元素宽度           |
-| elementHeight | 元素高度           |
+| 返回值        | 说明              |
+| ------------- | ----------------- |
+| x             | 相对元素的 X 坐标 |
+| y             | 相对元素的 Y 坐标 |
+| isOutside     | 是否在元素外      |
+| elementX      | 元素左边距        |
+| elementY      | 元素上边距        |
+| elementWidth  | 元素宽度          |
+| elementHeight | 元素高度          |
 
 ### useHover
 
-| 选项       | 说明               |
-| ---------- | ------------------ |
-| delayEnter | 进入延迟（毫秒）   |
-| delayLeave | 离开延迟（毫秒）   |
+| 选项       | 说明             |
+| ---------- | ---------------- |
+| delayEnter | 进入延迟（毫秒） |
+| delayLeave | 离开延迟（毫秒） |
 
 ### useDropZone
 
-| 选项          | 说明               |
-| ------------- | ------------------ |
-| accept        | 接受的文件类型     |
-| preventDefault| 是否阻止默认行为   |
-| onDragEnter   | 拖入回调           |
-| onDragLeave   | 拖出回调           |
-| onDrop        | 拖放回调           |
+| 选项           | 说明             |
+| -------------- | ---------------- |
+| accept         | 接受的文件类型   |
+| preventDefault | 是否阻止默认行为 |
+| onDragEnter    | 拖入回调         |
+| onDragLeave    | 拖出回调         |
+| onDrop         | 拖放回调         |
 
 ## 代码位置
 

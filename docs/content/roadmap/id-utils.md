@@ -1,5 +1,30 @@
 # ID 生成工具
 
+<!--TOC-->
+
+- [需求背景](#需求背景) `:32:35`
+- [已实现功能](#已实现功能) `:36:37`
+  - [UUID 生成](#uuid-生成) `:38:43`
+  - [NanoID 风格](#nanoid-风格) `:44:52`
+  - [时间戳 ID](#时间戳-id) `:53:58`
+  - [前缀 ID](#前缀-id) `:59:63`
+  - [序列 ID](#序列-id) `:64:68`
+  - [高级 ID](#高级-id) `:69:74`
+  - [实用工具](#实用工具) `:75:81`
+- [使用方式](#使用方式) `:82:83`
+  - [UUID](#uuid) `:84:98`
+  - [NanoID 风格](#nanoid-风格-1) `:99:116`
+  - [前缀 ID](#前缀-id-1) `:117:131`
+  - [序列 ID](#序列-id-1) `:132:147`
+  - [雪花 ID](#雪花-id) `:148:161`
+  - [ULID](#ulid) `:162:174`
+  - [ID 工厂](#id-工厂) `:175:190`
+- [API](#api) `:191:192`
+  - [主要函数](#主要函数) `:193:205`
+- [代码位置](#代码位置) `:206:212`
+
+<!--TOC-->
+
 > **状态**: ✅ 已完成
 > **优先级**: 中
 > **完成日期**: 2024-11-30
@@ -167,16 +192,16 @@ ids.session(); // 'V1StGXR8_Z5jdHi6B-myT'
 
 ### 主要函数
 
-| 函数                       | 说明               |
-| -------------------------- | ------------------ |
-| uuid()                     | UUID v4            |
-| nanoid(size?)              | NanoID 风格 ID     |
-| prefixedId(prefix, size?)  | 带前缀 ID          |
-| createSequence(start?)     | 序列生成器         |
-| createSnowflake(config?)   | 雪花 ID 生成器     |
-| ulid()                     | ULID               |
-| generateIds(count, gen?)   | 批量生成           |
-| ensureUniqueId(set, gen?)  | 确保唯一           |
+| 函数                      | 说明           |
+| ------------------------- | -------------- |
+| uuid()                    | UUID v4        |
+| nanoid(size?)             | NanoID 风格 ID |
+| prefixedId(prefix, size?) | 带前缀 ID      |
+| createSequence(start?)    | 序列生成器     |
+| createSnowflake(config?)  | 雪花 ID 生成器 |
+| ulid()                    | ULID           |
+| generateIds(count, gen?)  | 批量生成       |
+| ensureUniqueId(set, gen?) | 确保唯一       |
 
 ## 代码位置
 

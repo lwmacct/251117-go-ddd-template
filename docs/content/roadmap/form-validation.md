@@ -1,5 +1,18 @@
 # 表单验证工具
 
+<!--TOC-->
+
+- [需求背景](#需求背景) `:20:23`
+- [已实现功能](#已实现功能) `:24:25`
+  - [验证规则](#验证规则) `:26:41`
+- [使用方式](#使用方式) `:42:43`
+  - [与 Vuetify 表单配合](#与-vuetify-表单配合) `:44:49`
+  - [手动验证](#手动验证) `:50:61`
+  - [验证整个对象](#验证整个对象) `:62:72`
+- [代码位置](#代码位置) `:73:79`
+
+<!--TOC-->
+
 > **状态**: ✅ 已完成
 > **优先级**: 中
 > **完成日期**: 2024-11-30
@@ -31,10 +44,7 @@
 ### 与 Vuetify 表单配合
 
 ```vue
-<v-text-field
-  v-model="email"
-  :rules="[rules.required(), rules.email()]"
-/>
+<v-text-field v-model="email" :rules="[rules.required(), rules.email()]" />
 ```
 
 ### 手动验证
@@ -42,10 +52,7 @@
 ```typescript
 import { validate, rules } from "@/utils/validation";
 
-const error = validate(email, [
-  rules.required(),
-  rules.email()
-]);
+const error = validate(email, [rules.required(), rules.email()]);
 
 if (error) {
   console.log(error); // 错误消息
