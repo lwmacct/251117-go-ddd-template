@@ -30,6 +30,8 @@ import (
 
 	// Swagger 文档
 	_ "github.com/lwmacct/251117-go-ddd-template/internal/adapters/http/docs" // Swagger docs
+
+	"github.com/lwmacct/251117-go-ddd-template/internal/config"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 
@@ -45,13 +47,12 @@ import (
 	// 引入基础设施包
 	infra_auth "github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/auth"
 	infra_captcha "github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/captcha"
-	infra_config "github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/config"
 	infra_twofa "github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/twofa"
 )
 
 // SetupRouter 配置路由 (完全符合 DDD+CQRS 架构)
 func SetupRouter(
-	cfg *infra_config.Config,
+	cfg *config.Config,
 	db *gorm.DB,
 	redisClient *redis.Client,
 	userQueryRepo user.QueryRepository,
@@ -206,7 +207,7 @@ func SetupRouter(
 	}
 
 	// 提供 VitePress 文档服务 (通过 /docs 路由访问)
-	if cfg.Server.DocsDir != "" {
+	if cfg.Server.DistDocs != "" {
 		docs := r.Group("/docs")
 		docs.GET("/*filepath", func(c *gin.Context) {
 			reqPath := c.Param("filepath")
@@ -214,7 +215,7 @@ func SetupRouter(
 				reqPath = "/index.html"
 			}
 
-			fullPath := filepath.Join(cfg.Server.DocsDir, reqPath)
+			fullPath := filepath.Join(cfg.Server.DistDocs, reqPath)
 
 			if _, err := os.Stat(fullPath); err == nil {
 				c.File(fullPath)
@@ -222,14 +223,14 @@ func SetupRouter(
 			}
 
 			if !strings.HasSuffix(reqPath, ".html") && !strings.Contains(reqPath, ".") {
-				htmlPath := filepath.Join(cfg.Server.DocsDir, reqPath+".html")
+				htmlPath := filepath.Join(cfg.Server.DistDocs, reqPath+".html")
 				if _, err := os.Stat(htmlPath); err == nil {
 					c.File(htmlPath)
 					return
 				}
 			}
 
-			indexPath := filepath.Join(cfg.Server.DocsDir, "index.html")
+			indexPath := filepath.Join(cfg.Server.DistDocs, "index.html")
 			if _, err := os.Stat(indexPath); err == nil {
 				c.File(indexPath)
 			} else {
@@ -239,7 +240,7 @@ func SetupRouter(
 	}
 
 	// 提供静态文件服务 (使用 NoRoute 避免与 API 路由冲突)
-	if cfg.Server.StaticDir != "" {
+	if cfg.Server.DistWeb != "" {
 		r.NoRoute(func(c *gin.Context) {
 			// API 路由返回 JSON 404，避免 SPA fallback 干扰
 			if strings.HasPrefix(c.Request.URL.Path, "/api/") {
@@ -252,14 +253,14 @@ func SetupRouter(
 			}
 
 			// 非 API 路径使用 SPA fallback
-			path := filepath.Join(cfg.Server.StaticDir, c.Request.URL.Path)
+			path := filepath.Join(cfg.Server.DistWeb, c.Request.URL.Path)
 
 			if _, err := os.Stat(path); err == nil {
 				c.File(path)
 				return
 			}
 
-			indexPath := filepath.Join(cfg.Server.StaticDir, "index.html")
+			indexPath := filepath.Join(cfg.Server.DistWeb, "index.html")
 			if _, err := os.Stat(indexPath); err == nil {
 				c.File(indexPath)
 			} else {

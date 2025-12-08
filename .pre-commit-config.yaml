@@ -1,6 +1,10 @@
 # Pre-commit hooks configuration
 # See https://pre-commit.com for more information
 
+# 全局配置
+default_stages: [pre-commit]
+fail_fast: true # 发现第一个错误即停止
+
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v6.0.0
@@ -17,10 +21,17 @@ repos:
     hooks:
       - id: prettier
         name: Format docs and configs with Prettier
-        entry: prettier --write --ignore-unknown sss
+        entry: prettier --write --ignore-unknown --no-error-on-unmatched-pattern
         language: system
         stages: [pre-commit]
-        files: ^(docs/|configs/|web/)
+
+      - id: mc-mdtoc
+        name: Update markdown TOC in docs
+        entry: mc-mdtoc -i
+        pass_filenames: false
+        language: system
+        stages: [pre-commit]
+        files: \.md$
 
       - id: build-docs
         name: Build VitePress docs
@@ -30,15 +41,6 @@ repos:
         stages: [pre-commit]
         files: ^docs/
 
-      - id: build-web
-        name: Build web frontend
-        entry: env CI=true NO_COLOR=1 TERM=dumb npm run build --prefix web
-        language: system
-        pass_filenames: false
-        stages: [pre-commit]
-        files: ^web/
-
-      # Go 代码静态检查（仅检查本次提交修改的代码）
       - id: golangci-lint
         name: Run golangci-lint on new changes
         entry: golangci-lint run --new --fix
@@ -47,7 +49,14 @@ repos:
         stages: [pre-commit]
         files: \.go$
 
-      # Swagger/OpenAPI 文档生成
+      - id: config-sync
+        name: Sync and validate config files
+        entry: go test -run "TestGenerateExample|TestConfigKeysValid" ./internal/config/...
+        language: system
+        pass_filenames: false
+        stages: [pre-commit]
+        files: ^(internal/config/config\.go|config/config\.yaml)$
+
       - id: swagger-generate
         name: Generate Swagger/OpenAPI docs
         entry: swag init -g internal/commands/api/api.go -o internal/adapters/http/docs --parseDependency --parseInternal
@@ -55,16 +64,3 @@ repos:
         pass_filenames: false
         stages: [pre-commit]
         files: ^internal/(adapters/http/handler|commands/api)/.*\.go$
-
-      # 配置示例文件同步 + 验证
-      - id: config-sync
-        name: Sync and validate config files
-        entry: go test -run "TestGenerateExample|TestConfigKeysValid" ./internal/infrastructure/config/...
-        language: system
-        pass_filenames: false
-        stages: [pre-commit]
-        files: ^(internal/infrastructure/config/config\.go|configs/config\.yaml)$
-
-# 全局配置
-default_stages: [pre-commit]
-fail_fast: false # 不要在第一个失败时停止，运行所有检查

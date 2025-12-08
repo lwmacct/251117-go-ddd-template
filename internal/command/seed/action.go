@@ -1,30 +1,21 @@
-// Package seed 提供数据库种子命令
 package seed
 
 import (
 	"context"
 	"log/slog"
 
-	"github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/config"
+	"github.com/lwmacct/251117-go-ddd-template/internal/config"
 	"github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/database"
 	"github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/database/seeds"
+	"github.com/lwmacct/251207-go-pkg-version/pkg/version"
 	"github.com/urfave/cli/v3"
+
+	pkgconfig "github.com/lwmacct/251207-go-pkg-config/pkg/config"
 )
 
-// Command 定义种子命令
-var Command = &cli.Command{
-	Name:  "seed",
-	Usage: "填充数据库种子数据",
-	Description: `
-   填充数据库种子数据，用于开发和测试环境。
-   包含示例用户、演示数据等。
-	`,
-	Action: runSeed,
-}
-
-// runSeed 执行种子数据填充
-func runSeed(ctx context.Context, cmd *cli.Command) error {
-	cfg, err := config.Load()
+// action 执行种子数据填充
+func action(ctx context.Context, cmd *cli.Command) error {
+	cfg, err := config.Load(cmd, pkgconfig.DefaultPaths(version.GetAppRawName()))
 	if err != nil {
 		slog.Error("Failed to load config", "error", err)
 		return err

@@ -1,4 +1,3 @@
-// Package migrate 提供数据库迁移命令
 package migrate
 
 import (
@@ -7,68 +6,17 @@ import (
 	"log/slog"
 
 	"github.com/lwmacct/251117-go-ddd-template/internal/bootstrap"
-	"github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/config"
+	"github.com/lwmacct/251117-go-ddd-template/internal/config"
 	"github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/database"
+	"github.com/lwmacct/251207-go-pkg-version/pkg/version"
 	"github.com/urfave/cli/v3"
+
+	pkgconfig "github.com/lwmacct/251207-go-pkg-config/pkg/config"
 )
 
-// Command 定义迁移命令
-var Command = &cli.Command{
-	Name:  "migrate",
-	Usage: "数据库迁移管理",
-	Description: `
-   管理数据库迁移，包括执行、回滚、查看状态等操作。
-
-   子命令：
-   - up     执行数据库迁移
-   - status 查看迁移状态
-   - fresh  删除所有表并重新迁移 (危险！仅开发环境使用)
-	`,
-	Commands: []*cli.Command{
-		upCommand,
-		statusCommand,
-		freshCommand,
-	},
-}
-
-var upCommand = &cli.Command{
-	Name:  "up",
-	Usage: "执行数据库迁移",
-	Description: `
-   执行数据库迁移，创建或更新所有表结构。
-   该命令会自动创建迁移记录表，并记录每次迁移的版本和时间。
-	`,
-	Action: runUp,
-}
-
-var statusCommand = &cli.Command{
-	Name:  "status",
-	Usage: "查看迁移状态",
-	Description: `
-   查看已执行的迁移记录，包括版本号、名称和执行时间。
-	`,
-	Action: runStatus,
-}
-
-var freshCommand = &cli.Command{
-	Name:  "fresh",
-	Usage: "删除所有表并重新迁移 (危险操作！) ",
-	Description: `
-   删除所有表并重新执行迁移。
-   警告：此操作会删除所有数据，仅适用于开发环境！
-	`,
-	Flags: []cli.Flag{
-		&cli.BoolFlag{
-			Name:  "force",
-			Usage: "强制执行 (不询问确认) ",
-		},
-	},
-	Action: runFresh,
-}
-
-// runUp 执行向上迁移
-func runUp(ctx context.Context, cmd *cli.Command) error {
-	cfg, err := config.Load()
+// actionUp 执行向上迁移
+func actionUp(ctx context.Context, cmd *cli.Command) error {
+	cfg, err := config.Load(cmd, pkgconfig.DefaultPaths(version.GetAppRawName()))
 	if err != nil {
 		slog.Error("Failed to load config", "error", err)
 		return err
@@ -100,9 +48,9 @@ func runUp(ctx context.Context, cmd *cli.Command) error {
 	return nil
 }
 
-// runStatus 查看迁移状态
-func runStatus(ctx context.Context, cmd *cli.Command) error {
-	cfg, err := config.Load()
+// actionStatus 查看迁移状态
+func actionStatus(ctx context.Context, cmd *cli.Command) error {
+	cfg, err := config.Load(cmd, pkgconfig.DefaultPaths(version.GetAppRawName()))
 	if err != nil {
 		slog.Error("Failed to load config", "error", err)
 		return err
@@ -147,9 +95,9 @@ func runStatus(ctx context.Context, cmd *cli.Command) error {
 	return nil
 }
 
-// runFresh 删除所有表并重新迁移
-func runFresh(ctx context.Context, cmd *cli.Command) error {
-	cfg, err := config.Load()
+// actionFresh 删除所有表并重新迁移
+func actionFresh(ctx context.Context, cmd *cli.Command) error {
+	cfg, err := config.Load(cmd, pkgconfig.DefaultPaths(version.GetAppRawName()))
 	if err != nil {
 		slog.Error("Failed to load config", "error", err)
 		return err

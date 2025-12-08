@@ -3,7 +3,18 @@
 **/.local/*
 **/.venv/*
 **/.conda/*
-**/.taskfile/.env
+**/.task/remote/*
+
+# 秘密文件
+**/.env
+**/.secret/*
+**/config/config.yaml
+
+# node_modules
+**/node_modules/**
+**/pnpm-lock.yaml
+**/yarn.lock
+**/tsconfig.tsbuildinfo
 
 # 临时目录
 **/tmp/**
@@ -12,10 +23,7 @@
 **/temp/**
 **/cache/**
 
-# 后缀匹配
-**/*.log
-
-## python
+# python
 __pycache__/
 *.pyc
 *.pyo
@@ -25,19 +33,12 @@ __pycache__/
 *.pywz
 *.pyzw
 
-# golang
-main
-
-# build
+# build binaries
 /bin/
-/build/
-/dist/
+/main
+/client
+/server
 
-# 配置文件 (保留示例)
-config.yaml
-/configs/config.yaml
-
-# Docker 部署配置 (包含敏感信息)
-.env
-docker-compose.yml
-docker-compose.override.yml
+# AI Agent 相关
+# **/.agent/*
+# **/.claude/*

@@ -5,10 +5,10 @@ import (
 	"log/slog"
 	"os"
 
-	"github.com/lwmacct/251117-go-ddd-template/internal/commands/api"
-	"github.com/lwmacct/251117-go-ddd-template/internal/commands/migrate"
-	"github.com/lwmacct/251117-go-ddd-template/internal/commands/seed"
-	"github.com/lwmacct/251117-go-ddd-template/internal/commands/worker"
+	"github.com/lwmacct/251117-go-ddd-template/internal/command/api"
+	"github.com/lwmacct/251117-go-ddd-template/internal/command/migrate"
+	"github.com/lwmacct/251117-go-ddd-template/internal/command/seed"
+	"github.com/lwmacct/251117-go-ddd-template/internal/command/worker"
 	"github.com/urfave/cli/v3"
 )
 

@@ -31,6 +31,7 @@ import (
 	// Adapter imports
 	"github.com/lwmacct/251117-go-ddd-template/internal/adapters/http"
 	"github.com/lwmacct/251117-go-ddd-template/internal/adapters/http/handler"
+	"github.com/lwmacct/251117-go-ddd-template/internal/config"
 
 	// Application imports - Use Case Handlers
 	auditlogQuery "github.com/lwmacct/251117-go-ddd-template/internal/application/auditlog/query"
@@ -54,7 +55,6 @@ import (
 
 	_auth "github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/auth"
 	_captcha "github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/captcha"
-	_config "github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/config"
 	_database "github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/database"
 	_persistence "github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/persistence"
 	_redis "github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/redis"
@@ -75,7 +75,7 @@ func DefaultOptions() *ContainerOptions {
 
 // Container DDD+CQRS 架构的依赖注入容器
 type Container struct {
-	Config      *_config.Config
+	Config      *config.Config
 	DB          *gorm.DB
 	RedisClient *redis.Client
 
@@ -130,7 +130,7 @@ type Container struct {
 }
 
 // NewContainerNew 创建并初始化新架构的依赖注入容器
-func NewContainer(cfg *_config.Config, opts *ContainerOptions) (*Container, error) {
+func NewContainer(cfg *config.Config, opts *ContainerOptions) (*Container, error) {
 	if opts == nil {
 		opts = DefaultOptions()
 	}
