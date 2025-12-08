@@ -2,26 +2,26 @@
 
 <!--TOC-->
 
-- [需求背景](#需求背景) `:32:35`
-- [已实现功能](#已实现功能) `:36:37`
-  - [throttle](#throttle) `:38:43`
-  - [debounce](#debounce) `:44:49`
-  - [createRateLimiter](#createratelimiter) `:50:55`
-  - [retry](#retry) `:56:61`
-  - [withTimeout](#withtimeout) `:62:66`
-  - [createDeduplicator](#creatededuplicator) `:67:71`
-- [使用方式](#使用方式) `:72:73`
-  - [节流](#节流) `:74:93`
-  - [防抖](#防抖) `:94:111`
-  - [限速器](#限速器) `:112:128`
-  - [重试](#重试) `:129:143`
-  - [超时](#超时) `:144:157`
-  - [去重](#去重) `:158:170`
-- [API](#api) `:171:172`
-  - [throttle 选项](#throttle-选项) `:173:179`
-  - [debounce 选项](#debounce-选项) `:180:187`
-  - [retry 选项](#retry-选项) `:188:197`
-- [代码位置](#代码位置) `:198:204`
+- [需求背景](#需求背景) `:32+4`
+- [已实现功能](#已实现功能) `:36+36`
+  - [throttle](#throttle) `:38+6`
+  - [debounce](#debounce) `:44+6`
+  - [createRateLimiter](#createratelimiter) `:50+6`
+  - [retry](#retry) `:56+6`
+  - [withTimeout](#withtimeout) `:62+5`
+  - [createDeduplicator](#creatededuplicator) `:67+5`
+- [使用方式](#使用方式) `:72+99`
+  - [节流](#节流) `:74+20`
+  - [防抖](#防抖) `:94+18`
+  - [限速器](#限速器) `:112+17`
+  - [重试](#重试) `:129+15`
+  - [超时](#超时) `:144+14`
+  - [去重](#去重) `:158+13`
+- [API](#api) `:171+27`
+  - [throttle 选项](#throttle-选项) `:173+7`
+  - [debounce 选项](#debounce-选项) `:180+8`
+  - [retry 选项](#retry-选项) `:188+10`
+- [代码位置](#代码位置) `:198+7`
 
 <!--TOC-->
 

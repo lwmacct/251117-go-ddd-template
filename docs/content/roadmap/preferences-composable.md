@@ -2,26 +2,26 @@
 
 <!--TOC-->
 
-- [需求背景](#需求背景) `:32:35`
-- [已实现功能](#已实现功能) `:36:37`
-  - [偏好检测](#偏好检测) `:38:46`
-  - [主题控制](#主题控制) `:47:51`
-- [使用方式](#使用方式) `:52:53`
-  - [检测深色模式偏好](#检测深色模式偏好) `:54:66`
-  - [深色模式控制](#深色模式控制) `:67:89`
-  - [颜色模式管理](#颜色模式管理) `:90:115`
-  - [语言偏好](#语言偏好) `:116:129`
-  - [减少动画偏好](#减少动画偏好) `:130:140`
-  - [对比度偏好](#对比度偏好) `:141:153`
-  - [透明度偏好](#透明度偏好) `:154:166`
-- [API](#api) `:167:168`
-  - [usePreferredDark](#usepreferreddark) `:169:175`
-  - [useDark](#usedark) `:176:195`
-  - [useColorMode](#usecolormode) `:196:212`
-  - [usePreferredLanguage](#usepreferredlanguage) `:213:220`
-  - [usePreferredReducedMotion](#usepreferredreducedmotion) `:221:227`
-  - [usePreferredContrast](#usepreferredcontrast) `:228:234`
-- [代码位置](#代码位置) `:235:241`
+- [需求背景](#需求背景) `:32+4`
+- [已实现功能](#已实现功能) `:36+16`
+  - [偏好检测](#偏好检测) `:38+9`
+  - [主题控制](#主题控制) `:47+5`
+- [使用方式](#使用方式) `:52+115`
+  - [检测深色模式偏好](#检测深色模式偏好) `:54+13`
+  - [深色模式控制](#深色模式控制) `:67+23`
+  - [颜色模式管理](#颜色模式管理) `:90+26`
+  - [语言偏好](#语言偏好) `:116+14`
+  - [减少动画偏好](#减少动画偏好) `:130+11`
+  - [对比度偏好](#对比度偏好) `:141+13`
+  - [透明度偏好](#透明度偏好) `:154+13`
+- [API](#api) `:167+68`
+  - [usePreferredDark](#usepreferreddark) `:169+7`
+  - [useDark](#usedark) `:176+20`
+  - [useColorMode](#usecolormode) `:196+17`
+  - [usePreferredLanguage](#usepreferredlanguage) `:213+8`
+  - [usePreferredReducedMotion](#usepreferredreducedmotion) `:221+7`
+  - [usePreferredContrast](#usepreferredcontrast) `:228+7`
+- [代码位置](#代码位置) `:235+7`
 
 <!--TOC-->
 

@@ -2,16 +2,16 @@
 
 <!--TOC-->
 
-- [开发流程](#开发流程) `:20:29`
-- [完整示例：通知功能](#完整示例通知功能) `:30:33`
-  - [第一步：Domain 层定义](#第一步domain-层定义) `:34:35`
-  - [第二步：Infrastructure 层实现](#第二步infrastructure-层实现) `:120:121`
-  - [第三步：Application 层创建 Use Cases](#第三步application-层创建-use-cases) `:299:300`
-  - [第四步：Adapters 层创建 HTTP Handler](#第四步adapters-层创建-http-handler) `:463:545`
-  - [第五步：Bootstrap 注册依赖](#第五步bootstrap-注册依赖) `:546:582`
-  - [第六步：添加路由](#第六步添加路由) `:583:594`
-- [检查清单](#检查清单) `:595:637`
-- [相关文档](#相关文档) `:638:642`
+- [开发流程](#开发流程) `:20+10`
+- [完整示例：通知功能](#完整示例通知功能) `:30+565`
+  - [第一步：Domain 层定义](#第一步domain-层定义) `:34+86`
+  - [第二步：Infrastructure 层实现](#第二步infrastructure-层实现) `:120+179`
+  - [第三步：Application 层创建 Use Cases](#第三步application-层创建-use-cases) `:299+164`
+  - [第四步：Adapters 层创建 HTTP Handler](#第四步adapters-层创建-http-handler) `:463+83`
+  - [第五步：Bootstrap 注册依赖](#第五步bootstrap-注册依赖) `:546+37`
+  - [第六步：添加路由](#第六步添加路由) `:583+12`
+- [检查清单](#检查清单) `:595+43`
+- [相关文档](#相关文档) `:638+5`
 
 <!--TOC-->
 

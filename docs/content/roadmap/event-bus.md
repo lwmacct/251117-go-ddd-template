@@ -2,23 +2,23 @@
 
 <!--TOC-->
 
-- [需求背景](#需求背景) `:29:32`
-- [已实现功能](#已实现功能) `:33:34`
-  - [createEventBus](#createeventbus) `:35:41`
-  - [useEventBus](#useeventbus) `:42:47`
-  - [useEventListener](#useeventlistener) `:48:52`
-  - [useEventValue](#useeventvalue) `:53:57`
-  - [appEventBus](#appeventbus) `:58:62`
-- [使用方式](#使用方式) `:63:64`
-  - [定义事件类型](#定义事件类型) `:65:78`
-  - [创建事件总线](#创建事件总线) `:79:87`
-  - [在组件中使用](#在组件中使用) `:88:108`
-  - [响应式事件值](#响应式事件值) `:109:125`
-  - [一次性订阅](#一次性订阅) `:126:136`
-- [API](#api) `:137:138`
-  - [createEventBus 返回值](#createeventbus-返回值) `:139:149`
-  - [预定义事件类型](#预定义事件类型) `:150:158`
-- [代码位置](#代码位置) `:159:165`
+- [需求背景](#需求背景) `:29+4`
+- [已实现功能](#已实现功能) `:33+30`
+  - [createEventBus](#createeventbus) `:35+7`
+  - [useEventBus](#useeventbus) `:42+6`
+  - [useEventListener](#useeventlistener) `:48+5`
+  - [useEventValue](#useeventvalue) `:53+5`
+  - [appEventBus](#appeventbus) `:58+5`
+- [使用方式](#使用方式) `:63+74`
+  - [定义事件类型](#定义事件类型) `:65+14`
+  - [创建事件总线](#创建事件总线) `:79+9`
+  - [在组件中使用](#在组件中使用) `:88+21`
+  - [响应式事件值](#响应式事件值) `:109+17`
+  - [一次性订阅](#一次性订阅) `:126+11`
+- [API](#api) `:137+22`
+  - [createEventBus 返回值](#createeventbus-返回值) `:139+11`
+  - [预定义事件类型](#预定义事件类型) `:150+9`
+- [代码位置](#代码位置) `:159+7`
 
 <!--TOC-->
 

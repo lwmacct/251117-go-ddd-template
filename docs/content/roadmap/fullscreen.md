@@ -2,18 +2,18 @@
 
 <!--TOC-->
 
-- [需求背景](#需求背景) `:24:27`
-- [已实现功能](#已实现功能) `:28:29`
-  - [useFullscreen](#usefullscreen) `:30:37`
-  - [useDocumentFullscreen](#usedocumentfullscreen) `:38:41`
-  - [useFullscreenButton](#usefullscreenbutton) `:42:46`
-- [使用方式](#使用方式) `:47:48`
-  - [元素全屏](#元素全屏) `:49:69`
-  - [文档全屏](#文档全屏) `:70:77`
-  - [全屏按钮](#全屏按钮) `:78:93`
-- [API](#api) `:94:95`
-  - [useFullscreen 返回值](#usefullscreen-返回值) `:96:106`
-- [代码位置](#代码位置) `:107:113`
+- [需求背景](#需求背景) `:24+4`
+- [已实现功能](#已实现功能) `:28+19`
+  - [useFullscreen](#usefullscreen) `:30+8`
+  - [useDocumentFullscreen](#usedocumentfullscreen) `:38+4`
+  - [useFullscreenButton](#usefullscreenbutton) `:42+5`
+- [使用方式](#使用方式) `:47+47`
+  - [元素全屏](#元素全屏) `:49+21`
+  - [文档全屏](#文档全屏) `:70+8`
+  - [全屏按钮](#全屏按钮) `:78+16`
+- [API](#api) `:94+13`
+  - [useFullscreen 返回值](#usefullscreen-返回值) `:96+11`
+- [代码位置](#代码位置) `:107+7`
 
 <!--TOC-->
 

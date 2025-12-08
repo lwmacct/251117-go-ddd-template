@@ -2,21 +2,21 @@
 
 <!--TOC-->
 
-- [需求背景](#需求背景) `:27:30`
-- [已实现功能](#已实现功能) `:31:32`
-  - [useIntersectionObserver](#useintersectionobserver) `:33:39`
-  - [useLazyLoad](#uselazyload) `:40:45`
-  - [useInfiniteScroll](#useinfinitescroll) `:46:52`
-  - [useAnimateOnScroll](#useanimateonscroll) `:53:58`
-  - [useVisibility](#usevisibility) `:59:63`
-- [使用方式](#使用方式) `:64:65`
-  - [基础用法](#基础用法) `:66:75`
-  - [懒加载图片](#懒加载图片) `:76:88`
-  - [无限滚动](#无限滚动) `:89:114`
-  - [滚动动画](#滚动动画) `:115:126`
-- [API](#api) `:127:128`
-  - [useIntersectionObserver 返回值](#useintersectionobserver-返回值) `:129:138`
-- [代码位置](#代码位置) `:139:145`
+- [需求背景](#需求背景) `:27+4`
+- [已实现功能](#已实现功能) `:31+33`
+  - [useIntersectionObserver](#useintersectionobserver) `:33+7`
+  - [useLazyLoad](#uselazyload) `:40+6`
+  - [useInfiniteScroll](#useinfinitescroll) `:46+7`
+  - [useAnimateOnScroll](#useanimateonscroll) `:53+6`
+  - [useVisibility](#usevisibility) `:59+5`
+- [使用方式](#使用方式) `:64+63`
+  - [基础用法](#基础用法) `:66+10`
+  - [懒加载图片](#懒加载图片) `:76+13`
+  - [无限滚动](#无限滚动) `:89+26`
+  - [滚动动画](#滚动动画) `:115+12`
+- [API](#api) `:127+12`
+  - [useIntersectionObserver 返回值](#useintersectionobserver-返回值) `:129+10`
+- [代码位置](#代码位置) `:139+7`
 
 <!--TOC-->
 

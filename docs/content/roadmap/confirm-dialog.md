@@ -2,16 +2,16 @@
 
 <!--TOC-->
 
-- [需求背景](#需求背景) `:22:25`
-- [已实现功能](#已实现功能) `:26:27`
-  - [ConfirmDialog 组件](#confirmdialog-组件) `:28:34`
-  - [useConfirm Composable](#useconfirm-composable) `:35:40`
-- [组件接口](#组件接口) `:41:42`
-  - [ConfirmDialog](#confirmdialog) `:43:48`
-  - [Props](#props) `:49:61`
-- [Composable 使用](#composable-使用) `:62:84`
-- [代码位置](#代码位置) `:85:94`
-- [类型配置](#类型配置) `:95:101`
+- [需求背景](#需求背景) `:22+4`
+- [已实现功能](#已实现功能) `:26+15`
+  - [ConfirmDialog 组件](#confirmdialog-组件) `:28+7`
+  - [useConfirm Composable](#useconfirm-composable) `:35+6`
+- [组件接口](#组件接口) `:41+21`
+  - [ConfirmDialog](#confirmdialog) `:43+6`
+  - [Props](#props) `:49+13`
+- [Composable 使用](#composable-使用) `:62+23`
+- [代码位置](#代码位置) `:85+10`
+- [类型配置](#类型配置) `:95+7`
 
 <!--TOC-->
 

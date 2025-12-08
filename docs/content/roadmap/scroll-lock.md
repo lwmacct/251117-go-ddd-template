@@ -2,22 +2,22 @@
 
 <!--TOC-->
 
-- [需求背景](#需求背景) `:28:31`
-- [已实现功能](#已实现功能) `:32:33`
-  - [useScrollLock](#usescrolllock) `:34:40`
-  - [useScrollLockWhenTrue](#usescrolllockwhentrue) `:41:45`
-  - [useElementScrollLock](#useelementscrolllock) `:46:50`
-  - [useScrollPosition](#usescrollposition) `:51:55`
-  - [useScrollDirection](#usescrolldirection) `:56:60`
-- [使用方式](#使用方式) `:61:62`
-  - [基础用法](#基础用法) `:63:82`
-  - [响应式锁定](#响应式锁定) `:83:98`
-  - [滚动方向检测](#滚动方向检测) `:99:113`
-  - [滚动位置控制](#滚动位置控制) `:114:130`
-- [API](#api) `:131:132`
-  - [useScrollLock 返回值](#usescrolllock-返回值) `:133:141`
-  - [useScrollDirection 返回值](#usescrolldirection-返回值) `:142:149`
-- [代码位置](#代码位置) `:150:156`
+- [需求背景](#需求背景) `:28+4`
+- [已实现功能](#已实现功能) `:32+29`
+  - [useScrollLock](#usescrolllock) `:34+7`
+  - [useScrollLockWhenTrue](#usescrolllockwhentrue) `:41+5`
+  - [useElementScrollLock](#useelementscrolllock) `:46+5`
+  - [useScrollPosition](#usescrollposition) `:51+5`
+  - [useScrollDirection](#usescrolldirection) `:56+5`
+- [使用方式](#使用方式) `:61+70`
+  - [基础用法](#基础用法) `:63+20`
+  - [响应式锁定](#响应式锁定) `:83+16`
+  - [滚动方向检测](#滚动方向检测) `:99+15`
+  - [滚动位置控制](#滚动位置控制) `:114+17`
+- [API](#api) `:131+19`
+  - [useScrollLock 返回值](#usescrolllock-返回值) `:133+9`
+  - [useScrollDirection 返回值](#usescrolldirection-返回值) `:142+8`
+- [代码位置](#代码位置) `:150+7`
 
 <!--TOC-->
 

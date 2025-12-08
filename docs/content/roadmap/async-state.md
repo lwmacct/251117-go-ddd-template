@@ -2,20 +2,20 @@
 
 <!--TOC-->
 
-- [需求背景](#需求背景) `:26:29`
-- [已实现功能](#已实现功能) `:30:31`
-  - [useAsyncState](#useasyncstate) `:32:38`
-  - [useAsyncRetry](#useasyncretry) `:39:44`
-  - [usePolling](#usepolling) `:45:50`
-  - [usePromiseQueue](#usepromisequeue) `:51:56`
-- [使用方式](#使用方式) `:57:58`
-  - [基础用法](#基础用法) `:59:76`
-  - [自动重试](#自动重试) `:77:88`
-  - [轮询](#轮询) `:89:105`
-  - [Promise 队列](#promise-队列) `:106:117`
-- [API](#api) `:118:119`
-  - [useAsyncState 返回值](#useasyncstate-返回值) `:120:132`
-- [代码位置](#代码位置) `:133:139`
+- [需求背景](#需求背景) `:26+4`
+- [已实现功能](#已实现功能) `:30+27`
+  - [useAsyncState](#useasyncstate) `:32+7`
+  - [useAsyncRetry](#useasyncretry) `:39+6`
+  - [usePolling](#usepolling) `:45+6`
+  - [usePromiseQueue](#usepromisequeue) `:51+6`
+- [使用方式](#使用方式) `:57+61`
+  - [基础用法](#基础用法) `:59+18`
+  - [自动重试](#自动重试) `:77+12`
+  - [轮询](#轮询) `:89+17`
+  - [Promise 队列](#promise-队列) `:106+12`
+- [API](#api) `:118+15`
+  - [useAsyncState 返回值](#useasyncstate-返回值) `:120+13`
+- [代码位置](#代码位置) `:133+7`
 
 <!--TOC-->
 

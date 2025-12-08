@@ -2,21 +2,21 @@
 
 <!--TOC-->
 
-- [需求背景](#需求背景) `:27:30`
-- [已实现功能](#已实现功能) `:31:32`
-  - [useHistory](#usehistory) `:33:39`
-  - [useManualHistory](#usemanualhistory) `:40:44`
-  - [useTimestampedHistory](#usetimestampedhistory) `:45:49`
-  - [useSnapshot](#usesnapshot) `:50:54`
-- [使用方式](#使用方式) `:55:56`
-  - [自动历史记录](#自动历史记录) `:57:80`
-  - [配置选项](#配置选项) `:81:90`
-  - [手动历史记录](#手动历史记录) `:91:108`
-  - [状态快照](#状态快照) `:109:132`
-- [API](#api) `:133:134`
-  - [useHistory 返回值](#usehistory-返回值) `:135:149`
-  - [useSnapshot 返回值](#usesnapshot-返回值) `:150:160`
-- [代码位置](#代码位置) `:161:167`
+- [需求背景](#需求背景) `:27+4`
+- [已实现功能](#已实现功能) `:31+24`
+  - [useHistory](#usehistory) `:33+7`
+  - [useManualHistory](#usemanualhistory) `:40+5`
+  - [useTimestampedHistory](#usetimestampedhistory) `:45+5`
+  - [useSnapshot](#usesnapshot) `:50+5`
+- [使用方式](#使用方式) `:55+78`
+  - [自动历史记录](#自动历史记录) `:57+24`
+  - [配置选项](#配置选项) `:81+10`
+  - [手动历史记录](#手动历史记录) `:91+18`
+  - [状态快照](#状态快照) `:109+24`
+- [API](#api) `:133+28`
+  - [useHistory 返回值](#usehistory-返回值) `:135+15`
+  - [useSnapshot 返回值](#usesnapshot-返回值) `:150+11`
+- [代码位置](#代码位置) `:161+7`
 
 <!--TOC-->
 

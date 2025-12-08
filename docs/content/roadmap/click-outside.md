@@ -2,19 +2,19 @@
 
 <!--TOC-->
 
-- [需求背景](#需求背景) `:25:28`
-- [已实现功能](#已实现功能) `:29:30`
-  - [useClickOutside](#useclickoutside) `:31:37`
-  - [useClickOutsideToggle](#useclickoutsidetoggle) `:38:42`
-  - [vClickOutside 指令](#vclickoutside-指令) `:43:47`
-- [使用方式](#使用方式) `:48:49`
-  - [Composable 用法](#composable-用法) `:50:63`
-  - [可切换用法](#可切换用法) `:64:81`
-  - [指令用法](#指令用法) `:82:99`
-  - [忽略特定元素](#忽略特定元素) `:100:110`
-- [API](#api) `:111:112`
-  - [useClickOutside 选项](#useclickoutside-选项) `:113:122`
-- [代码位置](#代码位置) `:123:129`
+- [需求背景](#需求背景) `:25+4`
+- [已实现功能](#已实现功能) `:29+19`
+  - [useClickOutside](#useclickoutside) `:31+7`
+  - [useClickOutsideToggle](#useclickoutsidetoggle) `:38+5`
+  - [vClickOutside 指令](#vclickoutside-指令) `:43+5`
+- [使用方式](#使用方式) `:48+63`
+  - [Composable 用法](#composable-用法) `:50+14`
+  - [可切换用法](#可切换用法) `:64+18`
+  - [指令用法](#指令用法) `:82+18`
+  - [忽略特定元素](#忽略特定元素) `:100+11`
+- [API](#api) `:111+12`
+  - [useClickOutside 选项](#useclickoutside-选项) `:113+10`
+- [代码位置](#代码位置) `:123+7`
 
 <!--TOC-->
 

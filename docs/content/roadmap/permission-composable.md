@@ -2,24 +2,24 @@
 
 <!--TOC-->
 
-- [需求背景](#需求背景) `:30:33`
-- [已实现功能](#已实现功能) `:34:35`
-  - [通用权限](#通用权限) `:36:41`
-  - [专用权限](#专用权限) `:42:50`
-- [使用方式](#使用方式) `:51:52`
-  - [通用权限查询](#通用权限查询) `:53:69`
-  - [通知权限](#通知权限) `:70:90`
-  - [摄像头权限](#摄像头权限) `:91:111`
-  - [麦克风权限](#麦克风权限) `:112:128`
-  - [屏幕唤醒锁](#屏幕唤醒锁) `:129:147`
-  - [批量查询权限](#批量查询权限) `:148:156`
-- [API](#api) `:157:158`
-  - [usePermission](#usepermission) `:159:169`
-  - [useNotificationPermission](#usenotificationpermission) `:170:180`
-  - [useCameraPermission / useMicrophonePermission](#usecamerapermission-usemicrophonepermission) `:181:191`
-  - [useScreenWakeLock](#usescreenwakelock) `:192:200`
-- [支持的权限类型](#支持的权限类型) `:201:212`
-- [代码位置](#代码位置) `:213:219`
+- [需求背景](#需求背景) `:30+4`
+- [已实现功能](#已实现功能) `:34+17`
+  - [通用权限](#通用权限) `:36+6`
+  - [专用权限](#专用权限) `:42+9`
+- [使用方式](#使用方式) `:51+106`
+  - [通用权限查询](#通用权限查询) `:53+17`
+  - [通知权限](#通知权限) `:70+21`
+  - [摄像头权限](#摄像头权限) `:91+21`
+  - [麦克风权限](#麦克风权限) `:112+17`
+  - [屏幕唤醒锁](#屏幕唤醒锁) `:129+19`
+  - [批量查询权限](#批量查询权限) `:148+9`
+- [API](#api) `:157+44`
+  - [usePermission](#usepermission) `:159+11`
+  - [useNotificationPermission](#usenotificationpermission) `:170+11`
+  - [useCameraPermission / useMicrophonePermission](#usecamerapermission-usemicrophonepermission) `:181+11`
+  - [useScreenWakeLock](#usescreenwakelock) `:192+9`
+- [支持的权限类型](#支持的权限类型) `:201+12`
+- [代码位置](#代码位置) `:213+7`
 
 <!--TOC-->
 

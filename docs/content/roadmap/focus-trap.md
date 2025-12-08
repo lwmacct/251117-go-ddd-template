@@ -2,21 +2,21 @@
 
 <!--TOC-->
 
-- [需求背景](#需求背景) `:27:30`
-- [已实现功能](#已实现功能) `:31:32`
-  - [useFocusTrap](#usefocustrap) `:33:41`
-  - [useFocusTrapWhenTrue](#usefocustrapwhentrue) `:42:46`
-  - [useFocusReturn](#usefocusreturn) `:47:51`
-  - [useAutoFocus](#useautofocus) `:52:55`
-- [使用方式](#使用方式) `:56:57`
-  - [基础用法](#基础用法) `:58:79`
-  - [响应式用法](#响应式用法) `:80:91`
-  - [配置选项](#配置选项) `:92:104`
-  - [焦点返回](#焦点返回) `:105:118`
-- [API](#api) `:119:120`
-  - [useFocusTrap 选项](#usefocustrap-选项) `:121:131`
-  - [useFocusTrap 返回值](#usefocustrap-返回值) `:132:142`
-- [代码位置](#代码位置) `:143:149`
+- [需求背景](#需求背景) `:27+4`
+- [已实现功能](#已实现功能) `:31+25`
+  - [useFocusTrap](#usefocustrap) `:33+9`
+  - [useFocusTrapWhenTrue](#usefocustrapwhentrue) `:42+5`
+  - [useFocusReturn](#usefocusreturn) `:47+5`
+  - [useAutoFocus](#useautofocus) `:52+4`
+- [使用方式](#使用方式) `:56+63`
+  - [基础用法](#基础用法) `:58+22`
+  - [响应式用法](#响应式用法) `:80+12`
+  - [配置选项](#配置选项) `:92+13`
+  - [焦点返回](#焦点返回) `:105+14`
+- [API](#api) `:119+24`
+  - [useFocusTrap 选项](#usefocustrap-选项) `:121+11`
+  - [useFocusTrap 返回值](#usefocustrap-返回值) `:132+11`
+- [代码位置](#代码位置) `:143+7`
 
 <!--TOC-->
 
