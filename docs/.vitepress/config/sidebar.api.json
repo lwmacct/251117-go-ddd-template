@@ -1,0 +1,21 @@
+[
+  {
+    "text": "API 文档",
+    "items": [
+      { "text": "概述", "link": "/api/overview" },
+      { "text": "认证", "link": "/api/authentication" },
+      { "text": "错误码", "link": "/api/error-codes" }
+    ]
+  },
+  {
+    "text": "接口列表",
+    "items": [
+      { "text": "用户管理", "link": "/api/users" },
+      { "text": "角色管理", "link": "/api/roles" },
+      { "text": "菜单管理", "link": "/api/menus" },
+      { "text": "权限管理", "link": "/api/permissions" },
+      { "text": "PAT 管理", "link": "/api/pat" },
+      { "text": "审计日志", "link": "/api/audit-logs" }
+    ]
+  }
+]

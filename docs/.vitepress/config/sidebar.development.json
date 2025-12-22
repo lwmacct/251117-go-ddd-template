@@ -1,0 +1,21 @@
+[
+  {
+    "text": "开发指南",
+    "items": [
+      { "text": "环境设置", "link": "/development/setup" },
+      { "text": "开发流程", "link": "/development/workflow" },
+      { "text": "添加新功能", "link": "/development/add-feature" },
+      { "text": "测试", "link": "/development/testing" },
+      { "text": "部署", "link": "/development/deployment" }
+    ]
+  },
+  {
+    "text": "最佳实践",
+    "items": [
+      { "text": "代码规范", "link": "/development/code-style" },
+      { "text": "错误处理", "link": "/development/error-handling" },
+      { "text": "日志记录", "link": "/development/logging" },
+      { "text": "性能优化", "link": "/development/performance" }
+    ]
+  }
+]
