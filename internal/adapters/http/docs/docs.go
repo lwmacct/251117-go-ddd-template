@@ -3199,6 +3199,13 @@ const docTemplate = `{
                 "refresh_token": {
                     "type": "string"
                 },
+                "requires_2fa": {
+                    "description": "2FA 相关（当需要 2FA 时返回）",
+                    "type": "boolean"
+                },
+                "session_token": {
+                    "type": "string"
+                },
                 "token_type": {
                     "type": "string"
                 },

@@ -3,7 +3,7 @@
  * 提供类型安全的错误类和提取函数
  */
 import type { AxiosError } from "axios";
-import type { ErrorResponse } from "@/types/response";
+import type { ErrorResponse } from "./types";
 
 /**
  * 应用统一错误类
@@ -49,7 +49,7 @@ export function extractErrorFromAxios(error: unknown): AppError {
         response.error.message || response.message,
         response.error.code || String(status),
         status,
-        response.error.details,
+        response.error.details as Record<string, unknown> | undefined,
       );
     }
 

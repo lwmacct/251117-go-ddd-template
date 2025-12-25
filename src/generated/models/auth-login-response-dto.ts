@@ -42,6 +42,18 @@ export interface AuthLoginResponseDTO {
      */
     'refresh_token'?: string;
     /**
+     * 2FA 相关（当需要 2FA 时返回）
+     * @type {boolean}
+     * @memberof AuthLoginResponseDTO
+     */
+    'requires_2fa'?: boolean;
+    /**
+     * 
+     * @type {string}
+     * @memberof AuthLoginResponseDTO
+     */
+    'session_token'?: string;
+    /**
      * 
      * @type {string}
      * @memberof AuthLoginResponseDTO

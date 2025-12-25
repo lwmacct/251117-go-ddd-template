@@ -87,12 +87,16 @@ type TwoFARequiredDTO struct {
 }
 
 // LoginResponseDTO 登录成功 HTTP 响应 DTO（与 HTTP API 响应格式匹配）
+// 支持两种场景：正常登录（返回 token）或需要 2FA（返回 session_token）
 type LoginResponseDTO struct {
-	AccessToken  string       `json:"access_token"`
-	RefreshToken string       `json:"refresh_token"`
-	TokenType    string       `json:"token_type"`
-	ExpiresIn    int          `json:"expires_in"`
-	User         UserBriefDTO `json:"user"`
+	AccessToken  string       `json:"access_token,omitempty"`
+	RefreshToken string       `json:"refresh_token,omitempty"`
+	TokenType    string       `json:"token_type,omitempty"`
+	ExpiresIn    int          `json:"expires_in,omitempty"`
+	User         UserBriefDTO `json:"user,omitempty"`
+	// 2FA 相关（当需要 2FA 时返回）
+	Requires2FA  bool   `json:"requires_2fa,omitempty"`
+	SessionToken string `json:"session_token,omitempty"`
 }
 
 // ToLoginResponse 将 LoginResultDTO 转换为 HTTP 响应格式
@@ -106,5 +110,7 @@ func (r *LoginResultDTO) ToLoginResponse() *LoginResponseDTO {
 			UserID:   r.UserID,
 			Username: r.Username,
 		},
+		Requires2FA:  r.Requires2FA,
+		SessionToken: r.SessionToken,
 	}
 }

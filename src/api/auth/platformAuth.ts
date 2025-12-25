@@ -5,8 +5,7 @@
 
 import { apiClient } from "./client";
 import type { AuthLoginDTO, AuthRegisterDTO, CaptchaGenerateCaptchaResultDTO, AuthLoginResponseDTO } from "@models";
-import type { LoginApiResponse } from "../types";
-import type { ApiResponse } from "@/types/response";
+import type { ApiResponse } from "../types";
 
 /**
  * 认证 API
@@ -25,8 +24,8 @@ export class AuthAPI {
    * 登录（带验证码）
    * 返回可能是正常登录响应或需要 2FA 的响应
    */
-  static async login(req: AuthLoginDTO): Promise<ApiResponse<LoginApiResponse>> {
-    const { data } = await apiClient.post<ApiResponse<LoginApiResponse>>("/api/auth/login", req);
+  static async login(req: AuthLoginDTO): Promise<ApiResponse<AuthLoginResponseDTO>> {
+    const { data } = await apiClient.post<ApiResponse<AuthLoginResponseDTO>>("/api/auth/login", req);
     return data;
   }
 

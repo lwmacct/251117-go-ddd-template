@@ -9,7 +9,7 @@
  * 业务 DTO 直接从 @/api/generated/models 导入
  */
 
-import type { MenuMenuDTO, AuthLoginResponseDTO } from "@models";
+import type { MenuMenuDTO, ResponsePaginationMeta, ResponseErrorDetail } from "@models";
 
 // ============== 前端状态类型 ==============
 
@@ -44,17 +44,6 @@ export interface Menu extends MenuMenuDTO {
   children?: Menu[];
 }
 
-/**
- * 登录 API 响应类型（联合类型）
- * 后端可能返回：正常登录响应 或 需要 2FA 的响应
- */
-export interface LoginApiResponse extends AuthLoginResponseDTO {
-  /** 是否需要 2FA（当需要时为 true） */
-  requires_2fa?: boolean;
-  /** 2FA 会话令牌（当需要 2FA 时返回） */
-  session_token?: string;
-}
-
 // ============== 前端枚举类型 ==============
 
 /**
@@ -71,3 +60,37 @@ export type AuditAction = "create" | "update" | "delete" | "login" | "logout" | 
  * 审计日志状态类型（空字符串表示全部）
  */
 export type AuditStatus = "success" | "failure" | "";
+
+// ============== API 响应类型 ==============
+
+/**
+ * 统一 API 响应结构（泛型包装）
+ * 对应后端 UnifiedResponse
+ */
+export interface ApiResponse<T = unknown> {
+  code: number;
+  message: string;
+  data?: T;
+  error?: ResponseErrorDetail;
+}
+
+/**
+ * 列表响应结构（带分页）
+ * 对应后端 ListResponse
+ */
+export interface ListApiResponse<T = unknown> {
+  code: number;
+  message: string;
+  data: T;
+  meta?: ResponsePaginationMeta;
+}
+
+/**
+ * 错误响应结构
+ * 对应后端 ErrorResponse
+ */
+export interface ErrorResponse {
+  code: number;
+  message: string;
+  error?: ResponseErrorDetail;
+}
