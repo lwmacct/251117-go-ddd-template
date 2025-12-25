@@ -31,6 +31,7 @@ func NewOverviewHandler(getStatsHandler *stats.GetStatsHandler) *OverviewHandler
 // @Failure      403 {object} response.ErrorResponse "权限不足"
 // @Failure      500 {object} response.ErrorResponse "服务器内部错误"
 // @Router       /api/admin/overview/stats [get]
+// @x-permission {"scope":"admin:overview:read"}
 func (h *OverviewHandler) GetStats(c *gin.Context) {
 	result, err := h.getStatsHandler.Handle(c.Request.Context(), stats.GetStatsQuery{
 		RecentLogsLimit: 5,

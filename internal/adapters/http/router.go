@@ -177,8 +177,8 @@ func setupAPIRoutes(r *gin.Engine, deps *RouterDependencies) {
 		admin.GET("/permissions", middleware.RequirePermission("admin:permissions:read"), deps.RoleHandler.ListPermissions)
 
 		// 审计日志
-		admin.GET("/audit-logs", middleware.RequirePermission("admin:audit_logs:read"), deps.AuditLogHandler.ListLogs)
-		admin.GET("/audit-logs/:id", middleware.RequirePermission("admin:audit_logs:read"), deps.AuditLogHandler.GetLog)
+		admin.GET("/auditlogs", middleware.RequirePermission("admin:audit_logs:read"), deps.AuditLogHandler.ListLogs)
+		admin.GET("/auditlogs/:id", middleware.RequirePermission("admin:audit_logs:read"), deps.AuditLogHandler.GetLog)
 
 		// 菜单管理
 		admin.POST("/menus", middleware.RequirePermission("admin:menus:create"), deps.MenuHandler.Create)
@@ -186,7 +186,7 @@ func setupAPIRoutes(r *gin.Engine, deps *RouterDependencies) {
 		admin.GET("/menus/:id", middleware.RequirePermission("admin:menus:read"), deps.MenuHandler.Get)
 		admin.PUT("/menus/:id", middleware.RequirePermission("admin:menus:update"), deps.MenuHandler.Update)
 		admin.DELETE("/menus/:id", middleware.RequirePermission("admin:menus:delete"), deps.MenuHandler.Delete)
-		admin.PUT("/menus/reorder", middleware.RequirePermission("admin:menus:update"), deps.MenuHandler.Reorder)
+		admin.POST("/menus/reorder", middleware.RequirePermission("admin:menus:update"), deps.MenuHandler.Reorder)
 
 		// 系统概览
 		admin.GET("/overview/stats", middleware.RequirePermission("admin:overview:read"), deps.OverviewHandler.GetStats)
@@ -197,7 +197,7 @@ func setupAPIRoutes(r *gin.Engine, deps *RouterDependencies) {
 		admin.POST("/settings", middleware.RequirePermission("admin:settings:create"), deps.SettingHandler.CreateSetting)
 		admin.PUT("/settings/:key", middleware.RequirePermission("admin:settings:update"), deps.SettingHandler.UpdateSetting)
 		admin.DELETE("/settings/:key", middleware.RequirePermission("admin:settings:delete"), deps.SettingHandler.DeleteSetting)
-		admin.PUT("/settings/batch", middleware.RequirePermission("admin:settings:update"), deps.SettingHandler.BatchUpdateSettings)
+		admin.POST("/settings/batch", middleware.RequirePermission("admin:settings:update"), deps.SettingHandler.BatchUpdateSettings)
 	}
 
 	// 用户路由 (/api/user/*) - 使用三段式权限控制

@@ -19,8 +19,6 @@ common.ts
 configuration.ts
 git_push.sh
 index.ts
-models/api-health-get200-response-all-of-checks.ts
-models/api-health-get200-response.ts
 models/auditlog-audit-log-dto.ts
 models/auth-login-dto.ts
 models/auth-login-response-dto.ts
@@ -44,6 +42,8 @@ models/handler-reorder-menus-request.ts
 models/handler-update-menu-request.ts
 models/handler-update-profile-request.ts
 models/handler-update-setting-request.ts
+models/health-get200-response-all-of-checks.ts
+models/health-get200-response.ts
 models/index.ts
 models/menu-menu-dto.ts
 models/pat-create-token-dto.ts

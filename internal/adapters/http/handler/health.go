@@ -31,7 +31,7 @@ func NewHealthHandler(checker health.Checker) *HealthHandler {
 // @Produce      json
 // @Success      200 {object} response.Response{status=string,checks=object{database=object,redis=object}} "服务健康"
 // @Failure      503 {object} response.Response{status=string,checks=object{database=object,redis=object}} "服务降级"
-// @Router       /api/health [get]
+// @Router       /health [get]
 func (h *HealthHandler) Check(c *gin.Context) {
 	ctx, cancel := context.WithTimeout(c.Request.Context(), 2*time.Second)
 	defer cancel()

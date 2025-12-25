@@ -141,7 +141,7 @@ const docTemplate = `{
                     }
                 },
                 "x-permission": {
-                    "scope": "admin:auditlogs:read"
+                    "scope": "admin:audit_logs:read"
                 }
             }
         },
@@ -206,7 +206,7 @@ const docTemplate = `{
                     }
                 },
                 "x-permission": {
-                    "scope": "admin:auditlogs:read"
+                    "scope": "admin:audit_logs:read"
                 }
             }
         },
@@ -638,6 +638,9 @@ const docTemplate = `{
                             "$ref": "#/definitions/response.ErrorResponse"
                         }
                     }
+                },
+                "x-permission": {
+                    "scope": "admin:overview:read"
                 }
             }
         },
@@ -2047,9 +2050,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/response.ErrorResponse"
                         }
                     }
-                },
-                "x-permission": {
-                    "scope": "user:2fa:disable"
                 }
             }
         },
@@ -2090,9 +2090,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/response.ErrorResponse"
                         }
                     }
-                },
-                "x-permission": {
-                    "scope": "user:2fa:setup"
                 }
             }
         },
@@ -2133,9 +2130,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/response.ErrorResponse"
                         }
                     }
-                },
-                "x-permission": {
-                    "scope": "user:2fa:read"
                 }
             }
         },
@@ -2187,9 +2181,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/response.ErrorResponse"
                         }
                     }
-                },
-                "x-permission": {
-                    "scope": "user:2fa:setup"
                 }
             }
         },
@@ -2516,81 +2507,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/health": {
-            "get": {
-                "description": "检查系统服务健康状态（数据库、Redis）",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "系统 (System)"
-                ],
-                "summary": "健康检查",
-                "responses": {
-                    "200": {
-                        "description": "服务健康",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "checks": {
-                                            "type": "object",
-                                            "properties": {
-                                                "database": {
-                                                    "type": "object"
-                                                },
-                                                "redis": {
-                                                    "type": "object"
-                                                }
-                                            }
-                                        },
-                                        "status": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    "503": {
-                        "description": "服务降级",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "checks": {
-                                            "type": "object",
-                                            "properties": {
-                                                "database": {
-                                                    "type": "object"
-                                                },
-                                                "redis": {
-                                                    "type": "object"
-                                                }
-                                            }
-                                        },
-                                        "status": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                }
-            }
-        },
         "/api/user/account": {
             "delete": {
                 "security": [
@@ -2684,7 +2600,7 @@ const docTemplate = `{
                     }
                 },
                 "x-permission": {
-                    "scope": "user:profile:update"
+                    "scope": "user:password:update"
                 }
             }
         },
@@ -3103,6 +3019,81 @@ const docTemplate = `{
                 },
                 "x-permission": {
                     "scope": "user:tokens:enable"
+                }
+            }
+        },
+        "/health": {
+            "get": {
+                "description": "检查系统服务健康状态（数据库、Redis）",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "系统 (System)"
+                ],
+                "summary": "健康检查",
+                "responses": {
+                    "200": {
+                        "description": "服务健康",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "checks": {
+                                            "type": "object",
+                                            "properties": {
+                                                "database": {
+                                                    "type": "object"
+                                                },
+                                                "redis": {
+                                                    "type": "object"
+                                                }
+                                            }
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "503": {
+                        "description": "服务降级",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "checks": {
+                                            "type": "object",
+                                            "properties": {
+                                                "database": {
+                                                    "type": "object"
+                                                },
+                                                "redis": {
+                                                    "type": "object"
+                                                }
+                                            }
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
                 }
             }
         }

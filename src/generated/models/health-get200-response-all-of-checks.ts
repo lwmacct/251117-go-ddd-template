@@ -13,17 +13,24 @@
  */
 
 
-// May contain unused imports in some cases
-// @ts-ignore
-import type { ApiHealthGet200ResponseAllOfChecks } from './api-health-get200-response-all-of-checks';
-// May contain unused imports in some cases
-// @ts-ignore
-import type { ResponseResponse } from './response-response';
 
 /**
- * @type ApiHealthGet200Response
+ * 
  * @export
+ * @interface HealthGet200ResponseAllOfChecks
  */
-export type ApiHealthGet200Response = ResponseResponse;
-
+export interface HealthGet200ResponseAllOfChecks {
+    /**
+     * 
+     * @type {object}
+     * @memberof HealthGet200ResponseAllOfChecks
+     */
+    'database'?: object;
+    /**
+     * 
+     * @type {object}
+     * @memberof HealthGet200ResponseAllOfChecks
+     */
+    'redis'?: object;
+}
 

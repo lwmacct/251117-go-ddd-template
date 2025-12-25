@@ -48,7 +48,7 @@ func NewAuditLogHandler(
 // @Failure      403 {object} response.ErrorResponse "权限不足"
 // @Failure      500 {object} response.ErrorResponse "服务器内部错误"
 // @Router       /api/admin/auditlogs [get]
-// @x-permission {"scope":"admin:auditlogs:read"}
+// @x-permission {"scope":"admin:audit_logs:read"}
 func (h *AuditLogHandler) ListLogs(c *gin.Context) {
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "20"))
@@ -123,7 +123,7 @@ func (h *AuditLogHandler) ListLogs(c *gin.Context) {
 // @Failure      403 {object} response.ErrorResponse "权限不足"
 // @Failure      404 {object} response.ErrorResponse "日志不存在"
 // @Router       /api/admin/auditlogs/{id} [get]
-// @x-permission {"scope":"admin:auditlogs:read"}
+// @x-permission {"scope":"admin:audit_logs:read"}
 func (h *AuditLogHandler) GetLog(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {

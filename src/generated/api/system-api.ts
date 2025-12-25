@@ -22,7 +22,7 @@ import { DUMMY_BASE_URL, assertParamExists, setApiKeyToObject, setBasicAuthToObj
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS, type RequestArgs, BaseAPI, RequiredError, operationServerMap } from '../base';
 // @ts-ignore
-import type { ApiHealthGet200Response } from '../models';
+import type { HealthGet200Response } from '../models';
 /**
  * SystemApi - axios parameter creator
  * @export
@@ -35,8 +35,8 @@ export const SystemApiAxiosParamCreator = function (configuration?: Configuratio
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiHealthGet: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            const localVarPath = `/api/health`;
+        healthGet: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/health`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -75,10 +75,10 @@ export const SystemApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async apiHealthGet(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ApiHealthGet200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.apiHealthGet(options);
+        async healthGet(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<HealthGet200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.healthGet(options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['SystemApi.apiHealthGet']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['SystemApi.healthGet']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
     }
@@ -97,8 +97,8 @@ export const SystemApiFactory = function (configuration?: Configuration, basePat
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiHealthGet(options?: RawAxiosRequestConfig): AxiosPromise<ApiHealthGet200Response> {
-            return localVarFp.apiHealthGet(options).then((request) => request(axios, basePath));
+        healthGet(options?: RawAxiosRequestConfig): AxiosPromise<HealthGet200Response> {
+            return localVarFp.healthGet(options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -117,8 +117,8 @@ export class SystemApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof SystemApi
      */
-    public apiHealthGet(options?: RawAxiosRequestConfig) {
-        return SystemApiFp(this.configuration).apiHealthGet(options).then((request) => request(this.axios, this.basePath));
+    public healthGet(options?: RawAxiosRequestConfig) {
+        return SystemApiFp(this.configuration).healthGet(options).then((request) => request(this.axios, this.basePath));
     }
 }
 

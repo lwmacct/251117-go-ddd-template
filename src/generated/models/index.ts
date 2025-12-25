@@ -1,5 +1,3 @@
-export * from './api-health-get200-response';
-export * from './api-health-get200-response-all-of-checks';
 export * from './auditlog-audit-log-dto';
 export * from './auth-login2-fadto';
 export * from './auth-login-dto';
@@ -23,6 +21,8 @@ export * from './handler-reorder-menus-request-menus-inner';
 export * from './handler-update-menu-request';
 export * from './handler-update-profile-request';
 export * from './handler-update-setting-request';
+export * from './health-get200-response';
+export * from './health-get200-response-all-of-checks';
 export * from './menu-menu-dto';
 export * from './pat-create-token-dto';
 export * from './pat-create-token-result-dto';

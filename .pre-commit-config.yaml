@@ -23,6 +23,14 @@ repos:
         files: ^internal/application/.*\.go$
         stages: [pre-commit]
 
+      - id: route-swagger-consistency
+        name: Check route-swagger consistency
+        entry: scripts/check-route-swagger-consistency.sh
+        language: script
+        pass_filenames: false
+        stages: [pre-commit]
+        files: ^internal/adapters/http/(router\.go|handler/.*\.go)$
+
       - id: swagger-generate
         name: Generate Swagger/OpenAPI docs
         entry: bash -c 'swag init -g internal/command/api/command.go -o internal/adapters/http/docs --parseDependency --parseInternal && pnpm run api:generate'

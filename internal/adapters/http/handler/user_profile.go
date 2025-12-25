@@ -144,7 +144,7 @@ func (h *UserProfileHandler) UpdateProfile(c *gin.Context) {
 // @Failure      400 {object} response.ErrorResponse "参数错误或旧密码不正确"
 // @Failure      401 {object} response.ErrorResponse "未授权"
 // @Router       /api/user/password [put]
-// @x-permission {"scope":"user:profile:update"}
+// @x-permission {"scope":"user:password:update"}
 func (h *UserProfileHandler) ChangePassword(c *gin.Context) {
 	userID, exists := c.Get("user_id")
 	if !exists {

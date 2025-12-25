@@ -42,7 +42,6 @@ func NewTwoFAHandler(
 // @Failure      400 {object} response.ErrorResponse "设置失败"
 // @Failure      401 {object} response.ErrorResponse "未授权"
 // @Router       /api/auth/2fa/setup [post]
-// @x-permission {"scope":"user:2fa:setup"}
 func (h *TwoFAHandler) Setup(c *gin.Context) {
 	ctx := c.Request.Context()
 
@@ -81,7 +80,6 @@ func (h *TwoFAHandler) Setup(c *gin.Context) {
 // @Failure      400 {object} response.ErrorResponse "验证码错误"
 // @Failure      401 {object} response.ErrorResponse "未授权"
 // @Router       /api/auth/2fa/verify [post]
-// @x-permission {"scope":"user:2fa:setup"}
 func (h *TwoFAHandler) VerifyAndEnable(c *gin.Context) {
 	ctx := c.Request.Context()
 
@@ -124,7 +122,6 @@ func (h *TwoFAHandler) VerifyAndEnable(c *gin.Context) {
 // @Failure      400 {object} response.ErrorResponse "禁用失败"
 // @Failure      401 {object} response.ErrorResponse "未授权"
 // @Router       /api/auth/2fa/disable [post]
-// @x-permission {"scope":"user:2fa:disable"}
 func (h *TwoFAHandler) Disable(c *gin.Context) {
 	ctx := c.Request.Context()
 
@@ -155,7 +152,6 @@ func (h *TwoFAHandler) Disable(c *gin.Context) {
 // @Failure      400 {object} response.ErrorResponse "获取失败"
 // @Failure      401 {object} response.ErrorResponse "未授权"
 // @Router       /api/auth/2fa/status [get]
-// @x-permission {"scope":"user:2fa:read"}
 func (h *TwoFAHandler) GetStatus(c *gin.Context) {
 	ctx := c.Request.Context()
 

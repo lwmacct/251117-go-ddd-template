@@ -1322,7 +1322,7 @@ paths:
       tags:
       - 管理员 - 审计日志 (Admin - Audit Log)
       x-permission:
-        scope: admin:auditlogs:read
+        scope: admin:audit_logs:read
   /api/admin/auditlogs/{id}:
     get:
       consumes:
@@ -1364,7 +1364,7 @@ paths:
       tags:
       - 管理员 - 审计日志 (Admin - Audit Log)
       x-permission:
-        scope: admin:auditlogs:read
+        scope: admin:audit_logs:read
   /api/admin/menus:
     get:
       consumes:
@@ -1642,6 +1642,8 @@ paths:
       summary: 获取系统概览统计
       tags:
       - 系统概览 (Overview)
+      x-permission:
+        scope: admin:overview:read
   /api/admin/permissions:
     get:
       consumes:
@@ -2554,8 +2556,6 @@ paths:
       summary: 禁用两步验证
       tags:
       - 认证 - 两步验证 (Authentication - 2FA)
-      x-permission:
-        scope: user:2fa:disable
   /api/auth/2fa/setup:
     post:
       consumes:
@@ -2581,8 +2581,6 @@ paths:
       summary: 初始化两步验证
       tags:
       - 认证 - 两步验证 (Authentication - 2FA)
-      x-permission:
-        scope: user:2fa:setup
   /api/auth/2fa/status:
     get:
       consumes:
@@ -2608,8 +2606,6 @@ paths:
       summary: 获取两步验证状态
       tags:
       - 认证 - 两步验证 (Authentication - 2FA)
-      x-permission:
-        scope: user:2fa:read
   /api/auth/2fa/verify:
     post:
       consumes:
@@ -2642,8 +2638,6 @@ paths:
       summary: 验证并启用两步验证
       tags:
       - 认证 - 两步验证 (Authentication - 2FA)
-      x-permission:
-        scope: user:2fa:setup
   /api/auth/captcha:
     get:
       consumes:
@@ -2855,49 +2849,6 @@ paths:
       summary: 获取缓存
       tags:
       - 缓存示例 (Cache Demo)
-  /api/health:
-    get:
-      consumes:
-      - application/json
-      description: 检查系统服务健康状态（数据库、Redis）
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 服务健康
-          schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                checks:
-                  properties:
-                    database:
-                      type: object
-                    redis:
-                      type: object
-                  type: object
-                status:
-                  type: string
-              type: object
-        "503":
-          description: 服务降级
-          schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                checks:
-                  properties:
-                    database:
-                      type: object
-                    redis:
-                      type: object
-                  type: object
-                status:
-                  type: string
-              type: object
-      summary: 健康检查
-      tags:
-      - 系统 (System)
   /api/user/account:
     delete:
       consumes:
@@ -2958,7 +2909,7 @@ paths:
       tags:
       - 用户 - 个人资料 (User - Profile)
       x-permission:
-        scope: user:profile:update
+        scope: user:password:update
   /api/user/profile:
     get:
       consumes:
@@ -3226,6 +3177,49 @@ paths:
       - 用户 - 个人访问令牌 (User - Personal Access Token)
       x-permission:
         scope: user:tokens:enable
+  /health:
+    get:
+      consumes:
+      - application/json
+      description: 检查系统服务健康状态（数据库、Redis）
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 服务健康
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                checks:
+                  properties:
+                    database:
+                      type: object
+                    redis:
+                      type: object
+                  type: object
+                status:
+                  type: string
+              type: object
+        "503":
+          description: 服务降级
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                checks:
+                  properties:
+                    database:
+                      type: object
+                    redis:
+                      type: object
+                  type: object
+                status:
+                  type: string
+              type: object
+      summary: 健康检查
+      tags:
+      - 系统 (System)
 securityDefinitions:
   BearerAuth:
     description: 'Bearer token authentication. Format: "Bearer {token}"'
