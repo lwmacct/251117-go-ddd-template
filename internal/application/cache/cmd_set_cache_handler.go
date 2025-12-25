@@ -3,16 +3,16 @@ package cache
 import (
 	"context"
 
-	domainCache "github.com/lwmacct/251117-go-ddd-template/internal/domain/cache"
+	"github.com/lwmacct/251117-go-ddd-template/internal/domain/cache"
 )
 
 // SetCacheHandler 设置缓存命令处理器
 type SetCacheHandler struct {
-	cacheCommandRepo domainCache.CommandRepository
+	cacheCommandRepo cache.CommandRepository
 }
 
 // NewSetCacheHandler 创建设置缓存命令处理器
-func NewSetCacheHandler(cacheCommandRepo domainCache.CommandRepository) *SetCacheHandler {
+func NewSetCacheHandler(cacheCommandRepo cache.CommandRepository) *SetCacheHandler {
 	return &SetCacheHandler{
 		cacheCommandRepo: cacheCommandRepo,
 	}

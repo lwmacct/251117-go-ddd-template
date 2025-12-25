@@ -3,16 +3,16 @@ package cache
 import (
 	"context"
 
-	domainCache "github.com/lwmacct/251117-go-ddd-template/internal/domain/cache"
+	"github.com/lwmacct/251117-go-ddd-template/internal/domain/cache"
 )
 
 // DeleteCacheHandler 删除缓存命令处理器
 type DeleteCacheHandler struct {
-	cacheCommandRepo domainCache.CommandRepository
+	cacheCommandRepo cache.CommandRepository
 }
 
 // NewDeleteCacheHandler 创建删除缓存命令处理器
-func NewDeleteCacheHandler(cacheCommandRepo domainCache.CommandRepository) *DeleteCacheHandler {
+func NewDeleteCacheHandler(cacheCommandRepo cache.CommandRepository) *DeleteCacheHandler {
 	return &DeleteCacheHandler{
 		cacheCommandRepo: cacheCommandRepo,
 	}

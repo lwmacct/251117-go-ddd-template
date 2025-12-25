@@ -3,16 +3,16 @@ package cache
 import (
 	"context"
 
-	domainCache "github.com/lwmacct/251117-go-ddd-template/internal/domain/cache"
+	"github.com/lwmacct/251117-go-ddd-template/internal/domain/cache"
 )
 
 // GetCacheHandler 获取缓存查询处理器
 type GetCacheHandler struct {
-	cacheQueryRepo domainCache.QueryRepository
+	cacheQueryRepo cache.QueryRepository
 }
 
 // NewGetCacheHandler 创建获取缓存查询处理器
-func NewGetCacheHandler(cacheQueryRepo domainCache.QueryRepository) *GetCacheHandler {
+func NewGetCacheHandler(cacheQueryRepo cache.QueryRepository) *GetCacheHandler {
 	return &GetCacheHandler{
 		cacheQueryRepo: cacheQueryRepo,
 	}
