@@ -21,6 +21,7 @@
 package middleware
 
 import (
+	"context"
 	"fmt"
 	"strings"
 
@@ -52,11 +53,12 @@ func Auth(jwtManager *auth.JWTManager, patService *auth.PATService, permCacheSer
 		tokenString := parts[1]
 
 		// 判断 token 类型: PAT 以 "pat_" 开头，使用相应的认证方式
+		ctx := c.Request.Context()
 		var authErr error
 		if strings.HasPrefix(tokenString, "pat_") {
-			authErr = authenticateWithPAT(c, patService, permCacheService, tokenString)
+			authErr = authenticateWithPAT(ctx, c, patService, permCacheService, tokenString)
 		} else {
-			authErr = authenticateWithJWT(c, jwtManager, permCacheService, tokenString)
+			authErr = authenticateWithJWT(ctx, c, jwtManager, permCacheService, tokenString)
 		}
 
 		if authErr != nil {
@@ -111,7 +113,7 @@ func JWTAuth(jwtManager *auth.JWTManager) gin.HandlerFunc {
 
 // authenticateWithJWT 使用 JWT 进行认证
 // 新架构：从 token 获取 user_id，权限信息从缓存实时查询
-func authenticateWithJWT(c *gin.Context, jwtManager *auth.JWTManager, permCacheService *auth.PermissionCacheService, tokenString string) error {
+func authenticateWithJWT(ctx context.Context, c *gin.Context, jwtManager *auth.JWTManager, permCacheService *auth.PermissionCacheService, tokenString string) error {
 	claims, err := jwtManager.ValidateToken(tokenString)
 	if err != nil {
 		return err
@@ -125,7 +127,7 @@ func authenticateWithJWT(c *gin.Context, jwtManager *auth.JWTManager, permCacheS
 		permissions = claims.Permissions
 	} else {
 		// 新 token 不包含权限信息，从缓存查询
-		roles, permissions, err = permCacheService.GetUserPermissions(c.Request.Context(), claims.UserID)
+		roles, permissions, err = permCacheService.GetUserPermissions(ctx, claims.UserID)
 		if err != nil {
 			return fmt.Errorf("failed to get user permissions: %w", err)
 		}
@@ -144,16 +146,16 @@ func authenticateWithJWT(c *gin.Context, jwtManager *auth.JWTManager, permCacheS
 
 // authenticateWithPAT 使用 Personal Access Token 进行认证
 // 新架构：PAT 自动继承用户全部权限，从缓存实时查询
-func authenticateWithPAT(c *gin.Context, patService *auth.PATService, permCacheService *auth.PermissionCacheService, tokenString string) error {
+func authenticateWithPAT(ctx context.Context, c *gin.Context, patService *auth.PATService, permCacheService *auth.PermissionCacheService, tokenString string) error {
 	// 验证 PAT (包含 IP 白名单检查)
 	clientIP := c.ClientIP()
-	pat, err := patService.ValidateTokenWithIP(c.Request.Context(), tokenString, clientIP)
+	pat, err := patService.ValidateTokenWithIP(ctx, tokenString, clientIP)
 	if err != nil {
 		return err
 	}
 
 	// 从缓存查询用户权限（PAT 自动继承用户全部权限）
-	roles, permissions, err := permCacheService.GetUserPermissions(c.Request.Context(), pat.UserID)
+	roles, permissions, err := permCacheService.GetUserPermissions(ctx, pat.UserID)
 	if err != nil {
 		return fmt.Errorf("failed to get user permissions: %w", err)
 	}

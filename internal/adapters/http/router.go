@@ -28,6 +28,7 @@ import (
 	// 引入第三方包
 	"github.com/gin-gonic/gin"
 	"github.com/redis/go-redis/v9"
+	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
 
 	// Swagger 文档
 	_ "github.com/lwmacct/251117-go-ddd-template/internal/adapters/http/docs" // Swagger docs
@@ -97,6 +98,11 @@ func SetupRouterWithDeps(deps *RouterDependencies) *gin.Engine {
 	r := gin.New()
 
 	// 全局中间件
+	// OpenTelemetry 追踪中间件（如果启用）
+	if cfg.Telemetry.Enabled {
+		r.Use(otelgin.Middleware("go-ddd-template"))
+	}
+
 	// 自定义 Recovery，输出 panic 到 slog，生产环境隐藏详细错误
 	r.Use(gin.CustomRecovery(func(c *gin.Context, recovered any) {
 		slog.Error("PANIC recovered", "error", recovered, "path", c.Request.URL.Path, "method", c.Request.Method)

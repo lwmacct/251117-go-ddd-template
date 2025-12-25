@@ -27,8 +27,8 @@ func action(ctx context.Context, cmd *cli.Command) error {
 		"concurrency", concurrency,
 	)
 
-	// 初始化 Redis 客户端
-	redisClient, err := redisinfra.NewClient(ctx, cfg.Data.RedisURL)
+	// 初始化 Redis 客户端（与 Telemetry 配置联动）
+	redisClient, err := redisinfra.NewClient(ctx, cfg.Data.RedisURL, cfg.Telemetry.Enabled)
 	if err != nil {
 		slog.Error("Failed to connect to Redis", "error", err)
 		return err

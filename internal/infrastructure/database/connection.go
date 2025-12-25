@@ -7,6 +7,7 @@ import (
 	"log/slog"
 	"time"
 
+	"github.com/uptrace/opentelemetry-go-extra/otelgorm"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -19,6 +20,7 @@ type Config struct {
 	MaxIdleConns    int           // 最大空闲连接数
 	ConnMaxLifetime time.Duration // 连接最大生命周期
 	LogLevel        logger.LogLevel
+	EnableTracing   bool // 是否启用 OpenTelemetry 追踪
 }
 
 // DefaultConfig 返回默认配置
@@ -52,6 +54,15 @@ func NewConnection(ctx context.Context, cfg *Config) (*gorm.DB, error) {
 	})
 	if err != nil {
 		return nil, fmt.Errorf("failed to connect to database: %w", err)
+	}
+
+	// 启用 OpenTelemetry 追踪
+	if cfg.EnableTracing {
+		if pluginErr := db.Use(otelgorm.NewPlugin()); pluginErr != nil {
+			slog.Warn("Failed to enable GORM tracing", "error", pluginErr)
+		} else {
+			slog.Info("GORM OpenTelemetry tracing enabled")
+		}
 	}
 
 	// 获取底层 sql.DB

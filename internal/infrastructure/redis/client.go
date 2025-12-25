@@ -7,13 +7,15 @@ import (
 	"log/slog"
 	"time"
 
+	"github.com/redis/go-redis/extra/redisotel/v9"
 	"github.com/redis/go-redis/v9"
 )
 
 // NewClient 创建并初始化 Redis 客户端
 // redisURL 格式: redis://[:password@]host:port[/db]
 // 例如: redis://localhost:6379/0 或 redis://:password@localhost:6379/1
-func NewClient(ctx context.Context, redisURL string) (*redis.Client, error) {
+// enableTracing: 是否启用 OpenTelemetry 追踪
+func NewClient(ctx context.Context, redisURL string, enableTracing bool) (*redis.Client, error) {
 	if redisURL == "" {
 		return nil, errors.New("redis URL cannot be empty")
 	}
@@ -26,6 +28,15 @@ func NewClient(ctx context.Context, redisURL string) (*redis.Client, error) {
 
 	// 创建客户端
 	client := redis.NewClient(opts)
+
+	// 启用 OpenTelemetry 追踪
+	if enableTracing {
+		if tracingErr := redisotel.InstrumentTracing(client); tracingErr != nil {
+			slog.Warn("Failed to enable Redis tracing", "error", tracingErr)
+		} else {
+			slog.Info("Redis OpenTelemetry tracing enabled")
+		}
+	}
 
 	// 使用超时上下文进行健康检查
 	pingCtx, cancel := context.WithTimeout(ctx, 5*time.Second)

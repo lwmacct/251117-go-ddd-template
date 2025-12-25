@@ -14,15 +14,17 @@ import (
 	_auth "github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/auth"
 	_captcha "github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/captcha"
 	"github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/persistence"
+	"github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/telemetry"
 	"github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/twofa"
 )
 
 // InfrastructureModule 基础设施模块
-// 包含数据库、缓存、事件总线等底层组件
+// 包含数据库、缓存、事件总线、遥测等底层组件
 type InfrastructureModule struct {
-	DB          *gorm.DB
-	RedisClient *redis.Client
-	EventBus    event.EventBus
+	DB                *gorm.DB
+	RedisClient       *redis.Client
+	EventBus          event.EventBus
+	TelemetryShutdown telemetry.ShutdownFunc // OpenTelemetry 关闭函数
 }
 
 // RepositoriesModule 仓储模块
