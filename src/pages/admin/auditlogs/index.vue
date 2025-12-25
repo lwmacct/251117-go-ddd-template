@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref } from "vue";
 import { useAuditLogs } from "./composables/useAuditLogs";
 import type { AuditlogAuditLogDTO } from "@models";
 
@@ -17,10 +17,9 @@ const {
   successMessage,
   filters,
   pagination,
-  fetchLogs,
   applyFilters,
   resetFilters,
-  changePage,
+  onTableOptionsUpdate,
   clearMessages,
   exportLogs,
 } = useAuditLogs();
@@ -66,11 +65,6 @@ const statusOptions = [
   { value: "success", text: "成功" },
   { value: "failure", text: "失败" },
 ];
-
-// 初始化
-onMounted(() => {
-  fetchLogs();
-});
 
 // 查看详情
 const viewDetail = (log: AuditlogAuditLogDTO) => {
@@ -235,15 +229,15 @@ const getStatusText = (status?: string) => {
 
           <v-card-text>
             <v-data-table-server
-              v-model:items-per-page="pagination.limit"
-              v-model:page="pagination.page"
+              :items-per-page="pagination.limit"
+              :page="pagination.page"
               :headers="headers"
               :items="logs"
               :items-length="pagination.total"
               :loading="loading"
               loading-text="加载中..."
               no-data-text="暂无审计日志"
-              @update:page="changePage"
+              @update:options="onTableOptionsUpdate"
             >
               <!-- 操作列 -->
               <template #item.action="{ item }">

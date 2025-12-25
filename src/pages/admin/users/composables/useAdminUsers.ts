@@ -1,25 +1,29 @@
 /**
  * Admin 用户管理 Composable
  */
-import { ref, reactive, watch } from "vue";
-import { adminUserApi, extractList, extractData, type PaginationState } from "@/api";
-import { type UserUserWithRolesDTO, type UserCreateUserDTO, type UserUpdateUserDTO, type UserAssignRolesDTO } from "@models";
+import { ref, watch } from "vue";
+import { adminUserApi, extractList, extractData } from "@/api";
+import type { UserUserWithRolesDTO, UserCreateUserDTO, UserUpdateUserDTO, UserAssignRolesDTO } from "@models";
 import { exportToCSV, type CSVColumn } from "@/utils/export";
 import { refDebounced } from "@vueuse/core";
+import { useServerPagination } from "@/composables";
 
 export function useAdminUsers() {
   // 状态
   const users = ref<UserUserWithRolesDTO[]>([]);
-  const loading = ref(false);
   const searchQuery = ref("");
   // 防抖搜索值，300ms 延迟
   const debouncedSearchQuery = refDebounced(searchQuery, 300);
-  const pagination = reactive<PaginationState>({
-    page: 1,
-    limit: 20,
-    total: 0,
-    total_pages: 0,
-  });
+
+  // 使用通用分页 composable
+  const {
+    pagination,
+    loading,
+    onTableOptionsUpdate: baseOnTableOptionsUpdate,
+    updateTotal,
+    resetAndFetch,
+    getParams,
+  } = useServerPagination();
 
   // 错误和成功消息
   const errorMessage = ref("");
@@ -33,14 +37,12 @@ export function useAdminUsers() {
     errorMessage.value = "";
 
     try {
-      const response = await adminUserApi.apiAdminUsersGet(
-        pagination.page,
-        pagination.limit,
-        debouncedSearchQuery.value || undefined,
-      );
+      const { limit, page } = getParams();
+      // 注意：API 参数顺序是 (limit, page, search)
+      const response = await adminUserApi.apiAdminUsersGet(limit, page, debouncedSearchQuery.value || undefined);
       const result = extractList<UserUserWithRolesDTO>(response.data);
       users.value = result.data;
-      Object.assign(pagination, result.pagination);
+      updateTotal(result.pagination.total, result.pagination.total_pages);
     } catch (error) {
       errorMessage.value = (error as Error).message || "获取用户列表失败";
       console.error("Failed to fetch users:", error);
@@ -154,16 +156,15 @@ export function useAdminUsers() {
 
   // 监听防抖搜索值变化，自动触发搜索
   watch(debouncedSearchQuery, () => {
-    pagination.page = 1; // 重置到第一页
-    fetchUsers();
+    resetAndFetch(fetchUsers);
   });
 
   /**
-   * 翻页
+   * 表格选项变化处理（分页、每页条数、排序）
+   * 由 v-data-table-server 的 @update:options 触发
    */
-  const changePage = (page: number) => {
-    pagination.page = page;
-    fetchUsers();
+  const onTableOptionsUpdate = (options: { page: number; itemsPerPage: number }) => {
+    baseOnTableOptionsUpdate(options, fetchUsers);
   };
 
   /**
@@ -183,7 +184,8 @@ export function useAdminUsers() {
 
     try {
       // 获取所有用户（最多 1000 条）
-      const response = await adminUserApi.apiAdminUsersGet(1, 1000, searchQuery.value || undefined);
+      // 注意：API 参数顺序是 (limit, page, search)
+      const response = await adminUserApi.apiAdminUsersGet(1000, 1, searchQuery.value || undefined);
       const result = extractList<UserUserWithRolesDTO>(response.data);
 
       if (result.data.length === 0) {
@@ -265,7 +267,7 @@ export function useAdminUsers() {
     updateUser,
     deleteUser,
     assignRoles,
-    changePage,
+    onTableOptionsUpdate,
     clearMessages,
     exportUsers,
   };

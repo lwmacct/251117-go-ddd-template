@@ -1,25 +1,28 @@
 /**
  * Admin 角色管理 Composable
  */
-import { ref, reactive, watch } from "vue";
+import { ref, watch } from "vue";
 import { adminRoleApi, extractList, extractData } from "@/api";
-import type { PaginationState } from "@/api";
 import type { RoleRoleDTO, RolePermissionDTO, RoleCreateRoleDTO, RoleUpdateRoleDTO, RoleSetPermissionsDTO } from "@models";
 import { exportToCSV, type CSVColumn } from "@/utils/export";
 import { refDebounced } from "@vueuse/core";
+import { useServerPagination } from "@/composables";
 
 export function useRoles() {
   const roles = ref<RoleRoleDTO[]>([]);
-  const loading = ref(false);
   const searchQuery = ref("");
   // 防抖搜索值，300ms 延迟
   const debouncedSearchQuery = refDebounced(searchQuery, 300);
-  const pagination = reactive<PaginationState>({
-    page: 1,
-    limit: 20,
-    total: 0,
-    total_pages: 0,
-  });
+
+  // 使用通用分页 composable
+  const {
+    pagination,
+    loading,
+    onTableOptionsUpdate: baseOnTableOptionsUpdate,
+    updateTotal,
+    resetAndFetch,
+    getParams,
+  } = useServerPagination();
 
   const errorMessage = ref("");
   const successMessage = ref("");
@@ -29,10 +32,11 @@ export function useRoles() {
     errorMessage.value = "";
 
     try {
-      const response = await adminRoleApi.apiAdminRolesGet(pagination.page, pagination.limit);
+      const { limit, page } = getParams();
+      const response = await adminRoleApi.apiAdminRolesGet(limit, page);
       const result = extractList<RoleRoleDTO>(response.data);
       roles.value = result.data;
-      Object.assign(pagination, result.pagination);
+      updateTotal(result.pagination.total, result.pagination.total_pages);
     } catch (error) {
       errorMessage.value = (error as Error).message || "获取角色列表失败";
       console.error("Failed to fetch roles:", error);
@@ -128,19 +132,20 @@ export function useRoles() {
    * 获取权限列表
    */
   const listPermissions = async (params?: { page?: number; limit?: number }) => {
-    const response = await adminRoleApi.apiAdminPermissionsGet(params?.page, params?.limit);
+    const response = await adminRoleApi.apiAdminPermissionsGet(params?.limit, params?.page);
     return extractList<RolePermissionDTO>(response.data);
   };
 
   // 监听防抖搜索值变化，自动触发搜索
   watch(debouncedSearchQuery, () => {
-    pagination.page = 1;
-    fetchRoles();
+    resetAndFetch(fetchRoles);
   });
 
-  const changePage = (page: number) => {
-    pagination.page = page;
-    fetchRoles();
+  /**
+   * 表格选项变化处理
+   */
+  const onTableOptionsUpdate = (options: { page: number; itemsPerPage: number }) => {
+    baseOnTableOptionsUpdate(options, fetchRoles);
   };
 
   const clearMessages = () => {
@@ -157,7 +162,7 @@ export function useRoles() {
 
     try {
       // 获取所有角色（最多 1000 条）
-      const response = await adminRoleApi.apiAdminRolesGet(1, 1000);
+      const response = await adminRoleApi.apiAdminRolesGet(1000, 1);
       const result = extractList<RoleRoleDTO>(response.data);
 
       if (result.data.length === 0) {
@@ -225,7 +230,7 @@ export function useRoles() {
     deleteRole,
     setPermissions,
     listPermissions,
-    changePage,
+    onTableOptionsUpdate,
     clearMessages,
     exportRoles,
   };

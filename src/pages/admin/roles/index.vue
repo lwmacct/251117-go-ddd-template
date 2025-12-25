@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref } from "vue";
 import { useRoles } from "./composables/useRoles";
 import RoleDialog from "./components/RoleDialog.vue";
 import PermissionSelector from "./components/PermissionSelector.vue";
@@ -13,12 +13,11 @@ const {
   pagination,
   errorMessage,
   successMessage,
-  fetchRoles,
   createRole,
   updateRole,
   deleteRole,
   setPermissions,
-  changePage,
+  onTableOptionsUpdate,
   clearMessages,
   exportRoles,
 } = useRoles();
@@ -40,10 +39,6 @@ const headers = [
   { title: "创建时间", key: "created_at", sortable: true },
   { title: "操作", key: "actions", sortable: false },
 ];
-
-onMounted(() => {
-  fetchRoles();
-});
 
 const openCreateDialog = () => {
   dialogMode.value = "create";
@@ -176,15 +171,15 @@ const formatPermissions = (role: RoleRoleDTO) => {
 
           <v-card-text>
             <v-data-table-server
-              v-model:items-per-page="pagination.limit"
-              v-model:page="pagination.page"
+              :items-per-page="pagination.limit"
+              :page="pagination.page"
               :headers="headers"
               :items="roles"
               :items-length="pagination.total"
               :loading="loading"
               loading-text="加载中..."
               no-data-text="暂无角色数据"
-              @update:page="changePage"
+              @update:options="onTableOptionsUpdate"
             >
               <template #item.permissions="{ item }">
                 <v-chip size="small" color="primary"> {{ formatPermissions(item) }} 个权限 </v-chip>

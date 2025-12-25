@@ -13,6 +13,7 @@ import {
   type AuditStatus,
 } from "@/api";
 import { exportToCSV, formatDateForExport, type CSVColumn } from "@/utils/export";
+import { useServerPagination } from "@/composables";
 
 interface AuditLogQueryParams {
   page?: number;
@@ -29,10 +30,19 @@ export function useAuditLogs() {
   // 状态管理
   const logs = ref<AuditlogAuditLogDTO[]>([]);
   const selectedLog = ref<AuditlogAuditLogDTO | null>(null);
-  const loading = ref(false);
   const exporting = ref(false);
   const errorMessage = ref("");
   const successMessage = ref("");
+
+  // 使用通用分页 composable
+  const {
+    pagination,
+    loading,
+    onTableOptionsUpdate: baseOnTableOptionsUpdate,
+    updateTotal,
+    resetAndFetch,
+    getParams,
+  } = useServerPagination();
 
   // 过滤条件
   const filters = reactive<AuditLogQueryParams>({
@@ -44,13 +54,6 @@ export function useAuditLogs() {
     end_date: "",
   });
 
-  // 分页状态
-  const pagination = reactive({
-    page: 1,
-    limit: 20,
-    total: 0,
-  });
-
   /**
    * 获取审计日志列表
    */
@@ -59,13 +62,14 @@ export function useAuditLogs() {
     errorMessage.value = "";
 
     try {
+      const { limit, page } = getParams();
       // 参数按字母顺序：action, endDate, limit, page, resource, startDate, status, userId
       const response = await adminAuditLogApi.apiAdminAuditlogsGet(
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (filters.action || undefined) as any,
         filters.end_date || undefined,
-        pagination.limit,
-        pagination.page,
+        limit,
+        page,
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (filters.resource || undefined) as any,
         filters.start_date || undefined,
@@ -75,7 +79,7 @@ export function useAuditLogs() {
       );
       const result = extractList<AuditlogAuditLogDTO>(response.data);
       logs.value = result.data;
-      pagination.total = result.pagination.total;
+      updateTotal(result.pagination.total, result.pagination.total_pages);
     } catch (error) {
       errorMessage.value = (error as Error).message || "获取审计日志失败";
       console.error("Failed to fetch audit logs:", error);
@@ -106,8 +110,7 @@ export function useAuditLogs() {
    * 应用过滤条件
    */
   const applyFilters = () => {
-    pagination.page = 1; // 重置到第一页
-    fetchLogs();
+    resetAndFetch(fetchLogs);
   };
 
   /**
@@ -120,16 +123,15 @@ export function useAuditLogs() {
     filters.status = "";
     filters.start_date = "";
     filters.end_date = "";
-    pagination.page = 1;
-    fetchLogs();
+    resetAndFetch(fetchLogs);
   };
 
   /**
-   * 切换页码
+   * 表格选项变化处理（分页、每页条数、排序）
+   * 由 v-data-table-server 的 @update:options 触发
    */
-  const changePage = (page: number) => {
-    pagination.page = page;
-    fetchLogs();
+  const onTableOptionsUpdate = (options: { page: number; itemsPerPage: number }) => {
+    baseOnTableOptionsUpdate(options, fetchLogs);
   };
 
   /**
@@ -215,7 +217,7 @@ export function useAuditLogs() {
     fetchLogDetail,
     applyFilters,
     resetFilters,
-    changePage,
+    onTableOptionsUpdate,
     clearMessages,
     exportLogs,
   };

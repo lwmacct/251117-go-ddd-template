@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref } from "vue";
 import { useAdminUsers } from "./composables/useAdminUsers";
 import UserDialog from "./components/UserDialog.vue";
 import UserImportDialog from "./components/UserImportDialog.vue";
@@ -25,7 +25,7 @@ const {
   updateUser,
   deleteUser,
   assignRoles,
-  changePage,
+  onTableOptionsUpdate,
   clearMessages,
   exportUsers,
 } = useAdminUsers();
@@ -52,11 +52,6 @@ const headers = [
   { title: "创建时间", key: "created_at", sortable: true },
   { title: "操作", key: "actions", sortable: false },
 ];
-
-// 初始化
-onMounted(() => {
-  fetchUsers();
-});
 
 // 打开创建对话框
 const openCreateDialog = () => {
@@ -225,15 +220,15 @@ const getStatusText = (status?: string) => {
 
           <v-card-text>
             <v-data-table-server
-              v-model:items-per-page="pagination.limit"
-              v-model:page="pagination.page"
+              :items-per-page="pagination.limit"
+              :page="pagination.page"
               :headers="headers"
               :items="users"
               :items-length="pagination.total"
               :loading="loading"
               loading-text="加载中..."
               no-data-text="暂无用户数据"
-              @update:page="changePage"
+              @update:options="onTableOptionsUpdate"
             >
               <!-- ID 列 -->
               <template #item.id="{ item }">
