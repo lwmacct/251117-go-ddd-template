@@ -26,7 +26,7 @@ func TestListAuditLogs(t *testing.T) {
 	t.Log("  登录成功")
 
 	t.Log("\n获取审计日志列表...")
-	logs, meta, err := helper.GetList[auditlog.AuditLogDTO](c, "/api/admin/audit-logs", map[string]string{
+	logs, meta, err := helper.GetList[auditlog.AuditLogDTO](c, "/api/admin/auditlogs", map[string]string{
 		"page":  "1",
 		"limit": "10",
 	})
@@ -71,7 +71,7 @@ func TestGetAuditLogDetail(t *testing.T) {
 
 	// 先获取日志列表，取第一条的 ID
 	t.Log("\n步骤 1: 获取日志列表")
-	logs, _, err := helper.GetList[auditlog.AuditLogDTO](c, "/api/admin/audit-logs", map[string]string{
+	logs, _, err := helper.GetList[auditlog.AuditLogDTO](c, "/api/admin/auditlogs", map[string]string{
 		"page":  "1",
 		"limit": "1",
 	})
@@ -89,7 +89,7 @@ func TestGetAuditLogDetail(t *testing.T) {
 
 	// 获取详情
 	t.Log("\n步骤 2: 获取日志详情")
-	detail, err := helper.Get[auditlog.AuditLogDTO](c, fmt.Sprintf("/api/admin/audit-logs/%d", logID), nil)
+	detail, err := helper.Get[auditlog.AuditLogDTO](c, fmt.Sprintf("/api/admin/auditlogs/%d", logID), nil)
 	if err != nil {
 		t.Fatalf("获取审计日志详情失败: %v", err)
 	}
@@ -131,7 +131,7 @@ func TestAuditLogFilters(t *testing.T) {
 
 	// 测试按操作类型筛选
 	t.Log("\n测试 1: 按操作类型筛选 (login)")
-	loginLogs, meta, err := helper.GetList[auditlog.AuditLogDTO](c, "/api/admin/audit-logs", map[string]string{
+	loginLogs, meta, err := helper.GetList[auditlog.AuditLogDTO](c, "/api/admin/auditlogs", map[string]string{
 		"action": "login",
 		"limit":  "5",
 	})
@@ -146,7 +146,7 @@ func TestAuditLogFilters(t *testing.T) {
 
 	// 测试按用户 ID 筛选
 	t.Log("\n测试 2: 按用户 ID 筛选 (user_id=1)")
-	userLogs, meta, err := helper.GetList[auditlog.AuditLogDTO](c, "/api/admin/audit-logs", map[string]string{
+	userLogs, meta, err := helper.GetList[auditlog.AuditLogDTO](c, "/api/admin/auditlogs", map[string]string{
 		"user_id": "1",
 		"limit":   "5",
 	})

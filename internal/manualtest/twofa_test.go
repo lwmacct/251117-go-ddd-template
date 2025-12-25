@@ -7,6 +7,8 @@ import (
 
 	"github.com/pquerna/otp/totp"
 
+	"github.com/lwmacct/251117-go-ddd-template/internal/adapters/http/response"
+	"github.com/lwmacct/251117-go-ddd-template/internal/application/auth"
 	"github.com/lwmacct/251117-go-ddd-template/internal/application/twofa"
 	"github.com/lwmacct/251117-go-ddd-template/internal/application/user"
 	"github.com/lwmacct/251117-go-ddd-template/internal/manualtest/helper"
@@ -273,4 +275,139 @@ func TestDisable2FA(t *testing.T) {
 	}
 
 	t.Logf("  2FA 状态: 启用=%v, 恢复码=%d", status.Enabled, status.RecoveryCodesCount)
+}
+
+// TestLogin2FA 测试 2FA 登录流程（启用 2FA 后的完整登录）。
+//
+// 手动运行:
+//
+//	MANUAL=1 go test -v -run TestLogin2FA ./internal/manualtest/
+func TestLogin2FA(t *testing.T) {
+	helper.SkipIfNotManual(t)
+
+	// 管理员创建测试用户
+	adminClient := helper.NewClient()
+	_, err := adminClient.Login("admin", "admin123")
+	if err != nil {
+		t.Fatalf("管理员登录失败: %v", err)
+	}
+
+	testUsername := fmt.Sprintf("login2fa_%d", time.Now().Unix())
+	testPassword := "password123"
+
+	t.Log("步骤 1: 创建测试用户（带 user 角色）")
+	createReq := user.CreateUserDTO{
+		Username: testUsername,
+		Email:    testUsername + "@example.com",
+		Password: testPassword,
+		FullName: "2FA Login 测试用户",
+		RoleIDs:  []uint{2}, // user 角色 ID
+	}
+
+	createResp, err := helper.Post[user.UserWithRolesDTO](adminClient, "/api/admin/users", createReq)
+	if err != nil {
+		t.Fatalf("创建测试用户失败: %v", err)
+	}
+	testUserID := createResp.ID
+	t.Logf("  创建成功，用户 ID: %d", testUserID)
+
+	// 确保测试结束时清理资源
+	t.Cleanup(func() {
+		_ = adminClient.Delete(fmt.Sprintf("/api/admin/users/%d", testUserID))
+	})
+
+	// 步骤 2: 测试用户登录并设置 2FA
+	t.Log("步骤 2: 测试用户登录并设置 2FA")
+	testClient := helper.NewClient()
+	_, err = testClient.Login(testUsername, testPassword)
+	if err != nil {
+		t.Fatalf("测试用户登录失败: %v", err)
+	}
+	t.Log("  登录成功")
+
+	// 设置 2FA
+	setup, err := helper.Post[twofa.SetupDTO](testClient, "/api/auth/2fa/setup", nil)
+	if err != nil {
+		t.Fatalf("设置 2FA 失败: %v", err)
+	}
+	t.Logf("  2FA 密钥: %s", setup.Secret)
+
+	// 生成 TOTP 代码并启用 2FA
+	code, err := totp.GenerateCode(setup.Secret, time.Now())
+	if err != nil {
+		t.Fatalf("生成 TOTP 代码失败: %v", err)
+	}
+	verifyReq := map[string]string{"code": code}
+	_, err = helper.Post[twofa.EnableDTO](testClient, "/api/auth/2fa/verify", verifyReq)
+	if err != nil {
+		t.Fatalf("启用 2FA 失败: %v", err)
+	}
+	t.Log("  2FA 已启用")
+
+	// 步骤 3: 尝试再次登录（应返回 requires_2fa=true）
+	t.Log("步骤 3: 再次登录（应触发 2FA 验证）")
+	newClient := helper.NewClient()
+	loginResp, err := newClient.Login(testUsername, testPassword)
+	if err != nil {
+		// 如果登录返回错误但是因为需要 2FA，这是预期行为
+		t.Logf("  登录返回: %v（这可能是预期的 2FA 挑战）", err)
+	}
+
+	if loginResp == nil || !loginResp.Requires2FA {
+		t.Fatalf("预期返回 requires_2fa=true，但未返回")
+	}
+	if loginResp.SessionToken == "" {
+		t.Fatalf("预期返回 session_token，但为空")
+	}
+	t.Logf("  收到 2FA 挑战")
+	t.Logf("  Session Token: %s...", loginResp.SessionToken[:20])
+
+	// 步骤 4: 使用 2FA 完成登录
+	t.Log("步骤 4: 使用 2FA 完成登录")
+	// 生成新的 TOTP 代码
+	newCode, err := totp.GenerateCode(setup.Secret, time.Now())
+	if err != nil {
+		t.Fatalf("生成 TOTP 代码失败: %v", err)
+	}
+	t.Logf("  TOTP 代码: %s", newCode)
+
+	login2FAReq := auth.Login2FADTO{
+		SessionToken:  loginResp.SessionToken,
+		TwoFactorCode: newCode,
+	}
+
+	// 使用原始请求获取更详细的错误信息
+	var finalResult response.DataResponse[auth.LoginResponseDTO]
+	resp, err := newClient.R().
+		SetBody(login2FAReq).
+		SetResult(&finalResult).
+		Post("/api/auth/login/2fa")
+	if err != nil {
+		t.Fatalf("2FA 登录请求失败: %v", err)
+	}
+	if resp.IsError() {
+		t.Fatalf("2FA 登录失败，状态码: %d, 响应: %s", resp.StatusCode(), resp.String())
+	}
+
+	finalResp := &finalResult.Data
+	if finalResp.AccessToken == "" {
+		t.Fatal("2FA 登录后未返回 access_token")
+	}
+	t.Log("  2FA 登录成功!")
+	t.Logf("  Access Token: %s...", finalResp.AccessToken[:30])
+	t.Logf("  用户名: %s", finalResp.User.Username)
+
+	// 步骤 5: 验证 token 可用
+	t.Log("步骤 5: 验证 token 可用")
+	newClient.SetToken(finalResp.AccessToken)
+	profile, err := helper.Get[user.UserWithRolesDTO](newClient, "/api/user/profile", nil)
+	if err != nil {
+		t.Fatalf("使用新 token 获取资料失败: %v", err)
+	}
+	if profile.Username != testUsername {
+		t.Errorf("用户名不匹配，期望 %s，实际 %s", testUsername, profile.Username)
+	}
+	t.Logf("  Token 验证成功，用户: %s", profile.Username)
+
+	t.Log("\n2FA 登录测试完成!")
 }

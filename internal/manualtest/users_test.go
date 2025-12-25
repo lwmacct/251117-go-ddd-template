@@ -192,3 +192,115 @@ func TestAssignRoles(t *testing.T) {
 
 	t.Log("\n角色分配测试完成!")
 }
+
+// TestBatchCreateUsers 测试批量创建用户。
+//
+// 手动运行:
+//
+//	MANUAL=1 go test -v -run TestBatchCreateUsers ./internal/manualtest/
+func TestBatchCreateUsers(t *testing.T) {
+	helper.SkipIfNotManual(t)
+
+	c := helper.NewClient()
+
+	t.Log("准备工作: 登录管理员账户")
+	_, err := c.Login("admin", "admin123")
+	if err != nil {
+		t.Fatalf("登录失败: %v", err)
+	}
+	t.Log("  登录成功")
+
+	timestamp := time.Now().Unix()
+	username1 := fmt.Sprintf("batch1_%d", timestamp)
+	username2 := fmt.Sprintf("batch2_%d", timestamp)
+
+	// 确保测试结束时清理资源
+	t.Cleanup(func() {
+		// 获取用户列表并删除测试用户
+		users, _, _ := helper.GetList[user.UserWithRolesDTO](c, "/api/admin/users", nil)
+		for _, u := range users {
+			if u.Username == username1 || u.Username == username2 {
+				_ = c.Delete(fmt.Sprintf("/api/admin/users/%d", u.ID))
+			}
+		}
+	})
+
+	// 步骤 1: 批量创建用户（2个成功 + 1个重复失败）
+	t.Log("\n步骤 1: 批量创建用户")
+	t.Logf("  用户1: %s", username1)
+	t.Logf("  用户2: %s", username2)
+	t.Logf("  用户3: %s (重复，应失败)", username1)
+
+	batchReq := user.BatchCreateUserDTO{
+		Users: []user.BatchUserItemDTO{
+			{
+				Username: username1,
+				Email:    username1 + "@example.com",
+				Password: "test123456",
+				FullName: "批量用户1",
+			},
+			{
+				Username: username2,
+				Email:    username2 + "@example.com",
+				Password: "test123456",
+				FullName: "批量用户2",
+			},
+			{
+				Username: username1, // 重复用户名
+				Email:    "dup_" + username1 + "@example.com",
+				Password: "test123456",
+				FullName: "重复用户",
+			},
+		},
+	}
+
+	result, err := helper.Post[user.BatchCreateUserResultDTO](c, "/api/admin/users/batch", batchReq)
+	if err != nil {
+		t.Fatalf("批量创建请求失败: %v", err)
+	}
+
+	t.Logf("\n批量创建结果:")
+	t.Logf("  总数: %d", result.Total)
+	t.Logf("  成功: %d", result.Success)
+	t.Logf("  失败: %d", result.Failed)
+
+	// 步骤 2: 验证结果
+	t.Log("\n步骤 2: 验证结果")
+	if result.Total != 3 {
+		t.Errorf("总数应为 3，实际 %d", result.Total)
+	}
+	if result.Success != 2 {
+		t.Errorf("成功数应为 2，实际 %d", result.Success)
+	}
+	if result.Failed != 1 {
+		t.Errorf("失败数应为 1，实际 %d", result.Failed)
+	}
+
+	// 验证错误详情
+	if len(result.Errors) > 0 {
+		t.Log("  错误详情:")
+		for _, e := range result.Errors {
+			t.Logf("    - [%d] %s: %s", e.Index, e.Username, e.Error)
+		}
+	}
+
+	// 步骤 3: 验证用户已创建
+	t.Log("\n步骤 3: 验证用户已创建")
+	users, _, _ := helper.GetList[user.UserWithRolesDTO](c, "/api/admin/users", nil)
+	found1, found2 := false, false
+	for _, u := range users {
+		if u.Username == username1 {
+			found1 = true
+			t.Logf("  找到用户: %s (ID: %d)", u.Username, u.ID)
+		}
+		if u.Username == username2 {
+			found2 = true
+			t.Logf("  找到用户: %s (ID: %d)", u.Username, u.ID)
+		}
+	}
+	if !found1 || !found2 {
+		t.Error("部分用户未创建成功")
+	}
+
+	t.Log("\n批量创建用户测试完成!")
+}

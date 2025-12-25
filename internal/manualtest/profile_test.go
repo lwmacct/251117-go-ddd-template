@@ -195,3 +195,70 @@ func TestChangePassword(t *testing.T) {
 
 	t.Log("修改密码测试完成!")
 }
+
+// TestDeleteAccount 测试删除账户。
+//
+// 手动运行:
+//
+//	MANUAL=1 go test -v -run TestDeleteAccount ./internal/manualtest/
+func TestDeleteAccount(t *testing.T) {
+	helper.SkipIfNotManual(t)
+
+	// 管理员创建测试用户
+	adminClient := helper.NewClient()
+	_, err := adminClient.Login("admin", "admin123")
+	if err != nil {
+		t.Fatalf("管理员登录失败: %v", err)
+	}
+
+	testUsername := fmt.Sprintf("delacct_%d", time.Now().Unix())
+	testEmail := testUsername + "@example.com"
+	testPassword := "test123456"
+
+	t.Log("步骤 1: 创建测试用户（带 user 角色）")
+	createReq := user.CreateUserDTO{
+		Username: testUsername,
+		Email:    testEmail,
+		Password: testPassword,
+		FullName: "删除账户测试用户",
+		RoleIDs:  []uint{2}, // user 角色 ID
+	}
+
+	createResp, err := helper.Post[user.UserWithRolesDTO](adminClient, "/api/admin/users", createReq)
+	if err != nil {
+		t.Fatalf("创建测试用户失败: %v", err)
+	}
+	t.Logf("  创建成功，用户 ID: %d", createResp.ID)
+
+	t.Log("步骤 2: 测试用户登录")
+	testClient := helper.NewClient()
+	_, err = testClient.Login(testUsername, testPassword)
+	if err != nil {
+		t.Fatalf("测试用户登录失败: %v", err)
+	}
+	t.Log("  登录成功")
+
+	t.Log("步骤 3: 调用删除账户接口")
+	err = testClient.Delete("/api/user/account")
+	if err != nil {
+		t.Fatalf("删除账户失败: %v", err)
+	}
+	t.Log("  删除成功!")
+
+	t.Log("步骤 4: 验证账户已删除（尝试登录应失败）")
+	verifyClient := helper.NewClient()
+	captcha, _ := verifyClient.GetCaptcha()
+	loginReq := auth.LoginDTO{
+		Account:   testUsername,
+		Password:  testPassword,
+		CaptchaID: captcha.ID,
+		Captcha:   captcha.Code,
+	}
+	loginResp, err := verifyClient.LoginWithCaptcha(loginReq)
+	if err == nil && loginResp.AccessToken != "" {
+		t.Fatal("账户已删除，不应该能登录")
+	}
+	t.Log("  验证成功：账户已无法登录")
+
+	t.Log("删除账户测试完成!")
+}
