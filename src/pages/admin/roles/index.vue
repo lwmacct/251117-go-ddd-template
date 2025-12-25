@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { useRoles } from "./composables/useRoles";
+import { ITEMS_PER_PAGE_OPTIONS } from "@/composables";
 import RoleDialog from "./components/RoleDialog.vue";
 import PermissionSelector from "./components/PermissionSelector.vue";
 import type { RoleRoleDTO, RoleCreateRoleDTO, RoleUpdateRoleDTO } from "@models";
@@ -172,6 +173,7 @@ const formatPermissions = (role: RoleRoleDTO) => {
           <v-card-text>
             <v-data-table-server
               :items-per-page="pagination.limit"
+              :items-per-page-options="ITEMS_PER_PAGE_OPTIONS"
               :page="pagination.page"
               :headers="headers"
               :items="roles"

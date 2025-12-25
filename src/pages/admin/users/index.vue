@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { useAdminUsers } from "./composables/useAdminUsers";
+import { ITEMS_PER_PAGE_OPTIONS } from "@/composables";
 import UserDialog from "./components/UserDialog.vue";
 import UserImportDialog from "./components/UserImportDialog.vue";
 import RoleSelector from "./components/RoleSelector.vue";
@@ -221,6 +222,7 @@ const getStatusText = (status?: string) => {
           <v-card-text>
             <v-data-table-server
               :items-per-page="pagination.limit"
+              :items-per-page-options="ITEMS_PER_PAGE_OPTIONS"
               :page="pagination.page"
               :headers="headers"
               :items="users"

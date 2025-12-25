@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { useAuditLogs } from "./composables/useAuditLogs";
+import { ITEMS_PER_PAGE_OPTIONS } from "@/composables";
 import type { AuditlogAuditLogDTO } from "@models";
 
 /**
@@ -230,6 +231,7 @@ const getStatusText = (status?: string) => {
           <v-card-text>
             <v-data-table-server
               :items-per-page="pagination.limit"
+              :items-per-page-options="ITEMS_PER_PAGE_OPTIONS"
               :page="pagination.page"
               :headers="headers"
               :items="logs"

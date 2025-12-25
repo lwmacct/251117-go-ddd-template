@@ -5,12 +5,16 @@
  * - 首次请求 vs 后续请求的判断（避免重复请求）
  * - 只更新 total，不覆盖 page/limit（前端是分页状态的唯一真相来源）
  * - 提供正确的 API 参数顺序（limit, page）
+ * - 安全处理 -1（Vuetify "All"）等无效值
  */
 import { ref, reactive, type Ref } from "vue";
 import type { PaginationState } from "@/api";
 
+/** 标准分页选项（不含 -1 "All"，避免服务端分页性能问题） */
+export const ITEMS_PER_PAGE_OPTIONS = [30, 50, 100];
+
 export interface UseServerPaginationOptions {
-  /** 默认每页条数，默认 20 */
+  /** 默认每页条数，默认 30 */
   defaultLimit?: number;
   /** 默认页码，默认 1 */
   defaultPage?: number;
@@ -68,7 +72,7 @@ export interface UseServerPaginationReturn {
  * ```
  */
 export function useServerPagination(options: UseServerPaginationOptions = {}): UseServerPaginationReturn {
-  const { defaultLimit = 20, defaultPage = 1 } = options;
+  const { defaultLimit = 30, defaultPage = 1 } = options;
 
   const pagination = reactive<PaginationState>({
     page: defaultPage,
@@ -81,14 +85,16 @@ export function useServerPagination(options: UseServerPaginationOptions = {}): U
   const initialized = ref(false);
 
   const onTableOptionsUpdate = (opts: { page: number; itemsPerPage: number }, fetchFn: () => Promise<void>) => {
+    // 安全检查：-1 表示 Vuetify "All"，转换为默认值
+    const safeLimit = opts.itemsPerPage <= 0 ? defaultLimit : opts.itemsPerPage;
     // 检测值是否真正变化
-    const isChanged = opts.page !== pagination.page || opts.itemsPerPage !== pagination.limit;
+    const isChanged = opts.page !== pagination.page || safeLimit !== pagination.limit;
 
     // 首次调用：无条件发起请求
     // 后续调用：只有当值真正变化时才发起请求
     if (!initialized.value || isChanged) {
       pagination.page = opts.page;
-      pagination.limit = opts.itemsPerPage;
+      pagination.limit = safeLimit;
       initialized.value = true;
       fetchFn();
     }
