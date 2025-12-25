@@ -1,0 +1,110 @@
+package auth
+
+import "github.com/lwmacct/251117-go-ddd-template/internal/domain/auth"
+
+// 重新导出领域错误供 Adapters 层使用（遵循 DDD 依赖方向）
+var (
+	ErrInvalidToken = auth.ErrInvalidToken
+	ErrTokenExpired = auth.ErrTokenExpired
+)
+
+// LoginDTO 登录请求
+type LoginDTO struct {
+	Account   string `json:"account" binding:"required" example:"admin"`         // 手机号/用户名/邮箱
+	Password  string `json:"password" binding:"required" example:"admin123"`     // 密码
+	CaptchaID string `json:"captcha_id" binding:"required" example:"dev-123456"` // 验证码ID
+	Captcha   string `json:"captcha" binding:"required" example:"9999"`          // 验证码
+}
+
+// Login2FADTO 二次认证请求
+type Login2FADTO struct {
+	SessionToken  string `json:"session_token" binding:"required" example:"eyJhbGciOiJIUzI1NiIs..."` // 登录时返回的临时会话令牌
+	TwoFactorCode string `json:"two_factor_code" binding:"required,len=6" example:"123456"`          // 6位TOTP验证码
+}
+
+// RegisterDTO 注册请求
+type RegisterDTO struct {
+	Username string `json:"username" binding:"required,min=3,max=50" example:"john_doe"`
+	Email    string `json:"email" binding:"required,email" example:"john@example.com"`
+	Password string `json:"password" binding:"required,min=6" example:"password123"`
+	FullName string `json:"full_name" binding:"max=100" example:"John Doe"`
+}
+
+// RefreshTokenDTO 刷新令牌请求
+type RefreshTokenDTO struct {
+	RefreshToken string `json:"refresh_token" binding:"required" example:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."`
+}
+
+// TokenDTO 令牌响应 DTO
+type TokenDTO struct {
+	AccessToken  string `json:"access_token"`
+	RefreshToken string `json:"refresh_token"`
+	TokenType    string `json:"token_type"`
+	ExpiresIn    int    `json:"expires_in"`
+}
+
+// LoginResultDTO 登录结果 DTO（Handler 返回类型）
+type LoginResultDTO struct {
+	AccessToken  string `json:"access_token"`
+	RefreshToken string `json:"refresh_token"`
+	TokenType    string `json:"token_type"`
+	ExpiresIn    int    `json:"expires_in"`
+	UserID       uint   `json:"user_id"`
+	Username     string `json:"username"`
+	Requires2FA  bool   `json:"requires_2fa"`
+	SessionToken string `json:"session_token"`
+}
+
+// RefreshTokenResultDTO 刷新令牌结果 DTO（Handler 返回类型）
+type RefreshTokenResultDTO struct {
+	AccessToken  string `json:"access_token"`
+	RefreshToken string `json:"refresh_token"`
+	TokenType    string `json:"token_type"`
+	ExpiresIn    int    `json:"expires_in"`
+}
+
+// RegisterResultDTO 注册结果 DTO（Handler 返回类型）
+type RegisterResultDTO struct {
+	UserID       uint   `json:"user_id"`
+	Username     string `json:"username"`
+	Email        string `json:"email"`
+	AccessToken  string `json:"access_token"`
+	RefreshToken string `json:"refresh_token"`
+	TokenType    string `json:"token_type"`
+	ExpiresIn    int    `json:"expires_in"`
+}
+
+// UserBriefDTO 用户简要信息响应 DTO
+type UserBriefDTO struct {
+	UserID   uint   `json:"user_id"`
+	Username string `json:"username"`
+}
+
+// TwoFARequiredDTO 需要二次认证响应 DTO
+type TwoFARequiredDTO struct {
+	Requires2FA  bool   `json:"requires_2fa"`
+	SessionToken string `json:"session_token"`
+}
+
+// LoginResponseDTO 登录成功 HTTP 响应 DTO（与 HTTP API 响应格式匹配）
+type LoginResponseDTO struct {
+	AccessToken  string       `json:"access_token"`
+	RefreshToken string       `json:"refresh_token"`
+	TokenType    string       `json:"token_type"`
+	ExpiresIn    int          `json:"expires_in"`
+	User         UserBriefDTO `json:"user"`
+}
+
+// ToLoginResponse 将 LoginResultDTO 转换为 HTTP 响应格式
+func (r *LoginResultDTO) ToLoginResponse() *LoginResponseDTO {
+	return &LoginResponseDTO{
+		AccessToken:  r.AccessToken,
+		RefreshToken: r.RefreshToken,
+		TokenType:    r.TokenType,
+		ExpiresIn:    r.ExpiresIn,
+		User: UserBriefDTO{
+			UserID:   r.UserID,
+			Username: r.Username,
+		},
+	}
+}

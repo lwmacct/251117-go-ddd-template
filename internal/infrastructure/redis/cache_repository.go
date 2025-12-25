@@ -1,0 +1,110 @@
+package redis
+
+import (
+	"context"
+	"encoding/json"
+	"errors"
+	"fmt"
+	"time"
+
+	"github.com/redis/go-redis/v9"
+
+	"github.com/lwmacct/251117-go-ddd-template/internal/domain/cache"
+)
+
+// cacheRepository Redis 缓存仓储实现
+// 同时实现 CommandRepository 和 QueryRepository
+type cacheRepository struct {
+	client    *redis.Client
+	keyPrefix string // key 前缀，所有操作自动拼接
+}
+
+// NewCacheCommandRepository 创建缓存写仓储实例
+// keyPrefix: key 前缀，例如 "myapp:"，所有 key 读写都会自动拼接此前缀
+func NewCacheCommandRepository(client *redis.Client, keyPrefix string) cache.CommandRepository {
+	return &cacheRepository{
+		client:    client,
+		keyPrefix: keyPrefix,
+	}
+}
+
+// NewCacheQueryRepository 创建缓存读仓储实例
+func NewCacheQueryRepository(client *redis.Client, keyPrefix string) cache.QueryRepository {
+	return &cacheRepository{
+		client:    client,
+		keyPrefix: keyPrefix,
+	}
+}
+
+// Get 获取缓存值并反序列化到目标对象
+func (r *cacheRepository) Get(ctx context.Context, key string, dest any) error {
+	fullKey := r.buildKey(key)
+	val, err := r.client.Get(ctx, fullKey).Result()
+	if err != nil {
+		if errors.Is(err, redis.Nil) {
+			return fmt.Errorf("key not found: %s", key)
+		}
+		return fmt.Errorf("failed to get key %s: %w", key, err)
+	}
+
+	if err := json.Unmarshal([]byte(val), dest); err != nil {
+		return fmt.Errorf("failed to unmarshal value for key %s: %w", key, err)
+	}
+
+	return nil
+}
+
+// Set 序列化并设置缓存值
+func (r *cacheRepository) Set(ctx context.Context, key string, value any, expiration time.Duration) error {
+	fullKey := r.buildKey(key)
+	data, err := json.Marshal(value)
+	if err != nil {
+		return fmt.Errorf("failed to marshal value for key %s: %w", key, err)
+	}
+
+	if err := r.client.Set(ctx, fullKey, data, expiration).Err(); err != nil {
+		return fmt.Errorf("failed to set key %s: %w", key, err)
+	}
+
+	return nil
+}
+
+// Delete 删除缓存值
+func (r *cacheRepository) Delete(ctx context.Context, key string) error {
+	fullKey := r.buildKey(key)
+	if err := r.client.Del(ctx, fullKey).Err(); err != nil {
+		return fmt.Errorf("failed to delete key %s: %w", key, err)
+	}
+	return nil
+}
+
+// Exists 检查键是否存在
+func (r *cacheRepository) Exists(ctx context.Context, key string) (bool, error) {
+	fullKey := r.buildKey(key)
+	n, err := r.client.Exists(ctx, fullKey).Result()
+	if err != nil {
+		return false, fmt.Errorf("failed to check existence of key %s: %w", key, err)
+	}
+	return n > 0, nil
+}
+
+// SetNX 仅当键不存在时设置值 (用于分布式锁)
+func (r *cacheRepository) SetNX(ctx context.Context, key string, value any, expiration time.Duration) (bool, error) {
+	fullKey := r.buildKey(key)
+	data, err := json.Marshal(value)
+	if err != nil {
+		return false, fmt.Errorf("failed to marshal value for key %s: %w", key, err)
+	}
+
+	ok, err := r.client.SetNX(ctx, fullKey, data, expiration).Result()
+	if err != nil {
+		return false, fmt.Errorf("failed to setnx key %s: %w", key, err)
+	}
+
+	return ok, nil
+}
+
+// buildKey 构建带前缀的完整 key
+func (r *cacheRepository) buildKey(key string) string {
+	return r.keyPrefix + key
+}

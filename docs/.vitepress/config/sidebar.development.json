@@ -1,0 +1,10 @@
+[
+  {
+    "text": "开发指南",
+    "items": [
+      { "text": "环境设置", "link": "/development/setup" },
+      { "text": "测试", "link": "/development/testing" },
+      { "text": "手动测试", "link": "/development/manual-testing" }
+    ]
+  }
+]

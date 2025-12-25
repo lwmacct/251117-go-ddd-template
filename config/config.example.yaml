@@ -1,0 +1,23 @@
+# 配置示例文件, 复制此文件为 config.yaml 并根据需要修改
+
+server:
+  addr: "0.0.0.0:8080"
+  env: "development"
+  web-dist: "dist"
+  docs-dist: "docs/.vitepress/dist"
+
+data:
+  pgsql_url: "postgresql://postgres@localhost:5432/app?sslmode=disable"
+  redis_url: "redis://localhost:6379/0"
+  redis_key_prefix: "app:"
+  auto_migrate: false
+
+jwt:
+  secret: "change-me-in-production"
+  access_token_expiry: 15m0s
+  refresh_token_expiry: 168h0m0s
+
+auth:
+  dev_secret: "dev-secret-change-me"
+  twofa_issuer: "Go-DDD-Template"
+  captcha_required: true

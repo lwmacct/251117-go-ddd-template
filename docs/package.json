@@ -1,0 +1,15 @@
+{
+  "name": "go-ddd-template-docs",
+  "version": "1.0.0",
+  "description": "Go DDD Template Documentation",
+  "scripts": {
+    "dev": "vitepress dev --host --port 5173",
+    "build": "vitepress build",
+    "preview": "vitepress preview"
+  },
+  "devDependencies": {
+    "@types/node": "^25.0.2",
+    "mermaid": "^11.12.2",
+    "vitepress": "^2.0.0-alpha.15"
+  }
+}
