@@ -9,6 +9,50 @@ import (
 	"github.com/lwmacct/251117-go-ddd-template/internal/application/auditlog"
 )
 
+// ListAuditLogsQuery 审计日志列表查询参数
+type ListAuditLogsQuery struct {
+	response.PaginationQueryDTO
+
+	// UserID 按用户 ID 过滤
+	UserID *uint `form:"user_id" json:"user_id" binding:"omitempty,gt=0"`
+	// Action 操作类型过滤
+	Action string `form:"action" json:"action" binding:"omitempty,oneof=create update delete login logout" enums:"create,update,delete,login,logout"`
+	// Resource 资源类型过滤
+	Resource string `form:"resource" json:"resource" binding:"omitempty,oneof=user role menu setting" enums:"user,role,menu,setting"`
+	// Status 状态过滤
+	Status string `form:"status" json:"status" binding:"omitempty,oneof=success failure" enums:"success,failure"`
+	// StartDate 开始时间（RFC3339 格式）
+	StartDate string `form:"start_date" json:"start_date" binding:"omitempty"`
+	// EndDate 结束时间（RFC3339 格式）
+	EndDate string `form:"end_date" json:"end_date" binding:"omitempty"`
+}
+
+// ToQuery 转换为 Application 层 Query 对象
+func (q *ListAuditLogsQuery) ToQuery() auditlog.ListLogsQuery {
+	result := auditlog.ListLogsQuery{
+		Page:     q.GetPage(),
+		Limit:    q.GetLimit(),
+		UserID:   q.UserID,
+		Action:   q.Action,
+		Resource: q.Resource,
+		Status:   q.Status,
+	}
+
+	// 解析时间字符串
+	if q.StartDate != "" {
+		if t, err := time.Parse(time.RFC3339, q.StartDate); err == nil {
+			result.StartDate = &t
+		}
+	}
+	if q.EndDate != "" {
+		if t, err := time.Parse(time.RFC3339, q.EndDate); err == nil {
+			result.EndDate = &t
+		}
+	}
+
+	return result
+}
+
 // AuditLogHandler handles audit log operations (DDD+CQRS Use Case Pattern)
 type AuditLogHandler struct {
 	// Query Handlers
@@ -35,76 +79,28 @@ func NewAuditLogHandler(
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
-// @Param        page query int false "页码" default(1) minimum(1)
-// @Param        limit query int false "每页数量" default(20) minimum(1) maximum(100)
-// @Param        user_id query int false "用户ID"
-// @Param        action query string false "操作类型" Enums(create, update, delete, login, logout)
-// @Param        resource query string false "资源类型" Enums(user, role, menu, setting)
-// @Param        status query string false "状态" Enums(success, failure)
-// @Param        start_date query string false "开始时间(RFC3339格式)" example:"2024-01-01T00:00:00Z"
-// @Param        end_date query string false "结束时间(RFC3339格式)" example:"2024-12-31T23:59:59Z"
+// @Param        params query handler.ListAuditLogsQuery false "查询参数"
 // @Success      200 {object} response.PagedResponse[auditlog.AuditLogDTO] "审计日志列表"
+// @Failure      400 {object} response.ErrorResponse "参数错误"
 // @Failure      401 {object} response.ErrorResponse "未授权"
 // @Failure      403 {object} response.ErrorResponse "权限不足"
 // @Failure      500 {object} response.ErrorResponse "服务器内部错误"
 // @Router       /api/admin/auditlogs [get]
 // @x-permission {"scope":"admin:audit_logs:read"}
 func (h *AuditLogHandler) ListLogs(c *gin.Context) {
-	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
-	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "20"))
-
-	if page < 1 {
-		page = 1
-	}
-	if limit < 1 || limit > 100 {
-		limit = 20
+	var q ListAuditLogsQuery
+	if err := c.ShouldBindQuery(&q); err != nil {
+		response.ValidationError(c, err.Error())
+		return
 	}
 
-	query := auditlog.ListLogsQuery{
-		Page:  page,
-		Limit: limit,
-	}
-
-	// Parse filters
-	if userIDStr := c.Query("user_id"); userIDStr != "" {
-		if userID, err := strconv.ParseUint(userIDStr, 10, 32); err == nil {
-			uid := uint(userID)
-			query.UserID = &uid
-		}
-	}
-
-	if action := c.Query("action"); action != "" {
-		query.Action = action
-	}
-
-	if resource := c.Query("resource"); resource != "" {
-		query.Resource = resource
-	}
-
-	if status := c.Query("status"); status != "" {
-		query.Status = status
-	}
-
-	if startDateStr := c.Query("start_date"); startDateStr != "" {
-		if startDate, err := time.Parse(time.RFC3339, startDateStr); err == nil {
-			query.StartDate = &startDate
-		}
-	}
-
-	if endDateStr := c.Query("end_date"); endDateStr != "" {
-		if endDate, err := time.Parse(time.RFC3339, endDateStr); err == nil {
-			query.EndDate = &endDate
-		}
-	}
-
-	// 调用 Use Case Handler
-	result, err := h.listLogsHandler.Handle(c.Request.Context(), query)
+	result, err := h.listLogsHandler.Handle(c.Request.Context(), q.ToQuery())
 	if err != nil {
 		response.InternalError(c, "failed to list audit logs")
 		return
 	}
 
-	meta := response.NewPaginationMeta(int(result.Total), page, limit)
+	meta := response.NewPaginationMeta(int(result.Total), q.GetPage(), q.GetLimit())
 	response.List(c, "success", result.Logs, meta)
 }
 
@@ -131,7 +127,6 @@ func (h *AuditLogHandler) GetLog(c *gin.Context) {
 		return
 	}
 
-	// 调用 Use Case Handler
 	log, err := h.getLogHandler.Handle(c.Request.Context(), auditlog.GetLogQuery{
 		LogID: uint(id),
 	})

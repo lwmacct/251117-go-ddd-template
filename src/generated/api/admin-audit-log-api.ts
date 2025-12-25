@@ -36,18 +36,18 @@ export const AdminAuditLogApiAxiosParamCreator = function (configuration?: Confi
         /**
          * 分页获取审计日志，支持按用户、操作、资源、状态、时间范围筛选
          * @summary 获取审计日志列表
-         * @param {number} [page] 页码
-         * @param {number} [limit] 每页数量
-         * @param {number} [userId] 用户ID
-         * @param {ApiAdminAuditlogsGetActionEnum} [action] 操作类型
-         * @param {ApiAdminAuditlogsGetResourceEnum} [resource] 资源类型
-         * @param {ApiAdminAuditlogsGetStatusEnum} [status] 状态
-         * @param {string} [startDate] 开始时间(RFC3339格式)
-         * @param {string} [endDate] 结束时间(RFC3339格式)
+         * @param {ApiAdminAuditlogsGetActionEnum} [action] Action 操作类型过滤
+         * @param {string} [endDate] EndDate 结束时间（RFC3339 格式）
+         * @param {number} [limit] Limit 每页数量，默认 20，最大 100
+         * @param {number} [page] Page 页码，从 1 开始
+         * @param {ApiAdminAuditlogsGetResourceEnum} [resource] Resource 资源类型过滤
+         * @param {string} [startDate] StartDate 开始时间（RFC3339 格式）
+         * @param {ApiAdminAuditlogsGetStatusEnum} [status] Status 状态过滤
+         * @param {number} [userId] UserID 按用户 ID 过滤
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiAdminAuditlogsGet: async (page?: number, limit?: number, userId?: number, action?: ApiAdminAuditlogsGetActionEnum, resource?: ApiAdminAuditlogsGetResourceEnum, status?: ApiAdminAuditlogsGetStatusEnum, startDate?: string, endDate?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        apiAdminAuditlogsGet: async (action?: ApiAdminAuditlogsGetActionEnum, endDate?: string, limit?: number, page?: number, resource?: ApiAdminAuditlogsGetResourceEnum, startDate?: string, status?: ApiAdminAuditlogsGetStatusEnum, userId?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             const localVarPath = `/api/admin/auditlogs`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -63,36 +63,36 @@ export const AdminAuditLogApiAxiosParamCreator = function (configuration?: Confi
             // authentication BearerAuth required
             await setApiKeyToObject(localVarHeaderParameter, "Authorization", configuration)
 
-            if (page !== undefined) {
-                localVarQueryParameter['page'] = page;
+            if (action !== undefined) {
+                localVarQueryParameter['action'] = action;
+            }
+
+            if (endDate !== undefined) {
+                localVarQueryParameter['end_date'] = endDate;
             }
 
             if (limit !== undefined) {
                 localVarQueryParameter['limit'] = limit;
             }
 
-            if (userId !== undefined) {
-                localVarQueryParameter['user_id'] = userId;
-            }
-
-            if (action !== undefined) {
-                localVarQueryParameter['action'] = action;
+            if (page !== undefined) {
+                localVarQueryParameter['page'] = page;
             }
 
             if (resource !== undefined) {
                 localVarQueryParameter['resource'] = resource;
             }
 
-            if (status !== undefined) {
-                localVarQueryParameter['status'] = status;
-            }
-
             if (startDate !== undefined) {
                 localVarQueryParameter['start_date'] = startDate;
             }
 
-            if (endDate !== undefined) {
-                localVarQueryParameter['end_date'] = endDate;
+            if (status !== undefined) {
+                localVarQueryParameter['status'] = status;
+            }
+
+            if (userId !== undefined) {
+                localVarQueryParameter['user_id'] = userId;
             }
 
 
@@ -156,19 +156,19 @@ export const AdminAuditLogApiFp = function(configuration?: Configuration) {
         /**
          * 分页获取审计日志，支持按用户、操作、资源、状态、时间范围筛选
          * @summary 获取审计日志列表
-         * @param {number} [page] 页码
-         * @param {number} [limit] 每页数量
-         * @param {number} [userId] 用户ID
-         * @param {ApiAdminAuditlogsGetActionEnum} [action] 操作类型
-         * @param {ApiAdminAuditlogsGetResourceEnum} [resource] 资源类型
-         * @param {ApiAdminAuditlogsGetStatusEnum} [status] 状态
-         * @param {string} [startDate] 开始时间(RFC3339格式)
-         * @param {string} [endDate] 结束时间(RFC3339格式)
+         * @param {ApiAdminAuditlogsGetActionEnum} [action] Action 操作类型过滤
+         * @param {string} [endDate] EndDate 结束时间（RFC3339 格式）
+         * @param {number} [limit] Limit 每页数量，默认 20，最大 100
+         * @param {number} [page] Page 页码，从 1 开始
+         * @param {ApiAdminAuditlogsGetResourceEnum} [resource] Resource 资源类型过滤
+         * @param {string} [startDate] StartDate 开始时间（RFC3339 格式）
+         * @param {ApiAdminAuditlogsGetStatusEnum} [status] Status 状态过滤
+         * @param {number} [userId] UserID 按用户 ID 过滤
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async apiAdminAuditlogsGet(page?: number, limit?: number, userId?: number, action?: ApiAdminAuditlogsGetActionEnum, resource?: ApiAdminAuditlogsGetResourceEnum, status?: ApiAdminAuditlogsGetStatusEnum, startDate?: string, endDate?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponsePagedResponseAuditlogAuditLogDTO>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.apiAdminAuditlogsGet(page, limit, userId, action, resource, status, startDate, endDate, options);
+        async apiAdminAuditlogsGet(action?: ApiAdminAuditlogsGetActionEnum, endDate?: string, limit?: number, page?: number, resource?: ApiAdminAuditlogsGetResourceEnum, startDate?: string, status?: ApiAdminAuditlogsGetStatusEnum, userId?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponsePagedResponseAuditlogAuditLogDTO>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.apiAdminAuditlogsGet(action, endDate, limit, page, resource, startDate, status, userId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['AdminAuditLogApi.apiAdminAuditlogsGet']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -199,19 +199,19 @@ export const AdminAuditLogApiFactory = function (configuration?: Configuration, 
         /**
          * 分页获取审计日志，支持按用户、操作、资源、状态、时间范围筛选
          * @summary 获取审计日志列表
-         * @param {number} [page] 页码
-         * @param {number} [limit] 每页数量
-         * @param {number} [userId] 用户ID
-         * @param {ApiAdminAuditlogsGetActionEnum} [action] 操作类型
-         * @param {ApiAdminAuditlogsGetResourceEnum} [resource] 资源类型
-         * @param {ApiAdminAuditlogsGetStatusEnum} [status] 状态
-         * @param {string} [startDate] 开始时间(RFC3339格式)
-         * @param {string} [endDate] 结束时间(RFC3339格式)
+         * @param {ApiAdminAuditlogsGetActionEnum} [action] Action 操作类型过滤
+         * @param {string} [endDate] EndDate 结束时间（RFC3339 格式）
+         * @param {number} [limit] Limit 每页数量，默认 20，最大 100
+         * @param {number} [page] Page 页码，从 1 开始
+         * @param {ApiAdminAuditlogsGetResourceEnum} [resource] Resource 资源类型过滤
+         * @param {string} [startDate] StartDate 开始时间（RFC3339 格式）
+         * @param {ApiAdminAuditlogsGetStatusEnum} [status] Status 状态过滤
+         * @param {number} [userId] UserID 按用户 ID 过滤
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiAdminAuditlogsGet(page?: number, limit?: number, userId?: number, action?: ApiAdminAuditlogsGetActionEnum, resource?: ApiAdminAuditlogsGetResourceEnum, status?: ApiAdminAuditlogsGetStatusEnum, startDate?: string, endDate?: string, options?: RawAxiosRequestConfig): AxiosPromise<ResponsePagedResponseAuditlogAuditLogDTO> {
-            return localVarFp.apiAdminAuditlogsGet(page, limit, userId, action, resource, status, startDate, endDate, options).then((request) => request(axios, basePath));
+        apiAdminAuditlogsGet(action?: ApiAdminAuditlogsGetActionEnum, endDate?: string, limit?: number, page?: number, resource?: ApiAdminAuditlogsGetResourceEnum, startDate?: string, status?: ApiAdminAuditlogsGetStatusEnum, userId?: number, options?: RawAxiosRequestConfig): AxiosPromise<ResponsePagedResponseAuditlogAuditLogDTO> {
+            return localVarFp.apiAdminAuditlogsGet(action, endDate, limit, page, resource, startDate, status, userId, options).then((request) => request(axios, basePath));
         },
         /**
          * 根据日志ID获取审计日志详细信息
@@ -236,20 +236,20 @@ export class AdminAuditLogApi extends BaseAPI {
     /**
      * 分页获取审计日志，支持按用户、操作、资源、状态、时间范围筛选
      * @summary 获取审计日志列表
-     * @param {number} [page] 页码
-     * @param {number} [limit] 每页数量
-     * @param {number} [userId] 用户ID
-     * @param {ApiAdminAuditlogsGetActionEnum} [action] 操作类型
-     * @param {ApiAdminAuditlogsGetResourceEnum} [resource] 资源类型
-     * @param {ApiAdminAuditlogsGetStatusEnum} [status] 状态
-     * @param {string} [startDate] 开始时间(RFC3339格式)
-     * @param {string} [endDate] 结束时间(RFC3339格式)
+     * @param {ApiAdminAuditlogsGetActionEnum} [action] Action 操作类型过滤
+     * @param {string} [endDate] EndDate 结束时间（RFC3339 格式）
+     * @param {number} [limit] Limit 每页数量，默认 20，最大 100
+     * @param {number} [page] Page 页码，从 1 开始
+     * @param {ApiAdminAuditlogsGetResourceEnum} [resource] Resource 资源类型过滤
+     * @param {string} [startDate] StartDate 开始时间（RFC3339 格式）
+     * @param {ApiAdminAuditlogsGetStatusEnum} [status] Status 状态过滤
+     * @param {number} [userId] UserID 按用户 ID 过滤
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof AdminAuditLogApi
      */
-    public apiAdminAuditlogsGet(page?: number, limit?: number, userId?: number, action?: ApiAdminAuditlogsGetActionEnum, resource?: ApiAdminAuditlogsGetResourceEnum, status?: ApiAdminAuditlogsGetStatusEnum, startDate?: string, endDate?: string, options?: RawAxiosRequestConfig) {
-        return AdminAuditLogApiFp(this.configuration).apiAdminAuditlogsGet(page, limit, userId, action, resource, status, startDate, endDate, options).then((request) => request(this.axios, this.basePath));
+    public apiAdminAuditlogsGet(action?: ApiAdminAuditlogsGetActionEnum, endDate?: string, limit?: number, page?: number, resource?: ApiAdminAuditlogsGetResourceEnum, startDate?: string, status?: ApiAdminAuditlogsGetStatusEnum, userId?: number, options?: RawAxiosRequestConfig) {
+        return AdminAuditLogApiFp(this.configuration).apiAdminAuditlogsGet(action, endDate, limit, page, resource, startDate, status, userId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

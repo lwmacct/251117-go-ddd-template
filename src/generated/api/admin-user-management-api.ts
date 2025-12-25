@@ -87,13 +87,13 @@ export const AdminUserManagementApiAxiosParamCreator = function (configuration?:
         /**
          * 分页获取所有用户列表（包含角色信息）
          * @summary 获取用户列表
-         * @param {number} [page] 页码
-         * @param {number} [limit] 每页数量
-         * @param {string} [search] 搜索关键词（用户名或邮箱）
+         * @param {number} [limit] Limit 每页数量，默认 20，最大 100
+         * @param {number} [page] Page 页码，从 1 开始
+         * @param {string} [search] Search 搜索关键词（用户名或邮箱）
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiAdminUsersGet: async (page?: number, limit?: number, search?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        apiAdminUsersGet: async (limit?: number, page?: number, search?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             const localVarPath = `/api/admin/users`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -109,12 +109,12 @@ export const AdminUserManagementApiAxiosParamCreator = function (configuration?:
             // authentication BearerAuth required
             await setApiKeyToObject(localVarHeaderParameter, "Authorization", configuration)
 
-            if (page !== undefined) {
-                localVarQueryParameter['page'] = page;
-            }
-
             if (limit !== undefined) {
                 localVarQueryParameter['limit'] = limit;
+            }
+
+            if (page !== undefined) {
+                localVarQueryParameter['page'] = page;
             }
 
             if (search !== undefined) {
@@ -357,14 +357,14 @@ export const AdminUserManagementApiFp = function(configuration?: Configuration) 
         /**
          * 分页获取所有用户列表（包含角色信息）
          * @summary 获取用户列表
-         * @param {number} [page] 页码
-         * @param {number} [limit] 每页数量
-         * @param {string} [search] 搜索关键词（用户名或邮箱）
+         * @param {number} [limit] Limit 每页数量，默认 20，最大 100
+         * @param {number} [page] Page 页码，从 1 开始
+         * @param {string} [search] Search 搜索关键词（用户名或邮箱）
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async apiAdminUsersGet(page?: number, limit?: number, search?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponsePagedResponseUserUserWithRolesDTO>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.apiAdminUsersGet(page, limit, search, options);
+        async apiAdminUsersGet(limit?: number, page?: number, search?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponsePagedResponseUserUserWithRolesDTO>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.apiAdminUsersGet(limit, page, search, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['AdminUserManagementApi.apiAdminUsersGet']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -459,14 +459,14 @@ export const AdminUserManagementApiFactory = function (configuration?: Configura
         /**
          * 分页获取所有用户列表（包含角色信息）
          * @summary 获取用户列表
-         * @param {number} [page] 页码
-         * @param {number} [limit] 每页数量
-         * @param {string} [search] 搜索关键词（用户名或邮箱）
+         * @param {number} [limit] Limit 每页数量，默认 20，最大 100
+         * @param {number} [page] Page 页码，从 1 开始
+         * @param {string} [search] Search 搜索关键词（用户名或邮箱）
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiAdminUsersGet(page?: number, limit?: number, search?: string, options?: RawAxiosRequestConfig): AxiosPromise<ResponsePagedResponseUserUserWithRolesDTO> {
-            return localVarFp.apiAdminUsersGet(page, limit, search, options).then((request) => request(axios, basePath));
+        apiAdminUsersGet(limit?: number, page?: number, search?: string, options?: RawAxiosRequestConfig): AxiosPromise<ResponsePagedResponseUserUserWithRolesDTO> {
+            return localVarFp.apiAdminUsersGet(limit, page, search, options).then((request) => request(axios, basePath));
         },
         /**
          * 管理员删除指定用户（物理删除或软删除）
@@ -545,15 +545,15 @@ export class AdminUserManagementApi extends BaseAPI {
     /**
      * 分页获取所有用户列表（包含角色信息）
      * @summary 获取用户列表
-     * @param {number} [page] 页码
-     * @param {number} [limit] 每页数量
-     * @param {string} [search] 搜索关键词（用户名或邮箱）
+     * @param {number} [limit] Limit 每页数量，默认 20，最大 100
+     * @param {number} [page] Page 页码，从 1 开始
+     * @param {string} [search] Search 搜索关键词（用户名或邮箱）
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof AdminUserManagementApi
      */
-    public apiAdminUsersGet(page?: number, limit?: number, search?: string, options?: RawAxiosRequestConfig) {
-        return AdminUserManagementApiFp(this.configuration).apiAdminUsersGet(page, limit, search, options).then((request) => request(this.axios, this.basePath));
+    public apiAdminUsersGet(limit?: number, page?: number, search?: string, options?: RawAxiosRequestConfig) {
+        return AdminUserManagementApiFp(this.configuration).apiAdminUsersGet(limit, page, search, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

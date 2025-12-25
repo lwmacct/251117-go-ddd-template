@@ -8,6 +8,23 @@ import (
 	"github.com/lwmacct/251117-go-ddd-template/internal/application/user"
 )
 
+// ListUsersQuery 用户列表查询参数
+type ListUsersQuery struct {
+	response.PaginationQueryDTO
+
+	// Search 搜索关键词（用户名或邮箱）
+	Search string `form:"search" json:"search" binding:"omitempty"`
+}
+
+// ToQuery 转换为 Application 层 Query 对象
+func (q *ListUsersQuery) ToQuery() user.ListUsersQuery {
+	return user.ListUsersQuery{
+		Page:   q.GetPage(),
+		Limit:  q.GetLimit(),
+		Search: q.Search,
+	}
+}
+
 // AdminUserHandler handles admin user management operations
 type AdminUserHandler struct {
 	createUserHandler      *user.CreateUserHandler
@@ -89,9 +106,7 @@ func (h *AdminUserHandler) CreateUser(c *gin.Context) {
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
-// @Param        page query int false "页码" default(1) minimum(1)
-// @Param        limit query int false "每页数量" default(20) minimum(1) maximum(100)
-// @Param        search query string false "搜索关键词（用户名或邮箱）"
+// @Param        params query handler.ListUsersQuery false "查询参数"
 // @Success      200 {object} response.PagedResponse[user.UserWithRolesDTO] "用户列表"
 // @Failure      401 {object} response.ErrorResponse "未授权"
 // @Failure      403 {object} response.ErrorResponse "权限不足"
@@ -99,30 +114,19 @@ func (h *AdminUserHandler) CreateUser(c *gin.Context) {
 // @Router       /api/admin/users [get]
 // @x-permission {"scope":"admin:users:read"}
 func (h *AdminUserHandler) ListUsers(c *gin.Context) {
-	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
-	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "20"))
-	search := c.Query("search")
-
-	if page < 1 {
-		page = 1
-	}
-	if limit < 1 || limit > 100 {
-		limit = 20
+	var q ListUsersQuery
+	if err := c.ShouldBindQuery(&q); err != nil {
+		response.ValidationError(c, err.Error())
+		return
 	}
 
-	offset := (page - 1) * limit
-
-	result, err := h.listUsersHandler.Handle(c.Request.Context(), user.ListUsersQuery{
-		Offset: offset,
-		Limit:  limit,
-		Search: search,
-	})
+	result, err := h.listUsersHandler.Handle(c.Request.Context(), q.ToQuery())
 	if err != nil {
 		response.InternalError(c, err.Error())
 		return
 	}
 
-	meta := response.NewPaginationMeta(int(result.Total), page, limit)
+	meta := response.NewPaginationMeta(int(result.Total), q.GetPage(), q.GetLimit())
 	response.List(c, "success", result.Users, meta)
 }
 

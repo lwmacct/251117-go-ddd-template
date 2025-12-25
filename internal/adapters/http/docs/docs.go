@@ -44,29 +44,6 @@ const docTemplate = `{
                 "summary": "获取审计日志列表",
                 "parameters": [
                     {
-                        "minimum": 1,
-                        "type": "integer",
-                        "default": 1,
-                        "description": "页码",
-                        "name": "page",
-                        "in": "query"
-                    },
-                    {
-                        "maximum": 100,
-                        "minimum": 1,
-                        "type": "integer",
-                        "default": 20,
-                        "description": "每页数量",
-                        "name": "limit",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "用户ID",
-                        "name": "user_id",
-                        "in": "query"
-                    },
-                    {
                         "enum": [
                             "create",
                             "update",
@@ -75,8 +52,31 @@ const docTemplate = `{
                             "logout"
                         ],
                         "type": "string",
-                        "description": "操作类型",
+                        "description": "Action 操作类型过滤",
                         "name": "action",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "EndDate 结束时间（RFC3339 格式）",
+                        "name": "end_date",
+                        "in": "query"
+                    },
+                    {
+                        "maximum": 100,
+                        "minimum": 1,
+                        "type": "integer",
+                        "default": 20,
+                        "description": "Limit 每页数量，默认 20，最大 100",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Page 页码，从 1 开始",
+                        "name": "page",
                         "in": "query"
                     },
                     {
@@ -87,8 +87,14 @@ const docTemplate = `{
                             "setting"
                         ],
                         "type": "string",
-                        "description": "资源类型",
+                        "description": "Resource 资源类型过滤",
                         "name": "resource",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "StartDate 开始时间（RFC3339 格式）",
+                        "name": "start_date",
                         "in": "query"
                     },
                     {
@@ -97,20 +103,14 @@ const docTemplate = `{
                             "failure"
                         ],
                         "type": "string",
-                        "description": "状态",
+                        "description": "Status 状态过滤",
                         "name": "status",
                         "in": "query"
                     },
                     {
-                        "type": "string",
-                        "description": "开始时间(RFC3339格式)",
-                        "name": "start_date",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "结束时间(RFC3339格式)",
-                        "name": "end_date",
+                        "type": "integer",
+                        "description": "UserID 按用户 ID 过滤",
+                        "name": "user_id",
                         "in": "query"
                     }
                 ],
@@ -119,6 +119,12 @@ const docTemplate = `{
                         "description": "审计日志列表",
                         "schema": {
                             "$ref": "#/definitions/response.PagedResponse-auditlog_AuditLogDTO"
+                        }
+                    },
+                    "400": {
+                        "description": "参数错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
                         }
                     },
                     "401": {
@@ -664,20 +670,20 @@ const docTemplate = `{
                 "summary": "获取权限列表",
                 "parameters": [
                     {
-                        "minimum": 1,
-                        "type": "integer",
-                        "default": 1,
-                        "description": "页码",
-                        "name": "page",
-                        "in": "query"
-                    },
-                    {
                         "maximum": 100,
                         "minimum": 1,
                         "type": "integer",
-                        "default": 50,
-                        "description": "每页数量",
+                        "default": 20,
+                        "description": "Limit 每页数量，默认 20，最大 100",
                         "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Page 页码，从 1 开始",
+                        "name": "page",
                         "in": "query"
                     }
                 ],
@@ -732,20 +738,20 @@ const docTemplate = `{
                 "summary": "获取角色列表",
                 "parameters": [
                     {
-                        "minimum": 1,
-                        "type": "integer",
-                        "default": 1,
-                        "description": "页码",
-                        "name": "page",
-                        "in": "query"
-                    },
-                    {
                         "maximum": 100,
                         "minimum": 1,
                         "type": "integer",
                         "default": 20,
-                        "description": "每页数量",
+                        "description": "Limit 每页数量，默认 20，最大 100",
                         "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Page 页码，从 1 开始",
+                        "name": "page",
                         "in": "query"
                     }
                 ],
@@ -1537,25 +1543,25 @@ const docTemplate = `{
                 "summary": "获取用户列表",
                 "parameters": [
                     {
-                        "minimum": 1,
-                        "type": "integer",
-                        "default": 1,
-                        "description": "页码",
-                        "name": "page",
-                        "in": "query"
-                    },
-                    {
                         "maximum": 100,
                         "minimum": 1,
                         "type": "integer",
                         "default": 20,
-                        "description": "每页数量",
+                        "description": "Limit 每页数量，默认 20，最大 100",
                         "name": "limit",
                         "in": "query"
                     },
                     {
+                        "minimum": 1,
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Page 页码，从 1 开始",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
                         "type": "string",
-                        "description": "搜索关键词（用户名或邮箱）",
+                        "description": "Search 搜索关键词（用户名或邮箱）",
                         "name": "search",
                         "in": "query"
                     }

@@ -50,10 +50,11 @@ func (h *ListUsersHandler) Handle(ctx context.Context, query ListUsersQuery) (*U
 
 // fetchUsers 根据查询条件获取用户列表和总数
 func (h *ListUsersHandler) fetchUsers(ctx context.Context, query ListUsersQuery) ([]*user.User, int64, error) {
+	offset := query.GetOffset()
 	if query.Search != "" {
-		return h.searchUsers(ctx, query.Search, query.Offset, query.Limit)
+		return h.searchUsers(ctx, query.Search, offset, query.Limit)
 	}
-	return h.listAllUsers(ctx, query.Offset, query.Limit)
+	return h.listAllUsers(ctx, offset, query.Limit)
 }
 
 // searchUsers 搜索用户

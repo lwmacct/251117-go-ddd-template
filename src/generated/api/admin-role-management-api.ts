@@ -48,12 +48,12 @@ export const AdminRoleManagementApiAxiosParamCreator = function (configuration?:
         /**
          * 分页获取所有系统权限
          * @summary 获取权限列表
-         * @param {number} [page] 页码
-         * @param {number} [limit] 每页数量
+         * @param {number} [limit] Limit 每页数量，默认 20，最大 100
+         * @param {number} [page] Page 页码，从 1 开始
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiAdminPermissionsGet: async (page?: number, limit?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        apiAdminPermissionsGet: async (limit?: number, page?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             const localVarPath = `/api/admin/permissions`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -69,12 +69,12 @@ export const AdminRoleManagementApiAxiosParamCreator = function (configuration?:
             // authentication BearerAuth required
             await setApiKeyToObject(localVarHeaderParameter, "Authorization", configuration)
 
-            if (page !== undefined) {
-                localVarQueryParameter['page'] = page;
-            }
-
             if (limit !== undefined) {
                 localVarQueryParameter['limit'] = limit;
+            }
+
+            if (page !== undefined) {
+                localVarQueryParameter['page'] = page;
             }
 
 
@@ -91,12 +91,12 @@ export const AdminRoleManagementApiAxiosParamCreator = function (configuration?:
         /**
          * 分页获取所有系统角色
          * @summary 获取角色列表
-         * @param {number} [page] 页码
-         * @param {number} [limit] 每页数量
+         * @param {number} [limit] Limit 每页数量，默认 20，最大 100
+         * @param {number} [page] Page 页码，从 1 开始
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiAdminRolesGet: async (page?: number, limit?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        apiAdminRolesGet: async (limit?: number, page?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             const localVarPath = `/api/admin/roles`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -112,12 +112,12 @@ export const AdminRoleManagementApiAxiosParamCreator = function (configuration?:
             // authentication BearerAuth required
             await setApiKeyToObject(localVarHeaderParameter, "Authorization", configuration)
 
-            if (page !== undefined) {
-                localVarQueryParameter['page'] = page;
-            }
-
             if (limit !== undefined) {
                 localVarQueryParameter['limit'] = limit;
+            }
+
+            if (page !== undefined) {
+                localVarQueryParameter['page'] = page;
             }
 
 
@@ -343,13 +343,13 @@ export const AdminRoleManagementApiFp = function(configuration?: Configuration) 
         /**
          * 分页获取所有系统权限
          * @summary 获取权限列表
-         * @param {number} [page] 页码
-         * @param {number} [limit] 每页数量
+         * @param {number} [limit] Limit 每页数量，默认 20，最大 100
+         * @param {number} [page] Page 页码，从 1 开始
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async apiAdminPermissionsGet(page?: number, limit?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponsePagedResponseRolePermissionDTO>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.apiAdminPermissionsGet(page, limit, options);
+        async apiAdminPermissionsGet(limit?: number, page?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponsePagedResponseRolePermissionDTO>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.apiAdminPermissionsGet(limit, page, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['AdminRoleManagementApi.apiAdminPermissionsGet']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -357,13 +357,13 @@ export const AdminRoleManagementApiFp = function(configuration?: Configuration) 
         /**
          * 分页获取所有系统角色
          * @summary 获取角色列表
-         * @param {number} [page] 页码
-         * @param {number} [limit] 每页数量
+         * @param {number} [limit] Limit 每页数量，默认 20，最大 100
+         * @param {number} [page] Page 页码，从 1 开始
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async apiAdminRolesGet(page?: number, limit?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponsePagedResponseRoleRoleDTO>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.apiAdminRolesGet(page, limit, options);
+        async apiAdminRolesGet(limit?: number, page?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponsePagedResponseRoleRoleDTO>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.apiAdminRolesGet(limit, page, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['AdminRoleManagementApi.apiAdminRolesGet']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -448,24 +448,24 @@ export const AdminRoleManagementApiFactory = function (configuration?: Configura
         /**
          * 分页获取所有系统权限
          * @summary 获取权限列表
-         * @param {number} [page] 页码
-         * @param {number} [limit] 每页数量
+         * @param {number} [limit] Limit 每页数量，默认 20，最大 100
+         * @param {number} [page] Page 页码，从 1 开始
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiAdminPermissionsGet(page?: number, limit?: number, options?: RawAxiosRequestConfig): AxiosPromise<ResponsePagedResponseRolePermissionDTO> {
-            return localVarFp.apiAdminPermissionsGet(page, limit, options).then((request) => request(axios, basePath));
+        apiAdminPermissionsGet(limit?: number, page?: number, options?: RawAxiosRequestConfig): AxiosPromise<ResponsePagedResponseRolePermissionDTO> {
+            return localVarFp.apiAdminPermissionsGet(limit, page, options).then((request) => request(axios, basePath));
         },
         /**
          * 分页获取所有系统角色
          * @summary 获取角色列表
-         * @param {number} [page] 页码
-         * @param {number} [limit] 每页数量
+         * @param {number} [limit] Limit 每页数量，默认 20，最大 100
+         * @param {number} [page] Page 页码，从 1 开始
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiAdminRolesGet(page?: number, limit?: number, options?: RawAxiosRequestConfig): AxiosPromise<ResponsePagedResponseRoleRoleDTO> {
-            return localVarFp.apiAdminRolesGet(page, limit, options).then((request) => request(axios, basePath));
+        apiAdminRolesGet(limit?: number, page?: number, options?: RawAxiosRequestConfig): AxiosPromise<ResponsePagedResponseRoleRoleDTO> {
+            return localVarFp.apiAdminRolesGet(limit, page, options).then((request) => request(axios, basePath));
         },
         /**
          * 管理员删除指定角色（如果角色被用户使用，可能会失败）
@@ -532,27 +532,27 @@ export class AdminRoleManagementApi extends BaseAPI {
     /**
      * 分页获取所有系统权限
      * @summary 获取权限列表
-     * @param {number} [page] 页码
-     * @param {number} [limit] 每页数量
+     * @param {number} [limit] Limit 每页数量，默认 20，最大 100
+     * @param {number} [page] Page 页码，从 1 开始
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof AdminRoleManagementApi
      */
-    public apiAdminPermissionsGet(page?: number, limit?: number, options?: RawAxiosRequestConfig) {
-        return AdminRoleManagementApiFp(this.configuration).apiAdminPermissionsGet(page, limit, options).then((request) => request(this.axios, this.basePath));
+    public apiAdminPermissionsGet(limit?: number, page?: number, options?: RawAxiosRequestConfig) {
+        return AdminRoleManagementApiFp(this.configuration).apiAdminPermissionsGet(limit, page, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * 分页获取所有系统角色
      * @summary 获取角色列表
-     * @param {number} [page] 页码
-     * @param {number} [limit] 每页数量
+     * @param {number} [limit] Limit 每页数量，默认 20，最大 100
+     * @param {number} [page] Page 页码，从 1 开始
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof AdminRoleManagementApi
      */
-    public apiAdminRolesGet(page?: number, limit?: number, options?: RawAxiosRequestConfig) {
-        return AdminRoleManagementApiFp(this.configuration).apiAdminRolesGet(page, limit, options).then((request) => request(this.axios, this.basePath));
+    public apiAdminRolesGet(limit?: number, page?: number, options?: RawAxiosRequestConfig) {
+        return AdminRoleManagementApiFp(this.configuration).apiAdminRolesGet(limit, page, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

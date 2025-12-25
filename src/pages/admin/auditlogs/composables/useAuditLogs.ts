@@ -59,18 +59,19 @@ export function useAuditLogs() {
     errorMessage.value = "";
 
     try {
+      // 参数按字母顺序：action, endDate, limit, page, resource, startDate, status, userId
       const response = await adminAuditLogApi.apiAdminAuditlogsGet(
-        pagination.page,
-        pagination.limit,
-        filters.user_id,
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (filters.action || undefined) as any,
+        filters.end_date || undefined,
+        pagination.limit,
+        pagination.page,
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (filters.resource || undefined) as any,
+        filters.start_date || undefined,
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (filters.status || undefined) as any,
-        filters.start_date || undefined,
-        filters.end_date || undefined,
+        filters.user_id,
       );
       const result = extractList<AuditlogAuditLogDTO>(response.data);
       logs.value = result.data;
@@ -148,19 +149,19 @@ export function useAuditLogs() {
     errorMessage.value = "";
 
     try {
-      // 使用当前过滤条件，获取最多 1000 条数据
+      // 参数按字母顺序：action, endDate, limit, page, resource, startDate, status, userId
       const response = await adminAuditLogApi.apiAdminAuditlogsGet(
-        1,
-        1000,
-        filters.user_id,
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (filters.action || undefined) as any,
+        filters.end_date || undefined,
+        1000,
+        1,
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (filters.resource || undefined) as any,
+        filters.start_date || undefined,
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (filters.status || undefined) as any,
-        filters.start_date || undefined,
-        filters.end_date || undefined,
+        filters.user_id,
       );
       const result = extractList<AuditlogAuditLogDTO>(response.data);
 

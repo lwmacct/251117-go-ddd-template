@@ -8,6 +8,32 @@ import (
 	"github.com/lwmacct/251117-go-ddd-template/internal/application/role"
 )
 
+// ListRolesQuery 角色列表查询参数
+type ListRolesQuery struct {
+	response.PaginationQueryDTO
+}
+
+// ToQuery 转换为 Application 层 Query 对象
+func (q *ListRolesQuery) ToQuery() role.ListRolesQuery {
+	return role.ListRolesQuery{
+		Page:  q.GetPage(),
+		Limit: q.GetLimit(),
+	}
+}
+
+// ListPermissionsQuery 权限列表查询参数
+type ListPermissionsQuery struct {
+	response.PaginationQueryDTO
+}
+
+// ToQuery 转换为 Application 层 Query 对象
+func (q *ListPermissionsQuery) ToQuery() role.ListPermissionsQuery {
+	return role.ListPermissionsQuery{
+		Page:  q.GetPage(),
+		Limit: q.GetLimit(),
+	}
+}
+
 // RoleHandler handles role management operations (DDD+CQRS Use Case Pattern)
 type RoleHandler struct {
 	// Command Handlers
@@ -92,8 +118,7 @@ func (h *RoleHandler) CreateRole(c *gin.Context) {
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
-// @Param        page query int false "页码" default(1) minimum(1)
-// @Param        limit query int false "每页数量" default(20) minimum(1) maximum(100)
+// @Param        params query handler.ListRolesQuery false "查询参数"
 // @Success      200 {object} response.PagedResponse[role.RoleDTO] "角色列表"
 // @Failure      401 {object} response.ErrorResponse "未授权"
 // @Failure      403 {object} response.ErrorResponse "权限不足"
@@ -101,28 +126,19 @@ func (h *RoleHandler) CreateRole(c *gin.Context) {
 // @Router       /api/admin/roles [get]
 // @x-permission {"scope":"admin:roles:read"}
 func (h *RoleHandler) ListRoles(c *gin.Context) {
-	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
-	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "20"))
-
-	if page < 1 {
-		page = 1
-	}
-	if limit < 1 || limit > 100 {
-		limit = 20
+	var q ListRolesQuery
+	if err := c.ShouldBindQuery(&q); err != nil {
+		response.ValidationError(c, err.Error())
+		return
 	}
 
-	// 调用 Use Case Handler
-	result, err := h.listRolesHandler.Handle(c.Request.Context(), role.ListRolesQuery{
-		Page:  page,
-		Limit: limit,
-	})
-
+	result, err := h.listRolesHandler.Handle(c.Request.Context(), q.ToQuery())
 	if err != nil {
 		response.InternalError(c, err.Error())
 		return
 	}
 
-	meta := response.NewPaginationMeta(int(result.Total), page, limit)
+	meta := response.NewPaginationMeta(int(result.Total), q.GetPage(), q.GetLimit())
 	response.List(c, "success", result.Roles, meta)
 }
 
@@ -300,8 +316,7 @@ func (h *RoleHandler) SetPermissions(c *gin.Context) {
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
-// @Param        page query int false "页码" default(1) minimum(1)
-// @Param        limit query int false "每页数量" default(50) minimum(1) maximum(100)
+// @Param        params query handler.ListPermissionsQuery false "查询参数"
 // @Success      200 {object} response.PagedResponse[role.PermissionDTO] "权限列表"
 // @Failure      401 {object} response.ErrorResponse "未授权"
 // @Failure      403 {object} response.ErrorResponse "权限不足"
@@ -309,27 +324,18 @@ func (h *RoleHandler) SetPermissions(c *gin.Context) {
 // @Router       /api/admin/permissions [get]
 // @x-permission {"scope":"admin:permissions:read"}
 func (h *RoleHandler) ListPermissions(c *gin.Context) {
-	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
-	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "50"))
-
-	if page < 1 {
-		page = 1
-	}
-	if limit < 1 || limit > 100 {
-		limit = 50
+	var q ListPermissionsQuery
+	if err := c.ShouldBindQuery(&q); err != nil {
+		response.ValidationError(c, err.Error())
+		return
 	}
 
-	// 调用 Use Case Handler
-	result, err := h.listPermissionsHandler.Handle(c.Request.Context(), role.ListPermissionsQuery{
-		Page:  page,
-		Limit: limit,
-	})
-
+	result, err := h.listPermissionsHandler.Handle(c.Request.Context(), q.ToQuery())
 	if err != nil {
 		response.InternalError(c, err.Error())
 		return
 	}
 
-	meta := response.NewPaginationMeta(int(result.Total), page, limit)
+	meta := response.NewPaginationMeta(int(result.Total), q.GetPage(), q.GetLimit())
 	response.List(c, "success", result.Permissions, meta)
 }

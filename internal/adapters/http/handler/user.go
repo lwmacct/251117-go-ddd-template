@@ -95,30 +95,19 @@ func (h *UserHandler) GetByID(c *gin.Context) {
 // List 获取用户列表
 // GET /api/users?page=1&limit=10
 func (h *UserHandler) List(c *gin.Context) {
-	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
-	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "10"))
-
-	if page < 1 {
-		page = 1
-	}
-	if limit < 1 || limit > 100 {
-		limit = 10
+	var q ListUsersQuery
+	if err := c.ShouldBindQuery(&q); err != nil {
+		response.ValidationError(c, err.Error())
+		return
 	}
 
-	offset := (page - 1) * limit
-
-	// 调用 Query Handler
-	result, err := h.listUsersHandler.Handle(c.Request.Context(), user.ListUsersQuery{
-		Offset: offset,
-		Limit:  limit,
-	})
-
+	result, err := h.listUsersHandler.Handle(c.Request.Context(), q.ToQuery())
 	if err != nil {
 		response.InternalError(c, err.Error())
 		return
 	}
 
-	meta := response.NewPaginationMeta(int(result.Total), page, limit)
+	meta := response.NewPaginationMeta(int(result.Total), q.GetPage(), q.GetLimit())
 	response.List(c, "success", result.Users, meta)
 }
 
