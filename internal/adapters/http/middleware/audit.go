@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -86,8 +87,10 @@ func AuditMiddleware(handler *auditlog.CreateLogHandler) gin.HandlerFunc {
 		}
 
 		// Save audit log asynchronously to avoid blocking the response
+		// 使用 WithoutCancel 保留 context 中的值（trace ID 等），但不会被请求取消影响
+		asyncCtx := context.WithoutCancel(c.Request.Context())
 		go func() {
-			if err := handler.Handle(c.Request.Context(), cmd); err != nil {
+			if err := handler.Handle(asyncCtx, cmd); err != nil {
 				// Log error but don't fail the request
 				slog.Error("failed to create audit log", "error", err)
 			}

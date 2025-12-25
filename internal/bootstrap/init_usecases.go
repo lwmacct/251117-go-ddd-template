@@ -41,7 +41,7 @@ func newUseCasesModule(cfg *config.Config, infra *InfrastructureModule, repos *R
 // newAuthUseCases 初始化认证用例
 func newAuthUseCases(repos *RepositoriesModule, services *ServicesModule) *AuthUseCases {
 	return &AuthUseCases{
-		Login:        auth.NewLoginHandler(repos.User.Query, repos.CaptchaCommand, repos.TwoFA.Query, services.Auth),
+		Login:        auth.NewLoginHandler(repos.User.Query, repos.CaptchaCommand, repos.TwoFA.Query, services.Auth, services.LoginSession),
 		Login2FA:     auth.NewLogin2FAHandler(repos.User.Query, services.Auth, services.LoginSession, services.TwoFA),
 		Register:     auth.NewRegisterHandler(repos.User.Command, repos.User.Query, services.Auth),
 		RefreshToken: auth.NewRefreshTokenHandler(repos.User.Query, services.Auth),

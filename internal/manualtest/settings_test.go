@@ -154,3 +154,93 @@ func TestSettingsByCategory(t *testing.T) {
 		}
 	}
 }
+
+// TestBatchUpdateSettings 测试批量更新设置。
+//
+// 手动运行:
+//
+//	MANUAL=1 go test -v -run TestBatchUpdateSettings ./internal/manualtest/
+func TestBatchUpdateSettings(t *testing.T) {
+	helper.SkipIfNotManual(t)
+
+	c := helper.NewClient()
+
+	t.Log("准备工作: 登录管理员账户")
+	_, err := c.Login("admin", "admin123")
+	if err != nil {
+		t.Fatalf("登录失败: %v", err)
+	}
+	t.Log("  登录成功")
+
+	// 用于清理的变量
+	timestamp := time.Now().Unix()
+	key1 := fmt.Sprintf("batch_test_%d_1", timestamp)
+	key2 := fmt.Sprintf("batch_test_%d_2", timestamp)
+
+	// 确保测试结束时清理资源
+	t.Cleanup(func() {
+		_ = c.Delete("/api/admin/settings/" + key1)
+		_ = c.Delete("/api/admin/settings/" + key2)
+	})
+
+	// 步骤 1: 创建两个测试设置
+	t.Log("\n步骤 1: 创建测试设置")
+	for _, key := range []string{key1, key2} {
+		createReq := handler.CreateSettingRequest{
+			Key:       key,
+			Value:     "original_value",
+			Category:  "test",
+			ValueType: "string",
+			Label:     "批量更新测试",
+		}
+		_, createErr := helper.Post[setting.SettingDTO](c, "/api/admin/settings", createReq)
+		if createErr != nil {
+			t.Fatalf("创建设置 %s 失败: %v", key, createErr)
+		}
+		t.Logf("  创建设置: %s", key)
+	}
+
+	// 步骤 2: 批量更新设置
+	t.Log("\n步骤 2: 批量更新设置")
+	batchReq := map[string]any{
+		"settings": []map[string]string{
+			{"key": key1, "value": "updated_value_1"},
+			{"key": key2, "value": "updated_value_2"},
+		},
+	}
+
+	resp, err := c.R().
+		SetBody(batchReq).
+		Post("/api/admin/settings/batch")
+	if err != nil {
+		t.Fatalf("批量更新请求失败: %v", err)
+	}
+	if resp.IsError() {
+		t.Fatalf("批量更新失败，状态码: %d, 响应: %s", resp.StatusCode(), resp.String())
+	}
+	t.Log("  批量更新成功!")
+
+	// 步骤 3: 验证更新结果
+	t.Log("\n步骤 3: 验证更新结果")
+	detail1, err := helper.Get[setting.SettingDTO](c, "/api/admin/settings/"+key1, nil)
+	if err != nil {
+		t.Fatalf("获取设置 %s 失败: %v", key1, err)
+	}
+	if detail1.Value != "updated_value_1" {
+		t.Errorf("设置 %s 值未更新，期望 %q，实际 %q", key1, "updated_value_1", detail1.Value)
+	} else {
+		t.Logf("  %s = %s ✓", key1, detail1.Value)
+	}
+
+	detail2, err := helper.Get[setting.SettingDTO](c, "/api/admin/settings/"+key2, nil)
+	if err != nil {
+		t.Fatalf("获取设置 %s 失败: %v", key2, err)
+	}
+	if detail2.Value != "updated_value_2" {
+		t.Errorf("设置 %s 值未更新，期望 %q，实际 %q", key2, "updated_value_2", detail2.Value)
+	} else {
+		t.Logf("  %s = %s ✓", key2, detail2.Value)
+	}
+
+	t.Log("\n批量更新设置测试完成!")
+}

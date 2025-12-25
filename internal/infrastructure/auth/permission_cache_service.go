@@ -60,8 +60,9 @@ func (s *PermissionCacheService) GetUserPermissions(ctx context.Context, userID 
 	permissions := u.GetPermissionCodes()
 
 	// 3. 写入 Redis 缓存（异步写入，不阻塞请求）
-	go func(cacheUserID uint, cacheRoles, cachePerms []string) { //nolint:contextcheck // 异步缓存写入使用独立超时
-		cacheCtx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	// 使用 WithoutCancel 保留 trace 信息，配合独立超时
+	go func(cacheUserID uint, cacheRoles, cachePerms []string) {
+		cacheCtx, cancel := context.WithTimeout(context.WithoutCancel(ctx), 2*time.Second)
 		defer cancel()
 
 		if err := s.setToCache(cacheCtx, cacheUserID, cacheRoles, cachePerms); err != nil {

@@ -150,13 +150,15 @@ func TestMenusFlow(t *testing.T) {
 	t.Logf("  子菜单创建成功! ID: %d", childResult.ID)
 
 	// 测试 6: 验证列表数量增加
+	// 注意：菜单列表返回扁平结构，但只返回顶层菜单（parent_id 为 null 的）
+	// 子菜单需要通过父菜单 ID 查询，所以顶层数量只增加 1
 	t.Log("\n测试 6: 验证菜单列表数量")
 	menusAfter, _, err := helper.GetList[menu.MenuDTO](c, "/api/admin/menus", nil)
 	if err != nil {
 		t.Fatalf("获取菜单列表失败: %v", err)
 	}
-	if len(menusAfter) < initialCount+2 {
-		t.Errorf("菜单数量应至少增加 2: 初始 %d, 现在 %d", initialCount, len(menusAfter))
+	if len(menusAfter) < initialCount+1 {
+		t.Errorf("菜单数量应至少增加 1: 初始 %d, 现在 %d", initialCount, len(menusAfter))
 	}
 	t.Logf("  菜单数量: %d (增加了 %d)", len(menusAfter), len(menusAfter)-initialCount)
 
@@ -227,4 +229,106 @@ func TestListMenus(t *testing.T) {
 		}
 		t.Logf("  - [%d] %s (%s) [%s] [%s]", m.ID, m.Title, m.Path, parentInfo, visibleStr)
 	}
+}
+
+// TestMenuReorder 测试菜单重排序。
+//
+// 手动运行:
+//
+//	MANUAL=1 go test -v -run TestMenuReorder ./internal/manualtest/
+func TestMenuReorder(t *testing.T) {
+	helper.SkipIfNotManual(t)
+
+	c := helper.NewClient()
+
+	t.Log("准备工作: 登录管理员账户")
+	_, err := c.Login("admin", "admin123")
+	if err != nil {
+		t.Fatalf("登录失败: %v", err)
+	}
+	t.Log("  登录成功")
+
+	// 用于清理的变量
+	var menu1ID, menu2ID, menu3ID uint
+	timestamp := time.Now().UnixNano()
+
+	// 确保测试结束时清理资源
+	t.Cleanup(func() {
+		for _, id := range []uint{menu1ID, menu2ID, menu3ID} {
+			if id > 0 {
+				_ = c.Delete(fmt.Sprintf("/api/admin/menus/%d", id))
+			}
+		}
+	})
+
+	// 步骤 1: 创建三个测试菜单
+	t.Log("\n步骤 1: 创建三个测试菜单")
+	visible := true
+	for i, order := range []int{1, 2, 3} {
+		menuName := fmt.Sprintf("reorder_test_%d_%d", timestamp, i+1)
+		createReq := handler.CreateMenuRequest{
+			Title:   menuName,
+			Path:    "/test/" + menuName,
+			Icon:    "test-icon",
+			Order:   order,
+			Visible: &visible,
+		}
+		created, createErr := helper.Post[menu.CreateMenuResultDTO](c, "/api/admin/menus", createReq)
+		if createErr != nil {
+			t.Fatalf("创建菜单失败: %v", createErr)
+		}
+		switch i {
+		case 0:
+			menu1ID = created.ID
+		case 1:
+			menu2ID = created.ID
+		case 2:
+			menu3ID = created.ID
+		}
+		t.Logf("  创建菜单 [%d] order=%d", created.ID, order)
+	}
+
+	// 步骤 2: 调用重排序接口交换顺序 (3, 1, 2 -> 将菜单3移到第一位)
+	t.Log("\n步骤 2: 重排序菜单 (原: 1,2,3 -> 新: 3,1,2)")
+	reorderReq := map[string]any{
+		"menus": []map[string]any{
+			{"id": menu3ID, "order": 1, "parent_id": nil},
+			{"id": menu1ID, "order": 2, "parent_id": nil},
+			{"id": menu2ID, "order": 3, "parent_id": nil},
+		},
+	}
+
+	resp, err := c.R().
+		SetBody(reorderReq).
+		Post("/api/admin/menus/reorder")
+	if err != nil {
+		t.Fatalf("重排序请求失败: %v", err)
+	}
+	// 重排序 API 返回 204 No Content
+	if resp.StatusCode() != 204 && resp.IsError() {
+		t.Fatalf("重排序失败，状态码: %d, 响应: %s", resp.StatusCode(), resp.String())
+	}
+	t.Log("  重排序成功!")
+
+	// 步骤 3: 验证顺序已更新
+	t.Log("\n步骤 3: 验证顺序已更新")
+	detail1, _ := helper.Get[menu.MenuDTO](c, fmt.Sprintf("/api/admin/menus/%d", menu1ID), nil)
+	detail2, _ := helper.Get[menu.MenuDTO](c, fmt.Sprintf("/api/admin/menus/%d", menu2ID), nil)
+	detail3, _ := helper.Get[menu.MenuDTO](c, fmt.Sprintf("/api/admin/menus/%d", menu3ID), nil)
+
+	t.Logf("  菜单 %d: order=%d (期望 2)", menu1ID, detail1.Order)
+	t.Logf("  菜单 %d: order=%d (期望 3)", menu2ID, detail2.Order)
+	t.Logf("  菜单 %d: order=%d (期望 1)", menu3ID, detail3.Order)
+
+	if detail1.Order != 2 {
+		t.Errorf("菜单 %d 顺序错误，期望 2，实际 %d", menu1ID, detail1.Order)
+	}
+	if detail2.Order != 3 {
+		t.Errorf("菜单 %d 顺序错误，期望 3，实际 %d", menu2ID, detail2.Order)
+	}
+	if detail3.Order != 1 {
+		t.Errorf("菜单 %d 顺序错误，期望 1，实际 %d", menu3ID, detail3.Order)
+	}
+
+	t.Log("\n菜单重排序测试完成!")
 }

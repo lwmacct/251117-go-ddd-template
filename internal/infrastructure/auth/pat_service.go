@@ -217,11 +217,12 @@ func (s *PATService) ValidateToken(ctx context.Context, plainToken string) (*pat
 	}
 
 	// Update last used time (asynchronously to avoid blocking)
-	go func(updateCtx context.Context) { //nolint:contextcheck // 异步更新不应阻塞请求
+	// 使用 WithoutCancel 保留 trace 信息，但不受请求取消影响
+	go func(updateCtx context.Context) {
 		now := time.Now()
 		token.LastUsedAt = &now
 		_ = s.patCommandRepo.Update(updateCtx, token)
-	}(context.Background())
+	}(context.WithoutCancel(ctx))
 
 	return token, nil
 }

@@ -9,6 +9,7 @@ import (
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/captcha"
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/twofa"
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/user"
+	authInfra "github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/auth"
 )
 
 // LoginHandler 登录命令处理器
@@ -17,6 +18,7 @@ type LoginHandler struct {
 	captchaCommandRepo captcha.CommandRepository
 	twofaQueryRepo     twofa.QueryRepository
 	authService        auth.Service
+	loginSession       *authInfra.LoginSessionService
 }
 
 // NewLoginHandler 创建登录命令处理器
@@ -25,12 +27,14 @@ func NewLoginHandler(
 	captchaCommandRepo captcha.CommandRepository,
 	twofaQueryRepo twofa.QueryRepository,
 	authService auth.Service,
+	loginSession *authInfra.LoginSessionService,
 ) *LoginHandler {
 	return &LoginHandler{
 		userQueryRepo:      userQueryRepo,
 		captchaCommandRepo: captchaCommandRepo,
 		twofaQueryRepo:     twofaQueryRepo,
 		authService:        authService,
+		loginSession:       loginSession,
 	}
 }
 
@@ -73,10 +77,9 @@ func (h *LoginHandler) Handle(ctx context.Context, cmd LoginCommand) (*LoginResu
 	tfa, err := h.twofaQueryRepo.FindByUserID(ctx, u.ID)
 	if err == nil && tfa != nil && tfa.Enabled {
 		// 需要 2FA 验证，生成临时 session token
-		var sessionToken string
-		sessionToken, _, err = h.authService.GenerateRefreshToken(ctx, u.ID)
-		if err != nil {
-			return nil, fmt.Errorf("failed to generate session token: %w", err)
+		sessionToken, sessionErr := h.loginSession.GenerateSessionToken(ctx, u.ID, cmd.Account)
+		if sessionErr != nil {
+			return nil, fmt.Errorf("failed to generate session token: %w", sessionErr)
 		}
 
 		return &LoginResultDTO{
