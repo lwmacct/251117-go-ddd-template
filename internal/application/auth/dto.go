@@ -93,7 +93,7 @@ type LoginResponseDTO struct {
 	RefreshToken string       `json:"refresh_token,omitempty"`
 	TokenType    string       `json:"token_type,omitempty"`
 	ExpiresIn    int          `json:"expires_in,omitempty"`
-	User         UserBriefDTO `json:"user,omitempty"`
+	User         UserBriefDTO `json:"user,omitzero"`
 	// 2FA 相关（当需要 2FA 时返回）
 	Requires2FA  bool   `json:"requires_2fa,omitempty"`
 	SessionToken string `json:"session_token,omitempty"`
