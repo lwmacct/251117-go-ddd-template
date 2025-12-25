@@ -1,6 +1,6 @@
 [project]
 name = "testing"
-version = "0.0.19"
+version = "0.0.20"
 description = "API Testing Suite for Go DDD Template"
 readme = "README.md"
 requires-python = ">=3.12"
