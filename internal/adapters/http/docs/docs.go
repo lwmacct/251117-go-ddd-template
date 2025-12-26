@@ -4409,6 +4409,10 @@ const docTemplate = `{
                 "total_pages": {
                     "description": "总页数",
                     "type": "integer"
+                },
+                "warning": {
+                    "description": "页码越界警告",
+                    "type": "string"
                 }
             }
         },

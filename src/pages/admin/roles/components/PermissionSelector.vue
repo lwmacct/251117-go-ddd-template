@@ -84,7 +84,7 @@ const fetchPermissions = async () => {
   errorMessage.value = "";
 
   try {
-    const response = await adminRoleApi.apiAdminPermissionsGet(1, 1000);
+    const response = await adminRoleApi.apiAdminPermissionsGet(1000, 1);
     const result = extractList<RolePermissionDTO>(response.data);
     permissions.value = result.data;
     selectedPermissionIds.value = props.rolePermissions.map((p) => p.id).filter((id): id is number => id !== undefined);

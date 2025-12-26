@@ -24,7 +24,7 @@ export interface ListResult<T> {
  * 从列表 API 响应中提取数据和分页信息
  *
  * @example
- * const response = await adminUserApi.apiAdminUsersGet(page, limit);
+ * const response = await adminUserApi.apiAdminUsersGet(limit, page);
  * const result = extractList(response.data);
  * users.value = result.data;
  * Object.assign(pagination, result.pagination);

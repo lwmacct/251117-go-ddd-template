@@ -36,6 +36,7 @@
 package response
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -111,11 +112,12 @@ type PagedResponse[T any] struct {
 
 // PaginationMeta 分页元数据
 type PaginationMeta struct {
-	Total      int  `json:"total"`                 // 总记录数
-	Page       int  `json:"page"`                  // 当前页码
-	PerPage    int  `json:"per_page"`              // 每页数量
-	TotalPages int  `json:"total_pages,omitempty"` // 总页数
-	HasMore    bool `json:"has_more,omitempty"`    // 是否有下一页
+	Total      int    `json:"total"`                 // 总记录数
+	Page       int    `json:"page"`                  // 当前页码
+	PerPage    int    `json:"per_page"`              // 每页数量
+	TotalPages int    `json:"total_pages,omitempty"` // 总页数
+	HasMore    bool   `json:"has_more,omitempty"`    // 是否有下一页
+	Warning    string `json:"warning,omitempty"`     // 页码越界警告
 }
 
 // ============================================================================
@@ -245,11 +247,17 @@ func ServiceUnavailable(c *gin.Context, message string) {
 func NewPaginationMeta(total, page, perPage int) *PaginationMeta {
 	totalPages := max((total+perPage-1)/perPage, 1)
 
-	return &PaginationMeta{
+	meta := &PaginationMeta{
 		Total:      total,
 		Page:       page,
 		PerPage:    perPage,
 		TotalPages: totalPages,
 		HasMore:    page < totalPages,
 	}
+
+	if page > totalPages {
+		meta.Warning = fmt.Sprintf("page %d exceeds total_pages %d", page, totalPages)
+	}
+
+	return meta
 }

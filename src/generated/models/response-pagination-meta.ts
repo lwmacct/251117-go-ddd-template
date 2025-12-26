@@ -50,5 +50,11 @@ export interface ResponsePaginationMeta {
      * @memberof ResponsePaginationMeta
      */
     'total_pages'?: number;
+    /**
+     * 页码越界警告
+     * @type {string}
+     * @memberof ResponsePaginationMeta
+     */
+    'warning'?: string;
 }
 
