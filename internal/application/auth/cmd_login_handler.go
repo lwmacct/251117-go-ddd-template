@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/lwmacct/251117-go-ddd-template/internal/application/auditlog"
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/auth"
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/captcha"
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/twofa"
@@ -19,6 +20,7 @@ type LoginHandler struct {
 	twofaQueryRepo     twofa.QueryRepository
 	authService        auth.Service
 	loginSession       *authInfra.LoginSessionService
+	auditLogHandler    *auditlog.CreateLogHandler
 }
 
 // NewLoginHandler 创建登录命令处理器
@@ -28,6 +30,7 @@ func NewLoginHandler(
 	twofaQueryRepo twofa.QueryRepository,
 	authService auth.Service,
 	loginSession *authInfra.LoginSessionService,
+	auditLogHandler *auditlog.CreateLogHandler,
 ) *LoginHandler {
 	return &LoginHandler{
 		userQueryRepo:      userQueryRepo,
@@ -35,6 +38,7 @@ func NewLoginHandler(
 		twofaQueryRepo:     twofaQueryRepo,
 		authService:        authService,
 		loginSession:       loginSession,
+		auditLogHandler:    auditLogHandler,
 	}
 }
 
@@ -46,6 +50,7 @@ func (h *LoginHandler) Handle(ctx context.Context, cmd LoginCommand) (*LoginResu
 		return nil, fmt.Errorf("failed to verify captcha: %w", err)
 	}
 	if !valid {
+		h.logLoginEvent(ctx, 0, cmd.Account, cmd.ClientIP, cmd.UserAgent, "invalid_captcha", "failure")
 		return nil, auth.ErrInvalidCaptcha
 	}
 
@@ -54,6 +59,7 @@ func (h *LoginHandler) Handle(ctx context.Context, cmd LoginCommand) (*LoginResu
 	if u, err = h.userQueryRepo.GetByUsernameWithRoles(ctx, cmd.Account); err != nil {
 		// 尝试通过邮箱查找
 		if u, err = h.userQueryRepo.GetByEmailWithRoles(ctx, cmd.Account); err != nil {
+			h.logLoginEvent(ctx, 0, cmd.Account, cmd.ClientIP, cmd.UserAgent, "user_not_found", "failure")
 			return nil, auth.ErrInvalidCredentials
 		}
 	}
@@ -61,15 +67,18 @@ func (h *LoginHandler) Handle(ctx context.Context, cmd LoginCommand) (*LoginResu
 	// 3. 检查用户状态
 	if !u.CanLogin() {
 		if u.IsBanned() {
+			h.logLoginEvent(ctx, u.ID, u.Username, cmd.ClientIP, cmd.UserAgent, "user_banned", "failure")
 			return nil, auth.ErrUserBanned
 		}
 		if u.IsInactive() {
+			h.logLoginEvent(ctx, u.ID, u.Username, cmd.ClientIP, cmd.UserAgent, "user_inactive", "failure")
 			return nil, auth.ErrUserInactive
 		}
 	}
 
 	// 4. 验证密码
 	if err = h.authService.VerifyPassword(ctx, u.Password, cmd.Password); err != nil {
+		h.logLoginEvent(ctx, u.ID, u.Username, cmd.ClientIP, cmd.UserAgent, "invalid_password", "failure")
 		return nil, auth.ErrInvalidCredentials
 	}
 
@@ -82,6 +91,7 @@ func (h *LoginHandler) Handle(ctx context.Context, cmd LoginCommand) (*LoginResu
 			return nil, fmt.Errorf("failed to generate session token: %w", sessionErr)
 		}
 
+		// 2FA 挑战不记录为成功登录，等待 2FA 验证完成后记录
 		return &LoginResultDTO{
 			Requires2FA:  true,
 			SessionToken: sessionToken,
@@ -103,6 +113,9 @@ func (h *LoginHandler) Handle(ctx context.Context, cmd LoginCommand) (*LoginResu
 
 	expiresIn := int(time.Until(expiresAt).Seconds())
 
+	// 记录登录成功
+	h.logLoginEvent(ctx, u.ID, u.Username, cmd.ClientIP, cmd.UserAgent, "login_success", "success")
+
 	return &LoginResultDTO{
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
@@ -112,4 +125,24 @@ func (h *LoginHandler) Handle(ctx context.Context, cmd LoginCommand) (*LoginResu
 		Username:     u.Username,
 		Requires2FA:  false,
 	}, nil
+}
+
+// logLoginEvent 异步记录登录事件到审计日志
+func (h *LoginHandler) logLoginEvent(ctx context.Context, userID uint, username, clientIP, userAgent, event, status string) {
+	if h.auditLogHandler == nil {
+		return
+	}
+	go func() {
+		_ = h.auditLogHandler.Handle(context.WithoutCancel(ctx), auditlog.CreateLogCommand{
+			UserID:     userID,
+			Username:   username,
+			Action:     "login",
+			Resource:   "auth",
+			ResourceID: "",
+			IPAddress:  clientIP,
+			UserAgent:  userAgent,
+			Details:    fmt.Sprintf(`{"event":"%s"}`, event),
+			Status:     status,
+		})
+	}()
 }

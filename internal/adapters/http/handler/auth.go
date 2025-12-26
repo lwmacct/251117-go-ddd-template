@@ -78,8 +78,15 @@ func (h *AuthHandler) Login(c *gin.Context) {
 		return
 	}
 
-	// 调用 Use Case Handler
-	result, err := h.loginHandler.Handle(c.Request.Context(), auth.LoginCommand(req))
+	// 调用 Use Case Handler（传递 IP 和 UserAgent 用于审计日志）
+	result, err := h.loginHandler.Handle(c.Request.Context(), auth.LoginCommand{
+		Account:   req.Account,
+		Password:  req.Password,
+		CaptchaID: req.CaptchaID,
+		Captcha:   req.Captcha,
+		ClientIP:  c.ClientIP(),
+		UserAgent: c.Request.UserAgent(),
+	})
 
 	if err != nil {
 		response.Unauthorized(c, err.Error())
@@ -117,8 +124,13 @@ func (h *AuthHandler) Login2FA(c *gin.Context) {
 		return
 	}
 
-	// 调用 Use Case Handler
-	result, err := h.login2FAHandler.Handle(c.Request.Context(), auth.Login2FACommand(req))
+	// 调用 Use Case Handler（传递 IP 和 UserAgent 用于审计日志）
+	result, err := h.login2FAHandler.Handle(c.Request.Context(), auth.Login2FACommand{
+		SessionToken:  req.SessionToken,
+		TwoFactorCode: req.TwoFactorCode,
+		ClientIP:      c.ClientIP(),
+		UserAgent:     c.Request.UserAgent(),
+	})
 
 	if err != nil {
 		response.Unauthorized(c, err.Error())

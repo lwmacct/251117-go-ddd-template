@@ -6,10 +6,14 @@ type LoginCommand struct {
 	Password  string
 	CaptchaID string
 	Captcha   string
+	ClientIP  string // 客户端 IP（用于审计日志）
+	UserAgent string // 用户代理（用于审计日志）
 }
 
 // Login2FACommand 二次认证命令
 type Login2FACommand struct {
 	SessionToken  string
 	TwoFactorCode string
+	ClientIP      string // 客户端 IP（用于审计日志）
+	UserAgent     string // 用户代理（用于审计日志）
 }

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/lwmacct/251117-go-ddd-template/internal/application/auditlog"
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/auth"
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/user"
 	authInfra "github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/auth"
@@ -14,10 +15,11 @@ import (
 
 // Login2FAHandler 二次认证登录命令处理器
 type Login2FAHandler struct {
-	userQueryRepo user.QueryRepository
-	authService   auth.Service
-	loginSession  *authInfra.LoginSessionService
-	twofaService  *twofaInfra.Service
+	userQueryRepo   user.QueryRepository
+	authService     auth.Service
+	loginSession    *authInfra.LoginSessionService
+	twofaService    *twofaInfra.Service
+	auditLogHandler *auditlog.CreateLogHandler
 }
 
 // NewLogin2FAHandler 创建二次认证登录命令处理器
@@ -26,12 +28,14 @@ func NewLogin2FAHandler(
 	authService auth.Service,
 	loginSession *authInfra.LoginSessionService,
 	twofaService *twofaInfra.Service,
+	auditLogHandler *auditlog.CreateLogHandler,
 ) *Login2FAHandler {
 	return &Login2FAHandler{
-		userQueryRepo: userQueryRepo,
-		authService:   authService,
-		loginSession:  loginSession,
-		twofaService:  twofaService,
+		userQueryRepo:   userQueryRepo,
+		authService:     authService,
+		loginSession:    loginSession,
+		twofaService:    twofaService,
+		auditLogHandler: auditLogHandler,
 	}
 }
 
@@ -40,15 +44,18 @@ func (h *Login2FAHandler) Handle(ctx context.Context, cmd Login2FACommand) (*Log
 	// 1. 验证 session token（防止 2FA 暴力破解）
 	sessionData, err := h.loginSession.VerifySessionToken(ctx, cmd.SessionToken)
 	if err != nil {
+		h.logLoginEvent(ctx, 0, "", cmd.ClientIP, cmd.UserAgent, "session_expired", "failure")
 		return nil, errors.New("session expired or invalid, please login again")
 	}
 
 	// 2. 验证 2FA 验证码
 	valid, err := h.twofaService.Verify(ctx, sessionData.UserID, cmd.TwoFactorCode)
 	if err != nil {
+		h.logLoginEvent(ctx, sessionData.UserID, sessionData.Account, cmd.ClientIP, cmd.UserAgent, "2fa_verify_error", "failure")
 		return nil, fmt.Errorf("2FA verification failed: %w", err)
 	}
 	if !valid {
+		h.logLoginEvent(ctx, sessionData.UserID, sessionData.Account, cmd.ClientIP, cmd.UserAgent, "2fa_invalid_code", "failure")
 		return nil, errors.New("invalid two factor code")
 	}
 
@@ -61,9 +68,11 @@ func (h *Login2FAHandler) Handle(ctx context.Context, cmd Login2FACommand) (*Log
 	// 4. 检查用户状态
 	if !u.CanLogin() {
 		if u.IsBanned() {
+			h.logLoginEvent(ctx, u.ID, u.Username, cmd.ClientIP, cmd.UserAgent, "user_banned", "failure")
 			return nil, auth.ErrUserBanned
 		}
 		if u.IsInactive() {
+			h.logLoginEvent(ctx, u.ID, u.Username, cmd.ClientIP, cmd.UserAgent, "user_inactive", "failure")
 			return nil, auth.ErrUserInactive
 		}
 	}
@@ -81,6 +90,9 @@ func (h *Login2FAHandler) Handle(ctx context.Context, cmd Login2FACommand) (*Log
 
 	expiresIn := int(time.Until(expiresAt).Seconds())
 
+	// 记录 2FA 登录成功
+	h.logLoginEvent(ctx, u.ID, u.Username, cmd.ClientIP, cmd.UserAgent, "2fa_login_success", "success")
+
 	return &LoginResultDTO{
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
@@ -90,4 +102,24 @@ func (h *Login2FAHandler) Handle(ctx context.Context, cmd Login2FACommand) (*Log
 		Username:     u.Username,
 		Requires2FA:  false,
 	}, nil
+}
+
+// logLoginEvent 异步记录登录事件到审计日志
+func (h *Login2FAHandler) logLoginEvent(ctx context.Context, userID uint, username, clientIP, userAgent, event, status string) {
+	if h.auditLogHandler == nil {
+		return
+	}
+	go func() {
+		_ = h.auditLogHandler.Handle(context.WithoutCancel(ctx), auditlog.CreateLogCommand{
+			UserID:     userID,
+			Username:   username,
+			Action:     "login",
+			Resource:   "auth",
+			ResourceID: "",
+			IPAddress:  clientIP,
+			UserAgent:  userAgent,
+			Details:    fmt.Sprintf(`{"event":"%s"}`, event),
+			Status:     status,
+		})
+	}()
 }
