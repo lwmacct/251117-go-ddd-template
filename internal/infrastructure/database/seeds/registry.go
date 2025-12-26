@@ -8,5 +8,6 @@ func DefaultSeeders() []database.Seeder {
 	return []database.Seeder{
 		&RBACSeeder{},
 		&UserSeeder{},
+		&SettingSeeder{},
 	}
 }
