@@ -266,7 +266,7 @@ onMounted(() => {
               <v-icon start>mdi-history</v-icon>
               最近审计日志
             </div>
-            <v-btn color="primary" variant="text" to="/admin/audit-logs" size="small">
+            <v-btn color="primary" variant="text" to="/admin/auditlogs" size="small">
               查看全部
               <v-icon end>mdi-arrow-right</v-icon>
             </v-btn>
