@@ -2,8 +2,17 @@
 import { ref, onMounted } from "vue";
 import { useSettings } from "./composables/useSettings";
 
-const { loading, saving, errorMessage, successMessage, fetchSettings, getSetting, batchUpdateSettings, clearMessages } =
-  useSettings();
+const {
+  loading,
+  saving,
+  errorMessage,
+  successMessage,
+  fetchSettings,
+  getSetting,
+  updateSettingQuietly,
+  batchUpdateSettings,
+  clearMessages,
+} = useSettings();
 
 const tabs = ref("general");
 
@@ -301,6 +310,7 @@ const saveAllSettings = async () => {
                         color="primary"
                         hint="要求所有用户启用 2FA"
                         persistent-hint
+                        @update:model-value="(v) => updateSettingQuietly('security.enable_twofa', v ?? false)"
                       ></v-switch>
                     </v-col>
                   </v-row>
@@ -319,6 +329,7 @@ const saveAllSettings = async () => {
                         hint="开启/关闭所有系统通知"
                         persistent-hint
                         class="mb-4"
+                        @update:model-value="(v) => updateSettingQuietly('notification.enable_notifications', v ?? false)"
                       ></v-switch>
                     </v-col>
                     <v-col cols="12">
@@ -330,6 +341,7 @@ const saveAllSettings = async () => {
                         hint="通过邮件发送通知"
                         persistent-hint
                         class="mb-4"
+                        @update:model-value="(v) => updateSettingQuietly('notification.enable_email', v ?? false)"
                       ></v-switch>
                     </v-col>
                     <v-col cols="12">
@@ -341,6 +353,7 @@ const saveAllSettings = async () => {
                         hint="通过短信发送通知"
                         persistent-hint
                         class="mb-4"
+                        @update:model-value="(v) => updateSettingQuietly('notification.enable_sms', v ?? false)"
                       ></v-switch>
                     </v-col>
                     <v-col cols="12">
@@ -365,6 +378,7 @@ const saveAllSettings = async () => {
                         hint="定期自动备份系统数据"
                         persistent-hint
                         class="mb-4"
+                        @update:model-value="(v) => updateSettingQuietly('backup.enable_backup', v ?? false)"
                       ></v-switch>
                     </v-col>
                     <v-col cols="12" md="6">

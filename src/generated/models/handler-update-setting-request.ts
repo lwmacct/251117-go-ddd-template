@@ -27,11 +27,11 @@ export interface HandlerUpdateSettingRequest {
      */
     'label'?: string;
     /**
-     * 
+     * 允许空字符串
      * @type {string}
      * @memberof HandlerUpdateSettingRequest
      */
-    'value': string;
+    'value'?: string;
     /**
      * 
      * @type {string}

@@ -191,16 +191,18 @@ definitions:
   handler.BatchUpdateSettingsRequest:
     properties:
       settings:
+        description: 至少需要一个设置项
         items:
           properties:
             key:
               type: string
             value:
+              description: 允许空字符串
               type: string
           required:
           - key
-          - value
           type: object
+        minItems: 1
         type: array
     required:
     - settings
@@ -312,13 +314,11 @@ definitions:
         example: 更新后的标签
         type: string
       value:
-        example: Updated Value
+        description: 允许空字符串
         type: string
       value_type:
         example: string
         type: string
-    required:
-    - value
     type: object
   menu.MenuDTO:
     properties:

@@ -3383,18 +3383,20 @@ const docTemplate = `{
             ],
             "properties": {
                 "settings": {
+                    "description": "至少需要一个设置项",
                     "type": "array",
+                    "minItems": 1,
                     "items": {
                         "type": "object",
                         "required": [
-                            "key",
-                            "value"
+                            "key"
                         ],
                         "properties": {
                             "key": {
                                 "type": "string"
                             },
                             "value": {
+                                "description": "允许空字符串",
                                 "type": "string"
                             }
                         }
@@ -3545,17 +3547,14 @@ const docTemplate = `{
         },
         "handler.UpdateSettingRequest": {
             "type": "object",
-            "required": [
-                "value"
-            ],
             "properties": {
                 "label": {
                     "type": "string",
                     "example": "更新后的标签"
                 },
                 "value": {
-                    "type": "string",
-                    "example": "Updated Value"
+                    "description": "允许空字符串",
+                    "type": "string"
                 },
                 "value_type": {
                     "type": "string",

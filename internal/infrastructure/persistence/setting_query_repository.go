@@ -45,6 +45,19 @@ func (r *settingQueryRepository) FindByKey(ctx context.Context, key string) (*se
 	return model.ToEntity(), nil
 }
 
+// FindByKeys 根据多个 Key 批量查找配置
+func (r *settingQueryRepository) FindByKeys(ctx context.Context, keys []string) ([]*setting.Setting, error) {
+	if len(keys) == 0 {
+		return []*setting.Setting{}, nil
+	}
+	var models []SettingModel
+	err := r.db.WithContext(ctx).Where("key IN ?", keys).Find(&models).Error
+	if err != nil {
+		return nil, fmt.Errorf("failed to find settings by keys: %w", err)
+	}
+	return mapSettingModelsToEntities(models), nil
+}
+
 // FindByCategory 根据分类查找配置列表
 func (r *settingQueryRepository) FindByCategory(ctx context.Context, category string) ([]*setting.Setting, error) {
 	var models []SettingModel

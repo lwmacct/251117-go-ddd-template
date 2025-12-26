@@ -10,6 +10,9 @@ type QueryRepository interface {
 	// FindByKey 根据 Key 查找配置
 	FindByKey(ctx context.Context, key string) (*Setting, error)
 
+	// FindByKeys 根据多个 Key 批量查找配置
+	FindByKeys(ctx context.Context, keys []string) ([]*Setting, error)
+
 	// FindByCategory 根据分类查找配置列表
 	FindByCategory(ctx context.Context, category string) ([]*Setting, error)
 

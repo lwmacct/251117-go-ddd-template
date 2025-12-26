@@ -151,7 +151,7 @@ func (h *SettingHandler) CreateSetting(c *gin.Context) {
 
 // UpdateSettingRequest 更新配置请求
 type UpdateSettingRequest struct {
-	Value     string `json:"value" binding:"required" example:"Updated Value"`
+	Value     string `json:"value"` // 允许空字符串
 	ValueType string `json:"value_type" example:"string"`
 	Label     string `json:"label" example:"更新后的标签"`
 }
@@ -235,8 +235,8 @@ func (h *SettingHandler) DeleteSetting(c *gin.Context) {
 type BatchUpdateSettingsRequest struct {
 	Settings []struct {
 		Key   string `json:"key" binding:"required"`
-		Value string `json:"value" binding:"required"`
-	} `json:"settings" binding:"required"`
+		Value string `json:"value"` // 允许空字符串
+	} `json:"settings" binding:"required,min=1"` // 至少需要一个设置项
 }
 
 // BatchUpdateSettings 批量更新配置

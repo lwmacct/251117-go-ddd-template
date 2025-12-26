@@ -27,10 +27,10 @@ export interface HandlerBatchUpdateSettingsRequestSettingsInner {
      */
     'key': string;
     /**
-     * 
+     * 允许空字符串
      * @type {string}
      * @memberof HandlerBatchUpdateSettingsRequestSettingsInner
      */
-    'value': string;
+    'value'?: string;
 }
 

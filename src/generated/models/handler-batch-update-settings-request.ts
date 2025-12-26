@@ -24,7 +24,7 @@ import type { HandlerBatchUpdateSettingsRequestSettingsInner } from './handler-b
  */
 export interface HandlerBatchUpdateSettingsRequest {
     /**
-     * 
+     * 至少需要一个设置项
      * @type {Array<HandlerBatchUpdateSettingsRequestSettingsInner>}
      * @memberof HandlerBatchUpdateSettingsRequest
      */

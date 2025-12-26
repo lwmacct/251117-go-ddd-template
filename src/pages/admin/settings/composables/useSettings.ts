@@ -146,6 +146,25 @@ export function useSettings() {
     }
   };
 
+  // 静默更新单个设置（用于开关等即时生效的控件，不显示成功提示）
+  const updateSettingQuietly = async (key: string, value: string | number | boolean): Promise<boolean> => {
+    try {
+      const stringValue = String(value);
+      const data: HandlerUpdateSettingRequest = { value: stringValue };
+      const response = await adminSettingsApi.apiAdminSettingsKeyPut(key, data);
+      const updated = extractData<SettingSettingDTO>(response.data);
+      const index = settings.value.findIndex((s) => s.key === key);
+      if (index !== -1 && updated) {
+        settings.value[index] = updated;
+      }
+      return true;
+    } catch (error) {
+      errorMessage.value = (error as Error).message || "更新设置失败";
+      console.error("Failed to update setting:", error);
+      return false;
+    }
+  };
+
   // 批量更新设置
   const batchUpdateSettings = async (
     updates: { key: string; value: string | number | boolean | object }[],
@@ -220,6 +239,7 @@ export function useSettings() {
     getSetting,
     createSetting,
     updateSetting,
+    updateSettingQuietly,
     batchUpdateSettings,
     deleteSetting,
     clearMessages,

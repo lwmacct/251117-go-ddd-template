@@ -40,8 +40,8 @@ func NewConnection(ctx context.Context, cfg *Config) (*gorm.DB, error) {
 		return nil, errors.New("database DSN cannot be empty")
 	}
 
-	// GORM 日志配置
-	gormLogger := logger.Default.LogMode(cfg.LogLevel)
+	// GORM 日志配置 - 使用 slog
+	gormLogger := NewSlogLogger(cfg.LogLevel)
 
 	// 连接数据库
 	db, err := gorm.Open(postgres.Open(cfg.DSN), &gorm.Config{
