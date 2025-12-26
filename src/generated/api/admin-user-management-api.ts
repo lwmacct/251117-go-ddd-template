@@ -87,7 +87,7 @@ export const AdminUserManagementApiAxiosParamCreator = function (configuration?:
         /**
          * 分页获取所有用户列表（包含角色信息）
          * @summary 获取用户列表
-         * @param {number} [limit] Limit 每页数量，默认 20，最大 100
+         * @param {number} [limit] Limit 每页数量，默认 20，最大 1000
          * @param {number} [page] Page 页码，从 1 开始
          * @param {string} [search] Search 搜索关键词（用户名或邮箱）
          * @param {*} [options] Override http request option.
@@ -357,7 +357,7 @@ export const AdminUserManagementApiFp = function(configuration?: Configuration) 
         /**
          * 分页获取所有用户列表（包含角色信息）
          * @summary 获取用户列表
-         * @param {number} [limit] Limit 每页数量，默认 20，最大 100
+         * @param {number} [limit] Limit 每页数量，默认 20，最大 1000
          * @param {number} [page] Page 页码，从 1 开始
          * @param {string} [search] Search 搜索关键词（用户名或邮箱）
          * @param {*} [options] Override http request option.
@@ -459,7 +459,7 @@ export const AdminUserManagementApiFactory = function (configuration?: Configura
         /**
          * 分页获取所有用户列表（包含角色信息）
          * @summary 获取用户列表
-         * @param {number} [limit] Limit 每页数量，默认 20，最大 100
+         * @param {number} [limit] Limit 每页数量，默认 20，最大 1000
          * @param {number} [page] Page 页码，从 1 开始
          * @param {string} [search] Search 搜索关键词（用户名或邮箱）
          * @param {*} [options] Override http request option.
@@ -545,7 +545,7 @@ export class AdminUserManagementApi extends BaseAPI {
     /**
      * 分页获取所有用户列表（包含角色信息）
      * @summary 获取用户列表
-     * @param {number} [limit] Limit 每页数量，默认 20，最大 100
+     * @param {number} [limit] Limit 每页数量，默认 20，最大 1000
      * @param {number} [page] Page 页码，从 1 开始
      * @param {string} [search] Search 搜索关键词（用户名或邮箱）
      * @param {*} [options] Override http request option.

@@ -38,7 +38,7 @@ export const AdminAuditLogApiAxiosParamCreator = function (configuration?: Confi
          * @summary 获取审计日志列表
          * @param {ApiAdminAuditlogsGetActionEnum} [action] Action 操作类型过滤
          * @param {string} [endDate] EndDate 结束时间（RFC3339 格式）
-         * @param {number} [limit] Limit 每页数量，默认 20，最大 100
+         * @param {number} [limit] Limit 每页数量，默认 20，最大 1000
          * @param {number} [page] Page 页码，从 1 开始
          * @param {ApiAdminAuditlogsGetResourceEnum} [resource] Resource 资源类型过滤
          * @param {string} [startDate] StartDate 开始时间（RFC3339 格式）
@@ -158,7 +158,7 @@ export const AdminAuditLogApiFp = function(configuration?: Configuration) {
          * @summary 获取审计日志列表
          * @param {ApiAdminAuditlogsGetActionEnum} [action] Action 操作类型过滤
          * @param {string} [endDate] EndDate 结束时间（RFC3339 格式）
-         * @param {number} [limit] Limit 每页数量，默认 20，最大 100
+         * @param {number} [limit] Limit 每页数量，默认 20，最大 1000
          * @param {number} [page] Page 页码，从 1 开始
          * @param {ApiAdminAuditlogsGetResourceEnum} [resource] Resource 资源类型过滤
          * @param {string} [startDate] StartDate 开始时间（RFC3339 格式）
@@ -201,7 +201,7 @@ export const AdminAuditLogApiFactory = function (configuration?: Configuration, 
          * @summary 获取审计日志列表
          * @param {ApiAdminAuditlogsGetActionEnum} [action] Action 操作类型过滤
          * @param {string} [endDate] EndDate 结束时间（RFC3339 格式）
-         * @param {number} [limit] Limit 每页数量，默认 20，最大 100
+         * @param {number} [limit] Limit 每页数量，默认 20，最大 1000
          * @param {number} [page] Page 页码，从 1 开始
          * @param {ApiAdminAuditlogsGetResourceEnum} [resource] Resource 资源类型过滤
          * @param {string} [startDate] StartDate 开始时间（RFC3339 格式）
@@ -238,7 +238,7 @@ export class AdminAuditLogApi extends BaseAPI {
      * @summary 获取审计日志列表
      * @param {ApiAdminAuditlogsGetActionEnum} [action] Action 操作类型过滤
      * @param {string} [endDate] EndDate 结束时间（RFC3339 格式）
-     * @param {number} [limit] Limit 每页数量，默认 20，最大 100
+     * @param {number} [limit] Limit 每页数量，默认 20，最大 1000
      * @param {number} [page] Page 页码，从 1 开始
      * @param {ApiAdminAuditlogsGetResourceEnum} [resource] Resource 资源类型过滤
      * @param {string} [startDate] StartDate 开始时间（RFC3339 格式）

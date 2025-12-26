@@ -63,11 +63,11 @@ const docTemplate = `{
                         "in": "query"
                     },
                     {
-                        "maximum": 100,
+                        "maximum": 1000,
                         "minimum": 1,
                         "type": "integer",
                         "default": 20,
-                        "description": "Limit 每页数量，默认 20，最大 100",
+                        "description": "Limit 每页数量，默认 20，最大 1000",
                         "name": "limit",
                         "in": "query"
                     },
@@ -670,11 +670,11 @@ const docTemplate = `{
                 "summary": "获取权限列表",
                 "parameters": [
                     {
-                        "maximum": 100,
+                        "maximum": 1000,
                         "minimum": 1,
                         "type": "integer",
                         "default": 20,
-                        "description": "Limit 每页数量，默认 20，最大 100",
+                        "description": "Limit 每页数量，默认 20，最大 1000",
                         "name": "limit",
                         "in": "query"
                     },
@@ -738,11 +738,11 @@ const docTemplate = `{
                 "summary": "获取角色列表",
                 "parameters": [
                     {
-                        "maximum": 100,
+                        "maximum": 1000,
                         "minimum": 1,
                         "type": "integer",
                         "default": 20,
-                        "description": "Limit 每页数量，默认 20，最大 100",
+                        "description": "Limit 每页数量，默认 20，最大 1000",
                         "name": "limit",
                         "in": "query"
                     },
@@ -1543,11 +1543,11 @@ const docTemplate = `{
                 "summary": "获取用户列表",
                 "parameters": [
                     {
-                        "maximum": 100,
+                        "maximum": 1000,
                         "minimum": 1,
                         "type": "integer",
                         "default": 20,
-                        "description": "Limit 每页数量，默认 20，最大 100",
+                        "description": "Limit 每页数量，默认 20，最大 1000",
                         "name": "limit",
                         "in": "query"
                     },

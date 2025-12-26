@@ -48,7 +48,7 @@ export const AdminRoleManagementApiAxiosParamCreator = function (configuration?:
         /**
          * 分页获取所有系统权限
          * @summary 获取权限列表
-         * @param {number} [limit] Limit 每页数量，默认 20，最大 100
+         * @param {number} [limit] Limit 每页数量，默认 20，最大 1000
          * @param {number} [page] Page 页码，从 1 开始
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -91,7 +91,7 @@ export const AdminRoleManagementApiAxiosParamCreator = function (configuration?:
         /**
          * 分页获取所有系统角色
          * @summary 获取角色列表
-         * @param {number} [limit] Limit 每页数量，默认 20，最大 100
+         * @param {number} [limit] Limit 每页数量，默认 20，最大 1000
          * @param {number} [page] Page 页码，从 1 开始
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -343,7 +343,7 @@ export const AdminRoleManagementApiFp = function(configuration?: Configuration) 
         /**
          * 分页获取所有系统权限
          * @summary 获取权限列表
-         * @param {number} [limit] Limit 每页数量，默认 20，最大 100
+         * @param {number} [limit] Limit 每页数量，默认 20，最大 1000
          * @param {number} [page] Page 页码，从 1 开始
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -357,7 +357,7 @@ export const AdminRoleManagementApiFp = function(configuration?: Configuration) 
         /**
          * 分页获取所有系统角色
          * @summary 获取角色列表
-         * @param {number} [limit] Limit 每页数量，默认 20，最大 100
+         * @param {number} [limit] Limit 每页数量，默认 20，最大 1000
          * @param {number} [page] Page 页码，从 1 开始
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -448,7 +448,7 @@ export const AdminRoleManagementApiFactory = function (configuration?: Configura
         /**
          * 分页获取所有系统权限
          * @summary 获取权限列表
-         * @param {number} [limit] Limit 每页数量，默认 20，最大 100
+         * @param {number} [limit] Limit 每页数量，默认 20，最大 1000
          * @param {number} [page] Page 页码，从 1 开始
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -459,7 +459,7 @@ export const AdminRoleManagementApiFactory = function (configuration?: Configura
         /**
          * 分页获取所有系统角色
          * @summary 获取角色列表
-         * @param {number} [limit] Limit 每页数量，默认 20，最大 100
+         * @param {number} [limit] Limit 每页数量，默认 20，最大 1000
          * @param {number} [page] Page 页码，从 1 开始
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -532,7 +532,7 @@ export class AdminRoleManagementApi extends BaseAPI {
     /**
      * 分页获取所有系统权限
      * @summary 获取权限列表
-     * @param {number} [limit] Limit 每页数量，默认 20，最大 100
+     * @param {number} [limit] Limit 每页数量，默认 20，最大 1000
      * @param {number} [page] Page 页码，从 1 开始
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -545,7 +545,7 @@ export class AdminRoleManagementApi extends BaseAPI {
     /**
      * 分页获取所有系统角色
      * @summary 获取角色列表
-     * @param {number} [limit] Limit 每页数量，默认 20，最大 100
+     * @param {number} [limit] Limit 每页数量，默认 20，最大 1000
      * @param {number} [page] Page 页码，从 1 开始
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}

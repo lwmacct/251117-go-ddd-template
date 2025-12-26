@@ -1269,9 +1269,9 @@ paths:
         name: end_date
         type: string
       - default: 20
-        description: Limit 每页数量，默认 20，最大 100
+        description: Limit 每页数量，默认 20，最大 1000
         in: query
-        maximum: 100
+        maximum: 1000
         minimum: 1
         name: limit
         type: integer
@@ -1663,9 +1663,9 @@ paths:
       description: 分页获取所有系统权限
       parameters:
       - default: 20
-        description: Limit 每页数量，默认 20，最大 100
+        description: Limit 每页数量，默认 20，最大 1000
         in: query
-        maximum: 100
+        maximum: 1000
         minimum: 1
         name: limit
         type: integer
@@ -1708,9 +1708,9 @@ paths:
       description: 分页获取所有系统角色
       parameters:
       - default: 20
-        description: Limit 每页数量，默认 20，最大 100
+        description: Limit 每页数量，默认 20，最大 1000
         in: query
-        maximum: 100
+        maximum: 1000
         minimum: 1
         name: limit
         type: integer
@@ -2228,9 +2228,9 @@ paths:
       description: 分页获取所有用户列表（包含角色信息）
       parameters:
       - default: 20
-        description: Limit 每页数量，默认 20，最大 100
+        description: Limit 每页数量，默认 20，最大 1000
         in: query
-        maximum: 100
+        maximum: 1000
         minimum: 1
         name: limit
         type: integer

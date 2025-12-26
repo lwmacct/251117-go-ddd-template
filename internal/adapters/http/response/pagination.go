@@ -5,8 +5,8 @@ package response
 type PaginationQueryDTO struct {
 	// Page 页码，从 1 开始
 	Page int `form:"page" json:"page" binding:"omitempty,min=1" minimum:"1" default:"1"`
-	// Limit 每页数量，默认 20，最大 100
-	Limit int `form:"limit" json:"limit" binding:"omitempty,min=1,max=100" minimum:"1" maximum:"100" default:"20"`
+	// Limit 每页数量，默认 20，最大 1000
+	Limit int `form:"limit" json:"limit" binding:"omitempty,min=1,max=1000" minimum:"1" maximum:"1000" default:"20"`
 }
 
 // GetPage 获取页码，确保最小值为 1
@@ -22,8 +22,8 @@ func (p *PaginationQueryDTO) GetLimit() int {
 	if p.Limit < 1 {
 		return 20
 	}
-	if p.Limit > 100 {
-		return 100
+	if p.Limit > 1000 {
+		return 1000
 	}
 	return p.Limit
 }
