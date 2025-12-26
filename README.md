@@ -1,1 +1,0 @@
-docs/content/guide/readme.md

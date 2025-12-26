@@ -3,35 +3,16 @@
     "text": "架构设计",
     "items": [
       { "text": "总体架构", "link": "/architecture/" },
-      { "text": "DDD + CQRS 架构", "link": "/architecture/ddd-cqrs" },
+      { "text": "DDD + CQRS", "link": "/architecture/ddd-cqrs" },
       { "text": "迁移指南", "link": "/architecture/migration-guide" }
     ]
   },
   {
-    "text": "前端架构",
+    "text": "技术模块",
     "items": [
-      { "text": "概述", "link": "/architecture/frontend-overview" },
-      { "text": "代码规范", "link": "/architecture/frontend-code-style" },
-      { "text": "路由配置", "link": "/architecture/frontend-router" },
-      { "text": "状态管理", "link": "/architecture/frontend-state" },
-      { "text": "API 层设计", "link": "/architecture/frontend-api" },
-      { "text": "组件开发", "link": "/architecture/frontend-components" }
-    ]
-  },
-  {
-    "text": "身份认证",
-    "items": [
-      { "text": "概述", "link": "/architecture/identity-overview" },
-      { "text": "JWT 认证", "link": "/architecture/identity-authentication" },
-      { "text": "PAT 认证", "link": "/architecture/identity-pat" },
-      { "text": "RBAC 权限", "link": "/architecture/identity-rbac" }
-    ]
-  },
-  {
-    "text": "数据层",
-    "items": [
-      { "text": "PostgreSQL", "link": "/architecture/data-postgresql" },
-      { "text": "Redis 缓存", "link": "/architecture/data-redis" }
+      { "text": "前端架构", "link": "/architecture/frontend" },
+      { "text": "身份认证", "link": "/architecture/identity" },
+      { "text": "数据存储", "link": "/architecture/data" }
     ]
   }
 ]

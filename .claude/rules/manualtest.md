@@ -1,4 +1,9 @@
-# manualtest 手动测试包
+---
+paths:
+  - "internal/manualtest/**/*.go"
+---
+
+# manualtest 手动测试规范
 
 本包提供针对 HTTP API 的集成测试，需要服务运行时手动执行。
 
@@ -6,13 +11,13 @@
 
 ## Table of Contents
 
-- [运行方式](#运行方式) `:19+10`
-- [DTO 使用原则](#dto-使用原则) `:29+53`
-  - [正确做法](#正确做法) `:33+17`
-  - [禁止做法](#禁止做法) `:50+8`
-  - [类型来源](#类型来源) `:58+8`
-  - [设计原因](#设计原因) `:66+7`
-  - [当需要新 DTO 时](#当需要新-dto-时) `:73+9`
+- [运行方式](#运行方式) `:24+10`
+- [DTO 使用原则](#dto-使用原则) `:34+44`
+  - [正确做法](#正确做法) `:38+17`
+  - [禁止做法](#禁止做法) `:55+8`
+  - [类型来源](#类型来源) `:63+8`
+  - [设计原因](#设计原因) `:71+7`
+- [设计反思原则](#设计反思原则) `:78+20`
 
 <!--TOC-->
 
@@ -50,7 +55,7 @@ userID := createResp.ID  // 直接访问字段
 ### 禁止做法
 
 ```go
-// 禁止在 manualtest 或 helper 包中定义任何 DTO
+// ❌ 禁止在 manualtest 或 helper 包中定义任何 DTO
 type LoginResponse struct { ... }  // 禁止
 type PATTokenDTO struct { ... }    // 禁止
 ```
@@ -65,17 +70,28 @@ type PATTokenDTO struct { ... }    // 禁止
 
 ### 设计原因
 
-1. **单一职责**：DTO 定义属于 Application 层，测试代码只负责验证行为
-2. **避免重复**：Application 层的 DTO 已有完整的 JSON tags，无需在测试中重复定义
-3. **保持同步**：直接使用 Application DTO 可确保测试与实际 API 响应格式一致
-4. **依赖方向**：`manualtest → application` 符合 DDD 依赖方向
+1. **单一职责** - DTO 定义属于 Application 层，测试代码只负责验证行为
+2. **避免重复** - Application 层的 DTO 已有完整的 JSON tags，无需重复定义
+3. **保持同步** - 直接使用 Application DTO 确保测试与实际 API 响应格式一致
+4. **依赖方向** - `manualtest → application` 符合 DDD 依赖方向
 
-### 当需要新 DTO 时
+## 设计反思原则
 
-**如果发现 manualtest 需要定义 DTO，说明 Application 层设计有问题，应该：**
+**测试困难是设计问题的信号。**
+
+如果发现以下情况，说明 Application 层设计需要检视：
+
+| 症状                     | 可能的设计问题                  |
+| ------------------------ | ------------------------------- |
+| 需要在测试中定义 DTO     | Application 层 DTO 缺失或不完整 |
+| 响应结构难以断言         | Handler 响应格式与 DTO 不一致   |
+| 需要复杂的类型转换       | DTO 设计不符合使用场景          |
+| 测试代码比业务代码还复杂 | API 设计过于复杂                |
+
+**正确的修复方向**：
 
 1. 检查 Application 层 DTO 是否缺少 JSON tags
-2. 检查 Handler 响应格式是否与 DTO 结构不匹配（所有 API 统一使用 `response` 包封装）
+2. 检查 Handler 响应格式是否与 DTO 结构匹配
 3. 在 Application 层补充缺失的 DTO
 
-**禁止在 manualtest 中临时定义 DTO 来"修复"问题。**
+**❌ 禁止在 manualtest 中临时定义 DTO 来"绕过"问题。**

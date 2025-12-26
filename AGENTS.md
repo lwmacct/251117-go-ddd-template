@@ -1,1 +1,1 @@
-docs/content/guide/agents.md
+.claude/CLAUDE.md

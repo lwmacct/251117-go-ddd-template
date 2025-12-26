@@ -1,11 +1,6 @@
 [
   {
     "text": "指南",
-    "items": [
-      { "text": "快速开始", "link": "/guide/quick-start" },
-      { "text": "目录结构", "link": "/guide/project-structure" },
-      { "text": "配置管理", "link": "/guide/configuration" },
-      { "text": "命令行工具", "link": "/guide/cli" }
-    ]
+    "items": [{ "text": "快速入门", "link": "/getting-started" }]
   }
 ]
