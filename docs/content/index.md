@@ -8,7 +8,7 @@ hero:
   actions:
     - theme: brand
       text: 快速开始
-      link: /guide/quick-start
+      link: /getting-started
     - theme: alt
       text: 查看 GitHub
       link: https://github.com/lwmacct/251117-go-ddd-template
@@ -33,23 +33,6 @@ features:
     title: 生产就绪
     details: Docker 支持，优雅关闭，健康检查，连接池管理，开发热重载
 ---
-
-## 快速开始
-
-```bash
-# 克隆项目
-git clone https://github.com/lwmacct/251117-go-ddd-template.git
-cd 251117-go-ddd-template
-
-# 启动数据库和 Redis
-docker-compose up -d
-
-# 运行应用
-task go:run -- api
-
-# 健康检查
-curl http://localhost:8080/health
-```
 
 ## 技术栈
 
