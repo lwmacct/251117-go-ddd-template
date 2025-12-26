@@ -62,6 +62,11 @@ func TestRolesFlow(t *testing.T) {
 	testRoleID = createResp.RoleID
 	t.Logf("  创建成功! 角色 ID: %d", testRoleID)
 
+	// 验证角色 ID 有效
+	if testRoleID == 0 {
+		t.Fatal("创建角色失败: 返回的角色 ID 为 0")
+	}
+
 	// 测试 3: 获取角色详情
 	t.Log("\n测试 3: 获取角色详情")
 	roleDetail, err := helper.Get[role.RoleDTO](c, fmt.Sprintf("/api/admin/roles/%d", testRoleID), nil)
@@ -71,6 +76,17 @@ func TestRolesFlow(t *testing.T) {
 	t.Logf("  角色名: %s, 显示名: %s", roleDetail.Name, roleDetail.DisplayName)
 	t.Logf("  描述: %s", roleDetail.Description)
 	t.Logf("  权限数量: %d", len(roleDetail.Permissions))
+
+	// 验证角色详情
+	if roleDetail.ID != testRoleID {
+		t.Errorf("角色 ID 不匹配: 期望 %d, 实际 %d", testRoleID, roleDetail.ID)
+	}
+	if roleDetail.Name != testRoleName {
+		t.Errorf("角色名不匹配: 期望 %s, 实际 %s", testRoleName, roleDetail.Name)
+	}
+	if roleDetail.DisplayName != createReq.DisplayName {
+		t.Errorf("显示名不匹配: 期望 %s, 实际 %s", createReq.DisplayName, roleDetail.DisplayName)
+	}
 
 	// 测试 4: 更新角色
 	t.Log("\n测试 4: 更新角色")
@@ -85,6 +101,14 @@ func TestRolesFlow(t *testing.T) {
 		t.Fatalf("更新角色失败: %v", err)
 	}
 	t.Logf("  更新成功! 显示名: %s", updatedRole.DisplayName)
+
+	// 验证更新后的字段
+	if updatedRole.DisplayName != newDisplayName {
+		t.Errorf("显示名未更新: 期望 %s, 实际 %s", newDisplayName, updatedRole.DisplayName)
+	}
+	if updatedRole.Description != newDescription {
+		t.Errorf("描述未更新: 期望 %s, 实际 %s", newDescription, updatedRole.Description)
+	}
 
 	// 测试 5: 获取权限列表
 	t.Log("\n测试 5: 获取权限列表")
@@ -240,4 +264,20 @@ func testSetRolePermissions(t *testing.T, c *helper.Client, roleID uint, permiss
 		t.Fatalf("获取角色详情失败: %v", err)
 	}
 	t.Logf("  验证：角色现有 %d 个权限", len(roleWithPerms.Permissions))
+
+	// 验证权限 ID 是否匹配
+	if len(roleWithPerms.Permissions) != len(permIDs) {
+		t.Errorf("权限数量不匹配: 期望 %d, 实际 %d", len(permIDs), len(roleWithPerms.Permissions))
+	}
+
+	// 验证每个权限 ID 是否存在
+	permIDMap := make(map[uint]bool)
+	for _, p := range roleWithPerms.Permissions {
+		permIDMap[p.ID] = true
+	}
+	for _, expectedID := range permIDs {
+		if !permIDMap[expectedID] {
+			t.Errorf("未找到预期的权限 ID=%d", expectedID)
+		}
+	}
 }

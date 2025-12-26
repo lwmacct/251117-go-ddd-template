@@ -312,9 +312,18 @@ func TestMenuReorder(t *testing.T) {
 
 	// 步骤 3: 验证顺序已更新
 	t.Log("\n步骤 3: 验证顺序已更新")
-	detail1, _ := helper.Get[menu.MenuDTO](c, fmt.Sprintf("/api/admin/menus/%d", menu1ID), nil)
-	detail2, _ := helper.Get[menu.MenuDTO](c, fmt.Sprintf("/api/admin/menus/%d", menu2ID), nil)
-	detail3, _ := helper.Get[menu.MenuDTO](c, fmt.Sprintf("/api/admin/menus/%d", menu3ID), nil)
+	detail1, err := helper.Get[menu.MenuDTO](c, fmt.Sprintf("/api/admin/menus/%d", menu1ID), nil)
+	if err != nil {
+		t.Fatalf("获取菜单 %d 详情失败: %v", menu1ID, err)
+	}
+	detail2, err := helper.Get[menu.MenuDTO](c, fmt.Sprintf("/api/admin/menus/%d", menu2ID), nil)
+	if err != nil {
+		t.Fatalf("获取菜单 %d 详情失败: %v", menu2ID, err)
+	}
+	detail3, err := helper.Get[menu.MenuDTO](c, fmt.Sprintf("/api/admin/menus/%d", menu3ID), nil)
+	if err != nil {
+		t.Fatalf("获取菜单 %d 详情失败: %v", menu3ID, err)
+	}
 
 	t.Logf("  菜单 %d: order=%d (期望 2)", menu1ID, detail1.Order)
 	t.Logf("  菜单 %d: order=%d (期望 3)", menu2ID, detail2.Order)

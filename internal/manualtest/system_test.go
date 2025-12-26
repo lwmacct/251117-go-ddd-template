@@ -94,40 +94,57 @@ func TestCacheOperations(t *testing.T) {
 
 	// 测试 1: 设置缓存
 	t.Log("测试 1: 设置缓存")
-	resp, err := c.R().
+	setResp, err := c.R().
 		SetBody(map[string]string{"value": cacheValue}).
 		Post("/api/cache/" + cacheKey)
 	if err != nil {
 		t.Fatalf("设置缓存请求失败: %v", err)
 	}
-	if resp.IsError() {
-		t.Logf("  设置缓存失败 (可能需要认证): 状态码 %d", resp.StatusCode())
-	} else {
-		t.Logf("  设置成功!")
+	if setResp.IsError() {
+		t.Skipf("设置缓存失败 (可能需要认证或功能未开启): 状态码 %d", setResp.StatusCode())
+		return
 	}
+	t.Logf("  设置成功!")
 
 	// 测试 2: 获取缓存
 	t.Log("\n测试 2: 获取缓存")
-	resp, err = c.R().Get("/api/cache/" + cacheKey)
+	getResp, err := c.R().Get("/api/cache/" + cacheKey)
 	if err != nil {
 		t.Fatalf("获取缓存请求失败: %v", err)
 	}
-	if resp.IsError() {
-		t.Logf("  获取缓存失败 (可能需要认证): 状态码 %d", resp.StatusCode())
+	if getResp.IsError() {
+		t.Errorf("获取缓存失败: 状态码 %d", getResp.StatusCode())
 	} else {
-		t.Logf("  获取成功! 响应: %s", string(resp.Body()))
+		t.Logf("  获取成功! 响应: %s", string(getResp.Body()))
+		// 验证获取的值是否与设置的值一致
+		responseBody := string(getResp.Body())
+		if responseBody != cacheValue {
+			t.Errorf("缓存值不匹配: 期望 %q, 实际 %q", cacheValue, responseBody)
+		}
 	}
 
 	// 测试 3: 删除缓存
 	t.Log("\n测试 3: 删除缓存")
-	resp, err = c.R().Delete("/api/cache/" + cacheKey)
+	delResp, err := c.R().Delete("/api/cache/" + cacheKey)
 	if err != nil {
 		t.Fatalf("删除缓存请求失败: %v", err)
 	}
-	if resp.IsError() {
-		t.Logf("  删除缓存失败 (可能需要认证): 状态码 %d", resp.StatusCode())
+	if delResp.IsError() {
+		t.Errorf("删除缓存失败: 状态码 %d", delResp.StatusCode())
 	} else {
 		t.Logf("  删除成功!")
+	}
+
+	// 测试 4: 验证删除后获取缓存应该失败
+	t.Log("\n测试 4: 验证删除后缓存不存在")
+	verifyResp, err := c.R().Get("/api/cache/" + cacheKey)
+	if err != nil {
+		t.Fatalf("验证缓存请求失败: %v", err)
+	}
+	if !verifyResp.IsError() {
+		t.Errorf("删除后仍能获取缓存，期望失败但成功了")
+	} else {
+		t.Logf("  验证通过: 删除后无法获取缓存 (状态码 %d)", verifyResp.StatusCode())
 	}
 
 	t.Log("\n缓存操作测试完成!")

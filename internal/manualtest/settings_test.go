@@ -30,17 +30,28 @@ func TestSettingsFlow(t *testing.T) {
 	}
 	t.Log("  登录成功")
 
+	// 用于清理的变量
+	var settingKey string
+
+	// 确保测试结束时清理资源
+	t.Cleanup(func() {
+		if settingKey != "" {
+			_ = c.Delete("/api/admin/settings/" + settingKey)
+		}
+	})
+
 	// 测试 1: 获取设置列表
 	t.Log("\n测试 1: 获取设置列表")
 	settings, err := helper.Get[[]setting.SettingDTO](c, "/api/admin/settings", nil)
 	if err != nil {
 		t.Fatalf("获取设置列表失败: %v", err)
 	}
-	t.Logf("  设置数量: %d", len(*settings))
+	initialCount := len(*settings)
+	t.Logf("  设置数量: %d", initialCount)
 
 	// 测试 2: 创建设置
 	t.Log("\n测试 2: 创建设置")
-	settingKey := fmt.Sprintf("test_setting_%d", time.Now().Unix())
+	settingKey = fmt.Sprintf("test_setting_%d", time.Now().Unix())
 	createReq := handler.CreateSettingRequest{
 		Key:       settingKey,
 		Value:     "test_value",
@@ -54,13 +65,36 @@ func TestSettingsFlow(t *testing.T) {
 	if err != nil {
 		t.Fatalf("创建设置失败: %v", err)
 	}
+
+	// 验证创建结果（Create API 只返回 ID，完整字段在 Get 时验证）
+	if created.ID == 0 {
+		t.Fatal("创建设置后 ID 不应为 0")
+	}
 	t.Logf("  创建成功! 设置 ID: %d", created.ID)
 
-	// 测试 3: 获取单个设置
-	t.Log("\n测试 3: 获取单个设置")
+	// 测试 3: 获取单个设置并验证字段
+	t.Log("\n测试 3: 获取单个设置并验证字段")
 	detail, err := helper.Get[setting.SettingDTO](c, "/api/admin/settings/"+settingKey, nil)
 	if err != nil {
 		t.Fatalf("获取设置详情失败: %v", err)
+	}
+	if detail.ID != created.ID {
+		t.Errorf("详情 ID 不匹配: 期望 %d, 实际 %d", created.ID, detail.ID)
+	}
+	if detail.Key != settingKey {
+		t.Errorf("Key 不匹配: 期望 %q, 实际 %q", settingKey, detail.Key)
+	}
+	if detail.Value != "test_value" {
+		t.Errorf("Value 不匹配: 期望 %q, 实际 %q", "test_value", detail.Value)
+	}
+	if detail.Category != "test" {
+		t.Errorf("Category 不匹配: 期望 %q, 实际 %q", "test", detail.Category)
+	}
+	if detail.ValueType != "string" {
+		t.Errorf("ValueType 不匹配: 期望 %q, 实际 %q", "string", detail.ValueType)
+	}
+	if detail.Label != "测试设置" {
+		t.Errorf("Label 不匹配: 期望 %q, 实际 %q", "测试设置", detail.Label)
 	}
 	t.Logf("  Key: %s, Value: %s", detail.Key, detail.Value)
 	t.Logf("  Category: %s, Label: %s", detail.Category, detail.Label)
@@ -75,7 +109,23 @@ func TestSettingsFlow(t *testing.T) {
 	if err != nil {
 		t.Fatalf("更新设置失败: %v", err)
 	}
-	t.Logf("  更新成功! 新值: %s", updated.Value)
+	if updated.Value != "updated_value" {
+		t.Errorf("更新后 Value 不匹配: 期望 %q, 实际 %q", "updated_value", updated.Value)
+	}
+	if updated.Label != "更新后的测试设置" {
+		t.Errorf("更新后 Label 不匹配: 期望 %q, 实际 %q", "更新后的测试设置", updated.Label)
+	}
+	// 验证未更新的字段保持不变
+	if updated.Key != settingKey {
+		t.Errorf("未更新的 Key 不应改变: 期望 %q, 实际 %q", settingKey, updated.Key)
+	}
+	if updated.Category != "test" {
+		t.Errorf("未更新的 Category 不应改变: 期望 %q, 实际 %q", "test", updated.Category)
+	}
+	if updated.ValueType != "string" {
+		t.Errorf("未更新的 ValueType 不应改变: 期望 %q, 实际 %q", "string", updated.ValueType)
+	}
+	t.Logf("  更新成功! 新值: %s, 新标签: %s", updated.Value, updated.Label)
 
 	// 测试 5: 删除设置
 	t.Log("\n测试 5: 删除设置")
@@ -83,7 +133,17 @@ func TestSettingsFlow(t *testing.T) {
 	if err != nil {
 		t.Fatalf("删除设置失败: %v", err)
 	}
+	settingKey = "" // 已删除，清理时不需要再删
 	t.Log("  删除成功!")
+
+	// 测试 6: 验证删除后获取应失败
+	t.Log("\n测试 6: 验证删除后获取应返回 404")
+	_, err = helper.Get[setting.SettingDTO](c, "/api/admin/settings/"+createReq.Key, nil)
+	if err == nil {
+		t.Error("删除后获取应返回错误")
+	} else {
+		t.Logf("  正确返回错误: %v", err)
+	}
 
 	t.Log("\n系统设置流程测试完成!")
 }

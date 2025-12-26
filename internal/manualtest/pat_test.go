@@ -53,6 +53,18 @@ func TestPATFlow(t *testing.T) {
 	if err != nil {
 		t.Fatalf("创建 PAT 失败: %v", err)
 	}
+	if created.Token.ID == 0 {
+		t.Fatal("创建的 PAT ID 为 0")
+	}
+	if created.PlainToken == "" {
+		t.Fatal("未返回明文令牌")
+	}
+	if created.Token.Name != tokenName {
+		t.Errorf("Token 名称不匹配，期望 %s，实际 %s", tokenName, created.Token.Name)
+	}
+	if created.Token.Status != "active" {
+		t.Errorf("期望初始状态为 active，实际为 %s", created.Token.Status)
+	}
 	t.Logf("  创建成功! PAT ID: %d", created.Token.ID)
 	t.Logf("  明文令牌: %s... (仅显示一次)", created.PlainToken[:20])
 	t.Logf("  状态: %s", created.Token.Status)
@@ -64,6 +76,15 @@ func TestPATFlow(t *testing.T) {
 	detail, err := helper.Get[pat.TokenDTO](c, fmt.Sprintf("/api/user/tokens/%d", tokenID), nil)
 	if err != nil {
 		t.Fatalf("获取 PAT 详情失败: %v", err)
+	}
+	if detail.ID != tokenID {
+		t.Errorf("Token ID 不匹配，期望 %d，实际 %d", tokenID, detail.ID)
+	}
+	if detail.Name != tokenName {
+		t.Errorf("Token 名称不匹配，期望 %s，实际 %s", tokenName, detail.Name)
+	}
+	if len(detail.Permissions) == 0 {
+		t.Error("权限列表为空")
 	}
 	t.Logf("  名称: %s", detail.Name)
 	t.Logf("  前缀: %s", detail.TokenPrefix)
@@ -89,6 +110,9 @@ func TestPATFlow(t *testing.T) {
 	if err != nil {
 		t.Fatalf("获取 PAT 详情失败: %v", err)
 	}
+	if disabled.Status != "disabled" {
+		t.Errorf("期望状态为 disabled，实际为: %s", disabled.Status)
+	}
 	t.Logf("  当前状态: %s", disabled.Status)
 
 	// 测试 5: 启用 PAT
@@ -106,6 +130,9 @@ func TestPATFlow(t *testing.T) {
 	enabled, err := helper.Get[pat.TokenDTO](c, fmt.Sprintf("/api/user/tokens/%d", tokenID), nil)
 	if err != nil {
 		t.Fatalf("获取 PAT 详情失败: %v", err)
+	}
+	if enabled.Status != "active" {
+		t.Errorf("期望状态为 active，实际为: %s", enabled.Status)
 	}
 	t.Logf("  当前状态: %s", enabled.Status)
 
@@ -188,15 +215,19 @@ func TestPATWithPermissions(t *testing.T) {
 	if err != nil {
 		t.Fatalf("创建 PAT 失败: %v", err)
 	}
+	if created.Token.ID == 0 {
+		t.Fatal("创建的 PAT ID 为 0")
+	}
+	if len(created.Token.Permissions) != 2 {
+		t.Errorf("期望权限数量为 2，实际为 %d", len(created.Token.Permissions))
+	}
 	t.Logf("  创建成功! PAT ID: %d", created.Token.ID)
 	t.Logf("  权限: %v", created.Token.Permissions)
 
-	// 清理
-	t.Log("\n清理测试 PAT...")
-	err = c.Delete(fmt.Sprintf("/api/user/tokens/%d", created.Token.ID))
-	if err != nil {
-		t.Logf("  警告：删除失败: %v", err)
-	} else {
-		t.Log("  清理完成")
-	}
+	// 确保清理
+	t.Cleanup(func() {
+		if err := c.Delete(fmt.Sprintf("/api/user/tokens/%d", created.Token.ID)); err != nil {
+			t.Logf("清理 PAT 失败: %v", err)
+		}
+	})
 }

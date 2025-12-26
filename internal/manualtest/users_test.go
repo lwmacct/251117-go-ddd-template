@@ -60,6 +60,17 @@ func TestAdminUsersFlow(t *testing.T) {
 	testUserID = createResp.ID
 	t.Logf("  创建成功! 用户 ID: %d", createResp.ID)
 
+	// 验证创建的用户数据
+	if createResp.Username != createReq.Username {
+		t.Errorf("用户名不匹配: 期望 %s, 实际 %s", createReq.Username, createResp.Username)
+	}
+	if createResp.Email != createReq.Email {
+		t.Errorf("邮箱不匹配: 期望 %s, 实际 %s", createReq.Email, createResp.Email)
+	}
+	if createResp.FullName != createReq.FullName {
+		t.Errorf("全名不匹配: 期望 %s, 实际 %s", createReq.FullName, createResp.FullName)
+	}
+
 	// 测试 3: 获取用户详情
 	t.Log("\n测试 3: 获取用户详情")
 	userDetail, err := helper.Get[user.UserDTO](c, fmt.Sprintf("/api/admin/users/%d", testUserID), nil)
@@ -67,6 +78,14 @@ func TestAdminUsersFlow(t *testing.T) {
 		t.Fatalf("获取用户详情失败: %v", err)
 	}
 	t.Logf("  用户名: %s, 邮箱: %s", userDetail.Username, userDetail.Email)
+
+	// 验证用户详情
+	if userDetail.ID != testUserID {
+		t.Errorf("用户 ID 不匹配: 期望 %d, 实际 %d", testUserID, userDetail.ID)
+	}
+	if userDetail.Username != testUsername {
+		t.Errorf("用户名不匹配: 期望 %s, 实际 %s", testUsername, userDetail.Username)
+	}
 
 	// 测试 4: 更新用户
 	t.Log("\n测试 4: 更新用户")
@@ -79,6 +98,11 @@ func TestAdminUsersFlow(t *testing.T) {
 		t.Fatalf("更新用户失败: %v", err)
 	}
 	t.Logf("  更新成功! 全名: %s", updatedUser.FullName)
+
+	// 验证更新后的字段
+	if updatedUser.FullName != newFullName {
+		t.Errorf("全名未更新: 期望 %s, 实际 %s", newFullName, updatedUser.FullName)
+	}
 
 	// 测试 5: 删除用户
 	t.Log("\n测试 5: 删除用户")
@@ -179,6 +203,18 @@ func TestAssignRoles(t *testing.T) {
 	// 验证角色已分配
 	if len(assignResp.Roles) == 0 {
 		t.Fatal("角色分配失败，用户没有角色")
+	}
+
+	// 验证是否包含指定的角色 ID
+	foundRole := false
+	for _, r := range assignResp.Roles {
+		if r.ID == 2 {
+			foundRole = true
+			break
+		}
+	}
+	if !foundRole {
+		t.Error("未找到预期的角色 ID=2")
 	}
 
 	// 清理

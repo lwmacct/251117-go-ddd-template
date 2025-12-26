@@ -76,6 +76,13 @@ func TestTwoFAFlow(t *testing.T) {
 	testUserID := createResp.ID
 	t.Logf("  创建成功，用户 ID: %d", testUserID)
 
+	// 确保测试结束时清理资源
+	t.Cleanup(func() {
+		if delErr := adminClient.Delete(fmt.Sprintf("/api/admin/users/%d", testUserID)); delErr != nil {
+			t.Logf("清理测试用户失败: %v", delErr)
+		}
+	})
+
 	// 用测试用户登录
 	t.Log("步骤 2: 测试用户登录")
 	testClient := helper.NewClient()
@@ -94,11 +101,15 @@ func TestTwoFAFlow(t *testing.T) {
 	if setup.Secret == "" {
 		t.Fatal("2FA 密钥为空")
 	}
+	if setup.QRCodeURL == "" {
+		t.Fatal("二维码 URL 为空")
+	}
+	if setup.QRCodeImg == "" {
+		t.Fatal("二维码图片为空")
+	}
 	t.Logf("  密钥: %s", setup.Secret)
 	t.Logf("  二维码 URL: %s", setup.QRCodeURL[:50]+"...")
-	if setup.QRCodeImg != "" {
-		t.Log("  二维码图片: [已生成]")
-	}
+	t.Log("  二维码图片: [已生成]")
 
 	// 使用密钥生成 TOTP 代码
 	t.Log("步骤 4: 生成并验证 TOTP 代码")
@@ -113,6 +124,9 @@ func TestTwoFAFlow(t *testing.T) {
 	enableResp, err := helper.Post[twofa.EnableDTO](testClient, "/api/auth/2fa/verify", verifyReq)
 	if err != nil {
 		t.Fatalf("验证并启用 2FA 失败: %v", err)
+	}
+	if len(enableResp.RecoveryCodes) == 0 {
+		t.Error("应返回恢复码，但列表为空")
 	}
 	t.Logf("  2FA 启用成功!")
 	t.Logf("  恢复码数量: %d", len(enableResp.RecoveryCodes))
@@ -152,15 +166,6 @@ func TestTwoFAFlow(t *testing.T) {
 	}
 	t.Log("  验证：2FA 已禁用")
 
-	// 清理
-	t.Log("步骤 7: 清理测试用户")
-	err = adminClient.Delete(fmt.Sprintf("/api/admin/users/%d", testUserID))
-	if err != nil {
-		t.Logf("警告：无法删除测试用户: %v", err)
-	} else {
-		t.Log("  测试用户已删除")
-	}
-
 	t.Log("2FA 完整流程测试完成!")
 }
 
@@ -197,6 +202,13 @@ func TestSetup2FA(t *testing.T) {
 	testUserID := createResp.ID
 	t.Logf("  创建成功，用户 ID: %d", testUserID)
 
+	// 确保测试结束时清理资源
+	t.Cleanup(func() {
+		if delErr := adminClient.Delete(fmt.Sprintf("/api/admin/users/%d", testUserID)); delErr != nil {
+			t.Logf("清理测试用户失败: %v", delErr)
+		}
+	})
+
 	// 用测试用户登录
 	t.Log("步骤 2: 测试用户登录")
 	c := helper.NewClient()
@@ -226,15 +238,6 @@ func TestSetup2FA(t *testing.T) {
 	t.Logf("  密钥: %s", setup.Secret)
 	t.Logf("  二维码 URL 长度: %d", len(setup.QRCodeURL))
 	t.Logf("  二维码图片大小: %d bytes", len(setup.QRCodeImg))
-
-	// 清理
-	t.Log("步骤 4: 清理测试用户")
-	err = adminClient.Delete(fmt.Sprintf("/api/admin/users/%d", testUserID))
-	if err != nil {
-		t.Logf("警告：无法删除测试用户: %v", err)
-	} else {
-		t.Log("  测试用户已删除")
-	}
 }
 
 // TestDisable2FA 测试禁用 2FA。

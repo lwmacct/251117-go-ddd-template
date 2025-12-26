@@ -26,15 +26,25 @@ func TestLoginSuccess(t *testing.T) {
 		t.Fatalf("登录失败: %v", err)
 	}
 
+	// 验证关键字段
 	if resp.AccessToken == "" {
 		t.Fatal("登录成功但未返回 access_token")
+	}
+	if resp.RefreshToken == "" {
+		t.Fatal("登录成功但未返回 refresh_token")
+	}
+	if resp.User.UserID == 0 {
+		t.Fatal("登录成功但未返回有效用户 ID")
+	}
+	if resp.User.Username == "" {
+		t.Fatal("登录成功但未返回用户名")
 	}
 
 	t.Logf("登录成功!")
 	t.Logf("  Access Token: %s...", resp.AccessToken[:50])
-	if resp.User.UserID > 0 && resp.User.Username != "" {
-		t.Logf("  用户名: %s", resp.User.Username)
-	}
+	t.Logf("  Refresh Token: %s...", resp.RefreshToken[:50])
+	t.Logf("  用户 ID: %d", resp.User.UserID)
+	t.Logf("  用户名: %s", resp.User.Username)
 }
 
 // TestLoginWrongPassword 测试使用错误密码登录。
@@ -60,17 +70,12 @@ func TestLoginWrongPassword(t *testing.T) {
 		Captcha:   captcha.Code,
 	}
 
-	resp, err := c.LoginWithCaptcha(req)
-	if err != nil {
-		t.Logf("预期的登录失败: %v", err)
-		return
+	_, err = c.LoginWithCaptcha(req)
+	if err == nil {
+		t.Fatal("错误密码应该返回错误")
 	}
 
-	if resp.AccessToken != "" {
-		t.Fatal("错误密码不应该返回 token")
-	}
-
-	t.Log("错误密码被正确拒绝")
+	t.Logf("错误密码被正确拒绝: %v", err)
 }
 
 // TestLoginWrongCaptcha 测试使用错误验证码登录。
@@ -96,17 +101,12 @@ func TestLoginWrongCaptcha(t *testing.T) {
 		Captcha:   "0000",
 	}
 
-	resp, err := c.LoginWithCaptcha(req)
-	if err != nil {
-		t.Logf("预期的登录失败: %v", err)
-		return
+	_, err = c.LoginWithCaptcha(req)
+	if err == nil {
+		t.Fatal("错误验证码应该返回错误")
 	}
 
-	if resp.AccessToken != "" {
-		t.Fatal("错误验证码不应该返回 token")
-	}
-
-	t.Log("错误验证码被正确拒绝")
+	t.Logf("错误验证码被正确拒绝: %v", err)
 }
 
 // TestGetCaptcha 测试获取验证码。
@@ -238,6 +238,64 @@ func TestRegister(t *testing.T) {
 	}
 }
 
+// TestRegisterDuplicate 测试注册重复用户名。
+//
+// 手动运行:
+//
+//	MANUAL=1 go test -v -run TestRegisterDuplicate ./internal/manualtest/
+func TestRegisterDuplicate(t *testing.T) {
+	helper.SkipIfNotManual(t)
+
+	c := helper.NewClient()
+
+	// 生成唯一用户名
+	testUsername := fmt.Sprintf("dupuser_%d", time.Now().Unix())
+	testEmail := testUsername + "@example.com"
+
+	t.Log("步骤 1: 注册第一个用户")
+	registerReq := auth.RegisterDTO{
+		Username: testUsername,
+		Email:    testEmail,
+		Password: "password123",
+		FullName: "重复测试用户",
+	}
+
+	firstResp, err := helper.Post[auth.RegisterResultDTO](c, "/api/auth/register", registerReq)
+	if err != nil {
+		t.Fatalf("首次注册失败: %v", err)
+	}
+	t.Logf("  首次注册成功，用户 ID: %d", firstResp.UserID)
+
+	t.Log("步骤 2: 尝试注册同名用户")
+	duplicateReq := auth.RegisterDTO{
+		Username: testUsername, // 相同用户名
+		Email:    "another@example.com",
+		Password: "password456",
+		FullName: "重复测试用户2",
+	}
+
+	_, err = helper.Post[auth.RegisterResultDTO](c, "/api/auth/register", duplicateReq)
+	if err == nil {
+		t.Fatal("重复用户名应该返回错误")
+	}
+	t.Logf("  重复用户名被正确拒绝: %v", err)
+
+	// 清理
+	t.Log("步骤 3: 清理测试用户")
+	adminClient := helper.NewClient()
+	_, err = adminClient.Login("admin", "admin123")
+	if err != nil {
+		t.Logf("警告：无法登录管理员账户: %v", err)
+		return
+	}
+	err = adminClient.Delete(fmt.Sprintf("/api/admin/users/%d", firstResp.UserID))
+	if err != nil {
+		t.Logf("警告：无法删除测试用户: %v", err)
+	} else {
+		t.Log("  测试用户已删除")
+	}
+}
+
 // TestRefreshToken 测试刷新访问令牌。
 //
 // 手动运行:
@@ -276,6 +334,29 @@ func TestRefreshToken(t *testing.T) {
 	t.Logf("  新 Access Token: %s...", newTokens.AccessToken[:50])
 	t.Logf("  Token 类型: %s", newTokens.TokenType)
 	t.Logf("  过期时间: %d 秒", newTokens.ExpiresIn)
+}
+
+// TestRefreshTokenInvalid 测试使用无效的 refresh token。
+//
+// 手动运行:
+//
+//	MANUAL=1 go test -v -run TestRefreshTokenInvalid ./internal/manualtest/
+func TestRefreshTokenInvalid(t *testing.T) {
+	helper.SkipIfNotManual(t)
+
+	c := helper.NewClient()
+
+	t.Log("使用无效的 refresh_token 刷新")
+	refreshReq := auth.RefreshTokenDTO{
+		RefreshToken: "invalid_token_string",
+	}
+
+	_, err := helper.Post[auth.RefreshTokenResultDTO](c, "/api/auth/refresh", refreshReq)
+	if err == nil {
+		t.Fatal("无效的 refresh_token 应该返回错误")
+	}
+
+	t.Logf("无效 token 被正确拒绝: %v", err)
 }
 
 // TestGetCurrentUser 测试获取当前登录用户信息。
