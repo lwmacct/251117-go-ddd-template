@@ -33,29 +33,3 @@ features:
     title: 生产就绪
     details: Docker 支持，优雅关闭，健康检查，连接池管理，开发热重载
 ---
-
-## 技术栈
-
-- **框架**: Gin (HTTP 服务器)
-- **数据库**: PostgreSQL + GORM
-- **缓存**: Redis
-- **认证**: JWT (golang-jwt/jwt/v5)
-- **配置**: Koanf
-- **CLI**: urfave/cli v3
-- **容器**: Docker & Docker Compose
-
-## 项目特性
-
-- ✅ DDD 四层架构 (Adapters → Application → Domain ← Infrastructure)
-- ✅ CQRS 模式 (CommandRepository / QueryRepository)
-- ✅ Use Case Pattern (业务编排集中在 Application 层)
-- ✅ 富领域模型 (业务逻辑封装在 Domain 实体中)
-- ✅ 依赖注入容器
-- ✅ 用户认证授权 (JWT + PAT 双重认证)
-- ✅ RBAC 权限系统 (三段式细粒度权限)
-- ✅ 数据库迁移 (PostgreSQL + GORM)
-- ✅ Redis 缓存 (查询优化 + 分布式锁)
-- ✅ 审计日志系统
-- ✅ 健康检查
-- ✅ 优雅关闭
-- ✅ 开发热重载
