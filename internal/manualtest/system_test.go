@@ -3,6 +3,7 @@ package manualtest
 import (
 	"testing"
 
+	"github.com/lwmacct/251117-go-ddd-template/internal/application/cache"
 	"github.com/lwmacct/251117-go-ddd-template/internal/application/stats"
 	"github.com/lwmacct/251117-go-ddd-template/internal/manualtest/helper"
 )
@@ -92,59 +93,50 @@ func TestCacheOperations(t *testing.T) {
 	cacheKey := "test_cache_key"
 	cacheValue := "test_cache_value"
 
-	// 测试 1: 设置缓存
+	// 测试 1: 设置缓存（POST /api/cache，body 包含 key/value/ttl）
 	t.Log("测试 1: 设置缓存")
-	setResp, err := c.R().
-		SetBody(map[string]string{"value": cacheValue}).
-		Post("/api/cache/" + cacheKey)
+	setResult, err := helper.Post[cache.SetCacheResultDTO](c, "/api/cache", cache.SetCacheDTO{
+		Key:   cacheKey,
+		Value: cacheValue,
+		TTL:   60,
+	})
 	if err != nil {
-		t.Fatalf("设置缓存请求失败: %v", err)
-	}
-	if setResp.IsError() {
-		t.Skipf("设置缓存失败 (可能需要认证或功能未开启): 状态码 %d", setResp.StatusCode())
+		t.Skipf("设置缓存失败 (可能功能未开启): %v", err)
 		return
 	}
-	t.Logf("  设置成功!")
-
-	// 测试 2: 获取缓存
-	t.Log("\n测试 2: 获取缓存")
-	getResp, err := c.R().Get("/api/cache/" + cacheKey)
-	if err != nil {
-		t.Fatalf("获取缓存请求失败: %v", err)
+	if setResult.Key != cacheKey {
+		t.Errorf("返回的 Key 不匹配: 期望 %q, 实际 %q", cacheKey, setResult.Key)
 	}
-	if getResp.IsError() {
-		t.Errorf("获取缓存失败: 状态码 %d", getResp.StatusCode())
+	t.Logf("  设置成功! Key=%s, TTL=%d", setResult.Key, setResult.TTL)
+
+	// 测试 2: 获取缓存（GET /api/cache/:key）
+	t.Log("\n测试 2: 获取缓存")
+	getResult, err := helper.Get[cache.GetCacheResultDTO](c, "/api/cache/"+cacheKey, nil)
+	if err != nil {
+		t.Errorf("获取缓存失败: %v", err)
 	} else {
-		t.Logf("  获取成功! 响应: %s", string(getResp.Body()))
+		t.Logf("  获取成功! Key=%s, Value=%v", getResult.Key, getResult.Value)
 		// 验证获取的值是否与设置的值一致
-		responseBody := string(getResp.Body())
-		if responseBody != cacheValue {
-			t.Errorf("缓存值不匹配: 期望 %q, 实际 %q", cacheValue, responseBody)
+		if getResult.Value != cacheValue {
+			t.Errorf("缓存值不匹配: 期望 %q, 实际 %v", cacheValue, getResult.Value)
 		}
 	}
 
-	// 测试 3: 删除缓存
+	// 测试 3: 删除缓存（DELETE /api/cache/:key）
 	t.Log("\n测试 3: 删除缓存")
-	delResp, err := c.R().Delete("/api/cache/" + cacheKey)
-	if err != nil {
-		t.Fatalf("删除缓存请求失败: %v", err)
-	}
-	if delResp.IsError() {
-		t.Errorf("删除缓存失败: 状态码 %d", delResp.StatusCode())
+	if delErr := c.Delete("/api/cache/" + cacheKey); delErr != nil {
+		t.Errorf("删除缓存失败: %v", delErr)
 	} else {
 		t.Logf("  删除成功!")
 	}
 
 	// 测试 4: 验证删除后获取缓存应该失败
 	t.Log("\n测试 4: 验证删除后缓存不存在")
-	verifyResp, err := c.R().Get("/api/cache/" + cacheKey)
-	if err != nil {
-		t.Fatalf("验证缓存请求失败: %v", err)
-	}
-	if !verifyResp.IsError() {
+	_, err = helper.Get[cache.GetCacheResultDTO](c, "/api/cache/"+cacheKey, nil)
+	if err == nil {
 		t.Errorf("删除后仍能获取缓存，期望失败但成功了")
 	} else {
-		t.Logf("  验证通过: 删除后无法获取缓存 (状态码 %d)", verifyResp.StatusCode())
+		t.Logf("  验证通过: 删除后无法获取缓存")
 	}
 
 	t.Log("\n缓存操作测试完成!")
