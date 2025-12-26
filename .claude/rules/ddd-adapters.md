@@ -9,13 +9,14 @@ paths:
 
 ## Table of Contents
 
-- [核心原则](#核心原则) `:22+4`
-- [文件命名规范](#文件命名规范) `:26+9`
-- [禁止事项](#禁止事项) `:35+6`
-- [HTTP Handler 规范](#http-handler-规范) `:41+23`
-- [Handler 方法规范](#handler-方法规范) `:64+41`
-- [统一响应格式](#统一响应格式) `:105+12`
-- [目录结构示例](#目录结构示例) `:117+16`
+- [核心原则](#核心原则) `:23+4`
+- [文件命名规范](#文件命名规范) `:27+9`
+- [禁止事项](#禁止事项) `:36+6`
+- [HTTP Handler 规范](#http-handler-规范) `:42+23`
+- [Handler 方法规范](#handler-方法规范) `:65+41`
+- [统一响应格式](#统一响应格式) `:106+14`
+- [Query 参数结构体](#query-参数结构体) `:120+28`
+- [目录结构示例](#目录结构示例) `:148+16`
 
 <!--TOC-->
 
@@ -104,14 +105,44 @@ func (h *XxxHandler) Get(c *gin.Context) {
 
 ## 统一响应格式
 
-使用 `adapters/http/response` 包：
+**所有 API 必须使用 `response/` 包，禁止 `c.JSON()` 或 `gin.H{}`**
 
 ```go
-// 成功响应
-response.Success(c, http.StatusOK, "Success", data)
+// 正确
+response.OK(c, "success", userDTO)
+response.Created(c, "created", result)
+response.List(c, "success", items, response.NewPaginationMeta(total, page, limit))
 
-// 错误响应
-response.Error(c, http.StatusBadRequest, "Invalid request", err)
+// 禁止
+c.JSON(200, gin.H{"user": dto})
+```
+
+## Query 参数结构体
+
+Query 参数结构体应**内联定义**在对应的 Handler 文件中，遵循就近原则：
+
+```go
+// handler/auditlog.go
+
+// ListAuditLogsQuery 审计日志列表查询参数
+type ListAuditLogsQuery struct {
+    response.PaginationQueryDTO  // 嵌入通用分页参数
+
+    // UserID 按用户 ID 过滤
+    UserID *uint `form:"user_id" json:"user_id" binding:"omitempty,gt=0"`
+    // Action 操作类型过滤
+    Action string `form:"action" json:"action" binding:"omitempty,oneof=create update delete" enums:"create,update,delete"`
+}
+
+// ToQuery 转换为 Application 层 Query 对象
+func (q *ListAuditLogsQuery) ToQuery() auditlog.ListLogsQuery {
+    return auditlog.ListLogsQuery{
+        Page:   q.GetPage(),
+        Limit:  q.GetLimit(),
+        UserID: q.UserID,
+        Action: q.Action,
+    }
+}
 ```
 
 ## 目录结构示例
