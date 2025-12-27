@@ -6,6 +6,8 @@ import (
 	"time"
 
 	"github.com/pquerna/otp/totp"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 
 	"github.com/lwmacct/251117-go-ddd-template/internal/adapters/http/response"
 	"github.com/lwmacct/251117-go-ddd-template/internal/application/auth"
@@ -20,22 +22,11 @@ import (
 //
 //	MANUAL=1 go test -v -run TestGetTwoFAStatus ./internal/manualtest/
 func TestGetTwoFAStatus(t *testing.T) {
-	helper.SkipIfNotManual(t)
+	c := helper.LoginAsAdmin(t)
 
-	c := helper.NewClient()
-
-	t.Log("步骤 1: 登录")
-	_, err := c.Login("admin", "admin123")
-	if err != nil {
-		t.Fatalf("登录失败: %v", err)
-	}
-	t.Log("  登录成功")
-
-	t.Log("步骤 2: 获取 2FA 状态")
+	t.Log("获取 2FA 状态")
 	status, err := helper.Get[twofa.StatusDTO](c, "/api/auth/2fa/status", nil)
-	if err != nil {
-		t.Fatalf("获取 2FA 状态失败: %v", err)
-	}
+	require.NoError(t, err, "获取 2FA 状态失败")
 
 	t.Logf("2FA 状态获取成功!")
 	t.Logf("  启用状态: %v", status.Enabled)
@@ -48,14 +39,7 @@ func TestGetTwoFAStatus(t *testing.T) {
 //
 //	MANUAL=1 go test -v -run TestTwoFAFlow ./internal/manualtest/
 func TestTwoFAFlow(t *testing.T) {
-	helper.SkipIfNotManual(t)
-
-	// 创建测试用户
-	adminClient := helper.NewClient()
-	_, err := adminClient.Login("admin", "admin123")
-	if err != nil {
-		t.Fatalf("管理员登录失败: %v", err)
-	}
+	adminClient := helper.LoginAsAdmin(t)
 
 	testUsername := fmt.Sprintf("twofa_test_%d", time.Now().Unix())
 	testPassword := "password123"
@@ -70,9 +54,7 @@ func TestTwoFAFlow(t *testing.T) {
 	}
 
 	createResp, err := helper.Post[user.UserWithRolesDTO](adminClient, "/api/admin/users", createReq)
-	if err != nil {
-		t.Fatalf("创建测试用户失败: %v", err)
-	}
+	require.NoError(t, err, "创建测试用户失败")
 	testUserID := createResp.ID
 	t.Logf("  创建成功，用户 ID: %d", testUserID)
 
@@ -85,49 +67,31 @@ func TestTwoFAFlow(t *testing.T) {
 
 	// 用测试用户登录
 	t.Log("步骤 2: 测试用户登录")
-	testClient := helper.NewClient()
-	_, err = testClient.Login(testUsername, testPassword)
-	if err != nil {
-		t.Fatalf("测试用户登录失败: %v", err)
-	}
+	testClient := helper.LoginAs(t, testUsername, testPassword)
 	t.Log("  登录成功")
 
 	// 设置 2FA
 	t.Log("步骤 3: 设置 2FA")
 	setup, err := helper.Post[twofa.SetupDTO](testClient, "/api/auth/2fa/setup", nil)
-	if err != nil {
-		t.Fatalf("设置 2FA 失败: %v", err)
-	}
-	if setup.Secret == "" {
-		t.Fatal("2FA 密钥为空")
-	}
-	if setup.QRCodeURL == "" {
-		t.Fatal("二维码 URL 为空")
-	}
-	if setup.QRCodeImg == "" {
-		t.Fatal("二维码图片为空")
-	}
+	require.NoError(t, err, "设置 2FA 失败")
+	require.NotEmpty(t, setup.Secret, "2FA 密钥为空")
+	require.NotEmpty(t, setup.QRCodeURL, "二维码 URL 为空")
+	require.NotEmpty(t, setup.QRCodeImg, "二维码图片为空")
 	t.Logf("  密钥: %s", setup.Secret)
-	t.Logf("  二维码 URL: %s", setup.QRCodeURL[:50]+"...")
+	t.Logf("  二维码 URL: %s...", setup.QRCodeURL[:50])
 	t.Log("  二维码图片: [已生成]")
 
 	// 使用密钥生成 TOTP 代码
 	t.Log("步骤 4: 生成并验证 TOTP 代码")
 	code, err := totp.GenerateCode(setup.Secret, time.Now())
-	if err != nil {
-		t.Fatalf("生成 TOTP 代码失败: %v", err)
-	}
+	require.NoError(t, err, "生成 TOTP 代码失败")
 	t.Logf("  生成的 TOTP 代码: %s", code)
 
 	// 验证并启用 2FA
 	verifyReq := map[string]string{"code": code}
 	enableResp, err := helper.Post[twofa.EnableDTO](testClient, "/api/auth/2fa/verify", verifyReq)
-	if err != nil {
-		t.Fatalf("验证并启用 2FA 失败: %v", err)
-	}
-	if len(enableResp.RecoveryCodes) == 0 {
-		t.Error("应返回恢复码，但列表为空")
-	}
+	require.NoError(t, err, "验证并启用 2FA 失败")
+	assert.NotEmpty(t, enableResp.RecoveryCodes, "应返回恢复码，但列表为空")
 	t.Logf("  2FA 启用成功!")
 	t.Logf("  恢复码数量: %d", len(enableResp.RecoveryCodes))
 	if len(enableResp.RecoveryCodes) > 0 {
@@ -137,33 +101,21 @@ func TestTwoFAFlow(t *testing.T) {
 	// 检查 2FA 状态
 	t.Log("步骤 5: 检查 2FA 状态")
 	status, err := helper.Get[twofa.StatusDTO](testClient, "/api/auth/2fa/status", nil)
-	if err != nil {
-		t.Fatalf("获取 2FA 状态失败: %v", err)
-	}
-	if !status.Enabled {
-		t.Fatal("2FA 应该已启用")
-	}
+	require.NoError(t, err, "获取 2FA 状态失败")
+	require.True(t, status.Enabled, "2FA 应该已启用")
 	t.Logf("  2FA 已启用，剩余恢复码: %d", status.RecoveryCodesCount)
 
 	// 禁用 2FA
 	t.Log("步骤 6: 禁用 2FA")
 	resp, err := testClient.R().Post("/api/auth/2fa/disable")
-	if err != nil {
-		t.Fatalf("禁用 2FA 请求失败: %v", err)
-	}
-	if resp.IsError() {
-		t.Fatalf("禁用 2FA 失败，状态码: %d", resp.StatusCode())
-	}
+	require.NoError(t, err, "禁用 2FA 请求失败")
+	require.False(t, resp.IsError(), "禁用 2FA 失败，状态码: %d", resp.StatusCode())
 	t.Log("  2FA 已禁用")
 
 	// 验证 2FA 已禁用
 	status2, err := helper.Get[twofa.StatusDTO](testClient, "/api/auth/2fa/status", nil)
-	if err != nil {
-		t.Fatalf("获取 2FA 状态失败: %v", err)
-	}
-	if status2.Enabled {
-		t.Fatal("2FA 应该已禁用")
-	}
+	require.NoError(t, err, "获取 2FA 状态失败")
+	require.False(t, status2.Enabled, "2FA 应该已禁用")
 	t.Log("  验证：2FA 已禁用")
 
 	t.Log("2FA 完整流程测试完成!")
@@ -175,14 +127,7 @@ func TestTwoFAFlow(t *testing.T) {
 //
 //	MANUAL=1 go test -v -run TestSetup2FA ./internal/manualtest/
 func TestSetup2FA(t *testing.T) {
-	helper.SkipIfNotManual(t)
-
-	// 创建测试用户
-	adminClient := helper.NewClient()
-	_, err := adminClient.Login("admin", "admin123")
-	if err != nil {
-		t.Fatalf("管理员登录失败: %v", err)
-	}
+	adminClient := helper.LoginAsAdmin(t)
 
 	testUsername := fmt.Sprintf("setup2fa_%d", time.Now().Unix())
 
@@ -196,9 +141,7 @@ func TestSetup2FA(t *testing.T) {
 	}
 
 	createResp, err := helper.Post[user.UserWithRolesDTO](adminClient, "/api/admin/users", createReq)
-	if err != nil {
-		t.Fatalf("创建测试用户失败: %v", err)
-	}
+	require.NoError(t, err, "创建测试用户失败")
 	testUserID := createResp.ID
 	t.Logf("  创建成功，用户 ID: %d", testUserID)
 
@@ -211,28 +154,16 @@ func TestSetup2FA(t *testing.T) {
 
 	// 用测试用户登录
 	t.Log("步骤 2: 测试用户登录")
-	c := helper.NewClient()
-	_, err = c.Login(testUsername, "password123")
-	if err != nil {
-		t.Fatalf("测试用户登录失败: %v", err)
-	}
+	c := helper.LoginAs(t, testUsername, "password123")
 	t.Log("  登录成功")
 
 	t.Log("步骤 3: 设置 2FA")
 	setup, err := helper.Post[twofa.SetupDTO](c, "/api/auth/2fa/setup", nil)
-	if err != nil {
-		t.Fatalf("设置 2FA 失败: %v", err)
-	}
+	require.NoError(t, err, "设置 2FA 失败")
 
-	if setup.Secret == "" {
-		t.Fatal("2FA 密钥为空")
-	}
-	if setup.QRCodeURL == "" {
-		t.Fatal("二维码 URL 为空")
-	}
-	if setup.QRCodeImg == "" {
-		t.Fatal("二维码图片为空")
-	}
+	require.NotEmpty(t, setup.Secret, "2FA 密钥为空")
+	require.NotEmpty(t, setup.QRCodeURL, "二维码 URL 为空")
+	require.NotEmpty(t, setup.QRCodeImg, "二维码图片为空")
 
 	t.Logf("2FA 设置成功!")
 	t.Logf("  密钥: %s", setup.Secret)
@@ -246,22 +177,11 @@ func TestSetup2FA(t *testing.T) {
 //
 //	MANUAL=1 go test -v -run TestDisable2FA ./internal/manualtest/
 func TestDisable2FA(t *testing.T) {
-	helper.SkipIfNotManual(t)
+	c := helper.LoginAsAdmin(t)
 
-	c := helper.NewClient()
-
-	t.Log("步骤 1: 登录")
-	_, err := c.Login("admin", "admin123")
-	if err != nil {
-		t.Fatalf("登录失败: %v", err)
-	}
-	t.Log("  登录成功")
-
-	t.Log("步骤 2: 禁用 2FA")
+	t.Log("禁用 2FA")
 	resp, err := c.R().Post("/api/auth/2fa/disable")
-	if err != nil {
-		t.Fatalf("禁用 2FA 请求失败: %v", err)
-	}
+	require.NoError(t, err, "禁用 2FA 请求失败")
 
 	// 即使 2FA 未启用，禁用也应该成功（幂等操作）
 	if resp.IsError() {
@@ -271,11 +191,9 @@ func TestDisable2FA(t *testing.T) {
 	}
 
 	// 检查状态
-	t.Log("步骤 3: 检查 2FA 状态")
+	t.Log("检查 2FA 状态")
 	status, err := helper.Get[twofa.StatusDTO](c, "/api/auth/2fa/status", nil)
-	if err != nil {
-		t.Fatalf("获取 2FA 状态失败: %v", err)
-	}
+	require.NoError(t, err, "获取 2FA 状态失败")
 
 	t.Logf("  2FA 状态: 启用=%v, 恢复码=%d", status.Enabled, status.RecoveryCodesCount)
 }
@@ -286,14 +204,7 @@ func TestDisable2FA(t *testing.T) {
 //
 //	MANUAL=1 go test -v -run TestLogin2FA ./internal/manualtest/
 func TestLogin2FA(t *testing.T) {
-	helper.SkipIfNotManual(t)
-
-	// 管理员创建测试用户
-	adminClient := helper.NewClient()
-	_, err := adminClient.Login("admin", "admin123")
-	if err != nil {
-		t.Fatalf("管理员登录失败: %v", err)
-	}
+	adminClient := helper.LoginAsAdmin(t)
 
 	testUsername := fmt.Sprintf("login2fa_%d", time.Now().Unix())
 	testPassword := "password123"
@@ -308,9 +219,7 @@ func TestLogin2FA(t *testing.T) {
 	}
 
 	createResp, err := helper.Post[user.UserWithRolesDTO](adminClient, "/api/admin/users", createReq)
-	if err != nil {
-		t.Fatalf("创建测试用户失败: %v", err)
-	}
+	require.NoError(t, err, "创建测试用户失败")
 	testUserID := createResp.ID
 	t.Logf("  创建成功，用户 ID: %d", testUserID)
 
@@ -321,30 +230,20 @@ func TestLogin2FA(t *testing.T) {
 
 	// 步骤 2: 测试用户登录并设置 2FA
 	t.Log("步骤 2: 测试用户登录并设置 2FA")
-	testClient := helper.NewClient()
-	_, err = testClient.Login(testUsername, testPassword)
-	if err != nil {
-		t.Fatalf("测试用户登录失败: %v", err)
-	}
+	testClient := helper.LoginAs(t, testUsername, testPassword)
 	t.Log("  登录成功")
 
 	// 设置 2FA
 	setup, err := helper.Post[twofa.SetupDTO](testClient, "/api/auth/2fa/setup", nil)
-	if err != nil {
-		t.Fatalf("设置 2FA 失败: %v", err)
-	}
+	require.NoError(t, err, "设置 2FA 失败")
 	t.Logf("  2FA 密钥: %s", setup.Secret)
 
 	// 生成 TOTP 代码并启用 2FA
 	code, err := totp.GenerateCode(setup.Secret, time.Now())
-	if err != nil {
-		t.Fatalf("生成 TOTP 代码失败: %v", err)
-	}
+	require.NoError(t, err, "生成 TOTP 代码失败")
 	verifyReq := map[string]string{"code": code}
 	_, err = helper.Post[twofa.EnableDTO](testClient, "/api/auth/2fa/verify", verifyReq)
-	if err != nil {
-		t.Fatalf("启用 2FA 失败: %v", err)
-	}
+	require.NoError(t, err, "启用 2FA 失败")
 	t.Log("  2FA 已启用")
 
 	// 步骤 3: 尝试再次登录（应返回 requires_2fa=true）
@@ -356,12 +255,9 @@ func TestLogin2FA(t *testing.T) {
 		t.Logf("  登录返回: %v（这可能是预期的 2FA 挑战）", err)
 	}
 
-	if loginResp == nil || !loginResp.Requires2FA {
-		t.Fatalf("预期返回 requires_2fa=true，但未返回")
-	}
-	if loginResp.SessionToken == "" {
-		t.Fatalf("预期返回 session_token，但为空")
-	}
+	require.NotNil(t, loginResp, "预期返回登录响应")
+	require.True(t, loginResp.Requires2FA, "预期返回 requires_2fa=true")
+	require.NotEmpty(t, loginResp.SessionToken, "预期返回 session_token")
 	t.Logf("  收到 2FA 挑战")
 	t.Logf("  Session Token: %s...", loginResp.SessionToken[:20])
 
@@ -369,9 +265,7 @@ func TestLogin2FA(t *testing.T) {
 	t.Log("步骤 4: 使用 2FA 完成登录")
 	// 生成新的 TOTP 代码
 	newCode, err := totp.GenerateCode(setup.Secret, time.Now())
-	if err != nil {
-		t.Fatalf("生成 TOTP 代码失败: %v", err)
-	}
+	require.NoError(t, err, "生成 TOTP 代码失败")
 	t.Logf("  TOTP 代码: %s", newCode)
 
 	login2FAReq := auth.Login2FADTO{
@@ -385,17 +279,11 @@ func TestLogin2FA(t *testing.T) {
 		SetBody(login2FAReq).
 		SetResult(&finalResult).
 		Post("/api/auth/login/2fa")
-	if err != nil {
-		t.Fatalf("2FA 登录请求失败: %v", err)
-	}
-	if resp.IsError() {
-		t.Fatalf("2FA 登录失败，状态码: %d, 响应: %s", resp.StatusCode(), resp.String())
-	}
+	require.NoError(t, err, "2FA 登录请求失败")
+	require.False(t, resp.IsError(), "2FA 登录失败，状态码: %d, 响应: %s", resp.StatusCode(), resp.String())
 
 	finalResp := &finalResult.Data
-	if finalResp.AccessToken == "" {
-		t.Fatal("2FA 登录后未返回 access_token")
-	}
+	require.NotEmpty(t, finalResp.AccessToken, "2FA 登录后未返回 access_token")
 	t.Log("  2FA 登录成功!")
 	t.Logf("  Access Token: %s...", finalResp.AccessToken[:30])
 	t.Logf("  用户名: %s", finalResp.User.Username)
@@ -404,12 +292,8 @@ func TestLogin2FA(t *testing.T) {
 	t.Log("步骤 5: 验证 token 可用")
 	newClient.SetToken(finalResp.AccessToken)
 	profile, err := helper.Get[user.UserWithRolesDTO](newClient, "/api/user/profile", nil)
-	if err != nil {
-		t.Fatalf("使用新 token 获取资料失败: %v", err)
-	}
-	if profile.Username != testUsername {
-		t.Errorf("用户名不匹配，期望 %s，实际 %s", testUsername, profile.Username)
-	}
+	require.NoError(t, err, "使用新 token 获取资料失败")
+	assert.Equal(t, testUsername, profile.Username, "用户名不匹配")
 	t.Logf("  Token 验证成功，用户: %s", profile.Username)
 
 	t.Log("\n2FA 登录测试完成!")

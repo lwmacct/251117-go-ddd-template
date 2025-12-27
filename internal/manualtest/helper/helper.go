@@ -4,6 +4,8 @@ package helper
 import (
 	"os"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 const (
@@ -30,4 +32,22 @@ func NewClient() *Client {
 		devSecret = DefaultDevSecret
 	}
 	return newClient(baseURL, devSecret)
+}
+
+// LoginAsAdmin 登录管理员账户，返回已认证的客户端。
+// 登录失败会导致测试立即失败。
+func LoginAsAdmin(t *testing.T) *Client {
+	t.Helper()
+	return LoginAs(t, "admin", "admin123")
+}
+
+// LoginAs 使用指定账户登录，返回已认证的客户端。
+// 登录失败会导致测试立即失败。
+func LoginAs(t *testing.T, account, password string) *Client {
+	t.Helper()
+	SkipIfNotManual(t)
+	c := NewClient()
+	_, err := c.Login(account, password)
+	require.NoError(t, err, "登录失败: account=%s", account)
+	return c
 }

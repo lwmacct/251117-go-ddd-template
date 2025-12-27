@@ -138,8 +138,8 @@ func (h *SettingHandler) CreateSetting(c *gin.Context) {
 		return
 	}
 
-	// 调用 Use Case Handler
-	result, err := h.createHandler.Handle(c.Request.Context(), setting.CreateCommand{
+	// 调用 Use Case Handler 创建配置
+	_, err := h.createHandler.Handle(c.Request.Context(), setting.CreateCommand{
 		Key:          req.Key,
 		DefaultValue: req.DefaultValue,
 		Category:     req.Category,
@@ -155,7 +155,16 @@ func (h *SettingHandler) CreateSetting(c *gin.Context) {
 		return
 	}
 
-	response.Created(c, "setting created successfully", result)
+	// 查询完整的配置信息返回
+	settingDTO, err := h.getHandler.Handle(c.Request.Context(), setting.GetQuery{
+		Key: req.Key,
+	})
+	if err != nil {
+		response.InternalError(c, err.Error())
+		return
+	}
+
+	response.Created(c, "setting created successfully", settingDTO)
 }
 
 // UpdateSettingRequest 更新配置请求

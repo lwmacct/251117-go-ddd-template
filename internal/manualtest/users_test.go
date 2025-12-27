@@ -5,6 +5,9 @@ import (
 	"testing"
 	"time"
 
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+
 	"github.com/lwmacct/251117-go-ddd-template/internal/application/user"
 	"github.com/lwmacct/251117-go-ddd-template/internal/manualtest/helper"
 )
@@ -15,18 +18,7 @@ import (
 //
 //	MANUAL=1 go test -v -run TestAdminUsersFlow ./internal/manualtest/
 func TestAdminUsersFlow(t *testing.T) {
-	helper.SkipIfNotManual(t)
-
-	c := helper.NewClient()
-
-	t.Log("准备工作: 登录管理员账户")
-	_, err := c.Login("admin", "admin123")
-	if err != nil {
-		t.Fatalf("登录失败: %v", err)
-	}
-	t.Log("  登录成功")
-
-	var testUserID uint
+	c := helper.LoginAsAdmin(t)
 
 	// 测试 1: 获取用户列表
 	t.Log("\n测试 1: 获取用户列表")
@@ -34,58 +26,29 @@ func TestAdminUsersFlow(t *testing.T) {
 		"page":  "1",
 		"limit": "10",
 	})
-	if err != nil {
-		t.Fatalf("获取用户列表失败: %v", err)
-	}
+	require.NoError(t, err, "获取用户列表失败")
 	t.Logf("  用户数量: %d", len(users))
 	if meta != nil {
 		t.Logf("  总数: %d", meta.Total)
 	}
 
-	// 测试 2: 创建用户
+	// 测试 2: 创建用户（使用工厂函数，返回清理控制）
 	t.Log("\n测试 2: 创建用户")
-	testUsername := fmt.Sprintf("testuser_%d", time.Now().Unix())
-	createReq := user.CreateDTO{
-		Username: testUsername,
-		Email:    testUsername + "@example.com",
-		Password: "password123",
-		FullName: "测试用户",
-	}
-	t.Logf("  创建用户: %s", createReq.Username)
-
-	createResp, err := helper.Post[user.UserWithRolesDTO](c, "/api/admin/users", createReq)
-	if err != nil {
-		t.Fatalf("创建用户失败: %v", err)
-	}
-	testUserID = createResp.ID
-	t.Logf("  创建成功! 用户 ID: %d", createResp.ID)
+	testUser, markDeleted := helper.CreateTestUserWithCleanupControl(t, c, "testuser")
+	t.Logf("  创建成功! 用户 ID: %d", testUser.ID)
 
 	// 验证创建的用户数据
-	if createResp.Username != createReq.Username {
-		t.Errorf("用户名不匹配: 期望 %s, 实际 %s", createReq.Username, createResp.Username)
-	}
-	if createResp.Email != createReq.Email {
-		t.Errorf("邮箱不匹配: 期望 %s, 实际 %s", createReq.Email, createResp.Email)
-	}
-	if createResp.FullName != createReq.FullName {
-		t.Errorf("全名不匹配: 期望 %s, 实际 %s", createReq.FullName, createResp.FullName)
-	}
+	assert.NotEmpty(t, testUser.Username, "用户名不应为空")
+	assert.NotEmpty(t, testUser.Email, "邮箱不应为空")
 
 	// 测试 3: 获取用户详情
 	t.Log("\n测试 3: 获取用户详情")
-	userDetail, err := helper.Get[user.UserDTO](c, fmt.Sprintf("/api/admin/users/%d", testUserID), nil)
-	if err != nil {
-		t.Fatalf("获取用户详情失败: %v", err)
-	}
+	userDetail, err := helper.Get[user.UserDTO](c, fmt.Sprintf("/api/admin/users/%d", testUser.ID), nil)
+	require.NoError(t, err, "获取用户详情失败")
 	t.Logf("  用户名: %s, 邮箱: %s", userDetail.Username, userDetail.Email)
 
 	// 验证用户详情
-	if userDetail.ID != testUserID {
-		t.Errorf("用户 ID 不匹配: 期望 %d, 实际 %d", testUserID, userDetail.ID)
-	}
-	if userDetail.Username != testUsername {
-		t.Errorf("用户名不匹配: 期望 %s, 实际 %s", testUsername, userDetail.Username)
-	}
+	assert.Equal(t, testUser.ID, userDetail.ID, "用户 ID 不匹配")
 
 	// 测试 4: 更新用户
 	t.Log("\n测试 4: 更新用户")
@@ -93,24 +56,21 @@ func TestAdminUsersFlow(t *testing.T) {
 	updateReq := user.UpdateDTO{
 		FullName: &newFullName,
 	}
-	updatedUser, err := helper.Put[user.UserDTO](c, fmt.Sprintf("/api/admin/users/%d", testUserID), updateReq)
-	if err != nil {
-		t.Fatalf("更新用户失败: %v", err)
-	}
+	updatedUser, err := helper.Put[user.UserDTO](c, fmt.Sprintf("/api/admin/users/%d", testUser.ID), updateReq)
+	require.NoError(t, err, "更新用户失败")
 	t.Logf("  更新成功! 全名: %s", updatedUser.FullName)
 
 	// 验证更新后的字段
-	if updatedUser.FullName != newFullName {
-		t.Errorf("全名未更新: 期望 %s, 实际 %s", newFullName, updatedUser.FullName)
-	}
+	assert.Equal(t, newFullName, updatedUser.FullName, "全名未更新")
 
 	// 测试 5: 删除用户
 	t.Log("\n测试 5: 删除用户")
-	err = c.Delete(fmt.Sprintf("/api/admin/users/%d", testUserID))
-	if err != nil {
-		t.Fatalf("删除用户失败: %v", err)
-	}
+	err = c.Delete(fmt.Sprintf("/api/admin/users/%d", testUser.ID))
+	require.NoError(t, err, "删除用户失败")
 	t.Log("  删除成功!")
+
+	// 标记已删除，避免 t.Cleanup 重复删除
+	markDeleted()
 
 	t.Log("\n用户管理流程测试完成!")
 }
@@ -121,23 +81,14 @@ func TestAdminUsersFlow(t *testing.T) {
 //
 //	MANUAL=1 go test -v -run TestListUsers ./internal/manualtest/
 func TestListUsers(t *testing.T) {
-	helper.SkipIfNotManual(t)
-
-	c := helper.NewClient()
-
-	_, err := c.Login("admin", "admin123")
-	if err != nil {
-		t.Fatalf("登录失败: %v", err)
-	}
+	c := helper.LoginAsAdmin(t)
 
 	t.Log("获取用户列表...")
 	users, meta, err := helper.GetList[user.UserDTO](c, "/api/admin/users", map[string]string{
 		"page":  "1",
 		"limit": "10",
 	})
-	if err != nil {
-		t.Fatalf("获取用户列表失败: %v", err)
-	}
+	require.NoError(t, err, "获取用户列表失败")
 
 	t.Logf("用户数量: %d", len(users))
 	if meta != nil {
@@ -155,33 +106,12 @@ func TestListUsers(t *testing.T) {
 //
 //	MANUAL=1 go test -v -run TestAssignRoles ./internal/manualtest/
 func TestAssignRoles(t *testing.T) {
-	helper.SkipIfNotManual(t)
-
-	c := helper.NewClient()
-
-	t.Log("准备工作: 登录管理员账户")
-	_, err := c.Login("admin", "admin123")
-	if err != nil {
-		t.Fatalf("登录失败: %v", err)
-	}
-	t.Log("  登录成功")
+	c := helper.LoginAsAdmin(t)
 
 	// 创建测试用户
 	t.Log("\n步骤 1: 创建测试用户")
-	testUsername := fmt.Sprintf("roletest_%d", time.Now().Unix())
-	createReq := user.CreateDTO{
-		Username: testUsername,
-		Email:    testUsername + "@example.com",
-		Password: "password123",
-		FullName: "角色测试用户",
-	}
-
-	createResp, err := helper.Post[user.UserWithRolesDTO](c, "/api/admin/users", createReq)
-	if err != nil {
-		t.Fatalf("创建用户失败: %v", err)
-	}
-	testUserID := createResp.ID
-	t.Logf("  创建成功! 用户 ID: %d", testUserID)
+	testUser := helper.CreateTestUser(t, c, "roletest")
+	t.Logf("  创建成功! 用户 ID: %d", testUser.ID)
 
 	// 分配角色（使用 user 角色 ID=2）
 	t.Log("\n步骤 2: 分配角色")
@@ -190,10 +120,8 @@ func TestAssignRoles(t *testing.T) {
 	}
 	t.Logf("  分配角色 IDs: %v", assignReq.RoleIDs)
 
-	assignResp, err := helper.Put[user.UserWithRolesDTO](c, fmt.Sprintf("/api/admin/users/%d/roles", testUserID), assignReq)
-	if err != nil {
-		t.Fatalf("分配角色失败: %v", err)
-	}
+	assignResp, err := helper.Put[user.UserWithRolesDTO](c, fmt.Sprintf("/api/admin/users/%d/roles", testUser.ID), assignReq)
+	require.NoError(t, err, "分配角色失败")
 
 	t.Logf("  分配成功! 用户现有角色数: %d", len(assignResp.Roles))
 	for _, r := range assignResp.Roles {
@@ -201,30 +129,11 @@ func TestAssignRoles(t *testing.T) {
 	}
 
 	// 验证角色已分配
-	if len(assignResp.Roles) == 0 {
-		t.Fatal("角色分配失败，用户没有角色")
-	}
+	require.NotEmpty(t, assignResp.Roles, "角色分配失败，用户没有角色")
 
-	// 验证是否包含指定的角色 ID
-	foundRole := false
-	for _, r := range assignResp.Roles {
-		if r.ID == 2 {
-			foundRole = true
-			break
-		}
-	}
-	if !foundRole {
-		t.Error("未找到预期的角色 ID=2")
-	}
-
-	// 清理
-	t.Log("\n步骤 3: 清理测试用户")
-	err = c.Delete(fmt.Sprintf("/api/admin/users/%d", testUserID))
-	if err != nil {
-		t.Logf("警告：无法删除测试用户: %v", err)
-	} else {
-		t.Log("  测试用户已删除")
-	}
+	// 使用 assert.Contains 验证是否包含指定的角色 ID
+	roleIDs := helper.ExtractIDs(assignResp.Roles, func(r user.RoleDTO) uint { return r.ID })
+	assert.Contains(t, roleIDs, uint(2), "未找到预期的角色 ID=2")
 
 	t.Log("\n角色分配测试完成!")
 }
@@ -235,16 +144,7 @@ func TestAssignRoles(t *testing.T) {
 //
 //	MANUAL=1 go test -v -run TestBatchCreateUsers ./internal/manualtest/
 func TestBatchCreateUsers(t *testing.T) {
-	helper.SkipIfNotManual(t)
-
-	c := helper.NewClient()
-
-	t.Log("准备工作: 登录管理员账户")
-	_, err := c.Login("admin", "admin123")
-	if err != nil {
-		t.Fatalf("登录失败: %v", err)
-	}
-	t.Log("  登录成功")
+	c := helper.LoginAsAdmin(t)
 
 	timestamp := time.Now().Unix()
 	username1 := fmt.Sprintf("batch1_%d", timestamp)
@@ -291,9 +191,7 @@ func TestBatchCreateUsers(t *testing.T) {
 	}
 
 	result, err := helper.Post[user.BatchCreateResultDTO](c, "/api/admin/users/batch", batchReq)
-	if err != nil {
-		t.Fatalf("批量创建请求失败: %v", err)
-	}
+	require.NoError(t, err, "批量创建请求失败")
 
 	t.Logf("\n批量创建结果:")
 	t.Logf("  总数: %d", result.Total)
@@ -302,15 +200,9 @@ func TestBatchCreateUsers(t *testing.T) {
 
 	// 步骤 2: 验证结果
 	t.Log("\n步骤 2: 验证结果")
-	if result.Total != 3 {
-		t.Errorf("总数应为 3，实际 %d", result.Total)
-	}
-	if result.Success != 2 {
-		t.Errorf("成功数应为 2，实际 %d", result.Success)
-	}
-	if result.Failed != 1 {
-		t.Errorf("失败数应为 1，实际 %d", result.Failed)
-	}
+	assert.Equal(t, 3, result.Total, "总数应为 3")
+	assert.Equal(t, 2, result.Success, "成功数应为 2")
+	assert.Equal(t, 1, result.Failed, "失败数应为 1")
 
 	// 验证错误详情
 	if len(result.Errors) > 0 {
@@ -323,20 +215,11 @@ func TestBatchCreateUsers(t *testing.T) {
 	// 步骤 3: 验证用户已创建
 	t.Log("\n步骤 3: 验证用户已创建")
 	users, _, _ := helper.GetList[user.UserWithRolesDTO](c, "/api/admin/users", nil)
-	found1, found2 := false, false
-	for _, u := range users {
-		if u.Username == username1 {
-			found1 = true
-			t.Logf("  找到用户: %s (ID: %d)", u.Username, u.ID)
-		}
-		if u.Username == username2 {
-			found2 = true
-			t.Logf("  找到用户: %s (ID: %d)", u.Username, u.ID)
-		}
-	}
-	if !found1 || !found2 {
-		t.Error("部分用户未创建成功")
-	}
+
+	// 使用 assert.Contains 验证用户名
+	usernames := helper.ExtractStrings(users, func(u user.UserWithRolesDTO) string { return u.Username })
+	assert.Contains(t, usernames, username1, "用户1未创建")
+	assert.Contains(t, usernames, username2, "用户2未创建")
 
 	t.Log("\n批量创建用户测试完成!")
 }

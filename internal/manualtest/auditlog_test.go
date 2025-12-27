@@ -6,6 +6,8 @@ import (
 
 	"github.com/lwmacct/251117-go-ddd-template/internal/application/auditlog"
 	"github.com/lwmacct/251117-go-ddd-template/internal/manualtest/helper"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 // TestListAuditLogs 测试获取审计日志列表。
@@ -14,25 +16,14 @@ import (
 //
 //	MANUAL=1 go test -v -run TestListAuditLogs ./internal/manualtest/
 func TestListAuditLogs(t *testing.T) {
-	helper.SkipIfNotManual(t)
-
-	c := helper.NewClient()
-
-	t.Log("准备工作: 登录管理员账户")
-	_, err := c.Login("admin", "admin123")
-	if err != nil {
-		t.Fatalf("登录失败: %v", err)
-	}
-	t.Log("  登录成功")
+	c := helper.LoginAsAdmin(t)
 
 	t.Log("\n获取审计日志列表...")
 	logs, meta, err := helper.GetList[auditlog.AuditLogDTO](c, "/api/admin/auditlogs", map[string]string{
 		"page":  "1",
 		"limit": "10",
 	})
-	if err != nil {
-		t.Fatalf("获取审计日志列表失败: %v", err)
-	}
+	require.NoError(t, err, "获取审计日志列表失败")
 
 	t.Logf("日志数量: %d", len(logs))
 	if meta != nil {
@@ -58,16 +49,7 @@ func TestListAuditLogs(t *testing.T) {
 //
 //	MANUAL=1 go test -v -run TestGetAuditLogDetail ./internal/manualtest/
 func TestGetAuditLogDetail(t *testing.T) {
-	helper.SkipIfNotManual(t)
-
-	c := helper.NewClient()
-
-	t.Log("准备工作: 登录管理员账户")
-	_, err := c.Login("admin", "admin123")
-	if err != nil {
-		t.Fatalf("登录失败: %v", err)
-	}
-	t.Log("  登录成功")
+	c := helper.LoginAsAdmin(t)
 
 	// 先获取日志列表，取第一条的 ID
 	t.Log("\n步骤 1: 获取日志列表")
@@ -75,9 +57,7 @@ func TestGetAuditLogDetail(t *testing.T) {
 		"page":  "1",
 		"limit": "1",
 	})
-	if err != nil {
-		t.Fatalf("获取审计日志列表失败: %v", err)
-	}
+	require.NoError(t, err, "获取审计日志列表失败")
 
 	if len(logs) == 0 {
 		t.Skip("没有审计日志可供测试")
@@ -90,23 +70,13 @@ func TestGetAuditLogDetail(t *testing.T) {
 	// 获取详情
 	t.Log("\n步骤 2: 获取日志详情")
 	detail, err := helper.Get[auditlog.AuditLogDTO](c, fmt.Sprintf("/api/admin/auditlogs/%d", logID), nil)
-	if err != nil {
-		t.Fatalf("获取审计日志详情失败: %v", err)
-	}
+	require.NoError(t, err, "获取审计日志详情失败")
 
 	// 验证详情数据
-	if detail.ID != logID {
-		t.Errorf("日志 ID 不匹配: 期望 %d, 实际 %d", logID, detail.ID)
-	}
-	if detail.Action == "" {
-		t.Error("操作类型不应为空")
-	}
-	if detail.Resource == "" {
-		t.Error("资源不应为空")
-	}
-	if detail.Status == "" {
-		t.Error("状态不应为空")
-	}
+	assert.Equal(t, logID, detail.ID, "日志 ID 不匹配")
+	assert.NotEmpty(t, detail.Action, "操作类型不应为空")
+	assert.NotEmpty(t, detail.Resource, "资源不应为空")
+	assert.NotEmpty(t, detail.Status, "状态不应为空")
 
 	t.Logf("日志详情:")
 	t.Logf("  ID: %d", detail.ID)
@@ -132,16 +102,7 @@ func TestGetAuditLogDetail(t *testing.T) {
 //
 //	MANUAL=1 go test -v -run TestAuditLogFilters ./internal/manualtest/
 func TestAuditLogFilters(t *testing.T) {
-	helper.SkipIfNotManual(t)
-
-	c := helper.NewClient()
-
-	t.Log("准备工作: 登录管理员账户")
-	_, err := c.Login("admin", "admin123")
-	if err != nil {
-		t.Fatalf("登录失败: %v", err)
-	}
-	t.Log("  登录成功")
+	c := helper.LoginAsAdmin(t)
 
 	// 测试按操作类型筛选
 	t.Log("\n测试 1: 按操作类型筛选 (login)")
@@ -182,24 +143,14 @@ func TestAuditLogFilters(t *testing.T) {
 //
 //	MANUAL=1 go test -v -run TestAuditLogNotFound ./internal/manualtest/
 func TestAuditLogNotFound(t *testing.T) {
-	helper.SkipIfNotManual(t)
-
-	c := helper.NewClient()
-
-	t.Log("准备工作: 登录管理员账户")
-	_, err := c.Login("admin", "admin123")
-	if err != nil {
-		t.Fatalf("登录失败: %v", err)
-	}
-	t.Log("  登录成功")
+	c := helper.LoginAsAdmin(t)
 
 	// 尝试获取不存在的审计日志 (使用一个极大的 ID)
 	t.Log("\n测试: 获取不存在的审计日志")
 	invalidID := uint(999999999)
-	_, err = helper.Get[auditlog.AuditLogDTO](c, fmt.Sprintf("/api/admin/auditlogs/%d", invalidID), nil)
-	if err == nil {
-		t.Error("期望获取不存在的日志失败，但成功了")
-	} else {
+	_, err := helper.Get[auditlog.AuditLogDTO](c, fmt.Sprintf("/api/admin/auditlogs/%d", invalidID), nil)
+	require.Error(t, err, "期望获取不存在的日志失败")
+	if err != nil {
 		t.Logf("  预期的错误: %v", err)
 	}
 }

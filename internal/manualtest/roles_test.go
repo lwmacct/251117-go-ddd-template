@@ -3,7 +3,9 @@ package manualtest
 import (
 	"fmt"
 	"testing"
-	"time"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 
 	"github.com/lwmacct/251117-go-ddd-template/internal/application/role"
 	"github.com/lwmacct/251117-go-ddd-template/internal/manualtest/helper"
@@ -15,18 +17,7 @@ import (
 //
 //	MANUAL=1 go test -v -run TestRolesFlow ./internal/manualtest/
 func TestRolesFlow(t *testing.T) {
-	helper.SkipIfNotManual(t)
-
-	c := helper.NewClient()
-
-	t.Log("准备工作: 登录管理员账户")
-	_, err := c.Login("admin", "admin123")
-	if err != nil {
-		t.Fatalf("登录失败: %v", err)
-	}
-	t.Log("  登录成功")
-
-	var testRoleID uint
+	c := helper.LoginAsAdmin(t)
 
 	// 测试 1: 获取角色列表
 	t.Log("\n测试 1: 获取角色列表")
@@ -34,9 +25,7 @@ func TestRolesFlow(t *testing.T) {
 		"page":  "1",
 		"limit": "10",
 	})
-	if err != nil {
-		t.Fatalf("获取角色列表失败: %v", err)
-	}
+	require.NoError(t, err, "获取角色列表失败")
 	t.Logf("  角色数量: %d", len(roles))
 	if meta != nil {
 		t.Logf("  总数: %d", meta.Total)
@@ -45,48 +34,24 @@ func TestRolesFlow(t *testing.T) {
 		t.Logf("    - [%d] %s (%s)", r.ID, r.DisplayName, r.Name)
 	}
 
-	// 测试 2: 创建角色
+	// 测试 2: 创建角色（使用工厂函数）
 	t.Log("\n测试 2: 创建角色")
-	testRoleName := fmt.Sprintf("testrole_%d", time.Now().Unix())
-	createReq := role.CreateDTO{
-		Name:        testRoleName,
-		DisplayName: "测试角色",
-		Description: "这是一个测试角色",
-	}
-	t.Logf("  创建角色: %s", createReq.Name)
-
-	createResp, err := helper.Post[role.CreateResultDTO](c, "/api/admin/roles", createReq)
-	if err != nil {
-		t.Fatalf("创建角色失败: %v", err)
-	}
-	testRoleID = createResp.RoleID
-	t.Logf("  创建成功! 角色 ID: %d", testRoleID)
+	testRole, markDeleted := helper.CreateTestRoleWithCleanupControl(t, c, "testrole")
+	t.Logf("  创建成功! 角色 ID: %d", testRole.RoleID)
 
 	// 验证角色 ID 有效
-	if testRoleID == 0 {
-		t.Fatal("创建角色失败: 返回的角色 ID 为 0")
-	}
+	require.NotZero(t, testRole.RoleID, "创建角色失败: 返回的角色 ID 为 0")
 
 	// 测试 3: 获取角色详情
 	t.Log("\n测试 3: 获取角色详情")
-	roleDetail, err := helper.Get[role.RoleDTO](c, fmt.Sprintf("/api/admin/roles/%d", testRoleID), nil)
-	if err != nil {
-		t.Fatalf("获取角色详情失败: %v", err)
-	}
+	roleDetail, err := helper.Get[role.RoleDTO](c, fmt.Sprintf("/api/admin/roles/%d", testRole.RoleID), nil)
+	require.NoError(t, err, "获取角色详情失败")
 	t.Logf("  角色名: %s, 显示名: %s", roleDetail.Name, roleDetail.DisplayName)
 	t.Logf("  描述: %s", roleDetail.Description)
 	t.Logf("  权限数量: %d", len(roleDetail.Permissions))
 
 	// 验证角色详情
-	if roleDetail.ID != testRoleID {
-		t.Errorf("角色 ID 不匹配: 期望 %d, 实际 %d", testRoleID, roleDetail.ID)
-	}
-	if roleDetail.Name != testRoleName {
-		t.Errorf("角色名不匹配: 期望 %s, 实际 %s", testRoleName, roleDetail.Name)
-	}
-	if roleDetail.DisplayName != createReq.DisplayName {
-		t.Errorf("显示名不匹配: 期望 %s, 实际 %s", createReq.DisplayName, roleDetail.DisplayName)
-	}
+	assert.Equal(t, testRole.RoleID, roleDetail.ID, "角色 ID 不匹配")
 
 	// 测试 4: 更新角色
 	t.Log("\n测试 4: 更新角色")
@@ -96,19 +61,13 @@ func TestRolesFlow(t *testing.T) {
 		DisplayName: &newDisplayName,
 		Description: &newDescription,
 	}
-	updatedRole, err := helper.Put[role.RoleDTO](c, fmt.Sprintf("/api/admin/roles/%d", testRoleID), updateReq)
-	if err != nil {
-		t.Fatalf("更新角色失败: %v", err)
-	}
+	updatedRole, err := helper.Put[role.RoleDTO](c, fmt.Sprintf("/api/admin/roles/%d", testRole.RoleID), updateReq)
+	require.NoError(t, err, "更新角色失败")
 	t.Logf("  更新成功! 显示名: %s", updatedRole.DisplayName)
 
 	// 验证更新后的字段
-	if updatedRole.DisplayName != newDisplayName {
-		t.Errorf("显示名未更新: 期望 %s, 实际 %s", newDisplayName, updatedRole.DisplayName)
-	}
-	if updatedRole.Description != newDescription {
-		t.Errorf("描述未更新: 期望 %s, 实际 %s", newDescription, updatedRole.Description)
-	}
+	assert.Equal(t, newDisplayName, updatedRole.DisplayName, "显示名未更新")
+	assert.Equal(t, newDescription, updatedRole.Description, "描述未更新")
 
 	// 测试 5: 获取权限列表
 	t.Log("\n测试 5: 获取权限列表")
@@ -116,9 +75,7 @@ func TestRolesFlow(t *testing.T) {
 		"page":  "1",
 		"limit": "50",
 	})
-	if err != nil {
-		t.Fatalf("获取权限列表失败: %v", err)
-	}
+	require.NoError(t, err, "获取权限列表失败")
 	t.Logf("  权限数量: %d", len(permissions))
 	if permMeta != nil {
 		t.Logf("  总数: %d", permMeta.Total)
@@ -138,16 +95,17 @@ func TestRolesFlow(t *testing.T) {
 	if len(permissions) < 3 {
 		t.Log("  跳过：权限数量不足")
 	} else {
-		testSetRolePermissions(t, c, testRoleID, permissions[:3])
+		testSetRolePermissions(t, c, testRole.RoleID, permissions[:3])
 	}
 
 	// 测试 7: 删除角色
 	t.Log("\n测试 7: 删除角色")
-	err = c.Delete(fmt.Sprintf("/api/admin/roles/%d", testRoleID))
-	if err != nil {
-		t.Fatalf("删除角色失败: %v", err)
-	}
+	err = c.Delete(fmt.Sprintf("/api/admin/roles/%d", testRole.RoleID))
+	require.NoError(t, err, "删除角色失败")
 	t.Log("  删除成功!")
+
+	// 标记已删除，避免 t.Cleanup 重复删除
+	markDeleted()
 
 	t.Log("\n角色管理流程测试完成!")
 }
@@ -158,23 +116,14 @@ func TestRolesFlow(t *testing.T) {
 //
 //	MANUAL=1 go test -v -run TestListRoles ./internal/manualtest/
 func TestListRoles(t *testing.T) {
-	helper.SkipIfNotManual(t)
-
-	c := helper.NewClient()
-
-	_, err := c.Login("admin", "admin123")
-	if err != nil {
-		t.Fatalf("登录失败: %v", err)
-	}
+	c := helper.LoginAsAdmin(t)
 
 	t.Log("获取角色列表...")
 	roles, meta, err := helper.GetList[role.RoleDTO](c, "/api/admin/roles", map[string]string{
 		"page":  "1",
 		"limit": "10",
 	})
-	if err != nil {
-		t.Fatalf("获取角色列表失败: %v", err)
-	}
+	require.NoError(t, err, "获取角色列表失败")
 
 	t.Logf("角色数量: %d", len(roles))
 	if meta != nil {
@@ -196,23 +145,14 @@ func TestListRoles(t *testing.T) {
 //
 //	MANUAL=1 go test -v -run TestListPermissions ./internal/manualtest/
 func TestListPermissions(t *testing.T) {
-	helper.SkipIfNotManual(t)
-
-	c := helper.NewClient()
-
-	_, err := c.Login("admin", "admin123")
-	if err != nil {
-		t.Fatalf("登录失败: %v", err)
-	}
+	c := helper.LoginAsAdmin(t)
 
 	t.Log("获取权限列表...")
 	permissions, meta, err := helper.GetList[role.PermissionDTO](c, "/api/admin/permissions", map[string]string{
 		"page":  "1",
 		"limit": "50",
 	})
-	if err != nil {
-		t.Fatalf("获取权限列表失败: %v", err)
-	}
+	require.NoError(t, err, "获取权限列表失败")
 
 	t.Logf("权限数量: %d", len(permissions))
 	if meta != nil {
@@ -237,10 +177,7 @@ func TestListPermissions(t *testing.T) {
 func testSetRolePermissions(t *testing.T, c *helper.Client, roleID uint, permissions []role.PermissionDTO) {
 	t.Helper()
 
-	permIDs := make([]uint, len(permissions))
-	for i, p := range permissions {
-		permIDs[i] = p.ID
-	}
+	permIDs := helper.ExtractIDs(permissions, func(p role.PermissionDTO) uint { return p.ID })
 
 	setPermReq := role.SetPermissionsDTO{
 		PermissionIDs: permIDs,
@@ -250,34 +187,19 @@ func testSetRolePermissions(t *testing.T, c *helper.Client, roleID uint, permiss
 	resp, err := c.R().
 		SetBody(setPermReq).
 		Put(fmt.Sprintf("/api/admin/roles/%d/permissions", roleID))
-	if err != nil {
-		t.Fatalf("设置权限请求失败: %v", err)
-	}
-	if resp.IsError() {
-		t.Fatalf("设置权限失败，状态码: %d", resp.StatusCode())
-	}
+	require.NoError(t, err, "设置权限请求失败")
+	require.False(t, resp.IsError(), "设置权限失败，状态码: %d", resp.StatusCode())
 	t.Log("  权限设置成功!")
 
 	// 验证权限已设置
 	roleWithPerms, err := helper.Get[role.RoleDTO](c, fmt.Sprintf("/api/admin/roles/%d", roleID), nil)
-	if err != nil {
-		t.Fatalf("获取角色详情失败: %v", err)
-	}
+	require.NoError(t, err, "获取角色详情失败")
 	t.Logf("  验证：角色现有 %d 个权限", len(roleWithPerms.Permissions))
 
 	// 验证权限 ID 是否匹配
-	if len(roleWithPerms.Permissions) != len(permIDs) {
-		t.Errorf("权限数量不匹配: 期望 %d, 实际 %d", len(permIDs), len(roleWithPerms.Permissions))
-	}
+	assert.Len(t, roleWithPerms.Permissions, len(permIDs), "权限数量不匹配")
 
-	// 验证每个权限 ID 是否存在
-	permIDMap := make(map[uint]bool)
-	for _, p := range roleWithPerms.Permissions {
-		permIDMap[p.ID] = true
-	}
-	for _, expectedID := range permIDs {
-		if !permIDMap[expectedID] {
-			t.Errorf("未找到预期的权限 ID=%d", expectedID)
-		}
-	}
+	// 使用 assert.ElementsMatch 验证权限 ID 集合
+	actualIDs := helper.ExtractIDs(roleWithPerms.Permissions, func(p *role.PermissionDTO) uint { return p.ID })
+	assert.ElementsMatch(t, permIDs, actualIDs, "权限 ID 集合不匹配")
 }

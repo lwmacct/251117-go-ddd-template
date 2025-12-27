@@ -68,7 +68,7 @@ func (h *UserHandler) Create(c *gin.Context) {
 		return
 	}
 
-	// 调用 Use Case Handler
+	// 调用 Use Case Handler 创建用户
 	result, err := h.createUserHandler.Handle(c.Request.Context(), user.CreateCommand(req))
 
 	if err != nil {
@@ -76,7 +76,17 @@ func (h *UserHandler) Create(c *gin.Context) {
 		return
 	}
 
-	response.Created(c, "user created successfully", result)
+	// 查询完整的用户信息返回（包含角色）
+	userDTO, err := h.getUserHandler.Handle(c.Request.Context(), user.GetQuery{
+		UserID:    result.UserID,
+		WithRoles: true,
+	})
+	if err != nil {
+		response.InternalError(c, err.Error())
+		return
+	}
+
+	response.Created(c, "user created successfully", userDTO)
 }
 
 // GetByID 获取用户详情

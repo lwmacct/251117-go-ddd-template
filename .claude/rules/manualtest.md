@@ -83,3 +83,96 @@ type PATTokenDTO struct { ... }    // 禁止
 3. 在 Application 层补充缺失的 DTO
 
 **❌ 禁止在 manualtest 中临时定义 DTO 来"绕过"问题。**
+
+## 资源清理规范
+
+**必须使用 `t.Cleanup()` 在创建资源后立即注册清理，禁止在测试末尾手动清理。**
+
+```go
+// ✅ 正确：创建后立即注册清理
+createResp, _ := helper.Post[user.UserWithRolesDTO](c, "/api/admin/users", req)
+t.Cleanup(func() {
+    _ = c.Delete(fmt.Sprintf("/api/admin/users/%d", createResp.ID))
+})
+
+// ❌ 禁止：清理在测试末尾（中途失败不会执行）
+```
+
+**当测试本身包含删除操作时**：删除成功后将 ID 置为 0，Cleanup 中检查 `if id > 0`。
+
+## Testify 断言规范
+
+### require vs assert 选择
+
+| 场景                       | 使用      | 理由               |
+| -------------------------- | --------- | ------------------ |
+| 前置条件（登录、创建资源） | `require` | 失败则后续无意义   |
+| 业务验证（字段值比较）     | `assert`  | 收集所有错误后报告 |
+
+```go
+// ✅ 正确：登录失败直接停止
+_, err := c.Login("admin", "admin123")
+require.NoError(t, err, "登录失败")
+
+// ✅ 正确：字段验证使用 assert
+assert.Equal(t, expected, actual, "用户名不匹配")
+```
+
+### 集合验证
+
+**禁止手动循环查找，使用 testify 断言：**
+
+```go
+// ❌ 禁止：手动循环
+permIDMap := make(map[uint]bool)
+for _, p := range perms { permIDMap[p.ID] = true }
+assert.True(t, permIDMap[expectedID], "未找到")
+
+// ✅ 正确：使用 assert.Contains
+ids := helper.ExtractIDs(perms, func(p role.PermissionDTO) uint { return p.ID })
+assert.Contains(t, ids, expectedID, "未找到权限 ID")
+
+// ✅ 正确：批量验证使用 ElementsMatch
+assert.ElementsMatch(t, expectedIDs, actualIDs)
+```
+
+### 数值范围验证
+
+```go
+// ✅ 使用语义化断言
+assert.GreaterOrEqual(t, count, 0, "计数不应为负")
+assert.Positive(t, total, "总数应为正数")
+```
+
+## Helper 函数规范
+
+### 登录辅助
+
+```go
+// ✅ 推荐：使用 helper 封装
+c := helper.LoginAsAdmin(t)
+
+// ❌ 避免：重复的登录代码
+c := helper.NewClient()
+_, err := c.Login("admin", "admin123")
+require.NoError(t, err)
+```
+
+### 资源工厂
+
+```go
+// ✅ 推荐：使用工厂函数（自动清理）
+user := helper.CreateTestUser(t, c, "testprefix")
+
+// ❌ 避免：手动创建 + 手动 Cleanup
+```
+
+### 可用的 Helper 函数
+
+| 函数                                    | 说明                           |
+| --------------------------------------- | ------------------------------ |
+| `LoginAsAdmin(t) *Client`               | 登录管理员，返回已认证客户端   |
+| `LoginAs(t, account, password) *Client` | 指定账户登录                   |
+| `CreateTestUser(t, c, prefix)`          | 创建测试用户，自动注册 Cleanup |
+| `CreateTestRole(t, c, prefix)`          | 创建测试角色，自动注册 Cleanup |
+| `ExtractIDs(items, getter) []uint`      | 从结构体切片提取 ID            |

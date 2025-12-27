@@ -7,6 +7,8 @@ import (
 
 	"github.com/lwmacct/251117-go-ddd-template/internal/application/menu"
 	"github.com/lwmacct/251117-go-ddd-template/internal/manualtest/helper"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 // 使用 time 包生成唯一标识符
@@ -18,16 +20,7 @@ var _ = time.Now
 //
 //	MANUAL=1 go test -v -run TestMenusFlow ./internal/manualtest/
 func TestMenusFlow(t *testing.T) {
-	helper.SkipIfNotManual(t)
-
-	c := helper.NewClient()
-
-	t.Log("准备工作: 登录管理员账户")
-	_, err := c.Login("admin", "admin123")
-	if err != nil {
-		t.Fatalf("登录失败: %v", err)
-	}
-	t.Log("  登录成功")
+	c := helper.LoginAsAdmin(t)
 
 	// 用于清理的变量
 	var createdMenuID, childMenuID uint
@@ -45,9 +38,7 @@ func TestMenusFlow(t *testing.T) {
 	// 测试 1: 获取菜单列表
 	t.Log("\n测试 1: 获取菜单列表")
 	menus, _, err := helper.GetList[menu.MenuDTO](c, "/api/admin/menus", nil)
-	if err != nil {
-		t.Fatalf("获取菜单列表失败: %v", err)
-	}
+	require.NoError(t, err, "获取菜单列表失败")
 	initialCount := len(menus)
 	t.Logf("  菜单数量: %d", initialCount)
 
@@ -66,41 +57,23 @@ func TestMenusFlow(t *testing.T) {
 	t.Logf("  创建菜单: %s", menuName)
 
 	created, err := helper.Post[menu.CreateResultDTO](c, "/api/admin/menus", createReq)
-	if err != nil {
-		t.Fatalf("创建菜单失败: %v", err)
-	}
+	require.NoError(t, err, "创建菜单失败")
 	createdMenuID = created.ID
 
 	// 验证创建结果（创建 API 只返回 ID）
-	if created.ID == 0 {
-		t.Fatal("创建菜单后 ID 不应为 0")
-	}
+	require.NotZero(t, created.ID, "创建菜单后 ID 不应为 0")
 	t.Logf("  创建成功! 菜单 ID: %d", created.ID)
 
 	// 测试 3: 获取菜单详情并验证字段
 	t.Log("\n测试 3: 获取菜单详情并验证字段")
 	detail, err := helper.Get[menu.MenuDTO](c, fmt.Sprintf("/api/admin/menus/%d", created.ID), nil)
-	if err != nil {
-		t.Fatalf("获取菜单详情失败: %v", err)
-	}
-	if detail.ID != created.ID {
-		t.Errorf("详情 ID 不匹配: 期望 %d, 实际 %d", created.ID, detail.ID)
-	}
-	if detail.Title != menuName {
-		t.Errorf("标题不匹配: 期望 %q, 实际 %q", menuName, detail.Title)
-	}
-	if detail.Path != menuPath {
-		t.Errorf("路径不匹配: 期望 %q, 实际 %q", menuPath, detail.Path)
-	}
-	if detail.Icon != "test-icon" {
-		t.Errorf("图标不匹配: 期望 %q, 实际 %q", "test-icon", detail.Icon)
-	}
-	if detail.Order != 99 {
-		t.Errorf("排序不匹配: 期望 %d, 实际 %d", 99, detail.Order)
-	}
-	if !detail.Visible {
-		t.Error("可见性应为 true")
-	}
+	require.NoError(t, err, "获取菜单详情失败")
+	assert.Equal(t, created.ID, detail.ID, "详情 ID 不匹配")
+	assert.Equal(t, menuName, detail.Title, "标题不匹配")
+	assert.Equal(t, menuPath, detail.Path, "路径不匹配")
+	assert.Equal(t, "test-icon", detail.Icon, "图标不匹配")
+	assert.Equal(t, 99, detail.Order, "排序不匹配")
+	assert.True(t, detail.Visible, "可见性应为 true")
 	t.Logf("  标题: %s, 路径: %s", detail.Title, detail.Path)
 	t.Logf("  图标: %s, 可见: %v", detail.Icon, detail.Visible)
 
@@ -113,19 +86,11 @@ func TestMenusFlow(t *testing.T) {
 		Order: &newOrder,
 	}
 	updated, err := helper.Put[menu.MenuDTO](c, fmt.Sprintf("/api/admin/menus/%d", created.ID), updateReq)
-	if err != nil {
-		t.Fatalf("更新菜单失败: %v", err)
-	}
-	if updated.Title != newTitle {
-		t.Errorf("更新后标题不匹配: 期望 %q, 实际 %q", newTitle, updated.Title)
-	}
-	if updated.Order != newOrder {
-		t.Errorf("更新后排序不匹配: 期望 %d, 实际 %d", newOrder, updated.Order)
-	}
+	require.NoError(t, err, "更新菜单失败")
+	assert.Equal(t, newTitle, updated.Title, "更新后标题不匹配")
+	assert.Equal(t, newOrder, updated.Order, "更新后排序不匹配")
 	// 验证未更新的字段保持不变
-	if updated.Path != menuPath {
-		t.Errorf("未更新的路径不应改变: 期望 %q, 实际 %q", menuPath, updated.Path)
-	}
+	assert.Equal(t, menuPath, updated.Path, "未更新的路径不应改变")
 	t.Logf("  更新成功! 新标题: %s", updated.Title)
 
 	// 测试 5: 创建子菜单
@@ -139,13 +104,9 @@ func TestMenusFlow(t *testing.T) {
 		Visible:  &visible,
 	}
 	childResult, err := helper.Post[menu.CreateResultDTO](c, "/api/admin/menus", childReq)
-	if err != nil {
-		t.Fatalf("创建子菜单失败: %v", err)
-	}
+	require.NoError(t, err, "创建子菜单失败")
 	childMenuID = childResult.ID
-	if childResult.ID == 0 {
-		t.Fatal("子菜单 ID 不应为 0")
-	}
+	require.NotZero(t, childResult.ID, "子菜单 ID 不应为 0")
 	t.Logf("  子菜单创建成功! ID: %d", childResult.ID)
 
 	// 测试 6: 验证列表数量增加
@@ -153,40 +114,28 @@ func TestMenusFlow(t *testing.T) {
 	// 子菜单需要通过父菜单 ID 查询，所以顶层数量只增加 1
 	t.Log("\n测试 6: 验证菜单列表数量")
 	menusAfter, _, err := helper.GetList[menu.MenuDTO](c, "/api/admin/menus", nil)
-	if err != nil {
-		t.Fatalf("获取菜单列表失败: %v", err)
-	}
-	if len(menusAfter) < initialCount+1 {
-		t.Errorf("菜单数量应至少增加 1: 初始 %d, 现在 %d", initialCount, len(menusAfter))
-	}
+	require.NoError(t, err, "获取菜单列表失败")
+	assert.GreaterOrEqual(t, len(menusAfter), initialCount+1, "菜单数量应至少增加 1")
 	t.Logf("  菜单数量: %d (增加了 %d)", len(menusAfter), len(menusAfter)-initialCount)
 
 	// 测试 7: 删除子菜单
 	t.Log("\n测试 7: 删除子菜单")
 	err = c.Delete(fmt.Sprintf("/api/admin/menus/%d", childResult.ID))
-	if err != nil {
-		t.Fatalf("删除子菜单失败: %v", err)
-	}
+	require.NoError(t, err, "删除子菜单失败")
 	childMenuID = 0 // 已删除，清理时不需要再删
 	t.Log("  子菜单删除成功!")
 
 	// 测试 8: 删除父菜单
 	t.Log("\n测试 8: 删除父菜单")
 	err = c.Delete(fmt.Sprintf("/api/admin/menus/%d", created.ID))
-	if err != nil {
-		t.Fatalf("删除菜单失败: %v", err)
-	}
+	require.NoError(t, err, "删除菜单失败")
 	createdMenuID = 0 // 已删除，清理时不需要再删
 	t.Log("  菜单删除成功!")
 
 	// 测试 9: 验证删除后获取应失败
 	t.Log("\n测试 9: 验证删除后获取应返回 404")
 	_, err = helper.Get[menu.MenuDTO](c, fmt.Sprintf("/api/admin/menus/%d", created.ID), nil)
-	if err == nil {
-		t.Error("删除后获取应返回错误")
-	} else {
-		t.Logf("  正确返回错误: %v", err)
-	}
+	require.Error(t, err, "删除后获取应返回错误")
 
 	t.Log("\n菜单管理流程测试完成!")
 }
@@ -197,20 +146,10 @@ func TestMenusFlow(t *testing.T) {
 //
 //	MANUAL=1 go test -v -run TestListMenus ./internal/manualtest/
 func TestListMenus(t *testing.T) {
-	helper.SkipIfNotManual(t)
-
-	c := helper.NewClient()
-
-	t.Log("获取菜单列表...")
-	_, err := c.Login("admin", "admin123")
-	if err != nil {
-		t.Fatalf("登录失败: %v", err)
-	}
+	c := helper.LoginAsAdmin(t)
 
 	menus, meta, err := helper.GetList[menu.MenuDTO](c, "/api/admin/menus", nil)
-	if err != nil {
-		t.Fatalf("获取菜单列表失败: %v", err)
-	}
+	require.NoError(t, err, "获取菜单列表失败")
 
 	t.Logf("菜单数量: %d", len(menus))
 	if meta != nil {
@@ -236,16 +175,7 @@ func TestListMenus(t *testing.T) {
 //
 //	MANUAL=1 go test -v -run TestMenuReorder ./internal/manualtest/
 func TestMenuReorder(t *testing.T) {
-	helper.SkipIfNotManual(t)
-
-	c := helper.NewClient()
-
-	t.Log("准备工作: 登录管理员账户")
-	_, err := c.Login("admin", "admin123")
-	if err != nil {
-		t.Fatalf("登录失败: %v", err)
-	}
-	t.Log("  登录成功")
+	c := helper.LoginAsAdmin(t)
 
 	// 用于清理的变量
 	var menu1ID, menu2ID, menu3ID uint
@@ -273,9 +203,7 @@ func TestMenuReorder(t *testing.T) {
 			Visible: &visible,
 		}
 		created, createErr := helper.Post[menu.CreateResultDTO](c, "/api/admin/menus", createReq)
-		if createErr != nil {
-			t.Fatalf("创建菜单失败: %v", createErr)
-		}
+		require.NoError(t, createErr, "创建菜单失败")
 		switch i {
 		case 0:
 			menu1ID = created.ID
@@ -300,43 +228,27 @@ func TestMenuReorder(t *testing.T) {
 	resp, err := c.R().
 		SetBody(reorderReq).
 		Post("/api/admin/menus/reorder")
-	if err != nil {
-		t.Fatalf("重排序请求失败: %v", err)
-	}
+	require.NoError(t, err, "重排序请求失败")
 	// 重排序 API 返回 204 No Content
-	if resp.StatusCode() != 204 && resp.IsError() {
-		t.Fatalf("重排序失败，状态码: %d, 响应: %s", resp.StatusCode(), resp.String())
-	}
+	require.False(t, resp.StatusCode() != 204 && resp.IsError(), "重排序失败，状态码: %d, 响应: %s", resp.StatusCode(), resp.String())
 	t.Log("  重排序成功!")
 
 	// 步骤 3: 验证顺序已更新
 	t.Log("\n步骤 3: 验证顺序已更新")
 	detail1, err := helper.Get[menu.MenuDTO](c, fmt.Sprintf("/api/admin/menus/%d", menu1ID), nil)
-	if err != nil {
-		t.Fatalf("获取菜单 %d 详情失败: %v", menu1ID, err)
-	}
+	require.NoError(t, err, "获取菜单 %d 详情失败", menu1ID)
 	detail2, err := helper.Get[menu.MenuDTO](c, fmt.Sprintf("/api/admin/menus/%d", menu2ID), nil)
-	if err != nil {
-		t.Fatalf("获取菜单 %d 详情失败: %v", menu2ID, err)
-	}
+	require.NoError(t, err, "获取菜单 %d 详情失败", menu2ID)
 	detail3, err := helper.Get[menu.MenuDTO](c, fmt.Sprintf("/api/admin/menus/%d", menu3ID), nil)
-	if err != nil {
-		t.Fatalf("获取菜单 %d 详情失败: %v", menu3ID, err)
-	}
+	require.NoError(t, err, "获取菜单 %d 详情失败", menu3ID)
 
 	t.Logf("  菜单 %d: order=%d (期望 2)", menu1ID, detail1.Order)
 	t.Logf("  菜单 %d: order=%d (期望 3)", menu2ID, detail2.Order)
 	t.Logf("  菜单 %d: order=%d (期望 1)", menu3ID, detail3.Order)
 
-	if detail1.Order != 2 {
-		t.Errorf("菜单 %d 顺序错误，期望 2，实际 %d", menu1ID, detail1.Order)
-	}
-	if detail2.Order != 3 {
-		t.Errorf("菜单 %d 顺序错误，期望 3，实际 %d", menu2ID, detail2.Order)
-	}
-	if detail3.Order != 1 {
-		t.Errorf("菜单 %d 顺序错误，期望 1，实际 %d", menu3ID, detail3.Order)
-	}
+	assert.Equal(t, 2, detail1.Order, "菜单 %d 顺序错误", menu1ID)
+	assert.Equal(t, 3, detail2.Order, "菜单 %d 顺序错误", menu2ID)
+	assert.Equal(t, 1, detail3.Order, "菜单 %d 顺序错误", menu3ID)
 
 	t.Log("\n菜单重排序测试完成!")
 }

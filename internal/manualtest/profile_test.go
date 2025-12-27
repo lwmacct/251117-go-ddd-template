@@ -5,6 +5,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/stretchr/testify/require"
+
 	"github.com/lwmacct/251117-go-ddd-template/internal/application/auth"
 	"github.com/lwmacct/251117-go-ddd-template/internal/application/user"
 	"github.com/lwmacct/251117-go-ddd-template/internal/manualtest/helper"
@@ -16,36 +18,17 @@ import (
 //
 //	MANUAL=1 go test -v -run TestGetProfile ./internal/manualtest/
 func TestGetProfile(t *testing.T) {
-	helper.SkipIfNotManual(t)
+	c := helper.LoginAsAdmin(t)
 
-	c := helper.NewClient()
-
-	t.Log("步骤 1: 登录")
-	_, err := c.Login("admin", "admin123")
-	if err != nil {
-		t.Fatalf("登录失败: %v", err)
-	}
-	t.Log("  登录成功")
-
-	t.Log("步骤 2: 获取个人资料")
+	t.Log("获取个人资料")
 	profile, err := helper.Get[user.UserWithRolesDTO](c, "/api/user/profile", nil)
-	if err != nil {
-		t.Fatalf("获取个人资料失败: %v", err)
-	}
+	require.NoError(t, err, "获取个人资料失败")
 
 	// 验证关键字段
-	if profile.ID == 0 {
-		t.Fatal("返回的用户 ID 为 0")
-	}
-	if profile.Username == "" {
-		t.Fatal("返回的用户名为空")
-	}
-	if profile.Email == "" {
-		t.Fatal("返回的邮箱为空")
-	}
-	if profile.Status == "" {
-		t.Fatal("返回的状态为空")
-	}
+	require.NotZero(t, profile.ID, "返回的用户 ID 为 0")
+	require.NotEmpty(t, profile.Username, "返回的用户名为空")
+	require.NotEmpty(t, profile.Email, "返回的邮箱为空")
+	require.NotEmpty(t, profile.Status, "返回的状态为空")
 
 	t.Logf("获取成功!")
 	t.Logf("  ID: %d", profile.ID)
@@ -62,50 +45,32 @@ func TestGetProfile(t *testing.T) {
 //
 //	MANUAL=1 go test -v -run TestUpdateProfile ./internal/manualtest/
 func TestUpdateProfile(t *testing.T) {
-	helper.SkipIfNotManual(t)
+	c := helper.LoginAsAdmin(t)
 
-	c := helper.NewClient()
-
-	t.Log("步骤 1: 登录")
-	_, err := c.Login("admin", "admin123")
-	if err != nil {
-		t.Fatalf("登录失败: %v", err)
-	}
-	t.Log("  登录成功")
-
-	t.Log("步骤 2: 获取当前资料")
+	t.Log("步骤 1: 获取当前资料")
 	originalProfile, err := helper.Get[user.UserWithRolesDTO](c, "/api/user/profile", nil)
-	if err != nil {
-		t.Fatalf("获取原始资料失败: %v", err)
-	}
+	require.NoError(t, err, "获取原始资料失败")
 	t.Logf("  当前全名: %s", originalProfile.FullName)
 
-	t.Log("步骤 3: 更新资料")
+	// 注册清理函数，确保即使测试失败也能恢复原始资料
+	t.Cleanup(func() {
+		restoreReq := user.UpdateDTO{
+			FullName: &originalProfile.FullName,
+		}
+		_, _ = helper.Put[user.UserWithRolesDTO](c, "/api/user/profile", restoreReq)
+	})
+
+	t.Log("步骤 2: 更新资料")
 	newFullName := fmt.Sprintf("测试更新_%d", time.Now().Unix())
 	updateReq := user.UpdateDTO{
 		FullName: &newFullName,
 	}
 
 	updateResp, err := helper.Put[user.UserWithRolesDTO](c, "/api/user/profile", updateReq)
-	if err != nil {
-		t.Fatalf("更新资料失败: %v", err)
-	}
+	require.NoError(t, err, "更新资料失败")
 	t.Logf("  更新后全名: %s", updateResp.FullName)
 
-	if updateResp.FullName != newFullName {
-		t.Fatalf("全名未更新，期望 %s，实际 %s", newFullName, updateResp.FullName)
-	}
-
-	t.Log("步骤 4: 恢复原始资料")
-	restoreReq := user.UpdateDTO{
-		FullName: &originalProfile.FullName,
-	}
-	_, err = helper.Put[user.UserWithRolesDTO](c, "/api/user/profile", restoreReq)
-	if err != nil {
-		t.Logf("警告：无法恢复原始资料: %v", err)
-	} else {
-		t.Log("  资料已恢复")
-	}
+	require.Equal(t, newFullName, updateResp.FullName, "全名未更新")
 
 	t.Log("更新资料测试完成!")
 }
@@ -116,18 +81,9 @@ func TestUpdateProfile(t *testing.T) {
 //
 //	MANUAL=1 go test -v -run TestUpdateProfileInvalid ./internal/manualtest/
 func TestUpdateProfileInvalid(t *testing.T) {
-	helper.SkipIfNotManual(t)
+	c := helper.LoginAsAdmin(t)
 
-	c := helper.NewClient()
-
-	t.Log("步骤 1: 登录")
-	_, err := c.Login("admin", "admin123")
-	if err != nil {
-		t.Fatalf("登录失败: %v", err)
-	}
-	t.Log("  登录成功")
-
-	t.Log("步骤 2: 尝试使用无效数据更新资料（如空全名）")
+	t.Log("尝试使用无效数据更新资料（如空全名）")
 	emptyFullName := ""
 	updateReq := user.UpdateDTO{
 		FullName: &emptyFullName,
@@ -153,43 +109,34 @@ func TestUpdateProfileInvalid(t *testing.T) {
 //
 //	MANUAL=1 go test -v -run TestChangePassword ./internal/manualtest/
 func TestChangePassword(t *testing.T) {
-	helper.SkipIfNotManual(t)
-
-	// 创建测试用户
-	adminClient := helper.NewClient()
-	_, err := adminClient.Login("admin", "admin123")
-	if err != nil {
-		t.Fatalf("管理员登录失败: %v", err)
-	}
+	adminClient := helper.LoginAsAdmin(t)
 
 	testUsername := fmt.Sprintf("pwdtest_%d", time.Now().Unix())
-	testEmail := testUsername + "@example.com"
 	originalPassword := "original123"
 	newPassword := "newpassword456"
 
 	t.Log("步骤 1: 创建测试用户（带 user 角色）")
 	createReq := user.CreateDTO{
 		Username: testUsername,
-		Email:    testEmail,
+		Email:    testUsername + "@example.com",
 		Password: originalPassword,
 		FullName: "密码测试用户",
 		RoleIDs:  []uint{2}, // user 角色 ID
 	}
 
 	createResp, err := helper.Post[user.UserWithRolesDTO](adminClient, "/api/admin/users", createReq)
-	if err != nil {
-		t.Fatalf("创建测试用户失败: %v", err)
-	}
+	require.NoError(t, err, "创建测试用户失败")
 	testUserID := createResp.ID
 	t.Logf("  创建成功，用户 ID: %d", testUserID)
 
+	// 注册清理函数
+	t.Cleanup(func() {
+		_ = adminClient.Delete(fmt.Sprintf("/api/admin/users/%d", testUserID))
+	})
+
 	// 用测试用户登录
 	t.Log("步骤 2: 测试用户登录")
-	testClient := helper.NewClient()
-	_, err = testClient.Login(testUsername, originalPassword)
-	if err != nil {
-		t.Fatalf("测试用户登录失败: %v", err)
-	}
+	testClient := helper.LoginAs(t, testUsername, originalPassword)
 	t.Log("  登录成功")
 
 	t.Log("步骤 3: 修改密码")
@@ -201,20 +148,13 @@ func TestChangePassword(t *testing.T) {
 	resp, err := testClient.R().
 		SetBody(changeReq).
 		Put("/api/user/password")
-	if err != nil {
-		t.Fatalf("修改密码请求失败: %v", err)
-	}
-	if resp.IsError() {
-		t.Fatalf("修改密码失败，状态码: %d, 响应: %s", resp.StatusCode(), resp.String())
-	}
+	require.NoError(t, err, "修改密码请求失败")
+	require.False(t, resp.IsError(), "修改密码失败，状态码: %d", resp.StatusCode())
 	t.Log("  密码修改成功")
 
 	t.Log("步骤 4: 使用新密码登录")
-	newClient := helper.NewClient()
-	_, err = newClient.Login(testUsername, newPassword)
-	if err != nil {
-		t.Fatalf("使用新密码登录失败: %v", err)
-	}
+	newClient := helper.LoginAs(t, testUsername, newPassword)
+	_ = newClient
 	t.Log("  新密码登录成功!")
 
 	t.Log("步骤 5: 验证旧密码已失效")
@@ -227,19 +167,8 @@ func TestChangePassword(t *testing.T) {
 		Captcha:   captcha.Code,
 	}
 	oldResp, err := oldPwdClient.LoginWithCaptcha(oldLoginReq)
-	if err == nil && oldResp.AccessToken != "" {
-		t.Fatal("旧密码不应该能登录")
-	}
+	require.True(t, err != nil || oldResp.AccessToken == "", "旧密码不应该能登录")
 	t.Log("  旧密码已失效")
-
-	// 清理
-	t.Log("步骤 6: 清理测试用户")
-	err = adminClient.Delete(fmt.Sprintf("/api/admin/users/%d", testUserID))
-	if err != nil {
-		t.Logf("警告：无法删除测试用户: %v", err)
-	} else {
-		t.Log("  测试用户已删除")
-	}
 
 	t.Log("修改密码测试完成!")
 }
@@ -250,41 +179,32 @@ func TestChangePassword(t *testing.T) {
 //
 //	MANUAL=1 go test -v -run TestChangePasswordWrongOld ./internal/manualtest/
 func TestChangePasswordWrongOld(t *testing.T) {
-	helper.SkipIfNotManual(t)
-
-	// 创建测试用户
-	adminClient := helper.NewClient()
-	_, err := adminClient.Login("admin", "admin123")
-	if err != nil {
-		t.Fatalf("管理员登录失败: %v", err)
-	}
+	adminClient := helper.LoginAsAdmin(t)
 
 	testUsername := fmt.Sprintf("wrongpwd_%d", time.Now().Unix())
-	testEmail := testUsername + "@example.com"
 	testPassword := "original123"
 
 	t.Log("步骤 1: 创建测试用户")
 	createReq := user.CreateDTO{
 		Username: testUsername,
-		Email:    testEmail,
+		Email:    testUsername + "@example.com",
 		Password: testPassword,
 		FullName: "错误旧密码测试用户",
 		RoleIDs:  []uint{2},
 	}
 
 	createResp, err := helper.Post[user.UserWithRolesDTO](adminClient, "/api/admin/users", createReq)
-	if err != nil {
-		t.Fatalf("创建测试用户失败: %v", err)
-	}
+	require.NoError(t, err, "创建测试用户失败")
 	testUserID := createResp.ID
 	t.Logf("  创建成功，用户 ID: %d", testUserID)
 
+	// 注册清理函数
+	t.Cleanup(func() {
+		_ = adminClient.Delete(fmt.Sprintf("/api/admin/users/%d", testUserID))
+	})
+
 	t.Log("步骤 2: 测试用户登录")
-	testClient := helper.NewClient()
-	_, err = testClient.Login(testUsername, testPassword)
-	if err != nil {
-		t.Fatalf("测试用户登录失败: %v", err)
-	}
+	testClient := helper.LoginAs(t, testUsername, testPassword)
 	t.Log("  登录成功")
 
 	t.Log("步骤 3: 使用错误的旧密码尝试修改")
@@ -296,19 +216,8 @@ func TestChangePasswordWrongOld(t *testing.T) {
 	resp, err := testClient.R().
 		SetBody(changeReq).
 		Put("/api/user/password")
-	if err == nil && resp.IsSuccess() {
-		t.Fatal("错误的旧密码不应该允许修改密码")
-	}
+	require.True(t, err != nil || !resp.IsSuccess(), "错误的旧密码不应该允许修改密码")
 	t.Logf("  错误旧密码被正确拒绝: %d - %s", resp.StatusCode(), resp.String())
-
-	// 清理
-	t.Log("步骤 4: 清理测试用户")
-	err = adminClient.Delete(fmt.Sprintf("/api/admin/users/%d", testUserID))
-	if err != nil {
-		t.Logf("警告：无法删除测试用户: %v", err)
-	} else {
-		t.Log("  测试用户已删除")
-	}
 
 	t.Log("错误旧密码测试完成!")
 }
@@ -319,47 +228,31 @@ func TestChangePasswordWrongOld(t *testing.T) {
 //
 //	MANUAL=1 go test -v -run TestDeleteAccount ./internal/manualtest/
 func TestDeleteAccount(t *testing.T) {
-	helper.SkipIfNotManual(t)
-
-	// 管理员创建测试用户
-	adminClient := helper.NewClient()
-	_, err := adminClient.Login("admin", "admin123")
-	if err != nil {
-		t.Fatalf("管理员登录失败: %v", err)
-	}
+	adminClient := helper.LoginAsAdmin(t)
 
 	testUsername := fmt.Sprintf("delacct_%d", time.Now().Unix())
-	testEmail := testUsername + "@example.com"
 	testPassword := "test123456"
 
 	t.Log("步骤 1: 创建测试用户（带 user 角色）")
 	createReq := user.CreateDTO{
 		Username: testUsername,
-		Email:    testEmail,
+		Email:    testUsername + "@example.com",
 		Password: testPassword,
 		FullName: "删除账户测试用户",
 		RoleIDs:  []uint{2}, // user 角色 ID
 	}
 
 	createResp, err := helper.Post[user.UserWithRolesDTO](adminClient, "/api/admin/users", createReq)
-	if err != nil {
-		t.Fatalf("创建测试用户失败: %v", err)
-	}
+	require.NoError(t, err, "创建测试用户失败")
 	t.Logf("  创建成功，用户 ID: %d", createResp.ID)
 
 	t.Log("步骤 2: 测试用户登录")
-	testClient := helper.NewClient()
-	_, err = testClient.Login(testUsername, testPassword)
-	if err != nil {
-		t.Fatalf("测试用户登录失败: %v", err)
-	}
+	testClient := helper.LoginAs(t, testUsername, testPassword)
 	t.Log("  登录成功")
 
 	t.Log("步骤 3: 调用删除账户接口")
 	err = testClient.Delete("/api/user/account")
-	if err != nil {
-		t.Fatalf("删除账户失败: %v", err)
-	}
+	require.NoError(t, err, "删除账户失败")
 	t.Log("  删除成功!")
 
 	t.Log("步骤 4: 验证账户已删除（尝试登录应失败）")
@@ -372,9 +265,7 @@ func TestDeleteAccount(t *testing.T) {
 		Captcha:   captcha.Code,
 	}
 	loginResp, err := verifyClient.LoginWithCaptcha(loginReq)
-	if err == nil && loginResp.AccessToken != "" {
-		t.Fatal("账户已删除，不应该能登录")
-	}
+	require.True(t, err != nil || loginResp.AccessToken == "", "账户已删除，不应该能登录")
 	t.Log("  验证成功：账户已无法登录")
 
 	t.Log("删除账户测试完成!")
