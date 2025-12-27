@@ -48,14 +48,14 @@ func TestRolesFlow(t *testing.T) {
 	// 测试 2: 创建角色
 	t.Log("\n测试 2: 创建角色")
 	testRoleName := fmt.Sprintf("testrole_%d", time.Now().Unix())
-	createReq := role.CreateRoleDTO{
+	createReq := role.CreateDTO{
 		Name:        testRoleName,
 		DisplayName: "测试角色",
 		Description: "这是一个测试角色",
 	}
 	t.Logf("  创建角色: %s", createReq.Name)
 
-	createResp, err := helper.Post[role.CreateRoleResultDTO](c, "/api/admin/roles", createReq)
+	createResp, err := helper.Post[role.CreateResultDTO](c, "/api/admin/roles", createReq)
 	if err != nil {
 		t.Fatalf("创建角色失败: %v", err)
 	}
@@ -92,7 +92,7 @@ func TestRolesFlow(t *testing.T) {
 	t.Log("\n测试 4: 更新角色")
 	newDisplayName := "测试角色（已更新）"
 	newDescription := "更新后的描述"
-	updateReq := role.UpdateRoleDTO{
+	updateReq := role.UpdateDTO{
 		DisplayName: &newDisplayName,
 		Description: &newDescription,
 	}

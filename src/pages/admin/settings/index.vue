@@ -1,163 +1,118 @@
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+/**
+ * 系统设置页面 - 动态渲染版本
+ * 根据后端 Schema 数据动态生成设置界面
+ */
+import { ref, computed, onMounted, watch } from "vue";
 import { useSettings } from "./composables/useSettings";
+import { useSettingsDependency } from "./composables/useSettingsDependency";
+import { useJsonLogicValidation } from "./composables/useJsonLogicValidation";
+import DynamicSettingField from "./components/DynamicSettingField.vue";
 
-const {
-  loading,
-  saving,
-  errorMessage,
-  successMessage,
-  fetchSettings,
-  getSetting,
-  updateSettingQuietly,
-  batchUpdateSettings,
-  clearMessages,
-} = useSettings();
+const { loading, saving, schema, settingsMap, errorMessage, successMessage, fetchSchema, batchUpdateSettings, clearMessages } =
+  useSettings();
 
-const tabs = ref("general");
+// 当前 Tab
+const currentTab = ref("");
 
-// 常规设置表单
-const generalForm = ref({
-  siteName: "",
-  siteUrl: "",
-  adminEmail: "",
-  timezone: "Asia/Shanghai",
-  language: "zh-CN",
-  theme: "light",
-});
+// 表单值（按 key 存储）
+const formValues = ref<Record<string, unknown>>({});
 
-// 安全设置表单
-const securityForm = ref({
-  sessionTimeout: 30,
-  passwordMinLength: 8,
-  enableTwoFA: false,
-  maxLoginAttempts: 5,
-});
+// 依赖关系处理
+const { isDisabled, getFinalHint } = useSettingsDependency(settingsMap, formValues);
 
-// 通知设置表单
-const notificationForm = ref({
-  enableNotifications: true,
-  enableEmailNotifications: true,
-  enableSMSNotifications: false,
-});
+// JSON Logic 验证
+const { errors: validationErrors, validateAll, getError, clearErrors } = useJsonLogicValidation(schema, formValues);
 
-// 备份设置表单
-const backupForm = ref({
-  enableBackup: false,
-  backupFrequency: 24,
-  backupRetentionDays: 30,
-});
-
-// 时区选项
-const timezoneOptions = [
-  { title: "Asia/Shanghai (上海)", value: "Asia/Shanghai" },
-  { title: "UTC", value: "UTC" },
-  { title: "America/New_York (纽约)", value: "America/New_York" },
-  { title: "Europe/London (伦敦)", value: "Europe/London" },
-  { title: "Asia/Tokyo (东京)", value: "Asia/Tokyo" },
-];
-
-onMounted(async () => {
-  await fetchSettings();
-  loadFormValues();
-});
-
-// 从设置列表加载表单值
-const loadFormValues = () => {
-  // 常规设置
-  generalForm.value.siteName = getSetting("general.site_name", "");
-  generalForm.value.siteUrl = getSetting("general.site_url", "");
-  generalForm.value.adminEmail = getSetting("general.admin_email", "");
-  generalForm.value.timezone = getSetting("general.timezone", "Asia/Shanghai");
-  generalForm.value.language = getSetting("general.language", "zh-CN");
-  generalForm.value.theme = getSetting("general.theme", "light");
-
-  // 安全设置
-  securityForm.value.sessionTimeout = getSetting("security.session_timeout", 30);
-  securityForm.value.passwordMinLength = getSetting("security.password_min_length", 8);
-  securityForm.value.enableTwoFA = getSetting("security.enable_twofa", false);
-  securityForm.value.maxLoginAttempts = getSetting("security.max_login_attempts", 5);
-
-  // 通知设置
-  notificationForm.value.enableNotifications = getSetting("notification.enable_notifications", true);
-  notificationForm.value.enableEmailNotifications = getSetting("notification.enable_email", true);
-  notificationForm.value.enableSMSNotifications = getSetting("notification.enable_sms", false);
-
-  // 备份设置
-  backupForm.value.enableBackup = getSetting("backup.enable_backup", false);
-  backupForm.value.backupFrequency = getSetting("backup.backup_frequency", 24);
-  backupForm.value.backupRetentionDays = getSetting("backup.retention_days", 30);
+// 获取字段错误消息（转换为数组格式供 Vuetify 使用）
+const getFieldErrors = (key: string): string[] => {
+  const error = getError(key);
+  return error ? [error] : [];
 };
 
-// 保存当前 Tab 的设置
-const saveCurrentTab = async () => {
-  let updates: { key: string; value: string | number | boolean }[] = [];
+// Tab 列表
+const tabs = computed(() =>
+  schema.value.map((cat) => ({
+    value: cat.category ?? "",
+    label: cat.label ?? cat.category ?? "",
+    icon: cat.icon ?? "mdi-cog",
+  })),
+);
 
-  switch (tabs.value) {
-    case "general":
-      updates = [
-        { key: "general.site_name", value: generalForm.value.siteName },
-        { key: "general.site_url", value: generalForm.value.siteUrl },
-        { key: "general.admin_email", value: generalForm.value.adminEmail },
-        { key: "general.timezone", value: generalForm.value.timezone },
-        { key: "general.language", value: generalForm.value.language },
-        { key: "general.theme", value: generalForm.value.theme },
-      ];
-      break;
-    case "security":
-      updates = [
-        { key: "security.session_timeout", value: securityForm.value.sessionTimeout },
-        { key: "security.password_min_length", value: securityForm.value.passwordMinLength },
-        { key: "security.enable_twofa", value: securityForm.value.enableTwoFA },
-        { key: "security.max_login_attempts", value: securityForm.value.maxLoginAttempts },
-      ];
-      break;
-    case "notification":
-      updates = [
-        { key: "notification.enable_notifications", value: notificationForm.value.enableNotifications },
-        { key: "notification.enable_email", value: notificationForm.value.enableEmailNotifications },
-        { key: "notification.enable_sms", value: notificationForm.value.enableSMSNotifications },
-      ];
-      break;
-    case "backup":
-      updates = [
-        { key: "backup.enable_backup", value: backupForm.value.enableBackup },
-        { key: "backup.backup_frequency", value: backupForm.value.backupFrequency },
-        { key: "backup.retention_days", value: backupForm.value.backupRetentionDays },
-      ];
-      break;
+// 当前 Tab 的分组
+const currentGroups = computed(() => {
+  const category = schema.value.find((c) => c.category === currentTab.value);
+  return category?.groups ?? [];
+});
+
+// 解析值类型
+const parseValue = (value: string | undefined, valueType: string | undefined): unknown => {
+  if (value === undefined) return "";
+  switch (valueType) {
+    case "boolean":
+      return value === "true";
+    case "number":
+      return Number(value) || 0;
+    case "json":
+      try {
+        return JSON.parse(value);
+      } catch {
+        return {};
+      }
+    default:
+      return value;
   }
-
-  await batchUpdateSettings(updates);
 };
+
+// 初始化表单值
+const initFormValues = () => {
+  const values: Record<string, unknown> = {};
+  schema.value.forEach((cat) => {
+    cat.groups?.forEach((group) => {
+      group.settings?.forEach((setting) => {
+        if (setting.key) {
+          values[setting.key] = parseValue(setting.value, setting.value_type);
+        }
+      });
+    });
+  });
+  formValues.value = values;
+};
+
+// 监听 schema 变化，初始化表单值
+watch(schema, () => {
+  initFormValues();
+  // 设置默认 Tab
+  if (schema.value.length > 0 && !currentTab.value) {
+    currentTab.value = schema.value[0]?.category ?? "general";
+  }
+});
 
 // 保存所有设置
 const saveAllSettings = async () => {
-  const allUpdates = [
-    // 常规设置
-    { key: "general.site_name", value: generalForm.value.siteName },
-    { key: "general.site_url", value: generalForm.value.siteUrl },
-    { key: "general.admin_email", value: generalForm.value.adminEmail },
-    { key: "general.timezone", value: generalForm.value.timezone },
-    { key: "general.language", value: generalForm.value.language },
-    { key: "general.theme", value: generalForm.value.theme },
-    // 安全设置
-    { key: "security.session_timeout", value: securityForm.value.sessionTimeout },
-    { key: "security.password_min_length", value: securityForm.value.passwordMinLength },
-    { key: "security.enable_twofa", value: securityForm.value.enableTwoFA },
-    { key: "security.max_login_attempts", value: securityForm.value.maxLoginAttempts },
-    // 通知设置
-    { key: "notification.enable_notifications", value: notificationForm.value.enableNotifications },
-    { key: "notification.enable_email", value: notificationForm.value.enableEmailNotifications },
-    { key: "notification.enable_sms", value: notificationForm.value.enableSMSNotifications },
-    // 备份设置
-    { key: "backup.enable_backup", value: backupForm.value.enableBackup },
-    { key: "backup.backup_frequency", value: backupForm.value.backupFrequency },
-    { key: "backup.retention_days", value: backupForm.value.backupRetentionDays },
-  ];
+  // 执行前端验证
+  const errors = validateAll();
+  if (errors.size > 0) {
+    // 滚动到第一个错误字段（可选）
+    return;
+  }
 
-  await batchUpdateSettings(allUpdates);
+  const updates = Object.entries(formValues.value).map(([key, value]) => ({
+    key,
+    value: typeof value === "object" ? JSON.stringify(value) : value,
+  }));
+  await batchUpdateSettings(updates as { key: string; value: string | number | boolean | object }[]);
 };
+
+// 重置表单
+const resetForm = () => {
+  initFormValues();
+  clearErrors();
+};
+
+onMounted(async () => {
+  await fetchSchema();
+});
 </script>
 
 <template>
@@ -169,6 +124,7 @@ const saveAllSettings = async () => {
       </v-col>
     </v-row>
 
+    <!-- 消息提示 -->
     <v-row v-if="errorMessage || successMessage">
       <v-col cols="12">
         <v-alert v-if="errorMessage" type="error" closable @click:close="clearMessages">
@@ -180,254 +136,71 @@ const saveAllSettings = async () => {
       </v-col>
     </v-row>
 
-    <v-progress-linear v-if="loading" indeterminate color="primary" class="mb-4"></v-progress-linear>
+    <!-- 加载状态 -->
+    <v-progress-linear v-if="loading" indeterminate color="primary" class="mb-4" />
 
-    <v-row>
+    <!-- 空状态 -->
+    <v-row v-if="!loading && schema.length === 0">
+      <v-col cols="12">
+        <v-alert type="info" variant="tonal">
+          <v-icon start>mdi-information</v-icon>
+          暂无配置项，请在数据库中初始化设置数据。
+        </v-alert>
+      </v-col>
+    </v-row>
+
+    <!-- 设置表单 -->
+    <v-row v-if="schema.length > 0">
       <v-col cols="12">
         <v-card>
-          <v-tabs v-model="tabs" bg-color="primary">
-            <v-tab value="general" prepend-icon="mdi-cog"> 常规设置 </v-tab>
-            <v-tab value="security" prepend-icon="mdi-shield-lock"> 安全设置 </v-tab>
-            <v-tab value="notification" prepend-icon="mdi-bell"> 通知设置 </v-tab>
-            <v-tab value="backup" prepend-icon="mdi-backup-restore"> 备份设置 </v-tab>
+          <!-- 动态 Tab -->
+          <v-tabs v-model="currentTab" bg-color="primary">
+            <v-tab v-for="tab in tabs" :key="tab.value" :value="tab.value" :prepend-icon="tab.icon">
+              {{ tab.label }}
+            </v-tab>
           </v-tabs>
 
           <v-card-text class="pa-6">
-            <v-tabs-window v-model="tabs">
-              <!-- 常规设置 -->
-              <v-tabs-window-item value="general">
-                <v-form>
+            <v-tabs-window v-model="currentTab">
+              <v-tabs-window-item v-for="tab in tabs" :key="tab.value" :value="tab.value">
+                <!-- 按 Group 渲染 -->
+                <template v-for="group in currentGroups" :key="group.group">
+                  <!-- 分组标题 -->
+                  <div v-if="group.label" class="text-subtitle-1 font-weight-medium mb-3 mt-4">
+                    {{ group.label }}
+                  </div>
+
                   <v-row>
-                    <v-col cols="12" md="6">
-                      <v-text-field
-                        v-model="generalForm.siteName"
-                        label="站点名称"
-                        variant="outlined"
-                        hint="网站显示名称"
-                      ></v-text-field>
-                    </v-col>
-                    <v-col cols="12" md="6">
-                      <v-text-field
-                        v-model="generalForm.siteUrl"
-                        label="站点 URL"
-                        variant="outlined"
-                        hint="网站访问地址"
-                        placeholder="https://example.com"
-                      ></v-text-field>
-                    </v-col>
-                    <v-col cols="12" md="6">
-                      <v-text-field
-                        v-model="generalForm.adminEmail"
-                        label="管理员邮箱"
-                        type="email"
-                        variant="outlined"
-                        hint="接收系统通知的邮箱"
-                      ></v-text-field>
-                    </v-col>
-                    <v-col cols="12" md="6">
-                      <v-select
-                        v-model="generalForm.timezone"
-                        label="时区"
-                        :items="timezoneOptions"
-                        variant="outlined"
-                        hint="系统默认时区"
-                      ></v-select>
-                    </v-col>
-                    <v-col cols="12" md="6">
-                      <v-select
-                        v-model="generalForm.language"
-                        label="语言"
-                        :items="[
-                          { title: '简体中文', value: 'zh-CN' },
-                          { title: 'English', value: 'en-US' },
-                        ]"
-                        variant="outlined"
-                        hint="系统界面语言"
-                      ></v-select>
-                    </v-col>
-                    <v-col cols="12" md="6">
-                      <v-select
-                        v-model="generalForm.theme"
-                        label="主题"
-                        :items="[
-                          { title: '浅色', value: 'light' },
-                          { title: '深色', value: 'dark' },
-                          { title: '自动', value: 'auto' },
-                        ]"
-                        variant="outlined"
-                        hint="系统界面主题"
-                      ></v-select>
+                    <v-col
+                      v-for="setting in group.settings"
+                      :key="setting.key"
+                      cols="12"
+                      :md="setting.ui_config?.input_type === 'switch' ? 12 : 6"
+                    >
+                      <DynamicSettingField
+                        v-if="setting.key"
+                        v-model="formValues[setting.key]"
+                        :setting="setting"
+                        :disabled="isDisabled(setting)"
+                        :hint="getFinalHint(setting)"
+                        :error-messages="getFieldErrors(setting.key)"
+                      />
                     </v-col>
                   </v-row>
-                </v-form>
-              </v-tabs-window-item>
+                </template>
 
-              <!-- 安全设置 -->
-              <v-tabs-window-item value="security">
-                <v-alert type="info" variant="tonal" class="mb-4">
+                <!-- 空分组提示 -->
+                <v-alert v-if="currentGroups.length === 0" type="info" variant="tonal" class="mt-4">
                   <v-icon start>mdi-information</v-icon>
-                  配置系统安全相关参数，这些设置将影响所有用户
+                  该分类下暂无配置项
                 </v-alert>
-                <v-form>
-                  <v-row>
-                    <v-col cols="12" md="6">
-                      <v-text-field
-                        v-model.number="securityForm.sessionTimeout"
-                        label="会话超时时间 (分钟)"
-                        type="number"
-                        variant="outlined"
-                        hint="用户无活动后自动登出的时间"
-                        :min="5"
-                        :max="1440"
-                      ></v-text-field>
-                    </v-col>
-                    <v-col cols="12" md="6">
-                      <v-text-field
-                        v-model.number="securityForm.passwordMinLength"
-                        label="密码最小长度"
-                        type="number"
-                        variant="outlined"
-                        hint="用户密码的最小字符数"
-                        :min="6"
-                        :max="32"
-                      ></v-text-field>
-                    </v-col>
-                    <v-col cols="12" md="6">
-                      <v-text-field
-                        v-model.number="securityForm.maxLoginAttempts"
-                        label="最大登录尝试次数"
-                        type="number"
-                        variant="outlined"
-                        hint="超过此次数后锁定账户"
-                        :min="3"
-                        :max="10"
-                      ></v-text-field>
-                    </v-col>
-                    <v-col cols="12">
-                      <v-switch
-                        v-model="securityForm.enableTwoFA"
-                        label="强制启用两步验证"
-                        color="primary"
-                        hint="要求所有用户启用 2FA"
-                        persistent-hint
-                        @update:model-value="(v) => updateSettingQuietly('security.enable_twofa', v ?? false)"
-                      ></v-switch>
-                    </v-col>
-                  </v-row>
-                </v-form>
-              </v-tabs-window-item>
-
-              <!-- 通知设置 -->
-              <v-tabs-window-item value="notification">
-                <v-form>
-                  <v-row>
-                    <v-col cols="12">
-                      <v-switch
-                        v-model="notificationForm.enableNotifications"
-                        label="启用系统通知"
-                        color="primary"
-                        hint="开启/关闭所有系统通知"
-                        persistent-hint
-                        class="mb-4"
-                        @update:model-value="(v) => updateSettingQuietly('notification.enable_notifications', v ?? false)"
-                      ></v-switch>
-                    </v-col>
-                    <v-col cols="12">
-                      <v-switch
-                        v-model="notificationForm.enableEmailNotifications"
-                        label="启用邮件通知"
-                        color="primary"
-                        :disabled="!notificationForm.enableNotifications"
-                        hint="通过邮件发送通知"
-                        persistent-hint
-                        class="mb-4"
-                        @update:model-value="(v) => updateSettingQuietly('notification.enable_email', v ?? false)"
-                      ></v-switch>
-                    </v-col>
-                    <v-col cols="12">
-                      <v-switch
-                        v-model="notificationForm.enableSMSNotifications"
-                        label="启用短信通知"
-                        color="primary"
-                        :disabled="!notificationForm.enableNotifications"
-                        hint="通过短信发送通知"
-                        persistent-hint
-                        class="mb-4"
-                        @update:model-value="(v) => updateSettingQuietly('notification.enable_sms', v ?? false)"
-                      ></v-switch>
-                    </v-col>
-                    <v-col cols="12">
-                      <v-alert type="info" variant="tonal">
-                        <v-icon start>mdi-information</v-icon>
-                        更多通知设置（如通知模板、推送配置）将在后续版本中添加
-                      </v-alert>
-                    </v-col>
-                  </v-row>
-                </v-form>
-              </v-tabs-window-item>
-
-              <!-- 备份设置 -->
-              <v-tabs-window-item value="backup">
-                <v-form>
-                  <v-row>
-                    <v-col cols="12">
-                      <v-switch
-                        v-model="backupForm.enableBackup"
-                        label="启用自动备份"
-                        color="primary"
-                        hint="定期自动备份系统数据"
-                        persistent-hint
-                        class="mb-4"
-                        @update:model-value="(v) => updateSettingQuietly('backup.enable_backup', v ?? false)"
-                      ></v-switch>
-                    </v-col>
-                    <v-col cols="12" md="6">
-                      <v-text-field
-                        v-model.number="backupForm.backupFrequency"
-                        label="备份频率 (小时)"
-                        type="number"
-                        variant="outlined"
-                        :disabled="!backupForm.enableBackup"
-                        hint="自动备份的时间间隔"
-                        :min="1"
-                        :max="168"
-                      ></v-text-field>
-                    </v-col>
-                    <v-col cols="12" md="6">
-                      <v-text-field
-                        v-model.number="backupForm.backupRetentionDays"
-                        label="备份保留天数"
-                        type="number"
-                        variant="outlined"
-                        :disabled="!backupForm.enableBackup"
-                        hint="备份文件保留时长"
-                        :min="1"
-                        :max="365"
-                      ></v-text-field>
-                    </v-col>
-                    <v-col v-if="backupForm.enableBackup" cols="12">
-                      <v-alert type="warning" variant="tonal">
-                        <v-icon start>mdi-alert</v-icon>
-                        <div>
-                          <div class="text-subtitle-2 mb-1">备份注意事项：</div>
-                          <ul class="pl-4">
-                            <li>确保有足够的存储空间</li>
-                            <li>定期测试备份恢复流程</li>
-                            <li>备份文件应存储在安全位置</li>
-                          </ul>
-                        </div>
-                      </v-alert>
-                    </v-col>
-                  </v-row>
-                </v-form>
               </v-tabs-window-item>
             </v-tabs-window>
           </v-card-text>
 
           <v-card-actions class="pa-6">
-            <v-spacer></v-spacer>
-            <v-btn variant="text" :disabled="saving" @click="loadFormValues">重置</v-btn>
-            <v-btn color="secondary" variant="tonal" :loading="saving" @click="saveCurrentTab">保存当前页</v-btn>
+            <v-spacer />
+            <v-btn variant="text" :disabled="saving" @click="resetForm">重置</v-btn>
             <v-btn color="primary" :loading="saving" @click="saveAllSettings">保存所有设置</v-btn>
           </v-card-actions>
         </v-card>

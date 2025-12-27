@@ -28,6 +28,8 @@ import type { HandlerCreateSettingRequest } from '../models';
 // @ts-ignore
 import type { HandlerUpdateSettingRequest } from '../models';
 // @ts-ignore
+import type { ResponseDataResponseArraySettingSchemaCategoryDTO } from '../models';
+// @ts-ignore
 import type { ResponseDataResponseArraySettingSettingDTO } from '../models';
 // @ts-ignore
 import type { ResponseDataResponseSettingSettingDTO } from '../models';
@@ -274,6 +276,39 @@ export const AdminSettingsApiAxiosParamCreator = function (configuration?: Confi
                 options: localVarRequestOptions,
             };
         },
+        /**
+         * 获取按 Category → Group → Settings 层级组织的配置数据，用于前端动态渲染设置页面
+         * @summary 获取配置 Schema
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiAdminSettingsSchemaGet: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/admin/settings/schema`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication BearerAuth required
+            await setApiKeyToObject(localVarHeaderParameter, "Authorization", configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
     }
 };
 
@@ -363,6 +398,18 @@ export const AdminSettingsApiFp = function(configuration?: Configuration) {
             const localVarOperationServerBasePath = operationServerMap['AdminSettingsApi.apiAdminSettingsPost']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
+        /**
+         * 获取按 Category → Group → Settings 层级组织的配置数据，用于前端动态渲染设置页面
+         * @summary 获取配置 Schema
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async apiAdminSettingsSchemaGet(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseArraySettingSchemaCategoryDTO>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.apiAdminSettingsSchemaGet(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AdminSettingsApi.apiAdminSettingsSchemaGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
     }
 };
 
@@ -433,6 +480,15 @@ export const AdminSettingsApiFactory = function (configuration?: Configuration, 
          */
         apiAdminSettingsPost(request: HandlerCreateSettingRequest, options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseSettingSettingDTO> {
             return localVarFp.apiAdminSettingsPost(request, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 获取按 Category → Group → Settings 层级组织的配置数据，用于前端动态渲染设置页面
+         * @summary 获取配置 Schema
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiAdminSettingsSchemaGet(options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseArraySettingSchemaCategoryDTO> {
+            return localVarFp.apiAdminSettingsSchemaGet(options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -515,6 +571,17 @@ export class AdminSettingsApi extends BaseAPI {
      */
     public apiAdminSettingsPost(request: HandlerCreateSettingRequest, options?: RawAxiosRequestConfig) {
         return AdminSettingsApiFp(this.configuration).apiAdminSettingsPost(request, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 获取按 Category → Group → Settings 层级组织的配置数据，用于前端动态渲染设置页面
+     * @summary 获取配置 Schema
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof AdminSettingsApi
+     */
+    public apiAdminSettingsSchemaGet(options?: RawAxiosRequestConfig) {
+        return AdminSettingsApiFp(this.configuration).apiAdminSettingsSchemaGet(options).then((request) => request(this.axios, this.basePath));
     }
 }
 

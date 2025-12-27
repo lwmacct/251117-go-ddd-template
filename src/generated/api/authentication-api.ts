@@ -36,7 +36,7 @@ import type { ResponseDataResponseAuthRegisterResultDTO } from '../models';
 // @ts-ignore
 import type { ResponseDataResponseAuthTokenDTO } from '../models';
 // @ts-ignore
-import type { ResponseDataResponseCaptchaGenerateCaptchaResultDTO } from '../models';
+import type { ResponseDataResponseCaptchaGenerateResultDTO } from '../models';
 // @ts-ignore
 import type { ResponseErrorResponse } from '../models';
 /**
@@ -247,7 +247,7 @@ export const AuthenticationApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async apiAuthCaptchaGet(code?: string, secret?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseCaptchaGenerateCaptchaResultDTO>> {
+        async apiAuthCaptchaGet(code?: string, secret?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseCaptchaGenerateResultDTO>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.apiAuthCaptchaGet(code, secret, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['AuthenticationApi.apiAuthCaptchaGet']?.[localVarOperationServerIndex]?.url;
@@ -323,7 +323,7 @@ export const AuthenticationApiFactory = function (configuration?: Configuration,
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiAuthCaptchaGet(code?: string, secret?: string, options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseCaptchaGenerateCaptchaResultDTO> {
+        apiAuthCaptchaGet(code?: string, secret?: string, options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseCaptchaGenerateResultDTO> {
             return localVarFp.apiAuthCaptchaGet(code, secret, options).then((request) => request(axios, basePath));
         },
         /**

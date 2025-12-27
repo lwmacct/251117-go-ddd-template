@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed } from "vue";
 import { parseUserCSV, readFileAsText, generateUserCSVTemplate, type ParsedUser, type ParseError } from "@/utils/import";
-import { adminUserApi, type UserBatchCreateUserResultDTO } from "@/api";
+import { adminUserApi, type UserBatchCreateResultDTO, type UserBatchCreateErrorDTO } from "@/api";
 
 /**
  * 用户批量导入对话框
@@ -157,11 +157,11 @@ const handleImport = async () => {
     }));
 
     const response = await adminUserApi.apiAdminUsersBatchPost({ users });
-    const result = response.data.data as UserBatchCreateUserResultDTO;
+    const result = response.data.data as UserBatchCreateResultDTO;
     importResult.value = {
       success: result.success ?? 0,
       failed: result.failed ?? 0,
-      errors: (result.errors ?? []).map((e) => ({
+      errors: (result.errors ?? []).map((e: UserBatchCreateErrorDTO) => ({
         index: e.index ?? 0,
         username: e.username ?? "",
         error: e.error ?? "",

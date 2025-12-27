@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, watch } from "vue";
-import type { PatCreateTokenDTO } from "@models";
+import type { PatCreateDTO } from "@models";
 
 interface Props {
   modelValue: boolean;
@@ -8,13 +8,13 @@ interface Props {
 
 interface Emits {
   (e: "update:modelValue", value: boolean): void;
-  (e: "save", data: PatCreateTokenDTO): void;
+  (e: "save", data: PatCreateDTO): void;
 }
 
 const props = defineProps<Props>();
 const emit = defineEmits<Emits>();
 
-const formData = ref<PatCreateTokenDTO>({
+const formData = ref<PatCreateDTO>({
   name: "",
   permissions: [],
   expires_at: undefined,
@@ -61,7 +61,7 @@ const handleSave = async () => {
   const { valid: isValid } = await form.value.validate();
   if (!isValid) return;
 
-  const data: PatCreateTokenDTO = {
+  const data: PatCreateDTO = {
     name: formData.value.name,
     permissions: formData.value.permissions?.length ? formData.value.permissions : undefined,
     expires_at: expiresEnabled.value ? formData.value.expires_at : undefined,

@@ -32,8 +32,8 @@ func newClient(baseURL, devSecret string) *Client {
 }
 
 // GetCaptcha 获取验证码（开发模式）。
-func (c *Client) GetCaptcha() (*captcha.CaptchaDTO, error) {
-	var result response.DataResponse[captcha.CaptchaDTO]
+func (c *Client) GetCaptcha() (*captcha.GenerateResultDTO, error) {
+	var result response.DataResponse[captcha.GenerateResultDTO]
 
 	resp, err := c.resty.R().
 		SetQueryParams(map[string]string{

@@ -3,7 +3,7 @@ import { ref, onMounted } from "vue";
 import { useTokens } from "./composables/useTokens";
 import TokenDialog from "./components/TokenDialog.vue";
 import TokenDisplay from "./components/TokenDisplay.vue";
-import type { PatCreateTokenDTO } from "@models";
+import type { PatCreateDTO } from "@models";
 
 const {
   tokens,
@@ -44,7 +44,7 @@ const openCreateDialog = () => {
   tokenDialog.value = true;
 };
 
-const handleCreateToken = async (data: PatCreateTokenDTO) => {
+const handleCreateToken = async (data: PatCreateDTO) => {
   const response = await createToken(data);
   if (response) {
     newToken.value = response.plain_token ?? "";

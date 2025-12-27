@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, watch, computed } from "vue";
-import type { RoleRoleDTO, RoleCreateRoleDTO, RoleUpdateRoleDTO } from "@models";
+import type { RoleRoleDTO, RoleCreateDTO, RoleUpdateDTO } from "@models";
 
 interface Props {
   modelValue: boolean;
@@ -10,13 +10,13 @@ interface Props {
 
 interface Emits {
   (e: "update:modelValue", value: boolean): void;
-  (e: "save", data: RoleCreateRoleDTO | RoleUpdateRoleDTO): void;
+  (e: "save", data: RoleCreateDTO | RoleUpdateDTO): void;
 }
 
 const props = defineProps<Props>();
 const emit = defineEmits<Emits>();
 
-const formData = ref<RoleCreateRoleDTO & RoleUpdateRoleDTO>({
+const formData = ref<RoleCreateDTO & RoleUpdateDTO>({
   name: "",
   display_name: "",
   description: "",
@@ -67,9 +67,9 @@ const handleSave = async () => {
   if (!isValid) return;
 
   if (props.mode === "create") {
-    emit("save", formData.value as RoleCreateRoleDTO);
+    emit("save", formData.value as RoleCreateDTO);
   } else {
-    const updateData: RoleUpdateRoleDTO = {
+    const updateData: RoleUpdateDTO = {
       display_name: formData.value.display_name,
       description: formData.value.description,
     };

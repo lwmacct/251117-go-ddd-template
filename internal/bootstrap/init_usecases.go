@@ -18,6 +18,7 @@ import (
 
 	authInfra "github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/auth"
 	"github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/redis"
+	"github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/validation"
 )
 
 // newUseCasesModule 初始化用例模块
@@ -42,7 +43,7 @@ func newUseCasesModule(cfg *config.Config, infra *InfrastructureModule, repos *R
 }
 
 // newAuthUseCases 初始化认证用例
-func newAuthUseCases(repos *RepositoriesModule, services *ServicesModule, auditLogHandler *auditlog.CreateLogHandler) *AuthUseCases {
+func newAuthUseCases(repos *RepositoriesModule, services *ServicesModule, auditLogHandler *auditlog.CreateHandler) *AuthUseCases {
 	return &AuthUseCases{
 		Login:        auth.NewLoginHandler(repos.User.Query, repos.CaptchaCommand, repos.TwoFA.Query, services.Auth, services.LoginSession, auditLogHandler),
 		Login2FA:     auth.NewLogin2FAHandler(repos.User.Query, services.Auth, services.LoginSession, services.TwoFA, auditLogHandler),
@@ -54,26 +55,26 @@ func newAuthUseCases(repos *RepositoriesModule, services *ServicesModule, auditL
 // newUserUseCases 初始化用户管理用例
 func newUserUseCases(repos *RepositoriesModule, services *ServicesModule, eventBus event.EventBus) *UserUseCases {
 	return &UserUseCases{
-		Create:         user.NewCreateUserHandler(repos.User.Command, repos.User.Query, services.Auth),
-		Update:         user.NewUpdateUserHandler(repos.User.Command, repos.User.Query),
-		Delete:         user.NewDeleteUserHandler(repos.User.Command, repos.User.Query, eventBus),
+		Create:         user.NewCreateHandler(repos.User.Command, repos.User.Query, services.Auth),
+		Update:         user.NewUpdateHandler(repos.User.Command, repos.User.Query),
+		Delete:         user.NewDeleteHandler(repos.User.Command, repos.User.Query, eventBus),
 		AssignRoles:    user.NewAssignRolesHandler(repos.User.Command, repos.User.Query, eventBus),
 		ChangePassword: user.NewChangePasswordHandler(repos.User.Command, repos.User.Query, services.Auth),
-		BatchCreate:    user.NewBatchCreateUsersHandler(repos.User.Command, repos.User.Query, services.Auth),
-		Get:            user.NewGetUserHandler(repos.User.Query),
-		List:           user.NewListUsersHandler(repos.User.Query),
+		BatchCreate:    user.NewBatchCreateHandler(repos.User.Command, repos.User.Query, services.Auth),
+		Get:            user.NewGetHandler(repos.User.Query),
+		List:           user.NewListHandler(repos.User.Query),
 	}
 }
 
 // newRoleUseCases 初始化角色管理用例
 func newRoleUseCases(repos *RepositoriesModule, eventBus event.EventBus) *RoleUseCases {
 	return &RoleUseCases{
-		Create:          role.NewCreateRoleHandler(repos.Role.Command, repos.Role.Query),
-		Update:          role.NewUpdateRoleHandler(repos.Role.Command, repos.Role.Query),
-		Delete:          role.NewDeleteRoleHandler(repos.Role.Command, repos.Role.Query),
+		Create:          role.NewCreateHandler(repos.Role.Command, repos.Role.Query),
+		Update:          role.NewUpdateHandler(repos.Role.Command, repos.Role.Query),
+		Delete:          role.NewDeleteHandler(repos.Role.Command, repos.Role.Query),
 		SetPermissions:  role.NewSetPermissionsHandler(repos.Role.Command, repos.Role.Query, repos.Permission.Query, eventBus),
-		Get:             role.NewGetRoleHandler(repos.Role.Query),
-		List:            role.NewListRolesHandler(repos.Role.Query),
+		Get:             role.NewGetHandler(repos.Role.Query),
+		List:            role.NewListHandler(repos.Role.Query),
 		ListPermissions: role.NewListPermissionsHandler(repos.Permission.Query),
 	}
 }
@@ -81,24 +82,28 @@ func newRoleUseCases(repos *RepositoriesModule, eventBus event.EventBus) *RoleUs
 // newMenuUseCases 初始化菜单管理用例
 func newMenuUseCases(repos *RepositoriesModule) *MenuUseCases {
 	return &MenuUseCases{
-		Create:  menu.NewCreateMenuHandler(repos.Menu.Command, repos.Menu.Query),
-		Update:  menu.NewUpdateMenuHandler(repos.Menu.Command, repos.Menu.Query),
-		Delete:  menu.NewDeleteMenuHandler(repos.Menu.Command, repos.Menu.Query),
-		Reorder: menu.NewReorderMenusHandler(repos.Menu.Command, repos.Menu.Query),
-		Get:     menu.NewGetMenuHandler(repos.Menu.Query),
-		List:    menu.NewListMenusHandler(repos.Menu.Query),
+		Create:  menu.NewCreateHandler(repos.Menu.Command, repos.Menu.Query),
+		Update:  menu.NewUpdateHandler(repos.Menu.Command, repos.Menu.Query),
+		Delete:  menu.NewDeleteHandler(repos.Menu.Command, repos.Menu.Query),
+		Reorder: menu.NewReorderHandler(repos.Menu.Command, repos.Menu.Query),
+		Get:     menu.NewGetHandler(repos.Menu.Query),
+		List:    menu.NewListHandler(repos.Menu.Query),
 	}
 }
 
 // newSettingUseCases 初始化系统配置用例
 func newSettingUseCases(repos *RepositoriesModule) *SettingUseCases {
+	// 创建 JSON Logic 验证器
+	validator := validation.NewJSONLogicValidator()
+
 	return &SettingUseCases{
-		Create:      setting.NewCreateSettingHandler(repos.Setting.Command, repos.Setting.Query),
-		Update:      setting.NewUpdateSettingHandler(repos.Setting.Command, repos.Setting.Query),
-		Delete:      setting.NewDeleteSettingHandler(repos.Setting.Command, repos.Setting.Query),
-		BatchUpdate: setting.NewBatchUpdateSettingsHandler(repos.Setting.Command, repos.Setting.Query),
-		Get:         setting.NewGetSettingHandler(repos.Setting.Query),
-		List:        setting.NewListSettingsHandler(repos.Setting.Query),
+		Create:      setting.NewCreateHandler(repos.Setting.Command, repos.Setting.Query),
+		Update:      setting.NewUpdateHandler(repos.Setting.Command, repos.Setting.Query, validator),
+		Delete:      setting.NewDeleteHandler(repos.Setting.Command, repos.Setting.Query),
+		BatchUpdate: setting.NewBatchUpdateHandler(repos.Setting.Command, repos.Setting.Query, validator),
+		Get:         setting.NewGetHandler(repos.Setting.Query),
+		List:        setting.NewListHandler(repos.Setting.Query),
+		ListSchema:  setting.NewListSchemaHandler(repos.Setting.Query),
 	}
 }
 
@@ -112,21 +117,21 @@ func newPATUseCases(repos *RepositoriesModule, services *ServicesModule) *PATUse
 	}
 
 	return &PATUseCases{
-		Create:  pat.NewCreateTokenHandler(repos.PAT.Command, repos.User.Query, tokenGenerator),
-		Delete:  pat.NewDeleteTokenHandler(repos.PAT.Command, repos.PAT.Query),
-		Disable: pat.NewDisableTokenHandler(repos.PAT.Command, repos.PAT.Query),
-		Enable:  pat.NewEnableTokenHandler(repos.PAT.Command, repos.PAT.Query),
-		Get:     pat.NewGetTokenHandler(repos.PAT.Query),
-		List:    pat.NewListTokensHandler(repos.PAT.Query),
+		Create:  pat.NewCreateHandler(repos.PAT.Command, repos.User.Query, tokenGenerator),
+		Delete:  pat.NewDeleteHandler(repos.PAT.Command, repos.PAT.Query),
+		Disable: pat.NewDisableHandler(repos.PAT.Command, repos.PAT.Query),
+		Enable:  pat.NewEnableHandler(repos.PAT.Command, repos.PAT.Query),
+		Get:     pat.NewGetHandler(repos.PAT.Query),
+		List:    pat.NewListHandler(repos.PAT.Query),
 	}
 }
 
 // newAuditLogUseCases 初始化审计日志用例
 func newAuditLogUseCases(repos *RepositoriesModule) *AuditLogUseCases {
 	return &AuditLogUseCases{
-		CreateLog: auditlog.NewCreateLogHandler(repos.AuditLog.Command),
-		Get:       auditlog.NewGetLogHandler(repos.AuditLog.Query),
-		List:      auditlog.NewListLogsHandler(repos.AuditLog.Query),
+		CreateLog: auditlog.NewCreateHandler(repos.AuditLog.Command),
+		Get:       auditlog.NewGetHandler(repos.AuditLog.Query),
+		List:      auditlog.NewListHandler(repos.AuditLog.Query),
 	}
 }
 
@@ -140,7 +145,7 @@ func newStatsUseCases(repos *RepositoriesModule) *StatsUseCases {
 // newCaptchaUseCases 初始化验证码用例
 func newCaptchaUseCases(repos *RepositoriesModule, services *ServicesModule) *CaptchaUseCases {
 	return &CaptchaUseCases{
-		Generate: captcha.NewGenerateCaptchaHandler(repos.CaptchaCommand, services.Captcha),
+		Generate: captcha.NewGenerateHandler(repos.CaptchaCommand, services.Captcha),
 	}
 }
 
@@ -161,8 +166,8 @@ func newCacheUseCases(infra *InfrastructureModule, cfg *config.Config) *CacheUse
 	cacheQueryRepo := redis.NewCacheQueryRepository(infra.RedisClient, cfg.Data.RedisKeyPrefix)
 
 	return &CacheUseCases{
-		Set:    cache.NewSetCacheHandler(cacheCommandRepo),
-		Delete: cache.NewDeleteCacheHandler(cacheCommandRepo),
-		Get:    cache.NewGetCacheHandler(cacheQueryRepo),
+		Set:    cache.NewSetHandler(cacheCommandRepo),
+		Delete: cache.NewDeleteHandler(cacheCommandRepo),
+		Get:    cache.NewGetHandler(cacheQueryRepo),
 	}
 }

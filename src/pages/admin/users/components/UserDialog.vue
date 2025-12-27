@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, watch, computed } from "vue";
-import type { UserUserWithRolesDTO, UserCreateUserDTO, UserUpdateUserDTO } from "@models";
+import type { UserUserWithRolesDTO, UserCreateDTO, UserUpdateDTO } from "@models";
 // RoleSelector is reserved for future role assignment feature
 import _RoleSelector from "./RoleSelector.vue";
 import PasswordStrengthIndicator from "@/components/PasswordStrengthIndicator.vue";
@@ -17,7 +17,7 @@ interface Props {
 
 interface Emits {
   (e: "update:modelValue", value: boolean): void;
-  (e: "save", data: UserCreateUserDTO | UserUpdateUserDTO): void;
+  (e: "save", data: UserCreateDTO | UserUpdateDTO): void;
 }
 
 const props = defineProps<Props>();
@@ -114,7 +114,7 @@ const handleSave = async () => {
   if (!isValid) return;
 
   if (props.mode === "create") {
-    const createData: UserCreateUserDTO = {
+    const createData: UserCreateDTO = {
       username: formData.value.username,
       email: formData.value.email,
       password: formData.value.password!,
@@ -123,7 +123,7 @@ const handleSave = async () => {
     };
     emit("save", createData);
   } else {
-    const updateData: UserUpdateUserDTO = {
+    const updateData: UserUpdateDTO = {
       email: formData.value.email,
       full_name: formData.value.full_name || undefined,
       status: formData.value.status,

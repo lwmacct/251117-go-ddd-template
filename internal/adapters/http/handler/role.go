@@ -14,8 +14,8 @@ type ListRolesQuery struct {
 }
 
 // ToQuery 转换为 Application 层 Query 对象
-func (q *ListRolesQuery) ToQuery() role.ListRolesQuery {
-	return role.ListRolesQuery{
+func (q *ListRolesQuery) ToQuery() role.ListQuery {
+	return role.ListQuery{
 		Page:  q.GetPage(),
 		Limit: q.GetLimit(),
 	}
@@ -37,25 +37,25 @@ func (q *ListPermissionsQuery) ToQuery() role.ListPermissionsQuery {
 // RoleHandler handles role management operations (DDD+CQRS Use Case Pattern)
 type RoleHandler struct {
 	// Command Handlers
-	createRoleHandler     *role.CreateRoleHandler
-	updateRoleHandler     *role.UpdateRoleHandler
-	deleteRoleHandler     *role.DeleteRoleHandler
+	createRoleHandler     *role.CreateHandler
+	updateRoleHandler     *role.UpdateHandler
+	deleteRoleHandler     *role.DeleteHandler
 	setPermissionsHandler *role.SetPermissionsHandler
 
 	// Query Handlers
-	getRoleHandler         *role.GetRoleHandler
-	listRolesHandler       *role.ListRolesHandler
+	getRoleHandler         *role.GetHandler
+	listRolesHandler       *role.ListHandler
 	listPermissionsHandler *role.ListPermissionsHandler
 }
 
 // NewRoleHandler creates a new RoleHandler instance
 func NewRoleHandler(
-	createRoleHandler *role.CreateRoleHandler,
-	updateRoleHandler *role.UpdateRoleHandler,
-	deleteRoleHandler *role.DeleteRoleHandler,
+	createRoleHandler *role.CreateHandler,
+	updateRoleHandler *role.UpdateHandler,
+	deleteRoleHandler *role.DeleteHandler,
 	setPermissionsHandler *role.SetPermissionsHandler,
-	getRoleHandler *role.GetRoleHandler,
-	listRolesHandler *role.ListRolesHandler,
+	getRoleHandler *role.GetHandler,
+	listRolesHandler *role.ListHandler,
 	listPermissionsHandler *role.ListPermissionsHandler,
 ) *RoleHandler {
 	return &RoleHandler{
@@ -77,8 +77,8 @@ func NewRoleHandler(
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
-// @Param        request body role.CreateRoleDTO true "角色信息"
-// @Success      201 {object} response.DataResponse[role.CreateRoleResultDTO] "角色创建成功"
+// @Param        request body role.CreateDTO true "角色信息"
+// @Success      201 {object} response.DataResponse[role.CreateResultDTO] "角色创建成功"
 // @Failure      400 {object} response.ErrorResponse "参数错误或角色名已存在"
 // @Failure      401 {object} response.ErrorResponse "未授权"
 // @Failure      403 {object} response.ErrorResponse "权限不足"
@@ -86,7 +86,7 @@ func NewRoleHandler(
 // @Router       /api/admin/roles [post]
 // @x-permission {"scope":"admin:roles:create"}
 func (h *RoleHandler) CreateRole(c *gin.Context) {
-	var req role.CreateRoleDTO
+	var req role.CreateDTO
 
 	if err := c.ShouldBindJSON(&req); err != nil {
 		response.ValidationError(c, err.Error())
@@ -94,7 +94,7 @@ func (h *RoleHandler) CreateRole(c *gin.Context) {
 	}
 
 	// 调用 Use Case Handler
-	result, err := h.createRoleHandler.Handle(c.Request.Context(), role.CreateRoleCommand(req))
+	result, err := h.createRoleHandler.Handle(c.Request.Context(), role.CreateCommand(req))
 
 	if err != nil {
 		response.InternalError(c, err.Error())
@@ -102,7 +102,7 @@ func (h *RoleHandler) CreateRole(c *gin.Context) {
 	}
 
 	// 转换为 DTO 响应
-	resp := role.CreateRoleResultDTO{
+	resp := role.CreateResultDTO{
 		RoleID:      result.RoleID,
 		Name:        result.Name,
 		DisplayName: result.DisplayName,
@@ -166,7 +166,7 @@ func (h *RoleHandler) GetRole(c *gin.Context) {
 	}
 
 	// 调用 Use Case Handler
-	result, err := h.getRoleHandler.Handle(c.Request.Context(), role.GetRoleQuery{
+	result, err := h.getRoleHandler.Handle(c.Request.Context(), role.GetQuery{
 		RoleID: uint(id),
 	})
 
@@ -187,7 +187,7 @@ func (h *RoleHandler) GetRole(c *gin.Context) {
 // @Produce      json
 // @Security     BearerAuth
 // @Param        id path int true "角色ID" minimum(1)
-// @Param        request body role.UpdateRoleDTO true "更新信息"
+// @Param        request body role.UpdateDTO true "更新信息"
 // @Success      200 {object} response.DataResponse[role.RoleDTO] "角色更新成功"
 // @Failure      400 {object} response.ErrorResponse "无效的角色ID或参数错误"
 // @Failure      401 {object} response.ErrorResponse "未授权"
@@ -203,7 +203,7 @@ func (h *RoleHandler) UpdateRole(c *gin.Context) {
 		return
 	}
 
-	var req role.UpdateRoleDTO
+	var req role.UpdateDTO
 
 	if err = c.ShouldBindJSON(&req); err != nil {
 		response.ValidationError(c, err.Error())
@@ -211,7 +211,7 @@ func (h *RoleHandler) UpdateRole(c *gin.Context) {
 	}
 
 	// 调用 Use Case Handler
-	result, err := h.updateRoleHandler.Handle(c.Request.Context(), role.UpdateRoleCommand{
+	result, err := h.updateRoleHandler.Handle(c.Request.Context(), role.UpdateCommand{
 		RoleID:      uint(id),
 		DisplayName: req.DisplayName,
 		Description: req.Description,
@@ -250,7 +250,7 @@ func (h *RoleHandler) DeleteRole(c *gin.Context) {
 	}
 
 	// 调用 Use Case Handler
-	err = h.deleteRoleHandler.Handle(c.Request.Context(), role.DeleteRoleCommand{
+	err = h.deleteRoleHandler.Handle(c.Request.Context(), role.DeleteCommand{
 		RoleID: uint(id),
 	})
 

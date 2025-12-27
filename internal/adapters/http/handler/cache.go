@@ -11,21 +11,21 @@ import (
 
 // CacheHandler 缓存处理器示例
 type CacheHandler struct {
-	setCacheHandler    *cache.SetCacheHandler
-	getCacheHandler    *cache.GetCacheHandler
-	deleteCacheHandler *cache.DeleteCacheHandler
+	setHandler    *cache.SetHandler
+	getHandler    *cache.GetHandler
+	deleteHandler *cache.DeleteHandler
 }
 
 // NewCacheHandler 创建缓存处理器
 func NewCacheHandler(
-	setCacheHandler *cache.SetCacheHandler,
-	getCacheHandler *cache.GetCacheHandler,
-	deleteCacheHandler *cache.DeleteCacheHandler,
+	setHandler *cache.SetHandler,
+	getHandler *cache.GetHandler,
+	deleteHandler *cache.DeleteHandler,
 ) *CacheHandler {
 	return &CacheHandler{
-		setCacheHandler:    setCacheHandler,
-		getCacheHandler:    getCacheHandler,
-		deleteCacheHandler: deleteCacheHandler,
+		setHandler:    setHandler,
+		getHandler:    getHandler,
+		deleteHandler: deleteHandler,
 	}
 }
 
@@ -36,17 +36,13 @@ func NewCacheHandler(
 // @Tags         缓存示例 (Cache Demo)
 // @Accept       json
 // @Produce      json
-// @Param        request body cache.SetCacheDTO true "缓存数据"
-// @Success      200 {object} response.DataResponse[cache.SetCacheResultDTO] "设置成功"
+// @Param        request body cache.SetDTO true "缓存数据"
+// @Success      200 {object} response.DataResponse[cache.SetResultDTO] "设置成功"
 // @Failure      400 {object} response.ErrorResponse "参数错误"
 // @Failure      500 {object} response.ErrorResponse "服务器内部错误"
 // @Router       /api/cache [post]
 func (h *CacheHandler) SetCache(c *gin.Context) {
-	var req struct {
-		Key   string `json:"key" binding:"required"`
-		Value any    `json:"value" binding:"required"`
-		TTL   int    `json:"ttl"` // 秒，默认 60
-	}
+	var req cache.SetDTO
 
 	if err := c.ShouldBindJSON(&req); err != nil {
 		response.BadRequest(c, err.Error())
@@ -59,7 +55,7 @@ func (h *CacheHandler) SetCache(c *gin.Context) {
 		ttl = 60
 	}
 
-	err := h.setCacheHandler.Handle(c.Request.Context(), cache.SetCacheCommand{
+	err := h.setHandler.Handle(c.Request.Context(), cache.SetCommand{
 		Key:   req.Key,
 		Value: req.Value,
 		TTL:   time.Duration(ttl) * time.Second,
@@ -69,7 +65,7 @@ func (h *CacheHandler) SetCache(c *gin.Context) {
 		return
 	}
 
-	response.OK(c, "cache set successfully", &cache.SetCacheResultDTO{
+	response.OK(c, "cache set successfully", &cache.SetResultDTO{
 		Key: req.Key,
 		TTL: ttl,
 	})
@@ -83,7 +79,7 @@ func (h *CacheHandler) SetCache(c *gin.Context) {
 // @Accept       json
 // @Produce      json
 // @Param        key path string true "缓存键"
-// @Success      200 {object} response.DataResponse[cache.GetCacheResultDTO] "获取成功"
+// @Success      200 {object} response.DataResponse[cache.GetResultDTO] "获取成功"
 // @Failure      404 {object} response.ErrorResponse "缓存不存在"
 // @Router       /api/cache/{key} [get]
 func (h *CacheHandler) GetCache(c *gin.Context) {
@@ -93,7 +89,7 @@ func (h *CacheHandler) GetCache(c *gin.Context) {
 		return
 	}
 
-	result, err := h.getCacheHandler.Handle(c.Request.Context(), cache.GetCacheQuery{
+	result, err := h.getHandler.Handle(c.Request.Context(), cache.GetQuery{
 		Key: key,
 	})
 	if err != nil {
@@ -112,7 +108,7 @@ func (h *CacheHandler) GetCache(c *gin.Context) {
 // @Accept       json
 // @Produce      json
 // @Param        key path string true "缓存键"
-// @Success      200 {object} response.DataResponse[cache.DeleteCacheResultDTO] "删除成功"
+// @Success      200 {object} response.DataResponse[cache.DeleteResultDTO] "删除成功"
 // @Failure      500 {object} response.ErrorResponse "服务器内部错误"
 // @Router       /api/cache/{key} [delete]
 func (h *CacheHandler) DeleteCache(c *gin.Context) {
@@ -122,7 +118,7 @@ func (h *CacheHandler) DeleteCache(c *gin.Context) {
 		return
 	}
 
-	err := h.deleteCacheHandler.Handle(c.Request.Context(), cache.DeleteCacheCommand{
+	err := h.deleteHandler.Handle(c.Request.Context(), cache.DeleteCommand{
 		Key: key,
 	})
 	if err != nil {
@@ -130,7 +126,7 @@ func (h *CacheHandler) DeleteCache(c *gin.Context) {
 		return
 	}
 
-	response.OK(c, "cache deleted successfully", &cache.DeleteCacheResultDTO{
+	response.OK(c, "cache deleted successfully", &cache.DeleteResultDTO{
 		Key: key,
 	})
 }

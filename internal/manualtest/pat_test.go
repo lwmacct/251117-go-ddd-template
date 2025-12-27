@@ -41,7 +41,7 @@ func TestPATFlow(t *testing.T) {
 	t.Log("\n测试 2: 创建 PAT")
 	tokenName := fmt.Sprintf("test_pat_%d", time.Now().Unix())
 	expiresIn := 30 // 30 天
-	createReq := pat.CreateTokenDTO{
+	createReq := pat.CreateDTO{
 		Name:        tokenName,
 		Permissions: []string{"user:profile:read"},
 		ExpiresIn:   &expiresIn,
@@ -49,7 +49,7 @@ func TestPATFlow(t *testing.T) {
 	}
 	t.Logf("  创建 PAT: %s", tokenName)
 
-	created, err := helper.Post[pat.CreateTokenResultDTO](c, "/api/user/tokens", createReq)
+	created, err := helper.Post[pat.CreateResultDTO](c, "/api/user/tokens", createReq)
 	if err != nil {
 		t.Fatalf("创建 PAT 失败: %v", err)
 	}
@@ -202,7 +202,7 @@ func TestPATWithPermissions(t *testing.T) {
 	// 创建带限制权限的 PAT
 	t.Log("\n创建带限制权限的 PAT...")
 	tokenName := fmt.Sprintf("limited_pat_%d", time.Now().Unix())
-	createReq := pat.CreateTokenDTO{
+	createReq := pat.CreateDTO{
 		Name: tokenName,
 		Permissions: []string{
 			"user:profile:read",
@@ -211,7 +211,7 @@ func TestPATWithPermissions(t *testing.T) {
 		Description: "仅限读写个人资料",
 	}
 
-	created, err := helper.Post[pat.CreateTokenResultDTO](c, "/api/user/tokens", createReq)
+	created, err := helper.Post[pat.CreateResultDTO](c, "/api/user/tokens", createReq)
 	if err != nil {
 		t.Fatalf("创建 PAT 失败: %v", err)
 	}

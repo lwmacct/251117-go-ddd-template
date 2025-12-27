@@ -2,8 +2,8 @@ package user
 
 import "time"
 
-// CreateUserDTO 创建用户 DTO
-type CreateUserDTO struct {
+// CreateDTO 创建用户 DTO
+type CreateDTO struct {
 	Username string  `json:"username" binding:"required,min=3,max=50"`
 	Email    string  `json:"email" binding:"required,email"`
 	Password string  `json:"password" binding:"required,min=6"`
@@ -12,8 +12,8 @@ type CreateUserDTO struct {
 	RoleIDs  []uint  `json:"role_ids" binding:"omitempty,dive,gt=0"`
 }
 
-// UpdateUserDTO 更新用户 DTO
-type UpdateUserDTO struct {
+// UpdateDTO 更新用户 DTO
+type UpdateDTO struct {
 	Username *string `json:"username" binding:"omitempty,min=3,max=50"`
 	Email    *string `json:"email" binding:"omitempty,email"`
 	FullName *string `json:"full_name" binding:"omitempty,max=100"`
@@ -74,13 +74,13 @@ type UserListDTO struct {
 	Total int64      `json:"total"`
 }
 
-// BatchCreateUserDTO 批量创建用户请求 DTO
-type BatchCreateUserDTO struct {
-	Users []BatchUserItemDTO `json:"users" binding:"required,min=1,max=100,dive"`
+// BatchCreateDTO 批量创建用户请求 DTO
+type BatchCreateDTO struct {
+	Users []BatchItemDTO `json:"users" binding:"required,min=1,max=100,dive"`
 }
 
-// BatchUserItemDTO 批量创建中的单个用户 DTO
-type BatchUserItemDTO struct {
+// BatchItemDTO 批量创建中的单个用户 DTO
+type BatchItemDTO struct {
 	Username string `json:"username" binding:"required,min=3,max=50"`
 	Email    string `json:"email" binding:"required,email"`
 	Password string `json:"password" binding:"required,min=6"`
@@ -89,8 +89,8 @@ type BatchUserItemDTO struct {
 	RoleIDs  []uint `json:"role_ids" binding:"omitempty,dive,gt=0"`
 }
 
-// BatchCreateUserResultDTO 批量创建用户响应 DTO
-type BatchCreateUserResultDTO struct {
+// BatchCreateResultDTO 批量创建用户响应 DTO
+type BatchCreateResultDTO struct {
 	Total   int                   `json:"total"`
 	Success int                   `json:"success"`
 	Failed  int                   `json:"failed"`
@@ -105,14 +105,14 @@ type BatchCreateErrorDTO struct {
 	Error    string `json:"error"`
 }
 
-// CreateUserResultDTO 创建用户结果 DTO（Handler 返回类型）
-type CreateUserResultDTO struct {
+// CreateResultDTO 创建用户结果 DTO（Handler 返回类型）
+type CreateResultDTO struct {
 	UserID   uint
 	Username string
 	Email    string
 }
 
-// UpdateUserResultDTO 更新用户结果 DTO（Handler 返回类型）
-type UpdateUserResultDTO struct {
+// UpdateResultDTO 更新用户结果 DTO（Handler 返回类型）
+type UpdateResultDTO struct {
 	UserID uint
 }

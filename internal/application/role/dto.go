@@ -2,15 +2,15 @@ package role
 
 import "time"
 
-// CreateRoleDTO 创建角色请求 DTO
-type CreateRoleDTO struct {
+// CreateDTO 创建角色请求 DTO
+type CreateDTO struct {
 	Name        string `json:"name" binding:"required,min=2,max=50" example:"developer"`
 	DisplayName string `json:"display_name" binding:"required,max=100" example:"开发者"`
 	Description string `json:"description" binding:"max=255" example:"系统开发人员角色"`
 }
 
-// UpdateRoleDTO 更新角色请求 DTO
-type UpdateRoleDTO struct {
+// UpdateDTO 更新角色请求 DTO
+type UpdateDTO struct {
 	DisplayName *string `json:"display_name,omitempty" binding:"omitempty,max=100"`
 	Description *string `json:"description,omitempty" binding:"omitempty,max=255"`
 }
@@ -20,8 +20,8 @@ type SetPermissionsDTO struct {
 	PermissionIDs []uint `json:"permission_ids" binding:"required"`
 }
 
-// CreateRoleResultDTO 创建角色响应 DTO
-type CreateRoleResultDTO struct {
+// CreateResultDTO 创建角色响应 DTO
+type CreateResultDTO struct {
 	RoleID      uint   `json:"role_id"`
 	Name        string `json:"name"`
 	DisplayName string `json:"display_name"`

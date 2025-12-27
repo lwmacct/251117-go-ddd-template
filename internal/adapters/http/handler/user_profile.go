@@ -8,18 +8,18 @@ import (
 
 // UserProfileHandler handles user profile operations
 type UserProfileHandler struct {
-	getUserHandler        *user.GetUserHandler
-	updateUserHandler     *user.UpdateUserHandler
+	getUserHandler        *user.GetHandler
+	updateUserHandler     *user.UpdateHandler
 	changePasswordHandler *user.ChangePasswordHandler
-	deleteUserHandler     *user.DeleteUserHandler
+	deleteUserHandler     *user.DeleteHandler
 }
 
 // NewUserProfileHandler creates a new UserProfileHandler instance
 func NewUserProfileHandler(
-	getUserHandler *user.GetUserHandler,
-	updateUserHandler *user.UpdateUserHandler,
+	getUserHandler *user.GetHandler,
+	updateUserHandler *user.UpdateHandler,
 	changePasswordHandler *user.ChangePasswordHandler,
-	deleteUserHandler *user.DeleteUserHandler,
+	deleteUserHandler *user.DeleteHandler,
 ) *UserProfileHandler {
 	return &UserProfileHandler{
 		getUserHandler:        getUserHandler,
@@ -55,7 +55,7 @@ func (h *UserProfileHandler) GetProfile(c *gin.Context) {
 		return
 	}
 
-	u, err := h.getUserHandler.Handle(c.Request.Context(), user.GetUserQuery{
+	u, err := h.getUserHandler.Handle(c.Request.Context(), user.GetQuery{
 		UserID:    uid,
 		WithRoles: true,
 	})
@@ -109,7 +109,7 @@ func (h *UserProfileHandler) UpdateProfile(c *gin.Context) {
 		return
 	}
 
-	if _, err := h.updateUserHandler.Handle(c.Request.Context(), user.UpdateUserCommand{
+	if _, err := h.updateUserHandler.Handle(c.Request.Context(), user.UpdateCommand{
 		UserID:   uid,
 		FullName: req.FullName,
 		Avatar:   req.Avatar,
@@ -119,7 +119,7 @@ func (h *UserProfileHandler) UpdateProfile(c *gin.Context) {
 		return
 	}
 
-	updatedUser, err := h.getUserHandler.Handle(c.Request.Context(), user.GetUserQuery{
+	updatedUser, err := h.getUserHandler.Handle(c.Request.Context(), user.GetQuery{
 		UserID:    uid,
 		WithRoles: true,
 	})
@@ -202,7 +202,7 @@ func (h *UserProfileHandler) DeleteAccount(c *gin.Context) {
 		return
 	}
 
-	if err := h.deleteUserHandler.Handle(c.Request.Context(), user.DeleteUserCommand{
+	if err := h.deleteUserHandler.Handle(c.Request.Context(), user.DeleteCommand{
 		UserID: uid,
 	}); err != nil {
 		response.InternalError(c, err.Error())

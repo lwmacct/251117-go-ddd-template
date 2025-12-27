@@ -22,13 +22,13 @@ import { DUMMY_BASE_URL, assertParamExists, setApiKeyToObject, setBasicAuthToObj
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS, type RequestArgs, BaseAPI, RequiredError, operationServerMap } from '../base';
 // @ts-ignore
-import type { CacheSetCacheDTO } from '../models';
+import type { CacheSetDTO } from '../models';
 // @ts-ignore
-import type { ResponseDataResponseCacheDeleteCacheResultDTO } from '../models';
+import type { ResponseDataResponseCacheDeleteResultDTO } from '../models';
 // @ts-ignore
-import type { ResponseDataResponseCacheGetCacheResultDTO } from '../models';
+import type { ResponseDataResponseCacheGetResultDTO } from '../models';
 // @ts-ignore
-import type { ResponseDataResponseCacheSetCacheResultDTO } from '../models';
+import type { ResponseDataResponseCacheSetResultDTO } from '../models';
 // @ts-ignore
 import type { ResponseErrorResponse } from '../models';
 /**
@@ -108,11 +108,11 @@ export const CacheDemoApiAxiosParamCreator = function (configuration?: Configura
         /**
          * 设置缓存键值对（演示用，公开接口）
          * @summary 设置缓存
-         * @param {CacheSetCacheDTO} request 缓存数据
+         * @param {CacheSetDTO} request 缓存数据
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiCachePost: async (request: CacheSetCacheDTO, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        apiCachePost: async (request: CacheSetDTO, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'request' is not null or undefined
             assertParamExists('apiCachePost', 'request', request)
             const localVarPath = `/api/cache`;
@@ -158,7 +158,7 @@ export const CacheDemoApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async apiCacheKeyDelete(key: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseCacheDeleteCacheResultDTO>> {
+        async apiCacheKeyDelete(key: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseCacheDeleteResultDTO>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.apiCacheKeyDelete(key, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['CacheDemoApi.apiCacheKeyDelete']?.[localVarOperationServerIndex]?.url;
@@ -171,7 +171,7 @@ export const CacheDemoApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async apiCacheKeyGet(key: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseCacheGetCacheResultDTO>> {
+        async apiCacheKeyGet(key: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseCacheGetResultDTO>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.apiCacheKeyGet(key, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['CacheDemoApi.apiCacheKeyGet']?.[localVarOperationServerIndex]?.url;
@@ -180,11 +180,11 @@ export const CacheDemoApiFp = function(configuration?: Configuration) {
         /**
          * 设置缓存键值对（演示用，公开接口）
          * @summary 设置缓存
-         * @param {CacheSetCacheDTO} request 缓存数据
+         * @param {CacheSetDTO} request 缓存数据
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async apiCachePost(request: CacheSetCacheDTO, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseCacheSetCacheResultDTO>> {
+        async apiCachePost(request: CacheSetDTO, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseCacheSetResultDTO>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.apiCachePost(request, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['CacheDemoApi.apiCachePost']?.[localVarOperationServerIndex]?.url;
@@ -207,7 +207,7 @@ export const CacheDemoApiFactory = function (configuration?: Configuration, base
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiCacheKeyDelete(key: string, options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseCacheDeleteCacheResultDTO> {
+        apiCacheKeyDelete(key: string, options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseCacheDeleteResultDTO> {
             return localVarFp.apiCacheKeyDelete(key, options).then((request) => request(axios, basePath));
         },
         /**
@@ -217,17 +217,17 @@ export const CacheDemoApiFactory = function (configuration?: Configuration, base
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiCacheKeyGet(key: string, options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseCacheGetCacheResultDTO> {
+        apiCacheKeyGet(key: string, options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseCacheGetResultDTO> {
             return localVarFp.apiCacheKeyGet(key, options).then((request) => request(axios, basePath));
         },
         /**
          * 设置缓存键值对（演示用，公开接口）
          * @summary 设置缓存
-         * @param {CacheSetCacheDTO} request 缓存数据
+         * @param {CacheSetDTO} request 缓存数据
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiCachePost(request: CacheSetCacheDTO, options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseCacheSetCacheResultDTO> {
+        apiCachePost(request: CacheSetDTO, options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseCacheSetResultDTO> {
             return localVarFp.apiCachePost(request, options).then((request) => request(axios, basePath));
         },
     };
@@ -267,12 +267,12 @@ export class CacheDemoApi extends BaseAPI {
     /**
      * 设置缓存键值对（演示用，公开接口）
      * @summary 设置缓存
-     * @param {CacheSetCacheDTO} request 缓存数据
+     * @param {CacheSetDTO} request 缓存数据
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof CacheDemoApi
      */
-    public apiCachePost(request: CacheSetCacheDTO, options?: RawAxiosRequestConfig) {
+    public apiCachePost(request: CacheSetDTO, options?: RawAxiosRequestConfig) {
         return CacheDemoApiFp(this.configuration).apiCachePost(request, options).then((request) => request(this.axios, this.basePath));
     }
 }

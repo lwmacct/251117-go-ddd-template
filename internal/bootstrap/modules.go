@@ -70,6 +70,7 @@ type HandlersModule struct {
 	Auth        *handler.AuthHandler
 	Captcha     *handler.CaptchaHandler
 	AdminUser   *handler.AdminUserHandler
+	User        *handler.UserHandler
 	UserProfile *handler.UserProfileHandler
 	Role        *handler.RoleHandler
 	Menu        *handler.MenuHandler

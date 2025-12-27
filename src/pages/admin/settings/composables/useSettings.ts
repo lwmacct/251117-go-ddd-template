@@ -5,6 +5,8 @@ import { ref, computed } from "vue";
 import { adminSettingsApi, extractData } from "@/api";
 import {
   type SettingSettingDTO,
+  type SettingSchemaCategoryDTO,
+  type SettingSchemaSettingDTO,
   type HandlerCreateSettingRequest,
   type HandlerUpdateSettingRequest,
   type HandlerBatchUpdateSettingsRequest,
@@ -12,6 +14,7 @@ import {
 
 export function useSettings() {
   const settings = ref<SettingSettingDTO[]>([]);
+  const schema = ref<SettingSchemaCategoryDTO[]>([]);
   const loading = ref(false);
   const saving = ref(false);
   const errorMessage = ref("");
@@ -31,6 +34,37 @@ export function useSettings() {
     });
     return map;
   });
+
+  // 按 key 索引的设置 Map（使用 Schema 数据）
+  const settingsMap = computed(() => {
+    const map = new Map<string, SettingSchemaSettingDTO>();
+    schema.value.forEach((cat) => {
+      cat.groups?.forEach((group) => {
+        group.settings?.forEach((s) => {
+          if (s.key) {
+            map.set(s.key, s);
+          }
+        });
+      });
+    });
+    return map;
+  });
+
+  // 获取配置 Schema（层级结构）
+  const fetchSchema = async () => {
+    loading.value = true;
+    errorMessage.value = "";
+
+    try {
+      const response = await adminSettingsApi.apiAdminSettingsSchemaGet();
+      schema.value = (response.data.data ?? []) as SettingSchemaCategoryDTO[];
+    } catch (error) {
+      errorMessage.value = (error as Error).message || "获取设置 Schema 失败";
+      console.error("Failed to fetch settings schema:", error);
+    } finally {
+      loading.value = false;
+    }
+  };
 
   // 获取所有设置
   const fetchSettings = async () => {
@@ -229,11 +263,14 @@ export function useSettings() {
 
   return {
     settings,
+    schema,
     settingsByCategory,
+    settingsMap,
     loading,
     saving,
     errorMessage,
     successMessage,
+    fetchSchema,
     fetchSettings,
     fetchSettingsByCategory,
     getSetting,

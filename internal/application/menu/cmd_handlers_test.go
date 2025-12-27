@@ -19,11 +19,11 @@ import (
 func TestCreateMenuHandler_Handle_Success(t *testing.T) {
 	tests := []struct {
 		name string
-		cmd  CreateMenuCommand
+		cmd  CreateCommand
 	}{
 		{
 			name: "创建顶级菜单",
-			cmd: CreateMenuCommand{
+			cmd: CreateCommand{
 				Title:   "Dashboard",
 				Path:    "/dashboard",
 				Icon:    "dashboard",
@@ -33,7 +33,7 @@ func TestCreateMenuHandler_Handle_Success(t *testing.T) {
 		},
 		{
 			name: "创建子菜单",
-			cmd: CreateMenuCommand{
+			cmd: CreateCommand{
 				Title:    "Users",
 				Path:     "/users",
 				Icon:     "users",
@@ -54,7 +54,7 @@ func TestCreateMenuHandler_Handle_Success(t *testing.T) {
 			}
 			mockCmdRepo.On("Create", mock.Anything, mock.AnythingOfType("*menu.Menu")).Return(nil)
 
-			handler := NewCreateMenuHandler(mockCmdRepo, mockQryRepo)
+			handler := NewCreateHandler(mockCmdRepo, mockQryRepo)
 			result, err := handler.Handle(context.Background(), tt.cmd)
 
 			require.NoError(t, err)
@@ -67,13 +67,13 @@ func TestCreateMenuHandler_Handle_Success(t *testing.T) {
 func TestCreateMenuHandler_Handle_Error(t *testing.T) {
 	tests := []struct {
 		name       string
-		cmd        CreateMenuCommand
+		cmd        CreateCommand
 		setupMocks func(*MockMenuCommandRepository, *MockMenuQueryRepository)
 		wantErr    string
 	}{
 		{
 			name: "父菜单不存在",
-			cmd:  CreateMenuCommand{Title: "Child", Path: "/child", ParentID: ptrUint(999)},
+			cmd:  CreateCommand{Title: "Child", Path: "/child", ParentID: ptrUint(999)},
 			setupMocks: func(cmdRepo *MockMenuCommandRepository, qryRepo *MockMenuQueryRepository) {
 				qryRepo.On("FindByID", mock.Anything, uint(999)).Return(nil, errors.New("not found"))
 			},
@@ -81,7 +81,7 @@ func TestCreateMenuHandler_Handle_Error(t *testing.T) {
 		},
 		{
 			name: "创建失败",
-			cmd:  CreateMenuCommand{Title: "Menu", Path: "/menu"},
+			cmd:  CreateCommand{Title: "Menu", Path: "/menu"},
 			setupMocks: func(cmdRepo *MockMenuCommandRepository, qryRepo *MockMenuQueryRepository) {
 				cmdRepo.On("Create", mock.Anything, mock.AnythingOfType("*menu.Menu")).Return(errors.New("db error"))
 			},
@@ -95,7 +95,7 @@ func TestCreateMenuHandler_Handle_Error(t *testing.T) {
 			mockQryRepo := new(MockMenuQueryRepository)
 			tt.setupMocks(mockCmdRepo, mockQryRepo)
 
-			handler := NewCreateMenuHandler(mockCmdRepo, mockQryRepo)
+			handler := NewCreateHandler(mockCmdRepo, mockQryRepo)
 			result, err := handler.Handle(context.Background(), tt.cmd)
 
 			assert.Nil(t, result)
@@ -117,9 +117,9 @@ func TestUpdateMenuHandler_Handle_Success(t *testing.T) {
 	mockQryRepo.On("FindByID", mock.Anything, uint(1)).Return(existingMenu, nil)
 	mockCmdRepo.On("Update", mock.Anything, mock.AnythingOfType("*menu.Menu")).Return(nil)
 
-	handler := NewUpdateMenuHandler(mockCmdRepo, mockQryRepo)
+	handler := NewUpdateHandler(mockCmdRepo, mockQryRepo)
 
-	result, err := handler.Handle(context.Background(), UpdateMenuCommand{
+	result, err := handler.Handle(context.Background(), UpdateCommand{
 		MenuID: 1,
 		Title:  ptrString("NewTitle"),
 		Path:   ptrString("/new-path"),
@@ -134,13 +134,13 @@ func TestUpdateMenuHandler_Handle_Success(t *testing.T) {
 func TestUpdateMenuHandler_Handle_Error(t *testing.T) {
 	tests := []struct {
 		name       string
-		cmd        UpdateMenuCommand
+		cmd        UpdateCommand
 		setupMocks func(*MockMenuCommandRepository, *MockMenuQueryRepository)
 		wantErr    string
 	}{
 		{
 			name: "菜单不存在",
-			cmd:  UpdateMenuCommand{MenuID: 999},
+			cmd:  UpdateCommand{MenuID: 999},
 			setupMocks: func(cmdRepo *MockMenuCommandRepository, qryRepo *MockMenuQueryRepository) {
 				qryRepo.On("FindByID", mock.Anything, uint(999)).Return(nil, errors.New("not found"))
 			},
@@ -148,7 +148,7 @@ func TestUpdateMenuHandler_Handle_Error(t *testing.T) {
 		},
 		{
 			name: "不能设置自己为父菜单",
-			cmd:  UpdateMenuCommand{MenuID: 1, ParentID: ptrUint(1)},
+			cmd:  UpdateCommand{MenuID: 1, ParentID: ptrUint(1)},
 			setupMocks: func(cmdRepo *MockMenuCommandRepository, qryRepo *MockMenuQueryRepository) {
 				qryRepo.On("FindByID", mock.Anything, uint(1)).Return(newTestMenu(1, "Menu"), nil)
 			},
@@ -156,7 +156,7 @@ func TestUpdateMenuHandler_Handle_Error(t *testing.T) {
 		},
 		{
 			name: "父菜单不存在",
-			cmd:  UpdateMenuCommand{MenuID: 1, ParentID: ptrUint(999)},
+			cmd:  UpdateCommand{MenuID: 1, ParentID: ptrUint(999)},
 			setupMocks: func(cmdRepo *MockMenuCommandRepository, qryRepo *MockMenuQueryRepository) {
 				qryRepo.On("FindByID", mock.Anything, uint(1)).Return(newTestMenu(1, "Menu"), nil)
 				qryRepo.On("FindByID", mock.Anything, uint(999)).Return(nil, errors.New("not found"))
@@ -165,7 +165,7 @@ func TestUpdateMenuHandler_Handle_Error(t *testing.T) {
 		},
 		{
 			name: "更新失败",
-			cmd:  UpdateMenuCommand{MenuID: 1, Title: ptrString("New")},
+			cmd:  UpdateCommand{MenuID: 1, Title: ptrString("New")},
 			setupMocks: func(cmdRepo *MockMenuCommandRepository, qryRepo *MockMenuQueryRepository) {
 				qryRepo.On("FindByID", mock.Anything, uint(1)).Return(newTestMenu(1, "Old"), nil)
 				cmdRepo.On("Update", mock.Anything, mock.AnythingOfType("*menu.Menu")).Return(errors.New("db error"))
@@ -180,7 +180,7 @@ func TestUpdateMenuHandler_Handle_Error(t *testing.T) {
 			mockQryRepo := new(MockMenuQueryRepository)
 			tt.setupMocks(mockCmdRepo, mockQryRepo)
 
-			handler := NewUpdateMenuHandler(mockCmdRepo, mockQryRepo)
+			handler := NewUpdateHandler(mockCmdRepo, mockQryRepo)
 			result, err := handler.Handle(context.Background(), tt.cmd)
 
 			assert.Nil(t, result)
@@ -202,9 +202,9 @@ func TestDeleteMenuHandler_Handle_Success(t *testing.T) {
 	mockQryRepo.On("FindByParentID", mock.Anything, ptrUint(1)).Return([]*domainMenu.Menu{}, nil)
 	mockCmdRepo.On("Delete", mock.Anything, uint(1)).Return(nil)
 
-	handler := NewDeleteMenuHandler(mockCmdRepo, mockQryRepo)
+	handler := NewDeleteHandler(mockCmdRepo, mockQryRepo)
 
-	err := handler.Handle(context.Background(), DeleteMenuCommand{MenuID: 1})
+	err := handler.Handle(context.Background(), DeleteCommand{MenuID: 1})
 
 	require.NoError(t, err)
 	mockCmdRepo.AssertExpectations(t)
@@ -213,13 +213,13 @@ func TestDeleteMenuHandler_Handle_Success(t *testing.T) {
 func TestDeleteMenuHandler_Handle_Error(t *testing.T) {
 	tests := []struct {
 		name       string
-		cmd        DeleteMenuCommand
+		cmd        DeleteCommand
 		setupMocks func(*MockMenuCommandRepository, *MockMenuQueryRepository)
 		wantErr    string
 	}{
 		{
 			name: "菜单不存在",
-			cmd:  DeleteMenuCommand{MenuID: 999},
+			cmd:  DeleteCommand{MenuID: 999},
 			setupMocks: func(cmdRepo *MockMenuCommandRepository, qryRepo *MockMenuQueryRepository) {
 				qryRepo.On("FindByID", mock.Anything, uint(999)).Return(nil, errors.New("not found"))
 			},
@@ -227,7 +227,7 @@ func TestDeleteMenuHandler_Handle_Error(t *testing.T) {
 		},
 		{
 			name: "检查子菜单失败",
-			cmd:  DeleteMenuCommand{MenuID: 1},
+			cmd:  DeleteCommand{MenuID: 1},
 			setupMocks: func(cmdRepo *MockMenuCommandRepository, qryRepo *MockMenuQueryRepository) {
 				qryRepo.On("FindByID", mock.Anything, uint(1)).Return(newTestMenu(1, "Menu"), nil)
 				qryRepo.On("FindByParentID", mock.Anything, ptrUint(1)).Return(nil, errors.New("db error"))
@@ -236,7 +236,7 @@ func TestDeleteMenuHandler_Handle_Error(t *testing.T) {
 		},
 		{
 			name: "有子菜单无法删除",
-			cmd:  DeleteMenuCommand{MenuID: 1},
+			cmd:  DeleteCommand{MenuID: 1},
 			setupMocks: func(cmdRepo *MockMenuCommandRepository, qryRepo *MockMenuQueryRepository) {
 				qryRepo.On("FindByID", mock.Anything, uint(1)).Return(newTestMenu(1, "Parent"), nil)
 				qryRepo.On("FindByParentID", mock.Anything, ptrUint(1)).Return([]*domainMenu.Menu{
@@ -247,7 +247,7 @@ func TestDeleteMenuHandler_Handle_Error(t *testing.T) {
 		},
 		{
 			name: "删除失败",
-			cmd:  DeleteMenuCommand{MenuID: 1},
+			cmd:  DeleteCommand{MenuID: 1},
 			setupMocks: func(cmdRepo *MockMenuCommandRepository, qryRepo *MockMenuQueryRepository) {
 				qryRepo.On("FindByID", mock.Anything, uint(1)).Return(newTestMenu(1, "Menu"), nil)
 				qryRepo.On("FindByParentID", mock.Anything, ptrUint(1)).Return([]*domainMenu.Menu{}, nil)
@@ -263,7 +263,7 @@ func TestDeleteMenuHandler_Handle_Error(t *testing.T) {
 			mockQryRepo := new(MockMenuQueryRepository)
 			tt.setupMocks(mockCmdRepo, mockQryRepo)
 
-			handler := NewDeleteMenuHandler(mockCmdRepo, mockQryRepo)
+			handler := NewDeleteHandler(mockCmdRepo, mockQryRepo)
 			err := handler.Handle(context.Background(), tt.cmd)
 
 			require.Error(t, err)
@@ -284,9 +284,9 @@ func TestUpdateMenuHandler_ApplyUpdates_AllFields(t *testing.T) {
 	mockQryRepo.On("FindByID", mock.Anything, uint(1)).Return(existingMenu, nil)
 	mockCmdRepo.On("Update", mock.Anything, mock.AnythingOfType("*menu.Menu")).Return(nil)
 
-	handler := NewUpdateMenuHandler(mockCmdRepo, mockQryRepo)
+	handler := NewUpdateHandler(mockCmdRepo, mockQryRepo)
 
-	result, err := handler.Handle(context.Background(), UpdateMenuCommand{
+	result, err := handler.Handle(context.Background(), UpdateCommand{
 		MenuID:   1,
 		Title:    ptrString("NewTitle"),
 		Path:     ptrString("/new-path"),
@@ -313,10 +313,10 @@ func TestUpdateMenuHandler_ValidateParentID_ZeroValue(t *testing.T) {
 	mockQryRepo.On("FindByID", mock.Anything, uint(1)).Return(existingMenu, nil)
 	mockCmdRepo.On("Update", mock.Anything, mock.AnythingOfType("*menu.Menu")).Return(nil)
 
-	handler := NewUpdateMenuHandler(mockCmdRepo, mockQryRepo)
+	handler := NewUpdateHandler(mockCmdRepo, mockQryRepo)
 
 	// ParentID = 0 表示设为顶级菜单，应该成功
-	result, err := handler.Handle(context.Background(), UpdateMenuCommand{
+	result, err := handler.Handle(context.Background(), UpdateCommand{
 		MenuID:   1,
 		ParentID: ptrUint(0),
 	})

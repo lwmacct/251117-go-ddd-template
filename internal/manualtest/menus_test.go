@@ -5,7 +5,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/lwmacct/251117-go-ddd-template/internal/adapters/http/handler"
 	"github.com/lwmacct/251117-go-ddd-template/internal/application/menu"
 	"github.com/lwmacct/251117-go-ddd-template/internal/manualtest/helper"
 )
@@ -57,7 +56,7 @@ func TestMenusFlow(t *testing.T) {
 	menuName := fmt.Sprintf("testmenu_%d", time.Now().UnixNano())
 	menuPath := "/test/" + menuName
 	visible := true
-	createReq := handler.CreateMenuRequest{
+	createReq := menu.CreateDTO{
 		Title:   menuName,
 		Path:    menuPath,
 		Icon:    "test-icon",
@@ -66,7 +65,7 @@ func TestMenusFlow(t *testing.T) {
 	}
 	t.Logf("  创建菜单: %s", menuName)
 
-	created, err := helper.Post[menu.CreateMenuResultDTO](c, "/api/admin/menus", createReq)
+	created, err := helper.Post[menu.CreateResultDTO](c, "/api/admin/menus", createReq)
 	if err != nil {
 		t.Fatalf("创建菜单失败: %v", err)
 	}
@@ -109,7 +108,7 @@ func TestMenusFlow(t *testing.T) {
 	t.Log("\n测试 4: 更新菜单")
 	newTitle := menuName + "_updated"
 	newOrder := 100
-	updateReq := handler.UpdateMenuRequest{
+	updateReq := menu.UpdateDTO{
 		Title: &newTitle,
 		Order: &newOrder,
 	}
@@ -131,7 +130,7 @@ func TestMenusFlow(t *testing.T) {
 
 	// 测试 5: 创建子菜单
 	t.Log("\n测试 5: 创建子菜单")
-	childReq := handler.CreateMenuRequest{
+	childReq := menu.CreateDTO{
 		Title:    menuName + "_child",
 		Path:     "/test/" + menuName + "/child",
 		Icon:     "child-icon",
@@ -139,7 +138,7 @@ func TestMenusFlow(t *testing.T) {
 		Order:    1,
 		Visible:  &visible,
 	}
-	childResult, err := helper.Post[menu.CreateMenuResultDTO](c, "/api/admin/menus", childReq)
+	childResult, err := helper.Post[menu.CreateResultDTO](c, "/api/admin/menus", childReq)
 	if err != nil {
 		t.Fatalf("创建子菜单失败: %v", err)
 	}
@@ -266,14 +265,14 @@ func TestMenuReorder(t *testing.T) {
 	visible := true
 	for i, order := range []int{1, 2, 3} {
 		menuName := fmt.Sprintf("reorder_test_%d_%d", timestamp, i+1)
-		createReq := handler.CreateMenuRequest{
+		createReq := menu.CreateDTO{
 			Title:   menuName,
 			Path:    "/test/" + menuName,
 			Icon:    "test-icon",
 			Order:   order,
 			Visible: &visible,
 		}
-		created, createErr := helper.Post[menu.CreateMenuResultDTO](c, "/api/admin/menus", createReq)
+		created, createErr := helper.Post[menu.CreateResultDTO](c, "/api/admin/menus", createReq)
 		if createErr != nil {
 			t.Fatalf("创建菜单失败: %v", createErr)
 		}

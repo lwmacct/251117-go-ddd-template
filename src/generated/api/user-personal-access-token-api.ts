@@ -22,11 +22,11 @@ import { DUMMY_BASE_URL, assertParamExists, setApiKeyToObject, setBasicAuthToObj
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS, type RequestArgs, BaseAPI, RequiredError, operationServerMap } from '../base';
 // @ts-ignore
-import type { PatCreateTokenDTO } from '../models';
+import type { PatCreateDTO } from '../models';
 // @ts-ignore
 import type { ResponseDataResponseArrayPatTokenDTO } from '../models';
 // @ts-ignore
-import type { ResponseDataResponsePatCreateTokenResultDTO } from '../models';
+import type { ResponseDataResponsePatCreateResultDTO } from '../models';
 // @ts-ignore
 import type { ResponseDataResponsePatTokenDTO } from '../models';
 // @ts-ignore
@@ -223,11 +223,11 @@ export const UserPersonalAccessTokenApiAxiosParamCreator = function (configurati
         /**
          * 用户创建新的个人访问令牌(PAT)，用于API访问。令牌仅在创建时显示一次
          * @summary 创建个人访问令牌
-         * @param {PatCreateTokenDTO} request 令牌信息
+         * @param {PatCreateDTO} request 令牌信息
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiUserTokensPost: async (request: PatCreateTokenDTO, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        apiUserTokensPost: async (request: PatCreateDTO, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'request' is not null or undefined
             assertParamExists('apiUserTokensPost', 'request', request)
             const localVarPath = `/api/user/tokens`;
@@ -336,11 +336,11 @@ export const UserPersonalAccessTokenApiFp = function(configuration?: Configurati
         /**
          * 用户创建新的个人访问令牌(PAT)，用于API访问。令牌仅在创建时显示一次
          * @summary 创建个人访问令牌
-         * @param {PatCreateTokenDTO} request 令牌信息
+         * @param {PatCreateDTO} request 令牌信息
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async apiUserTokensPost(request: PatCreateTokenDTO, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponsePatCreateTokenResultDTO>> {
+        async apiUserTokensPost(request: PatCreateDTO, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponsePatCreateResultDTO>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.apiUserTokensPost(request, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['UserPersonalAccessTokenApi.apiUserTokensPost']?.[localVarOperationServerIndex]?.url;
@@ -408,11 +408,11 @@ export const UserPersonalAccessTokenApiFactory = function (configuration?: Confi
         /**
          * 用户创建新的个人访问令牌(PAT)，用于API访问。令牌仅在创建时显示一次
          * @summary 创建个人访问令牌
-         * @param {PatCreateTokenDTO} request 令牌信息
+         * @param {PatCreateDTO} request 令牌信息
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiUserTokensPost(request: PatCreateTokenDTO, options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponsePatCreateTokenResultDTO> {
+        apiUserTokensPost(request: PatCreateDTO, options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponsePatCreateResultDTO> {
             return localVarFp.apiUserTokensPost(request, options).then((request) => request(axios, basePath));
         },
     };
@@ -487,12 +487,12 @@ export class UserPersonalAccessTokenApi extends BaseAPI {
     /**
      * 用户创建新的个人访问令牌(PAT)，用于API访问。令牌仅在创建时显示一次
      * @summary 创建个人访问令牌
-     * @param {PatCreateTokenDTO} request 令牌信息
+     * @param {PatCreateDTO} request 令牌信息
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof UserPersonalAccessTokenApi
      */
-    public apiUserTokensPost(request: PatCreateTokenDTO, options?: RawAxiosRequestConfig) {
+    public apiUserTokensPost(request: PatCreateDTO, options?: RawAxiosRequestConfig) {
         return UserPersonalAccessTokenApiFp(this.configuration).apiUserTokensPost(request, options).then((request) => request(this.axios, this.basePath));
     }
 }

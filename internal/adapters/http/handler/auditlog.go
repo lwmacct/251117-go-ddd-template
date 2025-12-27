@@ -28,8 +28,8 @@ type ListAuditLogsQuery struct {
 }
 
 // ToQuery 转换为 Application 层 Query 对象
-func (q *ListAuditLogsQuery) ToQuery() auditlog.ListLogsQuery {
-	result := auditlog.ListLogsQuery{
+func (q *ListAuditLogsQuery) ToQuery() auditlog.ListQuery {
+	result := auditlog.ListQuery{
 		Page:     q.GetPage(),
 		Limit:    q.GetLimit(),
 		UserID:   q.UserID,
@@ -56,18 +56,18 @@ func (q *ListAuditLogsQuery) ToQuery() auditlog.ListLogsQuery {
 // AuditLogHandler handles audit log operations (DDD+CQRS Use Case Pattern)
 type AuditLogHandler struct {
 	// Query Handlers
-	listLogsHandler *auditlog.ListLogsHandler
-	getLogHandler   *auditlog.GetLogHandler
+	listHandler *auditlog.ListHandler
+	getHandler  *auditlog.GetHandler
 }
 
 // NewAuditLogHandler creates a new AuditLogHandler instance
 func NewAuditLogHandler(
-	listLogsHandler *auditlog.ListLogsHandler,
-	getLogHandler *auditlog.GetLogHandler,
+	listHandler *auditlog.ListHandler,
+	getHandler *auditlog.GetHandler,
 ) *AuditLogHandler {
 	return &AuditLogHandler{
-		listLogsHandler: listLogsHandler,
-		getLogHandler:   getLogHandler,
+		listHandler: listHandler,
+		getHandler:  getHandler,
 	}
 }
 
@@ -94,7 +94,7 @@ func (h *AuditLogHandler) ListLogs(c *gin.Context) {
 		return
 	}
 
-	result, err := h.listLogsHandler.Handle(c.Request.Context(), q.ToQuery())
+	result, err := h.listHandler.Handle(c.Request.Context(), q.ToQuery())
 	if err != nil {
 		response.InternalError(c, "failed to list audit logs")
 		return
@@ -127,7 +127,7 @@ func (h *AuditLogHandler) GetLog(c *gin.Context) {
 		return
 	}
 
-	log, err := h.getLogHandler.Handle(c.Request.Context(), auditlog.GetLogQuery{
+	log, err := h.getHandler.Handle(c.Request.Context(), auditlog.GetQuery{
 		LogID: uint(id),
 	})
 

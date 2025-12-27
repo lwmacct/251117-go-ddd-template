@@ -82,7 +82,7 @@ func TestToTokenDTO(t *testing.T) {
 	})
 }
 
-func TestToCreateTokenResultDTO(t *testing.T) {
+func TestToCreateResultDTO(t *testing.T) {
 	t.Run("转换创建令牌响应", func(t *testing.T) {
 		now := time.Now()
 		token := &pat.PersonalAccessToken{
@@ -96,7 +96,7 @@ func TestToCreateTokenResultDTO(t *testing.T) {
 		}
 		plainToken := "pat_xyz789_secrettoken123456" //nolint:gosec // test credential
 
-		result := ToCreateTokenResultDTO(token, plainToken)
+		result := ToCreateResultDTO(token, plainToken)
 
 		assert.NotNil(t, result)
 		assert.Equal(t, "pat_xyz789_secrettoken123456", result.PlainToken)
@@ -107,7 +107,7 @@ func TestToCreateTokenResultDTO(t *testing.T) {
 	})
 
 	t.Run("转换nil返回nil", func(t *testing.T) {
-		result := ToCreateTokenResultDTO(nil, "some_token")
+		result := ToCreateResultDTO(nil, "some_token")
 		assert.Nil(t, result)
 	})
 }

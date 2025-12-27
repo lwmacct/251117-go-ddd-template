@@ -24,6 +24,7 @@ export * from './api/authentication2-faapi';
 export * from './api/cache-demo-api';
 export * from './api/overview-api';
 export * from './api/system-api';
+export * from './api/user-api';
 export * from './api/user-personal-access-token-api';
 export * from './api/user-profile-api';
 

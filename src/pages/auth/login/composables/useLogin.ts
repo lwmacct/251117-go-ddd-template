@@ -12,7 +12,7 @@ import { ref, computed } from "vue";
 import { useTimeoutFn } from "@vueuse/core";
 import { useAuthStore } from "@/stores/auth";
 import { AuthAPI, type LoginResult } from "@/api";
-import type { CaptchaGenerateCaptchaResultDTO } from "@models";
+import type { CaptchaGenerateResultDTO } from "@models";
 
 /**
  * Login 页面状态管理 Composable
@@ -27,7 +27,7 @@ export function useLogin() {
   const password = ref("");
   const errorMessage = ref("");
   const showError = ref(false);
-  const captchaData = ref<CaptchaGenerateCaptchaResultDTO | null>(null);
+  const captchaData = ref<CaptchaGenerateResultDTO | null>(null);
   const captchaCode = ref("");
   const loadingCaptcha = ref(false);
   const sessionToken = ref<string>(""); // 临时会话token (用于2FA验证)

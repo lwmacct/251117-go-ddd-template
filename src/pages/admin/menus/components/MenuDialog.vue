@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, watch, computed } from "vue";
 import type { Menu } from "@/api";
-import type { HandlerCreateMenuRequest, HandlerUpdateMenuRequest } from "@models";
+import type { MenuCreateDTO, MenuUpdateDTO } from "@models";
 
 interface Props {
   modelValue: boolean;
@@ -12,13 +12,13 @@ interface Props {
 
 interface Emits {
   (e: "update:modelValue", value: boolean): void;
-  (e: "save", data: HandlerCreateMenuRequest | HandlerUpdateMenuRequest): void;
+  (e: "save", data: MenuCreateDTO | MenuUpdateDTO): void;
 }
 
 const props = defineProps<Props>();
 const emit = defineEmits<Emits>();
 
-const formData = ref<HandlerCreateMenuRequest & HandlerUpdateMenuRequest>({
+const formData = ref<MenuCreateDTO & MenuUpdateDTO>({
   title: "",
   path: "",
   icon: "",

@@ -4,22 +4,22 @@
 //
 // # Command（写操作）
 //
-//   - [command.CreateRoleHandler]: 创建角色
-//   - [command.UpdateRoleHandler]: 更新角色信息
-//   - [command.DeleteRoleHandler]: 删除角色
-//   - [command.SetPermissionsHandler]: 设置角色权限
+//   - [CreateHandler]: 创建角色
+//   - [UpdateHandler]: 更新角色信息
+//   - [DeleteHandler]: 删除角色
+//   - [SetPermissionsHandler]: 设置角色权限
 //
 // # Query（读操作）
 //
-//   - [query.GetRoleHandler]: 获取角色详情（含权限）
-//   - [query.ListRolesHandler]: 角色列表查询
-//   - [query.ListPermissionsHandler]: 权限列表查询
+//   - [GetHandler]: 获取角色详情（含权限）
+//   - [ListHandler]: 角色列表查询
+//   - [ListPermissionsHandler]: 权限列表查询
 //
 // # DTO 与映射
 //
 // 请求 DTO：
-//   - [CreateRoleDTO]: 创建角色请求
-//   - [UpdateRoleDTO]: 更新角色请求
+//   - [CreateDTO]: 创建角色请求
+//   - [UpdateDTO]: 更新角色请求
 //   - [SetPermissionsDTO]: 设置权限请求
 //
 // 响应 DTO：

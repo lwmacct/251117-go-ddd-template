@@ -13,32 +13,32 @@ import (
 // PATHandler handles Personal Access Token operations (DDD+CQRS Use Case Pattern)
 type PATHandler struct {
 	// Command Handlers
-	createTokenHandler  *pat.CreateTokenHandler
-	deleteTokenHandler  *pat.DeleteTokenHandler
-	disableTokenHandler *pat.DisableTokenHandler
-	enableTokenHandler  *pat.EnableTokenHandler
+	createHandler  *pat.CreateHandler
+	deleteHandler  *pat.DeleteHandler
+	disableHandler *pat.DisableHandler
+	enableHandler  *pat.EnableHandler
 
 	// Query Handlers
-	getTokenHandler   *pat.GetTokenHandler
-	listTokensHandler *pat.ListTokensHandler
+	getHandler  *pat.GetHandler
+	listHandler *pat.ListHandler
 }
 
 // NewPATHandler creates a new PAT handler
 func NewPATHandler(
-	createTokenHandler *pat.CreateTokenHandler,
-	deleteTokenHandler *pat.DeleteTokenHandler,
-	disableTokenHandler *pat.DisableTokenHandler,
-	enableTokenHandler *pat.EnableTokenHandler,
-	getTokenHandler *pat.GetTokenHandler,
-	listTokensHandler *pat.ListTokensHandler,
+	createHandler *pat.CreateHandler,
+	deleteHandler *pat.DeleteHandler,
+	disableHandler *pat.DisableHandler,
+	enableHandler *pat.EnableHandler,
+	getHandler *pat.GetHandler,
+	listHandler *pat.ListHandler,
 ) *PATHandler {
 	return &PATHandler{
-		createTokenHandler:  createTokenHandler,
-		deleteTokenHandler:  deleteTokenHandler,
-		disableTokenHandler: disableTokenHandler,
-		enableTokenHandler:  enableTokenHandler,
-		getTokenHandler:     getTokenHandler,
-		listTokensHandler:   listTokensHandler,
+		createHandler:  createHandler,
+		deleteHandler:  deleteHandler,
+		disableHandler: disableHandler,
+		enableHandler:  enableHandler,
+		getHandler:     getHandler,
+		listHandler:    listHandler,
 	}
 }
 
@@ -50,14 +50,14 @@ func NewPATHandler(
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
-// @Param        request body pat.CreateTokenDTO true "令牌信息"
-// @Success      201 {object} response.DataResponse[pat.CreateTokenResultDTO] "令牌创建成功"
+// @Param        request body pat.CreateDTO true "令牌信息"
+// @Success      201 {object} response.DataResponse[pat.CreateResultDTO] "令牌创建成功"
 // @Failure      400 {object} response.ErrorResponse "参数错误"
 // @Failure      401 {object} response.ErrorResponse "未授权"
 // @Router       /api/user/tokens [post]
 // @x-permission {"scope":"user:tokens:create"}
 func (h *PATHandler) CreateToken(c *gin.Context) {
-	var req pat.CreateTokenDTO
+	var req pat.CreateDTO
 
 	if err := c.ShouldBindJSON(&req); err != nil {
 		response.BadRequest(c, "invalid request body", err.Error())
@@ -84,7 +84,7 @@ func (h *PATHandler) CreateToken(c *gin.Context) {
 	}
 
 	// 调用 Use Case Handler
-	result, err := h.createTokenHandler.Handle(c.Request.Context(), pat.CreateTokenCommand{
+	result, err := h.createHandler.Handle(c.Request.Context(), pat.CreateCommand{
 		UserID:      uid,
 		Name:        req.Name,
 		Permissions: req.Permissions,
@@ -98,7 +98,7 @@ func (h *PATHandler) CreateToken(c *gin.Context) {
 		return
 	}
 
-	response.Created(c, "token created successfully", pat.ToCreateTokenResultDTO(result.Token, result.PlainToken))
+	response.Created(c, "token created successfully", pat.ToCreateResultDTO(result.Token, result.PlainToken))
 }
 
 // ListTokens lists all tokens for the current user
@@ -128,7 +128,7 @@ func (h *PATHandler) ListTokens(c *gin.Context) {
 	}
 
 	// 调用 Use Case Handler
-	tokens, err := h.listTokensHandler.Handle(c.Request.Context(), pat.ListTokensQuery{
+	tokens, err := h.listHandler.Handle(c.Request.Context(), pat.ListQuery{
 		UserID: uid,
 	})
 
@@ -175,7 +175,7 @@ func (h *PATHandler) DeleteToken(c *gin.Context) {
 		return
 	}
 
-	err = h.deleteTokenHandler.Handle(c.Request.Context(), pat.DeleteTokenCommand{
+	err = h.deleteHandler.Handle(c.Request.Context(), pat.DeleteCommand{
 		UserID:  uid,
 		TokenID: tokenID,
 	})
@@ -223,7 +223,7 @@ func (h *PATHandler) GetToken(c *gin.Context) {
 	}
 
 	// 调用 Use Case Handler
-	token, err := h.getTokenHandler.Handle(c.Request.Context(), pat.GetTokenQuery{
+	token, err := h.getHandler.Handle(c.Request.Context(), pat.GetQuery{
 		UserID:  uid,
 		TokenID: uint(tokenID),
 	})
@@ -269,7 +269,7 @@ func (h *PATHandler) DisableToken(c *gin.Context) {
 		return
 	}
 
-	if err := h.disableTokenHandler.Handle(c.Request.Context(), pat.DisableTokenCommand{
+	if err := h.disableHandler.Handle(c.Request.Context(), pat.DisableCommand{
 		UserID:  uid,
 		TokenID: tokenID,
 	}); err != nil {
@@ -313,7 +313,7 @@ func (h *PATHandler) EnableToken(c *gin.Context) {
 		return
 	}
 
-	if err := h.enableTokenHandler.Handle(c.Request.Context(), pat.EnableTokenCommand{
+	if err := h.enableHandler.Handle(c.Request.Context(), pat.EnableCommand{
 		UserID:  uid,
 		TokenID: tokenID,
 	}); err != nil {

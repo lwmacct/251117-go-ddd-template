@@ -15,6 +15,24 @@
 //
 // 权限控制采用三段式格式：domain:resource:action
 // 例如：admin:users:create, user:profile:read
+//
+// @title           Go DDD Template API
+// @version         1.0
+// @description     基于 DDD + CQRS 架构的 Go Web 应用模板
+//
+// @contact.name    API Support
+// @contact.url     https://github.com/lwmacct/251117-go-ddd-template
+//
+// @license.name    MIT
+// @license.url     https://opensource.org/licenses/MIT
+//
+// @host            localhost:8080
+// @BasePath        /
+//
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
+// @description Bearer token authentication
 package http
 
 import (
@@ -57,7 +75,7 @@ type RouterDependencies struct {
 	RedisClient *redis.Client
 
 	// Application Handlers (for middleware)
-	CreateLogHandler *auditlog.CreateLogHandler
+	CreateLogHandler *auditlog.CreateHandler
 
 	// Infrastructure Services
 	JWTManager             *auth.JWTManager
@@ -74,6 +92,7 @@ type RouterDependencies struct {
 	PATHandler         *handler.PATHandler
 	AuditLogHandler    *handler.AuditLogHandler
 	AdminUserHandler   *handler.AdminUserHandler
+	UserHandler        *handler.UserHandler
 	UserProfileHandler *handler.UserProfileHandler
 	OverviewHandler    *handler.OverviewHandler
 	TwoFAHandler       *handler.TwoFAHandler
@@ -199,12 +218,21 @@ func setupAPIRoutes(r *gin.Engine, deps *RouterDependencies) {
 
 		// 系统配置
 		admin.GET("/settings", middleware.RequirePermission("admin:settings:read"), deps.SettingHandler.GetSettings)
+		admin.GET("/settings/schema", middleware.RequirePermission("admin:settings:read"), deps.SettingHandler.GetSettingsSchema)
 		admin.GET("/settings/:key", middleware.RequirePermission("admin:settings:read"), deps.SettingHandler.GetSetting)
 		admin.POST("/settings", middleware.RequirePermission("admin:settings:create"), deps.SettingHandler.CreateSetting)
 		admin.PUT("/settings/:key", middleware.RequirePermission("admin:settings:update"), deps.SettingHandler.UpdateSetting)
 		admin.DELETE("/settings/:key", middleware.RequirePermission("admin:settings:delete"), deps.SettingHandler.DeleteSetting)
 		admin.POST("/settings/batch", middleware.RequirePermission("admin:settings:update"), deps.SettingHandler.BatchUpdateSettings)
 	}
+
+	// 用户管理 API (/api/users/*) - 需要认证
+	usersAuth := middleware.Auth(deps.JWTManager, deps.PATService, deps.PermissionCacheService)
+	api.POST("/users", usersAuth, deps.UserHandler.Create)
+	api.GET("/users", usersAuth, deps.UserHandler.List)
+	api.GET("/users/:id", usersAuth, deps.UserHandler.GetByID)
+	api.PUT("/users/:id", usersAuth, deps.UserHandler.Update)
+	api.DELETE("/users/:id", usersAuth, deps.UserHandler.Delete)
 
 	// 用户路由 (/api/user/*) - 使用三段式权限控制
 	userGroup := api.Group("/user")

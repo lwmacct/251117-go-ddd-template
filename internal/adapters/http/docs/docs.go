@@ -288,7 +288,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.CreateMenuRequest"
+                            "$ref": "#/definitions/menu.CreateDTO"
                         }
                     }
                 ],
@@ -354,7 +354,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.ReorderMenusRequest"
+                            "$ref": "#/definitions/menu.ReorderDTO"
                         }
                     }
                 ],
@@ -488,7 +488,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.UpdateMenuRequest"
+                            "$ref": "#/definitions/menu.UpdateDTO"
                         }
                     }
                 ],
@@ -809,7 +809,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/role.CreateRoleDTO"
+                            "$ref": "#/definitions/role.CreateDTO"
                         }
                     }
                 ],
@@ -817,7 +817,7 @@ const docTemplate = `{
                     "201": {
                         "description": "角色创建成功",
                         "schema": {
-                            "$ref": "#/definitions/response.DataResponse-role_CreateRoleResultDTO"
+                            "$ref": "#/definitions/response.DataResponse-role_CreateResultDTO"
                         }
                     },
                     "400": {
@@ -946,7 +946,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/role.UpdateRoleDTO"
+                            "$ref": "#/definitions/role.UpdateDTO"
                         }
                     }
                 ],
@@ -1329,6 +1329,55 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/admin/settings/schema": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "获取按 Category → Group → Settings 层级组织的配置数据，用于前端动态渲染设置页面",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "管理员 - 系统配置 (Admin - Settings)"
+                ],
+                "summary": "获取配置 Schema",
+                "responses": {
+                    "200": {
+                        "description": "配置 Schema",
+                        "schema": {
+                            "$ref": "#/definitions/response.DataResponse-array_setting_SchemaCategoryDTO"
+                        }
+                    },
+                    "401": {
+                        "description": "未授权",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "权限不足",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器内部错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                },
+                "x-permission": {
+                    "scope": "admin:settings:read"
+                }
+            }
+        },
         "/api/admin/settings/{key}": {
             "get": {
                 "security": [
@@ -1620,7 +1669,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/user.CreateUserDTO"
+                            "$ref": "#/definitions/user.CreateDTO"
                         }
                     }
                 ],
@@ -1686,7 +1735,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/user.BatchCreateUserDTO"
+                            "$ref": "#/definitions/user.BatchCreateDTO"
                         }
                     }
                 ],
@@ -1694,7 +1743,7 @@ const docTemplate = `{
                     "200": {
                         "description": "批量创建结果",
                         "schema": {
-                            "$ref": "#/definitions/response.DataResponse-user_BatchCreateUserResultDTO"
+                            "$ref": "#/definitions/response.DataResponse-user_BatchCreateResultDTO"
                         }
                     },
                     "400": {
@@ -1823,7 +1872,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/user.UpdateUserDTO"
+                            "$ref": "#/definitions/user.UpdateDTO"
                         }
                     }
                 ],
@@ -2221,7 +2270,7 @@ const docTemplate = `{
                     "200": {
                         "description": "验证码生成成功",
                         "schema": {
-                            "$ref": "#/definitions/response.DataResponse-captcha_GenerateCaptchaResultDTO"
+                            "$ref": "#/definitions/response.DataResponse-captcha_GenerateResultDTO"
                         }
                     },
                     "500": {
@@ -2413,7 +2462,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/cache.SetCacheDTO"
+                            "$ref": "#/definitions/cache.SetDTO"
                         }
                     }
                 ],
@@ -2421,7 +2470,7 @@ const docTemplate = `{
                     "200": {
                         "description": "设置成功",
                         "schema": {
-                            "$ref": "#/definitions/response.DataResponse-cache_SetCacheResultDTO"
+                            "$ref": "#/definitions/response.DataResponse-cache_SetResultDTO"
                         }
                     },
                     "400": {
@@ -2465,7 +2514,7 @@ const docTemplate = `{
                     "200": {
                         "description": "获取成功",
                         "schema": {
-                            "$ref": "#/definitions/response.DataResponse-cache_GetCacheResultDTO"
+                            "$ref": "#/definitions/response.DataResponse-cache_GetResultDTO"
                         }
                     },
                     "404": {
@@ -2501,7 +2550,7 @@ const docTemplate = `{
                     "200": {
                         "description": "删除成功",
                         "schema": {
-                            "$ref": "#/definitions/response.DataResponse-cache_DeleteCacheResultDTO"
+                            "$ref": "#/definitions/response.DataResponse-cache_DeleteResultDTO"
                         }
                     },
                     "500": {
@@ -2777,7 +2826,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/pat.CreateTokenDTO"
+                            "$ref": "#/definitions/pat.CreateDTO"
                         }
                     }
                 ],
@@ -2785,7 +2834,7 @@ const docTemplate = `{
                     "201": {
                         "description": "令牌创建成功",
                         "schema": {
-                            "$ref": "#/definitions/response.DataResponse-pat_CreateTokenResultDTO"
+                            "$ref": "#/definitions/response.DataResponse-pat_CreateResultDTO"
                         }
                     },
                     "400": {
@@ -3028,6 +3077,275 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/users": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "分页获取用户列表（包含角色信息）",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "用户 (User)"
+                ],
+                "summary": "获取用户列表",
+                "parameters": [
+                    {
+                        "maximum": 1000,
+                        "minimum": 1,
+                        "type": "integer",
+                        "default": 20,
+                        "description": "Limit 每页数量，默认 20，最大 1000",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Page 页码，从 1 开始",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Search 搜索关键词（用户名或邮箱）",
+                        "name": "search",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "用户列表",
+                        "schema": {
+                            "$ref": "#/definitions/response.PagedResponse-user_UserWithRolesDTO"
+                        }
+                    },
+                    "400": {
+                        "description": "参数错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器内部错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "创建新用户账号",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "用户 (User)"
+                ],
+                "summary": "创建用户",
+                "parameters": [
+                    {
+                        "description": "用户信息",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/user.CreateDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "用户创建成功",
+                        "schema": {
+                            "$ref": "#/definitions/response.DataResponse-user_UserWithRolesDTO"
+                        }
+                    },
+                    "400": {
+                        "description": "参数错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器内部错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/users/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "根据用户ID获取用户详细信息（包含角色信息）",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "用户 (User)"
+                ],
+                "summary": "获取用户详情",
+                "parameters": [
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "description": "用户ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "用户详情",
+                        "schema": {
+                            "$ref": "#/definitions/response.DataResponse-user_UserWithRolesDTO"
+                        }
+                    },
+                    "400": {
+                        "description": "无效的用户ID",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "用户不存在",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "更新用户的基本信息",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "用户 (User)"
+                ],
+                "summary": "更新用户信息",
+                "parameters": [
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "description": "用户ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "更新信息",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/user.UpdateDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "用户更新成功",
+                        "schema": {
+                            "$ref": "#/definitions/response.MessageResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "无效的用户ID或参数错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器内部错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "删除指定用户",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "用户 (User)"
+                ],
+                "summary": "删除用户",
+                "parameters": [
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "description": "用户ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "用户删除成功",
+                        "schema": {
+                            "$ref": "#/definitions/response.MessageResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "无效的用户ID",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器内部错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/health": {
             "get": {
                 "description": "检查系统服务健康状态（数据库、Redis）",
@@ -3045,59 +3363,13 @@ const docTemplate = `{
                     "200": {
                         "description": "服务健康",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "checks": {
-                                            "type": "object",
-                                            "properties": {
-                                                "database": {
-                                                    "type": "object"
-                                                },
-                                                "redis": {
-                                                    "type": "object"
-                                                }
-                                            }
-                                        },
-                                        "status": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/response.DataResponse-github_com_lwmacct_251117-go-ddd-template_internal_application_health_HealthReport"
                         }
                     },
                     "503": {
                         "description": "服务降级",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "checks": {
-                                            "type": "object",
-                                            "properties": {
-                                                "database": {
-                                                    "type": "object"
-                                                },
-                                                "redis": {
-                                                    "type": "object"
-                                                }
-                                            }
-                                        },
-                                        "status": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/response.DataResponse-github_com_lwmacct_251117-go-ddd-template_internal_application_health_HealthReport"
                         }
                     }
                 }
@@ -3310,7 +3582,7 @@ const docTemplate = `{
                 }
             }
         },
-        "cache.DeleteCacheResultDTO": {
+        "cache.DeleteResultDTO": {
             "type": "object",
             "properties": {
                 "key": {
@@ -3318,7 +3590,7 @@ const docTemplate = `{
                 }
             }
         },
-        "cache.GetCacheResultDTO": {
+        "cache.GetResultDTO": {
             "type": "object",
             "properties": {
                 "key": {
@@ -3327,7 +3599,7 @@ const docTemplate = `{
                 "value": {}
             }
         },
-        "cache.SetCacheDTO": {
+        "cache.SetDTO": {
             "type": "object",
             "required": [
                 "key",
@@ -3344,7 +3616,7 @@ const docTemplate = `{
                 "value": {}
             }
         },
-        "cache.SetCacheResultDTO": {
+        "cache.SetResultDTO": {
             "type": "object",
             "properties": {
                 "key": {
@@ -3355,7 +3627,7 @@ const docTemplate = `{
                 }
             }
         },
-        "captcha.GenerateCaptchaResultDTO": {
+        "captcha.GenerateResultDTO": {
             "type": "object",
             "properties": {
                 "code": {
@@ -3375,6 +3647,48 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
+        },
+        "github_com_lwmacct_251117-go-ddd-template_internal_application_health.HealthReport": {
+            "type": "object",
+            "properties": {
+                "checks": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "$ref": "#/definitions/github_com_lwmacct_251117-go-ddd-template_internal_domain_health.CheckResult"
+                    }
+                },
+                "status": {
+                    "$ref": "#/definitions/github_com_lwmacct_251117-go-ddd-template_internal_domain_health.Status"
+                }
+            }
+        },
+        "github_com_lwmacct_251117-go-ddd-template_internal_domain_health.CheckResult": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string"
+                },
+                "stats": {
+                    "type": "object",
+                    "additionalProperties": {}
+                },
+                "status": {
+                    "$ref": "#/definitions/github_com_lwmacct_251117-go-ddd-template_internal_domain_health.Status"
+                }
+            }
+        },
+        "github_com_lwmacct_251117-go-ddd-template_internal_domain_health.Status": {
+            "type": "string",
+            "enum": [
+                "healthy",
+                "unhealthy",
+                "degraded"
+            ],
+            "x-enum-varnames": [
+                "StatusHealthy",
+                "StatusUnhealthy",
+                "StatusDegraded"
+            ]
         },
         "handler.BatchUpdateSettingsRequest": {
             "type": "object",
@@ -3401,43 +3715,6 @@ const docTemplate = `{
                             }
                         }
                     }
-                }
-            }
-        },
-        "handler.CreateMenuRequest": {
-            "type": "object",
-            "required": [
-                "path",
-                "title"
-            ],
-            "properties": {
-                "icon": {
-                    "type": "string",
-                    "maxLength": 100,
-                    "example": "setting"
-                },
-                "order": {
-                    "type": "integer",
-                    "example": 1
-                },
-                "parent_id": {
-                    "type": "integer",
-                    "example": 0
-                },
-                "path": {
-                    "type": "string",
-                    "maxLength": 255,
-                    "example": "/system"
-                },
-                "title": {
-                    "type": "string",
-                    "maxLength": 100,
-                    "minLength": 1,
-                    "example": "系统管理"
-                },
-                "visible": {
-                    "type": "boolean",
-                    "example": true
                 }
             }
         },
@@ -3468,61 +3745,6 @@ const docTemplate = `{
                 "value_type": {
                     "type": "string",
                     "example": "string"
-                }
-            }
-        },
-        "handler.ReorderMenusRequest": {
-            "type": "object",
-            "required": [
-                "menus"
-            ],
-            "properties": {
-                "menus": {
-                    "type": "array",
-                    "items": {
-                        "type": "object",
-                        "required": [
-                            "id"
-                        ],
-                        "properties": {
-                            "id": {
-                                "type": "integer"
-                            },
-                            "order": {
-                                "type": "integer"
-                            },
-                            "parent_id": {
-                                "type": "integer"
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "handler.UpdateMenuRequest": {
-            "type": "object",
-            "properties": {
-                "icon": {
-                    "type": "string",
-                    "maxLength": 100
-                },
-                "order": {
-                    "type": "integer"
-                },
-                "parent_id": {
-                    "type": "integer"
-                },
-                "path": {
-                    "type": "string",
-                    "maxLength": 255
-                },
-                "title": {
-                    "type": "string",
-                    "maxLength": 100,
-                    "minLength": 1
-                },
-                "visible": {
-                    "type": "boolean"
                 }
             }
         },
@@ -3562,6 +3784,43 @@ const docTemplate = `{
                 }
             }
         },
+        "menu.CreateDTO": {
+            "type": "object",
+            "required": [
+                "path",
+                "title"
+            ],
+            "properties": {
+                "icon": {
+                    "type": "string",
+                    "maxLength": 100,
+                    "example": "setting"
+                },
+                "order": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "parent_id": {
+                    "type": "integer",
+                    "example": 0
+                },
+                "path": {
+                    "type": "string",
+                    "maxLength": 255,
+                    "example": "/system"
+                },
+                "title": {
+                    "type": "string",
+                    "maxLength": 100,
+                    "minLength": 1,
+                    "example": "系统管理"
+                },
+                "visible": {
+                    "type": "boolean",
+                    "example": true
+                }
+            }
+        },
         "menu.MenuDTO": {
             "type": "object",
             "properties": {
@@ -3594,7 +3853,62 @@ const docTemplate = `{
                 }
             }
         },
-        "pat.CreateTokenDTO": {
+        "menu.ReorderDTO": {
+            "type": "object",
+            "required": [
+                "menus"
+            ],
+            "properties": {
+                "menus": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "required": [
+                            "id"
+                        ],
+                        "properties": {
+                            "id": {
+                                "type": "integer"
+                            },
+                            "order": {
+                                "type": "integer"
+                            },
+                            "parent_id": {
+                                "type": "integer"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "menu.UpdateDTO": {
+            "type": "object",
+            "properties": {
+                "icon": {
+                    "type": "string",
+                    "maxLength": 100
+                },
+                "order": {
+                    "type": "integer"
+                },
+                "parent_id": {
+                    "type": "integer"
+                },
+                "path": {
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "title": {
+                    "type": "string",
+                    "maxLength": 100,
+                    "minLength": 1
+                },
+                "visible": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "pat.CreateDTO": {
             "type": "object",
             "required": [
                 "name"
@@ -3633,7 +3947,7 @@ const docTemplate = `{
                 }
             }
         },
-        "pat.CreateTokenResultDTO": {
+        "pat.CreateResultDTO": {
             "type": "object",
             "properties": {
                 "plain_token": {
@@ -3723,6 +4037,29 @@ const docTemplate = `{
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/pat.TokenDTO"
+                    }
+                },
+                "error": {
+                    "description": "错误详情（仅失败时）"
+                },
+                "message": {
+                    "description": "消息描述",
+                    "type": "string"
+                }
+            }
+        },
+        "response.DataResponse-array_setting_SchemaCategoryDTO": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "description": "HTTP 状态码",
+                    "type": "integer"
+                },
+                "data": {
+                    "description": "响应数据",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/setting.SchemaCategoryDTO"
                     }
                 },
                 "error": {
@@ -3853,7 +4190,7 @@ const docTemplate = `{
                 }
             }
         },
-        "response.DataResponse-cache_DeleteCacheResultDTO": {
+        "response.DataResponse-cache_DeleteResultDTO": {
             "type": "object",
             "properties": {
                 "code": {
@@ -3864,7 +4201,7 @@ const docTemplate = `{
                     "description": "响应数据",
                     "allOf": [
                         {
-                            "$ref": "#/definitions/cache.DeleteCacheResultDTO"
+                            "$ref": "#/definitions/cache.DeleteResultDTO"
                         }
                     ]
                 },
@@ -3877,7 +4214,7 @@ const docTemplate = `{
                 }
             }
         },
-        "response.DataResponse-cache_GetCacheResultDTO": {
+        "response.DataResponse-cache_GetResultDTO": {
             "type": "object",
             "properties": {
                 "code": {
@@ -3888,7 +4225,7 @@ const docTemplate = `{
                     "description": "响应数据",
                     "allOf": [
                         {
-                            "$ref": "#/definitions/cache.GetCacheResultDTO"
+                            "$ref": "#/definitions/cache.GetResultDTO"
                         }
                     ]
                 },
@@ -3901,7 +4238,7 @@ const docTemplate = `{
                 }
             }
         },
-        "response.DataResponse-cache_SetCacheResultDTO": {
+        "response.DataResponse-cache_SetResultDTO": {
             "type": "object",
             "properties": {
                 "code": {
@@ -3912,7 +4249,7 @@ const docTemplate = `{
                     "description": "响应数据",
                     "allOf": [
                         {
-                            "$ref": "#/definitions/cache.SetCacheResultDTO"
+                            "$ref": "#/definitions/cache.SetResultDTO"
                         }
                     ]
                 },
@@ -3925,7 +4262,7 @@ const docTemplate = `{
                 }
             }
         },
-        "response.DataResponse-captcha_GenerateCaptchaResultDTO": {
+        "response.DataResponse-captcha_GenerateResultDTO": {
             "type": "object",
             "properties": {
                 "code": {
@@ -3936,7 +4273,31 @@ const docTemplate = `{
                     "description": "响应数据",
                     "allOf": [
                         {
-                            "$ref": "#/definitions/captcha.GenerateCaptchaResultDTO"
+                            "$ref": "#/definitions/captcha.GenerateResultDTO"
+                        }
+                    ]
+                },
+                "error": {
+                    "description": "错误详情（仅失败时）"
+                },
+                "message": {
+                    "description": "消息描述",
+                    "type": "string"
+                }
+            }
+        },
+        "response.DataResponse-github_com_lwmacct_251117-go-ddd-template_internal_application_health_HealthReport": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "description": "HTTP 状态码",
+                    "type": "integer"
+                },
+                "data": {
+                    "description": "响应数据",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/github_com_lwmacct_251117-go-ddd-template_internal_application_health.HealthReport"
                         }
                     ]
                 },
@@ -3973,7 +4334,7 @@ const docTemplate = `{
                 }
             }
         },
-        "response.DataResponse-pat_CreateTokenResultDTO": {
+        "response.DataResponse-pat_CreateResultDTO": {
             "type": "object",
             "properties": {
                 "code": {
@@ -3984,7 +4345,7 @@ const docTemplate = `{
                     "description": "响应数据",
                     "allOf": [
                         {
-                            "$ref": "#/definitions/pat.CreateTokenResultDTO"
+                            "$ref": "#/definitions/pat.CreateResultDTO"
                         }
                     ]
                 },
@@ -4021,7 +4382,7 @@ const docTemplate = `{
                 }
             }
         },
-        "response.DataResponse-role_CreateRoleResultDTO": {
+        "response.DataResponse-role_CreateResultDTO": {
             "type": "object",
             "properties": {
                 "code": {
@@ -4032,7 +4393,7 @@ const docTemplate = `{
                     "description": "响应数据",
                     "allOf": [
                         {
-                            "$ref": "#/definitions/role.CreateRoleResultDTO"
+                            "$ref": "#/definitions/role.CreateResultDTO"
                         }
                     ]
                 },
@@ -4189,7 +4550,7 @@ const docTemplate = `{
                 }
             }
         },
-        "response.DataResponse-user_BatchCreateUserResultDTO": {
+        "response.DataResponse-user_BatchCreateResultDTO": {
             "type": "object",
             "properties": {
                 "code": {
@@ -4200,7 +4561,7 @@ const docTemplate = `{
                     "description": "响应数据",
                     "allOf": [
                         {
-                            "$ref": "#/definitions/user.BatchCreateUserResultDTO"
+                            "$ref": "#/definitions/user.BatchCreateResultDTO"
                         }
                     ]
                 },
@@ -4416,19 +4777,7 @@ const docTemplate = `{
                 }
             }
         },
-        "response.Response": {
-            "type": "object",
-            "properties": {
-                "data": {
-                    "description": "数据"
-                },
-                "message": {
-                    "description": "消息",
-                    "type": "string"
-                }
-            }
-        },
-        "role.CreateRoleDTO": {
+        "role.CreateDTO": {
             "type": "object",
             "required": [
                 "display_name",
@@ -4453,7 +4802,7 @@ const docTemplate = `{
                 }
             }
         },
-        "role.CreateRoleResultDTO": {
+        "role.CreateResultDTO": {
             "type": "object",
             "properties": {
                 "display_name": {
@@ -4542,7 +4891,7 @@ const docTemplate = `{
                 }
             }
         },
-        "role.UpdateRoleDTO": {
+        "role.UpdateDTO": {
             "type": "object",
             "properties": {
                 "description": {
@@ -4555,6 +4904,90 @@ const docTemplate = `{
                 }
             }
         },
+        "setting.DependsOnConfigDTO": {
+            "type": "object",
+            "properties": {
+                "key": {
+                    "type": "string"
+                },
+                "operator": {
+                    "description": "eq, ne, gt, lt（默认 eq）",
+                    "type": "string"
+                },
+                "value": {}
+            }
+        },
+        "setting.SchemaCategoryDTO": {
+            "type": "object",
+            "properties": {
+                "category": {
+                    "type": "string"
+                },
+                "groups": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/setting.SchemaGroupDTO"
+                    }
+                },
+                "icon": {
+                    "type": "string"
+                },
+                "label": {
+                    "type": "string"
+                }
+            }
+        },
+        "setting.SchemaGroupDTO": {
+            "type": "object",
+            "properties": {
+                "group": {
+                    "type": "string"
+                },
+                "label": {
+                    "type": "string"
+                },
+                "settings": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/setting.SchemaSettingDTO"
+                    }
+                }
+            }
+        },
+        "setting.SchemaSettingDTO": {
+            "type": "object",
+            "properties": {
+                "key": {
+                    "type": "string"
+                },
+                "label": {
+                    "type": "string"
+                },
+                "order": {
+                    "type": "integer"
+                },
+                "ui_config": {
+                    "$ref": "#/definitions/setting.UIConfigDTO"
+                },
+                "value": {
+                    "type": "string"
+                },
+                "value_type": {
+                    "type": "string"
+                }
+            }
+        },
+        "setting.SelectOptionDTO": {
+            "type": "object",
+            "properties": {
+                "label": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "string"
+                }
+            }
+        },
         "setting.SettingDTO": {
             "type": "object",
             "properties": {
@@ -4562,6 +4995,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "created_at": {
+                    "type": "string"
+                },
+                "group": {
                     "type": "string"
                 },
                 "id": {
@@ -4573,6 +5009,12 @@ const docTemplate = `{
                 "label": {
                     "type": "string"
                 },
+                "order": {
+                    "type": "integer"
+                },
+                "ui_config": {
+                    "$ref": "#/definitions/setting.UIConfigDTO"
+                },
                 "updated_at": {
                     "type": "string"
                 },
@@ -4581,6 +5023,37 @@ const docTemplate = `{
                 },
                 "value_type": {
                     "type": "string"
+                }
+            }
+        },
+        "setting.UIConfigDTO": {
+            "type": "object",
+            "properties": {
+                "depends_on": {
+                    "description": "依赖关系",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/setting.DependsOnConfigDTO"
+                        }
+                    ]
+                },
+                "hint": {
+                    "description": "输入提示",
+                    "type": "string"
+                },
+                "input_type": {
+                    "description": "控件类型: text, number, switch, select...",
+                    "type": "string"
+                },
+                "options": {
+                    "description": "下拉选项",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/setting.SelectOptionDTO"
+                    }
+                },
+                "validation": {
+                    "description": "JSON Logic 验证规则"
                 }
             }
         },
@@ -4715,6 +5188,22 @@ const docTemplate = `{
                 }
             }
         },
+        "user.BatchCreateDTO": {
+            "type": "object",
+            "required": [
+                "users"
+            ],
+            "properties": {
+                "users": {
+                    "type": "array",
+                    "maxItems": 100,
+                    "minItems": 1,
+                    "items": {
+                        "$ref": "#/definitions/user.BatchItemDTO"
+                    }
+                }
+            }
+        },
         "user.BatchCreateErrorDTO": {
             "type": "object",
             "properties": {
@@ -4732,23 +5221,7 @@ const docTemplate = `{
                 }
             }
         },
-        "user.BatchCreateUserDTO": {
-            "type": "object",
-            "required": [
-                "users"
-            ],
-            "properties": {
-                "users": {
-                    "type": "array",
-                    "maxItems": 100,
-                    "minItems": 1,
-                    "items": {
-                        "$ref": "#/definitions/user.BatchUserItemDTO"
-                    }
-                }
-            }
-        },
-        "user.BatchCreateUserResultDTO": {
+        "user.BatchCreateResultDTO": {
             "type": "object",
             "properties": {
                 "errors": {
@@ -4768,7 +5241,7 @@ const docTemplate = `{
                 }
             }
         },
-        "user.BatchUserItemDTO": {
+        "user.BatchItemDTO": {
             "type": "object",
             "required": [
                 "email",
@@ -4823,7 +5296,7 @@ const docTemplate = `{
                 }
             }
         },
-        "user.CreateUserDTO": {
+        "user.CreateDTO": {
             "type": "object",
             "required": [
                 "email",
@@ -4879,7 +5352,7 @@ const docTemplate = `{
                 }
             }
         },
-        "user.UpdateUserDTO": {
+        "user.UpdateDTO": {
             "type": "object",
             "properties": {
                 "avatar": {

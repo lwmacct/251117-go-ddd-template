@@ -9,32 +9,35 @@ import (
 // SettingHandler handles setting management operations (DDD+CQRS Use Case Pattern)
 type SettingHandler struct {
 	// Command Handlers
-	createSettingHandler       *setting.CreateSettingHandler
-	updateSettingHandler       *setting.UpdateSettingHandler
-	deleteSettingHandler       *setting.DeleteSettingHandler
-	batchUpdateSettingsHandler *setting.BatchUpdateSettingsHandler
+	createHandler      *setting.CreateHandler
+	updateHandler      *setting.UpdateHandler
+	deleteHandler      *setting.DeleteHandler
+	batchUpdateHandler *setting.BatchUpdateHandler
 
 	// Query Handlers
-	getSettingHandler   *setting.GetSettingHandler
-	listSettingsHandler *setting.ListSettingsHandler
+	getHandler        *setting.GetHandler
+	listHandler       *setting.ListHandler
+	listSchemaHandler *setting.ListSchemaHandler
 }
 
 // NewSettingHandler creates a new SettingHandler instance
 func NewSettingHandler(
-	createSettingHandler *setting.CreateSettingHandler,
-	updateSettingHandler *setting.UpdateSettingHandler,
-	deleteSettingHandler *setting.DeleteSettingHandler,
-	batchUpdateSettingsHandler *setting.BatchUpdateSettingsHandler,
-	getSettingHandler *setting.GetSettingHandler,
-	listSettingsHandler *setting.ListSettingsHandler,
+	createHandler *setting.CreateHandler,
+	updateHandler *setting.UpdateHandler,
+	deleteHandler *setting.DeleteHandler,
+	batchUpdateHandler *setting.BatchUpdateHandler,
+	getHandler *setting.GetHandler,
+	listHandler *setting.ListHandler,
+	listSchemaHandler *setting.ListSchemaHandler,
 ) *SettingHandler {
 	return &SettingHandler{
-		createSettingHandler:       createSettingHandler,
-		updateSettingHandler:       updateSettingHandler,
-		deleteSettingHandler:       deleteSettingHandler,
-		batchUpdateSettingsHandler: batchUpdateSettingsHandler,
-		getSettingHandler:          getSettingHandler,
-		listSettingsHandler:        listSettingsHandler,
+		createHandler:      createHandler,
+		updateHandler:      updateHandler,
+		deleteHandler:      deleteHandler,
+		batchUpdateHandler: batchUpdateHandler,
+		getHandler:         getHandler,
+		listHandler:        listHandler,
+		listSchemaHandler:  listSchemaHandler,
 	}
 }
 
@@ -57,7 +60,7 @@ func (h *SettingHandler) GetSettings(c *gin.Context) {
 	category := c.Query("category")
 
 	// 调用 Use Case Handler
-	settings, err := h.listSettingsHandler.Handle(c.Request.Context(), setting.ListSettingsQuery{
+	settings, err := h.listHandler.Handle(c.Request.Context(), setting.ListQuery{
 		Category: category,
 	})
 
@@ -88,7 +91,7 @@ func (h *SettingHandler) GetSetting(c *gin.Context) {
 	key := c.Param("key")
 
 	// 调用 Use Case Handler
-	setting, err := h.getSettingHandler.Handle(c.Request.Context(), setting.GetSettingQuery{
+	setting, err := h.getHandler.Handle(c.Request.Context(), setting.GetQuery{
 		Key: key,
 	})
 
@@ -133,7 +136,7 @@ func (h *SettingHandler) CreateSetting(c *gin.Context) {
 	}
 
 	// 调用 Use Case Handler
-	result, err := h.createSettingHandler.Handle(c.Request.Context(), setting.CreateSettingCommand{
+	result, err := h.createHandler.Handle(c.Request.Context(), setting.CreateCommand{
 		Key:       req.Key,
 		Value:     req.Value,
 		Category:  req.Category,
@@ -184,7 +187,7 @@ func (h *SettingHandler) UpdateSetting(c *gin.Context) {
 	}
 
 	// 调用 Use Case Handler
-	setting, err := h.updateSettingHandler.Handle(c.Request.Context(), setting.UpdateSettingCommand{
+	setting, err := h.updateHandler.Handle(c.Request.Context(), setting.UpdateCommand{
 		Key:       key,
 		Value:     req.Value,
 		ValueType: req.ValueType,
@@ -219,7 +222,7 @@ func (h *SettingHandler) DeleteSetting(c *gin.Context) {
 	key := c.Param("key")
 
 	// 调用 Use Case Handler
-	err := h.deleteSettingHandler.Handle(c.Request.Context(), setting.DeleteSettingCommand{
+	err := h.deleteHandler.Handle(c.Request.Context(), setting.DeleteCommand{
 		Key: key,
 	})
 
@@ -270,7 +273,7 @@ func (h *SettingHandler) BatchUpdateSettings(c *gin.Context) {
 	}
 
 	// 调用 Use Case Handler
-	err := h.batchUpdateSettingsHandler.Handle(c.Request.Context(), setting.BatchUpdateSettingsCommand{
+	err := h.batchUpdateHandler.Handle(c.Request.Context(), setting.BatchUpdateCommand{
 		Settings: settings,
 	})
 
@@ -280,4 +283,30 @@ func (h *SettingHandler) BatchUpdateSettings(c *gin.Context) {
 	}
 
 	response.OK(c, "批量更新成功", nil)
+}
+
+// GetSettingsSchema 获取配置 Schema
+//
+// @Summary      获取配置 Schema
+// @Description  获取按 Category → Group → Settings 层级组织的配置数据，用于前端动态渲染设置页面
+// @Tags         管理员 - 系统配置 (Admin - Settings)
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Success      200 {object} response.DataResponse[[]setting.SchemaCategoryDTO] "配置 Schema"
+// @Failure      401 {object} response.ErrorResponse "未授权"
+// @Failure      403 {object} response.ErrorResponse "权限不足"
+// @Failure      500 {object} response.ErrorResponse "服务器内部错误"
+// @Router       /api/admin/settings/schema [get]
+// @x-permission {"scope":"admin:settings:read"}
+func (h *SettingHandler) GetSettingsSchema(c *gin.Context) {
+	// 调用 Use Case Handler
+	schema, err := h.listSchemaHandler.Handle(c.Request.Context(), setting.ListSchemaQuery{})
+
+	if err != nil {
+		response.InternalError(c, err.Error())
+		return
+	}
+
+	response.OK(c, "success", schema)
 }

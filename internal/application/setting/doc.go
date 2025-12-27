@@ -4,15 +4,15 @@
 //
 // # Command（写操作）
 //
-//   - [command.CreateSettingHandler]: 创建设置项
-//   - [command.UpdateSettingHandler]: 更新设置值
-//   - [command.DeleteSettingHandler]: 删除设置项
-//   - [command.BatchUpdateSettingsHandler]: 批量更新设置
+//   - [command.CreateHandler]: 创建设置项
+//   - [command.UpdateHandler]: 更新设置值
+//   - [command.DeleteHandler]: 删除设置项
+//   - [command.BatchUpdateHandler]: 批量更新设置
 //
 // # Query（读操作）
 //
-//   - [query.GetSettingHandler]: 获取设置详情
-//   - [query.ListSettingsHandler]: 设置列表查询（支持分类筛选）
+//   - [query.GetHandler]: 获取设置详情
+//   - [query.ListHandler]: 设置列表查询（支持分类筛选）
 //
 // # DTO 与映射
 //

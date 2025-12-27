@@ -81,3 +81,24 @@ func (m *MockSettingQueryRepository) FindAll(ctx context.Context) ([]*setting.Se
 	}
 	return args.Get(0).([]*setting.Setting), args.Error(1)
 }
+
+// MockSettingValidator 设置验证器 Mock
+type MockSettingValidator struct {
+	mock.Mock
+}
+
+func (m *MockSettingValidator) Validate(ctx context.Context, vctx *setting.ValidationContext) (*setting.ValidationResult, error) {
+	args := m.Called(ctx, vctx)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(*setting.ValidationResult), args.Error(1)
+}
+
+func (m *MockSettingValidator) ValidateBatch(ctx context.Context, items []*setting.ValidationContext) (map[string]string, error) {
+	args := m.Called(ctx, items)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(map[string]string), args.Error(1)
+}

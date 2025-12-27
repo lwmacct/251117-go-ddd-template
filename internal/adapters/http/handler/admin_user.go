@@ -17,8 +17,8 @@ type ListUsersQuery struct {
 }
 
 // ToQuery 转换为 Application 层 Query 对象
-func (q *ListUsersQuery) ToQuery() user.ListUsersQuery {
-	return user.ListUsersQuery{
+func (q *ListUsersQuery) ToQuery() user.ListQuery {
+	return user.ListQuery{
 		Page:   q.GetPage(),
 		Limit:  q.GetLimit(),
 		Search: q.Search,
@@ -27,24 +27,24 @@ func (q *ListUsersQuery) ToQuery() user.ListUsersQuery {
 
 // AdminUserHandler handles admin user management operations
 type AdminUserHandler struct {
-	createUserHandler      *user.CreateUserHandler
-	updateUserHandler      *user.UpdateUserHandler
-	deleteUserHandler      *user.DeleteUserHandler
+	createUserHandler      *user.CreateHandler
+	updateUserHandler      *user.UpdateHandler
+	deleteUserHandler      *user.DeleteHandler
 	assignRolesHandler     *user.AssignRolesHandler
-	batchCreateUserHandler *user.BatchCreateUsersHandler
-	getUserHandler         *user.GetUserHandler
-	listUsersHandler       *user.ListUsersHandler
+	batchCreateUserHandler *user.BatchCreateHandler
+	getUserHandler         *user.GetHandler
+	listUsersHandler       *user.ListHandler
 }
 
 // NewAdminUserHandler creates a new AdminUserHandler instance
 func NewAdminUserHandler(
-	createUserHandler *user.CreateUserHandler,
-	updateUserHandler *user.UpdateUserHandler,
-	deleteUserHandler *user.DeleteUserHandler,
+	createUserHandler *user.CreateHandler,
+	updateUserHandler *user.UpdateHandler,
+	deleteUserHandler *user.DeleteHandler,
 	assignRolesHandler *user.AssignRolesHandler,
-	batchCreateUserHandler *user.BatchCreateUsersHandler,
-	getUserHandler *user.GetUserHandler,
-	listUsersHandler *user.ListUsersHandler,
+	batchCreateUserHandler *user.BatchCreateHandler,
+	getUserHandler *user.GetHandler,
+	listUsersHandler *user.ListHandler,
 ) *AdminUserHandler {
 	return &AdminUserHandler{
 		createUserHandler:      createUserHandler,
@@ -65,7 +65,7 @@ func NewAdminUserHandler(
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
-// @Param        request body user.CreateUserDTO true "用户信息"
+// @Param        request body user.CreateDTO true "用户信息"
 // @Success      201 {object} response.DataResponse[user.UserWithRolesDTO] "用户创建成功"
 // @Failure      400 {object} response.ErrorResponse "参数错误或用户名/邮箱已存在"
 // @Failure      401 {object} response.ErrorResponse "未授权"
@@ -74,19 +74,19 @@ func NewAdminUserHandler(
 // @Router       /api/admin/users [post]
 // @x-permission {"scope":"admin:users:create"}
 func (h *AdminUserHandler) CreateUser(c *gin.Context) {
-	var dto user.CreateUserDTO
+	var dto user.CreateDTO
 	if err := c.ShouldBindJSON(&dto); err != nil {
 		response.ValidationError(c, err.Error())
 		return
 	}
 
-	result, err := h.createUserHandler.Handle(c.Request.Context(), user.CreateUserCommand(dto))
+	result, err := h.createUserHandler.Handle(c.Request.Context(), user.CreateCommand(dto))
 	if err != nil {
 		response.InternalError(c, err.Error())
 		return
 	}
 
-	createdUser, err := h.getUserHandler.Handle(c.Request.Context(), user.GetUserQuery{
+	createdUser, err := h.getUserHandler.Handle(c.Request.Context(), user.GetQuery{
 		UserID:    result.UserID,
 		WithRoles: true,
 	})
@@ -153,7 +153,7 @@ func (h *AdminUserHandler) GetUser(c *gin.Context) {
 		return
 	}
 
-	userResp, err := h.getUserHandler.Handle(c.Request.Context(), user.GetUserQuery{
+	userResp, err := h.getUserHandler.Handle(c.Request.Context(), user.GetQuery{
 		UserID:    uint(id),
 		WithRoles: true,
 	})
@@ -174,7 +174,7 @@ func (h *AdminUserHandler) GetUser(c *gin.Context) {
 // @Produce      json
 // @Security     BearerAuth
 // @Param        id path int true "用户ID" minimum(1)
-// @Param        request body user.UpdateUserDTO true "更新信息"
+// @Param        request body user.UpdateDTO true "更新信息"
 // @Success      200 {object} response.DataResponse[user.UserWithRolesDTO] "用户更新成功"
 // @Failure      400 {object} response.ErrorResponse "无效的用户ID或参数错误"
 // @Failure      401 {object} response.ErrorResponse "未授权"
@@ -190,13 +190,13 @@ func (h *AdminUserHandler) UpdateUser(c *gin.Context) {
 		return
 	}
 
-	var dto user.UpdateUserDTO
+	var dto user.UpdateDTO
 	if err = c.ShouldBindJSON(&dto); err != nil {
 		response.ValidationError(c, err.Error())
 		return
 	}
 
-	_, err = h.updateUserHandler.Handle(c.Request.Context(), user.UpdateUserCommand{
+	_, err = h.updateUserHandler.Handle(c.Request.Context(), user.UpdateCommand{
 		UserID:   uint(id),
 		Username: dto.Username,
 		Email:    dto.Email,
@@ -210,7 +210,7 @@ func (h *AdminUserHandler) UpdateUser(c *gin.Context) {
 		return
 	}
 
-	updatedUser, err := h.getUserHandler.Handle(c.Request.Context(), user.GetUserQuery{
+	updatedUser, err := h.getUserHandler.Handle(c.Request.Context(), user.GetQuery{
 		UserID:    uint(id),
 		WithRoles: true,
 	})
@@ -246,7 +246,7 @@ func (h *AdminUserHandler) DeleteUser(c *gin.Context) {
 		return
 	}
 
-	if err := h.deleteUserHandler.Handle(c.Request.Context(), user.DeleteUserCommand{
+	if err := h.deleteUserHandler.Handle(c.Request.Context(), user.DeleteCommand{
 		UserID: uint(id),
 	}); err != nil {
 		response.InternalError(c, err.Error())
@@ -296,7 +296,7 @@ func (h *AdminUserHandler) AssignRoles(c *gin.Context) {
 	}
 
 	// 获取更新后的用户信息（包含角色）
-	updatedUser, err := h.getUserHandler.Handle(c.Request.Context(), user.GetUserQuery{
+	updatedUser, err := h.getUserHandler.Handle(c.Request.Context(), user.GetQuery{
 		UserID:    uint(id),
 		WithRoles: true,
 	})
@@ -316,8 +316,8 @@ func (h *AdminUserHandler) AssignRoles(c *gin.Context) {
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
-// @Param        request body user.BatchCreateUserDTO true "用户列表（最多 100 个）"
-// @Success      200 {object} response.DataResponse[user.BatchCreateUserResultDTO] "批量创建结果"
+// @Param        request body user.BatchCreateDTO true "用户列表（最多 100 个）"
+// @Success      200 {object} response.DataResponse[user.BatchCreateResultDTO] "批量创建结果"
 // @Failure      400 {object} response.ErrorResponse "参数错误"
 // @Failure      401 {object} response.ErrorResponse "未授权"
 // @Failure      403 {object} response.ErrorResponse "权限不足"
@@ -325,17 +325,17 @@ func (h *AdminUserHandler) AssignRoles(c *gin.Context) {
 // @Router       /api/admin/users/batch [post]
 // @x-permission {"scope":"admin:users:create"}
 func (h *AdminUserHandler) BatchCreateUsers(c *gin.Context) {
-	var dto user.BatchCreateUserDTO
+	var dto user.BatchCreateDTO
 	if err := c.ShouldBindJSON(&dto); err != nil {
 		response.ValidationError(c, err.Error())
 		return
 	}
 
 	// 构建 Command
-	users := make([]user.BatchUserItemDTO, len(dto.Users))
+	users := make([]user.BatchItemDTO, len(dto.Users))
 	copy(users, dto.Users)
 
-	result, err := h.batchCreateUserHandler.Handle(c.Request.Context(), user.BatchCreateUsersCommand{
+	result, err := h.batchCreateUserHandler.Handle(c.Request.Context(), user.BatchCreateCommand{
 		Users: users,
 	})
 	if err != nil {
@@ -344,7 +344,7 @@ func (h *AdminUserHandler) BatchCreateUsers(c *gin.Context) {
 	}
 
 	// 构建响应
-	resp := user.BatchCreateUserResultDTO{
+	resp := user.BatchCreateResultDTO{
 		Total:   result.Total,
 		Success: result.Success,
 		Failed:  result.Failed,

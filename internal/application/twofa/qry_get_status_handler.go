@@ -19,13 +19,13 @@ func NewGetStatusHandler(twofaService twofa.Service) *GetStatusHandler {
 }
 
 // Handle 处理获取 2FA 状态查询
-func (h *GetStatusHandler) Handle(ctx context.Context, query GetStatusQuery) (*GetStatusResultDTO, error) {
+func (h *GetStatusHandler) Handle(ctx context.Context, query GetStatusQuery) (*StatusResultDTO, error) {
 	enabled, count, err := h.twofaService.GetStatus(ctx, query.UserID)
 	if err != nil {
 		return nil, err
 	}
 
-	return &GetStatusResultDTO{
+	return &StatusResultDTO{
 		Enabled:            enabled,
 		RecoveryCodesCount: count,
 	}, nil

@@ -6,7 +6,7 @@ import UserDialog from "./components/UserDialog.vue";
 import UserImportDialog from "./components/UserImportDialog.vue";
 import RoleSelector from "./components/RoleSelector.vue";
 import CopyButton from "@/components/CopyButton.vue";
-import type { UserUserWithRolesDTO, UserCreateUserDTO, UserUpdateUserDTO } from "@models";
+import type { UserUserWithRolesDTO, UserCreateDTO, UserUpdateDTO } from "@models";
 
 /**
  * 用户管理页面
@@ -81,13 +81,13 @@ const openDeleteDialog = (user: UserUserWithRolesDTO) => {
 };
 
 // 保存用户（创建或编辑）
-const handleSaveUser = async (data: UserCreateUserDTO | UserUpdateUserDTO) => {
+const handleSaveUser = async (data: UserCreateDTO | UserUpdateDTO) => {
   let success = false;
 
   if (dialogMode.value === "create") {
-    success = await createUser(data as UserCreateUserDTO);
+    success = await createUser(data as UserCreateDTO);
   } else if (selectedUser.value?.id) {
-    success = await updateUser(selectedUser.value.id, data as UserUpdateUserDTO);
+    success = await updateUser(selectedUser.value.id, data as UserUpdateDTO);
   }
 
   if (success) {

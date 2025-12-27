@@ -16,7 +16,7 @@ import (
 )
 
 // AuditMiddleware creates a middleware that logs user actions (CQRS: 只写操作)
-func AuditMiddleware(handler *auditlog.CreateLogHandler) gin.HandlerFunc {
+func AuditMiddleware(handler *auditlog.CreateHandler) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// Skip audit for GET requests (read-only operations)
 		if c.Request.Method == http.MethodGet {
@@ -74,7 +74,7 @@ func AuditMiddleware(handler *auditlog.CreateLogHandler) gin.HandlerFunc {
 		resource, resourceID := extractResourceInfo(c.Request.URL.Path)
 
 		// Create audit log command
-		cmd := auditlog.CreateLogCommand{
+		cmd := auditlog.CreateCommand{
 			UserID:     uid,
 			Username:   uname,
 			Action:     fmt.Sprintf("%s %s", c.Request.Method, c.Request.URL.Path),

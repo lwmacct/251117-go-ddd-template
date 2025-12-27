@@ -4,17 +4,17 @@
 //
 // # Command（写操作）
 //
-//   - [command.CreateUserHandler]: 创建用户
-//   - [command.UpdateUserHandler]: 更新用户信息
-//   - [command.DeleteUserHandler]: 删除用户
+//   - [command.CreateHandler]: 创建用户
+//   - [command.UpdateHandler]: 更新用户信息
+//   - [command.DeleteHandler]: 删除用户
 //   - [command.AssignRolesHandler]: 分配角色
 //   - [command.ChangePasswordHandler]: 修改密码
-//   - [command.BatchCreateUsersHandler]: 批量创建用户
+//   - [command.BatchCreateHandler]: 批量创建用户
 //
 // # Query（读操作）
 //
-//   - [query.GetUserHandler]: 获取用户详情（支持角色关联）
-//   - [query.ListUsersHandler]: 用户列表查询（支持分页、搜索）
+//   - [query.GetHandler]: 获取用户详情（支持角色关联）
+//   - [query.ListHandler]: 用户列表查询（支持分页、搜索）
 //
 // # DTO 与映射
 //

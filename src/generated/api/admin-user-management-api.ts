@@ -22,7 +22,7 @@ import { DUMMY_BASE_URL, assertParamExists, setApiKeyToObject, setBasicAuthToObj
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS, type RequestArgs, BaseAPI, RequiredError, operationServerMap } from '../base';
 // @ts-ignore
-import type { ResponseDataResponseUserBatchCreateUserResultDTO } from '../models';
+import type { ResponseDataResponseUserBatchCreateResultDTO } from '../models';
 // @ts-ignore
 import type { ResponseDataResponseUserUserWithRolesDTO } from '../models';
 // @ts-ignore
@@ -34,11 +34,11 @@ import type { ResponsePagedResponseUserUserWithRolesDTO } from '../models';
 // @ts-ignore
 import type { UserAssignRolesDTO } from '../models';
 // @ts-ignore
-import type { UserBatchCreateUserDTO } from '../models';
+import type { UserBatchCreateDTO } from '../models';
 // @ts-ignore
-import type { UserCreateUserDTO } from '../models';
+import type { UserCreateDTO } from '../models';
 // @ts-ignore
-import type { UserUpdateUserDTO } from '../models';
+import type { UserUpdateDTO } from '../models';
 /**
  * AdminUserManagementApi - axios parameter creator
  * @export
@@ -48,11 +48,11 @@ export const AdminUserManagementApiAxiosParamCreator = function (configuration?:
         /**
          * 管理员从 CSV 等来源批量创建用户，支持部分失败（单个失败不影响其他用户）
          * @summary 批量创建用户
-         * @param {UserBatchCreateUserDTO} request 用户列表（最多 100 个）
+         * @param {UserBatchCreateDTO} request 用户列表（最多 100 个）
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiAdminUsersBatchPost: async (request: UserBatchCreateUserDTO, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        apiAdminUsersBatchPost: async (request: UserBatchCreateDTO, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'request' is not null or undefined
             assertParamExists('apiAdminUsersBatchPost', 'request', request)
             const localVarPath = `/api/admin/users/batch`;
@@ -210,11 +210,11 @@ export const AdminUserManagementApiAxiosParamCreator = function (configuration?:
          * 管理员更新用户的基本信息和状态
          * @summary 更新用户信息
          * @param {number} id 用户ID
-         * @param {UserUpdateUserDTO} request 更新信息
+         * @param {UserUpdateDTO} request 更新信息
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiAdminUsersIdPut: async (id: number, request: UserUpdateUserDTO, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        apiAdminUsersIdPut: async (id: number, request: UserUpdateDTO, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'id' is not null or undefined
             assertParamExists('apiAdminUsersIdPut', 'id', id)
             // verify required parameter 'request' is not null or undefined
@@ -295,11 +295,11 @@ export const AdminUserManagementApiAxiosParamCreator = function (configuration?:
         /**
          * 管理员创建新用户账号，可同时分配角色
          * @summary 创建用户
-         * @param {UserCreateUserDTO} request 用户信息
+         * @param {UserCreateDTO} request 用户信息
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiAdminUsersPost: async (request: UserCreateUserDTO, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        apiAdminUsersPost: async (request: UserCreateDTO, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'request' is not null or undefined
             assertParamExists('apiAdminUsersPost', 'request', request)
             const localVarPath = `/api/admin/users`;
@@ -344,11 +344,11 @@ export const AdminUserManagementApiFp = function(configuration?: Configuration) 
         /**
          * 管理员从 CSV 等来源批量创建用户，支持部分失败（单个失败不影响其他用户）
          * @summary 批量创建用户
-         * @param {UserBatchCreateUserDTO} request 用户列表（最多 100 个）
+         * @param {UserBatchCreateDTO} request 用户列表（最多 100 个）
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async apiAdminUsersBatchPost(request: UserBatchCreateUserDTO, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseUserBatchCreateUserResultDTO>> {
+        async apiAdminUsersBatchPost(request: UserBatchCreateDTO, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseUserBatchCreateResultDTO>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.apiAdminUsersBatchPost(request, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['AdminUserManagementApi.apiAdminUsersBatchPost']?.[localVarOperationServerIndex]?.url;
@@ -399,11 +399,11 @@ export const AdminUserManagementApiFp = function(configuration?: Configuration) 
          * 管理员更新用户的基本信息和状态
          * @summary 更新用户信息
          * @param {number} id 用户ID
-         * @param {UserUpdateUserDTO} request 更新信息
+         * @param {UserUpdateDTO} request 更新信息
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async apiAdminUsersIdPut(id: number, request: UserUpdateUserDTO, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseUserUserWithRolesDTO>> {
+        async apiAdminUsersIdPut(id: number, request: UserUpdateDTO, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseUserUserWithRolesDTO>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.apiAdminUsersIdPut(id, request, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['AdminUserManagementApi.apiAdminUsersIdPut']?.[localVarOperationServerIndex]?.url;
@@ -426,11 +426,11 @@ export const AdminUserManagementApiFp = function(configuration?: Configuration) 
         /**
          * 管理员创建新用户账号，可同时分配角色
          * @summary 创建用户
-         * @param {UserCreateUserDTO} request 用户信息
+         * @param {UserCreateDTO} request 用户信息
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async apiAdminUsersPost(request: UserCreateUserDTO, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseUserUserWithRolesDTO>> {
+        async apiAdminUsersPost(request: UserCreateDTO, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseUserUserWithRolesDTO>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.apiAdminUsersPost(request, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['AdminUserManagementApi.apiAdminUsersPost']?.[localVarOperationServerIndex]?.url;
@@ -449,11 +449,11 @@ export const AdminUserManagementApiFactory = function (configuration?: Configura
         /**
          * 管理员从 CSV 等来源批量创建用户，支持部分失败（单个失败不影响其他用户）
          * @summary 批量创建用户
-         * @param {UserBatchCreateUserDTO} request 用户列表（最多 100 个）
+         * @param {UserBatchCreateDTO} request 用户列表（最多 100 个）
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiAdminUsersBatchPost(request: UserBatchCreateUserDTO, options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseUserBatchCreateUserResultDTO> {
+        apiAdminUsersBatchPost(request: UserBatchCreateDTO, options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseUserBatchCreateResultDTO> {
             return localVarFp.apiAdminUsersBatchPost(request, options).then((request) => request(axios, basePath));
         },
         /**
@@ -492,11 +492,11 @@ export const AdminUserManagementApiFactory = function (configuration?: Configura
          * 管理员更新用户的基本信息和状态
          * @summary 更新用户信息
          * @param {number} id 用户ID
-         * @param {UserUpdateUserDTO} request 更新信息
+         * @param {UserUpdateDTO} request 更新信息
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiAdminUsersIdPut(id: number, request: UserUpdateUserDTO, options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseUserUserWithRolesDTO> {
+        apiAdminUsersIdPut(id: number, request: UserUpdateDTO, options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseUserUserWithRolesDTO> {
             return localVarFp.apiAdminUsersIdPut(id, request, options).then((request) => request(axios, basePath));
         },
         /**
@@ -513,11 +513,11 @@ export const AdminUserManagementApiFactory = function (configuration?: Configura
         /**
          * 管理员创建新用户账号，可同时分配角色
          * @summary 创建用户
-         * @param {UserCreateUserDTO} request 用户信息
+         * @param {UserCreateDTO} request 用户信息
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiAdminUsersPost(request: UserCreateUserDTO, options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseUserUserWithRolesDTO> {
+        apiAdminUsersPost(request: UserCreateDTO, options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseUserUserWithRolesDTO> {
             return localVarFp.apiAdminUsersPost(request, options).then((request) => request(axios, basePath));
         },
     };
@@ -533,12 +533,12 @@ export class AdminUserManagementApi extends BaseAPI {
     /**
      * 管理员从 CSV 等来源批量创建用户，支持部分失败（单个失败不影响其他用户）
      * @summary 批量创建用户
-     * @param {UserBatchCreateUserDTO} request 用户列表（最多 100 个）
+     * @param {UserBatchCreateDTO} request 用户列表（最多 100 个）
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof AdminUserManagementApi
      */
-    public apiAdminUsersBatchPost(request: UserBatchCreateUserDTO, options?: RawAxiosRequestConfig) {
+    public apiAdminUsersBatchPost(request: UserBatchCreateDTO, options?: RawAxiosRequestConfig) {
         return AdminUserManagementApiFp(this.configuration).apiAdminUsersBatchPost(request, options).then((request) => request(this.axios, this.basePath));
     }
 
@@ -584,12 +584,12 @@ export class AdminUserManagementApi extends BaseAPI {
      * 管理员更新用户的基本信息和状态
      * @summary 更新用户信息
      * @param {number} id 用户ID
-     * @param {UserUpdateUserDTO} request 更新信息
+     * @param {UserUpdateDTO} request 更新信息
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof AdminUserManagementApi
      */
-    public apiAdminUsersIdPut(id: number, request: UserUpdateUserDTO, options?: RawAxiosRequestConfig) {
+    public apiAdminUsersIdPut(id: number, request: UserUpdateDTO, options?: RawAxiosRequestConfig) {
         return AdminUserManagementApiFp(this.configuration).apiAdminUsersIdPut(id, request, options).then((request) => request(this.axios, this.basePath));
     }
 
@@ -609,12 +609,12 @@ export class AdminUserManagementApi extends BaseAPI {
     /**
      * 管理员创建新用户账号，可同时分配角色
      * @summary 创建用户
-     * @param {UserCreateUserDTO} request 用户信息
+     * @param {UserCreateDTO} request 用户信息
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof AdminUserManagementApi
      */
-    public apiAdminUsersPost(request: UserCreateUserDTO, options?: RawAxiosRequestConfig) {
+    public apiAdminUsersPost(request: UserCreateDTO, options?: RawAxiosRequestConfig) {
         return AdminUserManagementApiFp(this.configuration).apiAdminUsersPost(request, options).then((request) => request(this.axios, this.basePath));
     }
 }

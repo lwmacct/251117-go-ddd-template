@@ -32,13 +32,13 @@ type SetupResultDTO struct {
 	QRCodeImg string
 }
 
-// VerifyEnableResultDTO 验证并启用 2FA 结果 DTO（Handler 返回类型）
-type VerifyEnableResultDTO struct {
+// EnableResultDTO 验证并启用 2FA 结果 DTO（Handler 返回类型）
+type EnableResultDTO struct {
 	RecoveryCodes []string
 }
 
-// GetStatusResultDTO 获取 2FA 状态结果 DTO（Handler 返回类型）
-type GetStatusResultDTO struct {
+// StatusResultDTO 获取 2FA 状态结果 DTO（Handler 返回类型）
+type StatusResultDTO struct {
 	Enabled            bool
 	RecoveryCodesCount int
 }

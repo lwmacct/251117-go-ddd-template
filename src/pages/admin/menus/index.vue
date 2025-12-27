@@ -4,7 +4,7 @@ import { useMenus } from "./composables/useMenus";
 import MenuDialog from "./components/MenuDialog.vue";
 import MenuTree from "./components/MenuTree.vue";
 import type { Menu } from "@/api";
-import type { HandlerCreateMenuRequest, HandlerUpdateMenuRequest } from "@models";
+import type { MenuCreateDTO, MenuUpdateDTO } from "@models";
 
 const {
   menus,
@@ -48,13 +48,13 @@ const openDeleteDialog = (menu: Menu) => {
   deleteDialog.value = true;
 };
 
-const handleSaveMenu = async (data: HandlerCreateMenuRequest | HandlerUpdateMenuRequest) => {
+const handleSaveMenu = async (data: MenuCreateDTO | MenuUpdateDTO) => {
   let success = false;
 
   if (dialogMode.value === "create") {
-    success = await createMenu(data as HandlerCreateMenuRequest);
+    success = await createMenu(data as MenuCreateDTO);
   } else if (selectedMenu.value?.id) {
-    success = await updateMenu(selectedMenu.value.id, data as HandlerUpdateMenuRequest);
+    success = await updateMenu(selectedMenu.value.id, data as MenuUpdateDTO);
   }
 
   if (success) {

@@ -4,8 +4,8 @@
 # 用于 pre-commit hook
 #
 # 规则：
-# - cmd_*.go 文件中的 struct 必须以 Command 结尾
-# - qry_*.go 文件中的 struct 必须以 Query 结尾
+# - commands.go 或 cmd_*.go 文件中的 struct 必须以 Command 结尾
+# - queries.go 或 qry_*.go 文件中的 struct 必须以 Query 结尾
 # - dto.go 文件中的 struct 必须以 DTO 结尾
 # - 只检查 internal/application/ 目录下的文件
 
@@ -68,10 +68,10 @@ for file in "$@"; do
     filename=$(basename "$file")
 
     # 根据文件前缀/名称检查结构体命名
-    if [[ "$filename" =~ ^cmd_ ]]; then
-        check_struct_suffix "$file" "Command" "cmd_*"
-    elif [[ "$filename" =~ ^qry_ ]]; then
-        check_struct_suffix "$file" "Query" "qry_*"
+    if [[ "$filename" == "commands.go" ]] || [[ "$filename" =~ ^cmd_ ]]; then
+        check_struct_suffix "$file" "Command" "commands"
+    elif [[ "$filename" == "queries.go" ]] || [[ "$filename" =~ ^qry_ ]]; then
+        check_struct_suffix "$file" "Query" "queries"
     elif [[ "$filename" == "dto.go" ]]; then
         check_struct_suffix "$file" "DTO" "dto"
     fi
@@ -81,8 +81,8 @@ if [[ $errors -gt 0 ]]; then
     echo ""
     echo -e "${RED}Found ${errors} struct(s) not following naming convention.${NC}"
     echo -e "Rules:"
-    echo -e "  - cmd_*.go files: structs must end with 'Command'"
-    echo -e "  - qry_*.go files: structs must end with 'Query'"
+    echo -e "  - commands.go or cmd_*.go files: structs must end with 'Command'"
+    echo -e "  - queries.go or qry_*.go files: structs must end with 'Query'"
     echo -e "  - dto.go files: structs must end with 'DTO'"
     exit 1
 fi

@@ -13,6 +13,9 @@
  */
 
 
+// May contain unused imports in some cases
+// @ts-ignore
+import type { SettingUIConfigDTO } from './setting-uiconfig-dto';
 
 /**
  * 
@@ -34,6 +37,12 @@ export interface SettingSettingDTO {
     'created_at'?: string;
     /**
      * 
+     * @type {string}
+     * @memberof SettingSettingDTO
+     */
+    'group'?: string;
+    /**
+     * 
      * @type {number}
      * @memberof SettingSettingDTO
      */
@@ -50,6 +59,18 @@ export interface SettingSettingDTO {
      * @memberof SettingSettingDTO
      */
     'label'?: string;
+    /**
+     * 
+     * @type {number}
+     * @memberof SettingSettingDTO
+     */
+    'order'?: number;
+    /**
+     * 
+     * @type {SettingUIConfigDTO}
+     * @memberof SettingSettingDTO
+     */
+    'ui_config'?: SettingUIConfigDTO;
     /**
      * 
      * @type {string}

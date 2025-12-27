@@ -8,14 +8,25 @@ import (
 )
 
 // Setting 系统配置实体。
-// 采用 Key-Value 模式存储配置项，支持分类和类型标注。
+// 采用 Key-Value 模式存储配置项，支持分类、类型标注和 UI 元数据。
+//
+// UIConfig 字段（JSONB）统一存储前端渲染所需的 UI 配置：
+//   - input_type: 控件类型（text, switch, select 等）
+//   - hint: 输入提示文字
+//   - options: 下拉/单选/多选的选项列表
+//   - validation: JSON Logic 验证规则
+//   - depends_on: 依赖关系配置
 type Setting struct {
-	ID        uint      `json:"id"`
-	Key       string    `json:"key"`
-	Value     string    `json:"value"`
-	Category  string    `json:"category"`
-	ValueType string    `json:"value_type"`
-	Label     string    `json:"label"`
+	ID        uint   `json:"id"`
+	Key       string `json:"key"`
+	Value     string `json:"value"`
+	Category  string `json:"category"`
+	Group     string `json:"group"` // Category 内子分组
+	ValueType string `json:"value_type"`
+	Label     string `json:"label"`
+	UIConfig  string `json:"ui_config"` // JSONB: 统一的 UI 配置
+	Order     int    `json:"order"`     // 排序权重（小的在前）
+
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
@@ -139,4 +150,21 @@ const (
 	ValueTypeNumber  = "number"  // 数值类型，使用数字输入框
 	ValueTypeBoolean = "boolean" // 布尔类型，使用开关控件
 	ValueTypeJSON    = "json"    // JSON 类型，使用 JSON 编辑器
+)
+
+// 控件类型常量。
+// 用于前端动态渲染对应的输入控件。
+const (
+	InputTypeText     = "text"     // 单行文本框
+	InputTypeTextarea = "textarea" // 多行文本框
+	InputTypeNumber   = "number"   // 数字输入框
+	InputTypeSwitch   = "switch"   // 开关
+	InputTypeSelect   = "select"   // 下拉选择
+	InputTypeRadio    = "radio"    // 单选按钮组
+	InputTypeCheckbox = "checkbox" // 多选复选框
+	InputTypePassword = "password" // 密码输入框
+	InputTypeEmail    = "email"    // 邮箱输入框
+	InputTypeURL      = "url"      // URL 输入框
+	InputTypeJSON     = "json"     // JSON 编辑器
+	InputTypeColor    = "color"    // 颜色选择器（预留）
 )

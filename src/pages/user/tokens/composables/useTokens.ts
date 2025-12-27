@@ -2,7 +2,7 @@
  * Personal Access Token 管理 Composable
  */
 import { ref } from "vue";
-import { userTokensApi, extractData, type PatTokenDTO, type PatCreateTokenDTO, type PatCreateTokenResultDTO } from "@/api";
+import { userTokensApi, extractData, type PatTokenDTO, type PatCreateDTO, type PatCreateResultDTO } from "@/api";
 
 export function useTokens() {
   const tokens = ref<PatTokenDTO[]>([]);
@@ -24,14 +24,14 @@ export function useTokens() {
     }
   };
 
-  const createToken = async (data: PatCreateTokenDTO): Promise<PatCreateTokenResultDTO | null> => {
+  const createToken = async (data: PatCreateDTO): Promise<PatCreateResultDTO | null> => {
     loading.value = true;
     errorMessage.value = "";
     successMessage.value = "";
 
     try {
       const response = await userTokensApi.apiUserTokensPost(data);
-      const result = extractData<PatCreateTokenResultDTO>(response.data);
+      const result = extractData<PatCreateResultDTO>(response.data);
       successMessage.value = "Token 创建成功";
       await fetchTokens();
       return result ?? null;

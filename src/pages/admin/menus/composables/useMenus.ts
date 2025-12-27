@@ -3,7 +3,7 @@
  */
 import { ref } from "vue";
 import { adminMenuApi, extractData, type Menu } from "@/api";
-import { type HandlerCreateMenuRequest, type HandlerUpdateMenuRequest, type HandlerReorderMenusRequest } from "@models";
+import { type MenuCreateDTO, type MenuUpdateDTO, type MenuReorderDTO } from "@models";
 import { exportToCSV, type CSVColumn } from "@/utils/export";
 
 // 扁平化菜单结构（用于导出）
@@ -43,7 +43,7 @@ export function useMenus() {
     }
   };
 
-  const createMenu = async (data: HandlerCreateMenuRequest): Promise<boolean> => {
+  const createMenu = async (data: MenuCreateDTO): Promise<boolean> => {
     loading.value = true;
     errorMessage.value = "";
     successMessage.value = "";
@@ -61,7 +61,7 @@ export function useMenus() {
     }
   };
 
-  const updateMenu = async (id: number, data: HandlerUpdateMenuRequest): Promise<boolean> => {
+  const updateMenu = async (id: number, data: MenuUpdateDTO): Promise<boolean> => {
     loading.value = true;
     errorMessage.value = "";
     successMessage.value = "";
@@ -97,7 +97,7 @@ export function useMenus() {
     }
   };
 
-  const reorderMenus = async (data: HandlerReorderMenusRequest): Promise<boolean> => {
+  const reorderMenus = async (data: MenuReorderDTO): Promise<boolean> => {
     errorMessage.value = "";
     successMessage.value = "";
 

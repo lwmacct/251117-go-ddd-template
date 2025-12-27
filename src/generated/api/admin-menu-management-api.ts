@@ -22,11 +22,11 @@ import { DUMMY_BASE_URL, assertParamExists, setApiKeyToObject, setBasicAuthToObj
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS, type RequestArgs, BaseAPI, RequiredError, operationServerMap } from '../base';
 // @ts-ignore
-import type { HandlerCreateMenuRequest } from '../models';
+import type { MenuCreateDTO } from '../models';
 // @ts-ignore
-import type { HandlerReorderMenusRequest } from '../models';
+import type { MenuReorderDTO } from '../models';
 // @ts-ignore
-import type { HandlerUpdateMenuRequest } from '../models';
+import type { MenuUpdateDTO } from '../models';
 // @ts-ignore
 import type { ResponseDataResponseArrayMenuMenuDTO } from '../models';
 // @ts-ignore
@@ -150,11 +150,11 @@ export const AdminMenuManagementApiAxiosParamCreator = function (configuration?:
          * 管理员更新菜单的标题、路径、图标等信息
          * @summary 更新菜单信息
          * @param {number} id 菜单ID
-         * @param {HandlerUpdateMenuRequest} request 更新信息
+         * @param {MenuUpdateDTO} request 更新信息
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiAdminMenusIdPut: async (id: number, request: HandlerUpdateMenuRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        apiAdminMenusIdPut: async (id: number, request: MenuUpdateDTO, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'id' is not null or undefined
             assertParamExists('apiAdminMenusIdPut', 'id', id)
             // verify required parameter 'request' is not null or undefined
@@ -192,11 +192,11 @@ export const AdminMenuManagementApiAxiosParamCreator = function (configuration?:
         /**
          * 管理员创建新的系统菜单项
          * @summary 创建菜单
-         * @param {HandlerCreateMenuRequest} request 菜单信息
+         * @param {MenuCreateDTO} request 菜单信息
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiAdminMenusPost: async (request: HandlerCreateMenuRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        apiAdminMenusPost: async (request: MenuCreateDTO, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'request' is not null or undefined
             assertParamExists('apiAdminMenusPost', 'request', request)
             const localVarPath = `/api/admin/menus`;
@@ -231,11 +231,11 @@ export const AdminMenuManagementApiAxiosParamCreator = function (configuration?:
         /**
          * 管理员批量更新菜单的排序和父级关系
          * @summary 批量更新菜单排序
-         * @param {HandlerReorderMenusRequest} request 菜单排序信息
+         * @param {MenuReorderDTO} request 菜单排序信息
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiAdminMenusReorderPost: async (request: HandlerReorderMenusRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        apiAdminMenusReorderPost: async (request: MenuReorderDTO, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'request' is not null or undefined
             assertParamExists('apiAdminMenusReorderPost', 'request', request)
             const localVarPath = `/api/admin/menus/reorder`;
@@ -319,11 +319,11 @@ export const AdminMenuManagementApiFp = function(configuration?: Configuration) 
          * 管理员更新菜单的标题、路径、图标等信息
          * @summary 更新菜单信息
          * @param {number} id 菜单ID
-         * @param {HandlerUpdateMenuRequest} request 更新信息
+         * @param {MenuUpdateDTO} request 更新信息
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async apiAdminMenusIdPut(id: number, request: HandlerUpdateMenuRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseMenuMenuDTO>> {
+        async apiAdminMenusIdPut(id: number, request: MenuUpdateDTO, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseMenuMenuDTO>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.apiAdminMenusIdPut(id, request, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['AdminMenuManagementApi.apiAdminMenusIdPut']?.[localVarOperationServerIndex]?.url;
@@ -332,11 +332,11 @@ export const AdminMenuManagementApiFp = function(configuration?: Configuration) 
         /**
          * 管理员创建新的系统菜单项
          * @summary 创建菜单
-         * @param {HandlerCreateMenuRequest} request 菜单信息
+         * @param {MenuCreateDTO} request 菜单信息
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async apiAdminMenusPost(request: HandlerCreateMenuRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseMenuMenuDTO>> {
+        async apiAdminMenusPost(request: MenuCreateDTO, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseMenuMenuDTO>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.apiAdminMenusPost(request, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['AdminMenuManagementApi.apiAdminMenusPost']?.[localVarOperationServerIndex]?.url;
@@ -345,11 +345,11 @@ export const AdminMenuManagementApiFp = function(configuration?: Configuration) 
         /**
          * 管理员批量更新菜单的排序和父级关系
          * @summary 批量更新菜单排序
-         * @param {HandlerReorderMenusRequest} request 菜单排序信息
+         * @param {MenuReorderDTO} request 菜单排序信息
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async apiAdminMenusReorderPost(request: HandlerReorderMenusRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+        async apiAdminMenusReorderPost(request: MenuReorderDTO, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.apiAdminMenusReorderPost(request, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['AdminMenuManagementApi.apiAdminMenusReorderPost']?.[localVarOperationServerIndex]?.url;
@@ -398,31 +398,31 @@ export const AdminMenuManagementApiFactory = function (configuration?: Configura
          * 管理员更新菜单的标题、路径、图标等信息
          * @summary 更新菜单信息
          * @param {number} id 菜单ID
-         * @param {HandlerUpdateMenuRequest} request 更新信息
+         * @param {MenuUpdateDTO} request 更新信息
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiAdminMenusIdPut(id: number, request: HandlerUpdateMenuRequest, options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseMenuMenuDTO> {
+        apiAdminMenusIdPut(id: number, request: MenuUpdateDTO, options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseMenuMenuDTO> {
             return localVarFp.apiAdminMenusIdPut(id, request, options).then((request) => request(axios, basePath));
         },
         /**
          * 管理员创建新的系统菜单项
          * @summary 创建菜单
-         * @param {HandlerCreateMenuRequest} request 菜单信息
+         * @param {MenuCreateDTO} request 菜单信息
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiAdminMenusPost(request: HandlerCreateMenuRequest, options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseMenuMenuDTO> {
+        apiAdminMenusPost(request: MenuCreateDTO, options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseMenuMenuDTO> {
             return localVarFp.apiAdminMenusPost(request, options).then((request) => request(axios, basePath));
         },
         /**
          * 管理员批量更新菜单的排序和父级关系
          * @summary 批量更新菜单排序
-         * @param {HandlerReorderMenusRequest} request 菜单排序信息
+         * @param {MenuReorderDTO} request 菜单排序信息
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiAdminMenusReorderPost(request: HandlerReorderMenusRequest, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+        apiAdminMenusReorderPost(request: MenuReorderDTO, options?: RawAxiosRequestConfig): AxiosPromise<void> {
             return localVarFp.apiAdminMenusReorderPost(request, options).then((request) => request(axios, basePath));
         },
     };
@@ -474,36 +474,36 @@ export class AdminMenuManagementApi extends BaseAPI {
      * 管理员更新菜单的标题、路径、图标等信息
      * @summary 更新菜单信息
      * @param {number} id 菜单ID
-     * @param {HandlerUpdateMenuRequest} request 更新信息
+     * @param {MenuUpdateDTO} request 更新信息
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof AdminMenuManagementApi
      */
-    public apiAdminMenusIdPut(id: number, request: HandlerUpdateMenuRequest, options?: RawAxiosRequestConfig) {
+    public apiAdminMenusIdPut(id: number, request: MenuUpdateDTO, options?: RawAxiosRequestConfig) {
         return AdminMenuManagementApiFp(this.configuration).apiAdminMenusIdPut(id, request, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * 管理员创建新的系统菜单项
      * @summary 创建菜单
-     * @param {HandlerCreateMenuRequest} request 菜单信息
+     * @param {MenuCreateDTO} request 菜单信息
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof AdminMenuManagementApi
      */
-    public apiAdminMenusPost(request: HandlerCreateMenuRequest, options?: RawAxiosRequestConfig) {
+    public apiAdminMenusPost(request: MenuCreateDTO, options?: RawAxiosRequestConfig) {
         return AdminMenuManagementApiFp(this.configuration).apiAdminMenusPost(request, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * 管理员批量更新菜单的排序和父级关系
      * @summary 批量更新菜单排序
-     * @param {HandlerReorderMenusRequest} request 菜单排序信息
+     * @param {MenuReorderDTO} request 菜单排序信息
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof AdminMenuManagementApi
      */
-    public apiAdminMenusReorderPost(request: HandlerReorderMenusRequest, options?: RawAxiosRequestConfig) {
+    public apiAdminMenusReorderPost(request: MenuReorderDTO, options?: RawAxiosRequestConfig) {
         return AdminMenuManagementApiFp(this.configuration).apiAdminMenusReorderPost(request, options).then((request) => request(this.axios, this.basePath));
     }
 }

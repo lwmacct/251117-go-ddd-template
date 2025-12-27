@@ -5,82 +5,45 @@ paths:
 
 # Application 层规范
 
-<!--TOC-->
+## 命名原则
 
-## Table of Contents
+包名提供上下文，类型名不重复：`user.CreateCommand` ✅ / `user.CreateUserCommand` ❌
 
-- [文件命名规范](#文件命名规范) `:19+12`
-- [结构体命名强制规范](#结构体命名强制规范) `:31+10`
-- [DTO 规范](#dto-规范) `:41+28`
-- [目录结构示例](#目录结构示例) `:69+18`
+## 文件与结构体
 
-<!--TOC-->
+| 文件                    | 结构体     | 示例                                      |
+| ----------------------- | ---------- | ----------------------------------------- |
+| `commands.go`           | `*Command` | `CreateCommand`, `UpdateCommand`          |
+| `queries.go`            | `*Query`   | `GetQuery`, `ListQuery`                   |
+| `cmd_{操作}_handler.go` | `*Handler` | `cmd_create_handler.go` → `CreateHandler` |
+| `qry_{操作}_handler.go` | `*Handler` | `qry_get_handler.go` → `GetHandler`       |
+| `dto.go`                | `*DTO`     | `CreateDTO`, `UserDTO`                    |
+| `mapper.go`             | -          | Entity → DTO 映射                         |
 
-## 文件命名规范
-
-| 文件类型        | 命名规范                | 示例                         |
-| --------------- | ----------------------- | ---------------------------- |
-| Command 定义    | `cmd_{操作}.go`         | `cmd_create_user.go`         |
-| Command Handler | `cmd_{操作}_handler.go` | `cmd_create_user_handler.go` |
-| Query 定义      | `qry_{操作}.go`         | `qry_get_user.go`            |
-| Query Handler   | `qry_{操作}_handler.go` | `qry_get_user_handler.go`    |
-| DTO 定义        | `dto.go`                | 每个模块固定命名             |
-| Mapper          | `mapper.go`             | Entity → DTO 映射函数        |
-| 包文档          | `doc.go`                | 每个模块必须包含             |
-
-## 结构体命名强制规范
-
-pre-commit 检查会验证以下规则：
-
-| 文件模式   | 结构体后缀要求 | 示例                                     |
-| ---------- | -------------- | ---------------------------------------- |
-| `cmd_*.go` | 仅 `*Command`  | `CreateUserCommand`, `UpdateRoleCommand` |
-| `qry_*.go` | 仅 `*Query`    | `GetUserQuery`, `ListUsersQuery`         |
-| `dto.go`   | 仅 `*DTO`      | `UserDTO`, `CreateUserResultDTO`         |
-
-## DTO 规范
-
-DTO 文件 (`dto.go`) 中应包含以下类型：
-
-1. **请求 DTO** - HTTP 请求绑定
-
-   ```go
-   type CreateXxxDTO struct {
-       Name string `json:"name" binding:"required"`
-   }
-   ```
-
-2. **结果 DTO** - Handler 返回值
-
-   ```go
-   type CreateXxxResultDTO struct {
-       ID uint `json:"id"`
-   }
-   ```
-
-3. **响应 DTO** - HTTP 响应体
-   ```go
-   type XxxResponseDTO struct {
-       ID   uint   `json:"id"`
-       Name string `json:"name"`
-   }
-   ```
-
-## 目录结构示例
+## 目录结构
 
 ```
-internal/application/xxx/
-├── cmd_create_xxx.go           # CreateXxxCommand
-├── cmd_create_xxx_handler.go   # CreateXxxHandler
-├── cmd_update_xxx.go           # UpdateXxxCommand
-├── cmd_update_xxx_handler.go   # UpdateXxxHandler
-├── cmd_delete_xxx.go           # DeleteXxxCommand
-├── cmd_delete_xxx_handler.go   # DeleteXxxHandler
-├── qry_get_xxx.go              # GetXxxQuery
-├── qry_get_xxx_handler.go      # GetXxxHandler
-├── qry_list_xxx.go             # ListXxxQuery
-├── qry_list_xxx_handler.go     # ListXxxHandler
-├── dto.go                      # 所有 DTO 定义
-├── mapper.go                   # Entity → DTO 映射
-└── doc.go                      # 包文档
+internal/application/{module}/
+├── commands.go              # 所有 Command 定义
+├── queries.go               # 所有 Query 定义
+├── cmd_{action}_handler.go  # Handler 保持分离
+├── qry_{action}_handler.go
+├── dto.go, mapper.go, doc.go
+```
+
+## Command/Query 定义规范
+
+在 `commands.go` 和 `queries.go` 中，按操作类型排列：
+
+```go
+package xxx
+type CreateCommand struct { ... }
+type UpdateCommand struct { ... }
+type DeleteCommand struct { ... }
+```
+
+```go
+package xxx
+type GetQuery struct { ... }
+type ListQuery struct { ... }
 ```

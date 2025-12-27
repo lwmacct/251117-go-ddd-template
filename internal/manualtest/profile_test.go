@@ -82,7 +82,7 @@ func TestUpdateProfile(t *testing.T) {
 
 	t.Log("步骤 3: 更新资料")
 	newFullName := fmt.Sprintf("测试更新_%d", time.Now().Unix())
-	updateReq := user.UpdateUserDTO{
+	updateReq := user.UpdateDTO{
 		FullName: &newFullName,
 	}
 
@@ -97,7 +97,7 @@ func TestUpdateProfile(t *testing.T) {
 	}
 
 	t.Log("步骤 4: 恢复原始资料")
-	restoreReq := user.UpdateUserDTO{
+	restoreReq := user.UpdateDTO{
 		FullName: &originalProfile.FullName,
 	}
 	_, err = helper.Put[user.UserWithRolesDTO](c, "/api/user/profile", restoreReq)
@@ -129,7 +129,7 @@ func TestUpdateProfileInvalid(t *testing.T) {
 
 	t.Log("步骤 2: 尝试使用无效数据更新资料（如空全名）")
 	emptyFullName := ""
-	updateReq := user.UpdateUserDTO{
+	updateReq := user.UpdateDTO{
 		FullName: &emptyFullName,
 	}
 
@@ -168,7 +168,7 @@ func TestChangePassword(t *testing.T) {
 	newPassword := "newpassword456"
 
 	t.Log("步骤 1: 创建测试用户（带 user 角色）")
-	createReq := user.CreateUserDTO{
+	createReq := user.CreateDTO{
 		Username: testUsername,
 		Email:    testEmail,
 		Password: originalPassword,
@@ -264,7 +264,7 @@ func TestChangePasswordWrongOld(t *testing.T) {
 	testPassword := "original123"
 
 	t.Log("步骤 1: 创建测试用户")
-	createReq := user.CreateUserDTO{
+	createReq := user.CreateDTO{
 		Username: testUsername,
 		Email:    testEmail,
 		Password: testPassword,
@@ -333,7 +333,7 @@ func TestDeleteAccount(t *testing.T) {
 	testPassword := "test123456"
 
 	t.Log("步骤 1: 创建测试用户（带 user 角色）")
-	createReq := user.CreateUserDTO{
+	createReq := user.CreateDTO{
 		Username: testUsername,
 		Email:    testEmail,
 		Password: testPassword,

@@ -11,62 +11,33 @@ import (
 // MenuHandler handles menu management operations (DDD+CQRS Use Case Pattern)
 type MenuHandler struct {
 	// Command Handlers
-	createMenuHandler   *menu.CreateMenuHandler
-	updateMenuHandler   *menu.UpdateMenuHandler
-	deleteMenuHandler   *menu.DeleteMenuHandler
-	reorderMenusHandler *menu.ReorderMenusHandler
+	createHandler  *menu.CreateHandler
+	updateHandler  *menu.UpdateHandler
+	deleteHandler  *menu.DeleteHandler
+	reorderHandler *menu.ReorderHandler
 
 	// Query Handlers
-	getMenuHandler   *menu.GetMenuHandler
-	listMenusHandler *menu.ListMenusHandler
+	getHandler  *menu.GetHandler
+	listHandler *menu.ListHandler
 }
 
 // NewMenuHandler creates a new MenuHandler instance
 func NewMenuHandler(
-	createMenuHandler *menu.CreateMenuHandler,
-	updateMenuHandler *menu.UpdateMenuHandler,
-	deleteMenuHandler *menu.DeleteMenuHandler,
-	reorderMenusHandler *menu.ReorderMenusHandler,
-	getMenuHandler *menu.GetMenuHandler,
-	listMenusHandler *menu.ListMenusHandler,
+	createHandler *menu.CreateHandler,
+	updateHandler *menu.UpdateHandler,
+	deleteHandler *menu.DeleteHandler,
+	reorderHandler *menu.ReorderHandler,
+	getHandler *menu.GetHandler,
+	listHandler *menu.ListHandler,
 ) *MenuHandler {
 	return &MenuHandler{
-		createMenuHandler:   createMenuHandler,
-		updateMenuHandler:   updateMenuHandler,
-		deleteMenuHandler:   deleteMenuHandler,
-		reorderMenusHandler: reorderMenusHandler,
-		getMenuHandler:      getMenuHandler,
-		listMenusHandler:    listMenusHandler,
+		createHandler:  createHandler,
+		updateHandler:  updateHandler,
+		deleteHandler:  deleteHandler,
+		reorderHandler: reorderHandler,
+		getHandler:     getHandler,
+		listHandler:    listHandler,
 	}
-}
-
-// CreateMenuRequest 创建菜单请求
-type CreateMenuRequest struct {
-	Title    string `json:"title" binding:"required,min=1,max=100" example:"系统管理"`
-	Path     string `json:"path" binding:"required,max=255" example:"/system"`
-	Icon     string `json:"icon" binding:"omitempty,max=100" example:"setting"`
-	ParentID *uint  `json:"parent_id" example:"0"`
-	Order    int    `json:"order" example:"1"`
-	Visible  *bool  `json:"visible" example:"true"`
-}
-
-// UpdateMenuRequest 更新菜单请求
-type UpdateMenuRequest struct {
-	Title    *string `json:"title" binding:"omitempty,min=1,max=100"`
-	Path     *string `json:"path" binding:"omitempty,max=255"`
-	Icon     *string `json:"icon" binding:"omitempty,max=100"`
-	ParentID *uint   `json:"parent_id"`
-	Order    *int    `json:"order"`
-	Visible  *bool   `json:"visible"`
-}
-
-// ReorderMenusRequest 批量更新排序请求
-type ReorderMenusRequest struct {
-	Menus []struct {
-		ID       uint  `json:"id" binding:"required"`
-		Order    int   `json:"order"`
-		ParentID *uint `json:"parent_id"`
-	} `json:"menus" binding:"required,dive"`
 }
 
 // Create 创建菜单
@@ -77,7 +48,7 @@ type ReorderMenusRequest struct {
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
-// @Param        request body CreateMenuRequest true "菜单信息"
+// @Param        request body menu.CreateDTO true "菜单信息"
 // @Success      201 {object} response.DataResponse[menu.MenuDTO] "菜单创建成功"
 // @Failure      400 {object} response.ErrorResponse "参数错误"
 // @Failure      401 {object} response.ErrorResponse "未授权"
@@ -86,7 +57,7 @@ type ReorderMenusRequest struct {
 // @Router       /api/admin/menus [post]
 // @x-permission {"scope":"admin:menus:create"}
 func (h *MenuHandler) Create(c *gin.Context) {
-	var req CreateMenuRequest
+	var req menu.CreateDTO
 	if err := c.ShouldBindJSON(&req); err != nil {
 		response.BadRequest(c, err.Error())
 		return
@@ -98,7 +69,7 @@ func (h *MenuHandler) Create(c *gin.Context) {
 	}
 
 	// 调用 Use Case Handler
-	result, err := h.createMenuHandler.Handle(c.Request.Context(), menu.CreateMenuCommand{
+	result, err := h.createHandler.Handle(c.Request.Context(), menu.CreateCommand{
 		Title:    req.Title,
 		Path:     req.Path,
 		Icon:     req.Icon,
@@ -131,7 +102,7 @@ func (h *MenuHandler) Create(c *gin.Context) {
 // @x-permission {"scope":"admin:menus:read"}
 func (h *MenuHandler) List(c *gin.Context) {
 	// 调用 Use Case Handler
-	menus, err := h.listMenusHandler.Handle(c.Request.Context(), menu.ListMenusQuery{})
+	menus, err := h.listHandler.Handle(c.Request.Context(), menu.ListQuery{})
 
 	if err != nil {
 		response.InternalError(c, "Failed to fetch menus")
@@ -165,7 +136,7 @@ func (h *MenuHandler) Get(c *gin.Context) {
 	}
 
 	// 调用 Use Case Handler
-	menu, err := h.getMenuHandler.Handle(c.Request.Context(), menu.GetMenuQuery{
+	menu, err := h.getHandler.Handle(c.Request.Context(), menu.GetQuery{
 		MenuID: uint(id),
 	})
 
@@ -186,7 +157,7 @@ func (h *MenuHandler) Get(c *gin.Context) {
 // @Produce      json
 // @Security     BearerAuth
 // @Param        id path int true "菜单ID" minimum(1)
-// @Param        request body UpdateMenuRequest true "更新信息"
+// @Param        request body menu.UpdateDTO true "更新信息"
 // @Success      200 {object} response.DataResponse[menu.MenuDTO] "菜单更新成功"
 // @Failure      400 {object} response.ErrorResponse "无效的菜单ID或参数错误"
 // @Failure      401 {object} response.ErrorResponse "未授权"
@@ -202,14 +173,14 @@ func (h *MenuHandler) Update(c *gin.Context) {
 		return
 	}
 
-	var req UpdateMenuRequest
+	var req menu.UpdateDTO
 	if err = c.ShouldBindJSON(&req); err != nil {
 		response.BadRequest(c, err.Error())
 		return
 	}
 
 	// 调用 Use Case Handler
-	menu, err := h.updateMenuHandler.Handle(c.Request.Context(), menu.UpdateMenuCommand{
+	menu, err := h.updateHandler.Handle(c.Request.Context(), menu.UpdateCommand{
 		MenuID:   uint(id),
 		Title:    req.Title,
 		Path:     req.Path,
@@ -252,7 +223,7 @@ func (h *MenuHandler) Delete(c *gin.Context) {
 	}
 
 	// 调用 Use Case Handler
-	err = h.deleteMenuHandler.Handle(c.Request.Context(), menu.DeleteMenuCommand{
+	err = h.deleteHandler.Handle(c.Request.Context(), menu.DeleteCommand{
 		MenuID: uint(id),
 	})
 
@@ -272,7 +243,7 @@ func (h *MenuHandler) Delete(c *gin.Context) {
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
-// @Param        request body ReorderMenusRequest true "菜单排序信息"
+// @Param        request body menu.ReorderDTO true "菜单排序信息"
 // @Success      204 "菜单排序更新成功"
 // @Failure      400 {object} response.ErrorResponse "参数错误"
 // @Failure      401 {object} response.ErrorResponse "未授权"
@@ -281,7 +252,7 @@ func (h *MenuHandler) Delete(c *gin.Context) {
 // @Router       /api/admin/menus/reorder [post]
 // @x-permission {"scope":"admin:menus:update"}
 func (h *MenuHandler) Reorder(c *gin.Context) {
-	var req ReorderMenusRequest
+	var req menu.ReorderDTO
 	if err := c.ShouldBindJSON(&req); err != nil {
 		response.BadRequest(c, err.Error())
 		return
@@ -296,7 +267,7 @@ func (h *MenuHandler) Reorder(c *gin.Context) {
 	}
 
 	// 调用 Use Case Handler
-	err := h.reorderMenusHandler.Handle(c.Request.Context(), menu.ReorderMenusCommand{
+	err := h.reorderHandler.Handle(c.Request.Context(), menu.ReorderCommand{
 		Menus: menus,
 	})
 

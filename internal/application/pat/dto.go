@@ -4,8 +4,8 @@ import (
 	"time"
 )
 
-// CreateTokenDTO 创建令牌请求 DTO
-type CreateTokenDTO struct {
+// CreateDTO 创建令牌请求 DTO
+type CreateDTO struct {
 	Name        string   `json:"name" binding:"required,min=3,max=100"`
 	Permissions []string `json:"permissions,omitempty"`  // 可选，限制令牌权限范围（为空则默认用户全部权限）
 	ExpiresAt   *string  `json:"expires_at,omitempty"`   // 可选，过期时间（RFC3339 或 yyyy-MM-ddTHH:mm）
@@ -29,8 +29,8 @@ type TokenDTO struct {
 	UpdatedAt   time.Time  `json:"updated_at"`
 }
 
-// CreateTokenResultDTO 令牌创建响应（包含一次性明文 token）
-type CreateTokenResultDTO struct {
+// CreateResultDTO 令牌创建响应（包含一次性明文 token）
+type CreateResultDTO struct {
 	Token      *TokenDTO `json:"token"`
 	PlainToken string    `json:"plain_token"`
 }

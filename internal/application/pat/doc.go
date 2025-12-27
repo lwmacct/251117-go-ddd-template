@@ -4,27 +4,27 @@
 //
 // # Command（写操作）
 //
-//   - [command.CreateTokenHandler]: 创建访问令牌
-//   - [command.DeleteTokenHandler]: 删除访问令牌
-//   - [command.EnableTokenHandler]: 启用访问令牌
-//   - [command.DisableTokenHandler]: 禁用访问令牌
+//   - [command.CreateHandler]: 创建访问令牌
+//   - [command.DeleteHandler]: 删除访问令牌
+//   - [command.EnableHandler]: 启用访问令牌
+//   - [command.DisableHandler]: 禁用访问令牌
 //
 // # Query（读操作）
 //
-//   - [query.GetTokenHandler]: 获取令牌详情
-//   - [query.ListTokensHandler]: 令牌列表查询
+//   - [query.GetHandler]: 获取令牌详情
+//   - [query.ListHandler]: 令牌列表查询
 //
 // # DTO 与映射
 //
 // 请求 DTO：
-//   - [CreateTokenDTO]: 创建令牌请求（含权限范围、过期时间、IP 白名单）
+//   - [CreateDTO]: 创建令牌请求（含权限范围、过期时间、IP 白名单）
 //
 // 响应 DTO：
-//   - [TokenResponse]: 令牌信息响应（脱敏）
-//   - [TokenCreatedResponse]: 创建成功响应（含完整令牌，仅返回一次）
+//   - [TokenDTO]: 令牌信息响应（脱敏）
+//   - [CreateResultDTO]: 创建成功响应（含完整令牌，仅返回一次）
 //
 // 映射函数：
-//   - [ToTokenResponse]: PersonalAccessToken -> TokenResponse
+//   - [ToTokenDTO]: PersonalAccessToken -> TokenDTO
 //
 // 安全特性：
 //   - 令牌创建后仅返回一次完整值

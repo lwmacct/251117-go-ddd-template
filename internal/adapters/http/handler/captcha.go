@@ -9,27 +9,19 @@ import (
 
 // CaptchaHandler 验证码处理器
 type CaptchaHandler struct {
-	generateCaptchaHandler *captcha.GenerateCaptchaHandler
-	devSecret              string
+	generateHandler *captcha.GenerateHandler
+	devSecret       string
 }
 
 // NewCaptchaHandler 创建验证码处理器
 func NewCaptchaHandler(
-	generateCaptchaHandler *captcha.GenerateCaptchaHandler,
+	generateHandler *captcha.GenerateHandler,
 	devSecret string,
 ) *CaptchaHandler {
 	return &CaptchaHandler{
-		generateCaptchaHandler: generateCaptchaHandler,
-		devSecret:              devSecret,
+		generateHandler: generateHandler,
+		devSecret:       devSecret,
 	}
-}
-
-// GenerateCaptchaDTO 生成验证码响应
-type GenerateCaptchaDTO struct {
-	ID       string `json:"id"`             // 验证码ID
-	Image    string `json:"image"`          // Base64编码的图片
-	ExpireAt int64  `json:"expire_at"`      // 过期时间戳
-	Code     string `json:"code,omitempty"` // 验证码值（开发模式下返回）
 }
 
 // GetCaptcha 获取验证码
@@ -41,7 +33,7 @@ type GenerateCaptchaDTO struct {
 // @Produce      json
 // @Param        code query string false "开发模式：指定验证码值" example:"9999"
 // @Param        secret query string false "开发模式：密钥" example:"dev-secret"
-// @Success      200 {object} response.DataResponse[captcha.GenerateCaptchaResultDTO] "验证码生成成功"
+// @Success      200 {object} response.DataResponse[captcha.GenerateResultDTO] "验证码生成成功"
 // @Failure      500 {object} response.ErrorResponse "生成失败"
 // @Router       /api/auth/captcha [get]
 func (h *CaptchaHandler) GetCaptcha(c *gin.Context) {
@@ -53,13 +45,13 @@ func (h *CaptchaHandler) GetCaptcha(c *gin.Context) {
 	isDevMode := code != "" && secret != "" && secret == h.devSecret
 
 	// 构建命令
-	cmd := captcha.GenerateCaptchaCommand{
+	cmd := captcha.GenerateCommand{
 		DevMode:    isDevMode,
 		CustomCode: code,
 	}
 
 	// 调用 Application Handler
-	result, err := h.generateCaptchaHandler.Handle(ctx, cmd)
+	result, err := h.generateHandler.Handle(ctx, cmd)
 	if err != nil {
 		response.InternalError(c, "failed to generate captcha", err.Error())
 		return

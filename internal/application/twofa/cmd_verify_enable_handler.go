@@ -19,13 +19,13 @@ func NewVerifyEnableHandler(twofaService twofa.Service) *VerifyEnableHandler {
 }
 
 // Handle 处理验证并启用 2FA 命令
-func (h *VerifyEnableHandler) Handle(ctx context.Context, cmd VerifyEnableCommand) (*VerifyEnableResultDTO, error) {
+func (h *VerifyEnableHandler) Handle(ctx context.Context, cmd VerifyEnableCommand) (*EnableResultDTO, error) {
 	recoveryCodes, err := h.twofaService.VerifyAndEnable(ctx, cmd.UserID, cmd.Code)
 	if err != nil {
 		return nil, err
 	}
 
-	return &VerifyEnableResultDTO{
+	return &EnableResultDTO{
 		RecoveryCodes: recoveryCodes,
 	}, nil
 }

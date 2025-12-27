@@ -4,7 +4,7 @@ import { useRoles } from "./composables/useRoles";
 import { ITEMS_PER_PAGE_OPTIONS } from "@/composables";
 import RoleDialog from "./components/RoleDialog.vue";
 import PermissionSelector from "./components/PermissionSelector.vue";
-import type { RoleRoleDTO, RoleCreateRoleDTO, RoleUpdateRoleDTO } from "@models";
+import type { RoleRoleDTO, RoleCreateDTO, RoleUpdateDTO } from "@models";
 
 // 使用 composable（搜索现在通过 watch 自动触发）
 const {
@@ -71,13 +71,13 @@ const openDeleteDialog = (role: RoleRoleDTO) => {
   deleteDialog.value = true;
 };
 
-const handleSaveRole = async (data: RoleCreateRoleDTO | RoleUpdateRoleDTO) => {
+const handleSaveRole = async (data: RoleCreateDTO | RoleUpdateDTO) => {
   let success = false;
 
   if (dialogMode.value === "create") {
-    success = await createRole(data as RoleCreateRoleDTO);
+    success = await createRole(data as RoleCreateDTO);
   } else if (selectedRole.value?.id) {
-    success = await updateRole(selectedRole.value.id, data as RoleUpdateRoleDTO);
+    success = await updateRole(selectedRole.value.id, data as RoleUpdateDTO);
   }
 
   if (success) {

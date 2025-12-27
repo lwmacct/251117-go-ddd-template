@@ -29,4 +29,10 @@ var (
 
 	// ErrInvalidNumberValue 无效的数值
 	ErrInvalidNumberValue = errors.New("invalid number value")
+
+	// ErrValidationFailed 验证失败
+	ErrValidationFailed = errors.New("validation failed")
+
+	// ErrInvalidValidationRule 无效的验证规则
+	ErrInvalidValidationRule = errors.New("invalid validation rule")
 )

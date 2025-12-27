@@ -19,7 +19,7 @@ type Login2FAHandler struct {
 	authService     auth.Service
 	loginSession    *authInfra.LoginSessionService
 	twofaService    *twofaInfra.Service
-	auditLogHandler *auditlog.CreateLogHandler
+	auditLogHandler *auditlog.CreateHandler
 }
 
 // NewLogin2FAHandler 创建二次认证登录命令处理器
@@ -28,7 +28,7 @@ func NewLogin2FAHandler(
 	authService auth.Service,
 	loginSession *authInfra.LoginSessionService,
 	twofaService *twofaInfra.Service,
-	auditLogHandler *auditlog.CreateLogHandler,
+	auditLogHandler *auditlog.CreateHandler,
 ) *Login2FAHandler {
 	return &Login2FAHandler{
 		userQueryRepo:   userQueryRepo,
@@ -110,7 +110,7 @@ func (h *Login2FAHandler) logLoginEvent(ctx context.Context, userID uint, userna
 		return
 	}
 	go func() {
-		_ = h.auditLogHandler.Handle(context.WithoutCancel(ctx), auditlog.CreateLogCommand{
+		_ = h.auditLogHandler.Handle(context.WithoutCancel(ctx), auditlog.CreateCommand{
 			UserID:     userID,
 			Username:   username,
 			Action:     "login",

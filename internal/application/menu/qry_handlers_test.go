@@ -22,9 +22,9 @@ func TestGetMenuHandler_Handle_Success(t *testing.T) {
 	expectedMenu := newTestMenu(1, "Dashboard")
 	mockQryRepo.On("FindByID", mock.Anything, uint(1)).Return(expectedMenu, nil)
 
-	handler := NewGetMenuHandler(mockQryRepo)
+	handler := NewGetHandler(mockQryRepo)
 
-	result, err := handler.Handle(context.Background(), GetMenuQuery{MenuID: 1})
+	result, err := handler.Handle(context.Background(), GetQuery{MenuID: 1})
 
 	require.NoError(t, err)
 	assert.NotNil(t, result)
@@ -38,9 +38,9 @@ func TestGetMenuHandler_Handle_NotFound(t *testing.T) {
 
 	mockQryRepo.On("FindByID", mock.Anything, uint(999)).Return(nil, errors.New("not found"))
 
-	handler := NewGetMenuHandler(mockQryRepo)
+	handler := NewGetHandler(mockQryRepo)
 
-	result, err := handler.Handle(context.Background(), GetMenuQuery{MenuID: 999})
+	result, err := handler.Handle(context.Background(), GetQuery{MenuID: 999})
 
 	assert.Nil(t, result)
 	require.Error(t, err)
@@ -61,9 +61,9 @@ func TestListMenusHandler_Handle_Success(t *testing.T) {
 	}
 	mockQryRepo.On("FindAll", mock.Anything).Return(menus, nil)
 
-	handler := NewListMenusHandler(mockQryRepo)
+	handler := NewListHandler(mockQryRepo)
 
-	result, err := handler.Handle(context.Background(), ListMenusQuery{})
+	result, err := handler.Handle(context.Background(), ListQuery{})
 
 	require.NoError(t, err)
 	assert.Len(t, result, 3)
@@ -76,9 +76,9 @@ func TestListMenusHandler_Handle_Empty(t *testing.T) {
 
 	mockQryRepo.On("FindAll", mock.Anything).Return([]*domainMenu.Menu{}, nil)
 
-	handler := NewListMenusHandler(mockQryRepo)
+	handler := NewListHandler(mockQryRepo)
 
-	result, err := handler.Handle(context.Background(), ListMenusQuery{})
+	result, err := handler.Handle(context.Background(), ListQuery{})
 
 	require.NoError(t, err)
 	assert.Empty(t, result)
@@ -89,9 +89,9 @@ func TestListMenusHandler_Handle_Error(t *testing.T) {
 
 	mockQryRepo.On("FindAll", mock.Anything).Return(nil, errors.New("database error"))
 
-	handler := NewListMenusHandler(mockQryRepo)
+	handler := NewListHandler(mockQryRepo)
 
-	result, err := handler.Handle(context.Background(), ListMenusQuery{})
+	result, err := handler.Handle(context.Background(), ListQuery{})
 
 	assert.Nil(t, result)
 	require.Error(t, err)
@@ -111,9 +111,9 @@ func TestReorderMenusHandler_Handle_Success(t *testing.T) {
 	mockQryRepo.On("FindByID", mock.Anything, uint(2)).Return(newTestMenu(2, "Menu2"), nil)
 	mockCmdRepo.On("UpdateOrder", mock.Anything, mock.AnythingOfType("[]struct { ID uint; Order int; ParentID *uint }")).Return(nil)
 
-	handler := NewReorderMenusHandler(mockCmdRepo, mockQryRepo)
+	handler := NewReorderHandler(mockCmdRepo, mockQryRepo)
 
-	err := handler.Handle(context.Background(), ReorderMenusCommand{
+	err := handler.Handle(context.Background(), ReorderCommand{
 		Menus: []MenuItemCommand{
 			{ID: 1, Order: 2, ParentID: nil},
 			{ID: 2, Order: 1, ParentID: nil},
@@ -127,13 +127,13 @@ func TestReorderMenusHandler_Handle_Success(t *testing.T) {
 func TestReorderMenusHandler_Handle_Error(t *testing.T) {
 	tests := []struct {
 		name       string
-		cmd        ReorderMenusCommand
+		cmd        ReorderCommand
 		setupMocks func(*MockMenuCommandRepository, *MockMenuQueryRepository)
 		wantErr    string
 	}{
 		{
 			name: "菜单不存在",
-			cmd: ReorderMenusCommand{
+			cmd: ReorderCommand{
 				Menus: []MenuItemCommand{{ID: 999, Order: 1}},
 			},
 			setupMocks: func(cmdRepo *MockMenuCommandRepository, qryRepo *MockMenuQueryRepository) {
@@ -143,7 +143,7 @@ func TestReorderMenusHandler_Handle_Error(t *testing.T) {
 		},
 		{
 			name: "父菜单不存在",
-			cmd: ReorderMenusCommand{
+			cmd: ReorderCommand{
 				Menus: []MenuItemCommand{{ID: 1, Order: 1, ParentID: ptrUint(999)}},
 			},
 			setupMocks: func(cmdRepo *MockMenuCommandRepository, qryRepo *MockMenuQueryRepository) {
@@ -154,7 +154,7 @@ func TestReorderMenusHandler_Handle_Error(t *testing.T) {
 		},
 		{
 			name: "更新排序失败",
-			cmd: ReorderMenusCommand{
+			cmd: ReorderCommand{
 				Menus: []MenuItemCommand{{ID: 1, Order: 1}},
 			},
 			setupMocks: func(cmdRepo *MockMenuCommandRepository, qryRepo *MockMenuQueryRepository) {
@@ -171,7 +171,7 @@ func TestReorderMenusHandler_Handle_Error(t *testing.T) {
 			mockQryRepo := new(MockMenuQueryRepository)
 			tt.setupMocks(mockCmdRepo, mockQryRepo)
 
-			handler := NewReorderMenusHandler(mockCmdRepo, mockQryRepo)
+			handler := NewReorderHandler(mockCmdRepo, mockQryRepo)
 			err := handler.Handle(context.Background(), tt.cmd)
 
 			require.Error(t, err)

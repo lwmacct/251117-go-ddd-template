@@ -24,20 +24,20 @@ import (
 
 // UserHandler 用户处理器（新架构）
 type UserHandler struct {
-	createUserHandler *user.CreateUserHandler
-	updateUserHandler *user.UpdateUserHandler
-	deleteUserHandler *user.DeleteUserHandler
-	getUserHandler    *user.GetUserHandler
-	listUsersHandler  *user.ListUsersHandler
+	createUserHandler *user.CreateHandler
+	updateUserHandler *user.UpdateHandler
+	deleteUserHandler *user.DeleteHandler
+	getUserHandler    *user.GetHandler
+	listUsersHandler  *user.ListHandler
 }
 
 // NewUserHandler 创建用户处理器
 func NewUserHandler(
-	createUserHandler *user.CreateUserHandler,
-	updateUserHandler *user.UpdateUserHandler,
-	deleteUserHandler *user.DeleteUserHandler,
-	getUserHandler *user.GetUserHandler,
-	listUsersHandler *user.ListUsersHandler,
+	createUserHandler *user.CreateHandler,
+	updateUserHandler *user.UpdateHandler,
+	deleteUserHandler *user.DeleteHandler,
+	getUserHandler *user.GetHandler,
+	listUsersHandler *user.ListHandler,
 ) *UserHandler {
 	return &UserHandler{
 		createUserHandler: createUserHandler,
@@ -49,16 +49,27 @@ func NewUserHandler(
 }
 
 // Create 创建用户
-// POST /api/users
+//
+// @Summary      创建用户
+// @Description  创建新用户账号
+// @Tags         用户 (User)
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        request body user.CreateDTO true "用户信息"
+// @Success      201 {object} response.DataResponse[user.UserWithRolesDTO] "用户创建成功"
+// @Failure      400 {object} response.ErrorResponse "参数错误"
+// @Failure      500 {object} response.ErrorResponse "服务器内部错误"
+// @Router       /api/users [post]
 func (h *UserHandler) Create(c *gin.Context) {
-	var req user.CreateUserDTO
+	var req user.CreateDTO
 	if err := c.ShouldBindJSON(&req); err != nil {
 		response.ValidationError(c, err.Error())
 		return
 	}
 
 	// 调用 Use Case Handler
-	result, err := h.createUserHandler.Handle(c.Request.Context(), user.CreateUserCommand(req))
+	result, err := h.createUserHandler.Handle(c.Request.Context(), user.CreateCommand(req))
 
 	if err != nil {
 		response.InternalError(c, err.Error())
@@ -69,7 +80,18 @@ func (h *UserHandler) Create(c *gin.Context) {
 }
 
 // GetByID 获取用户详情
-// GET /api/users/:id
+//
+// @Summary      获取用户详情
+// @Description  根据用户ID获取用户详细信息（包含角色信息）
+// @Tags         用户 (User)
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        id path int true "用户ID" minimum(1)
+// @Success      200 {object} response.DataResponse[user.UserWithRolesDTO] "用户详情"
+// @Failure      400 {object} response.ErrorResponse "无效的用户ID"
+// @Failure      404 {object} response.ErrorResponse "用户不存在"
+// @Router       /api/users/{id} [get]
 func (h *UserHandler) GetByID(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := strconv.ParseUint(idStr, 10, 32)
@@ -79,7 +101,7 @@ func (h *UserHandler) GetByID(c *gin.Context) {
 	}
 
 	// 调用 Query Handler
-	user, err := h.getUserHandler.Handle(c.Request.Context(), user.GetUserQuery{
+	user, err := h.getUserHandler.Handle(c.Request.Context(), user.GetQuery{
 		UserID:    uint(id),
 		WithRoles: true, // 包含角色信息
 	})
@@ -93,7 +115,18 @@ func (h *UserHandler) GetByID(c *gin.Context) {
 }
 
 // List 获取用户列表
-// GET /api/users?page=1&limit=10
+//
+// @Summary      获取用户列表
+// @Description  分页获取用户列表（包含角色信息）
+// @Tags         用户 (User)
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        params query handler.ListUsersQuery false "查询参数"
+// @Success      200 {object} response.PagedResponse[user.UserWithRolesDTO] "用户列表"
+// @Failure      400 {object} response.ErrorResponse "参数错误"
+// @Failure      500 {object} response.ErrorResponse "服务器内部错误"
+// @Router       /api/users [get]
 func (h *UserHandler) List(c *gin.Context) {
 	var q ListUsersQuery
 	if err := c.ShouldBindQuery(&q); err != nil {
@@ -112,7 +145,19 @@ func (h *UserHandler) List(c *gin.Context) {
 }
 
 // Update 更新用户
-// PUT /api/users/:id
+//
+// @Summary      更新用户信息
+// @Description  更新用户的基本信息
+// @Tags         用户 (User)
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        id path int true "用户ID" minimum(1)
+// @Param        request body user.UpdateDTO true "更新信息"
+// @Success      200 {object} response.MessageResponse "用户更新成功"
+// @Failure      400 {object} response.ErrorResponse "无效的用户ID或参数错误"
+// @Failure      500 {object} response.ErrorResponse "服务器内部错误"
+// @Router       /api/users/{id} [put]
 func (h *UserHandler) Update(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := strconv.ParseUint(idStr, 10, 32)
@@ -121,14 +166,14 @@ func (h *UserHandler) Update(c *gin.Context) {
 		return
 	}
 
-	var req user.UpdateUserDTO
+	var req user.UpdateDTO
 	if err = c.ShouldBindJSON(&req); err != nil {
 		response.ValidationError(c, err.Error())
 		return
 	}
 
 	// 调用 Command Handler
-	_, err = h.updateUserHandler.Handle(c.Request.Context(), user.UpdateUserCommand{
+	_, err = h.updateUserHandler.Handle(c.Request.Context(), user.UpdateCommand{
 		UserID:   uint(id),
 		FullName: req.FullName,
 		Avatar:   req.Avatar,
@@ -145,7 +190,18 @@ func (h *UserHandler) Update(c *gin.Context) {
 }
 
 // Delete 删除用户
-// DELETE /api/users/:id
+//
+// @Summary      删除用户
+// @Description  删除指定用户
+// @Tags         用户 (User)
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        id path int true "用户ID" minimum(1)
+// @Success      200 {object} response.MessageResponse "用户删除成功"
+// @Failure      400 {object} response.ErrorResponse "无效的用户ID"
+// @Failure      500 {object} response.ErrorResponse "服务器内部错误"
+// @Router       /api/users/{id} [delete]
 func (h *UserHandler) Delete(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := strconv.ParseUint(idStr, 10, 32)
@@ -155,7 +211,7 @@ func (h *UserHandler) Delete(c *gin.Context) {
 	}
 
 	// 调用 Command Handler
-	err = h.deleteUserHandler.Handle(c.Request.Context(), user.DeleteUserCommand{
+	err = h.deleteUserHandler.Handle(c.Request.Context(), user.DeleteCommand{
 		UserID: uint(id),
 	})
 

@@ -4,7 +4,7 @@
  */
 
 import { apiClient } from "./client";
-import type { AuthLoginDTO, AuthRegisterDTO, CaptchaGenerateCaptchaResultDTO, AuthLoginResponseDTO } from "@models";
+import type { AuthLoginDTO, AuthRegisterDTO, CaptchaGenerateResultDTO, AuthLoginResponseDTO } from "@models";
 import type { ApiResponse } from "../types";
 
 /**
@@ -15,8 +15,8 @@ export class AuthAPI {
   /**
    * 获取验证码
    */
-  static async getCaptcha(): Promise<ApiResponse<CaptchaGenerateCaptchaResultDTO>> {
-    const { data } = await apiClient.get<ApiResponse<CaptchaGenerateCaptchaResultDTO>>("/api/auth/captcha");
+  static async getCaptcha(): Promise<ApiResponse<CaptchaGenerateResultDTO>> {
+    const { data } = await apiClient.get<ApiResponse<CaptchaGenerateResultDTO>>("/api/auth/captcha");
     return data;
   }
 

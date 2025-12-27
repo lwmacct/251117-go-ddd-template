@@ -3,7 +3,7 @@
  */
 import { ref, watch } from "vue";
 import { adminRoleApi, extractList, extractData } from "@/api";
-import type { RoleRoleDTO, RolePermissionDTO, RoleCreateRoleDTO, RoleUpdateRoleDTO, RoleSetPermissionsDTO } from "@models";
+import type { RoleRoleDTO, RolePermissionDTO, RoleCreateDTO, RoleUpdateDTO, RoleSetPermissionsDTO } from "@models";
 import { exportToCSV, type CSVColumn } from "@/utils/export";
 import { refDebounced } from "@vueuse/core";
 import { useServerPagination } from "@/composables";
@@ -55,7 +55,7 @@ export function useRoles() {
     }
   };
 
-  const createRole = async (data: RoleCreateRoleDTO): Promise<boolean> => {
+  const createRole = async (data: RoleCreateDTO): Promise<boolean> => {
     loading.value = true;
     errorMessage.value = "";
     successMessage.value = "";
@@ -73,7 +73,7 @@ export function useRoles() {
     }
   };
 
-  const updateRole = async (id: number, data: RoleUpdateRoleDTO): Promise<boolean> => {
+  const updateRole = async (id: number, data: RoleUpdateDTO): Promise<boolean> => {
     loading.value = true;
     errorMessage.value = "";
     successMessage.value = "";

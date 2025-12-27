@@ -26,6 +26,7 @@ func newRouter(cfg *config.Config, infra *InfrastructureModule, services *Servic
 		PATHandler:             handlers.PAT,
 		AuditLogHandler:        handlers.AuditLog,
 		AdminUserHandler:       handlers.AdminUser,
+		UserHandler:            handlers.User,
 		UserProfileHandler:     handlers.UserProfile,
 		OverviewHandler:        handlers.Overview,
 		TwoFAHandler:           handlers.TwoFA,

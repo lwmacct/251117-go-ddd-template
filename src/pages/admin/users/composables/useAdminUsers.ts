@@ -3,7 +3,7 @@
  */
 import { ref, watch } from "vue";
 import { adminUserApi, extractList, extractData } from "@/api";
-import type { UserUserWithRolesDTO, UserCreateUserDTO, UserUpdateUserDTO, UserAssignRolesDTO } from "@models";
+import type { UserUserWithRolesDTO, UserCreateDTO, UserUpdateDTO, UserAssignRolesDTO } from "@models";
 import { exportToCSV, type CSVColumn } from "@/utils/export";
 import { refDebounced } from "@vueuse/core";
 import { useServerPagination } from "@/composables";
@@ -68,7 +68,7 @@ export function useAdminUsers() {
   /**
    * 创建用户
    */
-  const createUser = async (data: UserCreateUserDTO): Promise<boolean> => {
+  const createUser = async (data: UserCreateDTO): Promise<boolean> => {
     loading.value = true;
     errorMessage.value = "";
     successMessage.value = "";
@@ -90,7 +90,7 @@ export function useAdminUsers() {
   /**
    * 更新用户
    */
-  const updateUser = async (id: number, data: UserUpdateUserDTO): Promise<boolean> => {
+  const updateUser = async (id: number, data: UserUpdateDTO): Promise<boolean> => {
     loading.value = true;
     errorMessage.value = "";
     successMessage.value = "";

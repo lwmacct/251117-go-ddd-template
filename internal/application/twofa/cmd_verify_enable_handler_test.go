@@ -14,12 +14,12 @@ func TestVerifyEnableHandler_Handle_Success(t *testing.T) {
 	tests := []struct {
 		name string
 		cmd  VerifyEnableCommand
-		want *VerifyEnableResultDTO
+		want *EnableResultDTO
 	}{
 		{
 			name: "成功验证并启用 2FA",
 			cmd:  VerifyEnableCommand{UserID: 1, Code: "123456"},
-			want: &VerifyEnableResultDTO{
+			want: &EnableResultDTO{
 				RecoveryCodes: []string{
 					"AAAA-BBBB-CCCC",
 					"DDDD-EEEE-FFFF",
@@ -31,7 +31,7 @@ func TestVerifyEnableHandler_Handle_Success(t *testing.T) {
 		{
 			name: "使用 6 位验证码启用",
 			cmd:  VerifyEnableCommand{UserID: 2, Code: "654321"},
-			want: &VerifyEnableResultDTO{
+			want: &EnableResultDTO{
 				RecoveryCodes: []string{
 					"CODE-0001-XXXX",
 					"CODE-0002-YYYY",

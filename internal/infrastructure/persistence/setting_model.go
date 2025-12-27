@@ -4,18 +4,23 @@ import (
 	"time"
 
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/setting"
+	"gorm.io/datatypes"
 )
 
 // SettingModel 配置的 GORM 实体
 //
 //nolint:recvcheck // TableName uses value receiver per GORM convention
 type SettingModel struct {
-	ID        uint   `gorm:"primaryKey"`
-	Key       string `gorm:"uniqueIndex;size:100;not null"`
-	Value     string `gorm:"type:text"`
-	Category  string `gorm:"size:50;index;not null"`
-	ValueType string `gorm:"size:20;default:'string'"`
-	Label     string `gorm:"size:200"`
+	ID        uint           `gorm:"primaryKey"`
+	Key       string         `gorm:"uniqueIndex;size:100;not null"`
+	Value     string         `gorm:"type:text"`
+	Category  string         `gorm:"size:50;index;not null"`
+	Group     string         `gorm:"size:50;index;default:''"`
+	ValueType string         `gorm:"size:20;default:'string'"`
+	Label     string         `gorm:"size:200"`
+	UIConfig  datatypes.JSON `gorm:"type:jsonb;default:'{}'"` // 统一的 UI 配置
+	Order     int            `gorm:"default:0;index"`
+
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }
@@ -35,8 +40,11 @@ func newSettingModelFromEntity(entity *setting.Setting) *SettingModel {
 		Key:       entity.Key,
 		Value:     entity.Value,
 		Category:  entity.Category,
+		Group:     entity.Group,
 		ValueType: entity.ValueType,
 		Label:     entity.Label,
+		UIConfig:  datatypes.JSON(entity.UIConfig),
+		Order:     entity.Order,
 		CreatedAt: entity.CreatedAt,
 		UpdatedAt: entity.UpdatedAt,
 	}
@@ -53,8 +61,11 @@ func (m *SettingModel) ToEntity() *setting.Setting {
 		Key:       m.Key,
 		Value:     m.Value,
 		Category:  m.Category,
+		Group:     m.Group,
 		ValueType: m.ValueType,
 		Label:     m.Label,
+		UIConfig:  string(m.UIConfig),
+		Order:     m.Order,
 		CreatedAt: m.CreatedAt,
 		UpdatedAt: m.UpdatedAt,
 	}

@@ -37,6 +37,15 @@ func newHandlersModule(cfg *config.Config, infra *InfrastructureModule, useCases
 		useCases.User.List,
 	)
 
+	// User Handler (新架构)
+	m.User = handler.NewUserHandler(
+		useCases.User.Create,
+		useCases.User.Update,
+		useCases.User.Delete,
+		useCases.User.Get,
+		useCases.User.List,
+	)
+
 	// User Profile Handler
 	m.UserProfile = handler.NewUserProfileHandler(
 		useCases.User.Get,
@@ -74,6 +83,7 @@ func newHandlersModule(cfg *config.Config, infra *InfrastructureModule, useCases
 		useCases.Setting.BatchUpdate,
 		useCases.Setting.Get,
 		useCases.Setting.List,
+		useCases.Setting.ListSchema,
 	)
 
 	// PAT Handler

@@ -11,7 +11,7 @@
 import { ref, computed } from "vue";
 import { useTimeoutFn } from "@vueuse/core";
 import { AuthAPI } from "@/api";
-import type { CaptchaGenerateCaptchaResultDTO } from "@models";
+import type { CaptchaGenerateResultDTO } from "@models";
 
 /**
  * Register 页面状态管理 Composable
@@ -27,7 +27,7 @@ export function useRegister() {
   const errorMessage = ref(""); // 错误消息
   const successMessage = ref(""); // 成功消息
   const isLoading = ref(false); // 加载状态
-  const captchaData = ref<CaptchaGenerateCaptchaResultDTO | null>(null); // 验证码数据
+  const captchaData = ref<CaptchaGenerateResultDTO | null>(null); // 验证码数据
   const captchaCode = ref(""); // 验证码输入
   const loadingCaptcha = ref(false); // 验证码加载状态
   const sessionToken = ref<string>(""); // 临时会话token (用于邮箱验证流程)

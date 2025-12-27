@@ -41,79 +41,80 @@ type AuthUseCases struct {
 // UserUseCases 用户管理用例
 type UserUseCases struct {
 	// Commands
-	Create         *user.CreateUserHandler
-	Update         *user.UpdateUserHandler
-	Delete         *user.DeleteUserHandler
+	Create         *user.CreateHandler
+	Update         *user.UpdateHandler
+	Delete         *user.DeleteHandler
 	AssignRoles    *user.AssignRolesHandler
 	ChangePassword *user.ChangePasswordHandler
-	BatchCreate    *user.BatchCreateUsersHandler
+	BatchCreate    *user.BatchCreateHandler
 
 	// Queries
-	Get  *user.GetUserHandler
-	List *user.ListUsersHandler
+	Get  *user.GetHandler
+	List *user.ListHandler
 }
 
 // RoleUseCases 角色管理用例
 type RoleUseCases struct {
 	// Commands
-	Create         *role.CreateRoleHandler
-	Update         *role.UpdateRoleHandler
-	Delete         *role.DeleteRoleHandler
+	Create         *role.CreateHandler
+	Update         *role.UpdateHandler
+	Delete         *role.DeleteHandler
 	SetPermissions *role.SetPermissionsHandler
 
 	// Queries
-	Get             *role.GetRoleHandler
-	List            *role.ListRolesHandler
+	Get             *role.GetHandler
+	List            *role.ListHandler
 	ListPermissions *role.ListPermissionsHandler
 }
 
 // MenuUseCases 菜单管理用例
 type MenuUseCases struct {
 	// Commands
-	Create  *menu.CreateMenuHandler
-	Update  *menu.UpdateMenuHandler
-	Delete  *menu.DeleteMenuHandler
-	Reorder *menu.ReorderMenusHandler
+	Create  *menu.CreateHandler
+	Update  *menu.UpdateHandler
+	Delete  *menu.DeleteHandler
+	Reorder *menu.ReorderHandler
 
 	// Queries
-	Get  *menu.GetMenuHandler
-	List *menu.ListMenusHandler
+	Get  *menu.GetHandler
+	List *menu.ListHandler
 }
 
 // SettingUseCases 系统配置用例
 type SettingUseCases struct {
 	// Commands
-	Create      *setting.CreateSettingHandler
-	Update      *setting.UpdateSettingHandler
-	Delete      *setting.DeleteSettingHandler
-	BatchUpdate *setting.BatchUpdateSettingsHandler
+	Create      *setting.CreateHandler
+	Update      *setting.UpdateHandler
+	Delete      *setting.DeleteHandler
+	BatchUpdate *setting.BatchUpdateHandler
 
 	// Queries
-	Get  *setting.GetSettingHandler
-	List *setting.ListSettingsHandler
+	Get        *setting.GetHandler
+	List       *setting.ListHandler
+	ListSchema *setting.ListSchemaHandler
 }
 
 // PATUseCases 个人访问令牌用例
 type PATUseCases struct {
 	// Commands
-	Create  *pat.CreateTokenHandler
-	Delete  *pat.DeleteTokenHandler
-	Disable *pat.DisableTokenHandler
-	Enable  *pat.EnableTokenHandler
+	Create  *pat.CreateHandler
+	Delete  *pat.DeleteHandler
+	Disable *pat.DisableHandler
+	Enable  *pat.EnableHandler
 
 	// Queries
-	Get  *pat.GetTokenHandler
-	List *pat.ListTokensHandler
+	Get  *pat.GetHandler
+	List *pat.ListHandler
 }
 
 // AuditLogUseCases 审计日志用例
 type AuditLogUseCases struct {
 	// Commands
-	CreateLog *auditlog.CreateLogHandler
+	CreateLog *auditlog.CreateHandler
 
 	// Queries
-	Get  *auditlog.GetLogHandler
-	List *auditlog.ListLogsHandler
+	Get  *auditlog.GetHandler
+	List *auditlog.ListHandler
 }
 
 // StatsUseCases 统计用例（只读）
@@ -123,7 +124,7 @@ type StatsUseCases struct {
 
 // CaptchaUseCases 验证码用例
 type CaptchaUseCases struct {
-	Generate *captcha.GenerateCaptchaHandler
+	Generate *captcha.GenerateHandler
 }
 
 // TwoFAUseCases 双因素认证用例
@@ -140,9 +141,9 @@ type TwoFAUseCases struct {
 // CacheUseCases 缓存用例（演示用）
 type CacheUseCases struct {
 	// Commands
-	Set    *cache.SetCacheHandler
-	Delete *cache.DeleteCacheHandler
+	Set    *cache.SetHandler
+	Delete *cache.DeleteHandler
 
 	// Queries
-	Get *cache.GetCacheHandler
+	Get *cache.GetHandler
 }

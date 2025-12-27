@@ -22,7 +22,7 @@ import { DUMMY_BASE_URL, assertParamExists, setApiKeyToObject, setBasicAuthToObj
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS, type RequestArgs, BaseAPI, RequiredError, operationServerMap } from '../base';
 // @ts-ignore
-import type { HealthGet200Response } from '../models';
+import type { ResponseDataResponseGithubComLwmacct251117GoDddTemplateInternalApplicationHealthHealthReport } from '../models';
 /**
  * SystemApi - axios parameter creator
  * @export
@@ -75,7 +75,7 @@ export const SystemApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async healthGet(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<HealthGet200Response>> {
+        async healthGet(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseGithubComLwmacct251117GoDddTemplateInternalApplicationHealthHealthReport>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.healthGet(options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['SystemApi.healthGet']?.[localVarOperationServerIndex]?.url;
@@ -97,7 +97,7 @@ export const SystemApiFactory = function (configuration?: Configuration, basePat
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        healthGet(options?: RawAxiosRequestConfig): AxiosPromise<HealthGet200Response> {
+        healthGet(options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseGithubComLwmacct251117GoDddTemplateInternalApplicationHealthHealthReport> {
             return localVarFp.healthGet(options).then((request) => request(axios, basePath));
         },
     };

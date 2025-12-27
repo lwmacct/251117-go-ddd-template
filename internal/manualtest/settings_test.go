@@ -304,3 +304,176 @@ func TestBatchUpdateSettings(t *testing.T) {
 
 	t.Log("\n批量更新设置测试完成!")
 }
+
+// TestSettingsSchema 测试获取设置 Schema（层级结构）。
+//
+// 手动运行:
+//
+//	MANUAL=1 go test -v -run TestSettingsSchema ./internal/manualtest/
+func TestSettingsSchema(t *testing.T) {
+	helper.SkipIfNotManual(t)
+
+	c := helper.NewClient()
+
+	t.Log("准备工作: 登录管理员账户")
+	_, err := c.Login("admin", "admin123")
+	if err != nil {
+		t.Fatalf("登录失败: %v", err)
+	}
+	t.Log("  登录成功")
+
+	// 测试: 获取设置 Schema
+	t.Log("\n测试: 获取设置 Schema")
+	schema, err := helper.Get[[]setting.SchemaCategoryDTO](c, "/api/admin/settings/schema", nil)
+	if err != nil {
+		t.Fatalf("获取设置 Schema 失败: %v", err)
+	}
+
+	t.Logf("  返回 %d 个分类", len(*schema))
+
+	// 验证期望的分类存在
+	expectedCategories := map[string]bool{
+		"general":      false,
+		"security":     false,
+		"notification": false,
+		"backup":       false,
+	}
+
+	for _, cat := range *schema {
+		t.Logf("\n[%s] %s (图标: %s)", cat.Category, cat.Label, cat.Icon)
+
+		if _, exists := expectedCategories[cat.Category]; exists {
+			expectedCategories[cat.Category] = true
+		}
+
+		// 验证有 Groups
+		if len(cat.Groups) == 0 {
+			t.Errorf("  分类 %s 没有分组", cat.Category)
+		}
+
+		for _, group := range cat.Groups {
+			t.Logf("  └─ [%s] %s (%d 个设置)", group.Group, group.Label, len(group.Settings))
+
+			// 验证 Settings 有 UI 元数据
+			for _, s := range group.Settings {
+				if s.UIConfig.InputType == "" {
+					t.Errorf("    设置 %s 缺少 ui_config.input_type", s.Key)
+				}
+				t.Logf("      - %s (%s) %s", s.Key, s.UIConfig.InputType, s.UIConfig.Hint)
+			}
+		}
+	}
+
+	// 检查所有期望的分类是否都存在
+	for cat, found := range expectedCategories {
+		if !found {
+			t.Errorf("期望的分类 %s 未找到", cat)
+		}
+	}
+
+	t.Log("\nSchema 测试完成!")
+}
+
+// TestSettingsUIMetadata 测试设置的 UI 元数据字段。
+//
+// 手动运行:
+//
+//	MANUAL=1 go test -v -run TestSettingsUIMetadata ./internal/manualtest/
+func TestSettingsUIMetadata(t *testing.T) {
+	helper.SkipIfNotManual(t)
+
+	c := helper.NewClient()
+
+	t.Log("准备工作: 登录管理员账户")
+	_, err := c.Login("admin", "admin123")
+	if err != nil {
+		t.Fatalf("登录失败: %v", err)
+	}
+	t.Log("  登录成功")
+
+	// 获取 Schema
+	schema, err := helper.Get[[]setting.SchemaCategoryDTO](c, "/api/admin/settings/schema", nil)
+	if err != nil {
+		t.Fatalf("获取设置 Schema 失败: %v", err)
+	}
+
+	// 构建 key -> setting 映射
+	settingsMap := make(map[string]setting.SchemaSettingDTO)
+	for _, cat := range *schema {
+		for _, group := range cat.Groups {
+			for _, s := range group.Settings {
+				settingsMap[s.Key] = s
+			}
+		}
+	}
+
+	// 测试 1: 验证 select 类型有 options
+	t.Log("\n测试 1: 验证 select 类型设置有 options")
+	timezone, ok := settingsMap["general.timezone"]
+	if !ok {
+		t.Fatal("找不到 general.timezone 设置")
+	}
+	if timezone.UIConfig.InputType != "select" {
+		t.Errorf("general.timezone 应该是 select 类型，实际是 %s", timezone.UIConfig.InputType)
+	}
+	if timezone.UIConfig.Options == nil {
+		t.Error("general.timezone 应该有 ui_config.options")
+	} else {
+		t.Logf("  general.timezone options: %v", timezone.UIConfig.Options)
+	}
+
+	// 测试 2: 验证依赖关系配置
+	t.Log("\n测试 2: 验证依赖关系配置")
+	emailNotif, ok := settingsMap["notification.enable_email"]
+	if !ok {
+		t.Fatal("找不到 notification.enable_email 设置")
+	}
+	if emailNotif.UIConfig.DependsOn == nil {
+		t.Error("notification.enable_email 应该有 ui_config.depends_on 配置")
+	} else {
+		t.Logf("  notification.enable_email depends_on: %v", emailNotif.UIConfig.DependsOn)
+	}
+
+	// 测试 3: 验证 number 类型有 validation
+	t.Log("\n测试 3: 验证 number 类型设置有 validation")
+	pwdMinLen, ok := settingsMap["security.password_min_length"]
+	if !ok {
+		t.Fatal("找不到 security.password_min_length 设置")
+	}
+	if pwdMinLen.UIConfig.InputType != "number" {
+		t.Errorf("security.password_min_length 应该是 number 类型，实际是 %s", pwdMinLen.UIConfig.InputType)
+	}
+	if pwdMinLen.UIConfig.Validation == nil {
+		t.Error("security.password_min_length 应该有 ui_config.validation 规则")
+	} else {
+		t.Logf("  security.password_min_length validation: %v", pwdMinLen.UIConfig.Validation)
+	}
+
+	// 测试 4: 验证 switch 类型
+	t.Log("\n测试 4: 验证 switch 类型设置")
+	enableNotif, ok := settingsMap["notification.enable_notifications"]
+	if !ok {
+		t.Fatal("找不到 notification.enable_notifications 设置")
+	}
+	if enableNotif.UIConfig.InputType != "switch" {
+		t.Errorf("notification.enable_notifications 应该是 switch 类型，实际是 %s", enableNotif.UIConfig.InputType)
+	}
+	t.Logf("  notification.enable_notifications hint: %s", enableNotif.UIConfig.Hint)
+
+	// 测试 5: 验证排序字段
+	t.Log("\n测试 5: 验证排序字段")
+	for _, cat := range *schema {
+		for _, group := range cat.Groups {
+			prevOrder := -1
+			for _, s := range group.Settings {
+				if s.Order < prevOrder {
+					t.Errorf("设置 %s 排序异常: Order=%d 小于前一个 %d", s.Key, s.Order, prevOrder)
+				}
+				prevOrder = s.Order
+			}
+		}
+	}
+	t.Log("  排序验证通过")
+
+	t.Log("\nUI 元数据测试完成!")
+}

@@ -95,7 +95,7 @@ func TestCacheOperations(t *testing.T) {
 
 	// 测试 1: 设置缓存（POST /api/cache，body 包含 key/value/ttl）
 	t.Log("测试 1: 设置缓存")
-	setResult, err := helper.Post[cache.SetCacheResultDTO](c, "/api/cache", cache.SetCacheDTO{
+	setResult, err := helper.Post[cache.SetResultDTO](c, "/api/cache", cache.SetDTO{
 		Key:   cacheKey,
 		Value: cacheValue,
 		TTL:   60,
@@ -111,7 +111,7 @@ func TestCacheOperations(t *testing.T) {
 
 	// 测试 2: 获取缓存（GET /api/cache/:key）
 	t.Log("\n测试 2: 获取缓存")
-	getResult, err := helper.Get[cache.GetCacheResultDTO](c, "/api/cache/"+cacheKey, nil)
+	getResult, err := helper.Get[cache.GetResultDTO](c, "/api/cache/"+cacheKey, nil)
 	if err != nil {
 		t.Errorf("获取缓存失败: %v", err)
 	} else {
@@ -132,7 +132,7 @@ func TestCacheOperations(t *testing.T) {
 
 	// 测试 4: 验证删除后获取缓存应该失败
 	t.Log("\n测试 4: 验证删除后缓存不存在")
-	_, err = helper.Get[cache.GetCacheResultDTO](c, "/api/cache/"+cacheKey, nil)
+	_, err = helper.Get[cache.GetResultDTO](c, "/api/cache/"+cacheKey, nil)
 	if err == nil {
 		t.Errorf("删除后仍能获取缓存，期望失败但成功了")
 	} else {

@@ -61,7 +61,7 @@ func TestTwoFAFlow(t *testing.T) {
 	testPassword := "password123"
 
 	t.Log("步骤 1: 创建测试用户（带 user 角色）")
-	createReq := user.CreateUserDTO{
+	createReq := user.CreateDTO{
 		Username: testUsername,
 		Email:    testUsername + "@example.com",
 		Password: testPassword,
@@ -187,7 +187,7 @@ func TestSetup2FA(t *testing.T) {
 	testUsername := fmt.Sprintf("setup2fa_%d", time.Now().Unix())
 
 	t.Log("步骤 1: 创建测试用户")
-	createReq := user.CreateUserDTO{
+	createReq := user.CreateDTO{
 		Username: testUsername,
 		Email:    testUsername + "@example.com",
 		Password: "password123",
@@ -299,7 +299,7 @@ func TestLogin2FA(t *testing.T) {
 	testPassword := "password123"
 
 	t.Log("步骤 1: 创建测试用户（带 user 角色）")
-	createReq := user.CreateUserDTO{
+	createReq := user.CreateDTO{
 		Username: testUsername,
 		Email:    testUsername + "@example.com",
 		Password: testPassword,

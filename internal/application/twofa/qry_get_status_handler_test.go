@@ -14,12 +14,12 @@ func TestGetStatusHandler_Handle_Success(t *testing.T) {
 	tests := []struct {
 		name  string
 		query GetStatusQuery
-		want  *GetStatusResultDTO
+		want  *StatusResultDTO
 	}{
 		{
 			name:  "2FA 已启用，有恢复码",
 			query: GetStatusQuery{UserID: 1},
-			want: &GetStatusResultDTO{
+			want: &StatusResultDTO{
 				Enabled:            true,
 				RecoveryCodesCount: 8,
 			},
@@ -27,7 +27,7 @@ func TestGetStatusHandler_Handle_Success(t *testing.T) {
 		{
 			name:  "2FA 已启用，部分恢复码已使用",
 			query: GetStatusQuery{UserID: 2},
-			want: &GetStatusResultDTO{
+			want: &StatusResultDTO{
 				Enabled:            true,
 				RecoveryCodesCount: 3,
 			},
@@ -35,7 +35,7 @@ func TestGetStatusHandler_Handle_Success(t *testing.T) {
 		{
 			name:  "2FA 未启用",
 			query: GetStatusQuery{UserID: 3},
-			want: &GetStatusResultDTO{
+			want: &StatusResultDTO{
 				Enabled:            false,
 				RecoveryCodesCount: 0,
 			},
@@ -43,7 +43,7 @@ func TestGetStatusHandler_Handle_Success(t *testing.T) {
 		{
 			name:  "用户从未设置过 2FA",
 			query: GetStatusQuery{UserID: 100},
-			want: &GetStatusResultDTO{
+			want: &StatusResultDTO{
 				Enabled:            false,
 				RecoveryCodesCount: 0,
 			},

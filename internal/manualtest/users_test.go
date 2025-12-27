@@ -45,7 +45,7 @@ func TestAdminUsersFlow(t *testing.T) {
 	// 测试 2: 创建用户
 	t.Log("\n测试 2: 创建用户")
 	testUsername := fmt.Sprintf("testuser_%d", time.Now().Unix())
-	createReq := user.CreateUserDTO{
+	createReq := user.CreateDTO{
 		Username: testUsername,
 		Email:    testUsername + "@example.com",
 		Password: "password123",
@@ -90,7 +90,7 @@ func TestAdminUsersFlow(t *testing.T) {
 	// 测试 4: 更新用户
 	t.Log("\n测试 4: 更新用户")
 	newFullName := "测试用户（已更新）"
-	updateReq := user.UpdateUserDTO{
+	updateReq := user.UpdateDTO{
 		FullName: &newFullName,
 	}
 	updatedUser, err := helper.Put[user.UserDTO](c, fmt.Sprintf("/api/admin/users/%d", testUserID), updateReq)
@@ -169,7 +169,7 @@ func TestAssignRoles(t *testing.T) {
 	// 创建测试用户
 	t.Log("\n步骤 1: 创建测试用户")
 	testUsername := fmt.Sprintf("roletest_%d", time.Now().Unix())
-	createReq := user.CreateUserDTO{
+	createReq := user.CreateDTO{
 		Username: testUsername,
 		Email:    testUsername + "@example.com",
 		Password: "password123",
@@ -267,8 +267,8 @@ func TestBatchCreateUsers(t *testing.T) {
 	t.Logf("  用户2: %s", username2)
 	t.Logf("  用户3: %s (重复，应失败)", username1)
 
-	batchReq := user.BatchCreateUserDTO{
-		Users: []user.BatchUserItemDTO{
+	batchReq := user.BatchCreateDTO{
+		Users: []user.BatchItemDTO{
 			{
 				Username: username1,
 				Email:    username1 + "@example.com",
@@ -290,7 +290,7 @@ func TestBatchCreateUsers(t *testing.T) {
 		},
 	}
 
-	result, err := helper.Post[user.BatchCreateUserResultDTO](c, "/api/admin/users/batch", batchReq)
+	result, err := helper.Post[user.BatchCreateResultDTO](c, "/api/admin/users/batch", batchReq)
 	if err != nil {
 		t.Fatalf("批量创建请求失败: %v", err)
 	}

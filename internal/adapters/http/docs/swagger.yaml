@@ -143,18 +143,18 @@ definitions:
       username:
         type: string
     type: object
-  cache.DeleteCacheResultDTO:
+  cache.DeleteResultDTO:
     properties:
       key:
         type: string
     type: object
-  cache.GetCacheResultDTO:
+  cache.GetResultDTO:
     properties:
       key:
         type: string
       value: {}
     type: object
-  cache.SetCacheDTO:
+  cache.SetDTO:
     properties:
       key:
         type: string
@@ -166,14 +166,14 @@ definitions:
     - key
     - value
     type: object
-  cache.SetCacheResultDTO:
+  cache.SetResultDTO:
     properties:
       key:
         type: string
       ttl:
         type: integer
     type: object
-  captcha.GenerateCaptchaResultDTO:
+  captcha.GenerateResultDTO:
     properties:
       code:
         description: Code 验证码值（仅开发模式返回）
@@ -188,6 +188,35 @@ definitions:
         description: Image Base64编码的图片
         type: string
     type: object
+  github_com_lwmacct_251117-go-ddd-template_internal_application_health.HealthReport:
+    properties:
+      checks:
+        additionalProperties:
+          $ref: '#/definitions/github_com_lwmacct_251117-go-ddd-template_internal_domain_health.CheckResult'
+        type: object
+      status:
+        $ref: '#/definitions/github_com_lwmacct_251117-go-ddd-template_internal_domain_health.Status'
+    type: object
+  github_com_lwmacct_251117-go-ddd-template_internal_domain_health.CheckResult:
+    properties:
+      error:
+        type: string
+      stats:
+        additionalProperties: {}
+        type: object
+      status:
+        $ref: '#/definitions/github_com_lwmacct_251117-go-ddd-template_internal_domain_health.Status'
+    type: object
+  github_com_lwmacct_251117-go-ddd-template_internal_domain_health.Status:
+    enum:
+    - healthy
+    - unhealthy
+    - degraded
+    type: string
+    x-enum-varnames:
+    - StatusHealthy
+    - StatusUnhealthy
+    - StatusDegraded
   handler.BatchUpdateSettingsRequest:
     properties:
       settings:
@@ -206,34 +235,6 @@ definitions:
         type: array
     required:
     - settings
-    type: object
-  handler.CreateMenuRequest:
-    properties:
-      icon:
-        example: setting
-        maxLength: 100
-        type: string
-      order:
-        example: 1
-        type: integer
-      parent_id:
-        example: 0
-        type: integer
-      path:
-        example: /system
-        maxLength: 255
-        type: string
-      title:
-        example: 系统管理
-        maxLength: 100
-        minLength: 1
-        type: string
-      visible:
-        example: true
-        type: boolean
-    required:
-    - path
-    - title
     type: object
   handler.CreateSettingRequest:
     properties:
@@ -256,43 +257,6 @@ definitions:
     - category
     - key
     - value
-    type: object
-  handler.ReorderMenusRequest:
-    properties:
-      menus:
-        items:
-          properties:
-            id:
-              type: integer
-            order:
-              type: integer
-            parent_id:
-              type: integer
-          required:
-          - id
-          type: object
-        type: array
-    required:
-    - menus
-    type: object
-  handler.UpdateMenuRequest:
-    properties:
-      icon:
-        maxLength: 100
-        type: string
-      order:
-        type: integer
-      parent_id:
-        type: integer
-      path:
-        maxLength: 255
-        type: string
-      title:
-        maxLength: 100
-        minLength: 1
-        type: string
-      visible:
-        type: boolean
     type: object
   handler.UpdateProfileRequest:
     properties:
@@ -320,6 +284,34 @@ definitions:
         example: string
         type: string
     type: object
+  menu.CreateDTO:
+    properties:
+      icon:
+        example: setting
+        maxLength: 100
+        type: string
+      order:
+        example: 1
+        type: integer
+      parent_id:
+        example: 0
+        type: integer
+      path:
+        example: /system
+        maxLength: 255
+        type: string
+      title:
+        example: 系统管理
+        maxLength: 100
+        minLength: 1
+        type: string
+      visible:
+        example: true
+        type: boolean
+    required:
+    - path
+    - title
+    type: object
   menu.MenuDTO:
     properties:
       created_at:
@@ -341,7 +333,44 @@ definitions:
       visible:
         type: boolean
     type: object
-  pat.CreateTokenDTO:
+  menu.ReorderDTO:
+    properties:
+      menus:
+        items:
+          properties:
+            id:
+              type: integer
+            order:
+              type: integer
+            parent_id:
+              type: integer
+          required:
+          - id
+          type: object
+        type: array
+    required:
+    - menus
+    type: object
+  menu.UpdateDTO:
+    properties:
+      icon:
+        maxLength: 100
+        type: string
+      order:
+        type: integer
+      parent_id:
+        type: integer
+      path:
+        maxLength: 255
+        type: string
+      title:
+        maxLength: 100
+        minLength: 1
+        type: string
+      visible:
+        type: boolean
+    type: object
+  pat.CreateDTO:
     properties:
       description:
         description: 可选，备注
@@ -369,7 +398,7 @@ definitions:
     required:
     - name
     type: object
-  pat.CreateTokenResultDTO:
+  pat.CreateResultDTO:
     properties:
       plain_token:
         type: string
@@ -430,6 +459,22 @@ definitions:
         description: 响应数据
         items:
           $ref: '#/definitions/pat.TokenDTO'
+        type: array
+      error:
+        description: 错误详情（仅失败时）
+      message:
+        description: 消息描述
+        type: string
+    type: object
+  response.DataResponse-array_setting_SchemaCategoryDTO:
+    properties:
+      code:
+        description: HTTP 状态码
+        type: integer
+      data:
+        description: 响应数据
+        items:
+          $ref: '#/definitions/setting.SchemaCategoryDTO'
         type: array
       error:
         description: 错误详情（仅失败时）
@@ -513,14 +558,14 @@ definitions:
         description: 消息描述
         type: string
     type: object
-  response.DataResponse-cache_DeleteCacheResultDTO:
+  response.DataResponse-cache_DeleteResultDTO:
     properties:
       code:
         description: HTTP 状态码
         type: integer
       data:
         allOf:
-        - $ref: '#/definitions/cache.DeleteCacheResultDTO'
+        - $ref: '#/definitions/cache.DeleteResultDTO'
         description: 响应数据
       error:
         description: 错误详情（仅失败时）
@@ -528,14 +573,14 @@ definitions:
         description: 消息描述
         type: string
     type: object
-  response.DataResponse-cache_GetCacheResultDTO:
+  response.DataResponse-cache_GetResultDTO:
     properties:
       code:
         description: HTTP 状态码
         type: integer
       data:
         allOf:
-        - $ref: '#/definitions/cache.GetCacheResultDTO'
+        - $ref: '#/definitions/cache.GetResultDTO'
         description: 响应数据
       error:
         description: 错误详情（仅失败时）
@@ -543,14 +588,14 @@ definitions:
         description: 消息描述
         type: string
     type: object
-  response.DataResponse-cache_SetCacheResultDTO:
+  response.DataResponse-cache_SetResultDTO:
     properties:
       code:
         description: HTTP 状态码
         type: integer
       data:
         allOf:
-        - $ref: '#/definitions/cache.SetCacheResultDTO'
+        - $ref: '#/definitions/cache.SetResultDTO'
         description: 响应数据
       error:
         description: 错误详情（仅失败时）
@@ -558,14 +603,29 @@ definitions:
         description: 消息描述
         type: string
     type: object
-  response.DataResponse-captcha_GenerateCaptchaResultDTO:
+  response.DataResponse-captcha_GenerateResultDTO:
     properties:
       code:
         description: HTTP 状态码
         type: integer
       data:
         allOf:
-        - $ref: '#/definitions/captcha.GenerateCaptchaResultDTO'
+        - $ref: '#/definitions/captcha.GenerateResultDTO'
+        description: 响应数据
+      error:
+        description: 错误详情（仅失败时）
+      message:
+        description: 消息描述
+        type: string
+    type: object
+  response.DataResponse-github_com_lwmacct_251117-go-ddd-template_internal_application_health_HealthReport:
+    properties:
+      code:
+        description: HTTP 状态码
+        type: integer
+      data:
+        allOf:
+        - $ref: '#/definitions/github_com_lwmacct_251117-go-ddd-template_internal_application_health.HealthReport'
         description: 响应数据
       error:
         description: 错误详情（仅失败时）
@@ -588,14 +648,14 @@ definitions:
         description: 消息描述
         type: string
     type: object
-  response.DataResponse-pat_CreateTokenResultDTO:
+  response.DataResponse-pat_CreateResultDTO:
     properties:
       code:
         description: HTTP 状态码
         type: integer
       data:
         allOf:
-        - $ref: '#/definitions/pat.CreateTokenResultDTO'
+        - $ref: '#/definitions/pat.CreateResultDTO'
         description: 响应数据
       error:
         description: 错误详情（仅失败时）
@@ -618,14 +678,14 @@ definitions:
         description: 消息描述
         type: string
     type: object
-  response.DataResponse-role_CreateRoleResultDTO:
+  response.DataResponse-role_CreateResultDTO:
     properties:
       code:
         description: HTTP 状态码
         type: integer
       data:
         allOf:
-        - $ref: '#/definitions/role.CreateRoleResultDTO'
+        - $ref: '#/definitions/role.CreateResultDTO'
         description: 响应数据
       error:
         description: 错误详情（仅失败时）
@@ -723,14 +783,14 @@ definitions:
         description: 消息描述
         type: string
     type: object
-  response.DataResponse-user_BatchCreateUserResultDTO:
+  response.DataResponse-user_BatchCreateResultDTO:
     properties:
       code:
         description: HTTP 状态码
         type: integer
       data:
         allOf:
-        - $ref: '#/definitions/user.BatchCreateUserResultDTO'
+        - $ref: '#/definitions/user.BatchCreateResultDTO'
         description: 响应数据
       error:
         description: 错误详情（仅失败时）
@@ -872,15 +932,7 @@ definitions:
         description: 页码越界警告
         type: string
     type: object
-  response.Response:
-    properties:
-      data:
-        description: 数据
-      message:
-        description: 消息
-        type: string
-    type: object
-  role.CreateRoleDTO:
+  role.CreateDTO:
     properties:
       description:
         example: 系统开发人员角色
@@ -899,7 +951,7 @@ definitions:
     - display_name
     - name
     type: object
-  role.CreateRoleResultDTO:
+  role.CreateResultDTO:
     properties:
       display_name:
         type: string
@@ -957,7 +1009,7 @@ definitions:
     required:
     - permission_ids
     type: object
-  role.UpdateRoleDTO:
+  role.UpdateDTO:
     properties:
       description:
         maxLength: 255
@@ -966,11 +1018,68 @@ definitions:
         maxLength: 100
         type: string
     type: object
+  setting.DependsOnConfigDTO:
+    properties:
+      key:
+        type: string
+      operator:
+        description: eq, ne, gt, lt（默认 eq）
+        type: string
+      value: {}
+    type: object
+  setting.SchemaCategoryDTO:
+    properties:
+      category:
+        type: string
+      groups:
+        items:
+          $ref: '#/definitions/setting.SchemaGroupDTO'
+        type: array
+      icon:
+        type: string
+      label:
+        type: string
+    type: object
+  setting.SchemaGroupDTO:
+    properties:
+      group:
+        type: string
+      label:
+        type: string
+      settings:
+        items:
+          $ref: '#/definitions/setting.SchemaSettingDTO'
+        type: array
+    type: object
+  setting.SchemaSettingDTO:
+    properties:
+      key:
+        type: string
+      label:
+        type: string
+      order:
+        type: integer
+      ui_config:
+        $ref: '#/definitions/setting.UIConfigDTO'
+      value:
+        type: string
+      value_type:
+        type: string
+    type: object
+  setting.SelectOptionDTO:
+    properties:
+      label:
+        type: string
+      value:
+        type: string
+    type: object
   setting.SettingDTO:
     properties:
       category:
         type: string
       created_at:
+        type: string
+      group:
         type: string
       id:
         type: integer
@@ -978,12 +1087,36 @@ definitions:
         type: string
       label:
         type: string
+      order:
+        type: integer
+      ui_config:
+        $ref: '#/definitions/setting.UIConfigDTO'
       updated_at:
         type: string
       value:
         type: string
       value_type:
         type: string
+    type: object
+  setting.UIConfigDTO:
+    properties:
+      depends_on:
+        allOf:
+        - $ref: '#/definitions/setting.DependsOnConfigDTO'
+        description: 依赖关系
+      hint:
+        description: 输入提示
+        type: string
+      input_type:
+        description: '控件类型: text, number, switch, select...'
+        type: string
+      options:
+        description: 下拉选项
+        items:
+          $ref: '#/definitions/setting.SelectOptionDTO'
+        type: array
+      validation:
+        description: JSON Logic 验证规则
     type: object
   stats.AuditLogSummaryDTO:
     properties:
@@ -1073,6 +1206,17 @@ definitions:
     required:
     - role_ids
     type: object
+  user.BatchCreateDTO:
+    properties:
+      users:
+        items:
+          $ref: '#/definitions/user.BatchItemDTO'
+        maxItems: 100
+        minItems: 1
+        type: array
+    required:
+    - users
+    type: object
   user.BatchCreateErrorDTO:
     properties:
       email:
@@ -1084,18 +1228,7 @@ definitions:
       username:
         type: string
     type: object
-  user.BatchCreateUserDTO:
-    properties:
-      users:
-        items:
-          $ref: '#/definitions/user.BatchUserItemDTO'
-        maxItems: 100
-        minItems: 1
-        type: array
-    required:
-    - users
-    type: object
-  user.BatchCreateUserResultDTO:
+  user.BatchCreateResultDTO:
     properties:
       errors:
         items:
@@ -1108,7 +1241,7 @@ definitions:
       total:
         type: integer
     type: object
-  user.BatchUserItemDTO:
+  user.BatchItemDTO:
     properties:
       email:
         type: string
@@ -1147,7 +1280,7 @@ definitions:
     - new_password
     - old_password
     type: object
-  user.CreateUserDTO:
+  user.CreateDTO:
     properties:
       email:
         type: string
@@ -1186,7 +1319,7 @@ definitions:
       name:
         type: string
     type: object
-  user.UpdateUserDTO:
+  user.UpdateDTO:
     properties:
       avatar:
         maxLength: 255
@@ -1418,7 +1551,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/handler.CreateMenuRequest'
+          $ref: '#/definitions/menu.CreateDTO'
       produces:
       - application/json
       responses:
@@ -1550,7 +1683,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/handler.UpdateMenuRequest'
+          $ref: '#/definitions/menu.UpdateDTO'
       produces:
       - application/json
       responses:
@@ -1596,7 +1729,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/handler.ReorderMenusRequest'
+          $ref: '#/definitions/menu.ReorderDTO'
       produces:
       - application/json
       responses:
@@ -1756,14 +1889,14 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/role.CreateRoleDTO'
+          $ref: '#/definitions/role.CreateDTO'
       produces:
       - application/json
       responses:
         "201":
           description: 角色创建成功
           schema:
-            $ref: '#/definitions/response.DataResponse-role_CreateRoleResultDTO'
+            $ref: '#/definitions/response.DataResponse-role_CreateResultDTO'
         "400":
           description: 参数错误或角色名已存在
           schema:
@@ -1890,7 +2023,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/role.UpdateRoleDTO'
+          $ref: '#/definitions/role.UpdateDTO'
       produces:
       - application/json
       responses:
@@ -2221,6 +2354,37 @@ paths:
       - 管理员 - 系统配置 (Admin - Settings)
       x-permission:
         scope: admin:settings:update
+  /api/admin/settings/schema:
+    get:
+      consumes:
+      - application/json
+      description: 获取按 Category → Group → Settings 层级组织的配置数据，用于前端动态渲染设置页面
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 配置 Schema
+          schema:
+            $ref: '#/definitions/response.DataResponse-array_setting_SchemaCategoryDTO'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: 权限不足
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 获取配置 Schema
+      tags:
+      - 管理员 - 系统配置 (Admin - Settings)
+      x-permission:
+        scope: admin:settings:read
   /api/admin/users:
     get:
       consumes:
@@ -2280,7 +2444,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/user.CreateUserDTO'
+          $ref: '#/definitions/user.CreateDTO'
       produces:
       - application/json
       responses:
@@ -2414,7 +2578,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/user.UpdateUserDTO'
+          $ref: '#/definitions/user.UpdateDTO'
       produces:
       - application/json
       responses:
@@ -2512,14 +2676,14 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/user.BatchCreateUserDTO'
+          $ref: '#/definitions/user.BatchCreateDTO'
       produces:
       - application/json
       responses:
         "200":
           description: 批量创建结果
           schema:
-            $ref: '#/definitions/response.DataResponse-user_BatchCreateUserResultDTO'
+            $ref: '#/definitions/response.DataResponse-user_BatchCreateResultDTO'
         "400":
           description: 参数错误
           schema:
@@ -2670,7 +2834,7 @@ paths:
         "200":
           description: 验证码生成成功
           schema:
-            $ref: '#/definitions/response.DataResponse-captcha_GenerateCaptchaResultDTO'
+            $ref: '#/definitions/response.DataResponse-captcha_GenerateResultDTO'
         "500":
           description: 生成失败
           schema:
@@ -2793,14 +2957,14 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/cache.SetCacheDTO'
+          $ref: '#/definitions/cache.SetDTO'
       produces:
       - application/json
       responses:
         "200":
           description: 设置成功
           schema:
-            $ref: '#/definitions/response.DataResponse-cache_SetCacheResultDTO'
+            $ref: '#/definitions/response.DataResponse-cache_SetResultDTO'
         "400":
           description: 参数错误
           schema:
@@ -2829,7 +2993,7 @@ paths:
         "200":
           description: 删除成功
           schema:
-            $ref: '#/definitions/response.DataResponse-cache_DeleteCacheResultDTO'
+            $ref: '#/definitions/response.DataResponse-cache_DeleteResultDTO'
         "500":
           description: 服务器内部错误
           schema:
@@ -2853,7 +3017,7 @@ paths:
         "200":
           description: 获取成功
           schema:
-            $ref: '#/definitions/response.DataResponse-cache_GetCacheResultDTO'
+            $ref: '#/definitions/response.DataResponse-cache_GetResultDTO'
         "404":
           description: 缓存不存在
           schema:
@@ -3023,14 +3187,14 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/pat.CreateTokenDTO'
+          $ref: '#/definitions/pat.CreateDTO'
       produces:
       - application/json
       responses:
         "201":
           description: 令牌创建成功
           schema:
-            $ref: '#/definitions/response.DataResponse-pat_CreateTokenResultDTO'
+            $ref: '#/definitions/response.DataResponse-pat_CreateResultDTO'
         "400":
           description: 参数错误
           schema:
@@ -3189,6 +3353,180 @@ paths:
       - 用户 - 个人访问令牌 (User - Personal Access Token)
       x-permission:
         scope: user:tokens:enable
+  /api/users:
+    get:
+      consumes:
+      - application/json
+      description: 分页获取用户列表（包含角色信息）
+      parameters:
+      - default: 20
+        description: Limit 每页数量，默认 20，最大 1000
+        in: query
+        maximum: 1000
+        minimum: 1
+        name: limit
+        type: integer
+      - default: 1
+        description: Page 页码，从 1 开始
+        in: query
+        minimum: 1
+        name: page
+        type: integer
+      - description: Search 搜索关键词（用户名或邮箱）
+        in: query
+        name: search
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 用户列表
+          schema:
+            $ref: '#/definitions/response.PagedResponse-user_UserWithRolesDTO'
+        "400":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 获取用户列表
+      tags:
+      - 用户 (User)
+    post:
+      consumes:
+      - application/json
+      description: 创建新用户账号
+      parameters:
+      - description: 用户信息
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/user.CreateDTO'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: 用户创建成功
+          schema:
+            $ref: '#/definitions/response.DataResponse-user_UserWithRolesDTO'
+        "400":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 创建用户
+      tags:
+      - 用户 (User)
+  /api/users/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: 删除指定用户
+      parameters:
+      - description: 用户ID
+        in: path
+        minimum: 1
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 用户删除成功
+          schema:
+            $ref: '#/definitions/response.MessageResponse'
+        "400":
+          description: 无效的用户ID
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 删除用户
+      tags:
+      - 用户 (User)
+    get:
+      consumes:
+      - application/json
+      description: 根据用户ID获取用户详细信息（包含角色信息）
+      parameters:
+      - description: 用户ID
+        in: path
+        minimum: 1
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 用户详情
+          schema:
+            $ref: '#/definitions/response.DataResponse-user_UserWithRolesDTO'
+        "400":
+          description: 无效的用户ID
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: 用户不存在
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 获取用户详情
+      tags:
+      - 用户 (User)
+    put:
+      consumes:
+      - application/json
+      description: 更新用户的基本信息
+      parameters:
+      - description: 用户ID
+        in: path
+        minimum: 1
+        name: id
+        required: true
+        type: integer
+      - description: 更新信息
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/user.UpdateDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 用户更新成功
+          schema:
+            $ref: '#/definitions/response.MessageResponse'
+        "400":
+          description: 无效的用户ID或参数错误
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 更新用户信息
+      tags:
+      - 用户 (User)
   /health:
     get:
       consumes:
@@ -3200,35 +3538,11 @@ paths:
         "200":
           description: 服务健康
           schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                checks:
-                  properties:
-                    database:
-                      type: object
-                    redis:
-                      type: object
-                  type: object
-                status:
-                  type: string
-              type: object
+            $ref: '#/definitions/response.DataResponse-github_com_lwmacct_251117-go-ddd-template_internal_application_health_HealthReport'
         "503":
           description: 服务降级
           schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                checks:
-                  properties:
-                    database:
-                      type: object
-                    redis:
-                      type: object
-                  type: object
-                status:
-                  type: string
-              type: object
+            $ref: '#/definitions/response.DataResponse-github_com_lwmacct_251117-go-ddd-template_internal_application_health_HealthReport'
       summary: 健康检查
       tags:
       - 系统 (System)

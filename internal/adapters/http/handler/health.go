@@ -29,8 +29,8 @@ func NewHealthHandler(checker health.Checker) *HealthHandler {
 // @Tags         系统 (System)
 // @Accept       json
 // @Produce      json
-// @Success      200 {object} response.Response{status=string,checks=object{database=object,redis=object}} "服务健康"
-// @Failure      503 {object} response.Response{status=string,checks=object{database=object,redis=object}} "服务降级"
+// @Success      200 {object} response.DataResponse[health.HealthReport] "服务健康"
+// @Failure      503 {object} response.DataResponse[health.HealthReport] "服务降级"
 // @Router       /health [get]
 func (h *HealthHandler) Check(c *gin.Context) {
 	ctx, cancel := context.WithTimeout(c.Request.Context(), 2*time.Second)

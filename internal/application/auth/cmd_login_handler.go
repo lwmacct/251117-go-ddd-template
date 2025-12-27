@@ -20,7 +20,7 @@ type LoginHandler struct {
 	twofaQueryRepo     twofa.QueryRepository
 	authService        auth.Service
 	loginSession       *authInfra.LoginSessionService
-	auditLogHandler    *auditlog.CreateLogHandler
+	auditLogHandler    *auditlog.CreateHandler
 }
 
 // NewLoginHandler 创建登录命令处理器
@@ -30,7 +30,7 @@ func NewLoginHandler(
 	twofaQueryRepo twofa.QueryRepository,
 	authService auth.Service,
 	loginSession *authInfra.LoginSessionService,
-	auditLogHandler *auditlog.CreateLogHandler,
+	auditLogHandler *auditlog.CreateHandler,
 ) *LoginHandler {
 	return &LoginHandler{
 		userQueryRepo:      userQueryRepo,
@@ -133,7 +133,7 @@ func (h *LoginHandler) logLoginEvent(ctx context.Context, userID uint, username,
 		return
 	}
 	go func() {
-		_ = h.auditLogHandler.Handle(context.WithoutCancel(ctx), auditlog.CreateLogCommand{
+		_ = h.auditLogHandler.Handle(context.WithoutCancel(ctx), auditlog.CreateCommand{
 			UserID:     userID,
 			Username:   username,
 			Action:     "login",

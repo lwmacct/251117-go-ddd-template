@@ -22,7 +22,7 @@ import { DUMMY_BASE_URL, assertParamExists, setApiKeyToObject, setBasicAuthToObj
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS, type RequestArgs, BaseAPI, RequiredError, operationServerMap } from '../base';
 // @ts-ignore
-import type { ResponseDataResponseRoleCreateRoleResultDTO } from '../models';
+import type { ResponseDataResponseRoleCreateResultDTO } from '../models';
 // @ts-ignore
 import type { ResponseDataResponseRoleRoleDTO } from '../models';
 // @ts-ignore
@@ -34,11 +34,11 @@ import type { ResponsePagedResponseRolePermissionDTO } from '../models';
 // @ts-ignore
 import type { ResponsePagedResponseRoleRoleDTO } from '../models';
 // @ts-ignore
-import type { RoleCreateRoleDTO } from '../models';
+import type { RoleCreateDTO } from '../models';
 // @ts-ignore
 import type { RoleSetPermissionsDTO } from '../models';
 // @ts-ignore
-import type { RoleUpdateRoleDTO } from '../models';
+import type { RoleUpdateDTO } from '../models';
 /**
  * AdminRoleManagementApi - axios parameter creator
  * @export
@@ -252,11 +252,11 @@ export const AdminRoleManagementApiAxiosParamCreator = function (configuration?:
          * 管理员更新角色的显示名称和描述
          * @summary 更新角色信息
          * @param {number} id 角色ID
-         * @param {RoleUpdateRoleDTO} request 更新信息
+         * @param {RoleUpdateDTO} request 更新信息
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiAdminRolesIdPut: async (id: number, request: RoleUpdateRoleDTO, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        apiAdminRolesIdPut: async (id: number, request: RoleUpdateDTO, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'id' is not null or undefined
             assertParamExists('apiAdminRolesIdPut', 'id', id)
             // verify required parameter 'request' is not null or undefined
@@ -294,11 +294,11 @@ export const AdminRoleManagementApiAxiosParamCreator = function (configuration?:
         /**
          * 管理员创建新的系统角色
          * @summary 创建角色
-         * @param {RoleCreateRoleDTO} request 角色信息
+         * @param {RoleCreateDTO} request 角色信息
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiAdminRolesPost: async (request: RoleCreateRoleDTO, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        apiAdminRolesPost: async (request: RoleCreateDTO, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'request' is not null or undefined
             assertParamExists('apiAdminRolesPost', 'request', request)
             const localVarPath = `/api/admin/roles`;
@@ -412,11 +412,11 @@ export const AdminRoleManagementApiFp = function(configuration?: Configuration) 
          * 管理员更新角色的显示名称和描述
          * @summary 更新角色信息
          * @param {number} id 角色ID
-         * @param {RoleUpdateRoleDTO} request 更新信息
+         * @param {RoleUpdateDTO} request 更新信息
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async apiAdminRolesIdPut(id: number, request: RoleUpdateRoleDTO, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseRoleRoleDTO>> {
+        async apiAdminRolesIdPut(id: number, request: RoleUpdateDTO, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseRoleRoleDTO>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.apiAdminRolesIdPut(id, request, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['AdminRoleManagementApi.apiAdminRolesIdPut']?.[localVarOperationServerIndex]?.url;
@@ -425,11 +425,11 @@ export const AdminRoleManagementApiFp = function(configuration?: Configuration) 
         /**
          * 管理员创建新的系统角色
          * @summary 创建角色
-         * @param {RoleCreateRoleDTO} request 角色信息
+         * @param {RoleCreateDTO} request 角色信息
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async apiAdminRolesPost(request: RoleCreateRoleDTO, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseRoleCreateRoleResultDTO>> {
+        async apiAdminRolesPost(request: RoleCreateDTO, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseRoleCreateResultDTO>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.apiAdminRolesPost(request, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['AdminRoleManagementApi.apiAdminRolesPost']?.[localVarOperationServerIndex]?.url;
@@ -502,21 +502,21 @@ export const AdminRoleManagementApiFactory = function (configuration?: Configura
          * 管理员更新角色的显示名称和描述
          * @summary 更新角色信息
          * @param {number} id 角色ID
-         * @param {RoleUpdateRoleDTO} request 更新信息
+         * @param {RoleUpdateDTO} request 更新信息
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiAdminRolesIdPut(id: number, request: RoleUpdateRoleDTO, options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseRoleRoleDTO> {
+        apiAdminRolesIdPut(id: number, request: RoleUpdateDTO, options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseRoleRoleDTO> {
             return localVarFp.apiAdminRolesIdPut(id, request, options).then((request) => request(axios, basePath));
         },
         /**
          * 管理员创建新的系统角色
          * @summary 创建角色
-         * @param {RoleCreateRoleDTO} request 角色信息
+         * @param {RoleCreateDTO} request 角色信息
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiAdminRolesPost(request: RoleCreateRoleDTO, options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseRoleCreateRoleResultDTO> {
+        apiAdminRolesPost(request: RoleCreateDTO, options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseRoleCreateResultDTO> {
             return localVarFp.apiAdminRolesPost(request, options).then((request) => request(axios, basePath));
         },
     };
@@ -596,24 +596,24 @@ export class AdminRoleManagementApi extends BaseAPI {
      * 管理员更新角色的显示名称和描述
      * @summary 更新角色信息
      * @param {number} id 角色ID
-     * @param {RoleUpdateRoleDTO} request 更新信息
+     * @param {RoleUpdateDTO} request 更新信息
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof AdminRoleManagementApi
      */
-    public apiAdminRolesIdPut(id: number, request: RoleUpdateRoleDTO, options?: RawAxiosRequestConfig) {
+    public apiAdminRolesIdPut(id: number, request: RoleUpdateDTO, options?: RawAxiosRequestConfig) {
         return AdminRoleManagementApiFp(this.configuration).apiAdminRolesIdPut(id, request, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * 管理员创建新的系统角色
      * @summary 创建角色
-     * @param {RoleCreateRoleDTO} request 角色信息
+     * @param {RoleCreateDTO} request 角色信息
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof AdminRoleManagementApi
      */
-    public apiAdminRolesPost(request: RoleCreateRoleDTO, options?: RawAxiosRequestConfig) {
+    public apiAdminRolesPost(request: RoleCreateDTO, options?: RawAxiosRequestConfig) {
         return AdminRoleManagementApiFp(this.configuration).apiAdminRolesPost(request, options).then((request) => request(this.axios, this.basePath));
     }
 }

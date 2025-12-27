@@ -25,13 +25,13 @@ func ToTokenDTO(token *pat.PersonalAccessToken) *TokenDTO {
 	}
 }
 
-// ToCreateTokenResultDTO 将领域模型 PersonalAccessToken 转换为创建响应 DTO（携带一次性明文 token）
-func ToCreateTokenResultDTO(token *pat.PersonalAccessToken, plainToken string) *CreateTokenResultDTO {
+// ToCreateResultDTO 将领域模型 PersonalAccessToken 转换为创建响应 DTO（携带一次性明文 token）
+func ToCreateResultDTO(token *pat.PersonalAccessToken, plainToken string) *CreateResultDTO {
 	if token == nil {
 		return nil
 	}
 
-	return &CreateTokenResultDTO{
+	return &CreateResultDTO{
 		PlainToken: plainToken,
 		Token:      ToTokenDTO(token),
 	}
