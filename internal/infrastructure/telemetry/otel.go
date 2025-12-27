@@ -1,15 +1,3 @@
-// Package telemetry 提供 OpenTelemetry 分布式追踪支持。
-//
-// 本包负责初始化和配置 OpenTelemetry SDK，支持：
-//   - OTLP gRPC 导出到 Jaeger/Tempo/SigNoz 等后端
-//   - Stdout 导出（开发调试用）
-//   - 自动传播 trace context
-//
-// 使用方式：
-//
-//	shutdown, err := telemetry.InitTracer(ctx, cfg)
-//	if err != nil { ... }
-//	defer shutdown(ctx)
 package telemetry
 
 import (

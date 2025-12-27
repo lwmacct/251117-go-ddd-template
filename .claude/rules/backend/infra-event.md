@@ -15,29 +15,19 @@ paths:
 ```
 internal/infrastructure/
 ├── eventbus/                    # 事件总线实现
+│   ├── doc.go                   # 包文档（必需）
 │   └── memory_bus.go            # 内存事件总线
 └── eventhandler/                # 事件处理器
+    ├── doc.go                   # 包文档（必需）
     ├── audit_log.go             # 审计日志处理器
     └── cache_invalidation.go    # 缓存失效处理器
 ```
 
-## EventBus 规范
+## EventBus 原则
 
-```go
-// eventbus/memory_bus.go - 实现 domain/event.EventBus 接口
-type InMemoryEventBus struct {
-    handlers map[string][]event.EventHandler
-    mu       sync.RWMutex
-}
-
-func NewInMemoryEventBus() *InMemoryEventBus
-
-// 发布事件（同步执行所有匹配的处理器）
-func (b *InMemoryEventBus) Publish(ctx context.Context, events ...event.Event) error
-
-// 订阅事件（支持通配符：user.* 或 *）
-func (b *InMemoryEventBus) Subscribe(eventName string, handler event.EventHandler)
-```
+- **接口实现**：实现 `domain/event.EventBus` 接口
+- **同步执行**：`Publish()` 同步执行所有匹配的处理器
+- **通配符订阅**：支持 `user.*`（前缀匹配）和 `*`（全部匹配）
 
 ### 通配符匹配规则
 
@@ -47,25 +37,11 @@ func (b *InMemoryEventBus) Subscribe(eventName string, handler event.EventHandle
 | `*`            | 所有事件                       |
 | `user.created` | 精确匹配                       |
 
-## EventHandler 规范
+## EventHandler 原则
 
-```go
-// eventhandler/xxx.go - 实现 domain/event.EventHandler 接口
-type AuditLogHandler struct {
-    auditLogRepo auditlog.CommandRepository
-    logger       *slog.Logger
-}
-
-func NewAuditLogHandler(auditLogRepo auditlog.CommandRepository) *AuditLogHandler
-
-// Handle 根据事件类型分发处理
-func (h *AuditLogHandler) Handle(ctx context.Context, e event.Event) error
-```
-
-## 错误处理原则
-
-- 审计日志写入失败**不应阻塞**业务流程
-- 缓存失效失败应**记录日志**但不返回错误
+- **接口实现**：实现 `domain/event.EventHandler` 接口
+- **错误隔离**：审计日志写入失败**不应阻塞**业务流程
+- **日志记录**：缓存失效失败应**记录日志**但不返回错误
 
 ## 依赖方向
 

@@ -13,6 +13,7 @@ paths:
 
 | 文件                          | 职责                       |
 | ----------------------------- | -------------------------- |
+| `doc.go`                      | 包文档（**必需**）         |
 | `auth_service_impl.go`        | 实现 `auth.Service` 接口   |
 | `jwt.go`                      | JWT 生成与验证             |
 | `token_generator.go`          | Token 生成器               |
@@ -20,21 +21,11 @@ paths:
 | `login_session.go`            | 登录会话管理               |
 | `permission_cache_service.go` | 权限缓存服务               |
 
-## Domain Service 实现
+## 设计原则
 
-```go
-// auth_service_impl.go - 实现 domain/auth.Service 接口
-type authService struct {
-    jwtManager *JWTManager
-}
-
-func NewAuthService(jwtManager *JWTManager) auth.Service {
-    return &authService{jwtManager: jwtManager}
-}
-
-func (s *authService) HashPassword(password string) (string, error) { ... }
-func (s *authService) VerifyPassword(hashedPassword, password string) error { ... }
-```
+- **接口实现**：`auth_service_impl.go` 必须实现 `domain/auth.Service` 接口
+- **依赖注入**：通过构造函数注入 `JWTManager` 等依赖
+- **密码安全**：使用 bcrypt 哈希，禁止明文存储
 
 ## 依赖方向
 

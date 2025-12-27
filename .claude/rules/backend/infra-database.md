@@ -11,13 +11,14 @@ paths:
 
 ## 文件结构
 
-| 文件                   | 职责           |
-| ---------------------- | -------------- |
-| `connection.go`        | 数据库连接配置 |
-| `migrator.go`          | 迁移执行器     |
-| `migration_manager.go` | 迁移版本管理   |
-| `seeder.go`            | 种子数据执行器 |
-| `slog_logger.go`       | GORM 日志适配  |
+| 文件                   | 职责                   |
+| ---------------------- | ---------------------- |
+| `doc.go`               | 包文档（**必需**）     |
+| `connection.go`        | 数据库连接配置         |
+| `migrator.go`          | 迁移执行器             |
+| `migration_manager.go` | 迁移版本管理（历史表） |
+| `seeder.go`            | 种子数据执行器         |
+| `slog_logger.go`       | GORM 日志适配          |
 
 ## Seeds 目录
 
@@ -28,29 +29,20 @@ paths:
 | `rbac_seeder.go`    | RBAC 种子数据 |
 | `setting_seeder.go` | 设置种子数据  |
 
-## 迁移规范
+## 迁移原则
 
-迁移文件位于 `migrations/` 子目录，使用时间戳命名：
+本项目采用 **GORM AutoMigrate** 自动迁移方案：
 
-```
-migrations/
-├── 20241201_create_users.go
-├── 20241202_create_roles.go
-└── 20241203_create_permissions.go
-```
+- 模型定义在 `infrastructure/persistence/*_model.go`
+- `Migrator` 调用 `db.AutoMigrate()` 执行迁移
+- `MigrationManager` 在 `migrations` 表中记录迁移历史
 
-## 种子数据规范
+**优势**：单一数据源（Model 即 Schema），无需维护独立迁移文件
 
-```go
-// seeds/xxx_seeder.go
-type XxxSeeder struct {
-    db *gorm.DB
-}
+**限制**：不支持复杂的自定义迁移脚本（如数据迁移）
 
-func NewXxxSeeder(db *gorm.DB) *XxxSeeder {
-    return &XxxSeeder{db: db}
-}
+## 种子数据原则
 
-func (s *XxxSeeder) Seed() error { ... }
-func (s *XxxSeeder) Name() string { return "xxx" }
-```
+- 每个 Seeder 实现 `Seed()` 和 `Name()` 方法
+- 通过 `registry.go` 统一注册
+- 支持幂等执行（重复运行不报错）

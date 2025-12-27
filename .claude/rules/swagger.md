@@ -8,16 +8,6 @@ paths: internal/adapters/http/handler/**
 >
 > 前端通过 `pnpm api:generate` 从 swagger.json 生成 TypeScript 客户端到 `src/generated/`
 
-<!--TOC-->
-
-## Table of Contents
-
-- [注解顺序](#注解顺序) `:21+19`
-- [关键规则](#关键规则) `:40+11`
-- [Query 参数 Swagger 注解](#query-参数-swagger-注解) `:51+23`
-
-<!--TOC-->
-
 ## 注解顺序
 
 ```go
