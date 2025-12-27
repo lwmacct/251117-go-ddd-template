@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { ref } from "vue";
-import { useTimeoutFn } from "@vueuse/core";
+import { useClipboard } from "@vueuse/core";
 
 interface Props {
   modelValue: boolean;
@@ -15,26 +14,10 @@ interface Emits {
 const props = defineProps<Props>();
 const emit = defineEmits<Emits>();
 
-const copied = ref(false);
+// 使用 VueUse useClipboard 管理剪贴板操作（自动管理 copied 状态）
+const { copy, copied } = useClipboard({ copiedDuring: 2000 });
 
-// 使用 useTimeoutFn 管理复制状态重置
-const { start: startResetTimer } = useTimeoutFn(
-  () => {
-    copied.value = false;
-  },
-  2000,
-  { immediate: false },
-);
-
-const copyToken = async () => {
-  try {
-    await navigator.clipboard.writeText(props.token);
-    copied.value = true;
-    startResetTimer();
-  } catch (error) {
-    console.error("Failed to copy token:", error);
-  }
-};
+const copyToken = () => copy(props.token);
 
 const closeDialog = () => {
   emit("update:modelValue", false);

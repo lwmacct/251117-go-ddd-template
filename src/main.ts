@@ -1,5 +1,6 @@
 import { createApp } from "vue";
 import { createPinia } from "pinia";
+import { useLocalStorage, usePreferredDark } from "@vueuse/core";
 
 import App from "./App.vue";
 import router from "./router";
@@ -14,16 +15,18 @@ import { aliases, mdi } from "vuetify/iconsets/mdi";
 
 const app = createApp(App);
 
+// 使用 VueUse 获取主题偏好
+const storedTheme = useLocalStorage<"light" | "dark" | "auto">("theme", "light");
+const prefersDark = usePreferredDark();
+
 // 获取默认主题，处理 'auto' 情况
-function getDefaultTheme(): string {
-  const storedTheme = localStorage.getItem("theme") || "light";
-  if (storedTheme === "auto") {
+function getDefaultTheme(): "light" | "dark" {
+  if (storedTheme.value === "auto") {
     // 如果是 'auto'，根据系统主题偏好选择
-    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-    return prefersDark ? "dark" : "light";
+    return prefersDark.value ? "dark" : "light";
   }
   // 确保只有 'light' 或 'dark'
-  return storedTheme === "dark" ? "dark" : "light";
+  return storedTheme.value === "dark" ? "dark" : "light";
 }
 
 // Vuetify 配置 - 组件和指令由 vite-plugin-vuetify 自动按需导入

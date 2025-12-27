@@ -3,7 +3,7 @@
  * 使用 VueUse useTransition 实现平滑的进度动画
  */
 import { ref, computed } from "vue";
-import { useTransition, TransitionPresets } from "@vueuse/core";
+import { useTransition, TransitionPresets, useIntervalFn, useTimeoutFn } from "@vueuse/core";
 
 // 全局单例状态（模块级别，确保整个应用共享同一个进度条）
 const isLoading = ref(false);
@@ -17,8 +17,31 @@ const progress = useTransition(targetProgress, {
   transition: TransitionPresets.easeOutCubic,
 });
 
-// 定时器引用（模块级别，避免多实例冲突）
-let timer: ReturnType<typeof setInterval> | null = null;
+// 使用 VueUse useIntervalFn 替代手动 setInterval
+// 每 200ms 递增 5-15%，到 90% 后自动暂停
+const { pause: stopInterval, resume: startInterval } = useIntervalFn(
+  () => {
+    if (targetProgress.value < 90) {
+      targetProgress.value += Math.random() * 10 + 5;
+    } else {
+      stopInterval();
+    }
+  },
+  200,
+  { immediate: false },
+);
+
+// 使用 VueUse useTimeoutFn 替代手动 setTimeout
+// 完成后延迟隐藏进度条
+const { start: scheduleHide } = useTimeoutFn(
+  () => {
+    isLoading.value = false;
+    targetProgress.value = 0;
+    color.value = "primary";
+  },
+  300,
+  { immediate: false },
+);
 
 /**
  * 路由加载进度条 Hook
@@ -26,31 +49,15 @@ let timer: ReturnType<typeof setInterval> | null = null;
  */
 export function useLoadingBar() {
   /**
-   * 停止进度递增
-   */
-  const stop = () => {
-    if (timer) {
-      clearInterval(timer);
-      timer = null;
-    }
-  };
-
-  /**
    * 开始加载
    * 启动进度条，模拟进度递增直到 90%
    */
   const start = () => {
-    stop();
+    stopInterval();
     isLoading.value = true;
     targetProgress.value = 0;
     color.value = "primary";
-
-    // 每 200ms 递增 5-15%，到 90% 后停止（等待真正完成）
-    timer = setInterval(() => {
-      if (targetProgress.value < 90) {
-        targetProgress.value += Math.random() * 10 + 5;
-      }
-    }, 200);
+    startInterval();
   };
 
   /**
@@ -58,14 +65,9 @@ export function useLoadingBar() {
    * 快速推进到 100%，延迟 300ms 后隐藏
    */
   const finish = () => {
-    stop();
+    stopInterval();
     targetProgress.value = 100;
-
-    // 延迟隐藏，让用户看到完成动画
-    setTimeout(() => {
-      isLoading.value = false;
-      targetProgress.value = 0;
-    }, 300);
+    scheduleHide();
   };
 
   /**
@@ -73,10 +75,10 @@ export function useLoadingBar() {
    * 显示红色错误状态，延迟 500ms 后隐藏
    */
   const fail = () => {
-    stop();
+    stopInterval();
     color.value = "error";
     targetProgress.value = 100;
-
+    // 失败时延迟 500ms（重新调度）
     setTimeout(() => {
       isLoading.value = false;
       targetProgress.value = 0;

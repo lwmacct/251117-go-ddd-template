@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, watch } from "vue";
+import { useDropZone, useFileDialog } from "@vueuse/core";
 
 /**
  * 头像上传组件
@@ -32,9 +33,8 @@ const emit = defineEmits<{
 }>();
 
 // 状态
-const isDragging = ref(false);
 const errorMessage = ref("");
-const fileInput = ref<HTMLInputElement | null>(null);
+const dropZoneRef = ref<HTMLElement>();
 
 // 支持的图片格式
 const ACCEPTED_TYPES = ["image/jpeg", "image/png", "image/gif", "image/webp"];
@@ -84,7 +84,7 @@ function readFileAsBase64(file: File): Promise<string> {
  * 处理文件
  */
 async function handleFile(file: File) {
-  if (!validateFile(file)) {
+  if (props.disabled || !validateFile(file)) {
     return;
   }
 
@@ -96,64 +96,25 @@ async function handleFile(file: File) {
   }
 }
 
+// 使用 VueUse 处理拖拽
+const { isOverDropZone } = useDropZone(dropZoneRef, {
+  onDrop: (files) => files?.[0] && handleFile(files[0]),
+});
+
+// 使用 VueUse 处理文件选择对话框
+const { open, onChange } = useFileDialog({
+  accept: ACCEPTED_EXTENSIONS,
+  multiple: false,
+});
+
+onChange((files) => files?.[0] && handleFile(files[0]));
+
 /**
  * 点击上传
  */
 function handleClick() {
-  if (props.disabled) return;
-  fileInput.value?.click();
-}
-
-/**
- * 文件选择
- */
-function handleFileChange(event: Event) {
-  const input = event.target as HTMLInputElement;
-  const file = input.files?.[0];
-  if (file) {
-    handleFile(file);
-  }
-  // 重置 input，允许选择相同文件
-  input.value = "";
-}
-
-/**
- * 拖拽进入
- */
-function handleDragEnter(event: DragEvent) {
-  event.preventDefault();
   if (!props.disabled) {
-    isDragging.value = true;
-  }
-}
-
-/**
- * 拖拽离开
- */
-function handleDragLeave(event: DragEvent) {
-  event.preventDefault();
-  isDragging.value = false;
-}
-
-/**
- * 拖拽悬停
- */
-function handleDragOver(event: DragEvent) {
-  event.preventDefault();
-}
-
-/**
- * 拖拽放下
- */
-function handleDrop(event: DragEvent) {
-  event.preventDefault();
-  isDragging.value = false;
-
-  if (props.disabled) return;
-
-  const file = event.dataTransfer?.files[0];
-  if (file) {
-    handleFile(file);
+    open();
   }
 }
 
@@ -178,18 +139,15 @@ watch(
   <div class="avatar-uploader">
     <!-- 上传区域 -->
     <div
+      ref="dropZoneRef"
       class="upload-area"
       :class="{
-        'is-dragging': isDragging,
+        'is-dragging': isOverDropZone,
         'has-avatar': hasAvatar,
         'is-disabled': disabled,
       }"
       :style="{ width: `${size}px`, height: `${size}px` }"
       @click="handleClick"
-      @dragenter="handleDragEnter"
-      @dragleave="handleDragLeave"
-      @dragover="handleDragOver"
-      @drop="handleDrop"
     >
       <!-- 已有头像 -->
       <template v-if="hasAvatar">
@@ -205,13 +163,10 @@ watch(
       <template v-else>
         <div class="placeholder">
           <v-icon size="32" color="grey">mdi-cloud-upload</v-icon>
-          <span class="text-caption text-grey mt-1">点击或拖拽上传</span>
+          <span class="text-caption text-medium-emphasis mt-1">点击或拖拽上传</span>
         </div>
       </template>
     </div>
-
-    <!-- 隐藏的文件输入 -->
-    <input ref="fileInput" type="file" :accept="ACCEPTED_EXTENSIONS" class="d-none" @change="handleFileChange" />
 
     <!-- 操作按钮 -->
     <div v-if="hasAvatar && !disabled" class="actions mt-2">
@@ -227,7 +182,7 @@ watch(
     </v-alert>
 
     <!-- 提示信息 -->
-    <div class="text-caption text-grey mt-1" style="max-width: 200px">支持 JPG、PNG、GIF，最大 {{ maxSize }}MB</div>
+    <div class="text-caption text-medium-emphasis mt-1" style="max-width: 200px">支持 JPG、PNG、GIF，最大 {{ maxSize }}MB</div>
   </div>
 </template>
 
@@ -240,7 +195,7 @@ watch(
 
 .upload-area {
   position: relative;
-  border: 2px dashed #ccc;
+  border: 2px dashed rgba(var(--v-theme-on-surface), 0.23);
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -251,12 +206,12 @@ watch(
 }
 
 .upload-area:hover:not(.is-disabled) {
-  border-color: #1976d2;
+  border-color: rgb(var(--v-theme-primary));
 }
 
 .upload-area.is-dragging {
-  border-color: #1976d2;
-  background-color: rgba(25, 118, 210, 0.1);
+  border-color: rgb(var(--v-theme-primary));
+  background-color: rgba(var(--v-theme-primary), 0.1);
 }
 
 .upload-area.has-avatar {
@@ -286,7 +241,7 @@ watch(
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgba(var(--v-theme-on-surface), 0.5);
   opacity: 0;
   transition: opacity 0.3s ease;
   border-radius: 50%;

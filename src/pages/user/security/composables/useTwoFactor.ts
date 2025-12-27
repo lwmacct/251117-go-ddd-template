@@ -1,5 +1,5 @@
 import { ref } from "vue";
-import { useTimeoutFn } from "@vueuse/core";
+import { useTimeoutFn, useClipboard } from "@vueuse/core";
 import { AuthAPI } from "@/api";
 
 /**
@@ -28,6 +28,9 @@ export function useTwoFactor() {
   // 消息状态
   const errorMessage = ref("");
   const successMessage = ref("");
+
+  // 使用 VueUse useClipboard 管理剪贴板操作
+  const { copy, isSupported: clipboardSupported } = useClipboard();
 
   // 使用 useTimeoutFn 管理成功消息自动消失
   const { start: startSuccessTimer } = useTimeoutFn(
@@ -166,13 +169,13 @@ export function useTwoFactor() {
    * 复制文本到剪贴板
    */
   async function copyToClipboard(text: string) {
-    try {
-      await navigator.clipboard.writeText(text);
-      successMessage.value = "已复制到剪贴板";
-      startSuccessTimer();
-    } catch {
-      errorMessage.value = "复制失败，请手动复制";
+    if (!clipboardSupported.value) {
+      errorMessage.value = "浏览器不支持剪贴板操作";
+      return;
     }
+    await copy(text);
+    successMessage.value = "已复制到剪贴板";
+    startSuccessTimer();
   }
 
   /**
