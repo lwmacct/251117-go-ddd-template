@@ -45,8 +45,8 @@ go install github.com/go-task/task/v3/cmd/task@latest
 # Air (热重载)
 go install github.com/air-verse/air@latest
 
-# golangci-lint (代码检查)
-go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+# golangci-lint v2 (代码检查，官方推荐二进制安装)
+curl -sSfL https://golangci-lint.run/install.sh | sh -s -- -b $(go env GOPATH)/bin latest
 
 # swag (Swagger 文档生成)
 go install github.com/swaggo/swag/cmd/swag@latest
