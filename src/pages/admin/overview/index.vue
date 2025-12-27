@@ -170,7 +170,7 @@ onMounted(() => {
                 </v-btn>
               </v-col>
               <v-col cols="12" md="3">
-                <v-btn block color="success" to="/admin/audit-logs" variant="tonal">
+                <v-btn block color="success" to="/admin/auditlogs" variant="tonal">
                   <v-icon start>mdi-file-document</v-icon>
                   审计日志
                 </v-btn>
