@@ -64,7 +64,7 @@ withDefaults(defineProps<Props>(), {
     <template v-else-if="type === 'table'">
       <div class="skeleton-table">
         <!-- 表头 -->
-        <div class="d-flex mb-4 pa-2 bg-grey-lighten-4 rounded">
+        <div class="d-flex mb-4 pa-2 bg-surface-variant rounded">
           <v-skeleton-loader
             v-for="col in tableCols"
             :key="`header-${col}`"

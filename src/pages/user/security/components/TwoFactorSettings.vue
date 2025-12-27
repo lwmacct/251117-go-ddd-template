@@ -248,7 +248,7 @@ onMounted(() => {
 .recovery-codes code {
   font-size: 14px;
   padding: 4px 8px;
-  background-color: #f5f5f5;
+  background-color: rgba(var(--v-theme-on-surface), 0.04);
   border-radius: 4px;
 }
 </style>

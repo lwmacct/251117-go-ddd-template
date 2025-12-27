@@ -299,31 +299,31 @@ const getStatusText = (status?: string) => {
         <v-card-text class="pt-4">
           <v-row dense>
             <v-col cols="6">
-              <div class="text-subtitle-2 text-grey-darken-1 mb-1">日志ID</div>
+              <div class="text-subtitle-2 text-medium-emphasis mb-1">日志ID</div>
               <div class="text-body-1">{{ selectedLog.id }}</div>
             </v-col>
 
             <v-col cols="6">
-              <div class="text-subtitle-2 text-grey-darken-1 mb-1">用户ID</div>
+              <div class="text-subtitle-2 text-medium-emphasis mb-1">用户ID</div>
               <div class="text-body-1">{{ selectedLog.user_id }}</div>
             </v-col>
 
             <v-col cols="6">
-              <div class="text-subtitle-2 text-grey-darken-1 mb-1">操作类型</div>
+              <div class="text-subtitle-2 text-medium-emphasis mb-1">操作类型</div>
               <div class="text-body-1">
                 <v-chip size="small" color="primary">{{ formatAction(selectedLog.action) }}</v-chip>
               </div>
             </v-col>
 
             <v-col cols="6">
-              <div class="text-subtitle-2 text-grey-darken-1 mb-1">资源类型</div>
+              <div class="text-subtitle-2 text-medium-emphasis mb-1">资源类型</div>
               <div class="text-body-1">
                 <v-chip size="small" color="info">{{ formatResource(selectedLog.resource) }}</v-chip>
               </div>
             </v-col>
 
             <v-col cols="6">
-              <div class="text-subtitle-2 text-grey-darken-1 mb-1">状态</div>
+              <div class="text-subtitle-2 text-medium-emphasis mb-1">状态</div>
               <div class="text-body-1">
                 <v-chip :color="getStatusColor(selectedLog.status)" size="small">
                   {{ getStatusText(selectedLog.status) }}
@@ -332,24 +332,24 @@ const getStatusText = (status?: string) => {
             </v-col>
 
             <v-col cols="6">
-              <div class="text-subtitle-2 text-grey-darken-1 mb-1">IP地址</div>
+              <div class="text-subtitle-2 text-medium-emphasis mb-1">IP地址</div>
               <div class="text-body-1">{{ selectedLog.ip_address || "-" }}</div>
             </v-col>
 
             <v-col cols="12">
-              <div class="text-subtitle-2 text-grey-darken-1 mb-1">UserUserWithRolesDTO Agent</div>
+              <div class="text-subtitle-2 text-medium-emphasis mb-1">UserUserWithRolesDTO Agent</div>
               <div class="text-body-2" style="word-break: break-all">{{ selectedLog.user_agent || "-" }}</div>
             </v-col>
 
             <v-col v-if="selectedLog.details" cols="12">
-              <div class="text-subtitle-2 text-grey-darken-1 mb-1">详细信息</div>
+              <div class="text-subtitle-2 text-medium-emphasis mb-1">详细信息</div>
               <v-card variant="outlined" class="pa-3">
                 <pre class="text-body-2" style="white-space: pre-wrap; word-break: break-word">{{ selectedLog.details }}</pre>
               </v-card>
             </v-col>
 
             <v-col cols="12">
-              <div class="text-subtitle-2 text-grey-darken-1 mb-1">创建时间</div>
+              <div class="text-subtitle-2 text-medium-emphasis mb-1">创建时间</div>
               <div class="text-body-1">{{ formatDate(selectedLog.created_at) }}</div>
             </v-col>
           </v-row>

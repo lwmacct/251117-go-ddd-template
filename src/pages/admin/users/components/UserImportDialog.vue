@@ -231,7 +231,7 @@ const backToUpload = () => {
           >
             <v-icon size="64" color="grey">mdi-file-upload-outline</v-icon>
             <div class="text-h6 mt-4">拖拽 CSV 文件到此处</div>
-            <div class="text-body-2 text-grey mt-2">或点击下方按钮选择文件</div>
+            <div class="text-body-2 text-medium-emphasis mt-2">或点击下方按钮选择文件</div>
 
             <input ref="fileInput" type="file" accept=".csv" hidden @change="handleFileSelect" />
 
@@ -254,7 +254,7 @@ const backToUpload = () => {
               <v-icon color="info" class="mr-3">mdi-information-outline</v-icon>
               <div class="flex-grow-1">
                 <div class="text-subtitle-2">CSV 格式要求</div>
-                <div class="text-body-2 text-grey">
+                <div class="text-body-2 text-medium-emphasis">
                   必需列: username, email, password<br />
                   可选列: full_name, status
                 </div>
@@ -274,19 +274,19 @@ const backToUpload = () => {
             <v-col cols="4">
               <v-card variant="outlined" class="pa-3 text-center">
                 <div class="text-h4">{{ totalRows }}</div>
-                <div class="text-body-2 text-grey">总记录数</div>
+                <div class="text-body-2 text-medium-emphasis">总记录数</div>
               </v-card>
             </v-col>
             <v-col cols="4">
               <v-card variant="outlined" class="pa-3 text-center">
                 <div class="text-h4 text-success">{{ validRows }}</div>
-                <div class="text-body-2 text-grey">有效记录</div>
+                <div class="text-body-2 text-medium-emphasis">有效记录</div>
               </v-card>
             </v-col>
             <v-col cols="4">
               <v-card variant="outlined" class="pa-3 text-center">
                 <div class="text-h4" :class="parseErrors.length > 0 ? 'text-error' : ''">{{ parseErrors.length }}</div>
-                <div class="text-body-2 text-grey">验证错误</div>
+                <div class="text-body-2 text-medium-emphasis">验证错误</div>
               </v-card>
             </v-col>
           </v-row>
@@ -309,7 +309,7 @@ const backToUpload = () => {
             class="elevation-1"
           >
             <template #item.password>
-              <span class="text-grey">••••••••</span>
+              <span class="text-medium-emphasis">••••••••</span>
             </template>
             <template #item.status="{ item }">
               <v-chip :color="item.status === 'active' ? 'success' : 'grey'" size="small">
@@ -335,7 +335,7 @@ const backToUpload = () => {
               <v-col cols="4">
                 <v-card variant="outlined" class="pa-3 text-center">
                   <div class="text-h4 text-success">{{ importResult?.success || 0 }}</div>
-                  <div class="text-body-2 text-grey">成功导入</div>
+                  <div class="text-body-2 text-medium-emphasis">成功导入</div>
                 </v-card>
               </v-col>
               <v-col cols="4">
@@ -343,7 +343,7 @@ const backToUpload = () => {
                   <div class="text-h4" :class="(importResult?.failed || 0) > 0 ? 'text-error' : ''">
                     {{ importResult?.failed || 0 }}
                   </div>
-                  <div class="text-body-2 text-grey">导入失败</div>
+                  <div class="text-body-2 text-medium-emphasis">导入失败</div>
                 </v-card>
               </v-col>
             </v-row>
@@ -396,15 +396,15 @@ const backToUpload = () => {
 
 <style scoped>
 .upload-zone {
-  border: 2px dashed #e0e0e0;
-  background-color: #fafafa;
+  border: 2px dashed rgba(var(--v-theme-on-surface), 0.23);
+  background-color: rgba(var(--v-theme-on-surface), 0.02);
   transition: all 0.3s ease;
   cursor: pointer;
 }
 
 .upload-zone:hover,
 .upload-zone.dragging {
-  border-color: #1976d2;
-  background-color: #e3f2fd;
+  border-color: rgb(var(--v-theme-primary));
+  background-color: rgba(var(--v-theme-primary), 0.08);
 }
 </style>

@@ -97,7 +97,7 @@ watch(dialogVisible, (isOpen, wasOpen) => {
       </v-avatar>
       <div>
         <div class="text-h6">{{ user.full_name || user.username }}</div>
-        <div class="text-body-2 text-grey">{{ user.bio || "这个人很懒，什么都没写" }}</div>
+        <div class="text-body-2 text-medium-emphasis">{{ user.bio || "这个人很懒，什么都没写" }}</div>
       </div>
     </div>
 

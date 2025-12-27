@@ -26,7 +26,7 @@ internal/
 
 **依赖方向**: `Adapters → Application → Domain ← Infrastructure`
 
-> 详细规范见 `.claude/rules/ddd-*.md`，编辑对应目录时自动加载。
+> 详细规范见 `.claude/rules/backend/` 和 `.claude/rules/frontend/`，编辑对应目录时自动加载。
 
 ## 关键文件
 
