@@ -1,17 +1,20 @@
 ---
 paths:
-  - "internal/infrastructure/**/*.go"
+  - "internal/infrastructure/persistence/**/*.go"
 ---
 
-# Infrastructure 层规范
+# Persistence 层规范
 
 ## 核心职责
 
-实现 Domain 层定义的接口，处理技术细节（数据库、缓存、外部 API）。
+实现 Domain 层定义的 Repository 接口，处理**数据库持久化**（GORM）。
+
+**注意**：非数据库存储（如内存缓存、聚合查询）应放在独立的 infrastructure 模块中：
+
+- 内存存储 → `infrastructure/captcha/`
+- 聚合查询 → `infrastructure/stats/`
 
 ## 文件命名规范
-
-### persistence 目录
 
 | 文件类型     | 命名规范                       | 示例                           |
 | ------------ | ------------------------------ | ------------------------------ |
@@ -20,7 +23,7 @@ paths:
 | 读仓储实现   | `{模块}_query_repository.go`   | `user_query_repository.go`     |
 | 仓储聚合     | `{模块}_repositories.go`       | `user_repositories.go`（可选） |
 
-### 多实体模块
+## 多实体模块
 
 当 Domain 模块包含多个实体时，Infrastructure 层对应扩展：
 
@@ -32,14 +35,6 @@ paths:
 | 仓储聚合   | `{模块}_repositories.go`       | `{实体名}_repositories.go`       |
 
 **命名一致性原则**：Infrastructure Model/Repository 文件名应与 Domain 实体名保持一致。
-
-### 其他目录
-
-| 目录        | 文件类型            | 命名规范        |
-| ----------- | ------------------- | --------------- |
-| `auth/`     | Domain Service 实现 | `service.go`    |
-| `config/`   | 配置管理            | `config.go`     |
-| `database/` | 数据库初始化/迁移   | `migrations.go` |
 
 ## 持久化 Model 规范
 
@@ -102,22 +97,6 @@ func NewXxxRepositories(db *gorm.DB) XxxRepositories {
 }
 ```
 
-## Domain Service 实现
-
-```go
-// auth/service.go - 实现 domain/auth.Service 接口
-type authService struct {
-    jwtManager *JWTManager
-}
-
-func NewAuthService(jwtManager *JWTManager) auth.Service {
-    return &authService{jwtManager: jwtManager}
-}
-
-func (s *authService) HashPassword(password string) (string, error) { ... }
-func (s *authService) VerifyPassword(hashedPassword, password string) error { ... }
-```
-
 ## 目录结构示例
 
 ### 单实体模块
@@ -142,16 +121,4 @@ internal/infrastructure/persistence/
 ├── user_setting_command_repository.go   # UserSetting 写仓储实现
 ├── user_setting_query_repository.go     # UserSetting 读仓储实现
 └── user_setting_repositories.go         # UserSetting 仓储聚合
-```
-
-### 其他目录
-
-```
-internal/infrastructure/
-├── auth/
-│   └── service.go                    # 认证服务实现
-├── config/
-│   └── config.go                     # 配置管理
-└── database/
-    └── migrations.go                 # 数据库迁移
 ```
