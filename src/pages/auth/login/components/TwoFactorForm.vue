@@ -185,9 +185,9 @@ function goBack() {
 /* 移动端样式 */
 @media (max-width: 960px) {
   .two-factor-card {
-    background: #ffffff;
+    background: rgb(var(--v-theme-surface));
     border-radius: 12px;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 2px 12px rgba(var(--v-theme-on-surface), 0.08);
   }
 }
 </style>

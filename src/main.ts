@@ -46,6 +46,7 @@ const vuetify = createVuetify({
           error: "#CF6679",
           success: "#4CAF50",
           warning: "#FF9800",
+          "surface-light": "#2d2d2d",
         },
       },
       light: {
@@ -56,6 +57,7 @@ const vuetify = createVuetify({
           error: "#B00020",
           success: "#4CAF50",
           warning: "#FB8C00",
+          "surface-light": "#f5f5f5",
         },
       },
     },

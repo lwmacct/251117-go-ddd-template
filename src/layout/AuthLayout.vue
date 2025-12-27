@@ -5,11 +5,28 @@
  * 为 login 和 register 提供统一的左右分屏布局：
  * - 左侧：表单区（通过 router-view 渲染子路由）
  * - 右侧：品牌区（固定不变）
+ *
+ * 支持主题切换，与主应用共享 localStorage 主题设置
  */
+import { useThemeToggle } from "@/composables/useThemeToggle";
+
+const { isDark, themeIcon, toggleTheme } = useThemeToggle();
 </script>
 
 <template>
   <div class="auth-page">
+    <!-- 主题切换按钮 (浮动右上角) -->
+    <v-btn
+      icon
+      variant="text"
+      size="small"
+      class="theme-toggle-btn"
+      :title="isDark ? '切换到亮色模式' : '切换到暗色模式'"
+      @click="toggleTheme"
+    >
+      <v-icon :icon="themeIcon" />
+    </v-btn>
+
     <!-- 左侧表单区 -->
     <div class="form-panel">
       <div class="form-container">
@@ -63,19 +80,35 @@
   display: flex;
   min-height: 100vh;
   width: 100%;
-  background: #f5f5f5;
+  background: rgb(var(--v-theme-surface-light));
+  position: relative;
+  transition: background-color 0.3s ease;
+}
+
+/* 主题切换按钮 */
+.theme-toggle-btn {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 100;
+  color: rgba(var(--v-theme-on-surface), 0.7);
+}
+
+.theme-toggle-btn:hover {
+  color: rgb(var(--v-theme-primary));
 }
 
 /* 左侧表单区 - 40% */
 .form-panel {
   flex: 4;
-  background: #ffffff;
+  background: rgb(var(--v-theme-surface));
   display: flex;
   justify-content: center;
   align-items: center;
   padding: 40px 48px;
   min-width: 400px;
-  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.05);
+  box-shadow: 2px 0 8px rgba(var(--v-theme-on-surface), 0.05);
+  transition: background-color 0.3s ease;
 }
 
 .form-container {
@@ -86,13 +119,14 @@
 /* 右侧品牌区 - 60% */
 .brand-panel {
   flex: 6;
-  background: #f5f5f5;
+  background: rgb(var(--v-theme-surface-light));
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   padding: 40px;
   position: relative;
+  transition: background-color 0.3s ease;
 }
 
 .brand-content {
@@ -108,15 +142,17 @@
   font-size: 2rem;
   font-weight: 600;
   margin-bottom: 12px;
-  color: #333;
+  color: rgba(var(--v-theme-on-surface), 0.87);
   letter-spacing: -0.5px;
+  transition: color 0.3s ease;
 }
 
 .brand-subtitle {
   font-size: 1rem;
-  color: #666;
+  color: rgba(var(--v-theme-on-surface), 0.6);
   margin-bottom: 48px;
   line-height: 1.6;
+  transition: color 0.3s ease;
 }
 
 .brand-features {
@@ -130,7 +166,8 @@
   display: flex;
   align-items: center;
   font-size: 0.95rem;
-  color: #555;
+  color: rgba(var(--v-theme-on-surface), 0.7);
+  transition: color 0.3s ease;
 }
 
 .brand-footer {
@@ -139,8 +176,9 @@
   left: 0;
   right: 0;
   text-align: center;
-  color: #999;
+  color: rgba(var(--v-theme-on-surface), 0.38);
   font-size: 0.85rem;
+  transition: color 0.3s ease;
 }
 
 /* 过渡动画 */
@@ -170,6 +208,12 @@
   .form-container {
     max-width: 400px;
     margin: 0 auto;
+  }
+
+  /* 移动端主题按钮保持可见 */
+  .theme-toggle-btn {
+    top: 12px;
+    right: 12px;
   }
 }
 </style>

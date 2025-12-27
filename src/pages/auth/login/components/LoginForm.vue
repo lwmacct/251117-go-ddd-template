@@ -154,13 +154,13 @@ onMounted(() => {
   width: 140px;
   height: 56px;
   min-width: 140px;
-  border: 1px solid #e0e0e0;
+  border: 1px solid rgba(var(--v-theme-on-surface), 0.23);
   border-radius: 4px;
   overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #f5f5f5;
+  background-color: rgba(var(--v-theme-on-surface), 0.04);
   transition: all 0.3s ease;
   cursor: pointer;
   flex-shrink: 0;
@@ -174,20 +174,20 @@ onMounted(() => {
 }
 
 .captcha-image:hover {
-  border-color: #1976d2;
-  box-shadow: 0 2px 4px rgba(25, 118, 210, 0.2);
+  border-color: rgb(var(--v-theme-primary));
+  box-shadow: 0 2px 4px rgba(var(--v-theme-primary), 0.2);
 }
 
 .captcha-loading {
   width: 140px;
   height: 56px;
   min-width: 140px;
-  border: 1px dashed #e0e0e0;
+  border: 1px dashed rgba(var(--v-theme-on-surface), 0.23);
   border-radius: 4px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #fafafa;
+  background-color: rgba(var(--v-theme-on-surface), 0.02);
   flex-shrink: 0;
 }
 
@@ -209,9 +209,9 @@ onMounted(() => {
 /* 移动端样式 */
 @media (max-width: 960px) {
   .login-card {
-    background: #ffffff;
+    background: rgb(var(--v-theme-surface));
     border-radius: 12px;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 2px 12px rgba(var(--v-theme-on-surface), 0.08);
   }
 }
 </style>
