@@ -1,14 +1,15 @@
 package setting
 
-import (
-	"encoding/json"
-	"strconv"
-	"strings"
-	"time"
-)
+import "time"
 
-// Setting 系统配置实体。
-// 采用 Key-Value 模式存储配置项，支持分类、类型标注和 UI 元数据。
+// Setting 配置定义实体。
+// 存储配置项的 Schema 和默认值，支持分类、类型标注和 UI 元数据。
+//
+// DefaultValue 字段（JSONB）直接存储原生 JSON 值：
+//   - 字符串: "My Site"
+//   - 数值: 30
+//   - 布尔值: true
+//   - JSON 对象/数组: {"key": "value"} 或 [1, 2, 3]
 //
 // UIConfig 字段（JSONB）统一存储前端渲染所需的 UI 配置：
 //   - input_type: 控件类型（text, switch, select 等）
@@ -17,21 +18,21 @@ import (
 //   - validation: JSON Logic 验证规则
 //   - depends_on: 依赖关系配置
 type Setting struct {
-	ID        uint   `json:"id"`
-	Key       string `json:"key"`
-	Value     string `json:"value"`
-	Category  string `json:"category"`
-	Group     string `json:"group"` // Category 内子分组
-	ValueType string `json:"value_type"`
-	Label     string `json:"label"`
-	UIConfig  string `json:"ui_config"` // JSONB: 统一的 UI 配置
-	Order     int    `json:"order"`     // 排序权重（小的在前）
+	ID           uint   // 唯一标识
+	Key          string // 配置键，唯一约束
+	DefaultValue any    // 默认值（JSONB 原生值）
+	Category     string // 分类：general, security, notification, backup
+	Group        string // 分类内子分组：basic, locale, appearance 等
+	ValueType    string // 值类型：string, number, boolean, json（用于 UI 提示）
+	Label        string // 显示标签
+	UIConfig     string // UI 配置（JSONB 字符串）
+	Order        int    // 排序权重（小的在前）
 
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }
 
-// IsValidValueType 检查 ValueType 是否有效
+// IsValidValueType 检查 ValueType 是否有效。
 func (s *Setting) IsValidValueType() bool {
 	switch s.ValueType {
 	case ValueTypeString, ValueTypeNumber, ValueTypeBoolean, ValueTypeJSON:
@@ -41,7 +42,7 @@ func (s *Setting) IsValidValueType() bool {
 	}
 }
 
-// IsValidCategory 检查 Category 是否有效
+// IsValidCategory 检查 Category 是否有效。
 func (s *Setting) IsValidCategory() bool {
 	switch s.Category {
 	case CategoryGeneral, CategorySecurity, CategoryNotification, CategoryBackup:
@@ -49,89 +50,6 @@ func (s *Setting) IsValidCategory() bool {
 	default:
 		return false
 	}
-}
-
-// ParseBool 将 Value 解析为布尔值
-func (s *Setting) ParseBool() (bool, error) {
-	if s.ValueType != ValueTypeBoolean {
-		return false, ErrValueTypeMismatch
-	}
-	lower := strings.ToLower(s.Value)
-	switch lower {
-	case "true", "1", "yes", "on":
-		return true, nil
-	case "false", "0", "no", "off":
-		return false, nil
-	default:
-		return false, ErrInvalidBoolValue
-	}
-}
-
-// ParseInt 将 Value 解析为整数
-func (s *Setting) ParseInt() (int, error) {
-	if s.ValueType != ValueTypeNumber {
-		return 0, ErrValueTypeMismatch
-	}
-	val, err := strconv.Atoi(s.Value)
-	if err != nil {
-		return 0, ErrInvalidNumberValue
-	}
-	return val, nil
-}
-
-// ParseFloat 将 Value 解析为浮点数
-func (s *Setting) ParseFloat() (float64, error) {
-	if s.ValueType != ValueTypeNumber {
-		return 0, ErrValueTypeMismatch
-	}
-	val, err := strconv.ParseFloat(s.Value, 64)
-	if err != nil {
-		return 0, ErrInvalidNumberValue
-	}
-	return val, nil
-}
-
-// ParseJSON 将 Value 解析为 JSON 对象
-func (s *Setting) ParseJSON(v any) error {
-	if s.ValueType != ValueTypeJSON {
-		return ErrValueTypeMismatch
-	}
-	if err := json.Unmarshal([]byte(s.Value), v); err != nil {
-		return ErrInvalidJSONValue
-	}
-	return nil
-}
-
-// SetBool 设置布尔值
-func (s *Setting) SetBool(val bool) {
-	s.ValueType = ValueTypeBoolean
-	if val {
-		s.Value = "true"
-	} else {
-		s.Value = "false"
-	}
-}
-
-// SetInt 设置整数值
-func (s *Setting) SetInt(val int) {
-	s.ValueType = ValueTypeNumber
-	s.Value = strconv.Itoa(val)
-}
-
-// SetJSON 设置 JSON 值
-func (s *Setting) SetJSON(v any) error {
-	data, err := json.Marshal(v)
-	if err != nil {
-		return err
-	}
-	s.ValueType = ValueTypeJSON
-	s.Value = string(data)
-	return nil
-}
-
-// IsEmpty 检查值是否为空
-func (s *Setting) IsEmpty() bool {
-	return s.Value == ""
 }
 
 // 配置分类常量。

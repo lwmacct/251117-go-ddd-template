@@ -9,26 +9,59 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-// settingCommandRepository 配置命令仓储的 GORM 实现
-// 嵌入 GenericCommandRepository 以复用基础 CRUD 操作
+// settingCommandRepository 配置定义命令仓储的 GORM 实现
 type settingCommandRepository struct {
-	*GenericCommandRepository[setting.Setting, *SettingModel]
+	db *gorm.DB
 }
 
-// NewSettingCommandRepository 创建配置命令仓储实例
+// NewSettingCommandRepository 创建配置定义命令仓储实例
 func NewSettingCommandRepository(db *gorm.DB) setting.CommandRepository {
-	return &settingCommandRepository{
-		GenericCommandRepository: NewGenericCommandRepository(
-			db, newSettingModelFromEntity,
-		),
-	}
+	return &settingCommandRepository{db: db}
 }
 
-// Create、Update、Delete 方法由 GenericCommandRepository 提供
+// Create 创建配置定义
+func (r *settingCommandRepository) Create(ctx context.Context, s *setting.Setting) error {
+	model := newSettingModelFromEntity(s)
+	if err := r.db.WithContext(ctx).Create(model).Error; err != nil {
+		return fmt.Errorf("failed to create setting definition: %w", err)
+	}
 
-// BatchUpsert 批量插入或更新配置
+	// 回写生成的 ID
+	if entity := model.ToEntity(); entity != nil {
+		*s = *entity
+	}
+
+	return nil
+}
+
+// Update 更新配置定义
+func (r *settingCommandRepository) Update(ctx context.Context, s *setting.Setting) error {
+	model := newSettingModelFromEntity(s)
+	if err := r.db.WithContext(ctx).Save(model).Error; err != nil {
+		return fmt.Errorf("failed to update setting definition: %w", err)
+	}
+
+	if entity := model.ToEntity(); entity != nil {
+		*s = *entity
+	}
+
+	return nil
+}
+
+// Delete 删除配置定义
+func (r *settingCommandRepository) Delete(ctx context.Context, key string) error {
+	if err := r.db.WithContext(ctx).Where("key = ?", key).Delete(&SettingModel{}).Error; err != nil {
+		return fmt.Errorf("failed to delete setting definition: %w", err)
+	}
+	return nil
+}
+
+// BatchUpsert 批量插入或更新配置定义
 func (r *settingCommandRepository) BatchUpsert(ctx context.Context, settings []*setting.Setting) error {
-	// 使用 GORM 的 Clauses 实现 Upsert (ON CONFLICT DO UPDATE)
+	if len(settings) == 0 {
+		return nil
+	}
+
 	models := make([]*SettingModel, 0, len(settings))
 	for _, s := range settings {
 		if model := newSettingModelFromEntity(s); model != nil {
@@ -36,13 +69,17 @@ func (r *settingCommandRepository) BatchUpsert(ctx context.Context, settings []*
 		}
 	}
 
-	if err := r.DB().WithContext(ctx).Clauses(clause.OnConflict{
-		Columns:   []clause.Column{{Name: "key"}},
-		DoUpdates: clause.AssignmentColumns([]string{"value", "updated_at"}),
+	if err := r.db.WithContext(ctx).Clauses(clause.OnConflict{
+		Columns: []clause.Column{{Name: "key"}},
+		DoUpdates: clause.AssignmentColumns([]string{
+			"default_value", "category", "group", "value_type",
+			"label", "ui_config", "order", "updated_at",
+		}),
 	}).Create(models).Error; err != nil {
-		return fmt.Errorf("failed to batch upsert settings: %w", err)
+		return fmt.Errorf("failed to batch upsert setting definitions: %w", err)
 	}
 
+	// 回写生成的 ID
 	for i := range models {
 		if entity := models[i].ToEntity(); entity != nil {
 			*settings[i] = *entity

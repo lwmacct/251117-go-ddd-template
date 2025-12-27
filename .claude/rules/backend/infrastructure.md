@@ -5,22 +5,6 @@ paths:
 
 # Infrastructure 层规范
 
-<!--TOC-->
-
-## Table of Contents
-
-- [核心职责](#核心职责) `:24+4`
-- [文件命名规范](#文件命名规范) `:28+19`
-  - [persistence 目录](#persistence-目录) `:30+9`
-  - [其他目录](#其他目录) `:39+8`
-- [持久化 Model 规范](#持久化-model-规范) `:47+21`
-- [Repository 实现规范](#repository-实现规范) `:68+23`
-- [仓储聚合（可选）](#仓储聚合可选) `:91+17`
-- [Domain Service 实现](#domain-service-实现) `:108+16`
-- [目录结构示例](#目录结构示例) `:124+16`
-
-<!--TOC-->
-
 ## 核心职责
 
 实现 Domain 层定义的接口，处理技术细节（数据库、缓存、外部 API）。
@@ -35,6 +19,19 @@ paths:
 | 写仓储实现   | `{模块}_command_repository.go` | `user_command_repository.go`   |
 | 读仓储实现   | `{模块}_query_repository.go`   | `user_query_repository.go`     |
 | 仓储聚合     | `{模块}_repositories.go`       | `user_repositories.go`（可选） |
+
+### 多实体模块
+
+当 Domain 模块包含多个实体时，Infrastructure 层对应扩展：
+
+| 文件类型   | 主实体                         | 次要实体                         |
+| ---------- | ------------------------------ | -------------------------------- |
+| Model      | `{模块}_model.go`              | `{实体名}_model.go`              |
+| 写仓储实现 | `{模块}_command_repository.go` | `{实体名}_command_repository.go` |
+| 读仓储实现 | `{模块}_query_repository.go`   | `{实体名}_query_repository.go`   |
+| 仓储聚合   | `{模块}_repositories.go`       | `{实体名}_repositories.go`       |
+
+**命名一致性原则**：Infrastructure Model/Repository 文件名应与 Domain 实体名保持一致。
 
 ### 其他目录
 
@@ -123,13 +120,34 @@ func (s *authService) VerifyPassword(hashedPassword, password string) error { ..
 
 ## 目录结构示例
 
+### 单实体模块
+
+```
+internal/infrastructure/persistence/
+├── user_model.go                 # GORM Model + 映射函数
+├── user_command_repository.go    # 写仓储实现
+├── user_query_repository.go      # 读仓储实现
+└── user_repositories.go          # 仓储聚合（可选）
+```
+
+### 多实体模块
+
+```
+internal/infrastructure/persistence/
+├── setting_model.go                     # Setting Model
+├── setting_command_repository.go        # Setting 写仓储实现
+├── setting_query_repository.go          # Setting 读仓储实现
+├── setting_repositories.go              # Setting 仓储聚合
+├── user_setting_model.go                # UserSetting Model
+├── user_setting_command_repository.go   # UserSetting 写仓储实现
+├── user_setting_query_repository.go     # UserSetting 读仓储实现
+└── user_setting_repositories.go         # UserSetting 仓储聚合
+```
+
+### 其他目录
+
 ```
 internal/infrastructure/
-├── persistence/
-│   ├── user_model.go                 # GORM Model + 映射函数
-│   ├── user_command_repository.go    # 写仓储实现
-│   ├── user_query_repository.go      # 读仓储实现
-│   └── user_repositories.go          # 仓储聚合（可选）
 ├── auth/
 │   └── service.go                    # 认证服务实现
 ├── config/

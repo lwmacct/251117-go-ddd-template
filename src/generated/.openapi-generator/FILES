@@ -15,6 +15,7 @@ api/system-api.ts
 api/user-api.ts
 api/user-personal-access-token-api.ts
 api/user-profile-api.ts
+api/user-settings-api.ts
 base.ts
 common.ts
 configuration.ts
@@ -37,9 +38,11 @@ models/captcha-generate-result-dto.ts
 models/github-com-lwmacct251117-go-ddd-template-internal-application-health-health-report.ts
 models/github-com-lwmacct251117-go-ddd-template-internal-domain-health-check-result.ts
 models/github-com-lwmacct251117-go-ddd-template-internal-domain-health-status.ts
-models/handler-batch-update-settings-request-settings-inner.ts
+models/handler-batch-set-user-settings-request-settings-inner.ts
+models/handler-batch-set-user-settings-request.ts
 models/handler-batch-update-settings-request.ts
 models/handler-create-setting-request.ts
+models/handler-set-user-setting-request.ts
 models/handler-update-profile-request.ts
 models/handler-update-setting-request.ts
 models/index.ts
@@ -55,6 +58,8 @@ models/response-data-response-array-menu-menu-dto.ts
 models/response-data-response-array-pat-token-dto.ts
 models/response-data-response-array-setting-schema-category-dto.ts
 models/response-data-response-array-setting-setting-dto.ts
+models/response-data-response-array-setting-user-schema-category-dto.ts
+models/response-data-response-array-setting-user-setting-dto.ts
 models/response-data-response-auditlog-audit-log-dto.ts
 models/response-data-response-auth-login-response-dto.ts
 models/response-data-response-auth-register-result-dto.ts
@@ -70,6 +75,7 @@ models/response-data-response-pat-token-dto.ts
 models/response-data-response-role-create-result-dto.ts
 models/response-data-response-role-role-dto.ts
 models/response-data-response-setting-setting-dto.ts
+models/response-data-response-setting-user-setting-dto.ts
 models/response-data-response-stats-stats-dto.ts
 models/response-data-response-twofa-enable-dto.ts
 models/response-data-response-twofa-setup-dto.ts
@@ -97,6 +103,10 @@ models/setting-schema-setting-dto.ts
 models/setting-select-option-dto.ts
 models/setting-setting-dto.ts
 models/setting-uiconfig-dto.ts
+models/setting-user-schema-category-dto.ts
+models/setting-user-schema-group-dto.ts
+models/setting-user-schema-setting-dto.ts
+models/setting-user-setting-dto.ts
 models/stats-audit-log-summary-dto.ts
 models/stats-stats-dto.ts
 models/twofa-enable-dto.ts

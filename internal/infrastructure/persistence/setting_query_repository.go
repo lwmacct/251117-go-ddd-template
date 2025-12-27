@@ -9,30 +9,17 @@ import (
 	"gorm.io/gorm"
 )
 
-// settingQueryRepository 配置查询仓储的 GORM 实现
+// settingQueryRepository 配置定义查询仓储的 GORM 实现
 type settingQueryRepository struct {
 	db *gorm.DB
 }
 
-// NewSettingQueryRepository 创建配置查询仓储实例
+// NewSettingQueryRepository 创建配置定义查询仓储实例
 func NewSettingQueryRepository(db *gorm.DB) setting.QueryRepository {
 	return &settingQueryRepository{db: db}
 }
 
-// FindByID 根据 ID 查找配置
-func (r *settingQueryRepository) FindByID(ctx context.Context, id uint) (*setting.Setting, error) {
-	var model SettingModel
-	err := r.db.WithContext(ctx).First(&model, id).Error
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, nil //nolint:nilnil // returns nil for not found, valid pattern
-		}
-		return nil, fmt.Errorf("failed to find setting by ID: %w", err)
-	}
-	return model.ToEntity(), nil
-}
-
-// FindByKey 根据 Key 查找配置
+// FindByKey 根据 Key 查找配置定义
 func (r *settingQueryRepository) FindByKey(ctx context.Context, key string) (*setting.Setting, error) {
 	var model SettingModel
 	err := r.db.WithContext(ctx).Where("key = ?", key).First(&model).Error
@@ -40,12 +27,12 @@ func (r *settingQueryRepository) FindByKey(ctx context.Context, key string) (*se
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, nil //nolint:nilnil // returns nil for not found, valid pattern
 		}
-		return nil, fmt.Errorf("failed to find setting by key: %w", err)
+		return nil, fmt.Errorf("failed to find setting definition by key: %w", err)
 	}
 	return model.ToEntity(), nil
 }
 
-// FindByKeys 根据多个 Key 批量查找配置
+// FindByKeys 根据多个 Key 批量查找配置定义
 func (r *settingQueryRepository) FindByKeys(ctx context.Context, keys []string) ([]*setting.Setting, error) {
 	if len(keys) == 0 {
 		return []*setting.Setting{}, nil
@@ -53,27 +40,42 @@ func (r *settingQueryRepository) FindByKeys(ctx context.Context, keys []string) 
 	var models []SettingModel
 	err := r.db.WithContext(ctx).Where("key IN ?", keys).Find(&models).Error
 	if err != nil {
-		return nil, fmt.Errorf("failed to find settings by keys: %w", err)
+		return nil, fmt.Errorf("failed to find setting definitions by keys: %w", err)
 	}
 	return mapSettingModelsToEntities(models), nil
 }
 
-// FindByCategory 根据分类查找配置列表
+// FindByCategory 根据分类查找配置定义列表
 func (r *settingQueryRepository) FindByCategory(ctx context.Context, category string) ([]*setting.Setting, error) {
 	var models []SettingModel
-	err := r.db.WithContext(ctx).Where("category = ?", category).Order("key ASC").Find(&models).Error
+	err := r.db.WithContext(ctx).
+		Where("category = ?", category).
+		Order(`"group" ASC, "order" ASC, key ASC`).
+		Find(&models).Error
 	if err != nil {
-		return nil, fmt.Errorf("failed to find settings by category: %w", err)
+		return nil, fmt.Errorf("failed to find setting definitions by category: %w", err)
 	}
 	return mapSettingModelsToEntities(models), nil
 }
 
-// FindAll 查找所有配置
+// FindAll 查找所有配置定义
 func (r *settingQueryRepository) FindAll(ctx context.Context) ([]*setting.Setting, error) {
 	var models []SettingModel
-	err := r.db.WithContext(ctx).Order("category ASC, key ASC").Find(&models).Error
+	err := r.db.WithContext(ctx).
+		Order(`category ASC, "group" ASC, "order" ASC, key ASC`).
+		Find(&models).Error
 	if err != nil {
-		return nil, fmt.Errorf("failed to find all settings: %w", err)
+		return nil, fmt.Errorf("failed to find all setting definitions: %w", err)
 	}
 	return mapSettingModelsToEntities(models), nil
+}
+
+// ExistsByKey 检查 Key 是否已存在
+func (r *settingQueryRepository) ExistsByKey(ctx context.Context, key string) (bool, error) {
+	var count int64
+	err := r.db.WithContext(ctx).Model(&SettingModel{}).Where("key = ?", key).Count(&count).Error
+	if err != nil {
+		return false, fmt.Errorf("failed to check setting definition existence: %w", err)
+	}
+	return count > 0, nil
 }

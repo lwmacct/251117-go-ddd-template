@@ -86,6 +86,17 @@ func newHandlersModule(cfg *config.Config, infra *InfrastructureModule, useCases
 		useCases.Setting.ListSchema,
 	)
 
+	// UserSetting Handler（用户配置）
+	m.UserSetting = handler.NewUserSettingHandler(
+		useCases.UserSetting.Set,
+		useCases.UserSetting.BatchSet,
+		useCases.UserSetting.Reset,
+		useCases.UserSetting.ResetAll,
+		useCases.UserSetting.Get,
+		useCases.UserSetting.List,
+		useCases.UserSetting.ListSchema,
+	)
+
 	// PAT Handler
 	m.PAT = handler.NewPATHandler(
 		useCases.PAT.Create,

@@ -2,20 +2,20 @@ package setting
 
 import "context"
 
-// QueryRepository 定义配置读操作接口
+// QueryRepository 配置定义读操作接口。
 type QueryRepository interface {
-	// FindByID 根据 ID 查找配置
-	FindByID(ctx context.Context, id uint) (*Setting, error)
-
-	// FindByKey 根据 Key 查找配置
+	// FindByKey 根据 Key 查找配置定义
 	FindByKey(ctx context.Context, key string) (*Setting, error)
 
-	// FindByKeys 根据多个 Key 批量查找配置
+	// FindByKeys 根据多个 Key 批量查找配置定义
 	FindByKeys(ctx context.Context, keys []string) ([]*Setting, error)
 
-	// FindByCategory 根据分类查找配置列表
+	// FindByCategory 根据分类查找配置定义列表
 	FindByCategory(ctx context.Context, category string) ([]*Setting, error)
 
-	// FindAll 查找所有配置
+	// FindAll 查找所有配置定义
 	FindAll(ctx context.Context) ([]*Setting, error)
+
+	// ExistsByKey 检查 Key 是否已存在
+	ExistsByKey(ctx context.Context, key string) (bool, error)
 }

@@ -8,31 +8,31 @@ import (
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/setting"
 )
 
-// CreateHandler 创建设置命令处理器
+// CreateHandler 创建配置命令处理器
 type CreateHandler struct {
-	settingCommandRepo setting.CommandRepository
-	settingQueryRepo   setting.QueryRepository
+	commandRepo setting.CommandRepository
+	queryRepo   setting.QueryRepository
 }
 
 // NewCreateHandler 创建 CreateHandler 实例
 func NewCreateHandler(
-	settingCommandRepo setting.CommandRepository,
-	settingQueryRepo setting.QueryRepository,
+	commandRepo setting.CommandRepository,
+	queryRepo setting.QueryRepository,
 ) *CreateHandler {
 	return &CreateHandler{
-		settingCommandRepo: settingCommandRepo,
-		settingQueryRepo:   settingQueryRepo,
+		commandRepo: commandRepo,
+		queryRepo:   queryRepo,
 	}
 }
 
-// Handle 处理创建设置命令
+// Handle 处理创建配置命令
 func (h *CreateHandler) Handle(ctx context.Context, cmd CreateCommand) (*CreateResultDTO, error) {
 	// 1. 验证 Key 是否已存在
-	existing, err := h.settingQueryRepo.FindByKey(ctx, cmd.Key)
+	exists, err := h.queryRepo.ExistsByKey(ctx, cmd.Key)
 	if err != nil {
 		return nil, fmt.Errorf("failed to check existing setting: %w", err)
 	}
-	if existing != nil {
+	if exists {
 		return nil, errors.New("setting key already exists")
 	}
 
@@ -42,21 +42,24 @@ func (h *CreateHandler) Handle(ctx context.Context, cmd CreateCommand) (*CreateR
 		valueType = setting.ValueTypeString
 	}
 
-	// 3. 创建设置实体
-	settingEntity := &setting.Setting{
-		Key:       cmd.Key,
-		Value:     cmd.Value,
-		Category:  cmd.Category,
-		ValueType: valueType,
-		Label:     cmd.Label,
+	// 3. 创建配置定义实体
+	s := &setting.Setting{
+		Key:          cmd.Key,
+		DefaultValue: cmd.DefaultValue,
+		Category:     cmd.Category,
+		Group:        cmd.Group,
+		ValueType:    valueType,
+		Label:        cmd.Label,
+		UIConfig:     cmd.UIConfig,
+		Order:        cmd.Order,
 	}
 
-	// 4. 保存设置
-	if err := h.settingCommandRepo.Create(ctx, settingEntity); err != nil {
+	// 4. 保存配置定义
+	if err := h.commandRepo.Create(ctx, s); err != nil {
 		return nil, fmt.Errorf("failed to create setting: %w", err)
 	}
 
 	return &CreateResultDTO{
-		ID: settingEntity.ID,
+		ID: s.ID,
 	}, nil
 }

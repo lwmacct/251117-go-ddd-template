@@ -115,22 +115,23 @@ export function useSettings() {
   // 获取单个设置的值
   const getSetting = <T = string>(key: string, defaultValue: T): T => {
     const setting = settings.value.find((s) => s.key === key);
-    if (!setting || setting.value === undefined) return defaultValue;
+    if (!setting || setting.default_value === undefined) return defaultValue;
 
-    // 根据值类型解析
+    // 根据值类型解析（default_value 是 JSONB，可能是任意类型）
+    const value = setting.default_value as unknown;
     switch (setting.value_type) {
       case "boolean":
-        return (setting.value === "true") as T;
+        return (value === true || value === "true") as T;
       case "number":
-        return Number(setting.value) as T;
+        return Number(value) as T;
       case "json":
         try {
-          return JSON.parse(setting.value) as T;
+          return (typeof value === "string" ? JSON.parse(value) : value) as T;
         } catch {
           return defaultValue;
         }
       default:
-        return setting.value as T;
+        return value as T;
     }
   };
 
@@ -157,12 +158,12 @@ export function useSettings() {
   };
 
   // 更新单个设置
-  const updateSetting = async (key: string, value: string): Promise<boolean> => {
+  const updateSetting = async (key: string, value: object): Promise<boolean> => {
     saving.value = true;
     errorMessage.value = "";
 
     try {
-      const data: HandlerUpdateSettingRequest = { value };
+      const data: HandlerUpdateSettingRequest = { default_value: value };
       const response = await adminSettingsApi.apiAdminSettingsKeyPut(key, data);
       const updated = extractData<SettingSettingDTO>(response.data);
       const index = settings.value.findIndex((s) => s.key === key);
@@ -181,10 +182,9 @@ export function useSettings() {
   };
 
   // 静默更新单个设置（用于开关等即时生效的控件，不显示成功提示）
-  const updateSettingQuietly = async (key: string, value: string | number | boolean): Promise<boolean> => {
+  const updateSettingQuietly = async (key: string, value: object): Promise<boolean> => {
     try {
-      const stringValue = String(value);
-      const data: HandlerUpdateSettingRequest = { value: stringValue };
+      const data: HandlerUpdateSettingRequest = { default_value: value };
       const response = await adminSettingsApi.apiAdminSettingsKeyPut(key, data);
       const updated = extractData<SettingSettingDTO>(response.data);
       const index = settings.value.findIndex((s) => s.key === key);
@@ -200,18 +200,16 @@ export function useSettings() {
   };
 
   // 批量更新设置
-  const batchUpdateSettings = async (
-    updates: { key: string; value: string | number | boolean | object }[],
-  ): Promise<boolean> => {
+  const batchUpdateSettings = async (updates: { key: string; value: object }[]): Promise<boolean> => {
     saving.value = true;
     errorMessage.value = "";
     successMessage.value = "";
 
     try {
-      // 构建批量更新请求，将值转换为字符串
+      // 构建批量更新请求
       const settingsData = updates.map((u) => ({
         key: u.key,
-        value: typeof u.value === "object" ? JSON.stringify(u.value) : String(u.value),
+        value: u.value,
       }));
 
       const data: HandlerBatchUpdateSettingsRequest = { settings: settingsData };
@@ -222,7 +220,7 @@ export function useSettings() {
         const index = settings.value.findIndex((s) => s.key === update.key);
         const current = index !== -1 ? settings.value[index] : undefined;
         if (current) {
-          current.value = typeof update.value === "object" ? JSON.stringify(update.value) : String(update.value);
+          current.default_value = update.value;
         }
       });
 

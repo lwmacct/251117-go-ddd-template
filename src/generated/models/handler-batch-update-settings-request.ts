@@ -15,7 +15,7 @@
 
 // May contain unused imports in some cases
 // @ts-ignore
-import type { HandlerBatchUpdateSettingsRequestSettingsInner } from './handler-batch-update-settings-request-settings-inner';
+import type { HandlerBatchSetUserSettingsRequestSettingsInner } from './handler-batch-set-user-settings-request-settings-inner';
 
 /**
  * 
@@ -25,9 +25,9 @@ import type { HandlerBatchUpdateSettingsRequestSettingsInner } from './handler-b
 export interface HandlerBatchUpdateSettingsRequest {
     /**
      * 至少需要一个设置项
-     * @type {Array<HandlerBatchUpdateSettingsRequestSettingsInner>}
+     * @type {Array<HandlerBatchSetUserSettingsRequestSettingsInner>}
      * @memberof HandlerBatchUpdateSettingsRequest
      */
-    'settings': Array<HandlerBatchUpdateSettingsRequestSettingsInner>;
+    'settings': Array<HandlerBatchSetUserSettingsRequestSettingsInner>;
 }
 

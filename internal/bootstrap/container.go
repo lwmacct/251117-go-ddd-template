@@ -119,5 +119,6 @@ func GetAllModels() []any {
 		&persistence.TwoFAModel{},
 		&persistence.MenuModel{},
 		&persistence.SettingModel{},
+		&persistence.UserSettingModel{},
 	}
 }

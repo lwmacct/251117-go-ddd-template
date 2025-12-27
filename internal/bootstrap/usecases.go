@@ -17,17 +17,18 @@ import (
 // UseCasesModule 用例模块
 // 聚合所有 Application 层的 Use Case Handlers
 type UseCasesModule struct {
-	Auth     *AuthUseCases
-	User     *UserUseCases
-	Role     *RoleUseCases
-	Menu     *MenuUseCases
-	Setting  *SettingUseCases
-	PAT      *PATUseCases
-	AuditLog *AuditLogUseCases
-	Stats    *StatsUseCases
-	Captcha  *CaptchaUseCases
-	TwoFA    *TwoFAUseCases
-	Cache    *CacheUseCases
+	Auth        *AuthUseCases
+	User        *UserUseCases
+	Role        *RoleUseCases
+	Menu        *MenuUseCases
+	Setting     *SettingUseCases
+	UserSetting *UserSettingUseCases
+	PAT         *PATUseCases
+	AuditLog    *AuditLogUseCases
+	Stats       *StatsUseCases
+	Captcha     *CaptchaUseCases
+	TwoFA       *TwoFAUseCases
+	Cache       *CacheUseCases
 }
 
 // AuthUseCases 认证相关用例
@@ -92,6 +93,20 @@ type SettingUseCases struct {
 	Get        *setting.GetHandler
 	List       *setting.ListHandler
 	ListSchema *setting.ListSchemaHandler
+}
+
+// UserSettingUseCases 用户配置用例
+type UserSettingUseCases struct {
+	// Commands
+	Set      *setting.UserSetHandler
+	BatchSet *setting.UserBatchSetHandler
+	Reset    *setting.UserResetHandler
+	ResetAll *setting.UserResetAllHandler
+
+	// Queries
+	Get        *setting.UserGetHandler
+	List       *setting.UserListHandler
+	ListSchema *setting.UserListSchemaHandler
 }
 
 // PATUseCases 个人访问令牌用例

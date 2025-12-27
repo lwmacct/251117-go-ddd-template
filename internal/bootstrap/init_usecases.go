@@ -28,17 +28,18 @@ func newUseCasesModule(cfg *config.Config, infra *InfrastructureModule, repos *R
 	auditLogUseCases := newAuditLogUseCases(repos)
 
 	return &UseCasesModule{
-		Auth:     newAuthUseCases(repos, services, auditLogUseCases.CreateLog),
-		User:     newUserUseCases(repos, services, eventBus),
-		Role:     newRoleUseCases(repos, eventBus),
-		Menu:     newMenuUseCases(repos),
-		Setting:  newSettingUseCases(repos),
-		PAT:      newPATUseCases(repos, services),
-		AuditLog: auditLogUseCases,
-		Stats:    newStatsUseCases(repos),
-		Captcha:  newCaptchaUseCases(repos, services),
-		TwoFA:    newTwoFAUseCases(services),
-		Cache:    newCacheUseCases(infra, cfg),
+		Auth:        newAuthUseCases(repos, services, auditLogUseCases.CreateLog),
+		User:        newUserUseCases(repos, services, eventBus),
+		Role:        newRoleUseCases(repos, eventBus),
+		Menu:        newMenuUseCases(repos),
+		Setting:     newSettingUseCases(repos),
+		UserSetting: newUserSettingUseCases(repos),
+		PAT:         newPATUseCases(repos, services),
+		AuditLog:    auditLogUseCases,
+		Stats:       newStatsUseCases(repos),
+		Captcha:     newCaptchaUseCases(repos, services),
+		TwoFA:       newTwoFAUseCases(services),
+		Cache:       newCacheUseCases(infra, cfg),
 	}
 }
 
@@ -104,6 +105,22 @@ func newSettingUseCases(repos *RepositoriesModule) *SettingUseCases {
 		Get:         setting.NewGetHandler(repos.Setting.Query),
 		List:        setting.NewListHandler(repos.Setting.Query),
 		ListSchema:  setting.NewListSchemaHandler(repos.Setting.Query),
+	}
+}
+
+// newUserSettingUseCases 初始化用户配置用例
+func newUserSettingUseCases(repos *RepositoriesModule) *UserSettingUseCases {
+	// 创建 JSON Logic 验证器
+	validator := validation.NewJSONLogicValidator()
+
+	return &UserSettingUseCases{
+		Set:        setting.NewUserSetHandler(repos.Setting.Query, repos.UserSetting.Command, validator),
+		BatchSet:   setting.NewUserBatchSetHandler(repos.Setting.Query, repos.UserSetting.Command, validator),
+		Reset:      setting.NewUserResetHandler(repos.UserSetting.Command),
+		ResetAll:   setting.NewUserResetAllHandler(repos.UserSetting.Command),
+		Get:        setting.NewUserGetHandler(repos.Setting.Query, repos.UserSetting.Query),
+		List:       setting.NewUserListHandler(repos.Setting.Query, repos.UserSetting.Query),
+		ListSchema: setting.NewUserListSchemaHandler(repos.Setting.Query, repos.UserSetting.Query),
 	}
 }
 

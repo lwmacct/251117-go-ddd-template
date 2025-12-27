@@ -24,6 +24,18 @@ import type { SettingUIConfigDTO } from './setting-uiconfig-dto';
  */
 export interface SettingSchemaSettingDTO {
     /**
+     * 系统默认值
+     * @type {object}
+     * @memberof SettingSchemaSettingDTO
+     */
+    'default_value'?: object;
+    /**
+     * 始终为 false（系统配置）
+     * @type {boolean}
+     * @memberof SettingSchemaSettingDTO
+     */
+    'is_customized'?: boolean;
+    /**
      * 
      * @type {string}
      * @memberof SettingSchemaSettingDTO
@@ -48,11 +60,11 @@ export interface SettingSchemaSettingDTO {
      */
     'ui_config'?: SettingUIConfigDTO;
     /**
-     * 
-     * @type {string}
+     * 默认值
+     * @type {object}
      * @memberof SettingSchemaSettingDTO
      */
-    'value'?: string;
+    'value'?: object;
     /**
      * 
      * @type {string}

@@ -36,6 +36,12 @@ export interface SettingSettingDTO {
      */
     'created_at'?: string;
     /**
+     * JSONB 原生值
+     * @type {object}
+     * @memberof SettingSettingDTO
+     */
+    'default_value'?: object;
+    /**
      * 
      * @type {string}
      * @memberof SettingSettingDTO
@@ -77,12 +83,6 @@ export interface SettingSettingDTO {
      * @memberof SettingSettingDTO
      */
     'updated_at'?: string;
-    /**
-     * 
-     * @type {string}
-     * @memberof SettingSettingDTO
-     */
-    'value'?: string;
     /**
      * 
      * @type {string}

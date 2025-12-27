@@ -9,49 +9,46 @@ import (
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/setting"
 )
 
-// UpdateHandler 更新设置命令处理器
+// UpdateHandler 更新配置命令处理器
 type UpdateHandler struct {
-	settingCommandRepo setting.CommandRepository
-	settingQueryRepo   setting.QueryRepository
-	validator          setting.Validator
+	commandRepo setting.CommandRepository
+	queryRepo   setting.QueryRepository
+	validator   setting.Validator
 }
 
 // NewUpdateHandler 创建 UpdateHandler 实例
 func NewUpdateHandler(
-	settingCommandRepo setting.CommandRepository,
-	settingQueryRepo setting.QueryRepository,
+	commandRepo setting.CommandRepository,
+	queryRepo setting.QueryRepository,
 	validator setting.Validator,
 ) *UpdateHandler {
 	return &UpdateHandler{
-		settingCommandRepo: settingCommandRepo,
-		settingQueryRepo:   settingQueryRepo,
-		validator:          validator,
+		commandRepo: commandRepo,
+		queryRepo:   queryRepo,
+		validator:   validator,
 	}
 }
 
-// Handle 处理更新设置命令
+// Handle 处理更新配置命令
 func (h *UpdateHandler) Handle(ctx context.Context, cmd UpdateCommand) (*SettingDTO, error) {
-	// 1. 查询设置
-	settingEntity, err := h.settingQueryRepo.FindByKey(ctx, cmd.Key)
+	// 1. 查询配置定义
+	def, err := h.queryRepo.FindByKey(ctx, cmd.Key)
 	if err != nil {
 		return nil, fmt.Errorf("failed to find setting: %w", err)
 	}
-	if settingEntity == nil {
+	if def == nil {
 		return nil, errors.New("setting not found")
 	}
 
 	// 2. 执行验证（如果有验证器和验证规则）
-	validationRule := extractValidationFromUIConfig(settingEntity.UIConfig)
+	validationRule := extractValidationFromUIConfig(def.UIConfig)
 	if h.validator != nil && validationRule != "" {
 		// 获取所有设置用于跨字段验证
 		allSettings, _ := h.getAllSettingsMap(ctx)
 
-		// 转换值类型
-		value := parseValueForValidation(cmd.Value, settingEntity.ValueType)
-
 		vctx := &setting.ValidationContext{
 			Key:         cmd.Key,
-			Value:       value,
+			Value:       cmd.DefaultValue, // 直接使用 any 类型，无需转换
 			Rule:        validationRule,
 			AllSettings: allSettings,
 		}
@@ -66,32 +63,35 @@ func (h *UpdateHandler) Handle(ctx context.Context, cmd UpdateCommand) (*Setting
 	}
 
 	// 3. 更新字段
-	settingEntity.Value = cmd.Value
-	if cmd.ValueType != "" {
-		settingEntity.ValueType = cmd.ValueType
-	}
+	def.DefaultValue = cmd.DefaultValue
 	if cmd.Label != "" {
-		settingEntity.Label = cmd.Label
+		def.Label = cmd.Label
+	}
+	if cmd.UIConfig != "" {
+		def.UIConfig = cmd.UIConfig
+	}
+	if cmd.Order != 0 {
+		def.Order = cmd.Order
 	}
 
 	// 4. 保存更新
-	if err := h.settingCommandRepo.Update(ctx, settingEntity); err != nil {
+	if err := h.commandRepo.Update(ctx, def); err != nil {
 		return nil, fmt.Errorf("failed to update setting: %w", err)
 	}
 
-	return ToSettingDTO(settingEntity), nil
+	return ToSettingDTO(def), nil
 }
 
-// getAllSettingsMap 获取所有设置的 key -> value 映射
+// getAllSettingsMap 获取所有配置的 key -> value 映射
 func (h *UpdateHandler) getAllSettingsMap(ctx context.Context) (map[string]any, error) {
-	settings, err := h.settingQueryRepo.FindAll(ctx)
+	defs, err := h.queryRepo.FindAll(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	result := make(map[string]any, len(settings))
-	for _, s := range settings {
-		result[s.Key] = parseValueForValidation(s.Value, s.ValueType)
+	result := make(map[string]any, len(defs))
+	for _, d := range defs {
+		result[d.Key] = d.DefaultValue // 直接使用 any 类型
 	}
 	return result, nil
 }

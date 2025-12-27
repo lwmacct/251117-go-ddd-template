@@ -17,20 +17,14 @@
 /**
  * 
  * @export
- * @interface HandlerBatchUpdateSettingsRequestSettingsInner
+ * @interface HandlerSetUserSettingRequest
  */
-export interface HandlerBatchUpdateSettingsRequestSettingsInner {
+export interface HandlerSetUserSettingRequest {
     /**
-     * 
-     * @type {string}
-     * @memberof HandlerBatchUpdateSettingsRequestSettingsInner
+     * JSONB 原生值
+     * @type {object}
+     * @memberof HandlerSetUserSettingRequest
      */
-    'key': string;
-    /**
-     * 允许空字符串
-     * @type {string}
-     * @memberof HandlerBatchUpdateSettingsRequestSettingsInner
-     */
-    'value'?: string;
+    'value'?: object;
 }
 

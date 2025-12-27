@@ -5,13 +5,13 @@ import (
 	"gorm.io/gorm"
 )
 
-// SettingRepositories 聚合系统配置读写仓储
+// SettingRepositories 聚合配置定义读写仓储
 type SettingRepositories struct {
 	Command setting.CommandRepository
 	Query   setting.QueryRepository
 }
 
-// NewSettingRepositories 创建配置仓储聚合实例
+// NewSettingRepositories 创建配置定义仓储聚合实例
 func NewSettingRepositories(db *gorm.DB) SettingRepositories {
 	return SettingRepositories{
 		Command: NewSettingCommandRepository(db),

@@ -217,6 +217,23 @@ definitions:
     - StatusHealthy
     - StatusUnhealthy
     - StatusDegraded
+  handler.BatchSetUserSettingsRequest:
+    properties:
+      settings:
+        items:
+          properties:
+            key:
+              type: string
+            value:
+              description: JSONB 原生值
+          required:
+          - key
+          type: object
+        minItems: 1
+        type: array
+    required:
+    - settings
+    type: object
   handler.BatchUpdateSettingsRequest:
     properties:
       settings:
@@ -226,8 +243,7 @@ definitions:
             key:
               type: string
             value:
-              description: 允许空字符串
-              type: string
+              description: JSONB 原生值
           required:
           - key
           type: object
@@ -241,22 +257,34 @@ definitions:
       category:
         example: general
         type: string
+      default_value: {}
+      group:
+        example: basic
+        type: string
       key:
         example: site_name
         type: string
       label:
         example: 网站名称
         type: string
-      value:
-        example: My Website
+      order:
+        example: 0
+        type: integer
+      ui_config:
+        example: '{}'
         type: string
       value_type:
         example: string
         type: string
     required:
     - category
+    - default_value
     - key
-    - value
+    type: object
+  handler.SetUserSettingRequest:
+    properties:
+      value:
+        description: JSONB 原生值
     type: object
   handler.UpdateProfileRequest:
     properties:
@@ -274,14 +302,13 @@ definitions:
     type: object
   handler.UpdateSettingRequest:
     properties:
+      default_value: {}
       label:
         example: 更新后的标签
         type: string
-      value:
-        description: 允许空字符串
-        type: string
-      value_type:
-        example: string
+      order:
+        type: integer
+      ui_config:
         type: string
     type: object
   menu.CreateDTO:
@@ -491,6 +518,38 @@ definitions:
         description: 响应数据
         items:
           $ref: '#/definitions/setting.SettingDTO'
+        type: array
+      error:
+        description: 错误详情（仅失败时）
+      message:
+        description: 消息描述
+        type: string
+    type: object
+  response.DataResponse-array_setting_UserSchemaCategoryDTO:
+    properties:
+      code:
+        description: HTTP 状态码
+        type: integer
+      data:
+        description: 响应数据
+        items:
+          $ref: '#/definitions/setting.UserSchemaCategoryDTO'
+        type: array
+      error:
+        description: 错误详情（仅失败时）
+      message:
+        description: 消息描述
+        type: string
+    type: object
+  response.DataResponse-array_setting_UserSettingDTO:
+    properties:
+      code:
+        description: HTTP 状态码
+        type: integer
+      data:
+        description: 响应数据
+        items:
+          $ref: '#/definitions/setting.UserSettingDTO'
         type: array
       error:
         description: 错误详情（仅失败时）
@@ -716,6 +775,21 @@ definitions:
       data:
         allOf:
         - $ref: '#/definitions/setting.SettingDTO'
+        description: 响应数据
+      error:
+        description: 错误详情（仅失败时）
+      message:
+        description: 消息描述
+        type: string
+    type: object
+  response.DataResponse-setting_UserSettingDTO:
+    properties:
+      code:
+        description: HTTP 状态码
+        type: integer
+      data:
+        allOf:
+        - $ref: '#/definitions/setting.UserSettingDTO'
         description: 响应数据
       error:
         description: 错误详情（仅失败时）
@@ -1053,6 +1127,11 @@ definitions:
     type: object
   setting.SchemaSettingDTO:
     properties:
+      default_value:
+        description: 系统默认值
+      is_customized:
+        description: 始终为 false（系统配置）
+        type: boolean
       key:
         type: string
       label:
@@ -1062,7 +1141,7 @@ definitions:
       ui_config:
         $ref: '#/definitions/setting.UIConfigDTO'
       value:
-        type: string
+        description: 默认值
       value_type:
         type: string
     type: object
@@ -1079,6 +1158,8 @@ definitions:
         type: string
       created_at:
         type: string
+      default_value:
+        description: JSONB 原生值
       group:
         type: string
       id:
@@ -1092,8 +1173,6 @@ definitions:
       ui_config:
         $ref: '#/definitions/setting.UIConfigDTO'
       updated_at:
-        type: string
-      value:
         type: string
       value_type:
         type: string
@@ -1117,6 +1196,74 @@ definitions:
         type: array
       validation:
         description: JSON Logic 验证规则
+    type: object
+  setting.UserSchemaCategoryDTO:
+    properties:
+      category:
+        type: string
+      groups:
+        items:
+          $ref: '#/definitions/setting.UserSchemaGroupDTO'
+        type: array
+      icon:
+        type: string
+      label:
+        type: string
+    type: object
+  setting.UserSchemaGroupDTO:
+    properties:
+      group:
+        type: string
+      label:
+        type: string
+      settings:
+        items:
+          $ref: '#/definitions/setting.UserSchemaSettingDTO'
+        type: array
+    type: object
+  setting.UserSchemaSettingDTO:
+    properties:
+      default_value:
+        description: 系统默认值
+      is_customized:
+        description: 是否用户自定义
+        type: boolean
+      key:
+        type: string
+      label:
+        type: string
+      order:
+        type: integer
+      ui_config:
+        $ref: '#/definitions/setting.UIConfigDTO'
+      value:
+        description: 实际生效值
+      value_type:
+        type: string
+    type: object
+  setting.UserSettingDTO:
+    properties:
+      category:
+        type: string
+      default_value:
+        description: 系统默认值
+      group:
+        type: string
+      is_customized:
+        description: 是否为用户自定义
+        type: boolean
+      key:
+        type: string
+      label:
+        type: string
+      order:
+        type: integer
+      ui_config:
+        $ref: '#/definitions/setting.UIConfigDTO'
+      value:
+        description: 实际生效值（用户值或默认值）
+      value_type:
+        type: string
     type: object
   stats.AuditLogSummaryDTO:
     properties:
@@ -3150,6 +3297,212 @@ paths:
       - 用户 - 个人资料 (User - Profile)
       x-permission:
         scope: user:profile:update
+  /api/user/settings:
+    get:
+      consumes:
+      - application/json
+      description: 获取当前用户的所有配置（合并系统默认值）
+      parameters:
+      - description: 配置类别
+        in: query
+        name: category
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 配置列表
+          schema:
+            $ref: '#/definitions/response.DataResponse-array_setting_UserSettingDTO'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 获取用户配置列表
+      tags:
+      - 用户 - 个人配置 (User - Settings)
+      x-permission:
+        scope: user:settings:read
+  /api/user/settings/{key}:
+    delete:
+      consumes:
+      - application/json
+      description: 删除用户自定义配置，恢复为系统默认值
+      parameters:
+      - description: 配置键
+        in: path
+        name: key
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: 重置成功
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 重置用户配置
+      tags:
+      - 用户 - 个人配置 (User - Settings)
+      x-permission:
+        scope: user:settings:update
+    get:
+      consumes:
+      - application/json
+      description: 根据配置键获取用户配置（合并系统默认值）
+      parameters:
+      - description: 配置键
+        in: path
+        name: key
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 配置详情
+          schema:
+            $ref: '#/definitions/response.DataResponse-setting_UserSettingDTO'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: 配置不存在
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 获取单个用户配置
+      tags:
+      - 用户 - 个人配置 (User - Settings)
+      x-permission:
+        scope: user:settings:read
+    put:
+      consumes:
+      - application/json
+      description: 用户设置自定义配置值
+      parameters:
+      - description: 配置键
+        in: path
+        name: key
+        required: true
+        type: string
+      - description: 配置值
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handler.SetUserSettingRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 设置成功
+          schema:
+            $ref: '#/definitions/response.DataResponse-setting_UserSettingDTO'
+        "400":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: 配置不存在
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 设置用户配置
+      tags:
+      - 用户 - 个人配置 (User - Settings)
+      x-permission:
+        scope: user:settings:update
+  /api/user/settings/batch:
+    post:
+      consumes:
+      - application/json
+      description: 用户批量设置多个自定义配置值
+      parameters:
+      - description: 配置列表
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handler.BatchSetUserSettingsRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 批量设置成功
+          schema:
+            $ref: '#/definitions/response.MessageResponse'
+        "400":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 批量设置用户配置
+      tags:
+      - 用户 - 个人配置 (User - Settings)
+      x-permission:
+        scope: user:settings:update
+  /api/user/settings/schema:
+    get:
+      consumes:
+      - application/json
+      description: 获取按 Category → Group → Settings 层级组织的配置数据，包含用户自定义值
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 配置 Schema
+          schema:
+            $ref: '#/definitions/response.DataResponse-array_setting_UserSchemaCategoryDTO'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 获取用户配置 Schema
+      tags:
+      - 用户 - 个人配置 (User - Settings)
+      x-permission:
+        scope: user:settings:read
   /api/user/tokens:
     get:
       consumes:

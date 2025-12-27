@@ -89,6 +89,7 @@ type RouterDependencies struct {
 	RoleHandler        *handler.RoleHandler
 	MenuHandler        *handler.MenuHandler
 	SettingHandler     *handler.SettingHandler
+	UserSettingHandler *handler.UserSettingHandler
 	PATHandler         *handler.PATHandler
 	AuditLogHandler    *handler.AuditLogHandler
 	AdminUserHandler   *handler.AdminUserHandler
@@ -251,6 +252,14 @@ func setupAPIRoutes(r *gin.Engine, deps *RouterDependencies) {
 		userGroup.DELETE("/tokens/:id", middleware.RequirePermission("user:tokens:delete"), deps.PATHandler.DeleteToken)
 		userGroup.PATCH("/tokens/:id/disable", middleware.RequirePermission("user:tokens:disable"), deps.PATHandler.DisableToken)
 		userGroup.PATCH("/tokens/:id/enable", middleware.RequirePermission("user:tokens:enable"), deps.PATHandler.EnableToken)
+
+		// 用户配置管理
+		userGroup.GET("/settings", middleware.RequirePermission("user:settings:read"), deps.UserSettingHandler.GetUserSettings)
+		userGroup.GET("/settings/schema", middleware.RequirePermission("user:settings:read"), deps.UserSettingHandler.GetUserSettingsSchema)
+		userGroup.GET("/settings/:key", middleware.RequirePermission("user:settings:read"), deps.UserSettingHandler.GetUserSetting)
+		userGroup.PUT("/settings/:key", middleware.RequirePermission("user:settings:update"), deps.UserSettingHandler.SetUserSetting)
+		userGroup.DELETE("/settings/:key", middleware.RequirePermission("user:settings:update"), deps.UserSettingHandler.ResetUserSetting)
+		userGroup.POST("/settings/batch", middleware.RequirePermission("user:settings:update"), deps.UserSettingHandler.BatchSetUserSettings)
 	}
 
 	// 缓存操作示例 (公开，仅用于演示)

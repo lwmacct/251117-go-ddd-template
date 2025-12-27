@@ -14,14 +14,15 @@ func newRepositoriesModule(db *gorm.DB) *RepositoriesModule {
 
 	return &RepositoriesModule{
 		// CQRS 仓储（数据库实现）
-		User:       persistence.NewUserRepositories(db),
-		AuditLog:   persistence.NewAuditLogRepositories(db),
-		Role:       persistence.NewRoleRepositories(db),
-		Permission: persistence.NewPermissionRepositories(db),
-		PAT:        persistence.NewPATRepositories(db),
-		Menu:       persistence.NewMenuRepositories(db),
-		Setting:    persistence.NewSettingRepositories(db),
-		TwoFA:      persistence.NewTwoFARepositories(db),
+		User:        persistence.NewUserRepositories(db),
+		AuditLog:    persistence.NewAuditLogRepositories(db),
+		Role:        persistence.NewRoleRepositories(db),
+		Permission:  persistence.NewPermissionRepositories(db),
+		PAT:         persistence.NewPATRepositories(db),
+		Menu:        persistence.NewMenuRepositories(db),
+		Setting:     persistence.NewSettingRepositories(db),
+		UserSetting: persistence.NewUserSettingRepositories(db),
+		TwoFA:       persistence.NewTwoFARepositories(db),
 
 		// 特殊仓储（内存实现）
 		CaptchaCommand: captchaRepo,

@@ -22,21 +22,27 @@
 export interface HandlerUpdateSettingRequest {
     /**
      * 
-     * @type {string}
+     * @type {object}
      * @memberof HandlerUpdateSettingRequest
      */
-    'label'?: string;
-    /**
-     * 允许空字符串
-     * @type {string}
-     * @memberof HandlerUpdateSettingRequest
-     */
-    'value'?: string;
+    'default_value'?: object;
     /**
      * 
      * @type {string}
      * @memberof HandlerUpdateSettingRequest
      */
-    'value_type'?: string;
+    'label'?: string;
+    /**
+     * 
+     * @type {number}
+     * @memberof HandlerUpdateSettingRequest
+     */
+    'order'?: number;
+    /**
+     * 
+     * @type {string}
+     * @memberof HandlerUpdateSettingRequest
+     */
+    'ui_config'?: string;
 }
 

@@ -22,6 +22,8 @@ func NewListSchemaHandler(settingQueryRepo setting.QueryRepository) *ListSchemaH
 
 // Handle 处理获取设置 Schema 查询
 // 返回按 Category → Group → Settings 层级组织的精简数据
+//
+
 func (h *ListSchemaHandler) Handle(ctx context.Context, _ ListSchemaQuery) ([]SchemaCategoryDTO, error) {
 	settings, err := h.settingQueryRepo.FindAll(ctx)
 	if err != nil {
@@ -32,6 +34,8 @@ func (h *ListSchemaHandler) Handle(ctx context.Context, _ ListSchemaQuery) ([]Sc
 }
 
 // buildSchema 构建 Category → Group → Settings 层级结构
+//
+//nolint:dupl // 与 UserListSchemaHandler.buildSchema 结构相似但使用不同 DTO 类型
 func (h *ListSchemaHandler) buildSchema(settings []*setting.Setting) []SchemaCategoryDTO {
 	// 按 Category 分组
 	categoryMap := make(map[string]map[string][]SchemaSettingDTO)

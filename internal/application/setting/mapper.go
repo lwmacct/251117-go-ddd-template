@@ -2,7 +2,6 @@ package setting
 
 import (
 	"encoding/json"
-	"strconv"
 
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/setting"
 )
@@ -35,28 +34,28 @@ func parseUIConfig(jsonStr string) UIConfigDTO {
 	return UIConfigDTO(raw)
 }
 
-// ToSettingDTO 将领域实体转换为 DTO
+// ToSettingDTO 将 Setting 实体转换为 SettingDTO
 func ToSettingDTO(s *setting.Setting) *SettingDTO {
 	if s == nil {
 		return nil
 	}
 
 	return &SettingDTO{
-		ID:        s.ID,
-		Key:       s.Key,
-		Value:     s.Value,
-		Category:  s.Category,
-		Group:     s.Group,
-		ValueType: s.ValueType,
-		Label:     s.Label,
-		UIConfig:  parseUIConfig(s.UIConfig),
-		Order:     s.Order,
-		CreatedAt: s.CreatedAt,
-		UpdatedAt: s.UpdatedAt,
+		ID:           s.ID,
+		Key:          s.Key,
+		DefaultValue: s.DefaultValue,
+		Category:     s.Category,
+		Group:        s.Group,
+		ValueType:    s.ValueType,
+		Label:        s.Label,
+		UIConfig:     parseUIConfig(s.UIConfig),
+		Order:        s.Order,
+		CreatedAt:    s.CreatedAt,
+		UpdatedAt:    s.UpdatedAt,
 	}
 }
 
-// ToSettingDTOs 将领域实体列表转换为 DTO 列表
+// ToSettingDTOs 将 Setting 实体列表转换为 SettingDTO 列表
 func ToSettingDTOs(settings []*setting.Setting) []SettingDTO {
 	if len(settings) == 0 {
 		return []SettingDTO{}
@@ -72,56 +71,100 @@ func ToSettingDTOs(settings []*setting.Setting) []SettingDTO {
 	return dtos
 }
 
-// ToSchemaSettingDTO 将领域实体转换为 Schema DTO（精简版）
+// ToSchemaSettingDTO 将 Setting 转换为 SchemaSettingDTO
 func ToSchemaSettingDTO(s *setting.Setting) *SchemaSettingDTO {
 	if s == nil {
 		return nil
 	}
 
 	return &SchemaSettingDTO{
-		Key:       s.Key,
-		Value:     s.Value,
-		ValueType: s.ValueType,
-		Label:     s.Label,
-		UIConfig:  parseUIConfig(s.UIConfig),
-		Order:     s.Order,
+		Key:          s.Key,
+		Value:        s.DefaultValue,
+		DefaultValue: s.DefaultValue,
+		IsCustomized: false,
+		ValueType:    s.ValueType,
+		Label:        s.Label,
+		UIConfig:     parseUIConfig(s.UIConfig),
+		Order:        s.Order,
 	}
 }
 
-// ToSchemaSettingDTOs 将领域实体列表转换为 Schema DTO 列表
-func ToSchemaSettingDTOs(settings []*setting.Setting) []SchemaSettingDTO {
-	if len(settings) == 0 {
-		return []SchemaSettingDTO{}
-	}
+// ==================== UserSetting Mappers ====================
 
-	dtos := make([]SchemaSettingDTO, 0, len(settings))
-	for _, s := range settings {
-		if dto := ToSchemaSettingDTO(s); dto != nil {
-			dtos = append(dtos, *dto)
-		}
-	}
-
-	return dtos
-}
-
-// parseValueForValidation 根据值类型解析字符串值为对应类型。
-// 用于验证时将字符串值转换为正确的类型进行比较。
-func parseValueForValidation(value string, valueType string) any {
-	switch valueType {
-	case "boolean":
-		return value == "true"
-	case "number":
-		if f, err := strconv.ParseFloat(value, 64); err == nil {
-			return f
-		}
-		return 0.0
-	case "json":
-		var v any
-		if err := json.Unmarshal([]byte(value), &v); err == nil {
-			return v
-		}
+// ToUserSettingDTO 将 Setting 定义和可选的 UserSetting 合并为 UserSettingDTO
+func ToUserSettingDTO(s *setting.Setting, us *setting.UserSetting) *UserSettingDTO {
+	if s == nil {
 		return nil
-	default:
-		return value
 	}
+
+	dto := &UserSettingDTO{
+		Key:          s.Key,
+		Value:        s.DefaultValue, // 默认使用系统默认值
+		DefaultValue: s.DefaultValue,
+		IsCustomized: false,
+		Category:     s.Category,
+		Group:        s.Group,
+		ValueType:    s.ValueType,
+		Label:        s.Label,
+		UIConfig:     parseUIConfig(s.UIConfig),
+		Order:        s.Order,
+	}
+
+	// 如果有用户自定义值，使用用户值
+	if us != nil {
+		dto.Value = us.Value
+		dto.IsCustomized = true
+	}
+
+	return dto
+}
+
+// ToUserSchemaSettingDTO 将 Setting 定义和可选的 UserSetting 合并为 UserSchemaSettingDTO
+func ToUserSchemaSettingDTO(s *setting.Setting, us *setting.UserSetting) *UserSchemaSettingDTO {
+	if s == nil {
+		return nil
+	}
+
+	dto := &UserSchemaSettingDTO{
+		Key:          s.Key,
+		Value:        s.DefaultValue, // 默认使用系统默认值
+		DefaultValue: s.DefaultValue,
+		IsCustomized: false,
+		ValueType:    s.ValueType,
+		Label:        s.Label,
+		UIConfig:     parseUIConfig(s.UIConfig),
+		Order:        s.Order,
+	}
+
+	// 如果有用户自定义值，使用用户值
+	if us != nil {
+		dto.Value = us.Value
+		dto.IsCustomized = true
+	}
+
+	return dto
+}
+
+// extractValidationRule 从 UIConfig 中提取验证规则
+func extractValidationRule(uiConfig string) string {
+	if uiConfig == "" || uiConfig == "{}" {
+		return ""
+	}
+
+	var raw struct {
+		Validation any `json:"validation"`
+	}
+	if err := json.Unmarshal([]byte(uiConfig), &raw); err != nil {
+		return ""
+	}
+
+	if raw.Validation == nil {
+		return ""
+	}
+
+	data, err := json.Marshal(raw.Validation)
+	if err != nil {
+		return ""
+	}
+	return string(data)
 }

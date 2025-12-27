@@ -5,10 +5,6 @@ paths:
 
 # Application 层规范
 
-## 命名原则
-
-包名提供上下文，类型名不重复：`user.CreateCommand` ✅ / `user.CreateUserCommand` ❌
-
 ## 文件与结构体
 
 | 文件                    | 结构体     | 示例                                      |
@@ -20,30 +16,25 @@ paths:
 | `dto.go`                | `*DTO`     | `CreateDTO`, `UserDTO`                    |
 | `mapper.go`             | -          | Entity → DTO 映射                         |
 
+## 多实体命名
+
+当包含多个实体时，用实体名前缀区分：
+
+| 文件                        | 结构体             | 说明              |
+| --------------------------- | ------------------ | ----------------- |
+| `cmd_user_set_handler.go`   | `UserSetCommand`   | User 实体的 Set   |
+| `qry_user_get_handler.go`   | `UserGetQuery`     | User 实体的 Get   |
+| `cmd_user_reset_handler.go` | `UserResetCommand` | User 实体的 Reset |
+
 ## 目录结构
 
 ```
 internal/application/{module}/
-├── commands.go              # 所有 Command 定义
-├── queries.go               # 所有 Query 定义
-├── cmd_{action}_handler.go  # Handler 保持分离
+├── commands.go                       # 所有 Command 定义
+├── queries.go                        # 所有 Query 定义
+├── cmd_{action}_handler.go           # 主实体 Handler
+├── cmd_{entity}_{action}_handler.go  # 次要实体 Handler
 ├── qry_{action}_handler.go
+├── qry_{entity}_{action}_handler.go
 ├── dto.go, mapper.go, doc.go
-```
-
-## Command/Query 定义规范
-
-在 `commands.go` 和 `queries.go` 中，按操作类型排列：
-
-```go
-package xxx
-type CreateCommand struct { ... }
-type UpdateCommand struct { ... }
-type DeleteCommand struct { ... }
-```
-
-```go
-package xxx
-type GetQuery struct { ... }
-type ListQuery struct { ... }
 ```

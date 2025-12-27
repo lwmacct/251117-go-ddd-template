@@ -105,11 +105,14 @@ func (h *SettingHandler) GetSetting(c *gin.Context) {
 
 // CreateSettingRequest 创建配置请求
 type CreateSettingRequest struct {
-	Key       string `json:"key" binding:"required" example:"site_name"`
-	Value     string `json:"value" binding:"required" example:"My Website"`
-	Category  string `json:"category" binding:"required" example:"general"`
-	ValueType string `json:"value_type" example:"string"`
-	Label     string `json:"label" example:"网站名称"`
+	Key          string `json:"key" binding:"required" example:"site_name"`
+	DefaultValue any    `json:"default_value" binding:"required"`
+	Category     string `json:"category" binding:"required" example:"general"`
+	Group        string `json:"group" example:"basic"`
+	ValueType    string `json:"value_type" example:"string"`
+	Label        string `json:"label" example:"网站名称"`
+	UIConfig     string `json:"ui_config" example:"{}"`
+	Order        int    `json:"order" example:"0"`
 }
 
 // CreateSetting 创建配置
@@ -137,11 +140,14 @@ func (h *SettingHandler) CreateSetting(c *gin.Context) {
 
 	// 调用 Use Case Handler
 	result, err := h.createHandler.Handle(c.Request.Context(), setting.CreateCommand{
-		Key:       req.Key,
-		Value:     req.Value,
-		Category:  req.Category,
-		ValueType: req.ValueType,
-		Label:     req.Label,
+		Key:          req.Key,
+		DefaultValue: req.DefaultValue,
+		Category:     req.Category,
+		Group:        req.Group,
+		ValueType:    req.ValueType,
+		Label:        req.Label,
+		UIConfig:     req.UIConfig,
+		Order:        req.Order,
 	})
 
 	if err != nil {
@@ -154,9 +160,10 @@ func (h *SettingHandler) CreateSetting(c *gin.Context) {
 
 // UpdateSettingRequest 更新配置请求
 type UpdateSettingRequest struct {
-	Value     string `json:"value"` // 允许空字符串
-	ValueType string `json:"value_type" example:"string"`
-	Label     string `json:"label" example:"更新后的标签"`
+	DefaultValue any    `json:"default_value"`
+	Label        string `json:"label" example:"更新后的标签"`
+	UIConfig     string `json:"ui_config"`
+	Order        int    `json:"order"`
 }
 
 // UpdateSetting 更新配置
@@ -187,11 +194,12 @@ func (h *SettingHandler) UpdateSetting(c *gin.Context) {
 	}
 
 	// 调用 Use Case Handler
-	setting, err := h.updateHandler.Handle(c.Request.Context(), setting.UpdateCommand{
-		Key:       key,
-		Value:     req.Value,
-		ValueType: req.ValueType,
-		Label:     req.Label,
+	settingDTO, err := h.updateHandler.Handle(c.Request.Context(), setting.UpdateCommand{
+		Key:          key,
+		DefaultValue: req.DefaultValue,
+		Label:        req.Label,
+		UIConfig:     req.UIConfig,
+		Order:        req.Order,
 	})
 
 	if err != nil {
@@ -199,7 +207,7 @@ func (h *SettingHandler) UpdateSetting(c *gin.Context) {
 		return
 	}
 
-	response.OK(c, "setting updated successfully", setting)
+	response.OK(c, "setting updated successfully", settingDTO)
 }
 
 // DeleteSetting 删除配置
@@ -238,7 +246,7 @@ func (h *SettingHandler) DeleteSetting(c *gin.Context) {
 type BatchUpdateSettingsRequest struct {
 	Settings []struct {
 		Key   string `json:"key" binding:"required"`
-		Value string `json:"value"` // 允许空字符串
+		Value any    `json:"value"` // JSONB 原生值
 	} `json:"settings" binding:"required,min=1"` // 至少需要一个设置项
 }
 
@@ -266,15 +274,17 @@ func (h *SettingHandler) BatchUpdateSettings(c *gin.Context) {
 	}
 
 	// 转换为 Command
-	settings := make([]setting.SettingItemCommand, len(req.Settings))
+	items := make([]setting.SettingItemCommand, len(req.Settings))
 	for i, s := range req.Settings {
-		settings[i].Key = s.Key
-		settings[i].Value = s.Value
+		items[i] = setting.SettingItemCommand{
+			Key:   s.Key,
+			Value: s.Value,
+		}
 	}
 
 	// 调用 Use Case Handler
 	err := h.batchUpdateHandler.Handle(c.Request.Context(), setting.BatchUpdateCommand{
-		Settings: settings,
+		Settings: items,
 	})
 
 	if err != nil {

@@ -28,6 +28,18 @@ export interface HandlerCreateSettingRequest {
     'category': string;
     /**
      * 
+     * @type {object}
+     * @memberof HandlerCreateSettingRequest
+     */
+    'default_value': object;
+    /**
+     * 
+     * @type {string}
+     * @memberof HandlerCreateSettingRequest
+     */
+    'group'?: string;
+    /**
+     * 
      * @type {string}
      * @memberof HandlerCreateSettingRequest
      */
@@ -40,10 +52,16 @@ export interface HandlerCreateSettingRequest {
     'label'?: string;
     /**
      * 
+     * @type {number}
+     * @memberof HandlerCreateSettingRequest
+     */
+    'order'?: number;
+    /**
+     * 
      * @type {string}
      * @memberof HandlerCreateSettingRequest
      */
-    'value': string;
+    'ui_config'?: string;
     /**
      * 
      * @type {string}

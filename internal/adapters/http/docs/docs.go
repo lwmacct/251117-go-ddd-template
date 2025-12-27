@@ -2760,6 +2760,330 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/user/settings": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "获取当前用户的所有配置（合并系统默认值）",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "用户 - 个人配置 (User - Settings)"
+                ],
+                "summary": "获取用户配置列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "配置类别",
+                        "name": "category",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "配置列表",
+                        "schema": {
+                            "$ref": "#/definitions/response.DataResponse-array_setting_UserSettingDTO"
+                        }
+                    },
+                    "401": {
+                        "description": "未授权",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器内部错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                },
+                "x-permission": {
+                    "scope": "user:settings:read"
+                }
+            }
+        },
+        "/api/user/settings/batch": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "用户批量设置多个自定义配置值",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "用户 - 个人配置 (User - Settings)"
+                ],
+                "summary": "批量设置用户配置",
+                "parameters": [
+                    {
+                        "description": "配置列表",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.BatchSetUserSettingsRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "批量设置成功",
+                        "schema": {
+                            "$ref": "#/definitions/response.MessageResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "参数错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "未授权",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器内部错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                },
+                "x-permission": {
+                    "scope": "user:settings:update"
+                }
+            }
+        },
+        "/api/user/settings/schema": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "获取按 Category → Group → Settings 层级组织的配置数据，包含用户自定义值",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "用户 - 个人配置 (User - Settings)"
+                ],
+                "summary": "获取用户配置 Schema",
+                "responses": {
+                    "200": {
+                        "description": "配置 Schema",
+                        "schema": {
+                            "$ref": "#/definitions/response.DataResponse-array_setting_UserSchemaCategoryDTO"
+                        }
+                    },
+                    "401": {
+                        "description": "未授权",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器内部错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                },
+                "x-permission": {
+                    "scope": "user:settings:read"
+                }
+            }
+        },
+        "/api/user/settings/{key}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "根据配置键获取用户配置（合并系统默认值）",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "用户 - 个人配置 (User - Settings)"
+                ],
+                "summary": "获取单个用户配置",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "配置键",
+                        "name": "key",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "配置详情",
+                        "schema": {
+                            "$ref": "#/definitions/response.DataResponse-setting_UserSettingDTO"
+                        }
+                    },
+                    "401": {
+                        "description": "未授权",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "配置不存在",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                },
+                "x-permission": {
+                    "scope": "user:settings:read"
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "用户设置自定义配置值",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "用户 - 个人配置 (User - Settings)"
+                ],
+                "summary": "设置用户配置",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "配置键",
+                        "name": "key",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "配置值",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.SetUserSettingRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "设置成功",
+                        "schema": {
+                            "$ref": "#/definitions/response.DataResponse-setting_UserSettingDTO"
+                        }
+                    },
+                    "400": {
+                        "description": "参数错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "未授权",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "配置不存在",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器内部错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                },
+                "x-permission": {
+                    "scope": "user:settings:update"
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "删除用户自定义配置，恢复为系统默认值",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "用户 - 个人配置 (User - Settings)"
+                ],
+                "summary": "重置用户配置",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "配置键",
+                        "name": "key",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "重置成功"
+                    },
+                    "401": {
+                        "description": "未授权",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器内部错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                },
+                "x-permission": {
+                    "scope": "user:settings:update"
+                }
+            }
+        },
         "/api/user/tokens": {
             "get": {
                 "security": [
@@ -3690,6 +4014,32 @@ const docTemplate = `{
                 "StatusDegraded"
             ]
         },
+        "handler.BatchSetUserSettingsRequest": {
+            "type": "object",
+            "required": [
+                "settings"
+            ],
+            "properties": {
+                "settings": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "type": "object",
+                        "required": [
+                            "key"
+                        ],
+                        "properties": {
+                            "key": {
+                                "type": "string"
+                            },
+                            "value": {
+                                "description": "JSONB 原生值"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "handler.BatchUpdateSettingsRequest": {
             "type": "object",
             "required": [
@@ -3710,8 +4060,7 @@ const docTemplate = `{
                                 "type": "string"
                             },
                             "value": {
-                                "description": "允许空字符串",
-                                "type": "string"
+                                "description": "JSONB 原生值"
                             }
                         }
                     }
@@ -3722,13 +4071,18 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "category",
-                "key",
-                "value"
+                "default_value",
+                "key"
             ],
             "properties": {
                 "category": {
                     "type": "string",
                     "example": "general"
+                },
+                "default_value": {},
+                "group": {
+                    "type": "string",
+                    "example": "basic"
                 },
                 "key": {
                     "type": "string",
@@ -3738,13 +4092,25 @@ const docTemplate = `{
                     "type": "string",
                     "example": "网站名称"
                 },
-                "value": {
+                "order": {
+                    "type": "integer",
+                    "example": 0
+                },
+                "ui_config": {
                     "type": "string",
-                    "example": "My Website"
+                    "example": "{}"
                 },
                 "value_type": {
                     "type": "string",
                     "example": "string"
+                }
+            }
+        },
+        "handler.SetUserSettingRequest": {
+            "type": "object",
+            "properties": {
+                "value": {
+                    "description": "JSONB 原生值"
                 }
             }
         },
@@ -3770,17 +4136,16 @@ const docTemplate = `{
         "handler.UpdateSettingRequest": {
             "type": "object",
             "properties": {
+                "default_value": {},
                 "label": {
                     "type": "string",
                     "example": "更新后的标签"
                 },
-                "value": {
-                    "description": "允许空字符串",
-                    "type": "string"
+                "order": {
+                    "type": "integer"
                 },
-                "value_type": {
-                    "type": "string",
-                    "example": "string"
+                "ui_config": {
+                    "type": "string"
                 }
             }
         },
@@ -4083,6 +4448,52 @@ const docTemplate = `{
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/setting.SettingDTO"
+                    }
+                },
+                "error": {
+                    "description": "错误详情（仅失败时）"
+                },
+                "message": {
+                    "description": "消息描述",
+                    "type": "string"
+                }
+            }
+        },
+        "response.DataResponse-array_setting_UserSchemaCategoryDTO": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "description": "HTTP 状态码",
+                    "type": "integer"
+                },
+                "data": {
+                    "description": "响应数据",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/setting.UserSchemaCategoryDTO"
+                    }
+                },
+                "error": {
+                    "description": "错误详情（仅失败时）"
+                },
+                "message": {
+                    "description": "消息描述",
+                    "type": "string"
+                }
+            }
+        },
+        "response.DataResponse-array_setting_UserSettingDTO": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "description": "HTTP 状态码",
+                    "type": "integer"
+                },
+                "data": {
+                    "description": "响应数据",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/setting.UserSettingDTO"
                     }
                 },
                 "error": {
@@ -4442,6 +4853,30 @@ const docTemplate = `{
                     "allOf": [
                         {
                             "$ref": "#/definitions/setting.SettingDTO"
+                        }
+                    ]
+                },
+                "error": {
+                    "description": "错误详情（仅失败时）"
+                },
+                "message": {
+                    "description": "消息描述",
+                    "type": "string"
+                }
+            }
+        },
+        "response.DataResponse-setting_UserSettingDTO": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "description": "HTTP 状态码",
+                    "type": "integer"
+                },
+                "data": {
+                    "description": "响应数据",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/setting.UserSettingDTO"
                         }
                     ]
                 },
@@ -4957,6 +5392,13 @@ const docTemplate = `{
         "setting.SchemaSettingDTO": {
             "type": "object",
             "properties": {
+                "default_value": {
+                    "description": "系统默认值"
+                },
+                "is_customized": {
+                    "description": "始终为 false（系统配置）",
+                    "type": "boolean"
+                },
                 "key": {
                     "type": "string"
                 },
@@ -4970,7 +5412,7 @@ const docTemplate = `{
                     "$ref": "#/definitions/setting.UIConfigDTO"
                 },
                 "value": {
-                    "type": "string"
+                    "description": "默认值"
                 },
                 "value_type": {
                     "type": "string"
@@ -4997,6 +5439,9 @@ const docTemplate = `{
                 "created_at": {
                     "type": "string"
                 },
+                "default_value": {
+                    "description": "JSONB 原生值"
+                },
                 "group": {
                     "type": "string"
                 },
@@ -5016,9 +5461,6 @@ const docTemplate = `{
                     "$ref": "#/definitions/setting.UIConfigDTO"
                 },
                 "updated_at": {
-                    "type": "string"
-                },
-                "value": {
                     "type": "string"
                 },
                 "value_type": {
@@ -5054,6 +5496,109 @@ const docTemplate = `{
                 },
                 "validation": {
                     "description": "JSON Logic 验证规则"
+                }
+            }
+        },
+        "setting.UserSchemaCategoryDTO": {
+            "type": "object",
+            "properties": {
+                "category": {
+                    "type": "string"
+                },
+                "groups": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/setting.UserSchemaGroupDTO"
+                    }
+                },
+                "icon": {
+                    "type": "string"
+                },
+                "label": {
+                    "type": "string"
+                }
+            }
+        },
+        "setting.UserSchemaGroupDTO": {
+            "type": "object",
+            "properties": {
+                "group": {
+                    "type": "string"
+                },
+                "label": {
+                    "type": "string"
+                },
+                "settings": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/setting.UserSchemaSettingDTO"
+                    }
+                }
+            }
+        },
+        "setting.UserSchemaSettingDTO": {
+            "type": "object",
+            "properties": {
+                "default_value": {
+                    "description": "系统默认值"
+                },
+                "is_customized": {
+                    "description": "是否用户自定义",
+                    "type": "boolean"
+                },
+                "key": {
+                    "type": "string"
+                },
+                "label": {
+                    "type": "string"
+                },
+                "order": {
+                    "type": "integer"
+                },
+                "ui_config": {
+                    "$ref": "#/definitions/setting.UIConfigDTO"
+                },
+                "value": {
+                    "description": "实际生效值"
+                },
+                "value_type": {
+                    "type": "string"
+                }
+            }
+        },
+        "setting.UserSettingDTO": {
+            "type": "object",
+            "properties": {
+                "category": {
+                    "type": "string"
+                },
+                "default_value": {
+                    "description": "系统默认值"
+                },
+                "group": {
+                    "type": "string"
+                },
+                "is_customized": {
+                    "description": "是否为用户自定义",
+                    "type": "boolean"
+                },
+                "key": {
+                    "type": "string"
+                },
+                "label": {
+                    "type": "string"
+                },
+                "order": {
+                    "type": "integer"
+                },
+                "ui_config": {
+                    "$ref": "#/definitions/setting.UIConfigDTO"
+                },
+                "value": {
+                    "description": "实际生效值（用户值或默认值）"
+                },
+                "value_type": {
+                    "type": "string"
                 }
             }
         },

@@ -46,22 +46,30 @@ const currentGroups = computed(() => {
 });
 
 // 解析值类型
-const parseValue = (value: string | undefined, valueType: string | undefined): unknown => {
-  if (value === undefined) return "";
-  switch (valueType) {
-    case "boolean":
-      return value === "true";
-    case "number":
-      return Number(value) || 0;
-    case "json":
-      try {
-        return JSON.parse(value);
-      } catch {
-        return {};
-      }
-    default:
-      return value;
+const parseValue = (value: unknown, valueType: string | undefined): unknown => {
+  if (value === undefined || value === null) return "";
+  // 如果已经是正确的类型，直接返回
+  if (valueType === "boolean" && typeof value === "boolean") return value;
+  if (valueType === "number" && typeof value === "number") return value;
+  if (valueType === "json" && typeof value === "object") return value;
+  // 字符串形式的解析（兼容旧数据）
+  if (typeof value === "string") {
+    switch (valueType) {
+      case "boolean":
+        return value === "true";
+      case "number":
+        return Number(value) || 0;
+      case "json":
+        try {
+          return JSON.parse(value);
+        } catch {
+          return {};
+        }
+      default:
+        return value;
+    }
   }
+  return value;
 };
 
 // 初始化表单值
@@ -71,7 +79,7 @@ const initFormValues = () => {
     cat.groups?.forEach((group) => {
       group.settings?.forEach((setting) => {
         if (setting.key) {
-          values[setting.key] = parseValue(setting.value, setting.value_type);
+          values[setting.key] = parseValue(setting.default_value, setting.value_type);
         }
       });
     });
@@ -99,9 +107,9 @@ const saveAllSettings = async () => {
 
   const updates = Object.entries(formValues.value).map(([key, value]) => ({
     key,
-    value: typeof value === "object" ? JSON.stringify(value) : value,
+    value: value as object,
   }));
-  await batchUpdateSettings(updates as { key: string; value: string | number | boolean | object }[]);
+  await batchUpdateSettings(updates);
 };
 
 // 重置表单

@@ -30,14 +30,15 @@ type InfrastructureModule struct {
 // RepositoriesModule 仓储模块
 // 聚合所有 CQRS 仓储，按领域划分
 type RepositoriesModule struct {
-	User       persistence.UserRepositories
-	AuditLog   persistence.AuditLogRepositories
-	Role       persistence.RoleRepositories
-	Permission persistence.PermissionRepositories
-	PAT        persistence.PATRepositories
-	Menu       persistence.MenuRepositories
-	Setting    persistence.SettingRepositories
-	TwoFA      persistence.TwoFARepositories
+	User        persistence.UserRepositories
+	AuditLog    persistence.AuditLogRepositories
+	Role        persistence.RoleRepositories
+	Permission  persistence.PermissionRepositories
+	PAT         persistence.PATRepositories
+	Menu        persistence.MenuRepositories
+	Setting     persistence.SettingRepositories
+	UserSetting persistence.UserSettingRepositories
+	TwoFA       persistence.TwoFARepositories
 
 	// 特殊仓储（内存实现）
 	CaptchaCommand captcha.CommandRepository
@@ -75,6 +76,7 @@ type HandlersModule struct {
 	Role        *handler.RoleHandler
 	Menu        *handler.MenuHandler
 	Setting     *handler.SettingHandler
+	UserSetting *handler.UserSettingHandler
 	PAT         *handler.PATHandler
 	AuditLog    *handler.AuditLogHandler
 	Overview    *handler.OverviewHandler
