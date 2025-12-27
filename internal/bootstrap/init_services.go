@@ -28,8 +28,8 @@ func newServicesModule(cfg *config.Config, infra *InfrastructureModule, repos *R
 	// Captcha Service
 	m.Captcha = captcha.NewService()
 
-	// PAT Service（需要仓储）
-	m.PAT = authInfra.NewPATService(repos.PAT.Command, repos.PAT.Query, repos.User.Query, tokenGenerator)
+	// PAT Service（认证服务，供中间件使用）
+	m.PAT = authInfra.NewPATService(repos.PAT.Command, repos.PAT.Query, tokenGenerator)
 
 	// TwoFA Service（需要仓储）
 	m.TwoFA = twofa.NewService(repos.TwoFA.Command, repos.TwoFA.Query, repos.User.Query, cfg.Auth.TwoFAIssuer)

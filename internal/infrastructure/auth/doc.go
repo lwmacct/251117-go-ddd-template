@@ -26,8 +26,11 @@
 //   - [LoginSession]: 登录会话管理（可选）
 //
 // PAT 认证：
-//   - [PATService]: 个人访问令牌认证服务
-//   - 支持令牌验证和权限检查
+//   - [PATService]: PAT 认证服务（供中间件使用）
+//   - ValidateToken/ValidateTokenWithIP: 验证 PAT
+//   - DeleteAllUserTokens: 安全撤销（如密码重置）
+//   - CleanupExpiredTokens: 系统维护
+//   - 注意：PAT 的 CRUD 由 Application 层负责
 //
 // 权限缓存：
 //   - [PermissionCacheService]: 用户权限缓存服务

@@ -1,4 +1,4 @@
-package persistence
+package captcha
 
 import (
 	"context"
@@ -18,26 +18,26 @@ const (
 	captchaMaxSize = 10000
 )
 
-// captchaMemoryRepository 内存验证码仓储实现
+// repository 验证码仓储实现（内存存储）
 // 🔒 安全策略：
 // - 并发安全（使用 sync.RWMutex）
 // - 验证码一次性使用，验证后立即删除
 // - 自动清理过期验证码
 // - LRU 策略，防止内存溢出
-type captchaMemoryRepository struct {
+type repository struct {
 	data      map[string]*captcha.CaptchaData
 	mu        sync.RWMutex
 	stopClean chan struct{}
 }
 
 var (
-	_ captcha.CommandRepository = (*captchaMemoryRepository)(nil)
-	_ captcha.QueryRepository   = (*captchaMemoryRepository)(nil)
+	_ captcha.CommandRepository = (*repository)(nil)
+	_ captcha.QueryRepository   = (*repository)(nil)
 )
 
-// NewCaptchaMemoryRepository 创建内存验证码仓储
-func NewCaptchaMemoryRepository() *captchaMemoryRepository {
-	repo := &captchaMemoryRepository{
+// NewRepository 创建验证码仓储实例
+func NewRepository() *repository {
+	repo := &repository{
 		data:      make(map[string]*captcha.CaptchaData),
 		stopClean: make(chan struct{}),
 	}
@@ -49,7 +49,7 @@ func NewCaptchaMemoryRepository() *captchaMemoryRepository {
 }
 
 // Create 创建验证码并存储
-func (r *captchaMemoryRepository) Create(ctx context.Context, captchaID string, code string, expiration time.Duration) error {
+func (r *repository) Create(ctx context.Context, captchaID string, code string, expiration time.Duration) error {
 	if expiration <= 0 {
 		expiration = captchaDefaultExpiration
 	}
@@ -84,7 +84,7 @@ func (r *captchaMemoryRepository) Create(ctx context.Context, captchaID string, 
 }
 
 // Verify 验证验证码（不区分大小写，一次性使用）
-func (r *captchaMemoryRepository) Verify(ctx context.Context, captchaID string, code string) (bool, error) {
+func (r *repository) Verify(ctx context.Context, captchaID string, code string) (bool, error) {
 	if captchaID == "" || code == "" {
 		return false, nil
 	}
@@ -114,7 +114,7 @@ func (r *captchaMemoryRepository) Verify(ctx context.Context, captchaID string, 
 }
 
 // Delete 删除验证码
-func (r *captchaMemoryRepository) Delete(ctx context.Context, captchaID string) error {
+func (r *repository) Delete(ctx context.Context, captchaID string) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
@@ -123,7 +123,7 @@ func (r *captchaMemoryRepository) Delete(ctx context.Context, captchaID string) 
 }
 
 // GetStats 获取统计信息
-func (r *captchaMemoryRepository) GetStats(ctx context.Context) map[string]any {
+func (r *repository) GetStats(ctx context.Context) map[string]any {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 
@@ -142,13 +142,13 @@ func (r *captchaMemoryRepository) GetStats(ctx context.Context) map[string]any {
 }
 
 // Close 关闭仓储（停止清理协程）
-func (r *captchaMemoryRepository) Close() error {
+func (r *repository) Close() error {
 	close(r.stopClean)
 	return nil
 }
 
 // cleanupExpired 定期清理过期验证码
-func (r *captchaMemoryRepository) cleanupExpired() {
+func (r *repository) cleanupExpired() {
 	ticker := time.NewTicker(captchaCleanupInterval)
 	defer ticker.Stop()
 

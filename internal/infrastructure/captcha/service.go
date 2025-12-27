@@ -7,7 +7,7 @@ import (
 
 	"github.com/mojocn/base64Captcha"
 
-	domainCaptcha "github.com/lwmacct/251117-go-ddd-template/internal/domain/captcha"
+	"github.com/lwmacct/251117-go-ddd-template/internal/domain/captcha"
 )
 
 // 验证码默认配置。
@@ -32,7 +32,7 @@ type Service struct {
 }
 
 // 确保 Service 实现了 domainCaptcha.Service 接口
-var _ domainCaptcha.Service = (*Service)(nil)
+var _ captcha.Service = (*Service)(nil)
 
 // NewService 创建验证码服务
 func NewService() *Service {

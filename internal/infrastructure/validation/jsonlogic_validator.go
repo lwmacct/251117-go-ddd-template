@@ -1,4 +1,3 @@
-// Package validation 提供设置验证的基础设施实现。
 package validation
 
 import (

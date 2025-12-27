@@ -1,4 +1,3 @@
-// Package queue 提供队列相关功能
 package queue
 
 import (

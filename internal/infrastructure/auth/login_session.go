@@ -32,14 +32,16 @@ func (s *LoginSessionData) IsExpired() bool {
 // 用于 2FA 验证流程中的临时会话管理
 // 🔒 安全策略：防止 2FA 暴力破解
 type LoginSessionService struct {
-	sessions map[string]*LoginSessionData
-	mu       sync.RWMutex
+	sessions  map[string]*LoginSessionData
+	mu        sync.RWMutex
+	stopClean chan struct{}
 }
 
 // NewLoginSessionService 创建登录会话服务
 func NewLoginSessionService() *LoginSessionService {
 	service := &LoginSessionService{
-		sessions: make(map[string]*LoginSessionData),
+		sessions:  make(map[string]*LoginSessionData),
+		stopClean: make(chan struct{}),
 	}
 
 	// 启动定期清理协程
@@ -105,13 +107,24 @@ func (s *LoginSessionService) cleanupExpired() {
 	ticker := time.NewTicker(1 * time.Minute)
 	defer ticker.Stop()
 
-	for range ticker.C {
-		s.mu.Lock()
-		for token, data := range s.sessions {
-			if data.IsExpired() {
-				delete(s.sessions, token)
+	for {
+		select {
+		case <-ticker.C:
+			s.mu.Lock()
+			for token, data := range s.sessions {
+				if data.IsExpired() {
+					delete(s.sessions, token)
+				}
 			}
+			s.mu.Unlock()
+		case <-s.stopClean:
+			return
 		}
-		s.mu.Unlock()
 	}
+}
+
+// Close 关闭服务（停止清理协程）
+func (s *LoginSessionService) Close() error {
+	close(s.stopClean)
+	return nil
 }

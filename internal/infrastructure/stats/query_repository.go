@@ -1,25 +1,25 @@
-package persistence
+package stats
 
 import (
 	"fmt"
 
-	"github.com/lwmacct/251117-go-ddd-template/internal/domain/stats"
+	domain "github.com/lwmacct/251117-go-ddd-template/internal/domain/stats"
 	"gorm.io/gorm"
 )
 
-// statsQueryRepository 统计查询仓储的 GORM 实现
-type statsQueryRepository struct {
+// queryRepository 统计查询仓储的 GORM 实现
+type queryRepository struct {
 	db *gorm.DB
 }
 
-// NewStatsQueryRepository 创建统计查询仓储实例
-func NewStatsQueryRepository(db *gorm.DB) stats.QueryRepository {
-	return &statsQueryRepository{db: db}
+// NewQueryRepository 创建统计查询仓储实例
+func NewQueryRepository(db *gorm.DB) domain.QueryRepository {
+	return &queryRepository{db: db}
 }
 
 // GetSystemStats 获取系统统计信息
-func (r *statsQueryRepository) GetSystemStats(recentLogsLimit int) (*stats.SystemStats, error) {
-	s := &stats.SystemStats{}
+func (r *queryRepository) GetSystemStats(recentLogsLimit int) (*domain.SystemStats, error) {
+	s := &domain.SystemStats{}
 
 	// 统计用户数
 	total, err := r.GetTotalUsers()
@@ -78,7 +78,7 @@ func (r *statsQueryRepository) GetSystemStats(recentLogsLimit int) (*stats.Syste
 }
 
 // GetUserCountByStatus 按状态统计用户数量
-func (r *statsQueryRepository) GetUserCountByStatus(status string) (int64, error) {
+func (r *queryRepository) GetUserCountByStatus(status string) (int64, error) {
 	var count int64
 	err := r.db.Table("users").
 		Where("deleted_at IS NULL AND status = ?", status).
@@ -90,7 +90,7 @@ func (r *statsQueryRepository) GetUserCountByStatus(status string) (int64, error
 }
 
 // GetTotalUsers 获取用户总数
-func (r *statsQueryRepository) GetTotalUsers() (int64, error) {
+func (r *queryRepository) GetTotalUsers() (int64, error) {
 	var count int64
 	err := r.db.Table("users").
 		Where("deleted_at IS NULL").
@@ -102,7 +102,7 @@ func (r *statsQueryRepository) GetTotalUsers() (int64, error) {
 }
 
 // GetTotalRoles 获取角色总数
-func (r *statsQueryRepository) GetTotalRoles() (int64, error) {
+func (r *queryRepository) GetTotalRoles() (int64, error) {
 	var count int64
 	err := r.db.Table("roles").
 		Where("deleted_at IS NULL").
@@ -114,7 +114,7 @@ func (r *statsQueryRepository) GetTotalRoles() (int64, error) {
 }
 
 // GetTotalPermissions 获取权限总数
-func (r *statsQueryRepository) GetTotalPermissions() (int64, error) {
+func (r *queryRepository) GetTotalPermissions() (int64, error) {
 	var count int64
 	err := r.db.Table("permissions").
 		Where("deleted_at IS NULL").
@@ -126,7 +126,7 @@ func (r *statsQueryRepository) GetTotalPermissions() (int64, error) {
 }
 
 // GetTotalMenus 获取菜单总数
-func (r *statsQueryRepository) GetTotalMenus() (int64, error) {
+func (r *queryRepository) GetTotalMenus() (int64, error) {
 	var count int64
 	err := r.db.Table("menus").
 		Where("deleted_at IS NULL").
@@ -138,8 +138,8 @@ func (r *statsQueryRepository) GetTotalMenus() (int64, error) {
 }
 
 // GetRecentAuditLogs 获取最近的审计日志
-func (r *statsQueryRepository) GetRecentAuditLogs(limit int) ([]stats.AuditLogSummary, error) {
-	var logs []stats.AuditLogSummary
+func (r *queryRepository) GetRecentAuditLogs(limit int) ([]domain.AuditLogSummary, error) {
+	var logs []domain.AuditLogSummary
 	err := r.db.Table("audit_logs").
 		Select("id, user_id, username, action, resource, status, created_at").
 		Where("deleted_at IS NULL").

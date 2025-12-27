@@ -5,14 +5,22 @@
 //   - 输出 Base64 编码的 PNG 图片，便于前端直接展示
 //   - 可配置的干扰线和噪点，平衡安全性与可读性
 //
-// 组件职责：
-//   - [Service]: 验证码图片生成服务
-//   - domain/captcha.CommandRepository: 验证码存储与验证（本包不实现）
+// # 组件职责
 //
-// 使用示例：
+//   - [Service]: 验证码图片生成服务
+//   - [NewRepository]: 验证码存储仓储（内存实现）
+//
+// # 使用示例
 //
 //	svc := captcha.NewService()
-//	captchaID, imageBase64, code, err := svc.GenerateRandomCode()
-//	// 将 captchaID 和 code 存入 CommandRepository
-//	// 将 imageBase64 返回给前端展示
+//	repo := captcha.NewRepository()
+//
+//	// 生成验证码
+//	captchaID, imageBase64, code, _ := svc.GenerateRandomCode()
+//
+//	// 存储验证码
+//	repo.Create(ctx, captchaID, code, 5*time.Minute)
+//
+//	// 验证
+//	valid, _ := repo.Verify(ctx, captchaID, userInput)
 package captcha
