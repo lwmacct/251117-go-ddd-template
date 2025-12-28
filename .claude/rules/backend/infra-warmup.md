@@ -1,13 +1,13 @@
 ---
 paths:
-  - "internal/infrastructure/warmup/**/*.go"
+  - "internal/infrastructure/cache/warmup/**/*.go"
 ---
 
 # Warmup Infrastructure 规范
 
 提供缓存预热服务，在应用启动时批量加载数据到 Redis。
 
-**注意**：本包负责预热逻辑，Redis 具体实现位于 `infrastructure/cache/`。
+**注意**：本包是 `cache/` 的子包，负责预热逻辑；Redis 具体实现位于父包 `cache/`。
 
 ## 核心原则
 

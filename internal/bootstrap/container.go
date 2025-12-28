@@ -27,8 +27,8 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/lwmacct/251117-go-ddd-template/internal/config"
+	infrawarmup "github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/cache/warmup"
 	"github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/persistence"
-	infrawarmup "github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/warmup"
 )
 
 // ContainerOptions 容器初始化选项
