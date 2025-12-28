@@ -11,8 +11,9 @@ repos:
     hooks:
       - id: application-naming
         name: Check Application layer naming convention
-        entry: scripts/check-application-naming.sh
-        language: script
+        entry: go test ./internal/precommit/... -run "ApplicationNaming"
+        language: system
+        pass_filenames: false
         files: ^internal/application/.*\.go$
         stages: [pre-commit]
 
