@@ -4,20 +4,20 @@ import (
 	"github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/persistence"
 )
 
-// ContainerOptions holds options for container initialization.
+// ContainerOptions 容器初始化选项。
 type ContainerOptions struct {
-	AutoMigrate bool // Whether to auto-migrate database (recommended only for development)
+	AutoMigrate bool // 是否自动迁移数据库（仅建议在开发环境使用）
 }
 
-// DefaultOptions returns default container options.
+// DefaultOptions 返回默认的容器选项。
 func DefaultOptions() *ContainerOptions {
 	return &ContainerOptions{
-		AutoMigrate: false, // Production default: no auto-migration
+		AutoMigrate: false, // 生产环境默认：不自动迁移
 	}
 }
 
-// GetAllModels returns all domain models that need migration.
-// When adding new domain models, register them here.
+// GetAllModels 返回所有需要迁移的领域模型。
+// 新增领域模型时，需在此处注册。
 func GetAllModels() []any {
 	return []any{
 		&persistence.UserModel{},

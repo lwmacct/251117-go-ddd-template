@@ -19,7 +19,7 @@ import (
 	"github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/health"
 )
 
-// HandlersModule aggregates all HTTP handlers.
+// HandlersModule 聚合所有 HTTP 处理器。
 type HandlersModule struct {
 	Health      *handler.HealthHandler
 	Auth        *handler.AuthHandler
@@ -38,7 +38,7 @@ type HandlersModule struct {
 	Cache       *handler.CacheHandler
 }
 
-// HTTPModule provides HTTP handlers and router.
+// HTTPModule 提供 HTTP 处理器和路由。
 var HTTPModule = fx.Module("http",
 	fx.Provide(
 		newHealthChecker,
@@ -193,8 +193,8 @@ func newRouter(
 	return adapthttp.SetupRouterWithDeps(deps)
 }
 
-// StartHTTPServer starts the HTTP server with lifecycle management.
-// Use this with fx.Invoke for applications that want Fx to manage the server.
+// StartHTTPServer 启动 HTTP 服务器并管理生命周期。
+// 配合 fx.Invoke 使用，让 Fx 管理服务器的启停。
 func StartHTTPServer(lc fx.Lifecycle, cfg *config.Config, router *gin.Engine) {
 	srv := &http.Server{
 		Addr:              cfg.Server.Addr,

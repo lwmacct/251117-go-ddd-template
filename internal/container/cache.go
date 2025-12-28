@@ -11,8 +11,8 @@ import (
 	infracache "github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/cache"
 )
 
-// CacheServicesModule aggregates all cache services.
-// Defined in bootstrap package for compatibility.
+// CacheServicesModule 聚合所有缓存服务。
+// 定义在 bootstrap 包以保持兼容性。
 type CacheServicesModule struct {
 	Setting          cache.SettingCacheService
 	SettingCategory  cache.SettingCategoryCacheService
@@ -23,13 +23,13 @@ type CacheServicesModule struct {
 	Schema           setting.SchemaCacheService
 }
 
-// CacheModule provides all cache services.
+// CacheModule 提供所有缓存服务。
 //
-// Each service is provided individually for fine-grained dependency injection,
-// and also aggregated into CacheServicesModule for backward compatibility.
+// 每个服务独立提供以支持细粒度依赖注入，
+// 同时聚合到 CacheServicesModule 以保持向后兼容。
 var CacheModule = fx.Module("cache",
 	fx.Provide(
-		// Individual cache services
+		// 独立缓存服务
 		newSettingCacheService,
 		newSettingCategoryCacheService,
 		newUserSettingQueryCacheService,
@@ -38,12 +38,12 @@ var CacheModule = fx.Module("cache",
 		newPermissionCacheService,
 		newSchemaCacheService,
 
-		// Aggregated module for backward compatibility
+		// 聚合模块，用于向后兼容
 		newCacheServicesModule,
 	),
 )
 
-// Helper to get key prefix from config
+// getKeyPrefix 从配置获取 Redis Key 前缀。
 func getKeyPrefix(cfg *config.Config) string {
 	return cfg.Data.RedisKeyPrefix
 }
@@ -76,8 +76,8 @@ func newSchemaCacheService(client *redis.Client, cfg *config.Config) setting.Sch
 	return infracache.NewSchemaCacheService(client, getKeyPrefix(cfg))
 }
 
-// newCacheServicesModule creates the aggregated cache services module.
-// This is for backward compatibility with existing code that depends on the struct.
+// newCacheServicesModule 创建聚合的缓存服务模块。
+// 用于向后兼容依赖该结构体的现有代码。
 func newCacheServicesModule(
 	setting cache.SettingCacheService,
 	settingCategory cache.SettingCategoryCacheService,

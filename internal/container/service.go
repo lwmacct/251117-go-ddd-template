@@ -11,12 +11,12 @@ import (
 	infra_captcha "github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/captcha"
 )
 
-// ServicesModule aggregates all domain and infrastructure services.
+// ServicesModule 聚合所有领域服务和基础设施服务。
 type ServicesModule struct {
-	// Domain Services
+	// 领域服务
 	Auth auth.Service
 
-	// Infrastructure Services
+	// 基础设施服务
 	JWT             *infra_auth.JWTManager
 	TokenGenerator  auth.TokenGenerator
 	LoginSession    *infra_auth.LoginSessionService
@@ -26,16 +26,16 @@ type ServicesModule struct {
 	TwoFA           *twofa.Service
 }
 
-// ServiceModule provides all domain and infrastructure services.
+// ServiceModule 提供所有领域服务和基础设施服务。
 //
-// Services handle business logic and technical concerns:
-//   - Auth: password hashing, JWT token generation
-//   - PermissionCache: user permission caching with cache-aside pattern
-//   - TwoFA: TOTP-based two-factor authentication
-//   - Captcha: image captcha generation
+// 服务处理业务逻辑和技术关注点：
+//   - Auth: 密码哈希、JWT Token 生成
+//   - PermissionCache: 用户权限缓存（Cache-Aside 模式）
+//   - TwoFA: 基于 TOTP 的双因素认证
+//   - Captcha: 图形验证码生成
 var ServiceModule = fx.Module("service",
 	fx.Provide(
-		// Infrastructure services
+		// 基础设施服务
 		newJWTManager,
 		newTokenGenerator,
 		newLoginSessionService,
@@ -44,10 +44,10 @@ var ServiceModule = fx.Module("service",
 		newCaptchaService,
 		newTwoFAService,
 
-		// Domain services
+		// 领域服务
 		newAuthService,
 
-		// Aggregated module
+		// 聚合模块
 		newServicesModule,
 	),
 )
@@ -92,7 +92,7 @@ func newTwoFAService(cfg *config.Config, repos *RepositoriesModule) *twofa.Servi
 	return twofa.NewService(repos.TwoFA.Command, repos.TwoFA.Query, repos.User.Query, cfg.Auth.TwoFAIssuer)
 }
 
-// newServicesModule creates the aggregated services module.
+// newServicesModule 创建聚合的服务模块。
 func newServicesModule(
 	authSvc auth.Service,
 	jwt *infra_auth.JWTManager,

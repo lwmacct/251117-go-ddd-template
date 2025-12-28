@@ -13,31 +13,31 @@ import (
 	"github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/persistence"
 )
 
-// RegisterEventHandlers sets up event subscriptions for cache invalidation and audit logging.
+// RegisterEventHandlers 设置缓存失效和审计日志的事件订阅。
 //
-// Subscriptions:
-//   - user.role_assigned, user.deleted, role.permissions_changed → cache invalidation
-//   - * (all events) → audit logging
+// 订阅事件：
+//   - user.role_assigned, user.deleted, role.permissions_changed → 缓存失效
+//   - *（所有事件）→ 审计日志
 func RegisterEventHandlers(
 	eventBus event.EventBus,
 	repos *RepositoriesModule,
 	services *ServicesModule,
 ) {
-	// Cache invalidation handler
+	// 缓存失效处理器
 	cacheHandler := eventhandler.NewCacheInvalidationHandler(
 		services.PermissionCache,
 		repos.User.Query,
 	)
 
-	// Audit log handler
+	// 审计日志处理器
 	auditHandler := eventhandler.NewAuditLogHandler(repos.AuditLog.Command)
 
-	// Subscribe to cache invalidation events
+	// 订阅缓存失效事件
 	eventBus.Subscribe("user.role_assigned", cacheHandler)
 	eventBus.Subscribe("user.deleted", cacheHandler)
 	eventBus.Subscribe("role.permissions_changed", cacheHandler)
 
-	// Subscribe to all events for audit logging
+	// 订阅所有事件用于审计日志
 	eventBus.Subscribe("*", auditHandler)
 
 	slog.Info("Event handlers initialized",
@@ -47,27 +47,25 @@ func RegisterEventHandlers(
 	)
 }
 
-// WarmupCaches pre-populates caches with frequently accessed data.
+// WarmupCaches 预热缓存，加载常用数据。
 //
-// Caches warmed:
-//   - Setting cache
-//   - SettingCategory cache
+// 预热的缓存：
+//   - Setting 缓存
 //
-// Note: Uses raw repositories (not cache decorators) to avoid circular dependencies.
-// Warmup failures are logged but don't block application startup.
+// 注意：使用原始仓储（非缓存装饰器）以避免循环依赖。
+// 预热失败会记录日志但不阻塞应用启动。
 func WarmupCaches(lc fx.Lifecycle, db *gorm.DB, cache *CacheServicesModule) {
 	lc.Append(fx.Hook{
 		OnStart: func(ctx context.Context) error {
 			warmupSettingCache(ctx, db, cache)
-			warmupSettingCategoryCache(ctx, db, cache)
-			return nil // Never fail startup due to warmup
+			return nil // 预热失败不影响启动
 		},
 	})
 }
 
-// warmupSettingCache pre-populates the Setting cache.
+// warmupSettingCache 预热 Setting 缓存。
 func warmupSettingCache(ctx context.Context, db *gorm.DB, cache *CacheServicesModule) {
-	// Use raw repository to avoid circular dependency with cache decorator
+	// 使用原始仓储以避免与缓存装饰器的循环依赖
 	rawRepos := persistence.NewSettingRepositories(db)
 	warmer := warmup.NewSettingCacheWarmer(rawRepos.Query, cache.Setting)
 
@@ -75,18 +73,5 @@ func warmupSettingCache(ctx context.Context, db *gorm.DB, cache *CacheServicesMo
 		slog.Warn("Setting cache warmup failed, will use lazy loading", "err", err)
 	} else {
 		slog.Info("Setting cache warmup completed")
-	}
-}
-
-// warmupSettingCategoryCache pre-populates the SettingCategory cache.
-func warmupSettingCategoryCache(ctx context.Context, db *gorm.DB, cache *CacheServicesModule) {
-	// Use raw repository to avoid circular dependency with cache decorator
-	rawRepos := persistence.NewSettingRepositories(db)
-	warmer := warmup.NewSettingCategoryCacheWarmer(rawRepos.CategoryQuery, cache.SettingCategory)
-
-	if err := warmer.WarmUpWithTimeout(ctx); err != nil {
-		slog.Warn("SettingCategory cache warmup failed, will use lazy loading", "err", err)
-	} else {
-		slog.Info("SettingCategory cache warmup completed")
 	}
 }

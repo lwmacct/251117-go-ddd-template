@@ -12,9 +12,9 @@ import (
 	infrastats "github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/stats"
 )
 
-// RepositoriesModule aggregates all CQRS repositories.
+// RepositoriesModule 聚合所有 CQRS 仓储。
 type RepositoriesModule struct {
-	// CQRS repositories (database)
+	// CQRS 仓储（数据库）
 	User        persistence.UserRepositories
 	AuditLog    persistence.AuditLogRepositories
 	Role        persistence.RoleRepositories
@@ -25,26 +25,26 @@ type RepositoriesModule struct {
 	UserSetting persistence.UserSettingRepositories
 	TwoFA       persistence.TwoFARepositories
 
-	// Special repositories (in-memory)
+	// 特殊仓储（内存）
 	CaptchaCommand captcha.CommandRepository
 	CaptchaQuery   captcha.QueryRepository
 
-	// Read-only repositories
+	// 只读仓储
 	StatsQuery stats.QueryRepository
 }
 
-// RepositoryModule provides all repository implementations.
+// RepositoryModule 提供所有仓储实现。
 //
-// Repositories are decorated with cache layers where appropriate:
-//   - User: cached query (GetByIDWithRoles)
-//   - Setting: cached query + command with multi-level invalidation
-//   - UserSetting: cached query + command with three-level invalidation
+// 适当的仓储已装饰缓存层：
+//   - User: 缓存查询（GetByIDWithRoles）
+//   - Setting: 缓存查询 + 命令，支持多级失效
+//   - UserSetting: 缓存查询 + 命令，支持三级失效
 var RepositoryModule = fx.Module("repository",
 	fx.Provide(
-		// Aggregated module
+		// 聚合模块
 		newRepositoriesModule,
 
-		// Individual repositories for direct injection
+		// 独立仓储，用于细粒度依赖注入
 		newUserRepositoriesWithCache,
 		newAuditLogRepositories,
 		newRoleRepositories,
@@ -59,7 +59,7 @@ var RepositoryModule = fx.Module("repository",
 	),
 )
 
-// newRepositoriesModule creates the aggregated repositories module.
+// newRepositoriesModule 创建聚合的仓储模块。
 func newRepositoriesModule(
 	user persistence.UserRepositories,
 	auditLog persistence.AuditLogRepositories,
@@ -90,7 +90,7 @@ func newRepositoriesModule(
 	}
 }
 
-// --- Individual repository constructors ---
+// --- 独立仓储构造函数 ---
 
 func newUserRepositoriesWithCache(db *gorm.DB, cache *CacheServicesModule) persistence.UserRepositories {
 	rawRepos := persistence.NewUserRepositories(db)
@@ -167,7 +167,7 @@ func newTwoFARepositories(db *gorm.DB) persistence.TwoFARepositories {
 	return persistence.NewTwoFARepositories(db)
 }
 
-// CaptchaRepositoryResult provides both Command and Query interfaces from a single repository.
+// CaptchaRepositoryResult 从单个仓储提供 Command 和 Query 两个接口。
 type CaptchaRepositoryResult struct {
 	fx.Out
 

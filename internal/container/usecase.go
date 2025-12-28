@@ -18,9 +18,9 @@ import (
 	"github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/validation"
 )
 
-// --- UseCase Module Structs ---
+// --- 用例模块结构体 ---
 
-// UseCasesModule aggregates all use case handlers.
+// UseCasesModule 聚合所有用例处理器。
 type UseCasesModule struct {
 	Auth        *AuthUseCases
 	User        *UserUseCases
@@ -128,17 +128,17 @@ type TwoFAUseCases struct {
 	GetStatus    *twofa.GetStatusHandler
 }
 
-// --- Fx Module ---
+// --- Fx 模块 ---
 
-// UseCaseModule provides all use case handlers organized by domain.
+// UseCaseModule 提供按领域组织的所有用例处理器。
 //
-// Key dependency: AuditLog is created first because Auth depends on it for login logging.
+// 关键依赖：AuditLog 最先创建，因为 Auth 需要它来记录登录日志。
 var UseCaseModule = fx.Module("usecase",
 	fx.Provide(
-		// AuditLog first (Auth depends on it)
+		// AuditLog 优先（Auth 依赖它）
 		newAuditLogUseCases,
 
-		// Domain use cases
+		// 领域用例
 		newAuthUseCases,
 		newUserUseCases,
 		newRoleUseCases,
@@ -150,12 +150,12 @@ var UseCaseModule = fx.Module("usecase",
 		newCaptchaUseCases,
 		newTwoFAUseCases,
 
-		// Aggregated module
+		// 聚合模块
 		newUseCasesModule,
 	),
 )
 
-// --- Constructors ---
+// --- 构造函数 ---
 
 func newAuditLogUseCases(repos *RepositoriesModule) *AuditLogUseCases {
 	return &AuditLogUseCases{
@@ -284,7 +284,7 @@ func newTwoFAUseCases(services *ServicesModule) *TwoFAUseCases {
 	}
 }
 
-// newUseCasesModule creates the aggregated use cases module.
+// newUseCasesModule 创建聚合的用例模块。
 func newUseCasesModule(
 	authUC *AuthUseCases,
 	userUC *UserUseCases,

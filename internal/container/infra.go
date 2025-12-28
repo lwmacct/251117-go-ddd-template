@@ -1,12 +1,12 @@
-// Package container provides Fx module definitions for dependency injection.
+// Package container 提供 Fx 模块定义，用于依赖注入。
 //
-// Each module groups related providers and lifecycle hooks:
-//   - [InfraModule]: Database, Redis, EventBus, Telemetry
-//   - [CacheModule]: All cache services
-//   - [RepositoryModule]: CQRS repositories with cache decorators
-//   - [ServiceModule]: Domain and infrastructure services
-//   - [UseCaseModule]: Application use case handlers
-//   - [HTTPModule]: HTTP handlers and router
+// 每个模块聚合相关的 Provider 和生命周期钩子：
+//   - [InfraModule]: 数据库、Redis、EventBus、链路追踪
+//   - [CacheModule]: 所有缓存服务
+//   - [RepositoryModule]: 带缓存装饰器的 CQRS 仓储
+//   - [ServiceModule]: 领域服务和基础设施服务
+//   - [UseCaseModule]: 应用层用例处理器
+//   - [HTTPModule]: HTTP 处理器和路由
 package container
 
 import (
@@ -26,17 +26,17 @@ import (
 	"github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/telemetry"
 )
 
-// InfraModule provides infrastructure components.
+// InfraModule 提供基础设施组件。
 //
-// Components:
-//   - OpenTelemetry tracing
-//   - PostgreSQL database connection
-//   - Redis client
-//   - In-memory event bus
+// 组件：
+//   - OpenTelemetry 链路追踪
+//   - PostgreSQL 数据库连接
+//   - Redis 客户端
+//   - 内存事件总线
 //
-// Lifecycle:
-//   - OnStart: Initialize telemetry, connect DB, connect Redis
-//   - OnStop: Close connections in reverse order
+// 生命周期：
+//   - OnStart: 初始化链路追踪、连接数据库、连接 Redis
+//   - OnStop: 按相反顺序关闭连接
 var InfraModule = fx.Module("infra",
 	fx.Provide(
 		newTelemetry,
@@ -46,7 +46,7 @@ var InfraModule = fx.Module("infra",
 	),
 )
 
-// TelemetryResult wraps telemetry shutdown function for Fx lifecycle.
+// TelemetryResult 包装链路追踪的关闭函数，用于 Fx 生命周期管理。
 type TelemetryResult struct {
 	fx.Out
 
@@ -100,7 +100,7 @@ func newDatabase(lc fx.Lifecycle, cfg *config.Config, opts *ContainerOptions) (*
 		return nil, err
 	}
 
-	// Auto-migrate if enabled
+	// 如果启用了自动迁移则执行
 	if opts.AutoMigrate {
 		if err := runAutoMigrate(db); err != nil {
 			return nil, err
@@ -118,7 +118,7 @@ func newDatabase(lc fx.Lifecycle, cfg *config.Config, opts *ContainerOptions) (*
 	return db, nil
 }
 
-// runAutoMigrate 执行数据库自动迁移和索引创建
+// runAutoMigrate 执行数据库自动迁移和索引创建。
 func runAutoMigrate(db *gorm.DB) error {
 	slog.Info("Auto-migration enabled, migrating database...")
 
@@ -126,14 +126,14 @@ func runAutoMigrate(db *gorm.DB) error {
 		return err
 	}
 
-	// Create indexes for SettingModel
+	// 为 SettingModel 创建索引
 	if err := database.CreateIndexes(db, &persistence.SettingModel{}, []string{
 		"idx_settings_category_sort",
 	}); err != nil {
 		return err
 	}
 
-	// Create indexes for many2many join tables
+	// 为多对多关联表创建索引
 	if err := database.CreateJoinTableIndexes(db, []database.JoinTableIndex{
 		{Table: "user_roles", Name: "idx_user_roles_user_id", Columns: "user_id"},
 		{Table: "user_roles", Name: "idx_user_roles_role_id", Columns: "role_id"},
