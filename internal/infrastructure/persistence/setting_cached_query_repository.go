@@ -130,6 +130,7 @@ func (r *cachedSettingQueryRepository) FindByKeys(ctx context.Context, keys []st
 // FindByCategoryID 根据分类 ID 查找配置定义列表。
 //
 // 如果缓存已预热，从全量缓存中过滤；否则直接查库。
+// 若缓存过滤结果为空，回退数据库查询（防止缓存部分过期）。
 func (r *cachedSettingQueryRepository) FindByCategoryID(ctx context.Context, categoryID uint) ([]*setting.Setting, error) {
 	// 如果已预热，从缓存中过滤
 	if r.cache.IsWarmedUp(ctx) { //nolint:nestif // 缓存查询逻辑需要嵌套判断
@@ -141,7 +142,12 @@ func (r *cachedSettingQueryRepository) FindByCategoryID(ctx context.Context, cat
 					result = append(result, s)
 				}
 			}
-			return result, nil
+			// 仅当过滤结果非空时使用缓存，否则回退数据库
+			// 这可以防止缓存部分过期导致的空结果
+			if len(result) > 0 {
+				return result, nil
+			}
+			slog.Debug("cache filter returned empty, fallback to db", "categoryID", categoryID)
 		}
 		// 缓存获取失败，回退到数据库
 		if err != nil {

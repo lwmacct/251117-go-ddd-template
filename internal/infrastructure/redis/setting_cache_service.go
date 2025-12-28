@@ -341,9 +341,9 @@ func (s *settingCacheService) IsWarmedUp(ctx context.Context) bool {
 }
 
 // SetWarmedUp 标记缓存已预热完成。
+// TTL 与缓存数据一致，确保标记过期时触发重新预热。
 func (s *settingCacheService) SetWarmedUp(ctx context.Context) error {
-	// 使用 0 表示永不过期
-	return s.client.Set(ctx, s.keyPrefix+warmedUpKey, "1", 0).Err()
+	return s.client.Set(ctx, s.keyPrefix+warmedUpKey, "1", settingCacheTTL).Err()
 }
 
 // TryAcquireWarmupLock 尝试获取预热分布式锁。
