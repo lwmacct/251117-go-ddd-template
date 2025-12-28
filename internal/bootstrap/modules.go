@@ -31,8 +31,9 @@ type InfrastructureModule struct {
 // CacheServicesModule 缓存服务模块
 // 聚合所有业务域的缓存服务，在 Repositories 之前初始化
 type CacheServicesModule struct {
-	Setting    cache.SettingCacheService
-	Permission cache.PermissionCacheService
+	Setting     cache.SettingCacheService
+	UserSetting cache.UserSettingCacheService
+	Permission  cache.PermissionCacheService
 }
 
 // RepositoriesModule 仓储模块

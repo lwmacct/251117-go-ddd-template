@@ -7,98 +7,97 @@ paths:
 
 ## 核心职责
 
-实现 Domain 层定义的 Repository 接口，处理**数据库持久化**（GORM）。
+实现 Domain 层 Repository 接口，处理数据库持久化（GORM）。
 
-**注意**：非数据库存储（如内存缓存、聚合查询）应放在独立的 infrastructure 模块中：
+## 文件命名
 
-- 内存存储 → `infrastructure/captcha/`
-- 聚合查询 → `infrastructure/stats/`
+| 文件类型   | 命名规范                             |
+| ---------- | ------------------------------------ |
+| 包文档     | `doc.go`（**必需**）                 |
+| Model      | `{模块}_model.go`                    |
+| 写仓储     | `{模块}_command_repository.go`       |
+| 读仓储     | `{模块}_query_repository.go`         |
+| 缓存装饰器 | `{模块}_cached_{type}_repository.go` |
+| 仓储聚合   | `{模块}_repositories.go`（可选）     |
 
-## 文件命名规范
-
-| 文件类型     | 命名规范                       | 示例                           |
-| ------------ | ------------------------------ | ------------------------------ |
-| 包文档       | `doc.go`                       | **必需**                       |
-| 泛型基类     | `generic_repository.go`        | 可选，减少样板代码             |
-| 持久化 Model | `{模块}_model.go`              | `user_model.go`                |
-| 写仓储实现   | `{模块}_command_repository.go` | `user_command_repository.go`   |
-| 读仓储实现   | `{模块}_query_repository.go`   | `user_query_repository.go`     |
-| 仓储聚合     | `{模块}_repositories.go`       | `user_repositories.go`（可选） |
-
-## 多实体模块
-
-当 Domain 模块包含多个实体时，Infrastructure 层对应扩展：
-
-| 文件类型   | 主实体                         | 次要实体                         |
-| ---------- | ------------------------------ | -------------------------------- |
-| Model      | `{模块}_model.go`              | `{实体名}_model.go`              |
-| 写仓储实现 | `{模块}_command_repository.go` | `{实体名}_command_repository.go` |
-| 读仓储实现 | `{模块}_query_repository.go`   | `{实体名}_query_repository.go`   |
-| 仓储聚合   | `{模块}_repositories.go`       | `{实体名}_repositories.go`       |
-
-## 设计原则
-
-### Model 规范
+## Model 规范
 
 - 必须定义 `TableName()` 方法
-- 必须提供 `newXxxModelFromEntity()` 和 `toEntity()` 映射函数
+- 必须提供 `toModel()` 和 `toEntity()` 映射函数
 - GORM Tag 只在 Model 中使用，Domain 实体禁止 GORM 依赖
 
-### Repository 规范
+## Repository 规范
 
-- Command Repository 实现写操作（Create/Update/Delete）
-- Query Repository 实现读操作（Get/List/Exists）
-- `Create()` 方法必须回写生成的 ID 到实体
+- Command：写操作（Create/Update/Delete）
+- Query：读操作（Get/List/Exists）
+- `Create()` 必须回写生成的 ID 到实体
 
-### 泛型基类（推荐）
+## 关联约束
 
-使用 `GenericCommandRepository[E, M]` 减少样板代码：
-
-- 统一 CRUD 实现
-- 类型安全，编译时检查
-- 仅需实现 `toModel` 和 `toEntity` 映射函数
-
-## 目录结构示例
-
-### 单实体模块
-
-```
-user_model.go                 # GORM Model + 映射函数
-user_command_repository.go    # 写仓储实现
-user_query_repository.go      # 读仓储实现
-user_repositories.go          # 仓储聚合（可选）
-```
-
-### 多实体模块
-
-```
-setting_model.go                     # Setting Model
-setting_command_repository.go        # Setting 写仓储
-user_setting_model.go                # UserSetting Model
-user_setting_command_repository.go   # UserSetting 写仓储
-```
-
-## 关联约束（禁止物理外键）
+禁止物理外键，使用逻辑关联：
 
 ```go
 // ❌ 禁止
 CategoryID uint `gorm:"constraint:OnDelete:CASCADE"`
 
 // ✅ 允许
-CategoryID uint `gorm:"index;not null"`  // 逻辑关联，应用层保证
-Roles []RoleModel `gorm:"many2many:user_roles"`  // 多对多仅定义表名
+CategoryID uint `gorm:"index;not null"`
 ```
 
-## GORM 高级特性
+## 缓存装饰器
 
-| 特性        | 用途       | 关键 API                           |
-| ----------- | ---------- | ---------------------------------- |
-| Scopes      | 可复用查询 | `db.Scopes(fn).Find()`             |
-| Hooks       | 生命周期   | `BeforeCreate`, `AfterFind`        |
-| OnConflict  | Upsert     | `clause.OnConflict{DoUpdates:...}` |
-| Transaction | 事务       | `db.Transaction(func(tx)...)`      |
-| Association | 关联管理   | `Append`, `Replace`, `Clear`       |
-| Preload     | 预加载     | `db.Preload("Roles").Find()`       |
-| Batch       | 批量操作   | `CreateInBatches`, `FindInBatches` |
-| Soft Delete | 软删除     | `gorm.DeletedAt`                   |
-| JSONB       | JSON 字段  | `datatypes.JSON`                   |
+使用装饰器模式添加缓存层，对调用方透明。
+
+### 结构
+
+```go
+type cachedQueryRepository struct {
+    delegate domain.QueryRepository
+    cache    cache.CacheService
+}
+
+func NewCachedQueryRepository(delegate, cache) domain.QueryRepository
+```
+
+### Query 装饰策略
+
+| 场景     | 策略                         |
+| -------- | ---------------------------- |
+| 单条查询 | Cache-Aside + 版本化回写     |
+| 批量查询 | 缓存命中 → 未命中查库 → 回写 |
+| 列表查询 | 预热完成从缓存过滤，否则查库 |
+
+### Command 装饰策略
+
+写操作后**失效缓存**（非更新）：
+
+```go
+func (r *cachedRepo) Update(ctx, entity) error {
+    if err := r.delegate.Update(ctx, entity); err != nil {
+        return err
+    }
+    _ = r.cache.Delete(ctx, entity.Key)  // 同步失效
+    return nil
+}
+```
+
+### 跨层失效
+
+当存在多层缓存时，写操作需级联失效：
+
+| 触发操作 | 本层缓存 | 派生层缓存   |
+| -------- | -------- | ------------ |
+| Update   | 同步删除 | 异步批量删除 |
+| Delete   | 同步删除 | 异步批量删除 |
+
+### 异步失效
+
+使用独立 context：
+
+```go
+go func() { //nolint:contextcheck
+    ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+    defer cancel()
+    _ = r.derivedCache.DeleteByKey(ctx, key)
+}()
+```

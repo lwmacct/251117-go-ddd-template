@@ -17,6 +17,9 @@ func newRepositoriesModule(db *gorm.DB, cacheServices *CacheServicesModule) *Rep
 	// Setting 仓储（带缓存装饰器）
 	settingRepos := newSettingRepositoriesWithCache(db, cacheServices)
 
+	// UserSetting 仓储（带缓存失效装饰器）
+	userSettingRepos := newUserSettingRepositoriesWithCache(db, cacheServices)
+
 	return &RepositoriesModule{
 		// CQRS 仓储（数据库实现）
 		User:        persistence.NewUserRepositories(db),
@@ -26,7 +29,7 @@ func newRepositoriesModule(db *gorm.DB, cacheServices *CacheServicesModule) *Rep
 		PAT:         persistence.NewPATRepositories(db),
 		Menu:        persistence.NewMenuRepositories(db),
 		Setting:     settingRepos,
-		UserSetting: persistence.NewUserSettingRepositories(db),
+		UserSetting: userSettingRepos,
 		TwoFA:       persistence.NewTwoFARepositories(db),
 
 		// 特殊仓储（内存实现）
@@ -45,12 +48,34 @@ func newSettingRepositoriesWithCache(db *gorm.DB, cacheServices *CacheServicesMo
 
 	// 用装饰器包装 Command 和 Query 仓储
 	cachedQuery := persistence.NewCachedSettingQueryRepository(rawRepos.Query, cacheServices.Setting)
-	cachedCommand := persistence.NewCachedSettingCommandRepository(rawRepos.Command, cacheServices.Setting)
+	// 使用带用户缓存失效的 Command 仓储
+	cachedCommand := persistence.NewCachedSettingCommandRepositoryWithUserCache(
+		rawRepos.Command,
+		cacheServices.Setting,
+		cacheServices.UserSetting,
+	)
 
 	return persistence.SettingRepositories{
 		Command:         cachedCommand,
 		Query:           cachedQuery,
 		CategoryQuery:   rawRepos.CategoryQuery, // Category 暂不缓存
 		CategoryCommand: rawRepos.CategoryCommand,
+	}
+}
+
+// newUserSettingRepositoriesWithCache 创建带缓存失效的 UserSetting 仓储
+func newUserSettingRepositoriesWithCache(db *gorm.DB, cacheServices *CacheServicesModule) persistence.UserSettingRepositories {
+	// 原始仓储
+	rawRepos := persistence.NewUserSettingRepositories(db)
+
+	// 用装饰器包装 Command 仓储（UserSettingQuery 不需要缓存装饰器，缓存填充在 Application 层）
+	cachedCommand := persistence.NewCachedUserSettingCommandRepository(
+		rawRepos.Command,
+		cacheServices.UserSetting,
+	)
+
+	return persistence.UserSettingRepositories{
+		Command: cachedCommand,
+		Query:   rawRepos.Query, // Query 保持原始仓储
 	}
 }

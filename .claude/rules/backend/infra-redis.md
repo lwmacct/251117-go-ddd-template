@@ -7,55 +7,86 @@ paths:
 
 ## 核心职责
 
-实现 Domain 层 `cache.CommandRepository` 和 `cache.QueryRepository` 接口，提供缓存服务。
+实现 Domain 层 `cache.*Service` 接口，提供 Redis 缓存服务。
 
-## 文件结构
+## 文件命名
 
-| 文件                  | 职责                         |
-| --------------------- | ---------------------------- |
-| `client.go`           | Redis 客户端初始化、连接管理 |
-| `cache_repository.go` | 实现 Domain 缓存仓储接口     |
-| `doc.go`              | 包文档                       |
+| 文件类型     | 命名规范                  |
+| ------------ | ------------------------- |
+| 包文档       | `doc.go`（**必需**）      |
+| 客户端       | `client.go`               |
+| 缓存服务实现 | `{模块}_cache_service.go` |
 
-## 客户端规范
+## 设计原则
 
-```go
-// client.go
-// NewClient 创建并初始化 Redis 客户端
-// redisURL 格式: redis://[:password@]host:port[/db]
-func NewClient(ctx context.Context, redisURL string, enableTracing bool) (*redis.Client, error)
-
-// Close 关闭 Redis 客户端连接
-func Close(client *redis.Client) error
-
-// HealthCheck 检查 Redis 连接健康状态
-func HealthCheck(ctx context.Context, client *redis.Client) error
-```
-
-## 缓存仓储规范
+### 1. 接口实现
 
 ```go
-// cache_repository.go - 同时实现 Command 和 Query 接口
-type cacheRepository struct {
+type xxxCacheService struct {
     client    *redis.Client
-    keyPrefix string // key 前缀，所有操作自动拼接
+    keyPrefix string
 }
 
-// 创建仓储时指定 key 前缀
-func NewCacheCommandRepository(client *redis.Client, keyPrefix string) cache.CommandRepository
-func NewCacheQueryRepository(client *redis.Client, keyPrefix string) cache.QueryRepository
+func NewXxxCacheService(client *redis.Client, keyPrefix string) cache.XxxCacheService
+```
+
+### 2. 版本化写入（防 Stale Cache）
+
+异步回写场景使用 Lua 脚本原子比较版本号：
+
+```lua
+local current = redis.call('GET', KEYS[1])
+if current then
+    local data = cjson.decode(current)
+    if data.v >= tonumber(ARGV[2]) then return 0 end
+end
+redis.call('SETEX', KEYS[1], ARGV[3], ARGV[1])
+return 1
+```
+
+### 3. 分布式锁
+
+预热等竞争场景使用 SETNX + TTL：
+
+```go
+ok, _ := client.SetNX(ctx, lockKey, "1", 30*time.Second).Result()
 ```
 
 ## Key 命名规范
 
-- 使用 `keyPrefix` 区分不同模块的缓存
-- 示例：`user:profile:123`、`perm:user:456`
+- 格式：`{prefix}{模块}:{标识}` 或 `{prefix}{模块}:{scope}:{id}:{key}`
+- 预热标记：`{prefix}{模块}:_warmed_up`
+- 预热锁：`{prefix}{模块}:_warmup_lock`
 
-## 依赖方向
+## DTO 规范
 
+缓存 DTO 独立定义，避免 Domain 实体添加 JSON tags：
+
+```go
+type xxxCacheDTO struct {
+    ID      uint   `json:"id"`
+    Version int64  `json:"v"` // 版本号
+}
+
+func toXxxCacheDTO(e *Entity) xxxCacheDTO
+func (d xxxCacheDTO) toEntity() *Entity
 ```
-domain/cache.CommandRepository (接口)
-domain/cache.QueryRepository   (接口)
-              ↑
-infrastructure/redis (实现)
+
+## 方法排序
+
+1. 构造函数
+2. 导出方法（按接口顺序）
+3. 未导出辅助方法
+4. 接口实现检查 `var _ = (*impl)(nil)`
+
+## 异步操作
+
+使用独立 context 避免请求取消中断操作：
+
+```go
+go func() { //nolint:contextcheck
+    ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+    defer cancel()
+    // ...
+}()
 ```

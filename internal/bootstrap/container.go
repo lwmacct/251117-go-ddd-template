@@ -9,7 +9,7 @@
 //
 // 初始化顺序（显式依赖）：
 //
-//	Infra → Repos → Services → UseCases → Events → Handlers → Router
+//	Infra → CacheServices → Repos → Services → UseCases → Events → Warmup → Handlers → Router
 //
 // 使用方式：
 //
@@ -21,10 +21,13 @@ package bootstrap
 
 import (
 	"context"
+	"log/slog"
 
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 
 	"github.com/lwmacct/251117-go-ddd-template/internal/config"
+	infracache "github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/cache"
 	"github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/persistence"
 )
 
@@ -67,8 +70,9 @@ type Container struct {
 //  4. Services（依赖 Repos, Redis）
 //  5. UseCases（依赖 Repos, Services, EventBus）
 //  6. EventHandlers（依赖 EventBus, Repos, Services）
-//  7. Handlers（依赖 UseCases, Services）
-//  8. Router（依赖 Handlers, Services）
+//  7. CacheWarmup（预热 Setting 缓存）
+//  8. Handlers（依赖 UseCases, Services）
+//  9. Router（依赖 Handlers, Services）
 func NewContainer(ctx context.Context, cfg *config.Config, opts *ContainerOptions) (*Container, error) {
 	if opts == nil {
 		opts = DefaultOptions()
@@ -98,10 +102,13 @@ func NewContainer(ctx context.Context, cfg *config.Config, opts *ContainerOption
 	// 6. 事件处理器
 	initEventHandlers(c.Infra.EventBus, c.Repos, c.Services, c.Cache)
 
-	// 7. HTTP Handlers
+	// 7. 缓存预热（Setting 缓存）
+	warmupSettingCache(ctx, c.Infra.DB, c.Cache)
+
+	// 8. HTTP Handlers
 	c.Handlers = newHandlersModule(cfg, c.Infra, c.UseCases)
 
-	// 8. 路由
+	// 9. 路由
 	c.Router = newRouter(cfg, c.Infra, c.Services, c.UseCases, c.Handlers)
 
 	return c, nil
@@ -126,5 +133,19 @@ func GetAllModels() []any {
 		&persistence.SettingModel{},
 		&persistence.SettingCategoryModel{},
 		&persistence.UserSettingModel{},
+	}
+}
+
+// warmupSettingCache 预热 Setting 缓存
+//
+// 使用原始仓储（非缓存装饰器）避免循环依赖。
+// 预热失败不阻塞服务启动，降级为惰性加载。
+func warmupSettingCache(ctx context.Context, db *gorm.DB, cacheServices *CacheServicesModule) {
+	// 使用原始仓储避免循环依赖
+	rawRepos := persistence.NewSettingRepositories(db)
+	warmer := infracache.NewSettingCacheWarmer(rawRepos.Query, cacheServices.Setting)
+
+	if err := warmer.WarmUpWithTimeout(ctx); err != nil {
+		slog.Warn("Setting cache warmup failed, will use lazy loading", "err", err)
 	}
 }

@@ -8,47 +8,23 @@ paths:
 
 ## 核心职责
 
-实现事件驱动架构：事件总线（发布/订阅）和事件处理器（业务响应）。
+事件驱动架构：事件总线（发布/订阅）+ 事件处理器。
 
-## 目录结构
+## 文件命名
 
-```
-internal/infrastructure/
-├── eventbus/                    # 事件总线实现
-│   ├── doc.go                   # 包文档（必需）
-│   └── memory_bus.go            # 内存事件总线
-└── eventhandler/                # 事件处理器
-    ├── doc.go                   # 包文档（必需）
-    ├── audit_log.go             # 审计日志处理器
-    └── cache_invalidation.go    # 缓存失效处理器
-```
+| 目录            | 命名规范        |
+| --------------- | --------------- |
+| `eventbus/`     | `{type}_bus.go` |
+| `eventhandler/` | `{功能}.go`     |
 
 ## EventBus 原则
 
-- **接口实现**：实现 `domain/event.EventBus` 接口
-- **同步执行**：`Publish()` 同步执行所有匹配的处理器
-- **通配符订阅**：支持 `user.*`（前缀匹配）和 `*`（全部匹配）
-
-### 通配符匹配规则
-
-| 模式           | 匹配                           |
-| -------------- | ------------------------------ |
-| `user.*`       | `user.created`, `user.deleted` |
-| `*`            | 所有事件                       |
-| `user.created` | 精确匹配                       |
+- 实现 Domain 层 EventBus 接口
+- `Publish()` 同步执行处理器
+- 支持通配符：`user.*`（前缀）、`*`（全部）
 
 ## EventHandler 原则
 
-- **接口实现**：实现 `domain/event.EventHandler` 接口
-- **错误隔离**：审计日志写入失败**不应阻塞**业务流程
-- **日志记录**：缓存失效失败应**记录日志**但不返回错误
-
-## 依赖方向
-
-```
-domain/event.EventBus     (接口)
-domain/event.EventHandler (接口)
-              ↑
-infrastructure/eventbus     (EventBus 实现)
-infrastructure/eventhandler (EventHandler 实现)
-```
+- 实现 Domain 层 EventHandler 接口
+- 错误隔离：失败不阻塞业务流程
+- 失败记录日志但不返回错误
