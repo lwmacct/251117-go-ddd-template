@@ -27,7 +27,6 @@ const (
 // settingCacheDTO 用于 Redis 缓存的 Setting 数据结构。
 //
 // 将领域实体序列化为 JSON 存储，避免在领域层添加 JSON tags。
-// Version 字段用于回写竞争检测。
 type settingCacheDTO struct {
 	ID             uint   `json:"id"`
 	Key            string `json:"key"`
@@ -41,7 +40,6 @@ type settingCacheDTO struct {
 	Order          int    `json:"order"`
 	ViewPermission string `json:"view_permission"`
 	EditPermission string `json:"edit_permission"`
-	Version        int64  `json:"v"` // 版本号，使用 UpdatedAt.UnixNano()
 }
 
 // toDTO 将领域实体转换为缓存 DTO。
@@ -59,15 +57,7 @@ func toSettingCacheDTO(s *setting.Setting) settingCacheDTO {
 		Order:          s.Order,
 		ViewPermission: s.ViewPermission,
 		EditPermission: s.EditPermission,
-		Version:        s.UpdatedAt.UnixNano(),
 	}
-}
-
-// toSettingCacheDTOWithVersion 将领域实体转换为缓存 DTO，使用指定版本号。
-func toSettingCacheDTOWithVersion(s *setting.Setting, version int64) settingCacheDTO {
-	dto := toSettingCacheDTO(s)
-	dto.Version = version
-	return dto
 }
 
 // toEntity 将缓存 DTO 转换为领域实体。
@@ -107,40 +97,51 @@ func NewSettingCacheService(client *redis.Client, keyPrefix string) cache.Settin
 	}
 }
 
-// Get 获取缓存的 Setting。
+// Get 获取缓存的 Setting（使用 RedisJSON）。
 // 缓存未命中返回 nil, nil。
 func (s *settingCacheService) Get(ctx context.Context, key string) (*setting.Setting, error) {
-	data, err := s.client.Get(ctx, s.buildKey(key)).Bytes()
+	data, err := s.client.JSONGet(ctx, s.buildKey(key), "$").Result()
 	if err != nil {
 		if errors.Is(err, redis.Nil) {
 			return nil, nil //nolint:nilnil // cache miss returns nil, nil
 		}
-		return nil, fmt.Errorf("redis get error: %w", err)
+		return nil, fmt.Errorf("redis json get error: %w", err)
 	}
 
-	var dto settingCacheDTO
-	if err := json.Unmarshal(data, &dto); err != nil {
+	// JSON.GET $ 返回数组包装：[actual_data]
+	var wrapper []settingCacheDTO
+	if err := json.Unmarshal([]byte(data), &wrapper); err != nil {
 		// 缓存数据损坏，删除并返回未命中
 		_ = s.client.Del(ctx, s.buildKey(key))
 		return nil, nil //nolint:nilerr,nilnil // corrupted cache treated as miss
 	}
 
-	return dto.toEntity(), nil
+	if len(wrapper) == 0 {
+		return nil, nil //nolint:nilnil // empty wrapper treated as miss
+	}
+
+	return wrapper[0].toEntity(), nil
 }
 
-// Set 设置 Setting 缓存。
+// Set 设置 Setting 缓存（使用 RedisJSON）。
 func (s *settingCacheService) Set(ctx context.Context, st *setting.Setting) error {
 	if st == nil {
 		return nil
 	}
 
 	dto := toSettingCacheDTO(st)
-	data, err := json.Marshal(dto)
+
+	// 使用 Pipeline 执行 JSON.SET + EXPIRE
+	pipe := s.client.Pipeline()
+	pipe.JSONSet(ctx, s.buildKey(st.Key), "$", dto)
+	pipe.Expire(ctx, s.buildKey(st.Key), settingCacheTTL)
+
+	_, err := pipe.Exec(ctx)
 	if err != nil {
-		return fmt.Errorf("failed to marshal setting: %w", err)
+		return fmt.Errorf("failed to set setting cache: %w", err)
 	}
 
-	return s.client.Set(ctx, s.buildKey(st.Key), data, settingCacheTTL).Err()
+	return nil
 }
 
 // Delete 删除指定 key 的缓存。
@@ -185,55 +186,10 @@ func (s *settingCacheService) DeleteAll(ctx context.Context) error {
 }
 
 // =========================================================================
-// 版本化写入
-// =========================================================================
-
-// setWithVersionScript Lua 脚本：版本化写入
-// KEYS[1]: 缓存 key
-// ARGV[1]: JSON 数据
-// ARGV[2]: 新版本号
-// ARGV[3]: TTL 秒数
-// 返回：1 表示写入成功，0 表示版本过旧被跳过
-//
-//nolint:dupword
-var setWithVersionScript = redis.NewScript(`
-local current = redis.call('GET', KEYS[1])
-if current then
-    local data = cjson.decode(current)
-    if data.v and data.v >= tonumber(ARGV[2]) then
-        return 0
-    end
-end
-redis.call('SETEX', KEYS[1], ARGV[3], ARGV[1])
-return 1
-`)
-
-// SetWithVersion 版本化设置缓存。
-func (s *settingCacheService) SetWithVersion(ctx context.Context, st *setting.Setting, version int64) (bool, error) {
-	if st == nil {
-		return false, nil
-	}
-
-	dto := toSettingCacheDTOWithVersion(st, version)
-	data, err := json.Marshal(dto)
-	if err != nil {
-		return false, fmt.Errorf("failed to marshal setting: %w", err)
-	}
-
-	ttlSeconds := int(settingCacheTTL.Seconds())
-	result, err := setWithVersionScript.Run(ctx, s.client, []string{s.buildKey(st.Key)}, string(data), version, ttlSeconds).Int()
-	if err != nil {
-		return false, fmt.Errorf("failed to run version script: %w", err)
-	}
-
-	return result == 1, nil
-}
-
-// =========================================================================
 // 批量操作
 // =========================================================================
 
-// GetAll 获取所有缓存的 Setting。
+// GetAll 获取所有缓存的 Setting（使用 RedisJSON）。
 func (s *settingCacheService) GetAll(ctx context.Context) (map[string]*setting.Setting, error) {
 	pattern := s.keyPrefix + settingKeyPrefix + "*"
 	result := make(map[string]*setting.Setting)
@@ -247,14 +203,15 @@ func (s *settingCacheService) GetAll(ctx context.Context) (map[string]*setting.S
 			continue
 		}
 
-		data, err := s.client.Get(ctx, redisKey).Bytes()
+		data, err := s.client.JSONGet(ctx, redisKey, "$").Result()
 		if err != nil {
 			continue
 		}
 
-		var dto settingCacheDTO
-		if json.Unmarshal(data, &dto) == nil {
-			result[dto.Key] = dto.toEntity()
+		// JSON.GET $ 返回数组包装
+		var wrapper []settingCacheDTO
+		if json.Unmarshal([]byte(data), &wrapper) == nil && len(wrapper) > 0 {
+			result[wrapper[0].Key] = wrapper[0].toEntity()
 		}
 	}
 
@@ -265,7 +222,7 @@ func (s *settingCacheService) GetAll(ctx context.Context) (map[string]*setting.S
 	return result, nil
 }
 
-// SetAll 批量设置 Setting 缓存（用于预热）。
+// SetAll 批量设置 Setting 缓存（使用 RedisJSON，用于预热）。
 func (s *settingCacheService) SetAll(ctx context.Context, settings []*setting.Setting) error {
 	if len(settings) == 0 {
 		return nil
@@ -274,12 +231,9 @@ func (s *settingCacheService) SetAll(ctx context.Context, settings []*setting.Se
 	pipe := s.client.Pipeline()
 	for _, st := range settings {
 		dto := toSettingCacheDTO(st)
-		data, err := json.Marshal(dto)
-		if err != nil {
-			slog.Warn("failed to marshal setting for batch set", "key", st.Key, "err", err)
-			continue
-		}
-		pipe.Set(ctx, s.buildKey(st.Key), data, settingCacheTTL)
+		key := s.buildKey(st.Key)
+		pipe.JSONSet(ctx, key, "$", dto)
+		pipe.Expire(ctx, key, settingCacheTTL)
 	}
 
 	_, err := pipe.Exec(ctx)
@@ -290,7 +244,7 @@ func (s *settingCacheService) SetAll(ctx context.Context, settings []*setting.Se
 	return nil
 }
 
-// GetByKeys 批量获取指定 key 的缓存。
+// GetByKeys 批量获取指定 key 的缓存（使用 RedisJSON）。
 func (s *settingCacheService) GetByKeys(ctx context.Context, keys []string) (map[string]*setting.Setting, error) {
 	if len(keys) == 0 {
 		return map[string]*setting.Setting{}, nil
@@ -301,9 +255,10 @@ func (s *settingCacheService) GetByKeys(ctx context.Context, keys []string) (map
 		redisKeys[i] = s.buildKey(k)
 	}
 
-	values, err := s.client.MGet(ctx, redisKeys...).Result()
+	// JSON.MGET 返回每个 key 的 JSON 字符串
+	values, err := s.client.JSONMGet(ctx, "$", redisKeys...).Result()
 	if err != nil {
-		return nil, fmt.Errorf("failed to mget: %w", err)
+		return nil, fmt.Errorf("failed to json mget: %w", err)
 	}
 
 	result := make(map[string]*setting.Setting)
@@ -317,9 +272,10 @@ func (s *settingCacheService) GetByKeys(ctx context.Context, keys []string) (map
 			continue
 		}
 
-		var dto settingCacheDTO
-		if json.Unmarshal([]byte(data), &dto) == nil {
-			result[keys[i]] = dto.toEntity()
+		// JSON.MGET 返回数组包装
+		var wrapper []settingCacheDTO
+		if json.Unmarshal([]byte(data), &wrapper) == nil && len(wrapper) > 0 {
+			result[keys[i]] = wrapper[0].toEntity()
 		}
 	}
 

@@ -126,7 +126,7 @@ func newUserSettingUseCases(repos *RepositoriesModule, cacheServices *CacheServi
 		Get:            setting.NewUserGetHandler(repos.Setting.Query, repos.UserSetting.Query),
 		List:           setting.NewUserListHandler(repos.Setting.Query, repos.UserSetting.Query),
 		ListSchema:     setting.NewUserListSchemaHandler(repos.Setting.Query, repos.UserSetting.Query, repos.Setting.CategoryQuery, cacheServices.Schema),
-		ListCategories: setting.NewUserListCategoriesHandler(repos.Setting.Query, repos.Setting.CategoryQuery),
+		ListCategories: setting.NewUserListCategoriesHandler(repos.Setting.Query, repos.Setting.CategoryQuery, cacheServices.Schema),
 	}
 }
 

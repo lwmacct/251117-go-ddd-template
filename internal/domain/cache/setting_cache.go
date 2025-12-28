@@ -14,7 +14,6 @@ import (
 //
 // 支持缓存预热和多实例安全：
 //   - [TryAcquireWarmupLock]: 分布式锁防止重复预热
-//   - [SetWithVersion]: 版本化写入防止回写竞争
 //
 // Key 命名规范：
 //   - 数据：{prefix}setting:{key}
@@ -37,16 +36,6 @@ type SettingCacheService interface {
 	// Set 设置 Setting 缓存。
 	// 使用默认 TTL（10 分钟）。
 	Set(ctx context.Context, s *setting.Setting) error
-
-	// SetWithVersion 版本化设置缓存（解决回写竞争）。
-	//
-	// 仅当以下条件之一满足时才写入：
-	//   - key 不存在
-	//   - 新版本 > 已缓存版本
-	//
-	// version 建议使用 UpdatedAt.UnixNano()。
-	// 返回 true 表示写入成功，false 表示版本过旧被跳过。
-	SetWithVersion(ctx context.Context, s *setting.Setting, version int64) (bool, error)
 
 	// =========================================================================
 	// 批量操作

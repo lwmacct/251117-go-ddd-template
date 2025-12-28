@@ -13,7 +13,6 @@ import (
 // 默认 TTL：30 分钟（比系统设置缓存更长，因为用户设置变更频率较低）
 //
 // 多实例安全：
-//   - 使用 [SetWithVersion] 防止回写竞争
 //   - 删除操作直接生效，无需跨实例通知（无本地缓存）
 //
 // 实现位于 [infrastructure/redis.userSettingCacheService]。
@@ -33,16 +32,6 @@ type UserSettingCacheService interface {
 
 	// Set 缓存用户的有效设置值。
 	Set(ctx context.Context, userID uint, value *EffectiveUserSetting) error
-
-	// SetWithVersion 版本化设置缓存（解决回写竞争）。
-	//
-	// 仅当以下条件之一满足时才写入：
-	//   - key 不存在
-	//   - 新版本 > 已缓存版本
-	//
-	// version 应使用 max(Setting.UpdatedAt, UserSetting.UpdatedAt).UnixNano()。
-	// 返回 true 表示写入成功，false 表示版本过旧被跳过。
-	SetWithVersion(ctx context.Context, userID uint, value *EffectiveUserSetting, version int64) (bool, error)
 
 	// =========================================================================
 	// 批量操作
@@ -109,10 +98,6 @@ type EffectiveUserSetting struct {
 	// true: Value 来自 UserSetting
 	// false: Value 等于 DefaultValue
 	IsCustomized bool `json:"is_customized"`
-
-	// Version 版本号（用于回写竞争检测）
-	// 使用 max(Setting.UpdatedAt, UserSetting.UpdatedAt).UnixNano()
-	Version int64 `json:"v"`
 
 	// =========================================================================
 	// UI 元数据（透传给前端）

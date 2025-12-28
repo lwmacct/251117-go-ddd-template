@@ -3,6 +3,7 @@ package setting
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"sort"
 
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/setting"
@@ -13,42 +14,61 @@ import (
 type UserListCategoriesHandler struct {
 	settingQueryRepo  setting.QueryRepository
 	categoryQueryRepo setting.SettingCategoryQueryRepository
+	schemaCache       SchemaCacheService
 }
 
 // NewUserListCategoriesHandler 创建 UserListCategoriesHandler 实例
 func NewUserListCategoriesHandler(
 	settingQueryRepo setting.QueryRepository,
 	categoryQueryRepo setting.SettingCategoryQueryRepository,
+	schemaCache SchemaCacheService,
 ) *UserListCategoriesHandler {
 	return &UserListCategoriesHandler{
 		settingQueryRepo:  settingQueryRepo,
 		categoryQueryRepo: categoryQueryRepo,
+		schemaCache:       schemaCache,
 	}
 }
 
 // Handle 处理获取用户可见分类列表查询
 // 返回包含 scope="user" 设置的分类元信息（不含 settings 数据）
 func (h *UserListCategoriesHandler) Handle(ctx context.Context, _ UserListCategoriesQuery) ([]CategoryMetaDTO, error) {
-	// 1. 查询所有 user scope 的设置
+	// 1. 查缓存
+	cached, err := h.schemaCache.GetUserCategories(ctx)
+	if err != nil {
+		slog.Warn("cache get failed, fallback to db", "err", err)
+	}
+	if cached != nil {
+		return cached, nil
+	}
+
+	// 2. 查询所有 user scope 的设置
 	defs, err := h.settingQueryRepo.FindByScope(ctx, "user")
 	if err != nil {
 		return nil, fmt.Errorf("failed to find user scope settings: %w", err)
 	}
 
-	// 2. 提取唯一的 CategoryID
+	// 3. 提取唯一的 CategoryID
 	categoryIDs := extractUniqueCategoryIDs(defs)
 	if len(categoryIDs) == 0 {
 		return []CategoryMetaDTO{}, nil
 	}
 
-	// 3. 查询分类元信息
+	// 4. 查询分类元信息
 	categories, err := h.categoryQueryRepo.FindByIDs(ctx, categoryIDs)
 	if err != nil {
 		return nil, fmt.Errorf("failed to find categories by IDs: %w", err)
 	}
 
-	// 4. 转换为 DTO 并按 Order 排序
-	return toCategoryMetaDTOs(categories), nil
+	// 5. 转换为 DTO 并按 Order 排序
+	result := toCategoryMetaDTOs(categories)
+
+	// 6. 同步回写缓存
+	if err := h.schemaCache.SetUserCategories(ctx, result); err != nil {
+		slog.Warn("cache set failed", "err", err)
+	}
+
+	return result, nil
 }
 
 // extractUniqueCategoryIDs 从设置列表中提取唯一的 CategoryID

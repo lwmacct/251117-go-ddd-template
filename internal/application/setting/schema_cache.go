@@ -31,6 +31,8 @@ import (
 //   - Category 结构变更 → [DeleteAll]
 //
 // 实现位于 [infrastructure/redis.schemaCacheService]。
+//
+//nolint:interfacebloat // 按职责分组：用户 Schema、管理员 Schema、批量操作、分类列表
 type SchemaCacheService interface {
 	// =========================================================================
 	// 用户 Schema 操作
@@ -99,4 +101,24 @@ type SchemaCacheService interface {
 	// 当 Category 结构变更或执行数据迁移时调用。
 	// 使用 SCAN 遍历 {prefix}schema:* 模式。
 	DeleteAll(ctx context.Context) error
+
+	// =========================================================================
+	// 分类列表缓存操作
+	// =========================================================================
+
+	// GetUserCategories 获取用户分类列表缓存。
+	//
+	// 缓存的是 scope="user" 的分类元信息列表，系统级数据（不区分用户）。
+	// Key 格式：{prefix}schema:categories:user
+	//
+	// 缓存未命中返回 nil, nil。
+	GetUserCategories(ctx context.Context) ([]CategoryMetaDTO, error)
+
+	// SetUserCategories 设置用户分类列表缓存。
+	SetUserCategories(ctx context.Context, categories []CategoryMetaDTO) error
+
+	// DeleteUserCategories 删除用户分类列表缓存。
+	//
+	// 当 Category 结构变更时调用（与 [DeleteAll] 关联）。
+	DeleteUserCategories(ctx context.Context) error
 }

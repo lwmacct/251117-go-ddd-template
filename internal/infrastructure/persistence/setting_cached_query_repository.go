@@ -3,7 +3,6 @@ package persistence
 import (
 	"context"
 	"log/slog"
-	"time"
 
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/cache"
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/setting"
@@ -12,10 +11,10 @@ import (
 // cachedSettingQueryRepository 带缓存的 Setting 查询仓储装饰器。
 //
 // 装饰 [setting.QueryRepository]，在查询前检查缓存，未命中再查数据库。
-// 采用 Cache-Aside 模式，版本化异步回写缓存防止竞争。
+// 采用 Cache-Aside 模式，同步回写缓存。
 //
 // 缓存策略：
-//   - [FindByKey]: 先查缓存，未命中查库后版本化回写
+//   - [FindByKey]: 先查缓存，未命中查库后同步回写
 //   - [FindByKeys]: 批量从缓存获取，未命中的查库后批量回写
 //   - [FindByCategoryID]: 预热后从全量缓存过滤，否则查库
 //   - [FindAll]: 预热后从缓存获取全量，否则查库
@@ -55,18 +54,10 @@ func (r *cachedSettingQueryRepository) FindByKey(ctx context.Context, key string
 		return nil, nil //nolint:nilnil // not found
 	}
 
-	// 3. 异步版本化回写缓存（防止回写竞争）
-	go func(s *setting.Setting) {
-		cacheCtx, cancel := context.WithTimeout(context.WithoutCancel(ctx), 2*time.Second)
-		defer cancel()
-
-		version := s.UpdatedAt.UnixNano()
-		if written, err := r.cache.SetWithVersion(cacheCtx, s, version); err != nil {
-			slog.Warn("cache set with version failed", "key", s.Key, "err", err)
-		} else if !written {
-			slog.Debug("cache set skipped (newer version exists)", "key", s.Key)
-		}
-	}(result)
+	// 3. 同步回写缓存
+	if err := r.cache.Set(ctx, result); err != nil {
+		slog.Warn("cache set failed", "key", result.Key, "err", err)
+	}
 
 	return result, nil
 }
@@ -99,15 +90,11 @@ func (r *cachedSettingQueryRepository) FindByKeys(ctx context.Context, keys []st
 			return nil, err
 		}
 
-		// 异步批量回写缓存
+		// 同步批量回写缓存
 		if len(dbResults) > 0 {
-			go func(settings []*setting.Setting) {
-				cacheCtx, cancel := context.WithTimeout(context.WithoutCancel(ctx), 5*time.Second)
-				defer cancel()
-				if err := r.cache.SetAll(cacheCtx, settings); err != nil {
-					slog.Warn("cache batch set failed", "count", len(settings), "err", err)
-				}
-			}(dbResults)
+			if err := r.cache.SetAll(ctx, dbResults); err != nil {
+				slog.Warn("cache batch set failed", "count", len(dbResults), "err", err)
+			}
 		}
 
 		// 合并结果

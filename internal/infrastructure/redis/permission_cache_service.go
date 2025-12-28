@@ -39,35 +39,48 @@ func NewPermissionCacheService(client *redis.Client, keyPrefix string) cache.Per
 	}
 }
 
-// GetUserPermissions 获取用户权限。
+// GetUserPermissions 获取用户权限（使用 RedisJSON）。
 // 缓存未命中返回三个 nil。
 func (s *permissionCacheService) GetUserPermissions(ctx context.Context, userID uint) ([]string, []string, error) {
-	data, err := s.client.Get(ctx, s.buildKey(userID)).Bytes()
+	data, err := s.client.JSONGet(ctx, s.buildKey(userID), "$").Result()
 	if err != nil {
 		if errors.Is(err, redis.Nil) {
 			return nil, nil, nil // cache miss
 		}
-		return nil, nil, fmt.Errorf("redis get error: %w", err)
+		return nil, nil, fmt.Errorf("redis json get error: %w", err)
 	}
 
-	var perms userPermissions
-	if err := json.Unmarshal(data, &perms); err != nil {
+	// JSON.GET $ 返回数组包装：[actual_data]
+	var wrapper []userPermissions
+	if err := json.Unmarshal([]byte(data), &wrapper); err != nil {
 		// 缓存数据损坏，删除并返回未命中
 		_ = s.client.Del(ctx, s.buildKey(userID))
 		return nil, nil, nil //nolint:nilerr // corrupted cache treated as miss
 	}
 
-	return perms.Roles, perms.Permissions, nil
-}
-
-// SetUserPermissions 设置用户权限缓存。
-func (s *permissionCacheService) SetUserPermissions(ctx context.Context, userID uint, roles, permissions []string) error {
-	data, err := json.Marshal(userPermissions{Roles: roles, Permissions: permissions})
-	if err != nil {
-		return fmt.Errorf("failed to marshal permissions: %w", err)
+	if len(wrapper) == 0 {
+		return nil, nil, nil // empty wrapper
 	}
 
-	return s.client.Set(ctx, s.buildKey(userID), data, permissionCacheTTL).Err()
+	return wrapper[0].Roles, wrapper[0].Permissions, nil
+}
+
+// SetUserPermissions 设置用户权限缓存（使用 RedisJSON）。
+func (s *permissionCacheService) SetUserPermissions(ctx context.Context, userID uint, roles, permissions []string) error {
+	perms := userPermissions{Roles: roles, Permissions: permissions}
+
+	// 使用 Pipeline 执行 JSON.SET + EXPIRE
+	key := s.buildKey(userID)
+	pipe := s.client.Pipeline()
+	pipe.JSONSet(ctx, key, "$", perms)
+	pipe.Expire(ctx, key, permissionCacheTTL)
+
+	_, err := pipe.Exec(ctx)
+	if err != nil {
+		return fmt.Errorf("failed to set permission cache: %w", err)
+	}
+
+	return nil
 }
 
 // InvalidateUser 失效单个用户缓存。

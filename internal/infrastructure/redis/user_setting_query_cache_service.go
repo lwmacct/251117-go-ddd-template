@@ -24,7 +24,6 @@ type userSettingQueryCacheDTO struct {
 	UserID     uint   `json:"user_id"`
 	SettingKey string `json:"setting_key"`
 	Value      any    `json:"value"`
-	Version    int64  `json:"v"` // 版本号，使用 UpdatedAt.UnixNano()
 }
 
 func toUserSettingQueryCacheDTO(s *setting.UserSetting) userSettingQueryCacheDTO {
@@ -33,7 +32,6 @@ func toUserSettingQueryCacheDTO(s *setting.UserSetting) userSettingQueryCacheDTO
 		UserID:     s.UserID,
 		SettingKey: s.SettingKey,
 		Value:      s.Value,
-		Version:    s.UpdatedAt.UnixNano(),
 	}
 }
 
@@ -63,24 +61,31 @@ func NewUserSettingQueryCacheService(client *redis.Client, keyPrefix string) cac
 	}
 }
 
-// GetByUser 获取用户的所有自定义配置缓存。
+// GetByUser 获取用户的所有自定义配置缓存（使用 RedisJSON）。
 func (s *userSettingQueryCacheService) GetByUser(ctx context.Context, userID uint) (map[string]*setting.UserSetting, error) {
 	key := s.buildKey(userID)
-	data, err := s.client.Get(ctx, key).Bytes()
+	data, err := s.client.JSONGet(ctx, key, "$").Result()
 	if err != nil {
 		if errors.Is(err, redis.Nil) {
 			return nil, nil //nolint:nilnil // cache miss
 		}
-		return nil, fmt.Errorf("redis get error: %w", err)
+		return nil, fmt.Errorf("redis json get error: %w", err)
 	}
 
-	var dtos []userSettingQueryCacheDTO
-	if err := json.Unmarshal(data, &dtos); err != nil {
+	// JSON.GET $ 返回数组包装：[actual_data]
+	// actual_data 本身也是数组
+	var wrapper [][]userSettingQueryCacheDTO
+	if err := json.Unmarshal([]byte(data), &wrapper); err != nil {
 		// 缓存数据损坏，删除并返回未命中
 		_ = s.client.Del(ctx, key)
 		return nil, nil //nolint:nilerr,nilnil // corrupted cache treated as miss
 	}
 
+	if len(wrapper) == 0 {
+		return nil, nil //nolint:nilnil // empty wrapper
+	}
+
+	dtos := wrapper[0]
 	result := make(map[string]*setting.UserSetting, len(dtos))
 	for _, dto := range dtos {
 		result[dto.SettingKey] = dto.toEntity()
@@ -88,20 +93,25 @@ func (s *userSettingQueryCacheService) GetByUser(ctx context.Context, userID uin
 	return result, nil
 }
 
-// SetByUser 设置用户的所有自定义配置缓存。
+// SetByUser 设置用户的所有自定义配置缓存（使用 RedisJSON）。
 func (s *userSettingQueryCacheService) SetByUser(ctx context.Context, userID uint, settings []*setting.UserSetting) error {
 	dtos := make([]userSettingQueryCacheDTO, 0, len(settings))
 	for _, us := range settings {
 		dtos = append(dtos, toUserSettingQueryCacheDTO(us))
 	}
 
-	data, err := json.Marshal(dtos)
+	// 使用 Pipeline 执行 JSON.SET + EXPIRE
+	key := s.buildKey(userID)
+	pipe := s.client.Pipeline()
+	pipe.JSONSet(ctx, key, "$", dtos)
+	pipe.Expire(ctx, key, userSettingQueryCacheTTL)
+
+	_, err := pipe.Exec(ctx)
 	if err != nil {
-		return fmt.Errorf("failed to marshal user settings: %w", err)
+		return fmt.Errorf("failed to set user setting query cache: %w", err)
 	}
 
-	key := s.buildKey(userID)
-	return s.client.Set(ctx, key, data, userSettingQueryCacheTTL).Err()
+	return nil
 }
 
 // DeleteByUser 删除用户的所有配置缓存。
