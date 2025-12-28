@@ -13,27 +13,18 @@ import (
 	"github.com/lwmacct/251117-go-ddd-template/internal/application/stats"
 	"github.com/lwmacct/251117-go-ddd-template/internal/application/twofa"
 	"github.com/lwmacct/251117-go-ddd-template/internal/application/user"
+	domain_auth "github.com/lwmacct/251117-go-ddd-template/internal/domain/auth"
+	"github.com/lwmacct/251117-go-ddd-template/internal/domain/captcha"
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/event"
+	domain_stats "github.com/lwmacct/251117-go-ddd-template/internal/domain/stats"
 	infra_auth "github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/auth"
+	infra_captcha "github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/captcha"
+	"github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/persistence"
+	infra_twofa "github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/twofa"
 	"github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/validation"
 )
 
 // --- 用例模块结构体 ---
-
-// UseCasesModule 聚合所有用例处理器。
-type UseCasesModule struct {
-	Auth        *AuthUseCases
-	User        *UserUseCases
-	Role        *RoleUseCases
-	Menu        *MenuUseCases
-	Setting     *SettingUseCases
-	UserSetting *UserSettingUseCases
-	PAT         *PATUseCases
-	AuditLog    *AuditLogUseCases
-	Stats       *StatsUseCases
-	Captcha     *CaptchaUseCases
-	TwoFA       *TwoFAUseCases
-}
 
 type AuthUseCases struct {
 	Login        *auth.LoginHandler
@@ -131,14 +122,9 @@ type TwoFAUseCases struct {
 // --- Fx 模块 ---
 
 // UseCaseModule 提供按领域组织的所有用例处理器。
-//
-// 关键依赖：AuditLog 最先创建，因为 Auth 需要它来记录登录日志。
 var UseCaseModule = fx.Module("usecase",
 	fx.Provide(
-		// AuditLog 优先（Auth 依赖它）
 		newAuditLogUseCases,
-
-		// 领域用例
 		newAuthUseCases,
 		newUserUseCases,
 		newRoleUseCases,
@@ -149,166 +135,186 @@ var UseCaseModule = fx.Module("usecase",
 		newStatsUseCases,
 		newCaptchaUseCases,
 		newTwoFAUseCases,
-
-		// 聚合模块
-		newUseCasesModule,
 	),
 )
 
 // --- 构造函数 ---
 
-func newAuditLogUseCases(repos *RepositoriesModule) *AuditLogUseCases {
+func newAuditLogUseCases(repos persistence.AuditLogRepositories) *AuditLogUseCases {
 	return &AuditLogUseCases{
-		CreateLog: auditlog.NewCreateHandler(repos.AuditLog.Command),
-		Get:       auditlog.NewGetHandler(repos.AuditLog.Query),
-		List:      auditlog.NewListHandler(repos.AuditLog.Query),
+		CreateLog: auditlog.NewCreateHandler(repos.Command),
+		Get:       auditlog.NewGetHandler(repos.Query),
+		List:      auditlog.NewListHandler(repos.Query),
 	}
 }
 
-func newAuthUseCases(
-	repos *RepositoriesModule,
-	services *ServicesModule,
-	auditLog *AuditLogUseCases,
-) *AuthUseCases {
+// authUseCasesParams 聚合 Auth 用例所需的依赖。
+type authUseCasesParams struct {
+	fx.In
+
+	UserRepos      persistence.UserRepositories
+	CaptchaCommand captcha.CommandRepository
+	TwoFARepos     persistence.TwoFARepositories
+	AuthSvc        domain_auth.Service
+	LoginSession   *infra_auth.LoginSessionService
+	TwoFASvc       *infra_twofa.Service
+	AuditLog       *AuditLogUseCases
+}
+
+func newAuthUseCases(p authUseCasesParams) *AuthUseCases {
 	return &AuthUseCases{
-		Login:        auth.NewLoginHandler(repos.User.Query, repos.CaptchaCommand, repos.TwoFA.Query, services.Auth, services.LoginSession, auditLog.CreateLog),
-		Login2FA:     auth.NewLogin2FAHandler(repos.User.Query, services.Auth, services.LoginSession, services.TwoFA, auditLog.CreateLog),
-		Register:     auth.NewRegisterHandler(repos.User.Command, repos.User.Query, services.Auth),
-		RefreshToken: auth.NewRefreshTokenHandler(repos.User.Query, services.Auth),
+		Login:        auth.NewLoginHandler(p.UserRepos.Query, p.CaptchaCommand, p.TwoFARepos.Query, p.AuthSvc, p.LoginSession, p.AuditLog.CreateLog),
+		Login2FA:     auth.NewLogin2FAHandler(p.UserRepos.Query, p.AuthSvc, p.LoginSession, p.TwoFASvc, p.AuditLog.CreateLog),
+		Register:     auth.NewRegisterHandler(p.UserRepos.Command, p.UserRepos.Query, p.AuthSvc),
+		RefreshToken: auth.NewRefreshTokenHandler(p.UserRepos.Query, p.AuthSvc),
 	}
 }
 
-func newUserUseCases(
-	repos *RepositoriesModule,
-	services *ServicesModule,
-	eventBus event.EventBus,
-) *UserUseCases {
+// userUseCasesParams 聚合 User 用例所需的依赖。
+type userUseCasesParams struct {
+	fx.In
+
+	UserRepos persistence.UserRepositories
+	AuthSvc   domain_auth.Service
+	EventBus  event.EventBus
+}
+
+func newUserUseCases(p userUseCasesParams) *UserUseCases {
 	return &UserUseCases{
-		Create:         user.NewCreateHandler(repos.User.Command, repos.User.Query, services.Auth),
-		Update:         user.NewUpdateHandler(repos.User.Command, repos.User.Query),
-		Delete:         user.NewDeleteHandler(repos.User.Command, repos.User.Query, eventBus),
-		AssignRoles:    user.NewAssignRolesHandler(repos.User.Command, repos.User.Query, eventBus),
-		ChangePassword: user.NewChangePasswordHandler(repos.User.Command, repos.User.Query, services.Auth),
-		BatchCreate:    user.NewBatchCreateHandler(repos.User.Command, repos.User.Query, services.Auth),
-		Get:            user.NewGetHandler(repos.User.Query),
-		List:           user.NewListHandler(repos.User.Query),
+		Create:         user.NewCreateHandler(p.UserRepos.Command, p.UserRepos.Query, p.AuthSvc),
+		Update:         user.NewUpdateHandler(p.UserRepos.Command, p.UserRepos.Query),
+		Delete:         user.NewDeleteHandler(p.UserRepos.Command, p.UserRepos.Query, p.EventBus),
+		AssignRoles:    user.NewAssignRolesHandler(p.UserRepos.Command, p.UserRepos.Query, p.EventBus),
+		ChangePassword: user.NewChangePasswordHandler(p.UserRepos.Command, p.UserRepos.Query, p.AuthSvc),
+		BatchCreate:    user.NewBatchCreateHandler(p.UserRepos.Command, p.UserRepos.Query, p.AuthSvc),
+		Get:            user.NewGetHandler(p.UserRepos.Query),
+		List:           user.NewListHandler(p.UserRepos.Query),
 	}
 }
 
-func newRoleUseCases(repos *RepositoriesModule, eventBus event.EventBus) *RoleUseCases {
+// roleUseCasesParams 聚合 Role 用例所需的依赖。
+type roleUseCasesParams struct {
+	fx.In
+
+	RoleRepos       persistence.RoleRepositories
+	PermissionRepos persistence.PermissionRepositories
+	EventBus        event.EventBus
+}
+
+func newRoleUseCases(p roleUseCasesParams) *RoleUseCases {
 	return &RoleUseCases{
-		Create:          role.NewCreateHandler(repos.Role.Command, repos.Role.Query),
-		Update:          role.NewUpdateHandler(repos.Role.Command, repos.Role.Query),
-		Delete:          role.NewDeleteHandler(repos.Role.Command, repos.Role.Query),
-		SetPermissions:  role.NewSetPermissionsHandler(repos.Role.Command, repos.Role.Query, repos.Permission.Query, eventBus),
-		Get:             role.NewGetHandler(repos.Role.Query),
-		List:            role.NewListHandler(repos.Role.Query),
-		ListPermissions: role.NewListPermissionsHandler(repos.Permission.Query),
+		Create:          role.NewCreateHandler(p.RoleRepos.Command, p.RoleRepos.Query),
+		Update:          role.NewUpdateHandler(p.RoleRepos.Command, p.RoleRepos.Query),
+		Delete:          role.NewDeleteHandler(p.RoleRepos.Command, p.RoleRepos.Query),
+		SetPermissions:  role.NewSetPermissionsHandler(p.RoleRepos.Command, p.RoleRepos.Query, p.PermissionRepos.Query, p.EventBus),
+		Get:             role.NewGetHandler(p.RoleRepos.Query),
+		List:            role.NewListHandler(p.RoleRepos.Query),
+		ListPermissions: role.NewListPermissionsHandler(p.PermissionRepos.Query),
 	}
 }
 
-func newMenuUseCases(repos *RepositoriesModule) *MenuUseCases {
+func newMenuUseCases(repos persistence.MenuRepositories) *MenuUseCases {
 	return &MenuUseCases{
-		Create:  menu.NewCreateHandler(repos.Menu.Command, repos.Menu.Query),
-		Update:  menu.NewUpdateHandler(repos.Menu.Command, repos.Menu.Query),
-		Delete:  menu.NewDeleteHandler(repos.Menu.Command, repos.Menu.Query),
-		Reorder: menu.NewReorderHandler(repos.Menu.Command, repos.Menu.Query),
-		Get:     menu.NewGetHandler(repos.Menu.Query),
-		List:    menu.NewListHandler(repos.Menu.Query),
+		Create:  menu.NewCreateHandler(repos.Command, repos.Query),
+		Update:  menu.NewUpdateHandler(repos.Command, repos.Query),
+		Delete:  menu.NewDeleteHandler(repos.Command, repos.Query),
+		Reorder: menu.NewReorderHandler(repos.Command, repos.Query),
+		Get:     menu.NewGetHandler(repos.Query),
+		List:    menu.NewListHandler(repos.Query),
 	}
 }
 
-func newSettingUseCases(repos *RepositoriesModule, cache *CacheServicesModule) *SettingUseCases {
+// settingUseCasesParams 聚合 Setting 用例所需的依赖。
+type settingUseCasesParams struct {
+	fx.In
+
+	SettingRepos persistence.SettingRepositories
+	SchemaCache  setting.SchemaCacheService
+}
+
+func newSettingUseCases(p settingUseCasesParams) *SettingUseCases {
 	validator := validation.NewJSONLogicValidator()
 
 	return &SettingUseCases{
-		Create:         setting.NewCreateHandler(repos.Setting.Command, repos.Setting.Query, cache.Schema),
-		Update:         setting.NewUpdateHandler(repos.Setting.Command, repos.Setting.Query, validator, cache.Schema),
-		Delete:         setting.NewDeleteHandler(repos.Setting.Command, repos.Setting.Query, cache.Schema),
-		BatchUpdate:    setting.NewBatchUpdateHandler(repos.Setting.Command, repos.Setting.Query, validator, cache.Schema),
-		Get:            setting.NewGetHandler(repos.Setting.Query),
-		List:           setting.NewListHandler(repos.Setting.Query),
-		ListSchema:     setting.NewListSchemaHandler(repos.Setting.Query, repos.Setting.CategoryQuery, cache.Schema),
-		CreateCategory: setting.NewCreateCategoryHandler(repos.Setting.CategoryCommand, repos.Setting.CategoryQuery),
-		UpdateCategory: setting.NewUpdateCategoryHandler(repos.Setting.CategoryCommand, repos.Setting.CategoryQuery),
-		DeleteCategory: setting.NewDeleteCategoryHandler(repos.Setting.CategoryCommand, repos.Setting.CategoryQuery, repos.Setting.Query),
-		GetCategory:    setting.NewGetCategoryHandler(repos.Setting.CategoryQuery),
-		ListCategories: setting.NewListCategoriesHandler(repos.Setting.CategoryQuery),
+		Create:         setting.NewCreateHandler(p.SettingRepos.Command, p.SettingRepos.Query, p.SchemaCache),
+		Update:         setting.NewUpdateHandler(p.SettingRepos.Command, p.SettingRepos.Query, validator, p.SchemaCache),
+		Delete:         setting.NewDeleteHandler(p.SettingRepos.Command, p.SettingRepos.Query, p.SchemaCache),
+		BatchUpdate:    setting.NewBatchUpdateHandler(p.SettingRepos.Command, p.SettingRepos.Query, validator, p.SchemaCache),
+		Get:            setting.NewGetHandler(p.SettingRepos.Query),
+		List:           setting.NewListHandler(p.SettingRepos.Query),
+		ListSchema:     setting.NewListSchemaHandler(p.SettingRepos.Query, p.SettingRepos.CategoryQuery, p.SchemaCache),
+		CreateCategory: setting.NewCreateCategoryHandler(p.SettingRepos.CategoryCommand, p.SettingRepos.CategoryQuery),
+		UpdateCategory: setting.NewUpdateCategoryHandler(p.SettingRepos.CategoryCommand, p.SettingRepos.CategoryQuery),
+		DeleteCategory: setting.NewDeleteCategoryHandler(p.SettingRepos.CategoryCommand, p.SettingRepos.CategoryQuery, p.SettingRepos.Query),
+		GetCategory:    setting.NewGetCategoryHandler(p.SettingRepos.CategoryQuery),
+		ListCategories: setting.NewListCategoriesHandler(p.SettingRepos.CategoryQuery),
 	}
 }
 
-func newUserSettingUseCases(repos *RepositoriesModule, cache *CacheServicesModule) *UserSettingUseCases {
+// userSettingUseCasesParams 聚合 UserSetting 用例所需的依赖。
+type userSettingUseCasesParams struct {
+	fx.In
+
+	SettingRepos     persistence.SettingRepositories
+	UserSettingRepos persistence.UserSettingRepositories
+	SchemaCache      setting.SchemaCacheService
+}
+
+func newUserSettingUseCases(p userSettingUseCasesParams) *UserSettingUseCases {
 	validator := validation.NewJSONLogicValidator()
 
 	return &UserSettingUseCases{
-		Set:            setting.NewUserSetHandler(repos.Setting.Query, repos.UserSetting.Command, validator),
-		BatchSet:       setting.NewUserBatchSetHandler(repos.Setting.Query, repos.UserSetting.Command, validator),
-		Reset:          setting.NewUserResetHandler(repos.UserSetting.Command),
-		ResetAll:       setting.NewUserResetAllHandler(repos.UserSetting.Command),
-		Get:            setting.NewUserGetHandler(repos.Setting.Query, repos.UserSetting.Query),
-		List:           setting.NewUserListHandler(repos.Setting.Query, repos.UserSetting.Query),
-		ListSchema:     setting.NewUserListSchemaHandler(repos.Setting.Query, repos.UserSetting.Query, repos.Setting.CategoryQuery, cache.Schema),
-		ListCategories: setting.NewUserListCategoriesHandler(repos.Setting.Query, repos.Setting.CategoryQuery, cache.Schema),
+		Set:            setting.NewUserSetHandler(p.SettingRepos.Query, p.UserSettingRepos.Command, validator),
+		BatchSet:       setting.NewUserBatchSetHandler(p.SettingRepos.Query, p.UserSettingRepos.Command, validator),
+		Reset:          setting.NewUserResetHandler(p.UserSettingRepos.Command),
+		ResetAll:       setting.NewUserResetAllHandler(p.UserSettingRepos.Command),
+		Get:            setting.NewUserGetHandler(p.SettingRepos.Query, p.UserSettingRepos.Query),
+		List:           setting.NewUserListHandler(p.SettingRepos.Query, p.UserSettingRepos.Query),
+		ListSchema:     setting.NewUserListSchemaHandler(p.SettingRepos.Query, p.UserSettingRepos.Query, p.SettingRepos.CategoryQuery, p.SchemaCache),
+		ListCategories: setting.NewUserListCategoriesHandler(p.SettingRepos.Query, p.SettingRepos.CategoryQuery, p.SchemaCache),
 	}
 }
 
-func newPATUseCases(repos *RepositoriesModule, tokenGen *infra_auth.TokenGenerator) *PATUseCases {
+// patUseCasesParams 聚合 PAT 用例所需的依赖。
+type patUseCasesParams struct {
+	fx.In
+
+	PATRepos  persistence.PATRepositories
+	UserRepos persistence.UserRepositories
+	TokenGen  *infra_auth.TokenGenerator
+}
+
+func newPATUseCases(p patUseCasesParams) *PATUseCases {
 	return &PATUseCases{
-		Create:  pat.NewCreateHandler(repos.PAT.Command, repos.User.Query, tokenGen),
-		Delete:  pat.NewDeleteHandler(repos.PAT.Command, repos.PAT.Query),
-		Disable: pat.NewDisableHandler(repos.PAT.Command, repos.PAT.Query),
-		Enable:  pat.NewEnableHandler(repos.PAT.Command, repos.PAT.Query),
-		Get:     pat.NewGetHandler(repos.PAT.Query),
-		List:    pat.NewListHandler(repos.PAT.Query),
+		Create:  pat.NewCreateHandler(p.PATRepos.Command, p.UserRepos.Query, p.TokenGen),
+		Delete:  pat.NewDeleteHandler(p.PATRepos.Command, p.PATRepos.Query),
+		Disable: pat.NewDisableHandler(p.PATRepos.Command, p.PATRepos.Query),
+		Enable:  pat.NewEnableHandler(p.PATRepos.Command, p.PATRepos.Query),
+		Get:     pat.NewGetHandler(p.PATRepos.Query),
+		List:    pat.NewListHandler(p.PATRepos.Query),
 	}
 }
 
-func newStatsUseCases(repos *RepositoriesModule) *StatsUseCases {
+func newStatsUseCases(statsQuery domain_stats.QueryRepository) *StatsUseCases {
 	return &StatsUseCases{
-		GetStats: stats.NewGetStatsHandler(repos.StatsQuery),
+		GetStats: stats.NewGetStatsHandler(statsQuery),
 	}
 }
 
-func newCaptchaUseCases(repos *RepositoriesModule, services *ServicesModule) *CaptchaUseCases {
+func newCaptchaUseCases(
+	captchaCommand captcha.CommandRepository,
+	captchaSvc *infra_captcha.Service,
+) *CaptchaUseCases {
 	return &CaptchaUseCases{
-		Generate: app_captcha.NewGenerateHandler(repos.CaptchaCommand, services.Captcha),
+		Generate: app_captcha.NewGenerateHandler(captchaCommand, captchaSvc),
 	}
 }
 
-func newTwoFAUseCases(services *ServicesModule) *TwoFAUseCases {
+func newTwoFAUseCases(twofaSvc *infra_twofa.Service) *TwoFAUseCases {
 	return &TwoFAUseCases{
-		Setup:        twofa.NewSetupHandler(services.TwoFA),
-		VerifyEnable: twofa.NewVerifyEnableHandler(services.TwoFA),
-		Disable:      twofa.NewDisableHandler(services.TwoFA),
-		GetStatus:    twofa.NewGetStatusHandler(services.TwoFA),
-	}
-}
-
-// newUseCasesModule 创建聚合的用例模块。
-func newUseCasesModule(
-	authUC *AuthUseCases,
-	userUC *UserUseCases,
-	roleUC *RoleUseCases,
-	menuUC *MenuUseCases,
-	settingUC *SettingUseCases,
-	userSettingUC *UserSettingUseCases,
-	patUC *PATUseCases,
-	auditLogUC *AuditLogUseCases,
-	statsUC *StatsUseCases,
-	captchaUC *CaptchaUseCases,
-	twofaUC *TwoFAUseCases,
-) *UseCasesModule {
-	return &UseCasesModule{
-		Auth:        authUC,
-		User:        userUC,
-		Role:        roleUC,
-		Menu:        menuUC,
-		Setting:     settingUC,
-		UserSetting: userSettingUC,
-		PAT:         patUC,
-		AuditLog:    auditLogUC,
-		Stats:       statsUC,
-		Captcha:     captchaUC,
-		TwoFA:       twofaUC,
+		Setup:        twofa.NewSetupHandler(twofaSvc),
+		VerifyEnable: twofa.NewVerifyEnableHandler(twofaSvc),
+		Disable:      twofa.NewDisableHandler(twofaSvc),
+		GetStatus:    twofa.NewGetStatusHandler(twofaSvc),
 	}
 }

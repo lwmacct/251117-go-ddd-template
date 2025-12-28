@@ -5,26 +5,13 @@ import (
 
 	"github.com/lwmacct/251117-go-ddd-template/internal/config"
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/auth"
+	"github.com/lwmacct/251117-go-ddd-template/internal/domain/cache"
+	"github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/persistence"
 	"github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/twofa"
 
 	infra_auth "github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/auth"
 	infra_captcha "github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/captcha"
 )
-
-// ServicesModule 聚合所有领域服务和基础设施服务。
-type ServicesModule struct {
-	// 领域服务
-	Auth auth.Service
-
-	// 基础设施服务
-	JWT             *infra_auth.JWTManager
-	TokenGenerator  auth.TokenGenerator
-	LoginSession    *infra_auth.LoginSessionService
-	PermissionCache *infra_auth.PermissionCacheService
-	PAT             *infra_auth.PATService
-	Captcha         *infra_captcha.Service
-	TwoFA           *twofa.Service
-}
 
 // ServiceModule 提供所有领域服务和基础设施服务。
 //
@@ -37,18 +24,15 @@ var ServiceModule = fx.Module("service",
 	fx.Provide(
 		// 基础设施服务
 		newJWTManager,
-		newTokenGenerator,
-		newLoginSessionService,
+		infra_auth.NewTokenGenerator,
+		infra_auth.NewLoginSessionService,
 		newAuthPermissionCacheService,
 		newPATService,
-		newCaptchaService,
+		infra_captcha.NewService,
 		newTwoFAService,
 
 		// 领域服务
 		newAuthService,
-
-		// 聚合模块
-		newServicesModule,
 	),
 )
 
@@ -56,22 +40,15 @@ func newJWTManager(cfg *config.Config) *infra_auth.JWTManager {
 	return infra_auth.NewJWTManager(cfg.JWT.Secret, cfg.JWT.AccessTokenExpiry, cfg.JWT.RefreshTokenExpiry)
 }
 
-func newTokenGenerator() *infra_auth.TokenGenerator {
-	return infra_auth.NewTokenGenerator()
-}
-
-func newLoginSessionService() *infra_auth.LoginSessionService {
-	return infra_auth.NewLoginSessionService()
-}
-
 func newAuthPermissionCacheService(
-	cache *CacheServicesModule,
-	repos *RepositoriesModule,
+	permissionCache cache.PermissionCacheService,
+	userWithRolesCache cache.UserWithRolesCacheService,
+	userRepos persistence.UserRepositories,
 ) *infra_auth.PermissionCacheService {
 	return infra_auth.NewPermissionCacheService(
-		cache.Permission,
-		cache.UserWithRoles,
-		repos.User.Query,
+		permissionCache,
+		userWithRolesCache,
+		userRepos.Query,
 	)
 }
 
@@ -80,37 +57,22 @@ func newAuthService(jwt *infra_auth.JWTManager, tokenGen *infra_auth.TokenGenera
 	return infra_auth.NewAuthService(jwt, tokenGen, passwordPolicy)
 }
 
-func newCaptchaService() *infra_captcha.Service {
-	return infra_captcha.NewService()
-}
-
-func newPATService(repos *RepositoriesModule, tokenGen *infra_auth.TokenGenerator) *infra_auth.PATService {
-	return infra_auth.NewPATService(repos.PAT.Command, repos.PAT.Query, tokenGen)
-}
-
-func newTwoFAService(cfg *config.Config, repos *RepositoriesModule) *twofa.Service {
-	return twofa.NewService(repos.TwoFA.Command, repos.TwoFA.Query, repos.User.Query, cfg.Auth.TwoFAIssuer)
-}
-
-// newServicesModule 创建聚合的服务模块。
-func newServicesModule(
-	authSvc auth.Service,
-	jwt *infra_auth.JWTManager,
+func newPATService(
+	patRepos persistence.PATRepositories,
 	tokenGen *infra_auth.TokenGenerator,
-	loginSession *infra_auth.LoginSessionService,
-	permCache *infra_auth.PermissionCacheService,
-	pat *infra_auth.PATService,
-	captchaSvc *infra_captcha.Service,
-	twofaSvc *twofa.Service,
-) *ServicesModule {
-	return &ServicesModule{
-		Auth:            authSvc,
-		JWT:             jwt,
-		TokenGenerator:  tokenGen,
-		LoginSession:    loginSession,
-		PermissionCache: permCache,
-		PAT:             pat,
-		Captcha:         captchaSvc,
-		TwoFA:           twofaSvc,
-	}
+) *infra_auth.PATService {
+	return infra_auth.NewPATService(patRepos.Command, patRepos.Query, tokenGen)
+}
+
+// twofaServiceParams 聚合 TwoFA 服务所需的依赖。
+type twofaServiceParams struct {
+	fx.In
+
+	Config    *config.Config
+	TwoFA     persistence.TwoFARepositories
+	UserRepos persistence.UserRepositories
+}
+
+func newTwoFAService(p twofaServiceParams) *twofa.Service {
+	return twofa.NewService(p.TwoFA.Command, p.TwoFA.Query, p.UserRepos.Query, p.Config.Auth.TwoFAIssuer)
 }

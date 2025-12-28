@@ -16,11 +16,14 @@ import (
 	"github.com/lwmacct/251117-go-ddd-template/internal/adapters/http/handler"
 	"github.com/lwmacct/251117-go-ddd-template/internal/application/cache"
 	"github.com/lwmacct/251117-go-ddd-template/internal/config"
+	infra_auth "github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/auth"
 	"github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/health"
 )
 
-// HandlersModule 聚合所有 HTTP 处理器。
-type HandlersModule struct {
+// HandlersResult 使用 fx.Out 批量返回所有 HTTP 处理器。
+type HandlersResult struct {
+	fx.Out
+
 	Health      *handler.HealthHandler
 	Auth        *handler.AuthHandler
 	Captcha     *handler.CaptchaHandler
@@ -42,7 +45,7 @@ type HandlersModule struct {
 var HTTPModule = fx.Module("http",
 	fx.Provide(
 		newHealthChecker,
-		newHandlersModule,
+		newAllHandlers,
 		newRouter,
 	),
 )
@@ -51,155 +54,196 @@ func newHealthChecker(db *gorm.DB, redisClient *redis.Client) *health.SystemChec
 	return health.NewSystemChecker(db, redisClient)
 }
 
-func newHandlersModule(
-	cfg *config.Config,
-	redisClient *redis.Client,
-	healthChecker *health.SystemChecker,
-	useCases *UseCasesModule,
-) *HandlersModule {
-	keyPrefix := cfg.Data.RedisKeyPrefix
+// handlersParams 聚合创建 Handler 所需的依赖。
+type handlersParams struct {
+	fx.In
 
-	return &HandlersModule{
-		Health: handler.NewHealthHandler(healthChecker),
+	Config        *config.Config
+	RedisClient   *redis.Client
+	HealthChecker *health.SystemChecker
+	Auth          *AuthUseCases
+	User          *UserUseCases
+	Role          *RoleUseCases
+	Menu          *MenuUseCases
+	Setting       *SettingUseCases
+	UserSetting   *UserSettingUseCases
+	PAT           *PATUseCases
+	AuditLog      *AuditLogUseCases
+	Stats         *StatsUseCases
+	Captcha       *CaptchaUseCases
+	TwoFA         *TwoFAUseCases
+}
+
+func newAllHandlers(p handlersParams) HandlersResult {
+	keyPrefix := p.Config.Data.RedisKeyPrefix
+
+	return HandlersResult{
+		Health: handler.NewHealthHandler(p.HealthChecker),
 		Auth: handler.NewAuthHandler(
-			useCases.Auth.Login,
-			useCases.Auth.Login2FA,
-			useCases.Auth.Register,
-			useCases.Auth.RefreshToken,
+			p.Auth.Login,
+			p.Auth.Login2FA,
+			p.Auth.Register,
+			p.Auth.RefreshToken,
 		),
-		Captcha: handler.NewCaptchaHandler(useCases.Captcha.Generate, cfg.Auth.DevSecret),
+		Captcha: handler.NewCaptchaHandler(p.Captcha.Generate, p.Config.Auth.DevSecret),
 		AdminUser: handler.NewAdminUserHandler(
-			useCases.User.Create,
-			useCases.User.Update,
-			useCases.User.Delete,
-			useCases.User.AssignRoles,
-			useCases.User.BatchCreate,
-			useCases.User.Get,
-			useCases.User.List,
+			p.User.Create,
+			p.User.Update,
+			p.User.Delete,
+			p.User.AssignRoles,
+			p.User.BatchCreate,
+			p.User.Get,
+			p.User.List,
 		),
 		User: handler.NewUserHandler(
-			useCases.User.Create,
-			useCases.User.Update,
-			useCases.User.Delete,
-			useCases.User.Get,
-			useCases.User.List,
+			p.User.Create,
+			p.User.Update,
+			p.User.Delete,
+			p.User.Get,
+			p.User.List,
 		),
 		UserProfile: handler.NewUserProfileHandler(
-			useCases.User.Get,
-			useCases.User.Update,
-			useCases.User.ChangePassword,
-			useCases.User.Delete,
+			p.User.Get,
+			p.User.Update,
+			p.User.ChangePassword,
+			p.User.Delete,
 		),
 		Role: handler.NewRoleHandler(
-			useCases.Role.Create,
-			useCases.Role.Update,
-			useCases.Role.Delete,
-			useCases.Role.SetPermissions,
-			useCases.Role.Get,
-			useCases.Role.List,
-			useCases.Role.ListPermissions,
+			p.Role.Create,
+			p.Role.Update,
+			p.Role.Delete,
+			p.Role.SetPermissions,
+			p.Role.Get,
+			p.Role.List,
+			p.Role.ListPermissions,
 		),
 		Menu: handler.NewMenuHandler(
-			useCases.Menu.Create,
-			useCases.Menu.Update,
-			useCases.Menu.Delete,
-			useCases.Menu.Reorder,
-			useCases.Menu.Get,
-			useCases.Menu.List,
+			p.Menu.Create,
+			p.Menu.Update,
+			p.Menu.Delete,
+			p.Menu.Reorder,
+			p.Menu.Get,
+			p.Menu.List,
 		),
 		Setting: handler.NewSettingHandler(
-			useCases.Setting.Create,
-			useCases.Setting.Update,
-			useCases.Setting.Delete,
-			useCases.Setting.BatchUpdate,
-			useCases.Setting.Get,
-			useCases.Setting.List,
-			useCases.Setting.ListSchema,
-			useCases.Setting.CreateCategory,
-			useCases.Setting.UpdateCategory,
-			useCases.Setting.DeleteCategory,
-			useCases.Setting.GetCategory,
-			useCases.Setting.ListCategories,
+			p.Setting.Create,
+			p.Setting.Update,
+			p.Setting.Delete,
+			p.Setting.BatchUpdate,
+			p.Setting.Get,
+			p.Setting.List,
+			p.Setting.ListSchema,
+			p.Setting.CreateCategory,
+			p.Setting.UpdateCategory,
+			p.Setting.DeleteCategory,
+			p.Setting.GetCategory,
+			p.Setting.ListCategories,
 		),
 		UserSetting: handler.NewUserSettingHandler(
-			useCases.UserSetting.Set,
-			useCases.UserSetting.BatchSet,
-			useCases.UserSetting.Reset,
-			useCases.UserSetting.ResetAll,
-			useCases.UserSetting.Get,
-			useCases.UserSetting.List,
-			useCases.UserSetting.ListSchema,
-			useCases.UserSetting.ListCategories,
+			p.UserSetting.Set,
+			p.UserSetting.BatchSet,
+			p.UserSetting.Reset,
+			p.UserSetting.ResetAll,
+			p.UserSetting.Get,
+			p.UserSetting.List,
+			p.UserSetting.ListSchema,
+			p.UserSetting.ListCategories,
 		),
 		PAT: handler.NewPATHandler(
-			useCases.PAT.Create,
-			useCases.PAT.Delete,
-			useCases.PAT.Disable,
-			useCases.PAT.Enable,
-			useCases.PAT.Get,
-			useCases.PAT.List,
+			p.PAT.Create,
+			p.PAT.Delete,
+			p.PAT.Disable,
+			p.PAT.Enable,
+			p.PAT.Get,
+			p.PAT.List,
 		),
 		AuditLog: handler.NewAuditLogHandler(
-			useCases.AuditLog.List,
-			useCases.AuditLog.Get,
+			p.AuditLog.List,
+			p.AuditLog.Get,
 		),
-		Overview: handler.NewOverviewHandler(useCases.Stats.GetStats),
+		Overview: handler.NewOverviewHandler(p.Stats.GetStats),
 		TwoFA: handler.NewTwoFAHandler(
-			useCases.TwoFA.Setup,
-			useCases.TwoFA.VerifyEnable,
-			useCases.TwoFA.Disable,
-			useCases.TwoFA.GetStatus,
+			p.TwoFA.Setup,
+			p.TwoFA.VerifyEnable,
+			p.TwoFA.Disable,
+			p.TwoFA.GetStatus,
 		),
 		Cache: handler.NewCacheHandler(
-			cache.NewInfoHandler(redisClient, keyPrefix),
-			cache.NewScanKeysHandler(redisClient, keyPrefix),
-			cache.NewGetKeyHandler(redisClient, keyPrefix),
-			cache.NewDeleteHandler(redisClient, keyPrefix),
+			cache.NewInfoHandler(p.RedisClient, keyPrefix),
+			cache.NewScanKeysHandler(p.RedisClient, keyPrefix),
+			cache.NewGetKeyHandler(p.RedisClient, keyPrefix),
+			cache.NewDeleteHandler(p.RedisClient, keyPrefix),
 		),
 	}
 }
 
-func newRouter(
-	cfg *config.Config,
-	redisClient *redis.Client,
-	services *ServicesModule,
-	useCases *UseCasesModule,
-	handlers *HandlersModule,
-) *gin.Engine {
+// routerParams 聚合创建路由所需的依赖。
+type routerParams struct {
+	fx.In
+
+	Config      *config.Config
+	RedisClient *redis.Client
+
+	// Services
+	JWTManager      *infra_auth.JWTManager
+	PATService      *infra_auth.PATService
+	PermissionCache *infra_auth.PermissionCacheService
+
+	// UseCases
+	AuditLog *AuditLogUseCases
+
+	// Handlers
+	Health      *handler.HealthHandler
+	Auth        *handler.AuthHandler
+	Captcha     *handler.CaptchaHandler
+	AdminUser   *handler.AdminUserHandler
+	User        *handler.UserHandler
+	UserProfile *handler.UserProfileHandler
+	Role        *handler.RoleHandler
+	Menu        *handler.MenuHandler
+	Setting     *handler.SettingHandler
+	UserSetting *handler.UserSettingHandler
+	PAT         *handler.PATHandler
+	AuditLogH   *handler.AuditLogHandler
+	Overview    *handler.OverviewHandler
+	TwoFA       *handler.TwoFAHandler
+	Cache       *handler.CacheHandler
+}
+
+func newRouter(p routerParams) *gin.Engine {
 	deps := &adapthttp.RouterDependencies{
-		Config:                 cfg,
-		RedisClient:            redisClient,
-		CreateLogHandler:       useCases.AuditLog.CreateLog,
-		JWTManager:             services.JWT,
-		PATService:             services.PAT,
-		PermissionCacheService: services.PermissionCache,
-		HealthHandler:          handlers.Health,
-		AuthHandler:            handlers.Auth,
-		CaptchaHandler:         handlers.Captcha,
-		RoleHandler:            handlers.Role,
-		MenuHandler:            handlers.Menu,
-		SettingHandler:         handlers.Setting,
-		UserSettingHandler:     handlers.UserSetting,
-		PATHandler:             handlers.PAT,
-		AuditLogHandler:        handlers.AuditLog,
-		AdminUserHandler:       handlers.AdminUser,
-		UserHandler:            handlers.User,
-		UserProfileHandler:     handlers.UserProfile,
-		OverviewHandler:        handlers.Overview,
-		TwoFAHandler:           handlers.TwoFA,
-		CacheHandler:           handlers.Cache,
+		Config:                 p.Config,
+		RedisClient:            p.RedisClient,
+		CreateLogHandler:       p.AuditLog.CreateLog,
+		JWTManager:             p.JWTManager,
+		PATService:             p.PATService,
+		PermissionCacheService: p.PermissionCache,
+		HealthHandler:          p.Health,
+		AuthHandler:            p.Auth,
+		CaptchaHandler:         p.Captcha,
+		RoleHandler:            p.Role,
+		MenuHandler:            p.Menu,
+		SettingHandler:         p.Setting,
+		UserSettingHandler:     p.UserSetting,
+		PATHandler:             p.PAT,
+		AuditLogHandler:        p.AuditLogH,
+		AdminUserHandler:       p.AdminUser,
+		UserHandler:            p.User,
+		UserProfileHandler:     p.UserProfile,
+		OverviewHandler:        p.Overview,
+		TwoFAHandler:           p.TwoFA,
+		CacheHandler:           p.Cache,
 	}
 
 	return adapthttp.SetupRouterWithDeps(deps)
 }
 
 // StartHTTPServer 启动 HTTP 服务器并管理生命周期。
-// 配合 fx.Invoke 使用，让 Fx 管理服务器的启停。
 func StartHTTPServer(lc fx.Lifecycle, cfg *config.Config, router *gin.Engine) {
 	srv := &http.Server{
 		Addr:              cfg.Server.Addr,
 		Handler:           router,
-		ReadHeaderTimeout: 10 * time.Second, // 防止 Slowloris 攻击
+		ReadHeaderTimeout: 10 * time.Second,
 	}
 
 	lc.Append(fx.Hook{

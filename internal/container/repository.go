@@ -4,6 +4,8 @@ import (
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 
+	"github.com/lwmacct/251117-go-ddd-template/internal/application/setting"
+	"github.com/lwmacct/251117-go-ddd-template/internal/domain/cache"
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/captcha"
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/stats"
 	"github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/persistence"
@@ -11,27 +13,6 @@ import (
 	infracaptcha "github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/captcha"
 	infrastats "github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/stats"
 )
-
-// RepositoriesModule 聚合所有 CQRS 仓储。
-type RepositoriesModule struct {
-	// CQRS 仓储（数据库）
-	User        persistence.UserRepositories
-	AuditLog    persistence.AuditLogRepositories
-	Role        persistence.RoleRepositories
-	Permission  persistence.PermissionRepositories
-	PAT         persistence.PATRepositories
-	Menu        persistence.MenuRepositories
-	Setting     persistence.SettingRepositories
-	UserSetting persistence.UserSettingRepositories
-	TwoFA       persistence.TwoFARepositories
-
-	// 特殊仓储（内存）
-	CaptchaCommand captcha.CommandRepository
-	CaptchaQuery   captcha.QueryRepository
-
-	// 只读仓储
-	StatsQuery stats.QueryRepository
-}
 
 // RepositoryModule 提供所有仓储实现。
 //
@@ -41,98 +22,61 @@ type RepositoriesModule struct {
 //   - UserSetting: 缓存查询 + 命令，支持三级失效
 var RepositoryModule = fx.Module("repository",
 	fx.Provide(
-		// 聚合模块
-		newRepositoriesModule,
+		// 直接使用 persistence 构造函数（无需包装）
+		persistence.NewAuditLogRepositories,
+		persistence.NewRoleRepositories,
+		persistence.NewPermissionRepositories,
+		persistence.NewPATRepositories,
+		persistence.NewMenuRepositories,
+		persistence.NewTwoFARepositories,
 
-		// 独立仓储，用于细粒度依赖注入
+		// 带缓存装饰的仓储
 		newUserRepositoriesWithCache,
-		newAuditLogRepositories,
-		newRoleRepositories,
-		newPermissionRepositories,
-		newPATRepositories,
-		newMenuRepositories,
 		newSettingRepositoriesWithCache,
 		newUserSettingRepositoriesWithCache,
-		newTwoFARepositories,
+
+		// 特殊仓储
 		newCaptchaRepository,
 		newStatsQueryRepository,
 	),
 )
 
-// newRepositoriesModule 创建聚合的仓储模块。
-func newRepositoriesModule(
-	user persistence.UserRepositories,
-	auditLog persistence.AuditLogRepositories,
-	role persistence.RoleRepositories,
-	permission persistence.PermissionRepositories,
-	pat persistence.PATRepositories,
-	menu persistence.MenuRepositories,
-	setting persistence.SettingRepositories,
-	userSetting persistence.UserSettingRepositories,
-	twoFA persistence.TwoFARepositories,
-	captchaCommand captcha.CommandRepository,
-	captchaQuery captcha.QueryRepository,
-	statsQuery stats.QueryRepository,
-) *RepositoriesModule {
-	return &RepositoriesModule{
-		User:           user,
-		AuditLog:       auditLog,
-		Role:           role,
-		Permission:     permission,
-		PAT:            pat,
-		Menu:           menu,
-		Setting:        setting,
-		UserSetting:    userSetting,
-		TwoFA:          twoFA,
-		CaptchaCommand: captchaCommand,
-		CaptchaQuery:   captchaQuery,
-		StatsQuery:     statsQuery,
-	}
-}
+// --- 带缓存装饰的仓储构造函数 ---
 
-// --- 独立仓储构造函数 ---
-
-func newUserRepositoriesWithCache(db *gorm.DB, cache *CacheServicesModule) persistence.UserRepositories {
+func newUserRepositoriesWithCache(
+	db *gorm.DB,
+	userWithRolesCache cache.UserWithRolesCacheService,
+) persistence.UserRepositories {
 	rawRepos := persistence.NewUserRepositories(db)
-	cachedQuery := persistence.NewCachedUserQueryRepository(rawRepos.Query, cache.UserWithRoles)
+	cachedQuery := persistence.NewCachedUserQueryRepository(rawRepos.Query, userWithRolesCache)
 	return persistence.UserRepositories{
 		Command: rawRepos.Command,
 		Query:   cachedQuery,
 	}
 }
 
-func newAuditLogRepositories(db *gorm.DB) persistence.AuditLogRepositories {
-	return persistence.NewAuditLogRepositories(db)
+// settingRepositoriesParams 聚合 Setting 仓储所需的缓存服务。
+type settingRepositoriesParams struct {
+	fx.In
+
+	DB               *gorm.DB
+	SettingCache     cache.SettingCacheService
+	CategoryCache    cache.SettingCategoryCacheService
+	UserSettingCache cache.UserSettingCacheService
 }
 
-func newRoleRepositories(db *gorm.DB) persistence.RoleRepositories {
-	return persistence.NewRoleRepositories(db)
-}
+func newSettingRepositoriesWithCache(p settingRepositoriesParams) persistence.SettingRepositories {
+	rawRepos := persistence.NewSettingRepositories(p.DB)
 
-func newPermissionRepositories(db *gorm.DB) persistence.PermissionRepositories {
-	return persistence.NewPermissionRepositories(db)
-}
-
-func newPATRepositories(db *gorm.DB) persistence.PATRepositories {
-	return persistence.NewPATRepositories(db)
-}
-
-func newMenuRepositories(db *gorm.DB) persistence.MenuRepositories {
-	return persistence.NewMenuRepositories(db)
-}
-
-func newSettingRepositoriesWithCache(db *gorm.DB, cache *CacheServicesModule) persistence.SettingRepositories {
-	rawRepos := persistence.NewSettingRepositories(db)
-
-	cachedQuery := persistence.NewCachedSettingQueryRepository(rawRepos.Query, cache.Setting)
+	cachedQuery := persistence.NewCachedSettingQueryRepository(rawRepos.Query, p.SettingCache)
 	cachedCommand := persistence.NewCachedSettingCommandRepositoryWithUserCache(
 		rawRepos.Command,
-		cache.Setting,
-		cache.UserSetting,
+		p.SettingCache,
+		p.UserSettingCache,
 	)
 	cachedCategoryQuery := persistence.NewCachedSettingCategoryQueryRepository(
 		rawRepos.CategoryQuery,
-		cache.SettingCategory,
+		p.CategoryCache,
 	)
 
 	return persistence.SettingRepositories{
@@ -143,18 +87,28 @@ func newSettingRepositoriesWithCache(db *gorm.DB, cache *CacheServicesModule) pe
 	}
 }
 
-func newUserSettingRepositoriesWithCache(db *gorm.DB, cache *CacheServicesModule) persistence.UserSettingRepositories {
-	rawRepos := persistence.NewUserSettingRepositories(db)
+// userSettingRepositoriesParams 聚合 UserSetting 仓储所需的缓存服务。
+type userSettingRepositoriesParams struct {
+	fx.In
+
+	DB                    *gorm.DB
+	UserSettingQueryCache cache.UserSettingQueryCacheService
+	UserSettingCache      cache.UserSettingCacheService
+	SchemaCache           setting.SchemaCacheService
+}
+
+func newUserSettingRepositoriesWithCache(p userSettingRepositoriesParams) persistence.UserSettingRepositories {
+	rawRepos := persistence.NewUserSettingRepositories(p.DB)
 
 	cachedQuery := persistence.NewCachedUserSettingQueryRepository(
 		rawRepos.Query,
-		cache.UserSettingQuery,
+		p.UserSettingQueryCache,
 	)
 	cachedCommand := persistence.NewCachedUserSettingCommandRepository(
 		rawRepos.Command,
-		cache.UserSettingQuery,
-		cache.UserSetting,
-		cache.Schema,
+		p.UserSettingQueryCache,
+		p.UserSettingCache,
+		p.SchemaCache,
 	)
 
 	return persistence.UserSettingRepositories{
@@ -163,9 +117,7 @@ func newUserSettingRepositoriesWithCache(db *gorm.DB, cache *CacheServicesModule
 	}
 }
 
-func newTwoFARepositories(db *gorm.DB) persistence.TwoFARepositories {
-	return persistence.NewTwoFARepositories(db)
-}
+// --- 特殊仓储 ---
 
 // CaptchaRepositoryResult 从单个仓储提供 Command 和 Query 两个接口。
 type CaptchaRepositoryResult struct {
