@@ -15,7 +15,7 @@ import (
 // 多实例安全：
 //   - 删除操作直接生效，无需跨实例通知（无本地缓存）
 //
-// 实现位于 [infrastructure/redis.userSettingCacheService]。
+// 实现位于 [infrastructure/cache.userSettingCacheService]。
 type UserSettingCacheService interface {
 	// =========================================================================
 	// 单条操作

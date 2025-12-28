@@ -15,5 +15,5 @@
 //   - [CommandRepository]: 写操作（已废弃）
 //   - [QueryRepository]: 读操作（已废弃）
 //
-// 实现位于 infrastructure/redis 包。
+// 实现位于 infrastructure/cache 包。
 package cache

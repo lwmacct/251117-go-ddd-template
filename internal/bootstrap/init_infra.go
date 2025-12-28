@@ -5,10 +5,10 @@ import (
 	"log/slog"
 
 	"github.com/lwmacct/251117-go-ddd-template/internal/config"
+	"github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/cache"
 	"github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/database"
 	"github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/eventbus"
 	"github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/persistence"
-	"github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/redis"
 	"github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/telemetry"
 )
 
@@ -60,13 +60,25 @@ func newInfrastructureModule(ctx context.Context, cfg *config.Config, opts *Cont
 			return nil, err
 		}
 
+		// 为 many2many 关联表创建索引
+		// GORM AutoMigrate 只创建复合主键，不会为外键列创建单独索引
+		// 这导致 Preload 查询时全表扫描，严重影响性能
+		if err = database.CreateJoinTableIndexes(db, []database.JoinTableIndex{
+			{Table: "user_roles", Name: "idx_user_roles_user_id", Columns: "user_id"},
+			{Table: "user_roles", Name: "idx_user_roles_role_id", Columns: "role_id"},
+			{Table: "role_permissions", Name: "idx_role_permissions_role_model_id", Columns: "role_model_id"},
+			{Table: "role_permissions", Name: "idx_role_permissions_permission_model_id", Columns: "permission_model_id"},
+		}); err != nil {
+			return nil, err
+		}
+
 		slog.Info("Database migration completed")
 	} else {
 		slog.Info("Auto-migration disabled, skipping database migration")
 	}
 
 	// 3. 初始化 Redis 客户端（与 Telemetry 配置联动）
-	redisClient, err := redis.NewClient(ctx, cfg.Data.RedisURL, cfg.Telemetry.Enabled)
+	redisClient, err := cache.NewClient(ctx, cfg.Data.RedisURL, cfg.Telemetry.Enabled)
 	if err != nil {
 		return nil, err
 	}
@@ -90,7 +102,7 @@ func (m *InfrastructureModule) Close() error {
 	}
 
 	// 关闭 Redis 连接
-	if err := redis.Close(m.RedisClient); err != nil {
+	if err := cache.Close(m.RedisClient); err != nil {
 		return err
 	}
 

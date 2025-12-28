@@ -4,7 +4,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
+	"github.com/lwmacct/251117-go-ddd-template/internal/domain/role"
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/user"
 	"gorm.io/gorm"
 )
@@ -56,47 +58,27 @@ func (r *userQueryRepository) GetByEmail(ctx context.Context, email string) (*us
 }
 
 // GetByIDWithRoles 根据 ID 获取用户（包含角色和权限信息）
+//
+// 优化策略：单次 JOIN 查询
+//
+// 针对高延迟远程数据库优化，将多次查询合并为单次 JOIN，
+// 最大限度减少网络往返次数（5 次 → 1 次）。
 func (r *userQueryRepository) GetByIDWithRoles(ctx context.Context, id uint) (*user.User, error) {
-	var model UserModel
-	if err := r.db.WithContext(ctx).
-		Preload("Roles.Permissions").
-		First(&model, id).Error; err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, user.ErrUserNotFound
-		}
-		return nil, fmt.Errorf("failed to get user by id with roles: %w", err)
-	}
-	return model.ToEntity(), nil
+	return r.getUserWithRolesByCondition(ctx, "u.id = ?", id)
 }
 
 // GetByUsernameWithRoles 根据用户名获取用户（包含角色和权限信息）
+//
+// 优化策略同 [GetByIDWithRoles]。
 func (r *userQueryRepository) GetByUsernameWithRoles(ctx context.Context, username string) (*user.User, error) {
-	var model UserModel
-	if err := r.db.WithContext(ctx).
-		Preload("Roles.Permissions").
-		Where("username = ?", username).
-		First(&model).Error; err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, user.ErrUserNotFound
-		}
-		return nil, fmt.Errorf("failed to get user by username with roles: %w", err)
-	}
-	return model.ToEntity(), nil
+	return r.getUserWithRolesByCondition(ctx, "u.username = ?", username)
 }
 
 // GetByEmailWithRoles 根据邮箱获取用户（包含角色和权限信息）
+//
+// 优化策略同 [GetByIDWithRoles]。
 func (r *userQueryRepository) GetByEmailWithRoles(ctx context.Context, email string) (*user.User, error) {
-	var model UserModel
-	if err := r.db.WithContext(ctx).
-		Preload("Roles.Permissions").
-		Where("email = ?", email).
-		First(&model).Error; err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, user.ErrUserNotFound
-		}
-		return nil, fmt.Errorf("failed to get user by email with roles: %w", err)
-	}
-	return model.ToEntity(), nil
+	return r.getUserWithRolesByCondition(ctx, "u.email = ?", email)
 }
 
 // List 获取用户列表 (分页)
@@ -207,4 +189,186 @@ func (r *userQueryRepository) GetUserIDsByRole(ctx context.Context, roleID uint)
 	}
 
 	return userIDs, nil
+}
+
+// =========================================================================
+// 内部辅助方法
+// =========================================================================
+
+// userWithRolesRow 单次 JOIN 查询的结果行结构
+//
+// 由于是 LEFT JOIN，每个权限对应一行，用户和角色字段会重复。
+type userWithRolesRow struct {
+	// User 字段
+	UserID        uint       `gorm:"column:user_id"`
+	UserCreatedAt time.Time  `gorm:"column:user_created_at"`
+	UserUpdatedAt time.Time  `gorm:"column:user_updated_at"`
+	UserDeletedAt *time.Time `gorm:"column:user_deleted_at"`
+	Username      string     `gorm:"column:username"`
+	Email         string     `gorm:"column:email"`
+	Password      string     `gorm:"column:password"`
+	FullName      string     `gorm:"column:full_name"`
+	Avatar        string     `gorm:"column:avatar"`
+	Bio           string     `gorm:"column:bio"`
+	Status        string     `gorm:"column:status"`
+
+	// Role 字段（可能为 NULL）
+	RoleID          *uint      `gorm:"column:role_id"`
+	RoleCreatedAt   *time.Time `gorm:"column:role_created_at"`
+	RoleUpdatedAt   *time.Time `gorm:"column:role_updated_at"`
+	RoleName        *string    `gorm:"column:role_name"`
+	RoleDisplayName *string    `gorm:"column:role_display_name"`
+	RoleDescription *string    `gorm:"column:role_description"`
+	RoleIsSystem    *bool      `gorm:"column:role_is_system"`
+
+	// Permission 字段（可能为 NULL）
+	PermID          *uint      `gorm:"column:perm_id"`
+	PermCreatedAt   *time.Time `gorm:"column:perm_created_at"`
+	PermUpdatedAt   *time.Time `gorm:"column:perm_updated_at"`
+	PermDomain      *string    `gorm:"column:perm_domain"`
+	PermResource    *string    `gorm:"column:perm_resource"`
+	PermAction      *string    `gorm:"column:perm_action"`
+	PermDescription *string    `gorm:"column:perm_description"`
+	PermCode        *string    `gorm:"column:perm_code"`
+}
+
+// getUserWithRolesByCondition 通过单次 JOIN 查询获取用户及其角色权限
+//
+// 将 User、Role、Permission 的 5 次查询合并为 1 次 JOIN 查询，
+// 显著减少网络往返次数，适用于高延迟远程数据库场景。
+func (r *userQueryRepository) getUserWithRolesByCondition(ctx context.Context, condition string, args ...any) (*user.User, error) {
+	var rows []userWithRolesRow
+
+	// 单次 JOIN 查询获取所有数据
+	query := r.db.WithContext(ctx).
+		Table("users u").
+		Select(`
+			u.id as user_id, u.created_at as user_created_at, u.updated_at as user_updated_at,
+			u.deleted_at as user_deleted_at, u.username, u.email, u.password,
+			u.full_name, u.avatar, u.bio, u.status,
+			r.id as role_id, r.created_at as role_created_at, r.updated_at as role_updated_at,
+			r.name as role_name, r.display_name as role_display_name,
+			r.description as role_description, r.is_system as role_is_system,
+			p.id as perm_id, p.created_at as perm_created_at, p.updated_at as perm_updated_at,
+			p.domain as perm_domain, p.resource as perm_resource, p.action as perm_action,
+			p.description as perm_description, p.code as perm_code
+		`).
+		Joins("LEFT JOIN user_roles ur ON u.id = ur.user_id").
+		Joins("LEFT JOIN roles r ON ur.role_id = r.id AND r.deleted_at IS NULL").
+		Joins("LEFT JOIN role_permissions rp ON r.id = rp.role_model_id").
+		Joins("LEFT JOIN permissions p ON rp.permission_model_id = p.id AND p.deleted_at IS NULL").
+		Where("u.deleted_at IS NULL").
+		Where(condition, args...)
+
+	if err := query.Scan(&rows).Error; err != nil {
+		return nil, fmt.Errorf("failed to get user with roles: %w", err)
+	}
+
+	if len(rows) == 0 {
+		return nil, user.ErrUserNotFound
+	}
+
+	// 从扁平结果重建嵌套结构
+	return r.buildUserFromRows(rows), nil
+}
+
+// buildUserFromRows 从 JOIN 查询结果构建 User 实体
+//
+// 将扁平化的行数据重建为 User → []Role → []Permission 的嵌套结构。
+func (r *userQueryRepository) buildUserFromRows(rows []userWithRolesRow) *user.User {
+	if len(rows) == 0 {
+		return nil
+	}
+
+	// 第一行包含用户信息
+	first := rows[0]
+	result := &user.User{
+		ID:        first.UserID,
+		CreatedAt: first.UserCreatedAt,
+		UpdatedAt: first.UserUpdatedAt,
+		DeletedAt: first.UserDeletedAt,
+		Username:  first.Username,
+		Email:     first.Email,
+		Password:  first.Password,
+		FullName:  first.FullName,
+		Avatar:    first.Avatar,
+		Bio:       first.Bio,
+		Status:    first.Status,
+	}
+
+	// 收集角色和权限（去重）
+	roleMap := make(map[uint]*role.Role)
+	permsByRole := make(map[uint]map[uint]bool) // role_id -> perm_id -> exists
+
+	for _, row := range rows {
+		// 跳过无角色的行
+		if row.RoleID == nil {
+			continue
+		}
+
+		roleID := *row.RoleID
+
+		// 确保角色存在
+		if _, exists := roleMap[roleID]; !exists {
+			roleMap[roleID] = &role.Role{
+				ID:          roleID,
+				CreatedAt:   derefTime(row.RoleCreatedAt),
+				UpdatedAt:   derefTime(row.RoleUpdatedAt),
+				Name:        derefString(row.RoleName),
+				DisplayName: derefString(row.RoleDisplayName),
+				Description: derefString(row.RoleDescription),
+				IsSystem:    derefBool(row.RoleIsSystem),
+				Permissions: []role.Permission{},
+			}
+			permsByRole[roleID] = make(map[uint]bool)
+		}
+
+		// 添加权限（去重）
+		if row.PermID != nil {
+			permID := *row.PermID
+			if !permsByRole[roleID][permID] {
+				permsByRole[roleID][permID] = true
+				roleMap[roleID].Permissions = append(roleMap[roleID].Permissions, role.Permission{
+					ID:          permID,
+					CreatedAt:   derefTime(row.PermCreatedAt),
+					UpdatedAt:   derefTime(row.PermUpdatedAt),
+					Domain:      derefString(row.PermDomain),
+					Resource:    derefString(row.PermResource),
+					Action:      derefString(row.PermAction),
+					Description: derefString(row.PermDescription),
+					Code:        derefString(row.PermCode),
+				})
+			}
+		}
+	}
+
+	// 转换为切片
+	result.Roles = make([]role.Role, 0, len(roleMap))
+	for _, r := range roleMap {
+		result.Roles = append(result.Roles, *r)
+	}
+
+	return result
+}
+
+// 辅助函数：解引用指针
+func derefString(p *string) string {
+	if p == nil {
+		return ""
+	}
+	return *p
+}
+
+func derefBool(p *bool) bool {
+	if p == nil {
+		return false
+	}
+	return *p
+}
+
+func derefTime(p *time.Time) time.Time {
+	if p == nil {
+		return time.Time{}
+	}
+	return *p
 }

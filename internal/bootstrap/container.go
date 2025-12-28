@@ -27,8 +27,8 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/lwmacct/251117-go-ddd-template/internal/config"
-	infracache "github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/cache"
 	"github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/persistence"
+	infrawarmup "github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/warmup"
 )
 
 // ContainerOptions 容器初始化选项
@@ -144,7 +144,7 @@ func GetAllModels() []any {
 func warmupSettingCache(ctx context.Context, db *gorm.DB, cacheServices *CacheServicesModule) {
 	// 使用原始仓储避免循环依赖
 	rawRepos := persistence.NewSettingRepositories(db)
-	warmer := infracache.NewSettingCacheWarmer(rawRepos.Query, cacheServices.Setting)
+	warmer := infrawarmup.NewSettingCacheWarmer(rawRepos.Query, cacheServices.Setting)
 
 	if err := warmer.WarmUpWithTimeout(ctx); err != nil {
 		slog.Warn("Setting cache warmup failed, will use lazy loading", "err", err)
@@ -158,7 +158,7 @@ func warmupSettingCache(ctx context.Context, db *gorm.DB, cacheServices *CacheSe
 func warmupSettingCategoryCache(ctx context.Context, db *gorm.DB, cacheServices *CacheServicesModule) {
 	// 使用原始仓储避免循环依赖
 	rawRepos := persistence.NewSettingRepositories(db)
-	warmer := infracache.NewSettingCategoryCacheWarmer(rawRepos.CategoryQuery, cacheServices.SettingCategory)
+	warmer := infrawarmup.NewSettingCategoryCacheWarmer(rawRepos.CategoryQuery, cacheServices.SettingCategory)
 
 	if err := warmer.WarmUpWithTimeout(ctx); err != nil {
 		slog.Warn("SettingCategory cache warmup failed, will use lazy loading", "err", err)

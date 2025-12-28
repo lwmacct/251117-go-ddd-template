@@ -1,4 +1,5 @@
-package cache
+//nolint:dupl // 预热器遵循统一模式，与 SettingCategoryCacheWarmer 结构相同是设计意图
+package warmup
 
 import (
 	"context"

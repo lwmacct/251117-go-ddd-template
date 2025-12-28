@@ -22,7 +22,7 @@ import (
 //
 // 默认 TTL：10 分钟
 //
-// 实现位于 [infrastructure/redis.settingCacheService]。
+// 实现位于 [infrastructure/cache.settingCacheService]。
 type SettingCacheService interface {
 	// =========================================================================
 	// 单条操作

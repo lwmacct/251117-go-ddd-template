@@ -24,7 +24,7 @@ import (
 //
 // 默认 TTL：10 分钟
 //
-// 实现位于 [infrastructure/redis.settingCategoryCacheService]。
+// 实现位于 [infrastructure/cache.settingCategoryCacheService]。
 //
 //nolint:interfacebloat // 缓存服务需要完整的 CRUD + 预热控制方法
 type SettingCategoryCacheService interface {

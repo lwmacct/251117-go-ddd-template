@@ -21,7 +21,13 @@ func newServicesModule(cfg *config.Config, _ *InfrastructureModule, repos *Repos
 	m.LoginSession = authInfra.NewLoginSessionService()
 
 	// Permission Cache（Cache-Aside 服务，依赖 Domain 缓存接口）
-	m.PermissionCache = authInfra.NewPermissionCacheService(cacheServices.Permission, repos.User.Query)
+	// 注意：这里传入的 repos.User.Query 已经是带缓存的装饰器
+	// PermissionCacheService 在查库后会联动写入 UserWithRoles 缓存
+	m.PermissionCache = authInfra.NewPermissionCacheService(
+		cacheServices.Permission,
+		cacheServices.UserWithRoles,
+		repos.User.Query,
+	)
 
 	// Domain Services
 	passwordPolicy := auth.DefaultPasswordPolicy()

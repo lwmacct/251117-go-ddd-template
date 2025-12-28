@@ -36,6 +36,7 @@ type CacheServicesModule struct {
 	SettingCategory  cache.SettingCategoryCacheService  // Domain 实体缓存
 	UserSettingQuery cache.UserSettingQueryCacheService // Domain 实体缓存（Query 层）
 	UserSetting      cache.UserSettingCacheService      // Application DTO 缓存
+	UserWithRoles    cache.UserWithRolesCacheService    // Domain 实体缓存（用户+角色+权限）
 	Permission       cache.PermissionCacheService
 	Schema           appsetting.SchemaCacheService // Schema API 响应缓存（Application 层接口）
 }

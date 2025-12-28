@@ -7,8 +7,8 @@ import (
 	"gorm.io/gorm"
 
 	domainHealth "github.com/lwmacct/251117-go-ddd-template/internal/domain/health"
+	cacheinfra "github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/cache"
 	"github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/database"
-	redisinfra "github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/redis"
 )
 
 // SystemChecker 系统健康检查器实现
@@ -75,7 +75,7 @@ func (c *SystemChecker) checkDatabase(ctx context.Context) domainHealth.CheckRes
 
 // checkRedis 检查 Redis 健康状态
 func (c *SystemChecker) checkRedis(ctx context.Context) domainHealth.CheckResult {
-	if err := redisinfra.HealthCheck(ctx, c.redisClient); err != nil {
+	if err := cacheinfra.HealthCheck(ctx, c.redisClient); err != nil {
 		return domainHealth.CheckResult{
 			Status: domainHealth.StatusUnhealthy,
 			Error:  err.Error(),

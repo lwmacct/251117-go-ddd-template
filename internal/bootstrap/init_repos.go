@@ -14,6 +14,9 @@ func newRepositoriesModule(db *gorm.DB, cacheServices *CacheServicesModule) *Rep
 	// Captcha Repository（内存实现，组合接口）
 	captchaRepo := captcha.NewRepository()
 
+	// User 仓储（带缓存装饰器）
+	userRepos := newUserRepositoriesWithCache(db, cacheServices)
+
 	// Setting 仓储（带缓存装饰器）
 	settingRepos := newSettingRepositoriesWithCache(db, cacheServices)
 
@@ -22,7 +25,7 @@ func newRepositoriesModule(db *gorm.DB, cacheServices *CacheServicesModule) *Rep
 
 	return &RepositoriesModule{
 		// CQRS 仓储（数据库实现）
-		User:        persistence.NewUserRepositories(db),
+		User:        userRepos,
 		AuditLog:    persistence.NewAuditLogRepositories(db),
 		Role:        persistence.NewRoleRepositories(db),
 		Permission:  persistence.NewPermissionRepositories(db),
@@ -90,6 +93,20 @@ func newUserSettingRepositoriesWithCache(db *gorm.DB, cacheServices *CacheServic
 
 	return persistence.UserSettingRepositories{
 		Command: cachedCommand,
+		Query:   cachedQuery,
+	}
+}
+
+// newUserRepositoriesWithCache 创建带缓存的 User 仓储
+func newUserRepositoriesWithCache(db *gorm.DB, cacheServices *CacheServicesModule) persistence.UserRepositories {
+	// 原始仓储
+	rawRepos := persistence.NewUserRepositories(db)
+
+	// 用装饰器包装 Query 仓储（对 GetByIDWithRoles 添加缓存）
+	cachedQuery := persistence.NewCachedUserQueryRepository(rawRepos.Query, cacheServices.UserWithRoles)
+
+	return persistence.UserRepositories{
+		Command: rawRepos.Command, // Command 暂不加缓存装饰器
 		Query:   cachedQuery,
 	}
 }

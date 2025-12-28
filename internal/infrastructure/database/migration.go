@@ -127,3 +127,32 @@ func CreateIndexes(db *gorm.DB, model any, indexes []string) error {
 
 	return nil
 }
+
+// JoinTableIndex 定义关联表索引
+type JoinTableIndex struct {
+	Table   string // 表名
+	Name    string // 索引名
+	Columns string // 索引列（可多列，逗号分隔）
+}
+
+// CreateJoinTableIndexes 为 GORM many2many 关联表创建索引
+//
+// GORM AutoMigrate 创建关联表时只创建复合主键，不会为各外键列创建单独索引。
+// 这导致 WHERE user_id = ? 类型的查询需要全表扫描，严重影响性能。
+//
+// 此函数使用 CREATE INDEX IF NOT EXISTS 确保幂等性。
+func CreateJoinTableIndexes(db *gorm.DB, indexes []JoinTableIndex) error {
+	for _, idx := range indexes {
+		sql := fmt.Sprintf(
+			"CREATE INDEX IF NOT EXISTS %s ON %s (%s)",
+			quoteIdentifier(idx.Name),
+			quoteIdentifier(idx.Table),
+			idx.Columns, // 列名不引用，因为可能是多列
+		)
+		if err := db.Exec(sql).Error; err != nil {
+			return fmt.Errorf("failed to create join table index %s: %w", idx.Name, err)
+		}
+		slog.Info("Join table index ensured", "table", idx.Table, "index", idx.Name)
+	}
+	return nil
+}

@@ -8,8 +8,8 @@ import (
 	"syscall"
 
 	"github.com/lwmacct/251117-go-ddd-template/internal/config"
+	cacheinfra "github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/cache"
 	"github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/queue"
-	redisinfra "github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/redis"
 	"github.com/lwmacct/251207-go-pkg-cfgm/pkg/cfgm"
 	"github.com/lwmacct/251207-go-pkg-version/pkg/version"
 	"github.com/urfave/cli/v3"
@@ -28,13 +28,13 @@ func action(ctx context.Context, cmd *cli.Command) error {
 	)
 
 	// 初始化 Redis 客户端（与 Telemetry 配置联动）
-	redisClient, err := redisinfra.NewClient(ctx, cfg.Data.RedisURL, cfg.Telemetry.Enabled)
+	redisClient, err := cacheinfra.NewClient(ctx, cfg.Data.RedisURL, cfg.Telemetry.Enabled)
 	if err != nil {
 		slog.Error("Failed to connect to Redis", "error", err)
 		return err
 	}
 	defer func() {
-		if err := redisinfra.Close(redisClient); err != nil {
+		if err := cacheinfra.Close(redisClient); err != nil {
 			slog.Error("Failed to close Redis connection", "error", err)
 		}
 	}()

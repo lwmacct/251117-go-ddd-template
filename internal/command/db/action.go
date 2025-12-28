@@ -8,6 +8,7 @@ import (
 
 	"github.com/lwmacct/251117-go-ddd-template/internal/bootstrap"
 	"github.com/lwmacct/251117-go-ddd-template/internal/config"
+	"github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/cache"
 	"github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/database"
 	"github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/database/seeds"
 	"github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/persistence"
@@ -24,6 +25,93 @@ func getIndexMigrations() []database.IndexMigration {
 			Indexes: []string{"idx_settings_category_sort"},
 		},
 	}
+}
+
+// getJoinTableIndexes 返回 many2many 关联表需要创建的索引
+// GORM AutoMigrate 只创建复合主键，不会为外键列创建单独索引
+func getJoinTableIndexes() []database.JoinTableIndex {
+	return []database.JoinTableIndex{
+		{Table: "user_roles", Name: "idx_user_roles_user_id", Columns: "user_id"},
+		{Table: "user_roles", Name: "idx_user_roles_role_id", Columns: "role_id"},
+		{Table: "role_permissions", Name: "idx_role_permissions_role_model_id", Columns: "role_model_id"},
+		{Table: "role_permissions", Name: "idx_role_permissions_permission_model_id", Columns: "permission_model_id"},
+	}
+}
+
+// flushRedisCache 清空 Redis 缓存
+// 数据库操作后需要清空缓存以避免数据不一致
+func flushRedisCache(ctx context.Context, cfg *config.Config) error {
+	slog.Info("Flushing Redis cache...")
+
+	redisClient, err := cache.NewClient(ctx, cfg.Data.RedisURL, false)
+	if err != nil {
+		slog.Error("Failed to connect to Redis", "error", err)
+		return err
+	}
+	defer func() {
+		if closeErr := cache.Close(redisClient); closeErr != nil {
+			slog.Error("Failed to close Redis connection", "error", closeErr)
+		}
+	}()
+
+	// 使用 FLUSHDB 清空当前数据库
+	if err := redisClient.FlushDB(ctx).Err(); err != nil {
+		slog.Error("Failed to flush Redis cache", "error", err)
+		return err
+	}
+
+	slog.Info("Redis cache flushed successfully")
+	return nil
+}
+
+// actionMigrate 执行数据库迁移（只添加，不删除）
+func actionMigrate(ctx context.Context, cmd *cli.Command) error {
+	cfg := cfgm.MustLoadCmd(cmd, config.DefaultConfig(), version.AppRawName)
+
+	// 初始化数据库连接
+	dbConfig := database.DefaultConfig(cfg.Data.PgsqlURL)
+	db, err := database.NewConnection(ctx, dbConfig)
+	if err != nil {
+		slog.Error("Failed to connect to database", "error", err)
+		return err
+	}
+	defer func() {
+		if closeErr := database.Close(db); closeErr != nil {
+			slog.Error("Failed to close database connection", "error", closeErr)
+		}
+	}()
+
+	// 1. 执行 AutoMigrate
+	slog.Info("Running AutoMigrate...")
+	if err := db.AutoMigrate(bootstrap.GetAllModels()...); err != nil {
+		slog.Error("AutoMigrate failed", "error", err)
+		return err
+	}
+	slog.Info("AutoMigrate completed")
+
+	// 2. 创建 Model 索引
+	slog.Info("Creating model indexes...")
+	for _, im := range getIndexMigrations() {
+		if err := database.CreateIndexes(db, im.Model, im.Indexes); err != nil {
+			slog.Error("Failed to create model indexes", "error", err)
+			return err
+		}
+	}
+
+	// 3. 创建关联表索引
+	slog.Info("Creating join table indexes...")
+	if err := database.CreateJoinTableIndexes(db, getJoinTableIndexes()); err != nil {
+		slog.Error("Failed to create join table indexes", "error", err)
+		return err
+	}
+
+	// 4. 清空 Redis 缓存
+	if err := flushRedisCache(ctx, cfg); err != nil {
+		return err
+	}
+
+	slog.Info("Database migration completed successfully")
+	return nil
 }
 
 // actionReset 重置数据库（删表 + 重建 + 可选填充种子数据）
@@ -67,7 +155,14 @@ func actionReset(ctx context.Context, cmd *cli.Command) error {
 	}
 	slog.Info("Database schema recreated successfully")
 
-	// 2. 填充种子数据（除非 --empty）
+	// 2. 创建关联表索引
+	slog.Info("Creating join table indexes...")
+	if err := database.CreateJoinTableIndexes(db, getJoinTableIndexes()); err != nil {
+		slog.Error("Failed to create join table indexes", "error", err)
+		return err
+	}
+
+	// 3. 填充种子数据（除非 --empty）
 	if !cmd.Bool("empty") {
 		slog.Info("Running database seeders...")
 		seederManager := database.NewSeederManager(db, seeds.DefaultSeeders())
@@ -76,6 +171,11 @@ func actionReset(ctx context.Context, cmd *cli.Command) error {
 			return err
 		}
 		slog.Info("Seed data populated successfully")
+	}
+
+	// 4. 清空 Redis 缓存
+	if err := flushRedisCache(ctx, cfg); err != nil {
+		return err
 	}
 
 	slog.Info("Database reset completed")

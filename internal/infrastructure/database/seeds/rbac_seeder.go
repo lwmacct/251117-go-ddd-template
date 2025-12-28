@@ -108,88 +108,79 @@ func (s *RBACSeeder) seedPermissions(ctx context.Context, db *gorm.DB) error {
 }
 
 // seedRoles seeds initial roles with permissions
-
+// 优化：直接操作关联表，避免 N+1 问题
 func (s *RBACSeeder) seedRoles(ctx context.Context, db *gorm.DB) error {
 	db = db.WithContext(ctx)
 
-	// Get all permissions
+	// 1. 获取所有权限（一次查询）
 	var allPermissions []_persistence.PermissionModel
 	if err := db.Find(&allPermissions).Error; err != nil {
 		return err
 	}
 
-	// Find user permissions (user domain permissions only)
-	var userPermissions []_persistence.PermissionModel
-	if err := db.Where("domain = ?", "user").Find(&userPermissions).Error; err != nil {
-		return err
+	// 按 domain 分组
+	permByDomain := make(map[string][]_persistence.PermissionModel)
+	for _, p := range allPermissions {
+		permByDomain[p.Domain] = append(permByDomain[p.Domain], p)
 	}
 
-	roles := []struct {
-		role        _persistence.RoleModel
-		permissions []_persistence.PermissionModel
-	}{
-		{
-			role: _persistence.RoleModel{
-				Name:        "admin",
-				DisplayName: "Administrator",
-				Description: "Full system access with all permissions",
-				IsSystem:    true,
-			},
-			permissions: allPermissions,
-		},
-		{
-			role: _persistence.RoleModel{
-				Name:        "user",
-				DisplayName: "Regular User",
-				Description: "Standard user with limited permissions",
-				IsSystem:    true,
-			},
-			permissions: userPermissions,
-		},
+	// 2. 定义角色及其权限
+	type roleConfig struct {
+		name        string
+		displayName string
+		description string
+		isSystem    bool
+		permDomains []string // nil 表示所有权限
 	}
 
+	roles := []roleConfig{
+		{"admin", "Administrator", "Full system access with all permissions", true, nil},
+		{"user", "Regular User", "Standard user with limited permissions", true, []string{"user"}},
+	}
+
+	// 3. 批量创建角色并分配权限
 	for _, r := range roles {
-		role := r.role
-		result := db.Where("name = ?", r.role.Name).
-			Attrs(_persistence.RoleModel{
-				DisplayName: r.role.DisplayName,
-				Description: r.role.Description,
-				IsSystem:    r.role.IsSystem,
-			}).
-			FirstOrCreate(&role)
-		if result.Error != nil {
-			return result.Error
+		role := _persistence.RoleModel{
+			Name:        r.name,
+			DisplayName: r.displayName,
+			Description: r.description,
+			IsSystem:    r.isSystem,
 		}
 
-		association := db.Model(&role).Association("Permissions")
-		var existingPermissions []_persistence.PermissionModel
-		if err := association.Find(&existingPermissions); err != nil {
+		// Upsert 角色
+		if err := db.Clauses(clause.OnConflict{
+			Columns:   []clause.Column{{Name: "name"}},
+			DoUpdates: clause.AssignmentColumns([]string{"display_name", "description"}),
+		}).Create(&role).Error; err != nil {
 			return err
 		}
 
-		existing := make(map[uint]struct{}, len(existingPermissions))
-		for _, perm := range existingPermissions {
-			existing[perm.ID] = struct{}{}
-		}
-
-		var permsToAdd []*_persistence.PermissionModel
-		for i := range r.permissions {
-			if _, ok := existing[r.permissions[i].ID]; ok {
-				continue
+		// 确定该角色需要的权限
+		var perms []_persistence.PermissionModel
+		if r.permDomains == nil {
+			perms = allPermissions
+		} else {
+			for _, domain := range r.permDomains {
+				perms = append(perms, permByDomain[domain]...)
 			}
-			permsToAdd = append(permsToAdd, &r.permissions[i])
 		}
 
-		for _, perm := range permsToAdd {
-			if err := association.Append(perm); err != nil {
+		// 4. 直接批量插入关联表（跳过 Association API）
+		if len(perms) > 0 {
+			records := make([]map[string]any, 0, len(perms))
+			for _, p := range perms {
+				records = append(records, map[string]any{
+					"role_model_id":       role.ID,
+					"permission_model_id": p.ID,
+				})
+			}
+			// 一次性插入所有关联，冲突时跳过
+			if err := db.Table("role_permissions").Clauses(clause.OnConflict{DoNothing: true}).Create(&records).Error; err != nil {
 				return err
 			}
 		}
 
-		slog.Info("Role ensured", "name", role.Name, "added_permissions", len(permsToAdd), "required_total", len(r.permissions))
-		if result.RowsAffected > 0 {
-			slog.Info("Role created", "name", role.Name)
-		}
+		slog.Info("Role ensured", "name", role.Name, "permissions", len(perms))
 	}
 
 	return nil
@@ -211,48 +202,48 @@ func (s *RBACSeeder) seedAdminUser(ctx context.Context, db *gorm.DB) error {
 		return err
 	}
 
-	adminSearch := _persistence.UserModel{Username: "admin"}
-	result := db.Where(adminSearch).
-		Attrs(_persistence.UserModel{
-			Email:    "admin@example.com",
-			Password: string(hashedPassword),
-			FullName: "System Administrator",
-			Status:   "active",
-		}).
-		FirstOrCreate(&adminSearch)
+	adminUser := _persistence.UserModel{
+		Username: "admin",
+		Email:    "admin@example.com",
+		Password: string(hashedPassword),
+		FullName: "System Administrator",
+		Status:   "active",
+	}
+
+	// Upsert admin user
+	result := db.Clauses(clause.OnConflict{
+		Columns:   []clause.Column{{Name: "username"}},
+		DoNothing: true,
+	}).Create(&adminUser)
 	if result.Error != nil {
 		return result.Error
 	}
 
 	if result.RowsAffected > 0 {
-		slog.Info("Created admin user", "username", adminSearch.Username)
+		slog.Info("Created admin user", "username", adminUser.Username)
 		slog.Warn("Default admin credentials", "username", "admin", "password", "admin123", "warning", "PLEASE CHANGE THIS PASSWORD IMMEDIATELY")
 	} else {
-		slog.Info("Admin user ensured", "username", adminSearch.Username)
+		// 如果用户已存在，需要获取其 ID
+		if err := db.Where("username = ?", "admin").First(&adminUser).Error; err != nil {
+			return err
+		}
+		slog.Info("Admin user ensured", "username", adminUser.Username)
 	}
 
-	association := db.Model(&adminSearch).Association("Roles")
-	var existingRoles []_persistence.RoleModel
-	if err := association.Find(&existingRoles); err != nil {
+	// 直接插入用户-角色关联（跳过 Association API）
+	userRole := map[string]any{
+		"user_id": adminUser.ID,
+		"role_id": adminRole.ID,
+	}
+	if err := db.Table("user_roles").Clauses(clause.OnConflict{DoNothing: true}).Create(&userRole).Error; err != nil {
 		return err
 	}
 
-	hasAdminRole := false
-	for _, role := range existingRoles {
-		if role.ID == adminRole.ID {
-			hasAdminRole = true
-			break
-		}
-	}
-
-	if !hasAdminRole {
-		if err := association.Append(&adminRole); err != nil {
-			return err
-		}
-		slog.Info("Assigned admin role to admin user", "username", adminSearch.Username, "role", adminRole.Name)
-	} else {
-		slog.Info("Admin user already has admin role", "username", adminSearch.Username)
-	}
-
+	slog.Info("Assigned admin role to admin user", "username", adminUser.Username, "role", adminRole.Name)
 	return nil
+}
+
+// Name implements Seeder interface
+func (s *RBACSeeder) Name() string {
+	return "RBACSeeder"
 }

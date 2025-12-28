@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
-	"time"
 
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/cache"
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/user"
@@ -16,19 +15,26 @@ import (
 //   - GetUserPermissions: 先查缓存，未命中则查数据库并回写缓存
 //   - InvalidateUsersWithRole: 按角色批量失效（需查询数据库获取用户列表）
 //
+// 性能优化：
+// 查询数据库时，会同时写入用户实体缓存（UserWithRolesCacheService），
+// 供后续 Handler 通过 Repository 缓存装饰器直接命中，避免重复查询。
+//
 // 底层缓存操作委托给 [cache.PermissionCacheService] 接口实现。
 type PermissionCacheService struct {
 	cache         cache.PermissionCacheService
+	userCache     cache.UserWithRolesCacheService
 	userQueryRepo user.QueryRepository
 }
 
 // NewPermissionCacheService 创建权限缓存服务
 func NewPermissionCacheService(
 	cacheService cache.PermissionCacheService,
+	userCacheService cache.UserWithRolesCacheService,
 	userQueryRepo user.QueryRepository,
 ) *PermissionCacheService {
 	return &PermissionCacheService{
 		cache:         cacheService,
+		userCache:     userCacheService,
 		userQueryRepo: userQueryRepo,
 	}
 }
@@ -38,7 +44,8 @@ func NewPermissionCacheService(
 // 执行流程：
 //  1. 尝试从缓存读取
 //  2. 缓存未命中，查询数据库
-//  3. 异步写入缓存（不阻塞请求）
+//  3. 同步写入权限缓存
+//  4. 同步写入用户实体缓存（供后续 Handler 通过 Repository 装饰器命中）
 func (s *PermissionCacheService) GetUserPermissions(ctx context.Context, userID uint) ([]string, []string, error) {
 	// 1. 尝试从缓存读取
 	roles, permissions, err := s.cache.GetUserPermissions(ctx, userID)
@@ -55,18 +62,21 @@ func (s *PermissionCacheService) GetUserPermissions(ctx context.Context, userID 
 	roles = u.GetRoleNames()
 	permissions = u.GetPermissionCodes()
 
-	// 3. 异步写入缓存（使用 WithoutCancel 保留 trace 信息）
-	go func(cacheUserID uint, cacheRoles, cachePerms []string) {
-		cacheCtx, cancel := context.WithTimeout(context.WithoutCancel(ctx), 2*time.Second)
-		defer cancel()
+	// 3. 同步写入权限缓存（Redis 写入 < 1ms，延迟可忽略）
+	if err := s.cache.SetUserPermissions(ctx, userID, roles, permissions); err != nil {
+		slog.Warn("Failed to cache user permissions",
+			"user_id", userID,
+			"error", err,
+		)
+	}
 
-		if err := s.cache.SetUserPermissions(cacheCtx, cacheUserID, cacheRoles, cachePerms); err != nil {
-			slog.Warn("Failed to cache user permissions",
-				"user_id", cacheUserID,
-				"error", err,
-			)
-		}
-	}(userID, roles, permissions)
+	// 4. 同步写入用户实体缓存（关键！供后续 Handler 通过 Repository 装饰器命中）
+	if err := s.userCache.SetUserWithRoles(ctx, u); err != nil {
+		slog.Warn("Failed to cache user entity",
+			"user_id", userID,
+			"error", err,
+		)
+	}
 
 	return roles, permissions, nil
 }
