@@ -63,6 +63,9 @@ import (
 	// 引入应用层包
 	"github.com/lwmacct/251117-go-ddd-template/internal/application/auditlog"
 
+	// 引入领域层包
+	"github.com/lwmacct/251117-go-ddd-template/internal/domain/permission"
+
 	// 引入基础设施包
 	"github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/auth"
 )
@@ -156,6 +159,10 @@ func SetupRouterWithDeps(deps *RouterDependencies) *gin.Engine {
 func setupAPIRoutes(r *gin.Engine, deps *RouterDependencies) {
 	api := r.Group("/api")
 
+	// 全局 API 中间件
+	api.Use(middleware.RequestID())   // 注入 Request ID（复用 OTel Trace ID）
+	api.Use(middleware.OperationID()) // 注入 Operation ID（从注册表查找）
+
 	// 认证路由 (公开)
 	auth := api.Group("/auth")
 	{
@@ -183,63 +190,63 @@ func setupAPIRoutes(r *gin.Engine, deps *RouterDependencies) {
 	admin.Use(middleware.RequireRole("admin"))
 	{
 		// 用户管理
-		admin.POST("/users", middleware.RequirePermission("admin:users:create"), deps.AdminUserHandler.CreateUser)
-		admin.POST("/users/batch", middleware.RequirePermission("admin:users:create"), deps.AdminUserHandler.BatchCreateUsers)
-		admin.GET("/users", middleware.RequirePermission("admin:users:read"), deps.AdminUserHandler.ListUsers)
-		admin.GET("/users/:id", middleware.RequirePermission("admin:users:read"), deps.AdminUserHandler.GetUser)
-		admin.PUT("/users/:id", middleware.RequirePermission("admin:users:update"), deps.AdminUserHandler.UpdateUser)
-		admin.DELETE("/users/:id", middleware.RequirePermission("admin:users:delete"), deps.AdminUserHandler.DeleteUser)
-		admin.PUT("/users/:id/roles", middleware.RequirePermission("admin:users:update"), deps.AdminUserHandler.AssignRoles)
+		admin.POST("/users", middleware.RequirePermission(permission.AdminUsersCreate), deps.AdminUserHandler.CreateUser)
+		admin.POST("/users/batch", middleware.RequirePermission(permission.AdminUsersCreate), deps.AdminUserHandler.BatchCreateUsers)
+		admin.GET("/users", middleware.RequirePermission(permission.AdminUsersRead), deps.AdminUserHandler.ListUsers)
+		admin.GET("/users/:id", middleware.RequirePermission(permission.AdminUsersRead), deps.AdminUserHandler.GetUser)
+		admin.PUT("/users/:id", middleware.RequirePermission(permission.AdminUsersUpdate), deps.AdminUserHandler.UpdateUser)
+		admin.DELETE("/users/:id", middleware.RequirePermission(permission.AdminUsersDelete), deps.AdminUserHandler.DeleteUser)
+		admin.PUT("/users/:id/roles", middleware.RequirePermission(permission.AdminUsersUpdate), deps.AdminUserHandler.AssignRoles)
 
 		// 角色管理
-		admin.POST("/roles", middleware.RequirePermission("admin:roles:create"), deps.RoleHandler.CreateRole)
-		admin.GET("/roles", middleware.RequirePermission("admin:roles:read"), deps.RoleHandler.ListRoles)
-		admin.GET("/roles/:id", middleware.RequirePermission("admin:roles:read"), deps.RoleHandler.GetRole)
-		admin.PUT("/roles/:id", middleware.RequirePermission("admin:roles:update"), deps.RoleHandler.UpdateRole)
-		admin.DELETE("/roles/:id", middleware.RequirePermission("admin:roles:delete"), deps.RoleHandler.DeleteRole)
-		admin.PUT("/roles/:id/permissions", middleware.RequirePermission("admin:roles:update"), deps.RoleHandler.SetPermissions)
+		admin.POST("/roles", middleware.RequirePermission(permission.AdminRolesCreate), deps.RoleHandler.CreateRole)
+		admin.GET("/roles", middleware.RequirePermission(permission.AdminRolesRead), deps.RoleHandler.ListRoles)
+		admin.GET("/roles/:id", middleware.RequirePermission(permission.AdminRolesRead), deps.RoleHandler.GetRole)
+		admin.PUT("/roles/:id", middleware.RequirePermission(permission.AdminRolesUpdate), deps.RoleHandler.UpdateRole)
+		admin.DELETE("/roles/:id", middleware.RequirePermission(permission.AdminRolesDelete), deps.RoleHandler.DeleteRole)
+		admin.PUT("/roles/:id/permissions", middleware.RequirePermission(permission.AdminRolesUpdate), deps.RoleHandler.SetPermissions)
 
 		// 权限列表
-		admin.GET("/permissions", middleware.RequirePermission("admin:permissions:read"), deps.RoleHandler.ListPermissions)
+		admin.GET("/permissions", middleware.RequirePermission(permission.AdminPermissionsRead), deps.RoleHandler.ListPermissions)
 
 		// 审计日志
-		admin.GET("/auditlogs", middleware.RequirePermission("admin:audit_logs:read"), deps.AuditLogHandler.ListLogs)
-		admin.GET("/auditlogs/:id", middleware.RequirePermission("admin:audit_logs:read"), deps.AuditLogHandler.GetLog)
+		admin.GET("/auditlogs", middleware.RequirePermission(permission.AdminAuditLogsRead), deps.AuditLogHandler.ListLogs)
+		admin.GET("/auditlogs/:id", middleware.RequirePermission(permission.AdminAuditLogsRead), deps.AuditLogHandler.GetLog)
 
 		// 菜单管理
-		admin.POST("/menus", middleware.RequirePermission("admin:menus:create"), deps.MenuHandler.Create)
-		admin.GET("/menus", middleware.RequirePermission("admin:menus:read"), deps.MenuHandler.List)
-		admin.GET("/menus/:id", middleware.RequirePermission("admin:menus:read"), deps.MenuHandler.Get)
-		admin.PUT("/menus/:id", middleware.RequirePermission("admin:menus:update"), deps.MenuHandler.Update)
-		admin.DELETE("/menus/:id", middleware.RequirePermission("admin:menus:delete"), deps.MenuHandler.Delete)
-		admin.POST("/menus/reorder", middleware.RequirePermission("admin:menus:update"), deps.MenuHandler.Reorder)
+		admin.POST("/menus", middleware.RequirePermission(permission.AdminMenusCreate), deps.MenuHandler.Create)
+		admin.GET("/menus", middleware.RequirePermission(permission.AdminMenusRead), deps.MenuHandler.List)
+		admin.GET("/menus/:id", middleware.RequirePermission(permission.AdminMenusRead), deps.MenuHandler.Get)
+		admin.PUT("/menus/:id", middleware.RequirePermission(permission.AdminMenusUpdate), deps.MenuHandler.Update)
+		admin.DELETE("/menus/:id", middleware.RequirePermission(permission.AdminMenusDelete), deps.MenuHandler.Delete)
+		admin.POST("/menus/reorder", middleware.RequirePermission(permission.AdminMenusUpdate), deps.MenuHandler.Reorder)
 
 		// 系统概览
-		admin.GET("/overview/stats", middleware.RequirePermission("admin:overview:read"), deps.OverviewHandler.GetStats)
+		admin.GET("/overview/stats", middleware.RequirePermission(permission.AdminOverviewRead), deps.OverviewHandler.GetStats)
 
 		// 系统配置
-		admin.GET("/settings", middleware.RequirePermission("admin:settings:read"), deps.SettingHandler.GetSettings)
-		admin.POST("/settings", middleware.RequirePermission("admin:settings:create"), deps.SettingHandler.CreateSetting)
-		admin.POST("/settings/batch", middleware.RequirePermission("admin:settings:update"), deps.SettingHandler.BatchUpdateSettings)
+		admin.GET("/settings", middleware.RequirePermission(permission.AdminSettingsRead), deps.SettingHandler.GetSettings)
+		admin.POST("/settings", middleware.RequirePermission(permission.AdminSettingsCreate), deps.SettingHandler.CreateSetting)
+		admin.POST("/settings/batch", middleware.RequirePermission(permission.AdminSettingsUpdate), deps.SettingHandler.BatchUpdateSettings)
 
 		// 配置分类管理（必须在 :key 路由之前）
-		admin.GET("/settings/categories", middleware.RequirePermission("admin:settings:read"), deps.SettingHandler.GetCategories)
-		admin.GET("/settings/categories/:id", middleware.RequirePermission("admin:settings:read"), deps.SettingHandler.GetCategory)
-		admin.POST("/settings/categories", middleware.RequirePermission("admin:settings:create"), deps.SettingHandler.CreateCategory)
-		admin.PUT("/settings/categories/:id", middleware.RequirePermission("admin:settings:update"), deps.SettingHandler.UpdateCategory)
-		admin.DELETE("/settings/categories/:id", middleware.RequirePermission("admin:settings:delete"), deps.SettingHandler.DeleteCategory)
+		admin.GET("/settings/categories", middleware.RequirePermission(permission.AdminSettingsRead), deps.SettingHandler.GetCategories)
+		admin.GET("/settings/categories/:id", middleware.RequirePermission(permission.AdminSettingsRead), deps.SettingHandler.GetCategory)
+		admin.POST("/settings/categories", middleware.RequirePermission(permission.AdminSettingsCreate), deps.SettingHandler.CreateCategory)
+		admin.PUT("/settings/categories/:id", middleware.RequirePermission(permission.AdminSettingsUpdate), deps.SettingHandler.UpdateCategory)
+		admin.DELETE("/settings/categories/:id", middleware.RequirePermission(permission.AdminSettingsDelete), deps.SettingHandler.DeleteCategory)
 
 		// 单个配置操作（:key 路由放在最后避免与上面的固定路径冲突）
-		admin.GET("/settings/:key", middleware.RequirePermission("admin:settings:read"), deps.SettingHandler.GetSetting)
-		admin.PUT("/settings/:key", middleware.RequirePermission("admin:settings:update"), deps.SettingHandler.UpdateSetting)
-		admin.DELETE("/settings/:key", middleware.RequirePermission("admin:settings:delete"), deps.SettingHandler.DeleteSetting)
+		admin.GET("/settings/:key", middleware.RequirePermission(permission.AdminSettingsRead), deps.SettingHandler.GetSetting)
+		admin.PUT("/settings/:key", middleware.RequirePermission(permission.AdminSettingsUpdate), deps.SettingHandler.UpdateSetting)
+		admin.DELETE("/settings/:key", middleware.RequirePermission(permission.AdminSettingsDelete), deps.SettingHandler.DeleteSetting)
 
 		// 缓存管理（Redis 风格 API）
-		admin.GET("/cache/info", middleware.RequirePermission("admin:cache:read"), deps.CacheHandler.Info)
-		admin.GET("/cache/keys", middleware.RequirePermission("admin:cache:read"), deps.CacheHandler.ScanKeys)
-		admin.GET("/cache/key", middleware.RequirePermission("admin:cache:read"), deps.CacheHandler.GetKey)
-		admin.DELETE("/cache/key", middleware.RequirePermission("admin:cache:delete"), deps.CacheHandler.DeleteKey)
-		admin.DELETE("/cache/keys", middleware.RequirePermission("admin:cache:delete"), deps.CacheHandler.DeleteByPattern)
+		admin.GET("/cache/info", middleware.RequirePermission(permission.AdminCacheRead), deps.CacheHandler.Info)
+		admin.GET("/cache/keys", middleware.RequirePermission(permission.AdminCacheRead), deps.CacheHandler.ScanKeys)
+		admin.GET("/cache/key", middleware.RequirePermission(permission.AdminCacheRead), deps.CacheHandler.GetKey)
+		admin.DELETE("/cache/key", middleware.RequirePermission(permission.AdminCacheDelete), deps.CacheHandler.DeleteKey)
+		admin.DELETE("/cache/keys", middleware.RequirePermission(permission.AdminCacheDelete), deps.CacheHandler.DeleteByPattern)
 	}
 
 	// 用户管理 API (/api/users/*) - 需要认证
@@ -255,26 +262,26 @@ func setupAPIRoutes(r *gin.Engine, deps *RouterDependencies) {
 	userGroup.Use(middleware.Auth(deps.JWTManager, deps.PATService, deps.PermissionCacheService))
 	{
 		// 个人资料管理
-		userGroup.GET("/profile", middleware.RequirePermission("user:profile:read"), deps.UserProfileHandler.GetProfile)
-		userGroup.PUT("/profile", middleware.RequirePermission("user:profile:update"), deps.UserProfileHandler.UpdateProfile)
-		userGroup.PUT("/password", middleware.RequirePermission("user:password:update"), deps.UserProfileHandler.ChangePassword)
-		userGroup.DELETE("/account", middleware.RequirePermission("user:profile:delete"), deps.UserProfileHandler.DeleteAccount)
+		userGroup.GET("/profile", middleware.RequirePermission(permission.UserProfileRead), deps.UserProfileHandler.GetProfile)
+		userGroup.PUT("/profile", middleware.RequirePermission(permission.UserProfileUpdate), deps.UserProfileHandler.UpdateProfile)
+		userGroup.PUT("/password", middleware.RequirePermission(permission.UserPasswordUpdate), deps.UserProfileHandler.ChangePassword)
+		userGroup.DELETE("/account", middleware.RequirePermission(permission.UserProfileDelete), deps.UserProfileHandler.DeleteAccount)
 
 		// Personal Access Token 管理
-		userGroup.POST("/tokens", middleware.RequirePermission("user:tokens:create"), deps.PATHandler.CreateToken)
-		userGroup.GET("/tokens", middleware.RequirePermission("user:tokens:read"), deps.PATHandler.ListTokens)
-		userGroup.GET("/tokens/:id", middleware.RequirePermission("user:tokens:read"), deps.PATHandler.GetToken)
-		userGroup.DELETE("/tokens/:id", middleware.RequirePermission("user:tokens:delete"), deps.PATHandler.DeleteToken)
-		userGroup.PATCH("/tokens/:id/disable", middleware.RequirePermission("user:tokens:disable"), deps.PATHandler.DisableToken)
-		userGroup.PATCH("/tokens/:id/enable", middleware.RequirePermission("user:tokens:enable"), deps.PATHandler.EnableToken)
+		userGroup.POST("/tokens", middleware.RequirePermission(permission.UserTokensCreate), deps.PATHandler.CreateToken)
+		userGroup.GET("/tokens", middleware.RequirePermission(permission.UserTokensRead), deps.PATHandler.ListTokens)
+		userGroup.GET("/tokens/:id", middleware.RequirePermission(permission.UserTokensRead), deps.PATHandler.GetToken)
+		userGroup.DELETE("/tokens/:id", middleware.RequirePermission(permission.UserTokensDelete), deps.PATHandler.DeleteToken)
+		userGroup.PATCH("/tokens/:id/disable", middleware.RequirePermission(permission.UserTokensDisable), deps.PATHandler.DisableToken)
+		userGroup.PATCH("/tokens/:id/enable", middleware.RequirePermission(permission.UserTokensEnable), deps.PATHandler.EnableToken)
 
 		// 用户配置管理
-		userGroup.GET("/settings/categories", middleware.RequirePermission("user:settings:read"), deps.UserSettingHandler.ListUserSettingCategories)
-		userGroup.GET("/settings", middleware.RequirePermission("user:settings:read"), deps.UserSettingHandler.GetUserSettings)
-		userGroup.GET("/settings/:key", middleware.RequirePermission("user:settings:read"), deps.UserSettingHandler.GetUserSetting)
-		userGroup.PUT("/settings/:key", middleware.RequirePermission("user:settings:update"), deps.UserSettingHandler.SetUserSetting)
-		userGroup.DELETE("/settings/:key", middleware.RequirePermission("user:settings:update"), deps.UserSettingHandler.ResetUserSetting)
-		userGroup.POST("/settings/batch", middleware.RequirePermission("user:settings:update"), deps.UserSettingHandler.BatchSetUserSettings)
+		userGroup.GET("/settings/categories", middleware.RequirePermission(permission.UserSettingsRead), deps.UserSettingHandler.ListUserSettingCategories)
+		userGroup.GET("/settings", middleware.RequirePermission(permission.UserSettingsRead), deps.UserSettingHandler.GetUserSettings)
+		userGroup.GET("/settings/:key", middleware.RequirePermission(permission.UserSettingsRead), deps.UserSettingHandler.GetUserSetting)
+		userGroup.PUT("/settings/:key", middleware.RequirePermission(permission.UserSettingsUpdate), deps.UserSettingHandler.SetUserSetting)
+		userGroup.DELETE("/settings/:key", middleware.RequirePermission(permission.UserSettingsUpdate), deps.UserSettingHandler.ResetUserSetting)
+		userGroup.POST("/settings/batch", middleware.RequirePermission(permission.UserSettingsUpdate), deps.UserSettingHandler.BatchSetUserSettings)
 	}
 }
 

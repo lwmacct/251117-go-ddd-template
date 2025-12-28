@@ -4,19 +4,21 @@ import "time"
 
 // AuditLog 审计日志实体，用于追踪用户操作
 type AuditLog struct {
-	ID         uint       `json:"id"`
-	CreatedAt  time.Time  `json:"created_at"`
-	UpdatedAt  time.Time  `json:"updated_at"`
-	DeletedAt  *time.Time `json:"-"`
-	UserID     uint       `json:"user_id"`
-	Username   string     `json:"username"`
-	Action     string     `json:"action"`
-	Resource   string     `json:"resource"`
-	ResourceID string     `json:"resource_id,omitempty"`
-	IPAddress  string     `json:"ip_address,omitempty"`
-	UserAgent  string     `json:"user_agent,omitempty"`
-	Details    string     `json:"details,omitempty"`
-	Status     string     `json:"status"`
+	ID          uint       `json:"id"`
+	CreatedAt   time.Time  `json:"created_at"`
+	UpdatedAt   time.Time  `json:"updated_at"`
+	DeletedAt   *time.Time `json:"-"`
+	UserID      uint       `json:"user_id"`
+	Username    string     `json:"username"`
+	Action      string     `json:"action"`
+	Resource    string     `json:"resource"`
+	ResourceID  string     `json:"resource_id,omitempty"`
+	IPAddress   string     `json:"ip_address,omitempty"`
+	UserAgent   string     `json:"user_agent,omitempty"`
+	Details     string     `json:"details,omitempty"`
+	Status      string     `json:"status"`
+	RequestID   string     `json:"request_id,omitempty"`   // 请求追踪 ID（复用 OTel Trace ID）
+	OperationID string     `json:"operation_id,omitempty"` // API 操作标识符
 }
 
 // FilterOptions 审计日志过滤条件

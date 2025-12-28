@@ -14,8 +14,32 @@ NC='\033[0m' # No Color
 
 ROUTER_FILE="internal/adapters/http/router.go"
 HANDLER_DIR="internal/adapters/http/handler"
+PERMISSION_FILE="internal/domain/permission/constants.go"
 
 errors=0
+
+# ============================================================
+# 从 constants.go 提取权限常量映射
+# 格式: ConstantName=permission:string
+# ============================================================
+declare -A PERM_CONSTANTS
+load_permission_constants() {
+    if [[ ! -f "$PERMISSION_FILE" ]]; then
+        return
+    fi
+
+    while IFS= read -r line; do
+        # 匹配: AdminUsersCreate = "admin:users:create"
+        if [[ "$line" =~ ^[[:space:]]*([A-Za-z][A-Za-z0-9_]*)[[:space:]]*=[[:space:]]*\"([^\"]+)\" ]]; then
+            local name="${BASH_REMATCH[1]}"
+            local value="${BASH_REMATCH[2]}"
+            PERM_CONSTANTS["$name"]="$value"
+        fi
+    done < "$PERMISSION_FILE"
+}
+
+# 加载权限常量
+load_permission_constants
 
 # 检查必要文件
 if [[ ! -f "$ROUTER_FILE" ]]; then
@@ -73,6 +97,7 @@ extract_handler_routes() {
 # ============================================================
 # 从 router.go 提取路由 + RequirePermission
 # 格式: method|path|permission
+# 支持字符串字面量和常量引用两种格式
 # ============================================================
 extract_router_routes() {
     awk '
@@ -111,16 +136,33 @@ extract_router_routes() {
                 gsub(":" param[1], "{" param[1] "}", full_path)
             }
 
-            # 提取 RequirePermission
+            # 提取 RequirePermission - 支持两种格式
             permission = "-"
+            # 格式1: RequirePermission("admin:users:create")
             if (match($0, /RequirePermission\("([^"]+)"\)/, perm)) {
                 permission = perm[1]
+            }
+            # 格式2: RequirePermission(permission.AdminUsersCreate)
+            else if (match($0, /RequirePermission\(permission\.([A-Za-z][A-Za-z0-9_]*)\)/, perm)) {
+                permission = "@CONST:" perm[1]
             }
 
             print method "|" full_path "|" permission
         }
     }
-    ' "$ROUTER_FILE"
+    ' "$ROUTER_FILE" | while IFS='|' read -r method path perm; do
+        # 解析常量引用
+        if [[ "$perm" == @CONST:* ]]; then
+            const_name="${perm#@CONST:}"
+            if [[ -n "${PERM_CONSTANTS[$const_name]:-}" ]]; then
+                perm="${PERM_CONSTANTS[$const_name]}"
+            else
+                echo -e "${YELLOW}Warning: Unknown permission constant: $const_name${NC}" >&2
+                perm="-"
+            fi
+        fi
+        echo "${method}|${path}|${perm}"
+    done
 }
 
 # 提取数据

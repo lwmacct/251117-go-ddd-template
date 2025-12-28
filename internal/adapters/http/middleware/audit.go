@@ -75,15 +75,17 @@ func AuditMiddleware(handler *auditlog.CreateHandler) gin.HandlerFunc {
 
 		// Create audit log command
 		cmd := auditlog.CreateCommand{
-			UserID:     uid,
-			Username:   uname,
-			Action:     fmt.Sprintf("%s %s", c.Request.Method, c.Request.URL.Path),
-			Resource:   resource,
-			ResourceID: resourceID,
-			IPAddress:  c.ClientIP(),
-			UserAgent:  c.Request.UserAgent(),
-			Details:    formatDetails(c.Request.Method, requestBody, c.Writer.Status(), duration),
-			Status:     status,
+			UserID:      uid,
+			Username:    uname,
+			Action:      fmt.Sprintf("%s %s", c.Request.Method, c.Request.URL.Path),
+			Resource:    resource,
+			ResourceID:  resourceID,
+			IPAddress:   c.ClientIP(),
+			UserAgent:   c.Request.UserAgent(),
+			Details:     formatDetails(c.Request.Method, requestBody, c.Writer.Status(), duration),
+			Status:      status,
+			RequestID:   GetRequestID(c),
+			OperationID: GetOperationID(c),
 		}
 
 		// Save audit log asynchronously to avoid blocking the response

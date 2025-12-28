@@ -4,6 +4,7 @@ import (
 	"context"
 	"log/slog"
 
+	"github.com/lwmacct/251117-go-ddd-template/internal/domain/permission"
 	_persistence "github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/persistence"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
@@ -32,70 +33,17 @@ func (s *RBACSeeder) Seed(ctx context.Context, db *gorm.DB) error {
 func (s *RBACSeeder) seedPermissions(ctx context.Context, db *gorm.DB) error {
 	db = db.WithContext(ctx)
 
-	permissions := []_persistence.PermissionModel{
-		// Admin domain - User management
-		{Domain: "admin", Resource: "users", Action: "create", Code: "admin:users:create", Description: "Create users"},
-		{Domain: "admin", Resource: "users", Action: "read", Code: "admin:users:read", Description: "Read all users"},
-		{Domain: "admin", Resource: "users", Action: "update", Code: "admin:users:update", Description: "Update any user"},
-		{Domain: "admin", Resource: "users", Action: "delete", Code: "admin:users:delete", Description: "Delete users"},
-
-		// Admin domain - Role management
-		{Domain: "admin", Resource: "roles", Action: "create", Code: "admin:roles:create", Description: "Create roles"},
-		{Domain: "admin", Resource: "roles", Action: "read", Code: "admin:roles:read", Description: "Read all roles"},
-		{Domain: "admin", Resource: "roles", Action: "update", Code: "admin:roles:update", Description: "Update roles"},
-		{Domain: "admin", Resource: "roles", Action: "delete", Code: "admin:roles:delete", Description: "Delete roles"},
-
-		// Admin domain - Permission management
-		{Domain: "admin", Resource: "permissions", Action: "read", Code: "admin:permissions:read", Description: "Read all permissions"},
-
-		// Admin domain - Overview dashboard
-		{Domain: "admin", Resource: "overview", Action: "read", Code: "admin:overview:read", Description: "View system overview stats"},
-
-		// Admin domain - Menu management
-		{Domain: "admin", Resource: "menus", Action: "create", Code: "admin:menus:create", Description: "Create menus"},
-		{Domain: "admin", Resource: "menus", Action: "read", Code: "admin:menus:read", Description: "Read menus"},
-		{Domain: "admin", Resource: "menus", Action: "update", Code: "admin:menus:update", Description: "Update menus"},
-		{Domain: "admin", Resource: "menus", Action: "delete", Code: "admin:menus:delete", Description: "Delete menus"},
-
-		// Admin domain - Settings management
-		{Domain: "admin", Resource: "settings", Action: "create", Code: "admin:settings:create", Description: "Create settings"},
-		{Domain: "admin", Resource: "settings", Action: "read", Code: "admin:settings:read", Description: "Read settings"},
-		{Domain: "admin", Resource: "settings", Action: "update", Code: "admin:settings:update", Description: "Update settings"},
-		{Domain: "admin", Resource: "settings", Action: "delete", Code: "admin:settings:delete", Description: "Delete settings"},
-
-		// Admin domain - Audit log management
-		{Domain: "admin", Resource: "audit_logs", Action: "read", Code: "admin:audit_logs:read", Description: "Read audit logs"},
-
-		// Admin domain - Cache management
-		{Domain: "admin", Resource: "cache", Action: "read", Code: "admin:cache:read", Description: "Read cache status and keys"},
-		{Domain: "admin", Resource: "cache", Action: "delete", Code: "admin:cache:delete", Description: "Delete cache keys"},
-
-		// User domain - Profile management
-		{Domain: "user", Resource: "profile", Action: "read", Code: "user:profile:read", Description: "Read own profile"},
-		{Domain: "user", Resource: "profile", Action: "update", Code: "user:profile:update", Description: "Update own profile"},
-		{Domain: "user", Resource: "profile", Action: "delete", Code: "user:profile:delete", Description: "Delete own account"},
-
-		// User domain - Password management
-		{Domain: "user", Resource: "password", Action: "update", Code: "user:password:update", Description: "Change own password"},
-
-		// User domain - Email management
-		{Domain: "user", Resource: "email", Action: "update", Code: "user:email:update", Description: "Change own email"},
-
-		// User domain - Token management
-		{Domain: "user", Resource: "tokens", Action: "create", Code: "user:tokens:create", Description: "Create personal access tokens"},
-		{Domain: "user", Resource: "tokens", Action: "read", Code: "user:tokens:read", Description: "List own tokens"},
-		{Domain: "user", Resource: "tokens", Action: "update", Code: "user:tokens:disable", Description: "Disable own tokens"},
-		{Domain: "user", Resource: "tokens", Action: "update", Code: "user:tokens:enable", Description: "Enable own tokens"},
-		{Domain: "user", Resource: "tokens", Action: "delete", Code: "user:tokens:delete", Description: "Delete own tokens"},
-
-		// User domain - Settings management
-		{Domain: "user", Resource: "settings", Action: "read", Code: "user:settings:read", Description: "Read own user settings"},
-		{Domain: "user", Resource: "settings", Action: "update", Code: "user:settings:update", Description: "Update own user settings"},
-
-		// API domain - Cache management (example for API endpoints)
-		{Domain: "api", Resource: "cache", Action: "read", Code: "api:cache:read", Description: "Read cache data"},
-		{Domain: "api", Resource: "cache", Action: "write", Code: "api:cache:write", Description: "Write cache data"},
-		{Domain: "api", Resource: "cache", Action: "delete", Code: "api:cache:delete", Description: "Delete cache data"},
+	// 从权限常量包获取所有权限定义
+	defs := permission.AllDefinitions()
+	permissions := make([]_persistence.PermissionModel, 0, len(defs))
+	for _, def := range defs {
+		permissions = append(permissions, _persistence.PermissionModel{
+			Domain:      def.Domain,
+			Resource:    def.Resource,
+			Action:      def.Action,
+			Code:        def.Code,
+			Description: def.Description,
+		})
 	}
 
 	result := db.Clauses(clause.OnConflict{

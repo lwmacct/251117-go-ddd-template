@@ -21,15 +21,17 @@ func NewCreateHandler(repo auditlog.CommandRepository) *CreateHandler {
 // Handle 处理创建审计日志命令
 func (h *CreateHandler) Handle(ctx context.Context, cmd CreateCommand) error {
 	log := &auditlog.AuditLog{
-		UserID:     cmd.UserID,
-		Username:   cmd.Username,
-		Action:     cmd.Action,
-		Resource:   cmd.Resource,
-		ResourceID: cmd.ResourceID,
-		IPAddress:  cmd.IPAddress,
-		UserAgent:  cmd.UserAgent,
-		Details:    cmd.Details,
-		Status:     cmd.Status,
+		UserID:      cmd.UserID,
+		Username:    cmd.Username,
+		Action:      cmd.Action,
+		Resource:    cmd.Resource,
+		ResourceID:  cmd.ResourceID,
+		IPAddress:   cmd.IPAddress,
+		UserAgent:   cmd.UserAgent,
+		Details:     cmd.Details,
+		Status:      cmd.Status,
+		RequestID:   cmd.RequestID,
+		OperationID: cmd.OperationID,
 	}
 
 	return h.auditLogCommandRepo.Create(ctx, log)
