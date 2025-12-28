@@ -194,7 +194,7 @@ onMounted(async () => {
     <v-progress-linear v-if="loading" indeterminate color="primary" class="mb-4" />
 
     <!-- 空状态 -->
-    <v-row v-if="!loading && schema.length === 0">
+    <v-row v-if="!loading && categories.length === 0">
       <v-col cols="12">
         <v-alert type="info" variant="tonal">
           <v-icon start>mdi-information</v-icon>
@@ -204,7 +204,7 @@ onMounted(async () => {
     </v-row>
 
     <!-- 设置表单 -->
-    <v-row v-if="schema.length > 0">
+    <v-row v-if="categories.length > 0">
       <v-col cols="12">
         <v-card>
           <ResponsiveTabs

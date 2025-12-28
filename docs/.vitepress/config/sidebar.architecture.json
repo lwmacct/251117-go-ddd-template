@@ -12,7 +12,8 @@
     "items": [
       { "text": "前端架构", "link": "/architecture/frontend" },
       { "text": "身份认证", "link": "/architecture/identity" },
-      { "text": "数据存储", "link": "/architecture/data" }
+      { "text": "数据存储", "link": "/architecture/data" },
+      { "text": "Setting 缓存", "link": "/architecture/setting-cache" }
     ]
   }
 ]

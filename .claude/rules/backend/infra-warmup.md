@@ -11,13 +11,12 @@ paths:
 
 ## 核心原则
 
-**预热的唯一目的**：防止多实例启动时重复写入缓存。
+**预热的目的**：确保应用启动后，常用数据已在缓存中，减少首次请求的数据库压力。
 
-**预热不是**：
+**设计简化**：
 
-- 缓存有效性的判断依据
-- 决定是否查询数据库的条件
-- 空数据合法性的证明
+- 无分布式锁：多实例同时预热是幂等操作
+- 无预热标记：每次启动都执行预热，确保数据最新
 
 ## 文件命名
 
@@ -26,54 +25,24 @@ paths:
 | 包文档   | `doc.go`（**必需**） |
 | 预热服务 | `{模块}_warmup.go`   |
 
-## 多实例预热安全
-
-使用分布式锁 + 双重检查：
+## 预热流程
 
 ```go
 func (w *Warmer) WarmUp(ctx context.Context) error {
-    // 1. 尝试获取锁
-    acquired, release := w.cache.TryAcquireWarmupLock(ctx)
-    if !acquired {
-        return w.waitForWarmUp(ctx)
-    }
-    defer release()
-
-    // 2. 双重检查
-    if w.cache.IsWarmedUp(ctx) {
-        return nil
+    // 1. 从数据库加载所有数据
+    data, err := w.repo.FindAll(ctx)
+    if err != nil {
+        return fmt.Errorf("failed to load data: %w", err)
     }
 
-    // 3. 执行预热
-    data, _ := w.repo.FindAll(ctx)
-    w.cache.SetAll(ctx, data)
-    w.cache.SetWarmedUp(ctx)
+    // 2. 批量写入缓存
+    if len(data) > 0 {
+        if err := w.cache.SetAll(ctx, data); err != nil {
+            return fmt.Errorf("failed to warmup cache: %w", err)
+        }
+    }
+
     return nil
-}
-```
-
-## TTL 一致性警告
-
-| 缓存类型 | 典型 TTL | 风险     |
-| -------- | -------- | -------- |
-| 实体缓存 | 10 分钟  | 先过期   |
-| 预热标记 | 24 小时  | 仍然存在 |
-
-**后果**：实体缓存过期后，`IsWarmedUp()` 仍返回 true，空缓存被误判为有效数据。
-
-## 禁止事项
-
-❌ **禁止信任 `IsWarmedUp + 空缓存` 组合**：
-
-```go
-// ❌ 错误：空缓存 + 已预热 = 有效空数据
-if len(cachedMap) == 0 && cache.IsWarmedUp(ctx) {
-    return []Entity{}, true // 危险！实体可能已过期
-}
-
-// ✅ 正确：空缓存总是回退到数据库
-if len(cachedMap) == 0 {
-    return nil, false // 触发数据库查询
 }
 ```
 

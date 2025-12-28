@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"log/slog"
 	"strconv"
 	"time"
 
@@ -16,16 +15,11 @@ import (
 )
 
 const (
-	settingCategoryCacheTTL       = 10 * time.Minute
-	settingCategoryWarmupFlagTTL  = 24 * time.Hour // 预热标记独立 TTL，避免与数据同时过期
-	settingCategoryWarmupLockTTL  = 30 * time.Second
-	settingCategoryWarmupPollItvl = 100 * time.Millisecond
+	settingCategoryCacheTTL       = 7 * 24 * time.Hour // 7 天（数据变更不频繁，且有主动失效机制）
 	settingCategoryKeyPrefix      = "setting_category:"
 	settingCategoryIDPrefix       = "setting_category:id:"
 	settingCategoryKeyByKeyPrefix = "setting_category:key:"
 	settingCategoryAllKey         = "setting_category:all"
-	settingCategoryWarmupLockKey  = "setting_category:_warmup_lock"
-	settingCategoryWarmedUpKey    = "setting_category:_warmed_up"
 )
 
 // settingCategoryCacheDTO 用于 Redis 缓存的 SettingCategory 数据结构。
@@ -67,7 +61,7 @@ func (d settingCategoryCacheDTO) toEntity() *setting.SettingCategory {
 //   - ID 索引：{prefix}setting_category:id:{id}
 //   - Key 索引：{prefix}setting_category:key:{key}
 //   - 全量缓存：{prefix}setting_category:all
-//   - TTL：10 分钟
+//   - TTL：7 天
 //   - JSON 序列化存储（RedisJSON）
 type settingCategoryCacheService struct {
 	client    *redis.Client
@@ -288,66 +282,6 @@ func (s *settingCategoryCacheService) DeleteAll(ctx context.Context) error {
 	}
 
 	return nil
-}
-
-// =========================================================================
-// 预热控制
-// =========================================================================
-
-// IsWarmedUp 检查缓存是否已预热完成。
-func (s *settingCategoryCacheService) IsWarmedUp(ctx context.Context) bool {
-	exists, err := s.client.Exists(ctx, s.keyPrefix+settingCategoryWarmedUpKey).Result()
-	if err != nil {
-		slog.Warn("failed to check setting category warmup status", "err", err)
-		return false
-	}
-	return exists > 0
-}
-
-// SetWarmedUp 标记缓存已预热完成。
-// 使用独立的 24 小时 TTL，避免与数据缓存同时过期。
-func (s *settingCategoryCacheService) SetWarmedUp(ctx context.Context) error {
-	return s.client.Set(ctx, s.keyPrefix+settingCategoryWarmedUpKey, "1", settingCategoryWarmupFlagTTL).Err()
-}
-
-// TryAcquireWarmupLock 尝试获取预热分布式锁。
-func (s *settingCategoryCacheService) TryAcquireWarmupLock(ctx context.Context) (bool, func()) {
-	lockKey := s.keyPrefix + settingCategoryWarmupLockKey
-
-	// 尝试获取锁（SETNX + TTL）
-	ok, err := s.client.SetNX(ctx, lockKey, "1", settingCategoryWarmupLockTTL).Result()
-	if err != nil {
-		slog.Warn("failed to acquire setting category warmup lock", "err", err)
-		return false, nil
-	}
-
-	if !ok {
-		return false, nil
-	}
-
-	// 返回释放锁的函数
-	return true, func() { //nolint:contextcheck // 故意使用独立 context
-		if err := s.client.Del(context.Background(), lockKey).Err(); err != nil {
-			slog.Warn("failed to release setting category warmup lock", "err", err)
-		}
-	}
-}
-
-// WaitForWarmup 等待缓存预热完成。
-func (s *settingCategoryCacheService) WaitForWarmup(ctx context.Context) error {
-	ticker := time.NewTicker(settingCategoryWarmupPollItvl)
-	defer ticker.Stop()
-
-	for {
-		select {
-		case <-ctx.Done():
-			return ctx.Err()
-		case <-ticker.C:
-			if s.IsWarmedUp(ctx) {
-				return nil
-			}
-		}
-	}
 }
 
 // =========================================================================

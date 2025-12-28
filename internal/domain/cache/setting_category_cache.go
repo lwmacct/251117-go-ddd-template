@@ -12,21 +12,14 @@ import (
 //   - 读取时先查缓存，未命中再查数据库
 //   - 写入后自动失效相关缓存
 //
-// 支持缓存预热和多实例安全：
-//   - [TryAcquireWarmupLock]: 分布式锁防止重复预热
-//
 // Key 命名规范：
 //   - 按 ID：{prefix}setting_category:id:{id}
 //   - 按 Key：{prefix}setting_category:key:{key}
 //   - 全量：{prefix}setting_category:all
-//   - 预热标记：{prefix}setting_category:_warmed_up
-//   - 预热锁：{prefix}setting_category:_warmup_lock
 //
-// 默认 TTL：10 分钟
+// 默认 TTL：7 天（数据变更不频繁，且有主动失效机制）
 //
 // 实现位于 [infrastructure/cache.settingCategoryCacheService]。
-//
-//nolint:interfacebloat // 缓存服务需要完整的 CRUD + 预热控制方法
 type SettingCategoryCacheService interface {
 	// =========================================================================
 	// 单条操作
@@ -44,7 +37,7 @@ type SettingCategoryCacheService interface {
 
 	// Set 设置 SettingCategory 缓存。
 	// 同时写入 ID 索引和 Key 索引。
-	// 使用默认 TTL（10 分钟）。
+	// 使用默认 TTL（7 天）。
 	Set(ctx context.Context, category *setting.SettingCategory) error
 
 	// =========================================================================
@@ -83,37 +76,4 @@ type SettingCategoryCacheService interface {
 	// DeleteAll 删除所有 SettingCategory 缓存。
 	// 使用 SCAN 命令遍历，适用于缓存重建场景。
 	DeleteAll(ctx context.Context) error
-
-	// =========================================================================
-	// 预热控制（多实例安全）
-	// =========================================================================
-
-	// IsWarmedUp 检查缓存是否已预热完成。
-	//
-	// 通过检查 {prefix}setting_category:_warmed_up key 是否存在判断。
-	// Redis 不可用时返回 false（降级为惰性加载）。
-	IsWarmedUp(ctx context.Context) bool
-
-	// SetWarmedUp 标记缓存已预热完成。
-	//
-	// 设置预热标记 key，TTL 与数据缓存一致。
-	// 标记过期后触发重新预热。
-	SetWarmedUp(ctx context.Context) error
-
-	// TryAcquireWarmupLock 尝试获取预热分布式锁。
-	//
-	// 使用 SETNX + TTL 实现，防止多实例同时预热。
-	// 返回值：
-	//   - acquired: 是否成功获取锁
-	//   - release: 释放锁的函数（获取成功时非 nil，失败时为 nil）
-	//
-	// 锁 TTL 为 30 秒，防止死锁。
-	// 获取失败时应调用 WaitForWarmup 等待其他实例完成预热。
-	TryAcquireWarmupLock(ctx context.Context) (acquired bool, release func())
-
-	// WaitForWarmup 等待缓存预热完成。
-	//
-	// 轮询检查 IsWarmedUp，直到返回 true 或超时。
-	// 用于未获取到预热锁的实例等待其他实例完成预热。
-	WaitForWarmup(ctx context.Context) error
 }

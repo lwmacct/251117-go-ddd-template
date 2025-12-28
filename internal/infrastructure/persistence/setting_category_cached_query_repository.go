@@ -152,10 +152,7 @@ func (r *cachedSettingCategoryQueryRepository) FindByIDs(ctx context.Context, id
 //
 // 缓存策略：
 //   - 缓存非空时，直接返回缓存结果
-//   - 缓存为空时，总是回退到数据库查询（不依赖 IsWarmedUp 标记）
-//
-// 注意：不再信任 IsWarmedUp + 空缓存的组合，因为实体 TTL（10分钟）
-// 可能先于 _warmed_up 标记 TTL（24小时）过期，导致空缓存被误判为有效。
+//   - 缓存为空时，回退到数据库查询
 func (r *cachedSettingCategoryQueryRepository) FindAll(ctx context.Context) ([]*setting.SettingCategory, error) {
 	// 尝试从缓存获取
 	cachedList, err := r.cache.GetAll(ctx)
@@ -174,17 +171,15 @@ func (r *cachedSettingCategoryQueryRepository) FindAll(ctx context.Context) ([]*
 }
 
 // ExistsByKey 检查 Key 是否已存在。
-// 存在性检查直接委托，不缓存。
+// 先查缓存，未命中再查数据库。
 func (r *cachedSettingCategoryQueryRepository) ExistsByKey(ctx context.Context, key string) (bool, error) {
-	// 如果已预热，可以从缓存判断
-	if r.cache.IsWarmedUp(ctx) {
-		cached, err := r.cache.GetByKey(ctx, key)
-		if err == nil && cached != nil {
-			return true, nil
-		}
-		// 缓存未命中，还需要查库（可能是新增的）
+	// 先尝试从缓存判断
+	cached, err := r.cache.GetByKey(ctx, key)
+	if err == nil && cached != nil {
+		return true, nil
 	}
 
+	// 缓存未命中，查数据库
 	return r.delegate.ExistsByKey(ctx, key)
 }
 

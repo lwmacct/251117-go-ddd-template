@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"log/slog"
 	"strings"
 	"time"
 
@@ -16,13 +15,8 @@ import (
 )
 
 const (
-	settingCacheTTL      = 10 * time.Minute
-	settingWarmupFlagTTL = 24 * time.Hour // 预热标记独立 TTL，避免与数据同时过期
-	warmupLockTTL        = 30 * time.Second
-	warmupPollInterval   = 100 * time.Millisecond
-	settingKeyPrefix     = "setting:"
-	warmupLockKey        = "setting:_warmup_lock"
-	warmedUpKey          = "setting:_warmed_up"
+	settingCacheTTL  = 7 * 24 * time.Hour // 7 天（数据变更不频繁，且有主动失效机制）
+	settingKeyPrefix = "setting:"
 )
 
 // settingCacheDTO 用于 Redis 缓存的 Setting 数据结构。
@@ -83,8 +77,8 @@ func (d settingCacheDTO) toEntity() *setting.Setting {
 //
 // 提供按 key 粒度的缓存操作：
 //   - Key 格式：{prefix}setting:{key}
-//   - TTL：10 分钟
-//   - JSON 序列化存储
+//   - TTL：7 天
+//   - JSON 序列化存储（RedisJSON）
 type settingCacheService struct {
 	client    *redis.Client
 	keyPrefix string
@@ -281,67 +275,6 @@ func (s *settingCacheService) GetByKeys(ctx context.Context, keys []string) (map
 	}
 
 	return result, nil
-}
-
-// =========================================================================
-// 预热控制
-// =========================================================================
-
-// IsWarmedUp 检查缓存是否已预热完成。
-func (s *settingCacheService) IsWarmedUp(ctx context.Context) bool {
-	exists, err := s.client.Exists(ctx, s.keyPrefix+warmedUpKey).Result()
-	if err != nil {
-		slog.Warn("failed to check warmup status", "err", err)
-		return false
-	}
-	return exists > 0
-}
-
-// SetWarmedUp 标记缓存已预热完成。
-// 使用独立的 24 小时 TTL，避免与数据缓存同时过期。
-func (s *settingCacheService) SetWarmedUp(ctx context.Context) error {
-	return s.client.Set(ctx, s.keyPrefix+warmedUpKey, "1", settingWarmupFlagTTL).Err()
-}
-
-// TryAcquireWarmupLock 尝试获取预热分布式锁。
-func (s *settingCacheService) TryAcquireWarmupLock(ctx context.Context) (bool, func()) {
-	lockKey := s.keyPrefix + warmupLockKey
-
-	// 尝试获取锁（SETNX + TTL）
-	ok, err := s.client.SetNX(ctx, lockKey, "1", warmupLockTTL).Result()
-	if err != nil {
-		slog.Warn("failed to acquire warmup lock", "err", err)
-		return false, nil
-	}
-
-	if !ok {
-		return false, nil
-	}
-
-	// 返回释放锁的函数
-	// 使用独立 context 确保释放操作不受调用方 context 取消影响
-	return true, func() { //nolint:contextcheck // 故意使用独立 context
-		if err := s.client.Del(context.Background(), lockKey).Err(); err != nil {
-			slog.Warn("failed to release warmup lock", "err", err)
-		}
-	}
-}
-
-// WaitForWarmup 等待缓存预热完成。
-func (s *settingCacheService) WaitForWarmup(ctx context.Context) error {
-	ticker := time.NewTicker(warmupPollInterval)
-	defer ticker.Stop()
-
-	for {
-		select {
-		case <-ctx.Done():
-			return ctx.Err()
-		case <-ticker.C:
-			if s.IsWarmedUp(ctx) {
-				return nil
-			}
-		}
-	}
 }
 
 // =========================================================================
