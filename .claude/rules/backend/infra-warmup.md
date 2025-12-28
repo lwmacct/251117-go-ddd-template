@@ -9,6 +9,16 @@ paths:
 
 **注意**：本包负责预热逻辑，Redis 具体实现位于 `infrastructure/cache/`。
 
+## 核心原则
+
+**预热的唯一目的**：防止多实例启动时重复写入缓存。
+
+**预热不是**：
+
+- 缓存有效性的判断依据
+- 决定是否查询数据库的条件
+- 空数据合法性的证明
+
 ## 文件命名
 
 | 文件类型 | 命名规范             |
@@ -39,6 +49,31 @@ func (w *Warmer) WarmUp(ctx context.Context) error {
     w.cache.SetAll(ctx, data)
     w.cache.SetWarmedUp(ctx)
     return nil
+}
+```
+
+## TTL 一致性警告
+
+| 缓存类型 | 典型 TTL | 风险     |
+| -------- | -------- | -------- |
+| 实体缓存 | 10 分钟  | 先过期   |
+| 预热标记 | 24 小时  | 仍然存在 |
+
+**后果**：实体缓存过期后，`IsWarmedUp()` 仍返回 true，空缓存被误判为有效数据。
+
+## 禁止事项
+
+❌ **禁止信任 `IsWarmedUp + 空缓存` 组合**：
+
+```go
+// ❌ 错误：空缓存 + 已预热 = 有效空数据
+if len(cachedMap) == 0 && cache.IsWarmedUp(ctx) {
+    return []Entity{}, true // 危险！实体可能已过期
+}
+
+// ✅ 正确：空缓存总是回退到数据库
+if len(cachedMap) == 0 {
+    return nil, false // 触发数据库查询
 }
 ```
 
