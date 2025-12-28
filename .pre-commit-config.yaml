@@ -16,13 +16,13 @@ repos:
         files: ^internal/application/.*\.go$
         stages: [pre-commit]
 
-      - id: route-swagger-consistency
-        name: Check route-swagger consistency
-        entry: scripts/check-route-swagger-consistency.sh
-        language: script
+      - id: registry-consistency
+        name: Check API registry and handler consistency
+        entry: go test ./internal/adapters/http/registry/...
+        language: system
         pass_filenames: false
         stages: [pre-commit]
-        files: ^internal/adapters/http/(router\.go|handler/.*\.go)$
+        files: ^internal/adapters/http/(router\.go|handler/.*\.go|registry/.*\.go)$
 
       - id: swagger-generate
         name: Generate Swagger/OpenAPI docs

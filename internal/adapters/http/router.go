@@ -96,7 +96,6 @@ type RouterDependencies struct {
 	PATHandler         *handler.PATHandler
 	AuditLogHandler    *handler.AuditLogHandler
 	AdminUserHandler   *handler.AdminUserHandler
-	UserHandler        *handler.UserHandler
 	UserProfileHandler *handler.UserProfileHandler
 	OverviewHandler    *handler.OverviewHandler
 	TwoFAHandler       *handler.TwoFAHandler
@@ -248,14 +247,6 @@ func setupAPIRoutes(r *gin.Engine, deps *RouterDependencies) {
 		admin.DELETE("/cache/key", middleware.RequirePermission(permission.AdminCacheDelete), deps.CacheHandler.DeleteKey)
 		admin.DELETE("/cache/keys", middleware.RequirePermission(permission.AdminCacheDelete), deps.CacheHandler.DeleteByPattern)
 	}
-
-	// 用户管理 API (/api/users/*) - 需要认证
-	usersAuth := middleware.Auth(deps.JWTManager, deps.PATService, deps.PermissionCacheService)
-	api.POST("/users", usersAuth, deps.UserHandler.Create)
-	api.GET("/users", usersAuth, deps.UserHandler.List)
-	api.GET("/users/:id", usersAuth, deps.UserHandler.GetByID)
-	api.PUT("/users/:id", usersAuth, deps.UserHandler.Update)
-	api.DELETE("/users/:id", usersAuth, deps.UserHandler.Delete)
 
 	// 用户路由 (/api/user/*) - 使用三段式权限控制
 	userGroup := api.Group("/user")

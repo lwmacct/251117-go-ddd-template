@@ -28,7 +28,6 @@ type HandlersResult struct {
 	Auth        *handler.AuthHandler
 	Captcha     *handler.CaptchaHandler
 	AdminUser   *handler.AdminUserHandler
-	User        *handler.UserHandler
 	UserProfile *handler.UserProfileHandler
 	Role        *handler.RoleHandler
 	Menu        *handler.MenuHandler
@@ -92,13 +91,6 @@ func newAllHandlers(p handlersParams) HandlersResult {
 			p.User.Delete,
 			p.User.AssignRoles,
 			p.User.BatchCreate,
-			p.User.Get,
-			p.User.List,
-		),
-		User: handler.NewUserHandler(
-			p.User.Create,
-			p.User.Update,
-			p.User.Delete,
 			p.User.Get,
 			p.User.List,
 		),
@@ -197,7 +189,6 @@ type routerParams struct {
 	Auth        *handler.AuthHandler
 	Captcha     *handler.CaptchaHandler
 	AdminUser   *handler.AdminUserHandler
-	User        *handler.UserHandler
 	UserProfile *handler.UserProfileHandler
 	Role        *handler.RoleHandler
 	Menu        *handler.MenuHandler
@@ -228,7 +219,6 @@ func newRouter(p routerParams) *gin.Engine {
 		PATHandler:             p.PAT,
 		AuditLogHandler:        p.AuditLogH,
 		AdminUserHandler:       p.AdminUser,
-		UserHandler:            p.User,
 		UserProfileHandler:     p.UserProfile,
 		OverviewHandler:        p.Overview,
 		TwoFAHandler:           p.TwoFA,

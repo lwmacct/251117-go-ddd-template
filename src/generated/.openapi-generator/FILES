@@ -13,7 +13,6 @@ api/authentication-api.ts
 api/authentication2-faapi.ts
 api/overview-api.ts
 api/system-api.ts
-api/user-api.ts
 api/user-personal-access-token-api.ts
 api/user-profile-api.ts
 api/user-settings-api.ts
