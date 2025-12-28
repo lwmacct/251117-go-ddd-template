@@ -208,6 +208,13 @@ func (r *cachedSettingQueryRepository) ExistsByKey(ctx context.Context, key stri
 
 // tryFilterFromCache 尝试从全量缓存中过滤数据。
 // 返回 (result, true) 表示缓存命中，(nil, false) 表示需要查库。
+//
+// 缓存策略：
+//   - 缓存非空时，从缓存过滤返回结果
+//   - 缓存为空时，总是回退到数据库查询（不依赖 IsWarmedUp 标记）
+//
+// 注意：不再信任 IsWarmedUp + 空缓存的组合，因为 Setting 实体 TTL（10分钟）
+// 可能先于 _warmed_up 标记 TTL（24小时）过期，导致空缓存被误判为有效。
 func (r *cachedSettingQueryRepository) tryFilterFromCache(
 	ctx context.Context,
 	filter func(*setting.Setting) bool,
@@ -218,12 +225,10 @@ func (r *cachedSettingQueryRepository) tryFilterFromCache(
 		return nil, false
 	}
 
+	// 缓存为空时，总是回退到数据库
+	// 即使 IsWarmedUp() 为 true，空缓存通常意味着数据已过期或未正确加载
 	if len(cachedMap) == 0 {
-		// 缓存为空，检查是否已预热
-		if r.cache.IsWarmedUp(ctx) {
-			return []*setting.Setting{}, true // 已预热，空结果是有效的
-		}
-		return nil, false // 未预热，需要查库
+		return nil, false
 	}
 
 	// 从缓存过滤
@@ -234,18 +239,7 @@ func (r *cachedSettingQueryRepository) tryFilterFromCache(
 		}
 	}
 
-	// 有结果直接返回
-	if len(result) > 0 {
-		return result, true
-	}
-
-	// 无结果但已预热，说明确实没有匹配的数据
-	if r.cache.IsWarmedUp(ctx) {
-		return result, true
-	}
-
-	// 无结果且未预热，需要查库确认
-	return nil, false
+	return result, true
 }
 
 // trySetAllCache 尝试回写缓存，失败时记录警告日志。

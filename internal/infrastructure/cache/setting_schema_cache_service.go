@@ -219,6 +219,12 @@ func (s *schemaCacheService) get(ctx context.Context, key string) ([]setting.Sch
 		return nil, nil // empty wrapper treated as miss
 	}
 
+	// 空切片也视为缓存未命中，避免返回无效数据
+	if len(wrapper[0]) == 0 {
+		_ = s.client.Del(ctx, key) // 删除无效的空缓存
+		return nil, nil
+	}
+
 	return wrapper[0], nil
 }
 
