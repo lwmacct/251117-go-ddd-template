@@ -20,8 +20,8 @@ import (
 )
 
 // newUseCasesModule 初始化用例模块
-// 依赖：RepositoriesModule, ServicesModule, InfrastructureModule, EventBus, Config
-func newUseCasesModule(_ *config.Config, _ *InfrastructureModule, repos *RepositoriesModule, services *ServicesModule, eventBus event.EventBus) *UseCasesModule {
+// 依赖：RepositoriesModule, ServicesModule, InfrastructureModule, EventBus, Config, CacheServicesModule
+func newUseCasesModule(_ *config.Config, _ *InfrastructureModule, repos *RepositoriesModule, services *ServicesModule, eventBus event.EventBus, cacheServices *CacheServicesModule) *UseCasesModule {
 	// 先创建 AuditLog（Auth 依赖它记录登录日志）
 	auditLogUseCases := newAuditLogUseCases(repos)
 
@@ -30,8 +30,8 @@ func newUseCasesModule(_ *config.Config, _ *InfrastructureModule, repos *Reposit
 		User:        newUserUseCases(repos, services, eventBus),
 		Role:        newRoleUseCases(repos, eventBus),
 		Menu:        newMenuUseCases(repos),
-		Setting:     newSettingUseCases(repos),
-		UserSetting: newUserSettingUseCases(repos),
+		Setting:     newSettingUseCases(repos, cacheServices),
+		UserSetting: newUserSettingUseCases(repos, cacheServices),
 		PAT:         newPATUseCases(repos, services),
 		AuditLog:    auditLogUseCases,
 		Stats:       newStatsUseCases(repos),
@@ -90,7 +90,7 @@ func newMenuUseCases(repos *RepositoriesModule) *MenuUseCases {
 }
 
 // newSettingUseCases 初始化系统配置用例
-func newSettingUseCases(repos *RepositoriesModule) *SettingUseCases {
+func newSettingUseCases(repos *RepositoriesModule, cacheServices *CacheServicesModule) *SettingUseCases {
 	// 创建 JSON Logic 验证器
 	validator := validation.NewJSONLogicValidator()
 
@@ -102,7 +102,7 @@ func newSettingUseCases(repos *RepositoriesModule) *SettingUseCases {
 		BatchUpdate: setting.NewBatchUpdateHandler(repos.Setting.Command, repos.Setting.Query, validator),
 		Get:         setting.NewGetHandler(repos.Setting.Query),
 		List:        setting.NewListHandler(repos.Setting.Query),
-		ListSchema:  setting.NewListSchemaHandler(repos.Setting.Query, repos.Setting.CategoryQuery),
+		ListSchema:  setting.NewListSchemaHandler(repos.Setting.Query, repos.Setting.CategoryQuery, cacheServices.Schema),
 
 		// Category handlers
 		CreateCategory: setting.NewCreateCategoryHandler(repos.Setting.CategoryCommand, repos.Setting.CategoryQuery),
@@ -114,7 +114,7 @@ func newSettingUseCases(repos *RepositoriesModule) *SettingUseCases {
 }
 
 // newUserSettingUseCases 初始化用户配置用例
-func newUserSettingUseCases(repos *RepositoriesModule) *UserSettingUseCases {
+func newUserSettingUseCases(repos *RepositoriesModule, cacheServices *CacheServicesModule) *UserSettingUseCases {
 	// 创建 JSON Logic 验证器
 	validator := validation.NewJSONLogicValidator()
 
@@ -125,7 +125,7 @@ func newUserSettingUseCases(repos *RepositoriesModule) *UserSettingUseCases {
 		ResetAll:       setting.NewUserResetAllHandler(repos.UserSetting.Command),
 		Get:            setting.NewUserGetHandler(repos.Setting.Query, repos.UserSetting.Query),
 		List:           setting.NewUserListHandler(repos.Setting.Query, repos.UserSetting.Query),
-		ListSchema:     setting.NewUserListSchemaHandler(repos.Setting.Query, repos.UserSetting.Query, repos.Setting.CategoryQuery),
+		ListSchema:     setting.NewUserListSchemaHandler(repos.Setting.Query, repos.UserSetting.Query, repos.Setting.CategoryQuery, cacheServices.Schema),
 		ListCategories: setting.NewUserListCategoriesHandler(repos.Setting.Query, repos.Setting.CategoryQuery),
 	}
 }

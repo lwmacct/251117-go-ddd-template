@@ -3,6 +3,7 @@ package setting
 import (
 	"context"
 	"fmt"
+	"log/slog"
 
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/setting"
 )
@@ -12,6 +13,7 @@ type UserListSchemaHandler struct {
 	settingQueryRepo  setting.QueryRepository
 	queryRepo         setting.UserSettingQueryRepository
 	categoryQueryRepo setting.SettingCategoryQueryRepository
+	schemaCache       SchemaCacheService
 }
 
 // NewUserListSchemaHandler 创建 UserListSchemaHandler 实例
@@ -19,11 +21,13 @@ func NewUserListSchemaHandler(
 	settingQueryRepo setting.QueryRepository,
 	queryRepo setting.UserSettingQueryRepository,
 	categoryQueryRepo setting.SettingCategoryQueryRepository,
+	schemaCache SchemaCacheService,
 ) *UserListSchemaHandler {
 	return &UserListSchemaHandler{
 		settingQueryRepo:  settingQueryRepo,
 		queryRepo:         queryRepo,
 		categoryQueryRepo: categoryQueryRepo,
+		schemaCache:       schemaCache,
 	}
 }
 
@@ -35,7 +39,32 @@ func NewUserListSchemaHandler(
 // 支持 CategoryKey 过滤：
 //   - 为空时返回全量用户设置（用于总配置页）
 //   - 指定 Key 时只返回该分类（用于分散页面的懒加载）
+//
+// 缓存策略：
+//   - 先查缓存，命中直接返回
+//   - 未命中时查数据库，同步回写缓存
 func (h *UserListSchemaHandler) Handle(ctx context.Context, query UserListSchemaQuery) ([]SchemaCategoryDTO, error) {
+	// 1. 查缓存
+	if cached, err := h.schemaCache.GetUserSchema(ctx, query.UserID, query.CategoryKey); err == nil && cached != nil {
+		return cached, nil
+	}
+
+	// 2. 缓存未命中，执行原有逻辑
+	result, err := h.fetchAndBuildSchema(ctx, query)
+	if err != nil {
+		return nil, err
+	}
+
+	// 3. 同步回写缓存
+	if err := h.schemaCache.SetUserSchema(ctx, query.UserID, query.CategoryKey, result); err != nil {
+		slog.Warn("failed to cache user schema", "userID", query.UserID, "categoryKey", query.CategoryKey, "err", err)
+	}
+
+	return result, nil
+}
+
+// fetchAndBuildSchema 从数据库获取数据并构建 Schema
+func (h *UserListSchemaHandler) fetchAndBuildSchema(ctx context.Context, query UserListSchemaQuery) ([]SchemaCategoryDTO, error) {
 	// 1. 根据 CategoryKey 决定查询范围（只查询 user scope）
 	defs, err := h.fetchUserSettings(ctx, query.CategoryKey)
 	if err != nil {

@@ -97,7 +97,7 @@ func NewContainer(ctx context.Context, cfg *config.Config, opts *ContainerOption
 	c.Services = newServicesModule(cfg, c.Infra, c.Repos, c.Cache)
 
 	// 5. 用例
-	c.UseCases = newUseCasesModule(cfg, c.Infra, c.Repos, c.Services, c.Infra.EventBus)
+	c.UseCases = newUseCasesModule(cfg, c.Infra, c.Repos, c.Services, c.Infra.EventBus, c.Cache)
 
 	// 6. 事件处理器
 	initEventHandlers(c.Infra.EventBus, c.Repos, c.Services, c.Cache)

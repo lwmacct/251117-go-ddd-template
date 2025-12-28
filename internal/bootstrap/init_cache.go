@@ -14,5 +14,6 @@ func newCacheServicesModule(redisClient *goredis.Client, keyPrefix string) *Cach
 		UserSettingQuery: infraredis.NewUserSettingQueryCacheService(redisClient, keyPrefix),
 		UserSetting:      infraredis.NewUserSettingCacheService(redisClient, keyPrefix),
 		Permission:       infraredis.NewPermissionCacheService(redisClient, keyPrefix),
+		Schema:           infraredis.NewSchemaCacheService(redisClient, keyPrefix),
 	}
 }

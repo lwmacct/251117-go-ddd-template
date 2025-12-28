@@ -35,16 +35,17 @@ func NewContainer(cfg *Config) (*Container, error) {
 
 ### 抽象层次原则
 
-| 层级        | 缓存接口位置    | 存储内容        | 使用者              |
-| ----------- | --------------- | --------------- | ------------------- |
-| Domain      | `domain/cache/` | Domain 实体     | Repository 装饰器   |
-| Application | `domain/cache/` | DTO（合并结果） | Application Handler |
+| 层级        | 缓存接口位置         | 存储内容        | 使用者              |
+| ----------- | -------------------- | --------------- | ------------------- |
+| Domain      | `domain/cache/`      | Domain 实体     | Repository 装饰器   |
+| Application | `application/{模块}` | DTO（合并结果） | Application Handler |
 
 **规则**：
 
 - ❌ Repository 层禁止直接依赖 `*redis.Client`
-- ✅ 必须通过 `domain/cache/` 定义的接口访问缓存
-- ✅ 缓存服务实现放在 `infrastructure/redis/`
+- ✅ Domain 实体缓存接口定义在 `domain/cache/`
+- ✅ Application DTO 缓存接口定义在 `application/{模块}/`
+- ✅ 缓存服务实现统一放在 `infrastructure/redis/`
 
 ### 工厂函数签名一致性
 
@@ -62,20 +63,25 @@ func newXxxRepositoriesWithCache(db *gorm.DB, redisClient *redis.Client, keyPref
 
 ```go
 type CacheServicesModule struct {
-    // 格式：{Entity} 或 {Entity}{Layer}
-    Setting          cache.SettingCacheService           // Domain 实体缓存
-    UserSettingQuery cache.UserSettingQueryCacheService  // Domain 实体缓存（Query 层）
-    UserSetting      cache.UserSettingCacheService       // Application DTO 缓存
+    // Domain 实体缓存（接口定义在 domain/cache/）
+    Setting          cache.SettingCacheService
+    UserSettingQuery cache.UserSettingQueryCacheService
+    UserSetting      cache.UserSettingCacheService
     Permission       cache.PermissionCacheService
+
+    // Application DTO 缓存（接口定义在 application/{模块}/）
+    Schema           appsetting.SchemaCacheService
 }
 ```
 
 ### 新增缓存模块检查清单
 
 1. [ ] 确定缓存内容的抽象层次（Domain 实体 vs Application DTO）
-2. [ ] 在 `domain/cache/` 定义接口
+2. [ ] 根据层次在正确位置定义接口：
+   - Domain 实体 → `domain/cache/`
+   - Application DTO → `application/{模块}/`
 3. [ ] 在 `infrastructure/redis/` 实现接口
-4. [ ] 在 `CacheServicesModule` 添加字段
+4. [ ] 在 `CacheServicesModule` 添加字段（注意 import）
 5. [ ] 在 `init_cache.go` 初始化服务
 6. [ ] 仓储工厂函数仅依赖 `CacheServicesModule`
 

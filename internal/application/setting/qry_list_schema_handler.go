@@ -3,6 +3,7 @@ package setting
 import (
 	"context"
 	"fmt"
+	"log/slog"
 
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/setting"
 )
@@ -11,16 +12,19 @@ import (
 type ListSchemaHandler struct {
 	settingQueryRepo  setting.QueryRepository
 	categoryQueryRepo setting.SettingCategoryQueryRepository
+	schemaCache       SchemaCacheService
 }
 
 // NewListSchemaHandler 创建 ListSchemaHandler 实例
 func NewListSchemaHandler(
 	settingQueryRepo setting.QueryRepository,
 	categoryQueryRepo setting.SettingCategoryQueryRepository,
+	schemaCache SchemaCacheService,
 ) *ListSchemaHandler {
 	return &ListSchemaHandler{
 		settingQueryRepo:  settingQueryRepo,
 		categoryQueryRepo: categoryQueryRepo,
+		schemaCache:       schemaCache,
 	}
 }
 
@@ -30,7 +34,32 @@ func NewListSchemaHandler(
 // 支持 CategoryKey 过滤：
 //   - 为空时返回全量系统设置（用于总配置页）
 //   - 指定 Key 时只返回该分类（用于分散页面的懒加载）
+//
+// 缓存策略：
+//   - 先查缓存，命中直接返回
+//   - 未命中时查数据库，同步回写缓存
 func (h *ListSchemaHandler) Handle(ctx context.Context, query ListSchemaQuery) ([]SchemaCategoryDTO, error) {
+	// 1. 查缓存
+	if cached, err := h.schemaCache.GetAdminSchema(ctx, query.CategoryKey); err == nil && cached != nil {
+		return cached, nil
+	}
+
+	// 2. 缓存未命中，执行原有逻辑
+	result, err := h.fetchAndBuildSchema(ctx, query)
+	if err != nil {
+		return nil, err
+	}
+
+	// 3. 同步回写缓存
+	if err := h.schemaCache.SetAdminSchema(ctx, query.CategoryKey, result); err != nil {
+		slog.Warn("failed to cache admin schema", "categoryKey", query.CategoryKey, "err", err)
+	}
+
+	return result, nil
+}
+
+// fetchAndBuildSchema 从数据库获取数据并构建 Schema
+func (h *ListSchemaHandler) fetchAndBuildSchema(ctx context.Context, query ListSchemaQuery) ([]SchemaCategoryDTO, error) {
 	// 1. 根据 CategoryKey 决定查询范围
 	settings, err := h.fetchSettings(ctx, query.CategoryKey)
 	if err != nil {

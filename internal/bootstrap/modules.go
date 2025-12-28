@@ -6,6 +6,7 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/lwmacct/251117-go-ddd-template/internal/adapters/http/handler"
+	appsetting "github.com/lwmacct/251117-go-ddd-template/internal/application/setting"
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/auth"
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/cache"
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/captcha"
@@ -35,6 +36,7 @@ type CacheServicesModule struct {
 	UserSettingQuery cache.UserSettingQueryCacheService // Domain 实体缓存（Query 层）
 	UserSetting      cache.UserSettingCacheService      // Application DTO 缓存
 	Permission       cache.PermissionCacheService
+	Schema           appsetting.SchemaCacheService // Schema API 响应缓存（Application 层接口）
 }
 
 // RepositoriesModule 仓储模块

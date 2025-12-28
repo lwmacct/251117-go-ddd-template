@@ -7,6 +7,7 @@
 // 针对特定业务域的缓存服务，封装 Key 命名、TTL 策略和失效逻辑：
 //   - [SettingCacheService]: Setting 配置缓存
 //   - [PermissionCacheService]: 用户权限缓存
+//   - [SchemaCacheService]: Schema API 响应缓存
 //
 // # 通用缓存仓储（已废弃）
 //

@@ -74,11 +74,12 @@ func newUserSettingRepositoriesWithCache(db *gorm.DB, cacheServices *CacheServic
 		cacheServices.UserSettingQuery,
 	)
 
-	// 用装饰器包装 Command 仓储（写操作时失效双层缓存）
+	// 用装饰器包装 Command 仓储（写操作时失效三层缓存）
 	cachedCommand := persistence.NewCachedUserSettingCommandRepository(
 		rawRepos.Command,
 		cacheServices.UserSettingQuery,
 		cacheServices.UserSetting,
+		cacheServices.Schema,
 	)
 
 	return persistence.UserSettingRepositories{
