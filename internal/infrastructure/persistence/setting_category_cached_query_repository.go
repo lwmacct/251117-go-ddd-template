@@ -150,19 +150,26 @@ func (r *cachedSettingCategoryQueryRepository) FindByIDs(ctx context.Context, id
 
 // FindAll 查找所有配置分类。
 //
-// 如果缓存已预热，从缓存获取全量；否则直接查库。
+// 缓存策略：
+//   - 缓存非空时，直接返回缓存结果
+//   - 缓存为空时，总是回退到数据库查询（不依赖 IsWarmedUp 标记）
+//
+// 注意：不再信任 IsWarmedUp + 空缓存的组合，因为实体 TTL（10分钟）
+// 可能先于 _warmed_up 标记 TTL（24小时）过期，导致空缓存被误判为有效。
 func (r *cachedSettingCategoryQueryRepository) FindAll(ctx context.Context) ([]*setting.SettingCategory, error) {
-	// 如果已预热，从缓存获取
-	if r.cache.IsWarmedUp(ctx) {
-		cachedList, err := r.cache.GetAll(ctx)
-		if err == nil && len(cachedList) > 0 {
-			return cachedList, nil
-		}
-		if err != nil {
-			slog.Warn("cache get all failed, fallback to db", "err", err)
-		}
+	// 尝试从缓存获取
+	cachedList, err := r.cache.GetAll(ctx)
+	if err != nil {
+		slog.Warn("cache get all failed, fallback to db", "err", err)
+		return r.delegate.FindAll(ctx)
 	}
 
+	// 缓存非空时返回
+	if len(cachedList) > 0 {
+		return cachedList, nil
+	}
+
+	// 空缓存总是回退到数据库
 	return r.delegate.FindAll(ctx)
 }
 
