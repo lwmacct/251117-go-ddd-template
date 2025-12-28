@@ -8,9 +8,9 @@ import (
 )
 
 // initEventHandlers 初始化事件处理器并订阅事件
-// 依赖：InfrastructureModule.EventBus, RepositoriesModule, ServicesModule
-func initEventHandlers(eventBus event.EventBus, repos *RepositoriesModule, services *ServicesModule) {
-	// 缓存失效处理器
+// 依赖：EventBus, RepositoriesModule, ServicesModule, CacheServicesModule
+func initEventHandlers(eventBus event.EventBus, repos *RepositoriesModule, services *ServicesModule, _ *CacheServicesModule) {
+	// 缓存失效处理器（暂时使用旧的 PermissionCacheService）
 	cacheHandler := eventhandler.NewCacheInvalidationHandler(
 		services.PermissionCache,
 		repos.User.Query,

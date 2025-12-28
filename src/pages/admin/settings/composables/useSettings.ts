@@ -1,12 +1,20 @@
 /**
  * Admin 系统设置 Composable
+ * 支持按 Category 懒加载，减少首屏数据量
+ *
+ * 懒加载功能由 useLazyCategorySchema 提供，包括：
+ * - 按 category 加载数据
+ * - 竞态条件防护（pending Set）
+ * - 自动合并已有数据
  */
 import { ref, computed } from "vue";
-import { adminSettingsApi, extractData } from "@/api";
+import { adminSettingsApi, adminSettingCategoriesApi, extractData } from "@/api";
+import { useLazyCategorySchema } from "@/composables";
 import {
   type SettingSettingDTO,
   type SettingSchemaCategoryDTO,
   type SettingSchemaSettingDTO,
+  type SettingCategoryDTO,
   type HandlerCreateSettingRequest,
   type HandlerUpdateSettingRequest,
   type HandlerBatchUpdateSettingsRequest,
@@ -14,7 +22,22 @@ import {
 
 export function useSettings() {
   const settings = ref<SettingSettingDTO[]>([]);
-  const schema = ref<SettingSchemaCategoryDTO[]>([]);
+  const categories = ref<SettingCategoryDTO[]>([]); // 分类列表（用于渲染 tabs）
+
+  // 使用封装的懒加载 composable
+  const {
+    schema,
+    loadedCategories,
+    loading: schemaLoading,
+    fetchSchemaByCategory,
+    isCategoryLoaded,
+    reset: resetSchema,
+  } = useLazyCategorySchema<SettingSchemaCategoryDTO>(async (categoryKey) => {
+    const response = await adminSettingsApi.apiAdminSettingsGet(categoryKey);
+    return (response.data.data ?? []) as SettingSchemaCategoryDTO[];
+  });
+
+  // 其他加载状态
   const loading = ref(false);
   const saving = ref(false);
   const errorMessage = ref("");
@@ -50,30 +73,47 @@ export function useSettings() {
     return map;
   });
 
-  // 获取配置 Schema（层级结构）
-  const fetchSchema = async () => {
+  /**
+   * 获取分类列表（用于渲染 tabs）
+   * 应在页面初始化时首先调用
+   */
+  const fetchCategories = async () => {
     loading.value = true;
     errorMessage.value = "";
 
     try {
-      const response = await adminSettingsApi.apiAdminSettingsSchemaGet();
-      schema.value = (response.data.data ?? []) as SettingSchemaCategoryDTO[];
+      const response = await adminSettingCategoriesApi.apiAdminSettingsCategoriesGet();
+      categories.value = (response.data.data ?? []) as SettingCategoryDTO[];
     } catch (error) {
-      errorMessage.value = (error as Error).message || "获取设置 Schema 失败";
-      console.error("Failed to fetch settings schema:", error);
+      errorMessage.value = (error as Error).message || "获取分类列表失败";
+      console.error("Failed to fetch setting categories:", error);
     } finally {
       loading.value = false;
     }
   };
 
-  // 获取所有设置
-  const fetchSettings = async () => {
+  /**
+   * 获取配置（全量）
+   * 注意：全量加载会重置懒加载状态，然后逐个加载所有分类
+   */
+  const fetchSchema = async () => {
     loading.value = true;
     errorMessage.value = "";
 
     try {
+      // 重置懒加载状态
+      resetSchema();
+
+      // 获取全量数据
       const response = await adminSettingsApi.apiAdminSettingsGet();
-      settings.value = (response.data.data ?? []) as SettingSettingDTO[];
+      const allCategories = (response.data.data ?? []) as SettingSchemaCategoryDTO[];
+
+      // 逐个分类触发加载（标记为已加载）
+      for (const cat of allCategories) {
+        if (cat.category) {
+          await fetchSchemaByCategory(cat.category);
+        }
+      }
     } catch (error) {
       errorMessage.value = (error as Error).message || "获取设置失败";
       console.error("Failed to fetch settings:", error);
@@ -82,34 +122,16 @@ export function useSettings() {
     }
   };
 
-  // 获取指定分类的设置
-  const fetchSettingsByCategory = async (categoryId: number) => {
-    loading.value = true;
-    errorMessage.value = "";
+  // 获取所有设置（保留用于兼容性，内部调用 fetchSchema）
+  const fetchSettings = async () => {
+    await fetchSchema();
+  };
 
-    try {
-      const response = await adminSettingsApi.apiAdminSettingsGet(categoryId);
-      const categorySettings = (response.data.data ?? []) as SettingSettingDTO[];
-      // 更新现有设置列表（合并）
-      const existingKeys = new Set(settings.value.map((s) => s.key));
-      categorySettings.forEach((s) => {
-        if (existingKeys.has(s.key)) {
-          // 更新现有
-          const index = settings.value.findIndex((setting) => setting.key === s.key);
-          if (index !== -1) {
-            settings.value[index] = s;
-          }
-        } else {
-          // 添加新设置
-          settings.value.push(s);
-        }
-      });
-    } catch (error) {
-      errorMessage.value = (error as Error).message || "获取设置失败";
-      console.error("Failed to fetch settings by category:", error);
-    } finally {
-      loading.value = false;
-    }
+  // 获取指定分类的设置（已废弃，保留用于兼容性）
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const fetchSettingsByCategory = async (_categoryId: number) => {
+    // 新的 API 不再支持按 categoryId 过滤，直接获取全量
+    await fetchSchema();
   };
 
   // 获取单个设置的值
@@ -261,14 +283,19 @@ export function useSettings() {
 
   return {
     settings,
+    categories,
     schema,
     settingsByCategory,
     settingsMap,
+    loadedCategories,
     loading,
     saving,
     errorMessage,
     successMessage,
+    fetchCategories,
     fetchSchema,
+    fetchSchemaByCategory,
+    isCategoryLoaded,
     fetchSettings,
     fetchSettingsByCategory,
     getSetting,

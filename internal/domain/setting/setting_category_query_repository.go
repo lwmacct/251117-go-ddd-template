@@ -18,6 +18,9 @@ type SettingCategoryQueryRepository interface {
 	// 如果未找到，返回 nil 和 nil（无错误）。
 	FindByKey(ctx context.Context, key string) (*SettingCategory, error)
 
+	// FindByIDs 根据 ID 列表批量查询分类，按 Order 升序排列。
+	FindByIDs(ctx context.Context, ids []uint) ([]*SettingCategory, error)
+
 	// FindAll 查询所有分类，按 Order 升序排列。
 	FindAll(ctx context.Context) ([]*SettingCategory, error)
 

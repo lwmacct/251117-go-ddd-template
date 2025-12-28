@@ -31,7 +31,6 @@ func newRouter(cfg *config.Config, infra *InfrastructureModule, services *Servic
 		UserProfileHandler:     handlers.UserProfile,
 		OverviewHandler:        handlers.Overview,
 		TwoFAHandler:           handlers.TwoFA,
-		CacheHandler:           handlers.Cache,
 	}
 
 	return http.SetupRouterWithDeps(deps)

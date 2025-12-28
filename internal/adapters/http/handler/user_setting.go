@@ -1,11 +1,12 @@
 package handler
 
 import (
-	"strconv"
+	"errors"
 
 	"github.com/gin-gonic/gin"
 	"github.com/lwmacct/251117-go-ddd-template/internal/adapters/http/response"
 	"github.com/lwmacct/251117-go-ddd-template/internal/application/setting"
+	settingDomain "github.com/lwmacct/251117-go-ddd-template/internal/domain/setting"
 )
 
 // UserSettingHandler handles user setting operations (DDD+CQRS Use Case Pattern)
@@ -17,9 +18,10 @@ type UserSettingHandler struct {
 	resetAllHandler *setting.UserResetAllHandler
 
 	// Query Handlers
-	getHandler        *setting.UserGetHandler
-	listHandler       *setting.UserListHandler
-	listSchemaHandler *setting.UserListSchemaHandler
+	getHandler            *setting.UserGetHandler
+	listHandler           *setting.UserListHandler
+	listSchemaHandler     *setting.UserListSchemaHandler
+	listCategoriesHandler *setting.UserListCategoriesHandler
 }
 
 // NewUserSettingHandler creates a new UserSettingHandler instance
@@ -31,30 +33,63 @@ func NewUserSettingHandler(
 	getHandler *setting.UserGetHandler,
 	listHandler *setting.UserListHandler,
 	listSchemaHandler *setting.UserListSchemaHandler,
+	listCategoriesHandler *setting.UserListCategoriesHandler,
 ) *UserSettingHandler {
 	return &UserSettingHandler{
-		setHandler:        setHandler,
-		batchSetHandler:   batchSetHandler,
-		resetHandler:      resetHandler,
-		resetAllHandler:   resetAllHandler,
-		getHandler:        getHandler,
-		listHandler:       listHandler,
-		listSchemaHandler: listSchemaHandler,
+		setHandler:            setHandler,
+		batchSetHandler:       batchSetHandler,
+		resetHandler:          resetHandler,
+		resetAllHandler:       resetAllHandler,
+		getHandler:            getHandler,
+		listHandler:           listHandler,
+		listSchemaHandler:     listSchemaHandler,
+		listCategoriesHandler: listCategoriesHandler,
 	}
 }
 
-// GetUserSettings 获取用户配置列表
+// ListUserSettingCategories 获取用户可见的分类列表
 //
-// @Summary      获取用户配置列表
-// @Description  获取当前用户的所有配置（合并系统默认值）
+// @Summary      获取用户设置分类列表
+// @Description  获取包含用户可配置项的分类列表（不含 settings 数据，用于懒加载场景）
 // @Tags         用户 - 个人配置 (User - Settings)
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
 // @x-permission {"scope":"user:settings:read"}
-// @Param        category_id query int false "配置类别 ID"
-// @Success      200 {object} response.DataResponse[[]setting.UserSettingDTO] "配置列表"
+// @Success      200 {object} response.DataResponse[[]setting.CategoryMetaDTO] "分类列表"
 // @Failure      401 {object} response.ErrorResponse "未授权"
+// @Failure      500 {object} response.ErrorResponse "服务器内部错误"
+// @Router       /api/user/settings/categories [get]
+func (h *UserSettingHandler) ListUserSettingCategories(c *gin.Context) {
+	userID, ok := getUserID(c)
+	if !ok {
+		return
+	}
+
+	categories, err := h.listCategoriesHandler.Handle(c.Request.Context(), setting.UserListCategoriesQuery{
+		UserID: userID,
+	})
+	if err != nil {
+		response.InternalError(c, err.Error())
+		return
+	}
+
+	response.OK(c, "success", categories)
+}
+
+// GetUserSettings 获取用户配置（层级结构）
+//
+// @Summary      获取用户配置
+// @Description  获取按 Category → Group → Settings 层级组织的配置数据，包含用户自定义值。支持按分类过滤（懒加载）。
+// @Tags         用户 - 个人配置 (User - Settings)
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @x-permission {"scope":"user:settings:read"}
+// @Param        category query string false "分类 Key（如 profile），为空返回全量"
+// @Success      200 {object} response.DataResponse[[]setting.UserSchemaCategoryDTO] "配置列表（层级结构）"
+// @Failure      401 {object} response.ErrorResponse "未授权"
+// @Failure      404 {object} response.ErrorResponse "分类不存在"
 // @Failure      500 {object} response.ErrorResponse "服务器内部错误"
 // @Router       /api/user/settings [get]
 func (h *UserSettingHandler) GetUserSettings(c *gin.Context) {
@@ -62,22 +97,25 @@ func (h *UserSettingHandler) GetUserSettings(c *gin.Context) {
 	if !ok {
 		return
 	}
-	var categoryID uint
-	if id := c.Query("category_id"); id != "" {
-		parsed, _ := strconv.ParseUint(id, 10, 64)
-		categoryID = uint(parsed)
-	}
 
-	settings, err := h.listHandler.Handle(c.Request.Context(), setting.UserListQuery{
-		UserID:     userID,
-		CategoryID: categoryID,
+	categoryKey := c.Query("category")
+
+	// 调用 Schema Handler（返回层级结构）
+	schema, err := h.listSchemaHandler.Handle(c.Request.Context(), setting.UserListSchemaQuery{
+		UserID:      userID,
+		CategoryKey: categoryKey,
 	})
 	if err != nil {
+		// 检查是否为分类不存在错误
+		if categoryKey != "" && err.Error() == "category not found: "+categoryKey {
+			response.NotFound(c, "category")
+			return
+		}
 		response.InternalError(c, err.Error())
 		return
 	}
 
-	response.OK(c, "success", settings)
+	response.OK(c, "success", schema)
 }
 
 // GetUserSetting 获取单个用户配置
@@ -154,6 +192,10 @@ func (h *UserSettingHandler) SetUserSetting(c *gin.Context) {
 		Value:  req.Value,
 	})
 	if err != nil {
+		if errors.Is(err, settingDomain.ErrValidationFailed) {
+			response.BadRequest(c, err.Error())
+			return
+		}
 		response.InternalError(c, err.Error())
 		return
 	}
@@ -243,39 +285,13 @@ func (h *UserSettingHandler) BatchSetUserSettings(c *gin.Context) {
 		Settings: items,
 	})
 	if err != nil {
+		if errors.Is(err, settingDomain.ErrValidationFailed) {
+			response.BadRequest(c, err.Error())
+			return
+		}
 		response.InternalError(c, err.Error())
 		return
 	}
 
 	response.OK(c, "批量设置成功", nil)
-}
-
-// GetUserSettingsSchema 获取用户配置 Schema
-//
-// @Summary      获取用户配置 Schema
-// @Description  获取按 Category → Group → Settings 层级组织的配置数据，包含用户自定义值
-// @Tags         用户 - 个人配置 (User - Settings)
-// @Accept       json
-// @Produce      json
-// @Security     BearerAuth
-// @x-permission {"scope":"user:settings:read"}
-// @Success      200 {object} response.DataResponse[[]setting.UserSchemaCategoryDTO] "配置 Schema"
-// @Failure      401 {object} response.ErrorResponse "未授权"
-// @Failure      500 {object} response.ErrorResponse "服务器内部错误"
-// @Router       /api/user/settings/schema [get]
-func (h *UserSettingHandler) GetUserSettingsSchema(c *gin.Context) {
-	userID, ok := getUserID(c)
-	if !ok {
-		return
-	}
-
-	schema, err := h.listSchemaHandler.Handle(c.Request.Context(), setting.UserListSchemaQuery{
-		UserID: userID,
-	})
-	if err != nil {
-		response.InternalError(c, err.Error())
-		return
-	}
-
-	response.OK(c, "success", schema)
 }

@@ -7,8 +7,14 @@ type GetCategoryQuery struct {
 	ID uint
 }
 
-// ListCategoriesQuery 获取配置分类列表查询
+// ListCategoriesQuery 获取配置分类列表查询（管理员端，全量）
 type ListCategoriesQuery struct{}
+
+// UserListCategoriesQuery 获取用户可见的分类列表查询
+// 只返回包含 scope="user" 设置的分类（用于懒加载场景）
+type UserListCategoriesQuery struct {
+	UserID uint
+}
 
 // ==================== Setting Queries ====================
 
@@ -24,7 +30,11 @@ type ListQuery struct {
 
 // ListSchemaQuery 获取配置 Schema 查询（系统配置）
 // Schema 返回按 Category → Group → Settings 层级组织的数据
-type ListSchemaQuery struct{}
+//
+// 支持按 CategoryKey 过滤，用于按需加载（懒加载）场景。
+type ListSchemaQuery struct {
+	CategoryKey string // 可选：按分类 Key 过滤（如 "general"），为空时返回全量
+}
 
 // ==================== UserSetting Queries ====================
 
@@ -41,6 +51,9 @@ type UserListQuery struct {
 }
 
 // UserListSchemaQuery 获取用户配置 Schema 查询（带合并值）
+//
+// 支持按 CategoryKey 过滤，用于按需加载（懒加载）场景。
 type UserListSchemaQuery struct {
-	UserID uint
+	UserID      uint
+	CategoryKey string // 可选：按分类 Key 过滤（如 "profile"），为空时返回全量
 }

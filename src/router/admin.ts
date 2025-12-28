@@ -56,6 +56,15 @@ export const adminRoutes: RouteRecordRaw = {
       },
     },
     {
+      path: "setting-categories",
+      name: "AdminSettingCategories",
+      component: () => import("@/pages/admin/setting-categories/index.vue"),
+      meta: {
+        title: "配置分类管理",
+        icon: "mdi-folder-cog",
+      },
+    },
+    {
       path: "menus",
       name: "AdminMenus",
       component: () => import("@/pages/admin/menus/index.vue"),

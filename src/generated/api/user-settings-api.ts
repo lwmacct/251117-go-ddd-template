@@ -26,9 +26,9 @@ import type { HandlerBatchSetUserSettingsRequest } from '../models';
 // @ts-ignore
 import type { HandlerSetUserSettingRequest } from '../models';
 // @ts-ignore
-import type { ResponseDataResponseArraySettingUserSchemaCategoryDTO } from '../models';
+import type { ResponseDataResponseArraySettingCategoryMetaDTO } from '../models';
 // @ts-ignore
-import type { ResponseDataResponseArraySettingUserSettingDTO } from '../models';
+import type { ResponseDataResponseArraySettingUserSchemaCategoryDTO } from '../models';
 // @ts-ignore
 import type { ResponseDataResponseSettingUserSettingDTO } from '../models';
 // @ts-ignore
@@ -81,13 +81,46 @@ export const UserSettingsApiAxiosParamCreator = function (configuration?: Config
             };
         },
         /**
-         * 获取当前用户的所有配置（合并系统默认值）
-         * @summary 获取用户配置列表
-         * @param {number} [categoryId] 配置类别 ID
+         * 获取包含用户可配置项的分类列表（不含 settings 数据，用于懒加载场景）
+         * @summary 获取用户设置分类列表
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiUserSettingsGet: async (categoryId?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        apiUserSettingsCategoriesGet: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/user/settings/categories`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication BearerAuth required
+            await setApiKeyToObject(localVarHeaderParameter, "Authorization", configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 获取按 Category → Group → Settings 层级组织的配置数据，包含用户自定义值。支持按分类过滤（懒加载）。
+         * @summary 获取用户配置
+         * @param {string} [category] 分类 Key（如 profile），为空返回全量
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiUserSettingsGet: async (category?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             const localVarPath = `/api/user/settings`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -103,8 +136,8 @@ export const UserSettingsApiAxiosParamCreator = function (configuration?: Config
             // authentication BearerAuth required
             await setApiKeyToObject(localVarHeaderParameter, "Authorization", configuration)
 
-            if (categoryId !== undefined) {
-                localVarQueryParameter['category_id'] = categoryId;
+            if (category !== undefined) {
+                localVarQueryParameter['category'] = category;
             }
 
 
@@ -235,39 +268,6 @@ export const UserSettingsApiAxiosParamCreator = function (configuration?: Config
                 options: localVarRequestOptions,
             };
         },
-        /**
-         * 获取按 Category → Group → Settings 层级组织的配置数据，包含用户自定义值
-         * @summary 获取用户配置 Schema
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        apiUserSettingsSchemaGet: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            const localVarPath = `/api/user/settings/schema`;
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication BearerAuth required
-            await setApiKeyToObject(localVarHeaderParameter, "Authorization", configuration)
-
-
-    
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
     }
 };
 
@@ -292,14 +292,26 @@ export const UserSettingsApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
-         * 获取当前用户的所有配置（合并系统默认值）
-         * @summary 获取用户配置列表
-         * @param {number} [categoryId] 配置类别 ID
+         * 获取包含用户可配置项的分类列表（不含 settings 数据，用于懒加载场景）
+         * @summary 获取用户设置分类列表
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async apiUserSettingsGet(categoryId?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseArraySettingUserSettingDTO>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.apiUserSettingsGet(categoryId, options);
+        async apiUserSettingsCategoriesGet(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseArraySettingCategoryMetaDTO>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.apiUserSettingsCategoriesGet(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['UserSettingsApi.apiUserSettingsCategoriesGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 获取按 Category → Group → Settings 层级组织的配置数据，包含用户自定义值。支持按分类过滤（懒加载）。
+         * @summary 获取用户配置
+         * @param {string} [category] 分类 Key（如 profile），为空返回全量
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async apiUserSettingsGet(category?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseArraySettingUserSchemaCategoryDTO>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.apiUserSettingsGet(category, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['UserSettingsApi.apiUserSettingsGet']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -344,18 +356,6 @@ export const UserSettingsApiFp = function(configuration?: Configuration) {
             const localVarOperationServerBasePath = operationServerMap['UserSettingsApi.apiUserSettingsKeyPut']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
-        /**
-         * 获取按 Category → Group → Settings 层级组织的配置数据，包含用户自定义值
-         * @summary 获取用户配置 Schema
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async apiUserSettingsSchemaGet(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseArraySettingUserSchemaCategoryDTO>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.apiUserSettingsSchemaGet(options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['UserSettingsApi.apiUserSettingsSchemaGet']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
     }
 };
 
@@ -377,14 +377,23 @@ export const UserSettingsApiFactory = function (configuration?: Configuration, b
             return localVarFp.apiUserSettingsBatchPost(request, options).then((request) => request(axios, basePath));
         },
         /**
-         * 获取当前用户的所有配置（合并系统默认值）
-         * @summary 获取用户配置列表
-         * @param {number} [categoryId] 配置类别 ID
+         * 获取包含用户可配置项的分类列表（不含 settings 数据，用于懒加载场景）
+         * @summary 获取用户设置分类列表
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiUserSettingsGet(categoryId?: number, options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseArraySettingUserSettingDTO> {
-            return localVarFp.apiUserSettingsGet(categoryId, options).then((request) => request(axios, basePath));
+        apiUserSettingsCategoriesGet(options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseArraySettingCategoryMetaDTO> {
+            return localVarFp.apiUserSettingsCategoriesGet(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 获取按 Category → Group → Settings 层级组织的配置数据，包含用户自定义值。支持按分类过滤（懒加载）。
+         * @summary 获取用户配置
+         * @param {string} [category] 分类 Key（如 profile），为空返回全量
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiUserSettingsGet(category?: string, options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseArraySettingUserSchemaCategoryDTO> {
+            return localVarFp.apiUserSettingsGet(category, options).then((request) => request(axios, basePath));
         },
         /**
          * 删除用户自定义配置，恢复为系统默认值
@@ -417,15 +426,6 @@ export const UserSettingsApiFactory = function (configuration?: Configuration, b
         apiUserSettingsKeyPut(key: string, request: HandlerSetUserSettingRequest, options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseSettingUserSettingDTO> {
             return localVarFp.apiUserSettingsKeyPut(key, request, options).then((request) => request(axios, basePath));
         },
-        /**
-         * 获取按 Category → Group → Settings 层级组织的配置数据，包含用户自定义值
-         * @summary 获取用户配置 Schema
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        apiUserSettingsSchemaGet(options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseArraySettingUserSchemaCategoryDTO> {
-            return localVarFp.apiUserSettingsSchemaGet(options).then((request) => request(axios, basePath));
-        },
     };
 };
 
@@ -449,15 +449,26 @@ export class UserSettingsApi extends BaseAPI {
     }
 
     /**
-     * 获取当前用户的所有配置（合并系统默认值）
-     * @summary 获取用户配置列表
-     * @param {number} [categoryId] 配置类别 ID
+     * 获取包含用户可配置项的分类列表（不含 settings 数据，用于懒加载场景）
+     * @summary 获取用户设置分类列表
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof UserSettingsApi
      */
-    public apiUserSettingsGet(categoryId?: number, options?: RawAxiosRequestConfig) {
-        return UserSettingsApiFp(this.configuration).apiUserSettingsGet(categoryId, options).then((request) => request(this.axios, this.basePath));
+    public apiUserSettingsCategoriesGet(options?: RawAxiosRequestConfig) {
+        return UserSettingsApiFp(this.configuration).apiUserSettingsCategoriesGet(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 获取按 Category → Group → Settings 层级组织的配置数据，包含用户自定义值。支持按分类过滤（懒加载）。
+     * @summary 获取用户配置
+     * @param {string} [category] 分类 Key（如 profile），为空返回全量
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof UserSettingsApi
+     */
+    public apiUserSettingsGet(category?: string, options?: RawAxiosRequestConfig) {
+        return UserSettingsApiFp(this.configuration).apiUserSettingsGet(category, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -495,17 +506,6 @@ export class UserSettingsApi extends BaseAPI {
      */
     public apiUserSettingsKeyPut(key: string, request: HandlerSetUserSettingRequest, options?: RawAxiosRequestConfig) {
         return UserSettingsApiFp(this.configuration).apiUserSettingsKeyPut(key, request, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * 获取按 Category → Group → Settings 层级组织的配置数据，包含用户自定义值
-     * @summary 获取用户配置 Schema
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof UserSettingsApi
-     */
-    public apiUserSettingsSchemaGet(options?: RawAxiosRequestConfig) {
-        return UserSettingsApiFp(this.configuration).apiUserSettingsSchemaGet(options).then((request) => request(this.axios, this.basePath));
     }
 }
 

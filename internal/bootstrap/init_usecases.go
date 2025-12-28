@@ -6,7 +6,6 @@ import (
 
 	"github.com/lwmacct/251117-go-ddd-template/internal/application/auditlog"
 	"github.com/lwmacct/251117-go-ddd-template/internal/application/auth"
-	"github.com/lwmacct/251117-go-ddd-template/internal/application/cache"
 	"github.com/lwmacct/251117-go-ddd-template/internal/application/captcha"
 	"github.com/lwmacct/251117-go-ddd-template/internal/application/menu"
 	"github.com/lwmacct/251117-go-ddd-template/internal/application/pat"
@@ -17,13 +16,12 @@ import (
 	"github.com/lwmacct/251117-go-ddd-template/internal/application/user"
 
 	authInfra "github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/auth"
-	"github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/redis"
 	"github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/validation"
 )
 
 // newUseCasesModule 初始化用例模块
 // 依赖：RepositoriesModule, ServicesModule, InfrastructureModule, EventBus, Config
-func newUseCasesModule(cfg *config.Config, infra *InfrastructureModule, repos *RepositoriesModule, services *ServicesModule, eventBus event.EventBus) *UseCasesModule {
+func newUseCasesModule(_ *config.Config, _ *InfrastructureModule, repos *RepositoriesModule, services *ServicesModule, eventBus event.EventBus) *UseCasesModule {
 	// 先创建 AuditLog（Auth 依赖它记录登录日志）
 	auditLogUseCases := newAuditLogUseCases(repos)
 
@@ -39,7 +37,6 @@ func newUseCasesModule(cfg *config.Config, infra *InfrastructureModule, repos *R
 		Stats:       newStatsUseCases(repos),
 		Captcha:     newCaptchaUseCases(repos, services),
 		TwoFA:       newTwoFAUseCases(services),
-		Cache:       newCacheUseCases(infra, cfg),
 	}
 }
 
@@ -122,13 +119,14 @@ func newUserSettingUseCases(repos *RepositoriesModule) *UserSettingUseCases {
 	validator := validation.NewJSONLogicValidator()
 
 	return &UserSettingUseCases{
-		Set:        setting.NewUserSetHandler(repos.Setting.Query, repos.UserSetting.Command, validator),
-		BatchSet:   setting.NewUserBatchSetHandler(repos.Setting.Query, repos.UserSetting.Command, validator),
-		Reset:      setting.NewUserResetHandler(repos.UserSetting.Command),
-		ResetAll:   setting.NewUserResetAllHandler(repos.UserSetting.Command),
-		Get:        setting.NewUserGetHandler(repos.Setting.Query, repos.UserSetting.Query),
-		List:       setting.NewUserListHandler(repos.Setting.Query, repos.UserSetting.Query),
-		ListSchema: setting.NewUserListSchemaHandler(repos.Setting.Query, repos.UserSetting.Query, repos.Setting.CategoryQuery),
+		Set:            setting.NewUserSetHandler(repos.Setting.Query, repos.UserSetting.Command, validator),
+		BatchSet:       setting.NewUserBatchSetHandler(repos.Setting.Query, repos.UserSetting.Command, validator),
+		Reset:          setting.NewUserResetHandler(repos.UserSetting.Command),
+		ResetAll:       setting.NewUserResetAllHandler(repos.UserSetting.Command),
+		Get:            setting.NewUserGetHandler(repos.Setting.Query, repos.UserSetting.Query),
+		List:           setting.NewUserListHandler(repos.Setting.Query, repos.UserSetting.Query),
+		ListSchema:     setting.NewUserListSchemaHandler(repos.Setting.Query, repos.UserSetting.Query, repos.Setting.CategoryQuery),
+		ListCategories: setting.NewUserListCategoriesHandler(repos.Setting.Query, repos.Setting.CategoryQuery),
 	}
 }
 
@@ -181,18 +179,5 @@ func newTwoFAUseCases(services *ServicesModule) *TwoFAUseCases {
 		VerifyEnable: twofa.NewVerifyEnableHandler(services.TwoFA),
 		Disable:      twofa.NewDisableHandler(services.TwoFA),
 		GetStatus:    twofa.NewGetStatusHandler(services.TwoFA),
-	}
-}
-
-// newCacheUseCases 初始化缓存用例（演示用）
-func newCacheUseCases(infra *InfrastructureModule, cfg *config.Config) *CacheUseCases {
-	// 创建缓存仓储（CQRS 分离）
-	cacheCommandRepo := redis.NewCacheCommandRepository(infra.RedisClient, cfg.Data.RedisKeyPrefix)
-	cacheQueryRepo := redis.NewCacheQueryRepository(infra.RedisClient, cfg.Data.RedisKeyPrefix)
-
-	return &CacheUseCases{
-		Set:    cache.NewSetHandler(cacheCommandRepo),
-		Delete: cache.NewDeleteHandler(cacheCommandRepo),
-		Get:    cache.NewGetHandler(cacheQueryRepo),
 	}
 }

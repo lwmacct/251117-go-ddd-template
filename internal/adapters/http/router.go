@@ -97,7 +97,6 @@ type RouterDependencies struct {
 	UserProfileHandler *handler.UserProfileHandler
 	OverviewHandler    *handler.OverviewHandler
 	TwoFAHandler       *handler.TwoFAHandler
-	CacheHandler       *handler.CacheHandler
 }
 
 // SetupRouterWithDeps 使用依赖对象配置路由（推荐方式）
@@ -219,7 +218,6 @@ func setupAPIRoutes(r *gin.Engine, deps *RouterDependencies) {
 
 		// 系统配置
 		admin.GET("/settings", middleware.RequirePermission("admin:settings:read"), deps.SettingHandler.GetSettings)
-		admin.GET("/settings/schema", middleware.RequirePermission("admin:settings:read"), deps.SettingHandler.GetSettingsSchema)
 		admin.POST("/settings", middleware.RequirePermission("admin:settings:create"), deps.SettingHandler.CreateSetting)
 		admin.POST("/settings/batch", middleware.RequirePermission("admin:settings:update"), deps.SettingHandler.BatchUpdateSettings)
 
@@ -263,18 +261,13 @@ func setupAPIRoutes(r *gin.Engine, deps *RouterDependencies) {
 		userGroup.PATCH("/tokens/:id/enable", middleware.RequirePermission("user:tokens:enable"), deps.PATHandler.EnableToken)
 
 		// 用户配置管理
+		userGroup.GET("/settings/categories", middleware.RequirePermission("user:settings:read"), deps.UserSettingHandler.ListUserSettingCategories)
 		userGroup.GET("/settings", middleware.RequirePermission("user:settings:read"), deps.UserSettingHandler.GetUserSettings)
-		userGroup.GET("/settings/schema", middleware.RequirePermission("user:settings:read"), deps.UserSettingHandler.GetUserSettingsSchema)
 		userGroup.GET("/settings/:key", middleware.RequirePermission("user:settings:read"), deps.UserSettingHandler.GetUserSetting)
 		userGroup.PUT("/settings/:key", middleware.RequirePermission("user:settings:update"), deps.UserSettingHandler.SetUserSetting)
 		userGroup.DELETE("/settings/:key", middleware.RequirePermission("user:settings:update"), deps.UserSettingHandler.ResetUserSetting)
 		userGroup.POST("/settings/batch", middleware.RequirePermission("user:settings:update"), deps.UserSettingHandler.BatchSetUserSettings)
 	}
-
-	// 缓存操作示例 (公开，仅用于演示)
-	api.POST("/cache", deps.CacheHandler.SetCache)
-	api.GET("/cache/:key", deps.CacheHandler.GetCache)
-	api.DELETE("/cache/:key", deps.CacheHandler.DeleteCache)
 }
 
 // setupStaticRoutes 配置静态文件服务路由

@@ -19,4 +19,9 @@ export const userMenuItems: MenuItem[] = [
     path: "/user/tokens",
     icon: "mdi-key-variant",
   },
+  {
+    title: "个人设置",
+    path: "/user/settings",
+    icon: "mdi-cog",
+  },
 ];

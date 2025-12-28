@@ -1149,7 +1149,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "获取所有系统配置，可按类别 ID 筛选",
+                "description": "获取按 Category → Group → Settings 层级组织的配置数据，用于前端动态渲染设置页面。支持按分类过滤（懒加载）。",
                 "consumes": [
                     "application/json"
                 ],
@@ -1159,20 +1159,20 @@ const docTemplate = `{
                 "tags": [
                     "管理员 - 系统配置 (Admin - Settings)"
                 ],
-                "summary": "获取系统配置列表",
+                "summary": "获取系统配置",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "配置类别 ID",
-                        "name": "category_id",
+                        "type": "string",
+                        "description": "分类 Key（如 general），为空返回全量",
+                        "name": "category",
                         "in": "query"
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "配置列表",
+                        "description": "配置列表（层级结构）",
                         "schema": {
-                            "$ref": "#/definitions/response.DataResponse-array_setting_SettingDTO"
+                            "$ref": "#/definitions/response.DataResponse-array_setting_SchemaCategoryDTO"
                         }
                     },
                     "401": {
@@ -1183,6 +1183,12 @@ const docTemplate = `{
                     },
                     "403": {
                         "description": "权限不足",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "分类不存在",
                         "schema": {
                             "$ref": "#/definitions/response.ErrorResponse"
                         }
@@ -1639,55 +1645,6 @@ const docTemplate = `{
                 },
                 "x-permission": {
                     "scope": "admin:settings:delete"
-                }
-            }
-        },
-        "/api/admin/settings/schema": {
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "获取按 Category → Group → Settings 层级组织的配置数据，用于前端动态渲染设置页面",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "管理员 - 系统配置 (Admin - Settings)"
-                ],
-                "summary": "获取配置 Schema",
-                "responses": {
-                    "200": {
-                        "description": "配置 Schema",
-                        "schema": {
-                            "$ref": "#/definitions/response.DataResponse-array_setting_SchemaCategoryDTO"
-                        }
-                    },
-                    "401": {
-                        "description": "未授权",
-                        "schema": {
-                            "$ref": "#/definitions/response.ErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "权限不足",
-                        "schema": {
-                            "$ref": "#/definitions/response.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "服务器内部错误",
-                        "schema": {
-                            "$ref": "#/definitions/response.ErrorResponse"
-                        }
-                    }
-                },
-                "x-permission": {
-                    "scope": "admin:settings:read"
                 }
             }
         },
@@ -2755,126 +2712,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/cache": {
-            "post": {
-                "description": "设置缓存键值对（演示用，公开接口）",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "缓存示例 (Cache Demo)"
-                ],
-                "summary": "设置缓存",
-                "parameters": [
-                    {
-                        "description": "缓存数据",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/cache.SetDTO"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "设置成功",
-                        "schema": {
-                            "$ref": "#/definitions/response.DataResponse-cache_SetResultDTO"
-                        }
-                    },
-                    "400": {
-                        "description": "参数错误",
-                        "schema": {
-                            "$ref": "#/definitions/response.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "服务器内部错误",
-                        "schema": {
-                            "$ref": "#/definitions/response.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/cache/{key}": {
-            "get": {
-                "description": "根据 key 获取缓存值（演示用，公开接口）",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "缓存示例 (Cache Demo)"
-                ],
-                "summary": "获取缓存",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "缓存键",
-                        "name": "key",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "获取成功",
-                        "schema": {
-                            "$ref": "#/definitions/response.DataResponse-cache_GetResultDTO"
-                        }
-                    },
-                    "404": {
-                        "description": "缓存不存在",
-                        "schema": {
-                            "$ref": "#/definitions/response.ErrorResponse"
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "description": "根据 key 删除缓存（演示用，公开接口）",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "缓存示例 (Cache Demo)"
-                ],
-                "summary": "删除缓存",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "缓存键",
-                        "name": "key",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "删除成功",
-                        "schema": {
-                            "$ref": "#/definitions/response.DataResponse-cache_DeleteResultDTO"
-                        }
-                    },
-                    "500": {
-                        "description": "服务器内部错误",
-                        "schema": {
-                            "$ref": "#/definitions/response.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
         "/api/user/account": {
             "delete": {
                 "security": [
@@ -3080,7 +2917,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "获取当前用户的所有配置（合并系统默认值）",
+                "description": "获取按 Category → Group → Settings 层级组织的配置数据，包含用户自定义值。支持按分类过滤（懒加载）。",
                 "consumes": [
                     "application/json"
                 ],
@@ -3090,24 +2927,30 @@ const docTemplate = `{
                 "tags": [
                     "用户 - 个人配置 (User - Settings)"
                 ],
-                "summary": "获取用户配置列表",
+                "summary": "获取用户配置",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "配置类别 ID",
-                        "name": "category_id",
+                        "type": "string",
+                        "description": "分类 Key（如 profile），为空返回全量",
+                        "name": "category",
                         "in": "query"
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "配置列表",
+                        "description": "配置列表（层级结构）",
                         "schema": {
-                            "$ref": "#/definitions/response.DataResponse-array_setting_UserSettingDTO"
+                            "$ref": "#/definitions/response.DataResponse-array_setting_UserSchemaCategoryDTO"
                         }
                     },
                     "401": {
                         "description": "未授权",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "分类不存在",
                         "schema": {
                             "$ref": "#/definitions/response.ErrorResponse"
                         }
@@ -3184,14 +3027,14 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/user/settings/schema": {
+        "/api/user/settings/categories": {
             "get": {
                 "security": [
                     {
                         "BearerAuth": []
                     }
                 ],
-                "description": "获取按 Category → Group → Settings 层级组织的配置数据，包含用户自定义值",
+                "description": "获取包含用户可配置项的分类列表（不含 settings 数据，用于懒加载场景）",
                 "consumes": [
                     "application/json"
                 ],
@@ -3201,12 +3044,12 @@ const docTemplate = `{
                 "tags": [
                     "用户 - 个人配置 (User - Settings)"
                 ],
-                "summary": "获取用户配置 Schema",
+                "summary": "获取用户设置分类列表",
                 "responses": {
                     "200": {
-                        "description": "配置 Schema",
+                        "description": "分类列表",
                         "schema": {
-                            "$ref": "#/definitions/response.DataResponse-array_setting_UserSchemaCategoryDTO"
+                            "$ref": "#/definitions/response.DataResponse-array_setting_CategoryMetaDTO"
                         }
                     },
                     "401": {
@@ -4219,51 +4062,6 @@ const docTemplate = `{
                 }
             }
         },
-        "cache.DeleteResultDTO": {
-            "type": "object",
-            "properties": {
-                "key": {
-                    "type": "string"
-                }
-            }
-        },
-        "cache.GetResultDTO": {
-            "type": "object",
-            "properties": {
-                "key": {
-                    "type": "string"
-                },
-                "value": {}
-            }
-        },
-        "cache.SetDTO": {
-            "type": "object",
-            "required": [
-                "key",
-                "value"
-            ],
-            "properties": {
-                "key": {
-                    "type": "string"
-                },
-                "ttl": {
-                    "description": "秒，默认 60",
-                    "type": "integer"
-                },
-                "value": {}
-            }
-        },
-        "cache.SetResultDTO": {
-            "type": "object",
-            "properties": {
-                "key": {
-                    "type": "string"
-                },
-                "ttl": {
-                    "type": "integer"
-                }
-            }
-        },
         "captcha.GenerateResultDTO": {
             "type": "object",
             "properties": {
@@ -4791,6 +4589,29 @@ const docTemplate = `{
                 }
             }
         },
+        "response.DataResponse-array_setting_CategoryMetaDTO": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "description": "HTTP 状态码",
+                    "type": "integer"
+                },
+                "data": {
+                    "description": "响应数据",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/setting.CategoryMetaDTO"
+                    }
+                },
+                "error": {
+                    "description": "错误详情（仅失败时）"
+                },
+                "message": {
+                    "description": "消息描述",
+                    "type": "string"
+                }
+            }
+        },
         "response.DataResponse-array_setting_SchemaCategoryDTO": {
             "type": "object",
             "properties": {
@@ -4814,29 +4635,6 @@ const docTemplate = `{
                 }
             }
         },
-        "response.DataResponse-array_setting_SettingDTO": {
-            "type": "object",
-            "properties": {
-                "code": {
-                    "description": "HTTP 状态码",
-                    "type": "integer"
-                },
-                "data": {
-                    "description": "响应数据",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/setting.SettingDTO"
-                    }
-                },
-                "error": {
-                    "description": "错误详情（仅失败时）"
-                },
-                "message": {
-                    "description": "消息描述",
-                    "type": "string"
-                }
-            }
-        },
         "response.DataResponse-array_setting_UserSchemaCategoryDTO": {
             "type": "object",
             "properties": {
@@ -4849,29 +4647,6 @@ const docTemplate = `{
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/setting.UserSchemaCategoryDTO"
-                    }
-                },
-                "error": {
-                    "description": "错误详情（仅失败时）"
-                },
-                "message": {
-                    "description": "消息描述",
-                    "type": "string"
-                }
-            }
-        },
-        "response.DataResponse-array_setting_UserSettingDTO": {
-            "type": "object",
-            "properties": {
-                "code": {
-                    "description": "HTTP 状态码",
-                    "type": "integer"
-                },
-                "data": {
-                    "description": "响应数据",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/setting.UserSettingDTO"
                     }
                 },
                 "error": {
@@ -4967,78 +4742,6 @@ const docTemplate = `{
                     "allOf": [
                         {
                             "$ref": "#/definitions/auth.TokenDTO"
-                        }
-                    ]
-                },
-                "error": {
-                    "description": "错误详情（仅失败时）"
-                },
-                "message": {
-                    "description": "消息描述",
-                    "type": "string"
-                }
-            }
-        },
-        "response.DataResponse-cache_DeleteResultDTO": {
-            "type": "object",
-            "properties": {
-                "code": {
-                    "description": "HTTP 状态码",
-                    "type": "integer"
-                },
-                "data": {
-                    "description": "响应数据",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/cache.DeleteResultDTO"
-                        }
-                    ]
-                },
-                "error": {
-                    "description": "错误详情（仅失败时）"
-                },
-                "message": {
-                    "description": "消息描述",
-                    "type": "string"
-                }
-            }
-        },
-        "response.DataResponse-cache_GetResultDTO": {
-            "type": "object",
-            "properties": {
-                "code": {
-                    "description": "HTTP 状态码",
-                    "type": "integer"
-                },
-                "data": {
-                    "description": "响应数据",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/cache.GetResultDTO"
-                        }
-                    ]
-                },
-                "error": {
-                    "description": "错误详情（仅失败时）"
-                },
-                "message": {
-                    "description": "消息描述",
-                    "type": "string"
-                }
-            }
-        },
-        "response.DataResponse-cache_SetResultDTO": {
-            "type": "object",
-            "properties": {
-                "code": {
-                    "description": "HTTP 状态码",
-                    "type": "integer"
-                },
-                "data": {
-                    "description": "响应数据",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/cache.SetResultDTO"
                         }
                     ]
                 },
@@ -5764,6 +5467,24 @@ const docTemplate = `{
                 },
                 "updated_at": {
                     "type": "string"
+                }
+            }
+        },
+        "setting.CategoryMetaDTO": {
+            "type": "object",
+            "properties": {
+                "category": {
+                    "description": "key",
+                    "type": "string"
+                },
+                "icon": {
+                    "type": "string"
+                },
+                "label": {
+                    "type": "string"
+                },
+                "order": {
+                    "type": "integer"
                 }
             }
         },

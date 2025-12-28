@@ -17,20 +17,32 @@
 /**
  * 
  * @export
- * @interface CacheSetResultDTO
+ * @interface SettingCategoryMetaDTO
  */
-export interface CacheSetResultDTO {
+export interface SettingCategoryMetaDTO {
+    /**
+     * key
+     * @type {string}
+     * @memberof SettingCategoryMetaDTO
+     */
+    'category'?: string;
     /**
      * 
      * @type {string}
-     * @memberof CacheSetResultDTO
+     * @memberof SettingCategoryMetaDTO
      */
-    'key'?: string;
+    'icon'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof SettingCategoryMetaDTO
+     */
+    'label'?: string;
     /**
      * 
      * @type {number}
-     * @memberof CacheSetResultDTO
+     * @memberof SettingCategoryMetaDTO
      */
-    'ttl'?: number;
+    'order'?: number;
 }
 

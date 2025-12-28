@@ -1,0 +1,118 @@
+package redis
+
+import (
+	"context"
+	"encoding/json"
+	"errors"
+	"fmt"
+	"time"
+
+	"github.com/redis/go-redis/v9"
+
+	"github.com/lwmacct/251117-go-ddd-template/internal/domain/cache"
+)
+
+const permissionCacheTTL = 5 * time.Minute
+
+// userPermissions 用户权限缓存数据结构。
+type userPermissions struct {
+	Roles       []string `json:"roles"`
+	Permissions []string `json:"permissions"`
+}
+
+// permissionCacheService 权限缓存服务的 Redis 实现。
+//
+// 提供用户权限的缓存操作：
+//   - Key 格式：{prefix}user:perms:{userID}
+//   - TTL：5 分钟
+//   - JSON 序列化存储
+type permissionCacheService struct {
+	client    *redis.Client
+	keyPrefix string
+}
+
+// NewPermissionCacheService 创建权限缓存服务。
+func NewPermissionCacheService(client *redis.Client, keyPrefix string) cache.PermissionCacheService {
+	return &permissionCacheService{
+		client:    client,
+		keyPrefix: keyPrefix,
+	}
+}
+
+// GetUserPermissions 获取用户权限。
+// 缓存未命中返回三个 nil。
+func (s *permissionCacheService) GetUserPermissions(ctx context.Context, userID uint) ([]string, []string, error) {
+	data, err := s.client.Get(ctx, s.buildKey(userID)).Bytes()
+	if err != nil {
+		if errors.Is(err, redis.Nil) {
+			return nil, nil, nil // cache miss
+		}
+		return nil, nil, fmt.Errorf("redis get error: %w", err)
+	}
+
+	var perms userPermissions
+	if err := json.Unmarshal(data, &perms); err != nil {
+		// 缓存数据损坏，删除并返回未命中
+		_ = s.client.Del(ctx, s.buildKey(userID))
+		return nil, nil, nil //nolint:nilerr // corrupted cache treated as miss
+	}
+
+	return perms.Roles, perms.Permissions, nil
+}
+
+// SetUserPermissions 设置用户权限缓存。
+func (s *permissionCacheService) SetUserPermissions(ctx context.Context, userID uint, roles, permissions []string) error {
+	data, err := json.Marshal(userPermissions{Roles: roles, Permissions: permissions})
+	if err != nil {
+		return fmt.Errorf("failed to marshal permissions: %w", err)
+	}
+
+	return s.client.Set(ctx, s.buildKey(userID), data, permissionCacheTTL).Err()
+}
+
+// InvalidateUser 失效单个用户缓存。
+func (s *permissionCacheService) InvalidateUser(ctx context.Context, userID uint) error {
+	return s.client.Del(ctx, s.buildKey(userID)).Err()
+}
+
+// InvalidateUsers 批量失效用户缓存。
+func (s *permissionCacheService) InvalidateUsers(ctx context.Context, userIDs []uint) error {
+	if len(userIDs) == 0 {
+		return nil
+	}
+
+	keys := make([]string, 0, len(userIDs))
+	for _, id := range userIDs {
+		keys = append(keys, s.buildKey(id))
+	}
+
+	return s.client.Del(ctx, keys...).Err()
+}
+
+// InvalidateAll 失效所有用户权限缓存。
+func (s *permissionCacheService) InvalidateAll(ctx context.Context) error {
+	pattern := s.keyPrefix + "user:perms:*"
+
+	iter := s.client.Scan(ctx, 0, pattern, 0).Iterator()
+	var keys []string
+
+	for iter.Next(ctx) {
+		keys = append(keys, iter.Val())
+	}
+
+	if err := iter.Err(); err != nil {
+		return fmt.Errorf("failed to scan keys: %w", err)
+	}
+
+	if len(keys) > 0 {
+		return s.client.Del(ctx, keys...).Err()
+	}
+
+	return nil
+}
+
+func (s *permissionCacheService) buildKey(userID uint) string {
+	return fmt.Sprintf("%suser:perms:%d", s.keyPrefix, userID)
+}
+
+var _ cache.PermissionCacheService = (*permissionCacheService)(nil)

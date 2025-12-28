@@ -1,11 +1,13 @@
 package handler
 
 import (
+	"errors"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/lwmacct/251117-go-ddd-template/internal/adapters/http/response"
 	"github.com/lwmacct/251117-go-ddd-template/internal/application/setting"
+	settingDomain "github.com/lwmacct/251117-go-ddd-template/internal/domain/setting"
 )
 
 // SettingHandler handles setting management operations (DDD+CQRS Use Case Pattern)
@@ -62,39 +64,40 @@ func NewSettingHandler(
 	}
 }
 
-// GetSettings 获取配置列表
+// GetSettings 获取系统配置（层级结构）
 //
-// @Summary      获取系统配置列表
-// @Description  获取所有系统配置，可按类别 ID 筛选
+// @Summary      获取系统配置
+// @Description  获取按 Category → Group → Settings 层级组织的配置数据，用于前端动态渲染设置页面。支持按分类过滤（懒加载）。
 // @Tags         管理员 - 系统配置 (Admin - Settings)
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
-// @Param        category_id query int false "配置类别 ID"
-// @Success      200 {object} response.DataResponse[[]setting.SettingDTO] "配置列表"
+// @Param        category query string false "分类 Key（如 general），为空返回全量"
+// @Success      200 {object} response.DataResponse[[]setting.SchemaCategoryDTO] "配置列表（层级结构）"
 // @Failure      401 {object} response.ErrorResponse "未授权"
 // @Failure      403 {object} response.ErrorResponse "权限不足"
+// @Failure      404 {object} response.ErrorResponse "分类不存在"
 // @Failure      500 {object} response.ErrorResponse "服务器内部错误"
 // @Router       /api/admin/settings [get]
 // @x-permission {"scope":"admin:settings:read"}
 func (h *SettingHandler) GetSettings(c *gin.Context) {
-	var categoryID uint
-	if id := c.Query("category_id"); id != "" {
-		parsed, _ := strconv.ParseUint(id, 10, 64)
-		categoryID = uint(parsed)
-	}
+	categoryKey := c.Query("category")
 
-	// 调用 Use Case Handler
-	settings, err := h.listHandler.Handle(c.Request.Context(), setting.ListQuery{
-		CategoryID: categoryID,
+	// 调用 Schema Handler（返回层级结构）
+	schema, err := h.listSchemaHandler.Handle(c.Request.Context(), setting.ListSchemaQuery{
+		CategoryKey: categoryKey,
 	})
-
 	if err != nil {
+		// 检查是否为分类不存在错误
+		if categoryKey != "" && err.Error() == "category not found: "+categoryKey {
+			response.NotFound(c, "category")
+			return
+		}
 		response.InternalError(c, err.Error())
 		return
 	}
 
-	response.OK(c, "success", settings)
+	response.OK(c, "success", schema)
 }
 
 // GetSetting 获取单个配置
@@ -237,6 +240,10 @@ func (h *SettingHandler) UpdateSetting(c *gin.Context) {
 	})
 
 	if err != nil {
+		if errors.Is(err, settingDomain.ErrValidationFailed) {
+			response.BadRequest(c, err.Error())
+			return
+		}
 		response.InternalError(c, err.Error())
 		return
 	}
@@ -322,37 +329,15 @@ func (h *SettingHandler) BatchUpdateSettings(c *gin.Context) {
 	})
 
 	if err != nil {
+		if errors.Is(err, settingDomain.ErrValidationFailed) {
+			response.BadRequest(c, err.Error())
+			return
+		}
 		response.InternalError(c, err.Error())
 		return
 	}
 
 	response.OK(c, "批量更新成功", nil)
-}
-
-// GetSettingsSchema 获取配置 Schema
-//
-// @Summary      获取配置 Schema
-// @Description  获取按 Category → Group → Settings 层级组织的配置数据，用于前端动态渲染设置页面
-// @Tags         管理员 - 系统配置 (Admin - Settings)
-// @Accept       json
-// @Produce      json
-// @Security     BearerAuth
-// @Success      200 {object} response.DataResponse[[]setting.SchemaCategoryDTO] "配置 Schema"
-// @Failure      401 {object} response.ErrorResponse "未授权"
-// @Failure      403 {object} response.ErrorResponse "权限不足"
-// @Failure      500 {object} response.ErrorResponse "服务器内部错误"
-// @Router       /api/admin/settings/schema [get]
-// @x-permission {"scope":"admin:settings:read"}
-func (h *SettingHandler) GetSettingsSchema(c *gin.Context) {
-	// 调用 Use Case Handler
-	schema, err := h.listSchemaHandler.Handle(c.Request.Context(), setting.ListSchemaQuery{})
-
-	if err != nil {
-		response.InternalError(c, err.Error())
-		return
-	}
-
-	response.OK(c, "success", schema)
 }
 
 // =============================================================================

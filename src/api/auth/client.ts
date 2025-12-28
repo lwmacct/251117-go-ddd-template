@@ -15,6 +15,7 @@ import {
   AdminAuditLogApi,
   AdminMenuManagementApi,
   AdminRoleManagementApi,
+  AdminSettingCategoriesApi,
   AdminSettingsApi,
   AdminUserManagementApi,
   AuthenticationApi,
@@ -23,6 +24,7 @@ import {
   SystemApi,
   UserPersonalAccessTokenApi,
   UserProfileApi,
+  UserSettingsApi,
 } from "@generated/api";
 
 /** axios 实例 */
@@ -94,11 +96,13 @@ const configuration = new Configuration({
 export const adminAuditLogApi = new AdminAuditLogApi(configuration, "", apiClient);
 export const adminMenuApi = new AdminMenuManagementApi(configuration, "", apiClient);
 export const adminRoleApi = new AdminRoleManagementApi(configuration, "", apiClient);
+export const adminSettingCategoriesApi = new AdminSettingCategoriesApi(configuration, "", apiClient);
 export const adminSettingsApi = new AdminSettingsApi(configuration, "", apiClient);
 export const adminUserApi = new AdminUserManagementApi(configuration, "", apiClient);
 export const authApi = new AuthenticationApi(configuration, "", apiClient);
 export const auth2faApi = new Authentication2FAApi(configuration, "", apiClient);
 export const overviewApi = new OverviewApi(configuration, "", apiClient);
 export const systemApi = new SystemApi(configuration, "", apiClient);
+export const userSettingsApi = new UserSettingsApi(configuration, "", apiClient);
 export const userTokensApi = new UserPersonalAccessTokenApi(configuration, "", apiClient);
 export const userProfileApi = new UserProfileApi(configuration, "", apiClient);

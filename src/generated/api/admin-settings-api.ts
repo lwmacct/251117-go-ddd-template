@@ -30,8 +30,6 @@ import type { HandlerUpdateSettingRequest } from '../models';
 // @ts-ignore
 import type { ResponseDataResponseArraySettingSchemaCategoryDTO } from '../models';
 // @ts-ignore
-import type { ResponseDataResponseArraySettingSettingDTO } from '../models';
-// @ts-ignore
 import type { ResponseDataResponseSettingSettingDTO } from '../models';
 // @ts-ignore
 import type { ResponseErrorResponse } from '../models';
@@ -83,13 +81,13 @@ export const AdminSettingsApiAxiosParamCreator = function (configuration?: Confi
             };
         },
         /**
-         * 获取所有系统配置，可按类别 ID 筛选
-         * @summary 获取系统配置列表
-         * @param {number} [categoryId] 配置类别 ID
+         * 获取按 Category → Group → Settings 层级组织的配置数据，用于前端动态渲染设置页面。支持按分类过滤（懒加载）。
+         * @summary 获取系统配置
+         * @param {string} [category] 分类 Key（如 general），为空返回全量
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiAdminSettingsGet: async (categoryId?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        apiAdminSettingsGet: async (category?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             const localVarPath = `/api/admin/settings`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -105,8 +103,8 @@ export const AdminSettingsApiAxiosParamCreator = function (configuration?: Confi
             // authentication BearerAuth required
             await setApiKeyToObject(localVarHeaderParameter, "Authorization", configuration)
 
-            if (categoryId !== undefined) {
-                localVarQueryParameter['category_id'] = categoryId;
+            if (category !== undefined) {
+                localVarQueryParameter['category'] = category;
             }
 
 
@@ -276,39 +274,6 @@ export const AdminSettingsApiAxiosParamCreator = function (configuration?: Confi
                 options: localVarRequestOptions,
             };
         },
-        /**
-         * 获取按 Category → Group → Settings 层级组织的配置数据，用于前端动态渲染设置页面
-         * @summary 获取配置 Schema
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        apiAdminSettingsSchemaGet: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            const localVarPath = `/api/admin/settings/schema`;
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication BearerAuth required
-            await setApiKeyToObject(localVarHeaderParameter, "Authorization", configuration)
-
-
-    
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
     }
 };
 
@@ -333,14 +298,14 @@ export const AdminSettingsApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
-         * 获取所有系统配置，可按类别 ID 筛选
-         * @summary 获取系统配置列表
-         * @param {number} [categoryId] 配置类别 ID
+         * 获取按 Category → Group → Settings 层级组织的配置数据，用于前端动态渲染设置页面。支持按分类过滤（懒加载）。
+         * @summary 获取系统配置
+         * @param {string} [category] 分类 Key（如 general），为空返回全量
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async apiAdminSettingsGet(categoryId?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseArraySettingSettingDTO>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.apiAdminSettingsGet(categoryId, options);
+        async apiAdminSettingsGet(category?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseArraySettingSchemaCategoryDTO>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.apiAdminSettingsGet(category, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['AdminSettingsApi.apiAdminSettingsGet']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -398,18 +363,6 @@ export const AdminSettingsApiFp = function(configuration?: Configuration) {
             const localVarOperationServerBasePath = operationServerMap['AdminSettingsApi.apiAdminSettingsPost']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
-        /**
-         * 获取按 Category → Group → Settings 层级组织的配置数据，用于前端动态渲染设置页面
-         * @summary 获取配置 Schema
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async apiAdminSettingsSchemaGet(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseArraySettingSchemaCategoryDTO>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.apiAdminSettingsSchemaGet(options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['AdminSettingsApi.apiAdminSettingsSchemaGet']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
     }
 };
 
@@ -431,14 +384,14 @@ export const AdminSettingsApiFactory = function (configuration?: Configuration, 
             return localVarFp.apiAdminSettingsBatchPost(request, options).then((request) => request(axios, basePath));
         },
         /**
-         * 获取所有系统配置，可按类别 ID 筛选
-         * @summary 获取系统配置列表
-         * @param {number} [categoryId] 配置类别 ID
+         * 获取按 Category → Group → Settings 层级组织的配置数据，用于前端动态渲染设置页面。支持按分类过滤（懒加载）。
+         * @summary 获取系统配置
+         * @param {string} [category] 分类 Key（如 general），为空返回全量
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiAdminSettingsGet(categoryId?: number, options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseArraySettingSettingDTO> {
-            return localVarFp.apiAdminSettingsGet(categoryId, options).then((request) => request(axios, basePath));
+        apiAdminSettingsGet(category?: string, options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseArraySettingSchemaCategoryDTO> {
+            return localVarFp.apiAdminSettingsGet(category, options).then((request) => request(axios, basePath));
         },
         /**
          * 管理员删除指定的系统配置项
@@ -481,15 +434,6 @@ export const AdminSettingsApiFactory = function (configuration?: Configuration, 
         apiAdminSettingsPost(request: HandlerCreateSettingRequest, options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseSettingSettingDTO> {
             return localVarFp.apiAdminSettingsPost(request, options).then((request) => request(axios, basePath));
         },
-        /**
-         * 获取按 Category → Group → Settings 层级组织的配置数据，用于前端动态渲染设置页面
-         * @summary 获取配置 Schema
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        apiAdminSettingsSchemaGet(options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseArraySettingSchemaCategoryDTO> {
-            return localVarFp.apiAdminSettingsSchemaGet(options).then((request) => request(axios, basePath));
-        },
     };
 };
 
@@ -513,15 +457,15 @@ export class AdminSettingsApi extends BaseAPI {
     }
 
     /**
-     * 获取所有系统配置，可按类别 ID 筛选
-     * @summary 获取系统配置列表
-     * @param {number} [categoryId] 配置类别 ID
+     * 获取按 Category → Group → Settings 层级组织的配置数据，用于前端动态渲染设置页面。支持按分类过滤（懒加载）。
+     * @summary 获取系统配置
+     * @param {string} [category] 分类 Key（如 general），为空返回全量
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof AdminSettingsApi
      */
-    public apiAdminSettingsGet(categoryId?: number, options?: RawAxiosRequestConfig) {
-        return AdminSettingsApiFp(this.configuration).apiAdminSettingsGet(categoryId, options).then((request) => request(this.axios, this.basePath));
+    public apiAdminSettingsGet(category?: string, options?: RawAxiosRequestConfig) {
+        return AdminSettingsApiFp(this.configuration).apiAdminSettingsGet(category, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -571,17 +515,6 @@ export class AdminSettingsApi extends BaseAPI {
      */
     public apiAdminSettingsPost(request: HandlerCreateSettingRequest, options?: RawAxiosRequestConfig) {
         return AdminSettingsApiFp(this.configuration).apiAdminSettingsPost(request, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * 获取按 Category → Group → Settings 层级组织的配置数据，用于前端动态渲染设置页面
-     * @summary 获取配置 Schema
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof AdminSettingsApi
-     */
-    public apiAdminSettingsSchemaGet(options?: RawAxiosRequestConfig) {
-        return AdminSettingsApiFp(this.configuration).apiAdminSettingsSchemaGet(options).then((request) => request(this.axios, this.basePath));
     }
 }
 

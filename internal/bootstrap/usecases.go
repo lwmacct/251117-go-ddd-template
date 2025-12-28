@@ -3,7 +3,6 @@ package bootstrap
 import (
 	"github.com/lwmacct/251117-go-ddd-template/internal/application/auditlog"
 	"github.com/lwmacct/251117-go-ddd-template/internal/application/auth"
-	"github.com/lwmacct/251117-go-ddd-template/internal/application/cache"
 	"github.com/lwmacct/251117-go-ddd-template/internal/application/captcha"
 	"github.com/lwmacct/251117-go-ddd-template/internal/application/menu"
 	"github.com/lwmacct/251117-go-ddd-template/internal/application/pat"
@@ -28,7 +27,6 @@ type UseCasesModule struct {
 	Stats       *StatsUseCases
 	Captcha     *CaptchaUseCases
 	TwoFA       *TwoFAUseCases
-	Cache       *CacheUseCases
 }
 
 // AuthUseCases 认证相关用例
@@ -113,9 +111,10 @@ type UserSettingUseCases struct {
 	ResetAll *setting.UserResetAllHandler
 
 	// Queries
-	Get        *setting.UserGetHandler
-	List       *setting.UserListHandler
-	ListSchema *setting.UserListSchemaHandler
+	Get            *setting.UserGetHandler
+	List           *setting.UserListHandler
+	ListSchema     *setting.UserListSchemaHandler
+	ListCategories *setting.UserListCategoriesHandler
 }
 
 // PATUseCases 个人访问令牌用例
@@ -160,14 +159,4 @@ type TwoFAUseCases struct {
 
 	// Queries
 	GetStatus *twofa.GetStatusHandler
-}
-
-// CacheUseCases 缓存用例（演示用）
-type CacheUseCases struct {
-	// Commands
-	Set    *cache.SetHandler
-	Delete *cache.DeleteHandler
-
-	// Queries
-	Get *cache.GetHandler
 }

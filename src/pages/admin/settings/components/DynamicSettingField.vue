@@ -22,7 +22,20 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   "update:modelValue": [value: unknown];
+  change: [value: unknown]; // 用于 switch/select 即时保存
+  blur: []; // 用于 text 类失焦保存
 }>();
+
+// 处理即时变更（switch/select）
+const handleChange = (value: unknown) => {
+  emit("update:modelValue", value);
+  emit("change", value);
+};
+
+// 处理失焦（text 类控件）
+const handleBlur = () => {
+  emit("blur");
+};
 
 // 获取 UI 配置
 const uiConfig = computed(() => props.setting.ui_config || {});
@@ -47,7 +60,7 @@ const selectItems = computed(() =>
 // 控件类型
 const inputType = computed(() => uiConfig.value.input_type || "text");
 
-// 值类型转换
+// 值类型转换（用于双向绑定 + 即时变更）
 const numericValue = computed({
   get: () => Number(props.modelValue) || 0,
   set: (val: number) => emit("update:modelValue", val),
@@ -55,12 +68,18 @@ const numericValue = computed({
 
 const booleanValue = computed({
   get: () => Boolean(props.modelValue),
-  set: (val: boolean) => emit("update:modelValue", val),
+  set: (val: boolean) => handleChange(val),
 });
 
 const stringValue = computed({
   get: () => String(props.modelValue ?? ""),
   set: (val: string) => emit("update:modelValue", val),
+});
+
+// Select 专用（需要即时触发 change）
+const selectValue = computed({
+  get: () => String(props.modelValue ?? ""),
+  set: (val: string) => handleChange(val),
 });
 
 // 最终显示的 hint（外部传入优先，否则使用 ui_config.hint）
@@ -85,7 +104,7 @@ const finalHint = computed(() => props.hint || uiConfig.value.hint);
     <!-- Select 下拉选择 -->
     <v-select
       v-else-if="inputType === 'select'"
-      v-model="stringValue"
+      v-model="selectValue"
       :label="setting.label"
       :items="selectItems"
       :hint="finalHint"
@@ -106,6 +125,7 @@ const finalHint = computed(() => props.hint || uiConfig.value.hint);
       type="number"
       variant="outlined"
       persistent-hint
+      @blur="handleBlur"
     />
 
     <!-- Textarea 多行文本 -->
@@ -119,6 +139,7 @@ const finalHint = computed(() => props.hint || uiConfig.value.hint);
       variant="outlined"
       persistent-hint
       rows="3"
+      @blur="handleBlur"
     />
 
     <!-- Password 密码 -->
@@ -132,6 +153,7 @@ const finalHint = computed(() => props.hint || uiConfig.value.hint);
       type="password"
       variant="outlined"
       persistent-hint
+      @blur="handleBlur"
     />
 
     <!-- Email 邮箱 -->
@@ -145,6 +167,7 @@ const finalHint = computed(() => props.hint || uiConfig.value.hint);
       type="email"
       variant="outlined"
       persistent-hint
+      @blur="handleBlur"
     />
 
     <!-- URL -->
@@ -159,6 +182,7 @@ const finalHint = computed(() => props.hint || uiConfig.value.hint);
       variant="outlined"
       persistent-hint
       placeholder="https://example.com"
+      @blur="handleBlur"
     />
 
     <!-- 默认 Text 文本输入 -->
@@ -171,6 +195,7 @@ const finalHint = computed(() => props.hint || uiConfig.value.hint);
       :error-messages="errorMessages"
       variant="outlined"
       persistent-hint
+      @blur="handleBlur"
     />
   </div>
 </template>

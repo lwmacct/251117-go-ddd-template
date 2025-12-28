@@ -100,6 +100,7 @@ func newHandlersModule(cfg *config.Config, infra *InfrastructureModule, useCases
 		useCases.UserSetting.Get,
 		useCases.UserSetting.List,
 		useCases.UserSetting.ListSchema,
+		useCases.UserSetting.ListCategories,
 	)
 
 	// PAT Handler
@@ -127,13 +128,6 @@ func newHandlersModule(cfg *config.Config, infra *InfrastructureModule, useCases
 		useCases.TwoFA.VerifyEnable,
 		useCases.TwoFA.Disable,
 		useCases.TwoFA.GetStatus,
-	)
-
-	// Cache Handler (for demo)
-	m.Cache = handler.NewCacheHandler(
-		useCases.Cache.Set,
-		useCases.Cache.Get,
-		useCases.Cache.Delete,
 	)
 
 	return m

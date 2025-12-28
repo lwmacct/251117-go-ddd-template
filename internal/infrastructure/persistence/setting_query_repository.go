@@ -58,6 +58,19 @@ func (r *settingQueryRepository) FindByCategoryID(ctx context.Context, categoryI
 	return mapSettingModelsToEntities(models), nil
 }
 
+// FindByScope 根据作用域查找配置定义列表
+func (r *settingQueryRepository) FindByScope(ctx context.Context, scope string) ([]*setting.Setting, error) {
+	var models []SettingModel
+	err := r.db.WithContext(ctx).
+		Where("scope = ?", scope).
+		Order(`category_id ASC, "group" ASC, "order" ASC, key ASC`).
+		Find(&models).Error
+	if err != nil {
+		return nil, fmt.Errorf("failed to find setting definitions by scope: %w", err)
+	}
+	return mapSettingModelsToEntities(models), nil
+}
+
 // FindAll 查找所有配置定义
 func (r *settingQueryRepository) FindAll(ctx context.Context) ([]*setting.Setting, error) {
 	var models []SettingModel

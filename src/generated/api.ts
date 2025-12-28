@@ -22,7 +22,6 @@ export * from './api/admin-settings-api';
 export * from './api/admin-user-management-api';
 export * from './api/authentication-api';
 export * from './api/authentication2-faapi';
-export * from './api/cache-demo-api';
 export * from './api/overview-api';
 export * from './api/system-api';
 export * from './api/user-api';

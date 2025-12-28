@@ -13,6 +13,10 @@ type QueryRepository interface {
 	// FindByCategoryID 根据分类 ID 查找配置定义列表
 	FindByCategoryID(ctx context.Context, categoryID uint) ([]*Setting, error)
 
+	// FindByScope 根据作用域查找配置定义列表
+	// scope 可选值: "system"（系统设置）、"user"（用户可配置）
+	FindByScope(ctx context.Context, scope string) ([]*Setting, error)
+
 	// FindAll 查找所有配置定义
 	FindAll(ctx context.Context) ([]*Setting, error)
 

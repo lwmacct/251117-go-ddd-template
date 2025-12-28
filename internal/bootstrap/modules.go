@@ -7,6 +7,7 @@ import (
 
 	"github.com/lwmacct/251117-go-ddd-template/internal/adapters/http/handler"
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/auth"
+	"github.com/lwmacct/251117-go-ddd-template/internal/domain/cache"
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/captcha"
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/event"
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/stats"
@@ -25,6 +26,13 @@ type InfrastructureModule struct {
 	RedisClient       *redis.Client
 	EventBus          event.EventBus
 	TelemetryShutdown telemetry.ShutdownFunc // OpenTelemetry 关闭函数
+}
+
+// CacheServicesModule 缓存服务模块
+// 聚合所有业务域的缓存服务，在 Repositories 之前初始化
+type CacheServicesModule struct {
+	Setting    cache.SettingCacheService
+	Permission cache.PermissionCacheService
 }
 
 // RepositoriesModule 仓储模块
@@ -81,7 +89,6 @@ type HandlersModule struct {
 	AuditLog    *handler.AuditLogHandler
 	Overview    *handler.OverviewHandler
 	TwoFA       *handler.TwoFAHandler
-	Cache       *handler.CacheHandler
 }
 
 // RouterModule 路由模块

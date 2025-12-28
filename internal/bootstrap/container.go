@@ -49,6 +49,7 @@ type Container struct {
 
 	// 模块化依赖
 	Infra    *InfrastructureModule // 基础设施：DB, Redis, EventBus
+	Cache    *CacheServicesModule  // 缓存服务：Setting, Permission
 	Repos    *RepositoriesModule   // 仓储：所有 CQRS Repositories
 	Services *ServicesModule       // 服务：Domain Services + Infrastructure Services
 	UseCases *UseCasesModule       // 用例：所有 Use Case Handlers
@@ -61,12 +62,13 @@ type Container struct {
 //
 // 初始化顺序（每步依赖前步）：
 //  1. Infrastructure（DB, Redis, EventBus）
-//  2. Repositories（依赖 DB）
-//  3. Services（依赖 Repos, Redis）
-//  4. UseCases（依赖 Repos, Services, EventBus）
-//  5. EventHandlers（依赖 EventBus, Repos, Services）
-//  6. Handlers（依赖 UseCases, Services）
-//  7. Router（依赖 Handlers, Services）
+//  2. CacheServices（依赖 Redis）
+//  3. Repositories（依赖 DB, CacheServices）
+//  4. Services（依赖 Repos, Redis）
+//  5. UseCases（依赖 Repos, Services, EventBus）
+//  6. EventHandlers（依赖 EventBus, Repos, Services）
+//  7. Handlers（依赖 UseCases, Services）
+//  8. Router（依赖 Handlers, Services）
 func NewContainer(ctx context.Context, cfg *config.Config, opts *ContainerOptions) (*Container, error) {
 	if opts == nil {
 		opts = DefaultOptions()
@@ -81,22 +83,25 @@ func NewContainer(ctx context.Context, cfg *config.Config, opts *ContainerOption
 		return nil, err
 	}
 
-	// 2. 仓储
-	c.Repos = newRepositoriesModule(c.Infra.DB)
+	// 2. 缓存服务（在仓储之前，因为仓储需要缓存装饰器）
+	c.Cache = newCacheServicesModule(c.Infra.RedisClient, cfg.Data.RedisKeyPrefix)
 
-	// 3. 服务
-	c.Services = newServicesModule(cfg, c.Infra, c.Repos)
+	// 3. 仓储（使用缓存装饰器）
+	c.Repos = newRepositoriesModule(c.Infra.DB, c.Cache)
 
-	// 4. 用例
+	// 4. 服务
+	c.Services = newServicesModule(cfg, c.Infra, c.Repos, c.Cache)
+
+	// 5. 用例
 	c.UseCases = newUseCasesModule(cfg, c.Infra, c.Repos, c.Services, c.Infra.EventBus)
 
-	// 5. 事件处理器
-	initEventHandlers(c.Infra.EventBus, c.Repos, c.Services)
+	// 6. 事件处理器
+	initEventHandlers(c.Infra.EventBus, c.Repos, c.Services, c.Cache)
 
-	// 6. HTTP Handlers
+	// 7. HTTP Handlers
 	c.Handlers = newHandlersModule(cfg, c.Infra, c.UseCases)
 
-	// 7. 路由
+	// 8. 路由
 	c.Router = newRouter(cfg, c.Infra, c.Services, c.UseCases, c.Handlers)
 
 	return c, nil

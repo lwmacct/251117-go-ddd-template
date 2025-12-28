@@ -46,5 +46,14 @@ export const userRoutes: RouteRecordRaw = {
         icon: "mdi-key-variant",
       },
     },
+    {
+      path: "settings",
+      name: "UserSettings",
+      component: () => import("@/pages/user/settings/index.vue"),
+      meta: {
+        title: "个人设置",
+        icon: "mdi-cog",
+      },
+    },
   ],
 };

@@ -10,8 +10,8 @@ import (
 )
 
 // newServicesModule 初始化服务模块
-// 依赖：InfrastructureModule, RepositoriesModule, config.Config
-func newServicesModule(cfg *config.Config, infra *InfrastructureModule, repos *RepositoriesModule) *ServicesModule {
+// 依赖：InfrastructureModule, RepositoriesModule, CacheServicesModule, config.Config
+func newServicesModule(cfg *config.Config, _ *InfrastructureModule, repos *RepositoriesModule, cacheServices *CacheServicesModule) *ServicesModule {
 	m := &ServicesModule{}
 
 	// Infrastructure 组件
@@ -19,7 +19,9 @@ func newServicesModule(cfg *config.Config, infra *InfrastructureModule, repos *R
 	tokenGenerator := authInfra.NewTokenGenerator()
 	m.TokenGenerator = tokenGenerator
 	m.LoginSession = authInfra.NewLoginSessionService()
-	m.PermissionCache = authInfra.NewPermissionCacheService(infra.RedisClient, repos.User.Query, cfg.Data.RedisKeyPrefix)
+
+	// Permission Cache（Cache-Aside 服务，依赖 Domain 缓存接口）
+	m.PermissionCache = authInfra.NewPermissionCacheService(cacheServices.Permission, repos.User.Query)
 
 	// Domain Services
 	passwordPolicy := auth.DefaultPasswordPolicy()

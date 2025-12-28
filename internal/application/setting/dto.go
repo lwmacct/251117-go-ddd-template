@@ -15,6 +15,14 @@ type CategoryDTO struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
+// CategoryMetaDTO 分类元信息 DTO（不含 settings，用于懒加载场景）
+type CategoryMetaDTO struct {
+	Category string `json:"category"` // key
+	Label    string `json:"label"`
+	Icon     string `json:"icon"`
+	Order    int    `json:"order"`
+}
+
 // CreateCategoryResultDTO 创建分类结果 DTO
 type CreateCategoryResultDTO struct {
 	ID uint `json:"id"`
