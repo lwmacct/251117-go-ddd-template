@@ -66,6 +66,10 @@ func (s *RBACSeeder) seedPermissions(ctx context.Context, db *gorm.DB) error {
 		// Admin domain - Audit log management
 		{Domain: "admin", Resource: "audit_logs", Action: "read", Code: "admin:audit_logs:read", Description: "Read audit logs"},
 
+		// Admin domain - Cache management
+		{Domain: "admin", Resource: "cache", Action: "read", Code: "admin:cache:read", Description: "Read cache status and keys"},
+		{Domain: "admin", Resource: "cache", Action: "delete", Code: "admin:cache:delete", Description: "Delete cache keys"},
+
 		// User domain - Profile management
 		{Domain: "user", Resource: "profile", Action: "read", Code: "user:profile:read", Description: "Read own profile"},
 		{Domain: "user", Resource: "profile", Action: "update", Code: "user:profile:update", Description: "Update own profile"},

@@ -8,6 +8,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/lwmacct/251117-go-ddd-template/internal/application/role"
+	"github.com/lwmacct/251117-go-ddd-template/internal/application/setting"
 	"github.com/lwmacct/251117-go-ddd-template/internal/application/user"
 )
 
@@ -111,6 +112,59 @@ func CreateTestRoleWithCleanupControl(t *testing.T, c *Client, prefix string) (*
 	t.Cleanup(func() {
 		if !deleted && roleID > 0 {
 			_ = c.Delete(fmt.Sprintf("/api/admin/roles/%d", roleID))
+		}
+	})
+
+	return result, func() { deleted = true }
+}
+
+// CreateTestSetting 创建测试配置并自动注册清理。
+// 测试结束时会自动删除创建的配置。
+func CreateTestSetting(t *testing.T, c *Client, prefix string) *setting.SettingDTO {
+	t.Helper()
+
+	key := fmt.Sprintf("%s_%d", prefix, time.Now().UnixNano())
+	createReq := map[string]any{
+		"key":           key,
+		"default_value": "测试值",
+		"category_id":   1, // general 分类
+		"group":         "test",
+		"value_type":    "string",
+		"label":         "测试配置",
+	}
+
+	result, err := Post[setting.SettingDTO](c, "/api/admin/settings", createReq)
+	require.NoError(t, err, "创建测试配置失败: %s", key)
+
+	t.Cleanup(func() {
+		_ = c.Delete("/api/admin/settings/" + key)
+	})
+
+	return result
+}
+
+// CreateTestSettingWithCleanupControl 创建测试配置，返回清理控制函数。
+// 当测试本身需要删除配置时使用，删除成功后调用返回的 markDeleted 函数。
+func CreateTestSettingWithCleanupControl(t *testing.T, c *Client, prefix string) (*setting.SettingDTO, func()) {
+	t.Helper()
+
+	key := fmt.Sprintf("%s_%d", prefix, time.Now().UnixNano())
+	createReq := map[string]any{
+		"key":           key,
+		"default_value": "测试值",
+		"category_id":   1, // general 分类
+		"group":         "test",
+		"value_type":    "string",
+		"label":         "测试配置",
+	}
+
+	result, err := Post[setting.SettingDTO](c, "/api/admin/settings", createReq)
+	require.NoError(t, err, "创建测试配置失败: %s", key)
+
+	deleted := false
+	t.Cleanup(func() {
+		if !deleted {
+			_ = c.Delete("/api/admin/settings/" + key)
 		}
 	})
 

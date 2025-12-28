@@ -5,8 +5,6 @@ paths:
 
 # Validation Infrastructure 规范
 
-## 核心职责
-
 基于 JSON Logic 的动态规则验证。
 
 ## 文件命名

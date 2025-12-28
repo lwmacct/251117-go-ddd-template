@@ -5,8 +5,6 @@ paths:
 
 # Telemetry Infrastructure 规范
 
-## 核心职责
-
 OpenTelemetry 分布式追踪（横切关注点）。
 
 ## 文件命名

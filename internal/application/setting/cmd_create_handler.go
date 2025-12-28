@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log/slog"
 
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/setting"
 )
@@ -12,16 +13,19 @@ import (
 type CreateHandler struct {
 	commandRepo setting.CommandRepository
 	queryRepo   setting.QueryRepository
+	schemaCache SchemaCacheService
 }
 
 // NewCreateHandler 创建 CreateHandler 实例
 func NewCreateHandler(
 	commandRepo setting.CommandRepository,
 	queryRepo setting.QueryRepository,
+	schemaCache SchemaCacheService,
 ) *CreateHandler {
 	return &CreateHandler{
 		commandRepo: commandRepo,
 		queryRepo:   queryRepo,
+		schemaCache: schemaCache,
 	}
 }
 
@@ -57,6 +61,13 @@ func (h *CreateHandler) Handle(ctx context.Context, cmd CreateCommand) (*CreateR
 	// 4. 保存配置定义
 	if err := h.commandRepo.Create(ctx, s); err != nil {
 		return nil, fmt.Errorf("failed to create setting: %w", err)
+	}
+
+	// 5. 失效 Schema 缓存
+	if h.schemaCache != nil {
+		if err := h.schemaCache.DeleteAdminSchemaAll(ctx); err != nil {
+			slog.Warn("admin schema cache invalidation failed", "key", cmd.Key, "err", err)
+		}
 	}
 
 	return &CreateResultDTO{

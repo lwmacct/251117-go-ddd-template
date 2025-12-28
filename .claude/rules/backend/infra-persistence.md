@@ -5,8 +5,6 @@ paths:
 
 # Persistence 层规范
 
-## 核心职责
-
 实现 Domain 层 Repository 接口，处理数据库持久化（GORM）。
 
 ## 文件命名

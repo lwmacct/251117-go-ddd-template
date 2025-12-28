@@ -97,6 +97,7 @@ type RouterDependencies struct {
 	UserProfileHandler *handler.UserProfileHandler
 	OverviewHandler    *handler.OverviewHandler
 	TwoFAHandler       *handler.TwoFAHandler
+	CacheHandler       *handler.CacheHandler
 }
 
 // SetupRouterWithDeps 使用依赖对象配置路由（推荐方式）
@@ -232,6 +233,13 @@ func setupAPIRoutes(r *gin.Engine, deps *RouterDependencies) {
 		admin.GET("/settings/:key", middleware.RequirePermission("admin:settings:read"), deps.SettingHandler.GetSetting)
 		admin.PUT("/settings/:key", middleware.RequirePermission("admin:settings:update"), deps.SettingHandler.UpdateSetting)
 		admin.DELETE("/settings/:key", middleware.RequirePermission("admin:settings:delete"), deps.SettingHandler.DeleteSetting)
+
+		// 缓存管理（Redis 风格 API）
+		admin.GET("/cache/info", middleware.RequirePermission("admin:cache:read"), deps.CacheHandler.Info)
+		admin.GET("/cache/keys", middleware.RequirePermission("admin:cache:read"), deps.CacheHandler.ScanKeys)
+		admin.GET("/cache/key", middleware.RequirePermission("admin:cache:read"), deps.CacheHandler.GetKey)
+		admin.DELETE("/cache/key", middleware.RequirePermission("admin:cache:delete"), deps.CacheHandler.DeleteKey)
+		admin.DELETE("/cache/keys", middleware.RequirePermission("admin:cache:delete"), deps.CacheHandler.DeleteByPattern)
 	}
 
 	// 用户管理 API (/api/users/*) - 需要认证

@@ -1,13 +1,16 @@
 ---
 paths:
   - "internal/infrastructure/cache/**/*.go"
+  - "internal/bootstrap/init_cache.go"
+  - "internal/domain/cache/**/*.go"
 ---
 
 # Cache Infrastructure 规范
 
-## 核心职责
-
 实现缓存服务接口，提供 Redis 缓存能力。**使用 RedisJSON 原生 JSON 类型存储**。
+
+> [!TIP]
+> 环境已预装 Redis，可直接使用 `redis-cli -u $REDIS_URL` 连接，无需配置。
 
 ## 存储类型
 

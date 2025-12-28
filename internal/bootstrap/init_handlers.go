@@ -2,6 +2,7 @@ package bootstrap
 
 import (
 	"github.com/lwmacct/251117-go-ddd-template/internal/adapters/http/handler"
+	appcache "github.com/lwmacct/251117-go-ddd-template/internal/application/cache"
 	"github.com/lwmacct/251117-go-ddd-template/internal/config"
 	"github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/health"
 )
@@ -128,6 +129,15 @@ func newHandlersModule(cfg *config.Config, infra *InfrastructureModule, useCases
 		useCases.TwoFA.VerifyEnable,
 		useCases.TwoFA.Disable,
 		useCases.TwoFA.GetStatus,
+	)
+
+	// Cache Handler（Redis 风格 API）
+	keyPrefix := cfg.Data.RedisKeyPrefix
+	m.Cache = handler.NewCacheHandler(
+		appcache.NewInfoHandler(infra.RedisClient, keyPrefix),
+		appcache.NewScanKeysHandler(infra.RedisClient, keyPrefix),
+		appcache.NewGetKeyHandler(infra.RedisClient, keyPrefix),
+		appcache.NewDeleteHandler(infra.RedisClient, keyPrefix),
 	)
 
 	return m

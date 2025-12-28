@@ -199,3 +199,23 @@ func (c *Client) Delete(path string) error {
 
 	return nil
 }
+
+// Delete 发送 DELETE 请求并解析响应（支持 query 参数）。
+func Delete[T any](c *Client, path string, queryParams map[string]string) (*T, error) {
+	var result response.DataResponse[T]
+
+	req := c.resty.R().SetResult(&result)
+	if queryParams != nil {
+		req.SetQueryParams(queryParams)
+	}
+
+	resp, err := req.Delete(path)
+	if err != nil {
+		return nil, fmt.Errorf("请求失败: %w", err)
+	}
+	if resp.IsError() {
+		return nil, fmt.Errorf("状态码 %d: %s", resp.StatusCode(), result.Message)
+	}
+
+	return &result.Data, nil
+}

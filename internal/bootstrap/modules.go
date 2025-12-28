@@ -95,6 +95,7 @@ type HandlersModule struct {
 	AuditLog    *handler.AuditLogHandler
 	Overview    *handler.OverviewHandler
 	TwoFA       *handler.TwoFAHandler
+	Cache       *handler.CacheHandler
 }
 
 // RouterModule 路由模块

@@ -216,6 +216,266 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/admin/cache/info": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "查看缓存状态信息（类似 redis-cli INFO）",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "管理员 - 缓存管理 (Admin - Cache)"
+                ],
+                "summary": "获取缓存信息",
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "$ref": "#/definitions/response.DataResponse-cache_CacheInfoDTO"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                },
+                "x-permission": {
+                    "scope": "admin:cache:read"
+                }
+            }
+        },
+        "/api/admin/cache/key": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "获取指定 key 的完整信息和值（类似 redis-cli GET/JSON.GET）",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "管理员 - 缓存管理 (Admin - Cache)"
+                ],
+                "summary": "获取缓存 Key 值",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Key 完整的 key 名称（含前缀）",
+                        "name": "key",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "$ref": "#/definitions/response.DataResponse-cache_CacheValueDTO"
+                        }
+                    },
+                    "400": {
+                        "description": "参数错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Key 不存在",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                },
+                "x-permission": {
+                    "scope": "admin:cache:read"
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "删除指定的单个 key（类似 redis-cli DEL）",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "管理员 - 缓存管理 (Admin - Cache)"
+                ],
+                "summary": "删除缓存 Key",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Key 完整的 key 名称（含前缀）",
+                        "name": "key",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "$ref": "#/definitions/response.DataResponse-cache_DeleteResultDTO"
+                        }
+                    },
+                    "400": {
+                        "description": "参数错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                },
+                "x-permission": {
+                    "scope": "admin:cache:delete"
+                }
+            }
+        },
+        "/api/admin/cache/keys": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "按 pattern 扫描缓存 keys（类似 redis-cli SCAN）",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "管理员 - 缓存管理 (Admin - Cache)"
+                ],
+                "summary": "扫描缓存 Keys",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Cursor 游标（用于分页），首次查询传 \"0\" 或留空",
+                        "name": "cursor",
+                        "in": "query"
+                    },
+                    {
+                        "maximum": 1000,
+                        "minimum": 1,
+                        "type": "integer",
+                        "description": "Limit 每次返回的最大数量",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Pattern 匹配模式（不含应用前缀，如 \"setting:*\"）",
+                        "name": "pattern",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "$ref": "#/definitions/response.DataResponse-cache_ScanKeysResultDTO"
+                        }
+                    },
+                    "400": {
+                        "description": "参数错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                },
+                "x-permission": {
+                    "scope": "admin:cache:read"
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "批量删除匹配 pattern 的所有 keys",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "管理员 - 缓存管理 (Admin - Cache)"
+                ],
+                "summary": "按 pattern 删除缓存",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Pattern 匹配模式（不含应用前缀，如 \"setting:*\"）",
+                        "name": "pattern",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "$ref": "#/definitions/response.DataResponse-cache_DeleteResultDTO"
+                        }
+                    },
+                    "400": {
+                        "description": "参数错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                },
+                "x-permission": {
+                    "scope": "admin:cache:delete"
+                }
+            }
+        },
         "/api/admin/menus": {
             "get": {
                 "security": [
@@ -4062,6 +4322,97 @@ const docTemplate = `{
                 }
             }
         },
+        "cache.CacheInfoDTO": {
+            "type": "object",
+            "properties": {
+                "db_size": {
+                    "description": "DBSize 当前 key 数量（仅计算应用前缀下的）",
+                    "type": "integer"
+                },
+                "key_prefix": {
+                    "description": "KeyPrefix 应用使用的 key 前缀",
+                    "type": "string"
+                },
+                "memory_usage": {
+                    "description": "MemoryUsage 内存使用量（如果可用）",
+                    "type": "string"
+                },
+                "redis_version": {
+                    "description": "RedisVersion Redis 版本",
+                    "type": "string"
+                }
+            }
+        },
+        "cache.CacheKeyDTO": {
+            "type": "object",
+            "properties": {
+                "key": {
+                    "description": "Key 完整 key 名称",
+                    "type": "string"
+                },
+                "ttl": {
+                    "description": "TTL 剩余过期时间（秒），-1 表示永不过期，-2 表示不存在",
+                    "type": "integer"
+                },
+                "type": {
+                    "description": "Type key 类型（string, ReJSON-RL, hash 等）",
+                    "type": "string"
+                }
+            }
+        },
+        "cache.CacheValueDTO": {
+            "type": "object",
+            "properties": {
+                "key": {
+                    "description": "Key 完整 key 名称",
+                    "type": "string"
+                },
+                "ttl": {
+                    "description": "TTL 剩余过期时间（秒），-1 表示永不过期，-2 表示不存在",
+                    "type": "integer"
+                },
+                "type": {
+                    "description": "Type key 类型（string, ReJSON-RL, hash 等）",
+                    "type": "string"
+                },
+                "value": {
+                    "description": "Value key 的值（JSON 格式）",
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                }
+            }
+        },
+        "cache.DeleteResultDTO": {
+            "type": "object",
+            "properties": {
+                "deleted_count": {
+                    "description": "DeletedCount 删除的 key 数量",
+                    "type": "integer"
+                }
+            }
+        },
+        "cache.ScanKeysResultDTO": {
+            "type": "object",
+            "properties": {
+                "cursor": {
+                    "description": "Cursor 下一个游标（用于分页），为 \"0\" 表示结束",
+                    "type": "string"
+                },
+                "keys": {
+                    "description": "Keys key 列表",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/cache.CacheKeyDTO"
+                    }
+                },
+                "total_scanned": {
+                    "description": "TotalScanned 本次扫描的 key 数量",
+                    "type": "integer"
+                }
+            }
+        },
         "captcha.GenerateResultDTO": {
             "type": "object",
             "properties": {
@@ -4719,6 +5070,102 @@ const docTemplate = `{
                     "allOf": [
                         {
                             "$ref": "#/definitions/auth.TokenDTO"
+                        }
+                    ]
+                },
+                "error": {
+                    "description": "错误详情（仅失败时）"
+                },
+                "message": {
+                    "description": "消息描述",
+                    "type": "string"
+                }
+            }
+        },
+        "response.DataResponse-cache_CacheInfoDTO": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "description": "HTTP 状态码",
+                    "type": "integer"
+                },
+                "data": {
+                    "description": "响应数据",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/cache.CacheInfoDTO"
+                        }
+                    ]
+                },
+                "error": {
+                    "description": "错误详情（仅失败时）"
+                },
+                "message": {
+                    "description": "消息描述",
+                    "type": "string"
+                }
+            }
+        },
+        "response.DataResponse-cache_CacheValueDTO": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "description": "HTTP 状态码",
+                    "type": "integer"
+                },
+                "data": {
+                    "description": "响应数据",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/cache.CacheValueDTO"
+                        }
+                    ]
+                },
+                "error": {
+                    "description": "错误详情（仅失败时）"
+                },
+                "message": {
+                    "description": "消息描述",
+                    "type": "string"
+                }
+            }
+        },
+        "response.DataResponse-cache_DeleteResultDTO": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "description": "HTTP 状态码",
+                    "type": "integer"
+                },
+                "data": {
+                    "description": "响应数据",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/cache.DeleteResultDTO"
+                        }
+                    ]
+                },
+                "error": {
+                    "description": "错误详情（仅失败时）"
+                },
+                "message": {
+                    "description": "消息描述",
+                    "type": "string"
+                }
+            }
+        },
+        "response.DataResponse-cache_ScanKeysResultDTO": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "description": "HTTP 状态码",
+                    "type": "integer"
+                },
+                "data": {
+                    "description": "响应数据",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/cache.ScanKeysResultDTO"
                         }
                     ]
                 },

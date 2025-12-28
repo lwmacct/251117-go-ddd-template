@@ -17,7 +17,7 @@ const settingTestPrefix = "test_setting_"
 
 // TestSettingsFlow 系统配置完整流程测试。
 //
-// 测试 CRUD 完整流程：创建 → 获取 → 更新 → 批量更新 → 删除
+// 测试 CRUD 完整流程：创建 → 获取 → 更新 → 验证 Schema 一致性
 //
 // 手动运行:
 //
@@ -31,77 +31,59 @@ func TestSettingsFlow(t *testing.T) {
 	createReq := map[string]any{
 		"key":           settingKey,
 		"default_value": "测试值",
-		"category_id":   1, // 使用 general 分类（ID=1）
+		"category_id":   1, // general 分类
 		"group":         "basic",
 		"value_type":    "string",
 		"label":         "测试配置",
-		"ui_config":     `{"input_type":"text"}`,
-		"order":         100,
 	}
-	t.Logf("  创建配置: %s", settingKey)
 
 	created, err := helper.Post[setting.SettingDTO](c, "/api/admin/settings", createReq)
 	require.NoError(t, err, "创建配置失败")
 	require.NotZero(t, created.ID, "创建的配置 ID 为 0")
-	assert.Equal(t, settingKey, created.Key, "Key 不匹配")
-	t.Logf("  创建成功! ID: %d, Key: %s", created.ID, created.Key)
+	assert.Equal(t, settingKey, created.Key)
+	t.Logf("  ✓ 创建成功: ID=%d, Key=%s", created.ID, created.Key)
 
-	// 确保清理
 	t.Cleanup(func() {
-		if deleteErr := c.Delete("/api/admin/settings/" + settingKey); deleteErr != nil {
-			t.Logf("清理配置失败: %v", deleteErr)
-		}
+		_ = c.Delete("/api/admin/settings/" + settingKey)
 	})
 
 	// 测试 2: 获取单个配置
 	t.Log("\n测试 2: 获取单个配置")
 	detail, err := helper.Get[setting.SettingDTO](c, "/api/admin/settings/"+settingKey, nil)
 	require.NoError(t, err, "获取配置失败")
-	assert.Equal(t, settingKey, detail.Key, "Key 不匹配")
-	assert.Equal(t, "测试配置", detail.Label, "Label 不匹配")
-	t.Logf("  Key: %s", detail.Key)
-	t.Logf("  Label: %s", detail.Label)
-	t.Logf("  CategoryID: %d", detail.CategoryID)
-	t.Logf("  DefaultValue: %v", detail.DefaultValue)
+	assert.Equal(t, settingKey, detail.Key)
+	assert.Equal(t, "测试配置", detail.Label)
+	t.Logf("  ✓ Key=%s, Label=%s, Value=%v", detail.Key, detail.Label, detail.DefaultValue)
 
 	// 测试 3: 更新配置
 	t.Log("\n测试 3: 更新配置")
 	updateReq := map[string]any{
 		"default_value": "更新后的值",
 		"label":         "更新后的标签",
-		"order":         200,
 	}
 	updated, err := helper.Put[setting.SettingDTO](c, "/api/admin/settings/"+settingKey, updateReq)
 	require.NoError(t, err, "更新配置失败")
-	assert.Equal(t, "更新后的标签", updated.Label, "Label 更新失败")
-	t.Logf("  更新成功!")
-	t.Logf("  新 Label: %s", updated.Label)
-	t.Logf("  新 DefaultValue: %v", updated.DefaultValue)
+	assert.Equal(t, "更新后的标签", updated.Label)
+	t.Logf("  ✓ 更新成功: Label=%s, Value=%v", updated.Label, updated.DefaultValue)
 
-	// 测试 4: 获取配置列表
-	t.Log("\n测试 4: 获取配置列表")
-	settings, err := helper.Get[[]setting.SettingDTO](c, "/api/admin/settings", nil)
-	require.NoError(t, err, "获取配置列表失败")
-	t.Logf("  配置总数: %d", len(*settings))
-	// 验证刚创建的配置在列表中
+	// 测试 4: 验证 Schema 包含新创建的配置（缓存一致性验证）
+	t.Log("\n测试 4: 验证 Schema 缓存一致性")
+	schema, err := helper.Get[[]setting.SchemaCategoryDTO](c, "/api/admin/settings", nil)
+	require.NoError(t, err, "获取 Schema 失败")
+
 	found := false
-	for _, s := range *settings {
-		if s.Key == settingKey {
-			found = true
-			break
+	for _, cat := range *schema {
+		for _, group := range cat.Groups {
+			for _, s := range group.Settings {
+				if s.Key == settingKey {
+					found = true
+					t.Logf("  ✓ 配置存在于 Schema: 分类=%s, 分组=%s", cat.Category, group.Group)
+					break
+				}
+			}
 		}
 	}
-	assert.True(t, found, "创建的配置不在列表中")
-	t.Log("  ✓ 创建的配置存在于列表中")
-
-	// 测试 5: 获取配置 Schema
-	t.Log("\n测试 5: 获取配置 Schema")
-	schema, err := helper.Get[[]setting.SchemaCategoryDTO](c, "/api/admin/settings/schema", nil)
-	require.NoError(t, err, "获取 Schema 失败")
-	t.Logf("  Schema 分类数: %d", len(*schema))
-	for _, cat := range *schema {
-		t.Logf("    - %s (%s): %d 分组", cat.Label, cat.Category, len(cat.Groups))
-	}
+	assert.True(t, found, "创建的配置不在 Schema 中（缓存不一致）")
 
 	t.Log("\n系统配置流程测试完成!")
 }
@@ -116,77 +98,60 @@ func TestSettingsFlow(t *testing.T) {
 func TestGetSettingsWithFilters(t *testing.T) {
 	c := helper.LoginAsAdmin(t)
 
+	// 注意：GET /api/admin/settings 返回 []SchemaCategoryDTO（层级结构）
+	// 使用 ?category=xxx 按分类 Key 筛选（不是 category_id）
 	cases := []struct {
 		name     string
 		query    map[string]string
-		validate func(t *testing.T, settings []setting.SettingDTO)
+		validate func(t *testing.T, schema []setting.SchemaCategoryDTO)
 	}{
 		{
 			name:  "获取所有配置",
 			query: nil,
-			validate: func(t *testing.T, settings []setting.SettingDTO) {
+			validate: func(t *testing.T, schema []setting.SchemaCategoryDTO) {
 				t.Helper()
-				assert.NotEmpty(t, settings, "配置列表为空")
-				t.Logf("配置总数: %d", len(settings))
-				for _, s := range settings {
-					t.Logf("  [%d] %s (%s): %v", s.ID, s.Key, s.ValueType, s.DefaultValue)
+				assert.NotEmpty(t, schema, "Schema 为空")
+				t.Logf("分类总数: %d", len(schema))
+				for _, cat := range schema {
+					settingCount := 0
+					for _, g := range cat.Groups {
+						settingCount += len(g.Settings)
+					}
+					t.Logf("  [%s] %s: %d 分组, %d 配置", cat.Category, cat.Label, len(cat.Groups), settingCount)
 				}
 			},
 		},
 		{
-			name:  "按 category_id=1 筛选（general）",
-			query: map[string]string{"category_id": "1"},
-			validate: func(t *testing.T, settings []setting.SettingDTO) {
+			name:  "按 category=general 筛选",
+			query: map[string]string{"category": "general"},
+			validate: func(t *testing.T, schema []setting.SchemaCategoryDTO) {
 				t.Helper()
-				for _, s := range settings {
-					assert.Equal(t, uint(1), s.CategoryID, "配置 %s 的 CategoryID 不是 1", s.Key)
+				require.Len(t, schema, 1, "应该只返回 1 个分类")
+				assert.Equal(t, "general", schema[0].Category, "分类 Key 不匹配")
+				t.Logf("general 分类: %d 分组", len(schema[0].Groups))
+				for _, g := range schema[0].Groups {
+					t.Logf("  - %s: %d 配置", g.Group, len(g.Settings))
 				}
-				t.Logf("category_id=1 配置数: %d", len(settings))
 			},
 		},
 		{
-			name:  "按 category_id=2 筛选（security）",
-			query: map[string]string{"category_id": "2"},
-			validate: func(t *testing.T, settings []setting.SettingDTO) {
+			name:  "按 category=security 筛选",
+			query: map[string]string{"category": "security"},
+			validate: func(t *testing.T, schema []setting.SchemaCategoryDTO) {
 				t.Helper()
-				for _, s := range settings {
-					assert.Equal(t, uint(2), s.CategoryID, "配置 %s 的 CategoryID 不是 2", s.Key)
-				}
-				t.Logf("category_id=2 配置数: %d", len(settings))
+				require.Len(t, schema, 1, "应该只返回 1 个分类")
+				assert.Equal(t, "security", schema[0].Category, "分类 Key 不匹配")
+				t.Logf("security 分类: %d 分组", len(schema[0].Groups))
 			},
 		},
 	}
 
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			settings, err := helper.Get[[]setting.SettingDTO](c, "/api/admin/settings", tc.query)
+			schema, err := helper.Get[[]setting.SchemaCategoryDTO](c, "/api/admin/settings", tc.query)
 			require.NoError(t, err, "获取配置失败")
-			tc.validate(t, *settings)
+			tc.validate(t, *schema)
 		})
-	}
-}
-
-// TestGetSettingsSchema 测试获取配置 Schema。
-//
-// 手动运行:
-//
-//	MANUAL=1 go test -v -run TestGetSettingsSchema ./internal/manualtest/
-func TestGetSettingsSchema(t *testing.T) {
-	c := helper.LoginAsAdmin(t)
-
-	t.Log("\n获取配置 Schema...")
-	schema, err := helper.Get[[]setting.SchemaCategoryDTO](c, "/api/admin/settings/schema", nil)
-	require.NoError(t, err, "获取 Schema 失败")
-
-	t.Logf("Schema 层级结构:")
-	for _, cat := range *schema {
-		t.Logf("  📁 %s (%s) [icon: %s]", cat.Label, cat.Category, cat.Icon)
-		for _, group := range cat.Groups {
-			t.Logf("    📂 %s (%s)", group.Label, group.Group)
-			for _, setting := range group.Settings {
-				t.Logf("      - %s (%s): %v", setting.Label, setting.Key, setting.Value)
-			}
-		}
 	}
 }
 
@@ -262,30 +227,18 @@ func TestBatchUpdateSettings(t *testing.T) {
 func TestDeleteSetting(t *testing.T) {
 	c := helper.LoginAsAdmin(t)
 
-	// 先创建一个测试配置
-	settingKey := fmt.Sprintf("%sdelete_%d", settingTestPrefix, time.Now().Unix())
-	t.Logf("\n准备: 创建测试配置 %s...", settingKey)
-	createReq := map[string]any{
-		"key":           settingKey,
-		"default_value": "待删除",
-		"category_id":   1, // 使用 general 分类（ID=1）
-		"group":         "delete",
-		"value_type":    "string",
-		"label":         "删除测试",
-	}
-	_, err := helper.Post[setting.SettingDTO](c, "/api/admin/settings", createReq)
-	require.NoError(t, err, "创建配置失败")
-	t.Log("  创建成功")
+	// 使用 helper 创建配置（带清理控制）
+	created, markDeleted := helper.CreateTestSettingWithCleanupControl(t, c, settingTestPrefix+"delete")
+	t.Logf("创建测试配置: %s", created.Key)
 
 	// 删除配置
-	t.Log("\n测试: 删除配置...")
-	err = c.Delete("/api/admin/settings/" + settingKey)
+	err := c.Delete("/api/admin/settings/" + created.Key)
 	require.NoError(t, err, "删除配置失败")
-	t.Log("  删除成功!")
+	markDeleted() // 标记已删除，阻止 Cleanup 重复删除
+	t.Log("  ✓ 删除成功")
 
 	// 验证删除
-	t.Log("\n验证: 确认配置已删除...")
-	_, err = helper.Get[setting.SettingDTO](c, "/api/admin/settings/"+settingKey, nil)
-	require.Error(t, err, "配置应该已被删除，但仍能获取")
-	t.Log("  ✓ 配置已成功删除")
+	_, err = helper.Get[setting.SettingDTO](c, "/api/admin/settings/"+created.Key, nil)
+	require.Error(t, err, "配置应该已被删除")
+	t.Log("  ✓ 配置已确认删除")
 }

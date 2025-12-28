@@ -3,6 +3,7 @@
 .openapi-generator-ignore
 api.ts
 api/admin-audit-log-api.ts
+api/admin-cache-api.ts
 api/admin-menu-management-api.ts
 api/admin-role-management-api.ts
 api/admin-setting-categories-api.ts
@@ -30,6 +31,11 @@ models/auth-register-dto.ts
 models/auth-register-result-dto.ts
 models/auth-token-dto.ts
 models/auth-user-brief-dto.ts
+models/cache-cache-info-dto.ts
+models/cache-cache-key-dto.ts
+models/cache-cache-value-dto.ts
+models/cache-delete-result-dto.ts
+models/cache-scan-keys-result-dto.ts
 models/captcha-generate-result-dto.ts
 models/github-com-lwmacct251117-go-ddd-template-internal-application-health-health-report.ts
 models/github-com-lwmacct251117-go-ddd-template-internal-domain-health-check-result.ts
@@ -61,6 +67,10 @@ models/response-data-response-auditlog-audit-log-dto.ts
 models/response-data-response-auth-login-response-dto.ts
 models/response-data-response-auth-register-result-dto.ts
 models/response-data-response-auth-token-dto.ts
+models/response-data-response-cache-cache-info-dto.ts
+models/response-data-response-cache-cache-value-dto.ts
+models/response-data-response-cache-delete-result-dto.ts
+models/response-data-response-cache-scan-keys-result-dto.ts
 models/response-data-response-captcha-generate-result-dto.ts
 models/response-data-response-github-com-lwmacct251117-go-ddd-template-internal-application-health-health-report.ts
 models/response-data-response-menu-menu-dto.ts

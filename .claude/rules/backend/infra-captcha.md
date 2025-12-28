@@ -5,8 +5,6 @@ paths:
 
 # Captcha Infrastructure 规范
 
-## 核心职责
-
 图形验证码生成和内存存储。
 
 ## 文件命名

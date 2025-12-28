@@ -143,6 +143,70 @@ definitions:
       username:
         type: string
     type: object
+  cache.CacheInfoDTO:
+    properties:
+      db_size:
+        description: DBSize 当前 key 数量（仅计算应用前缀下的）
+        type: integer
+      key_prefix:
+        description: KeyPrefix 应用使用的 key 前缀
+        type: string
+      memory_usage:
+        description: MemoryUsage 内存使用量（如果可用）
+        type: string
+      redis_version:
+        description: RedisVersion Redis 版本
+        type: string
+    type: object
+  cache.CacheKeyDTO:
+    properties:
+      key:
+        description: Key 完整 key 名称
+        type: string
+      ttl:
+        description: TTL 剩余过期时间（秒），-1 表示永不过期，-2 表示不存在
+        type: integer
+      type:
+        description: Type key 类型（string, ReJSON-RL, hash 等）
+        type: string
+    type: object
+  cache.CacheValueDTO:
+    properties:
+      key:
+        description: Key 完整 key 名称
+        type: string
+      ttl:
+        description: TTL 剩余过期时间（秒），-1 表示永不过期，-2 表示不存在
+        type: integer
+      type:
+        description: Type key 类型（string, ReJSON-RL, hash 等）
+        type: string
+      value:
+        description: Value key 的值（JSON 格式）
+        items:
+          type: integer
+        type: array
+    type: object
+  cache.DeleteResultDTO:
+    properties:
+      deleted_count:
+        description: DeletedCount 删除的 key 数量
+        type: integer
+    type: object
+  cache.ScanKeysResultDTO:
+    properties:
+      cursor:
+        description: Cursor 下一个游标（用于分页），为 "0" 表示结束
+        type: string
+      keys:
+        description: Keys key 列表
+        items:
+          $ref: '#/definitions/cache.CacheKeyDTO'
+        type: array
+      total_scanned:
+        description: TotalScanned 本次扫描的 key 数量
+        type: integer
+    type: object
   captcha.GenerateResultDTO:
     properties:
       code:
@@ -594,6 +658,66 @@ definitions:
       data:
         allOf:
         - $ref: '#/definitions/auth.TokenDTO'
+        description: 响应数据
+      error:
+        description: 错误详情（仅失败时）
+      message:
+        description: 消息描述
+        type: string
+    type: object
+  response.DataResponse-cache_CacheInfoDTO:
+    properties:
+      code:
+        description: HTTP 状态码
+        type: integer
+      data:
+        allOf:
+        - $ref: '#/definitions/cache.CacheInfoDTO'
+        description: 响应数据
+      error:
+        description: 错误详情（仅失败时）
+      message:
+        description: 消息描述
+        type: string
+    type: object
+  response.DataResponse-cache_CacheValueDTO:
+    properties:
+      code:
+        description: HTTP 状态码
+        type: integer
+      data:
+        allOf:
+        - $ref: '#/definitions/cache.CacheValueDTO'
+        description: 响应数据
+      error:
+        description: 错误详情（仅失败时）
+      message:
+        description: 消息描述
+        type: string
+    type: object
+  response.DataResponse-cache_DeleteResultDTO:
+    properties:
+      code:
+        description: HTTP 状态码
+        type: integer
+      data:
+        allOf:
+        - $ref: '#/definitions/cache.DeleteResultDTO'
+        description: 响应数据
+      error:
+        description: 错误详情（仅失败时）
+      message:
+        description: 消息描述
+        type: string
+    type: object
+  response.DataResponse-cache_ScanKeysResultDTO:
+    properties:
+      code:
+        description: HTTP 状态码
+        type: integer
+      data:
+        allOf:
+        - $ref: '#/definitions/cache.ScanKeysResultDTO'
         description: 响应数据
       error:
         description: 错误详情（仅失败时）
@@ -1614,6 +1738,172 @@ paths:
       - 管理员 - 审计日志 (Admin - Audit Log)
       x-permission:
         scope: admin:audit_logs:read
+  /api/admin/cache/info:
+    get:
+      consumes:
+      - application/json
+      description: 查看缓存状态信息（类似 redis-cli INFO）
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/response.DataResponse-cache_CacheInfoDTO'
+        "500":
+          description: 服务器错误
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 获取缓存信息
+      tags:
+      - 管理员 - 缓存管理 (Admin - Cache)
+      x-permission:
+        scope: admin:cache:read
+  /api/admin/cache/key:
+    delete:
+      consumes:
+      - application/json
+      description: 删除指定的单个 key（类似 redis-cli DEL）
+      parameters:
+      - description: Key 完整的 key 名称（含前缀）
+        in: query
+        name: key
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/response.DataResponse-cache_DeleteResultDTO'
+        "400":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: 服务器错误
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 删除缓存 Key
+      tags:
+      - 管理员 - 缓存管理 (Admin - Cache)
+      x-permission:
+        scope: admin:cache:delete
+    get:
+      consumes:
+      - application/json
+      description: 获取指定 key 的完整信息和值（类似 redis-cli GET/JSON.GET）
+      parameters:
+      - description: Key 完整的 key 名称（含前缀）
+        in: query
+        name: key
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/response.DataResponse-cache_CacheValueDTO'
+        "400":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Key 不存在
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: 服务器错误
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 获取缓存 Key 值
+      tags:
+      - 管理员 - 缓存管理 (Admin - Cache)
+      x-permission:
+        scope: admin:cache:read
+  /api/admin/cache/keys:
+    delete:
+      consumes:
+      - application/json
+      description: 批量删除匹配 pattern 的所有 keys
+      parameters:
+      - description: Pattern 匹配模式（不含应用前缀，如 "setting:*"）
+        in: query
+        name: pattern
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/response.DataResponse-cache_DeleteResultDTO'
+        "400":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: 服务器错误
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 按 pattern 删除缓存
+      tags:
+      - 管理员 - 缓存管理 (Admin - Cache)
+      x-permission:
+        scope: admin:cache:delete
+    get:
+      consumes:
+      - application/json
+      description: 按 pattern 扫描缓存 keys（类似 redis-cli SCAN）
+      parameters:
+      - description: Cursor 游标（用于分页），首次查询传 "0" 或留空
+        in: query
+        name: cursor
+        type: string
+      - description: Limit 每次返回的最大数量
+        in: query
+        maximum: 1000
+        minimum: 1
+        name: limit
+        type: integer
+      - description: Pattern 匹配模式（不含应用前缀，如 "setting:*"）
+        in: query
+        name: pattern
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/response.DataResponse-cache_ScanKeysResultDTO'
+        "400":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: 服务器错误
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 扫描缓存 Keys
+      tags:
+      - 管理员 - 缓存管理 (Admin - Cache)
+      x-permission:
+        scope: admin:cache:read
   /api/admin/menus:
     get:
       consumes:

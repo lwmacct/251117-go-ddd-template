@@ -3,6 +3,7 @@ package setting
 import (
 	"context"
 	"fmt"
+	"log/slog"
 
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/setting"
 )
@@ -12,6 +13,7 @@ type BatchUpdateHandler struct {
 	commandRepo setting.CommandRepository
 	queryRepo   setting.QueryRepository
 	validator   setting.Validator
+	schemaCache SchemaCacheService
 }
 
 // NewBatchUpdateHandler 创建 BatchUpdateHandler 实例
@@ -19,11 +21,13 @@ func NewBatchUpdateHandler(
 	commandRepo setting.CommandRepository,
 	queryRepo setting.QueryRepository,
 	validator setting.Validator,
+	schemaCache SchemaCacheService,
 ) *BatchUpdateHandler {
 	return &BatchUpdateHandler{
 		commandRepo: commandRepo,
 		queryRepo:   queryRepo,
 		validator:   validator,
+		schemaCache: schemaCache,
 	}
 }
 
@@ -72,6 +76,13 @@ func (h *BatchUpdateHandler) Handle(ctx context.Context, cmd BatchUpdateCommand)
 	// 6. 批量更新
 	if err := h.commandRepo.BatchUpsert(ctx, settings); err != nil {
 		return fmt.Errorf("failed to batch update settings: %w", err)
+	}
+
+	// 7. 失效 Schema 缓存
+	if h.schemaCache != nil {
+		if err := h.schemaCache.DeleteAdminSchemaAll(ctx); err != nil {
+			slog.Warn("admin schema cache invalidation failed after batch update", "err", err)
+		}
 	}
 
 	return nil

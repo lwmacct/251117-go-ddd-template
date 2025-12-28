@@ -5,8 +5,6 @@ paths:
 
 # TwoFA Infrastructure 规范
 
-## 核心职责
-
 基于 TOTP (RFC 6238) 的双因素认证。
 
 ## 文件命名

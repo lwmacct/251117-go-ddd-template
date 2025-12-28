@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log/slog"
 
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/setting"
 )
@@ -14,6 +15,7 @@ type UpdateHandler struct {
 	commandRepo setting.CommandRepository
 	queryRepo   setting.QueryRepository
 	validator   setting.Validator
+	schemaCache SchemaCacheService
 }
 
 // NewUpdateHandler 创建 UpdateHandler 实例
@@ -21,11 +23,13 @@ func NewUpdateHandler(
 	commandRepo setting.CommandRepository,
 	queryRepo setting.QueryRepository,
 	validator setting.Validator,
+	schemaCache SchemaCacheService,
 ) *UpdateHandler {
 	return &UpdateHandler{
 		commandRepo: commandRepo,
 		queryRepo:   queryRepo,
 		validator:   validator,
+		schemaCache: schemaCache,
 	}
 }
 
@@ -77,6 +81,13 @@ func (h *UpdateHandler) Handle(ctx context.Context, cmd UpdateCommand) (*Setting
 	// 4. 保存更新
 	if err := h.commandRepo.Update(ctx, def); err != nil {
 		return nil, fmt.Errorf("failed to update setting: %w", err)
+	}
+
+	// 5. 失效 Schema 缓存
+	if h.schemaCache != nil {
+		if err := h.schemaCache.DeleteAdminSchemaAll(ctx); err != nil {
+			slog.Warn("admin schema cache invalidation failed", "key", cmd.Key, "err", err)
+		}
 	}
 
 	return ToSettingDTO(def), nil

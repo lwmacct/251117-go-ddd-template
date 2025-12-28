@@ -96,10 +96,10 @@ func newSettingUseCases(repos *RepositoriesModule, cacheServices *CacheServicesM
 
 	return &SettingUseCases{
 		// Setting handlers
-		Create:      setting.NewCreateHandler(repos.Setting.Command, repos.Setting.Query),
-		Update:      setting.NewUpdateHandler(repos.Setting.Command, repos.Setting.Query, validator),
-		Delete:      setting.NewDeleteHandler(repos.Setting.Command, repos.Setting.Query),
-		BatchUpdate: setting.NewBatchUpdateHandler(repos.Setting.Command, repos.Setting.Query, validator),
+		Create:      setting.NewCreateHandler(repos.Setting.Command, repos.Setting.Query, cacheServices.Schema),
+		Update:      setting.NewUpdateHandler(repos.Setting.Command, repos.Setting.Query, validator, cacheServices.Schema),
+		Delete:      setting.NewDeleteHandler(repos.Setting.Command, repos.Setting.Query, cacheServices.Schema),
+		BatchUpdate: setting.NewBatchUpdateHandler(repos.Setting.Command, repos.Setting.Query, validator, cacheServices.Schema),
 		Get:         setting.NewGetHandler(repos.Setting.Query),
 		List:        setting.NewListHandler(repos.Setting.Query),
 		ListSchema:  setting.NewListSchemaHandler(repos.Setting.Query, repos.Setting.CategoryQuery, cacheServices.Schema),

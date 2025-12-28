@@ -5,8 +5,6 @@ paths:
 
 # Auth Infrastructure 规范
 
-## 核心职责
-
 实现认证相关技术细节（JWT、密码哈希、会话管理）。
 
 ## 文件命名

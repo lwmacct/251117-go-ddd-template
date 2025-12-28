@@ -5,8 +5,6 @@ paths:
 
 # Stats Infrastructure 规范
 
-## 核心职责
-
 跨域聚合查询（只读）。
 
 ## 文件命名

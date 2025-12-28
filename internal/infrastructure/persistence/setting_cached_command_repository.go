@@ -50,24 +50,39 @@ func NewCachedSettingCommandRepositoryWithUserCache(
 }
 
 // Create 创建配置定义。
-// 创建新记录无需失效缓存（新 key 不在缓存中）。
+//
+// 创建成功后同步写入缓存，确保预热后新增的数据也在缓存中。
+// 这保证了 FindAll 等依赖全量缓存的查询能返回完整结果。
 func (r *cachedSettingCommandRepository) Create(ctx context.Context, s *setting.Setting) error {
-	return r.delegate.Create(ctx, s)
+	if err := r.delegate.Create(ctx, s); err != nil {
+		return err
+	}
+
+	// 同步写入缓存，保持缓存一致性
+	if err := r.systemCache.Set(ctx, s); err != nil {
+		slog.Warn("cache set failed after create", "key", s.Key, "err", err)
+		// 缓存失败不阻塞业务
+	}
+
+	return nil
 }
 
 // Update 更新配置定义。
-// 更新后失效系统缓存和所有用户的对应缓存。
+//
+// 更新成功后同步更新系统缓存，并异步失效用户缓存。
+// 系统缓存使用 Set 更新（保持缓存完整性），用户缓存使用 Delete 失效。
 func (r *cachedSettingCommandRepository) Update(ctx context.Context, s *setting.Setting) error {
 	if err := r.delegate.Update(ctx, s); err != nil {
 		return err
 	}
 
-	// 1. 同步失效系统缓存
-	if err := r.systemCache.Delete(ctx, s.Key); err != nil {
-		slog.Warn("system cache delete failed after update", "key", s.Key, "err", err)
+	// 1. 同步更新系统缓存（保持缓存完整性）
+	if err := r.systemCache.Set(ctx, s); err != nil {
+		slog.Warn("system cache set failed after update", "key", s.Key, "err", err)
 	}
 
 	// 2. 异步失效所有用户的该 key 缓存（仅对 user scope 设置）
+	// 用户缓存包含合并后的值，需要重新计算，所以删除而不是更新
 	// 使用独立 context 确保失效操作不受调用方 context 取消影响
 	if s.IsUserScope() && r.userSettingCache != nil {
 		go func(key string) { //nolint:contextcheck // 故意使用独立 context

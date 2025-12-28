@@ -5,8 +5,6 @@ paths:
 
 # Queue Infrastructure 规范
 
-## 核心职责
-
 基于 Redis 的异步任务队列（生产者-消费者模式）。
 
 ## 文件命名

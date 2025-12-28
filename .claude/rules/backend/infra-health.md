@@ -5,8 +5,6 @@ paths:
 
 # Health Infrastructure 规范
 
-## 核心职责
-
 系统健康检查。
 
 ## 文件命名

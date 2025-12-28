@@ -6,8 +6,6 @@ paths:
 
 # Database Infrastructure 规范
 
-## 核心职责
-
 管理数据库连接、迁移和种子数据。
 
 ## 开发环境
