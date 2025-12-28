@@ -11,20 +11,25 @@ import (
 // cachedUserSettingCommandRepository 带缓存失效的 UserSetting 命令仓储装饰器。
 //
 // 装饰 [setting.UserSettingCommandRepository]，在写操作后自动失效相关缓存。
-// 不负责缓存填充（缓存填充在 Application 层完成，因为需要合并 Setting + UserSetting）。
+// 同时失效两层缓存：
+//   - UserSettingQueryCacheService: 存储原始 UserSetting（Repository 层使用）
+//   - UserSettingCacheService: 存储合并后的 EffectiveUserSetting（Application 层使用）
 type cachedUserSettingCommandRepository struct {
-	delegate         setting.UserSettingCommandRepository
-	userSettingCache cache.UserSettingCacheService
+	delegate       setting.UserSettingCommandRepository
+	queryCache     cache.UserSettingQueryCacheService // Repository 层缓存
+	effectiveCache cache.UserSettingCacheService      // Application 层缓存
 }
 
 // NewCachedUserSettingCommandRepository 创建带缓存失效的 UserSetting 命令仓储。
 func NewCachedUserSettingCommandRepository(
 	delegate setting.UserSettingCommandRepository,
-	userSettingCache cache.UserSettingCacheService,
+	queryCache cache.UserSettingQueryCacheService,
+	effectiveCache cache.UserSettingCacheService,
 ) setting.UserSettingCommandRepository {
 	return &cachedUserSettingCommandRepository{
-		delegate:         delegate,
-		userSettingCache: userSettingCache,
+		delegate:       delegate,
+		queryCache:     queryCache,
+		effectiveCache: effectiveCache,
 	}
 }
 
@@ -34,10 +39,16 @@ func (r *cachedUserSettingCommandRepository) Upsert(ctx context.Context, us *set
 		return err
 	}
 
-	// 失效该用户的该 key 缓存
-	if err := r.userSettingCache.Delete(ctx, us.UserID, us.SettingKey); err != nil {
-		slog.Warn("failed to invalidate user setting cache after upsert",
+	// 失效 Application 层缓存（EffectiveUserSetting）
+	if err := r.effectiveCache.Delete(ctx, us.UserID, us.SettingKey); err != nil {
+		slog.Warn("failed to invalidate effective user setting cache after upsert",
 			"userID", us.UserID, "key", us.SettingKey, "err", err)
+	}
+
+	// 失效 Repository 层查询缓存（原始 UserSetting）
+	if err := r.queryCache.DeleteByUser(ctx, us.UserID); err != nil {
+		slog.Warn("failed to invalidate user setting query cache after upsert",
+			"userID", us.UserID, "err", err)
 	}
 
 	return nil
@@ -49,10 +60,16 @@ func (r *cachedUserSettingCommandRepository) Delete(ctx context.Context, userID 
 		return err
 	}
 
-	// 失效该用户的该 key 缓存
-	if err := r.userSettingCache.Delete(ctx, userID, key); err != nil {
-		slog.Warn("failed to invalidate user setting cache after delete",
+	// 失效 Application 层缓存
+	if err := r.effectiveCache.Delete(ctx, userID, key); err != nil {
+		slog.Warn("failed to invalidate effective user setting cache after delete",
 			"userID", userID, "key", key, "err", err)
+	}
+
+	// 失效 Repository 层查询缓存
+	if err := r.queryCache.DeleteByUser(ctx, userID); err != nil {
+		slog.Warn("failed to invalidate user setting query cache after delete",
+			"userID", userID, "err", err)
 	}
 
 	return nil
@@ -64,9 +81,15 @@ func (r *cachedUserSettingCommandRepository) DeleteByUser(ctx context.Context, u
 		return err
 	}
 
-	// 失效该用户的所有缓存
-	if err := r.userSettingCache.DeleteByUser(ctx, userID); err != nil {
-		slog.Warn("failed to invalidate all user setting cache after delete by user",
+	// 失效 Application 层缓存
+	if err := r.effectiveCache.DeleteByUser(ctx, userID); err != nil {
+		slog.Warn("failed to invalidate all effective user setting cache after delete by user",
+			"userID", userID, "err", err)
+	}
+
+	// 失效 Repository 层查询缓存
+	if err := r.queryCache.DeleteByUser(ctx, userID); err != nil {
+		slog.Warn("failed to invalidate user setting query cache after delete by user",
 			"userID", userID, "err", err)
 	}
 
@@ -87,10 +110,16 @@ func (r *cachedUserSettingCommandRepository) BatchUpsert(ctx context.Context, se
 			keys = append(keys, s.SettingKey)
 		}
 
-		// 批量失效缓存
-		if err := r.userSettingCache.DeleteByKeys(ctx, userID, keys); err != nil {
-			slog.Warn("failed to invalidate user setting cache after batch upsert",
+		// 失效 Application 层缓存
+		if err := r.effectiveCache.DeleteByKeys(ctx, userID, keys); err != nil {
+			slog.Warn("failed to invalidate effective user setting cache after batch upsert",
 				"userID", userID, "count", len(keys), "err", err)
+		}
+
+		// 失效 Repository 层查询缓存
+		if err := r.queryCache.DeleteByUser(ctx, userID); err != nil {
+			slog.Warn("failed to invalidate user setting query cache after batch upsert",
+				"userID", userID, "err", err)
 		}
 	}
 

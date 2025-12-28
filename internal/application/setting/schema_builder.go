@@ -9,17 +9,21 @@ import (
 // SchemaBuilder 构建 Category → Group → Settings 层级结构
 // 用于 ListSchemaHandler 和 UserListSchemaHandler 共享构建逻辑
 type SchemaBuilder struct {
-	categoryByID map[uint]*setting.SettingCategory
+	categoryByID  map[uint]*setting.SettingCategory
+	categoryByKey map[string]*setting.SettingCategory // 按 Key 索引，用于 O(1) 排序
 }
 
 // NewSchemaBuilder 创建 Schema 构建器
 func NewSchemaBuilder(categories []*setting.SettingCategory) *SchemaBuilder {
 	categoryByID := make(map[uint]*setting.SettingCategory, len(categories))
+	categoryByKey := make(map[string]*setting.SettingCategory, len(categories))
 	for _, cat := range categories {
 		categoryByID[cat.ID] = cat
+		categoryByKey[cat.Key] = cat
 	}
 	return &SchemaBuilder{
-		categoryByID: categoryByID,
+		categoryByID:  categoryByID,
+		categoryByKey: categoryByKey,
 	}
 }
 
@@ -102,10 +106,10 @@ func (b *SchemaBuilder) Build(
 		})
 	}
 
-	// 按 Category Order 排序
+	// 按 Category Order 排序（使用 categoryByKey 实现 O(1) 查找）
 	sort.Slice(result, func(i, j int) bool {
-		catI := b.categoryByID[b.getCategoryIDByKey(result[i].Category)]
-		catJ := b.categoryByID[b.getCategoryIDByKey(result[j].Category)]
+		catI := b.categoryByKey[result[i].Category]
+		catJ := b.categoryByKey[result[j].Category]
 		if catI == nil || catJ == nil {
 			return result[i].Category < result[j].Category
 		}
@@ -113,16 +117,6 @@ func (b *SchemaBuilder) Build(
 	})
 
 	return result
-}
-
-// getCategoryIDByKey 根据 key 查找 CategoryID（用于排序）
-func (b *SchemaBuilder) getCategoryIDByKey(key string) uint {
-	for id, cat := range b.categoryByID {
-		if cat.Key == key {
-			return id
-		}
-	}
-	return 0
 }
 
 // GetGroupLabel 获取分组显示名称

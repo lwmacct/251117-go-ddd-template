@@ -10,8 +10,9 @@ import (
 // 依赖：Redis 客户端和 key 前缀
 func newCacheServicesModule(redisClient *goredis.Client, keyPrefix string) *CacheServicesModule {
 	return &CacheServicesModule{
-		Setting:     infraredis.NewSettingCacheService(redisClient, keyPrefix),
-		UserSetting: infraredis.NewUserSettingCacheService(redisClient, keyPrefix),
-		Permission:  infraredis.NewPermissionCacheService(redisClient, keyPrefix),
+		Setting:          infraredis.NewSettingCacheService(redisClient, keyPrefix),
+		UserSettingQuery: infraredis.NewUserSettingQueryCacheService(redisClient, keyPrefix),
+		UserSetting:      infraredis.NewUserSettingCacheService(redisClient, keyPrefix),
+		Permission:       infraredis.NewPermissionCacheService(redisClient, keyPrefix),
 	}
 }

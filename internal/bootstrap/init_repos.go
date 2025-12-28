@@ -17,7 +17,7 @@ func newRepositoriesModule(db *gorm.DB, cacheServices *CacheServicesModule) *Rep
 	// Setting 仓储（带缓存装饰器）
 	settingRepos := newSettingRepositoriesWithCache(db, cacheServices)
 
-	// UserSetting 仓储（带缓存失效装饰器）
+	// UserSetting 仓储（带缓存装饰器）
 	userSettingRepos := newUserSettingRepositoriesWithCache(db, cacheServices)
 
 	return &RepositoriesModule{
@@ -63,19 +63,26 @@ func newSettingRepositoriesWithCache(db *gorm.DB, cacheServices *CacheServicesMo
 	}
 }
 
-// newUserSettingRepositoriesWithCache 创建带缓存失效的 UserSetting 仓储
+// newUserSettingRepositoriesWithCache 创建带缓存的 UserSetting 仓储
 func newUserSettingRepositoriesWithCache(db *gorm.DB, cacheServices *CacheServicesModule) persistence.UserSettingRepositories {
 	// 原始仓储
 	rawRepos := persistence.NewUserSettingRepositories(db)
 
-	// 用装饰器包装 Command 仓储（UserSettingQuery 不需要缓存装饰器，缓存填充在 Application 层）
+	// 用装饰器包装 Query 仓储（读操作时填充缓存）
+	cachedQuery := persistence.NewCachedUserSettingQueryRepository(
+		rawRepos.Query,
+		cacheServices.UserSettingQuery,
+	)
+
+	// 用装饰器包装 Command 仓储（写操作时失效双层缓存）
 	cachedCommand := persistence.NewCachedUserSettingCommandRepository(
 		rawRepos.Command,
+		cacheServices.UserSettingQuery,
 		cacheServices.UserSetting,
 	)
 
 	return persistence.UserSettingRepositories{
 		Command: cachedCommand,
-		Query:   rawRepos.Query, // Query 保持原始仓储
+		Query:   cachedQuery,
 	}
 }
