@@ -289,6 +289,7 @@ export function useSettings() {
     settingsMap,
     loadedCategories,
     loading,
+    schemaLoading,
     saving,
     errorMessage,
     successMessage,

@@ -6,7 +6,7 @@
 
 interface Props {
   /** 骨架类型 */
-  type?: "text" | "avatar" | "button" | "card" | "table" | "list" | "custom";
+  type?: "text" | "avatar" | "button" | "card" | "table" | "list" | "form" | "custom";
   /** 是否加载中 */
   loading?: boolean;
   /** 行数（用于 text、list 类型） */
@@ -90,6 +90,32 @@ withDefaults(defineProps<Props>(), {
         </div>
         <v-skeleton-loader type="button" style="width: 80px" />
       </div>
+    </template>
+
+    <!-- 表单字段骨架（优化版） -->
+    <template v-else-if="type === 'form'">
+      <!-- 模拟分组标题 -->
+      <v-skeleton-loader type="heading" class="mb-4" style="max-width: 200px" />
+
+      <!-- 模拟两列表单布局 -->
+      <v-row v-for="row in Math.ceil(lines / 2)" :key="row">
+        <v-col v-for="col in 2" :key="col" cols="12" md="6">
+          <v-skeleton-loader v-if="(row - 1) * 2 + col <= lines" type="list-item-two-line" class="mb-2" />
+        </v-col>
+      </v-row>
+
+      <!-- 第二个分组（如果行数足够） -->
+      <template v-if="lines > 2">
+        <v-skeleton-loader type="heading" class="mb-4 mt-6" style="max-width: 180px" />
+        <v-row>
+          <v-col cols="12" md="6">
+            <v-skeleton-loader type="list-item-two-line" class="mb-2" />
+          </v-col>
+          <v-col cols="12" md="6">
+            <v-skeleton-loader type="list-item-two-line" class="mb-2" />
+          </v-col>
+        </v-row>
+      </template>
     </template>
 
     <!-- 自定义骨架 -->

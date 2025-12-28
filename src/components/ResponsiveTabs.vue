@@ -15,6 +15,11 @@
     <template #tab1>内容 1</template>
     <template #tab2>内容 2</template>
   </ResponsiveTabs>
+
+  注意：v-tabs-window-item 使用 fade-transition 替代默认滑动过渡
+  - 原因：Vuetify 3 的 v-window 组件在切换时会闪烁（新旧内容短暂同时显示）
+  - 使用淡入淡出可以掩盖这个视觉问题
+  - 参考：https://github.com/vuetifyjs/vuetify/issues/19682
 -->
 <script setup lang="ts">
 import type { TabItem } from "@/composables/useResponsiveTabs";
@@ -64,7 +69,13 @@ const emit = defineEmits<{
     <v-divider vertical />
     <v-col>
       <v-tabs-window :model-value="modelValue" class="pa-4">
-        <v-tabs-window-item v-for="tab in tabs" :key="tab.value" :value="tab.value">
+        <v-tabs-window-item
+          v-for="tab in tabs"
+          :key="tab.value"
+          :value="tab.value"
+          transition="fade-transition"
+          reverse-transition="fade-transition"
+        >
           <slot :name="tab.value" :tab="tab" />
         </v-tabs-window-item>
       </v-tabs-window>
@@ -84,7 +95,13 @@ const emit = defineEmits<{
       </v-tab>
     </v-tabs>
     <v-tabs-window :model-value="modelValue" class="pa-4">
-      <v-tabs-window-item v-for="tab in tabs" :key="tab.value" :value="tab.value">
+      <v-tabs-window-item
+        v-for="tab in tabs"
+        :key="tab.value"
+        :value="tab.value"
+        transition="fade-transition"
+        reverse-transition="fade-transition"
+      >
         <slot :name="tab.value" :tab="tab" />
       </v-tabs-window-item>
     </v-tabs-window>

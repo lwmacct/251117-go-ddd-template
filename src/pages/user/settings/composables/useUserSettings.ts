@@ -29,7 +29,7 @@ export function useUserSettings() {
   const {
     schema,
     loadedCategories,
-    loading: schemaLoading, // eslint-disable-line @typescript-eslint/no-unused-vars
+    loading: schemaLoading,
     fetchSchemaByCategory,
     isCategoryLoaded,
     reset: resetSchema,
@@ -227,6 +227,7 @@ export function useUserSettings() {
     settingsMap,
     loadedCategories,
     loading,
+    schemaLoading,
     saving,
     errorMessage,
     successMessage,

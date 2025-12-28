@@ -14,11 +14,13 @@ import { ref, computed, onMounted, watch } from "vue";
 import jsonLogic from "json-logic-js";
 import { useResponsiveTabs, type TabItem } from "@/composables";
 import ResponsiveTabs from "@/components/ResponsiveTabs.vue";
+import SkeletonLoader from "@/components/SkeletonLoader.vue";
 import { useUserSettings } from "./composables/useUserSettings";
 import UserSettingField from "./components/UserSettingField.vue";
 
 const {
   loading,
+  schemaLoading,
   categories,
   schema,
   settingsMap,
@@ -311,46 +313,52 @@ onMounted(async () => {
         <v-card>
           <ResponsiveTabs :model-value="currentTab" :tabs="tabs" :vertical="isVertical" @update:model-value="handleTabChange">
             <template v-for="tab in tabs" :key="tab.value" #[tab.value]>
-              <!-- 按 Group 渲染 -->
-              <template v-for="group in getGroupsByCategory(tab.value)" :key="group.group">
-                <!-- 分组标题 -->
-                <div v-if="group.label" class="text-subtitle-1 font-weight-medium mb-3 mt-4">
-                  {{ group.label }}
-                </div>
+              <!-- Tab 内容加载骨架屏 -->
+              <SkeletonLoader v-if="!isCategoryLoaded(tab.value) && schemaLoading" type="form" :lines="4" />
 
-                <v-row>
-                  <v-col
-                    v-for="setting in group.settings"
-                    :key="setting.key"
-                    cols="12"
-                    :md="setting.ui_config?.input_type === 'switch' ? 12 : 6"
-                  >
-                    <UserSettingField
-                      v-if="setting.key"
-                      v-model="formValues[setting.key]"
-                      :setting="setting"
-                      :disabled="savingKeys.has(setting.key) || isDisabled(setting.key)"
-                      :resetting="resettingKey === setting.key"
-                      :error-messages="getFieldErrors(setting.key)"
-                      :hint="getFieldHint(setting.key)"
-                      @change="handleFieldChange(setting.key!, $event)"
-                      @blur="handleFieldBlur(setting.key!)"
-                      @reset="handleReset(setting.key!)"
-                    />
-                  </v-col>
-                </v-row>
+              <!-- 正常内容 -->
+              <template v-else>
+                <!-- 按 Group 渲染 -->
+                <template v-for="group in getGroupsByCategory(tab.value)" :key="group.group">
+                  <!-- 分组标题 -->
+                  <div v-if="group.label" class="text-subtitle-1 font-weight-medium mb-3 mt-4">
+                    {{ group.label }}
+                  </div>
+
+                  <v-row>
+                    <v-col
+                      v-for="setting in group.settings"
+                      :key="setting.key"
+                      cols="12"
+                      :md="setting.ui_config?.input_type === 'switch' ? 12 : 6"
+                    >
+                      <UserSettingField
+                        v-if="setting.key"
+                        v-model="formValues[setting.key]"
+                        :setting="setting"
+                        :disabled="savingKeys.has(setting.key) || isDisabled(setting.key)"
+                        :resetting="resettingKey === setting.key"
+                        :error-messages="getFieldErrors(setting.key)"
+                        :hint="getFieldHint(setting.key)"
+                        @change="handleFieldChange(setting.key!, $event)"
+                        @blur="handleFieldBlur(setting.key!)"
+                        @reset="handleReset(setting.key!)"
+                      />
+                    </v-col>
+                  </v-row>
+                </template>
+
+                <!-- 空分组提示（仅在分类加载完成后显示） -->
+                <v-alert
+                  v-if="isCategoryLoaded(tab.value) && getGroupsByCategory(tab.value).length === 0"
+                  type="info"
+                  variant="tonal"
+                  class="mt-4"
+                >
+                  <v-icon start>mdi-information</v-icon>
+                  该分类下暂无配置项
+                </v-alert>
               </template>
-
-              <!-- 空分组提示（仅在分类加载完成后显示） -->
-              <v-alert
-                v-if="isCategoryLoaded(tab.value) && getGroupsByCategory(tab.value).length === 0"
-                type="info"
-                variant="tonal"
-                class="mt-4"
-              >
-                <v-icon start>mdi-information</v-icon>
-                该分类下暂无配置项
-              </v-alert>
             </template>
           </ResponsiveTabs>
         </v-card>
