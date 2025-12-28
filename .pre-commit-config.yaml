@@ -18,11 +18,11 @@ repos:
 
       - id: registry-consistency
         name: Check API registry and handler consistency
-        entry: go test ./internal/adapters/http/registry/...
+        entry: go test ./internal/precommit/...
         language: system
         pass_filenames: false
         stages: [pre-commit]
-        files: ^internal/adapters/http/(router\.go|handler/.*\.go|registry/.*\.go)$
+        files: ^internal/(adapters/http/(router\.go|handler/.*\.go|registry/.*\.go)|precommit/.*\.go)$
 
       - id: swagger-generate
         name: Generate Swagger/OpenAPI docs

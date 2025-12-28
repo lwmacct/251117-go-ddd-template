@@ -1,4 +1,4 @@
-package registry_test
+package precommit_test
 
 import (
 	"os"
@@ -32,7 +32,7 @@ func extractPermission(line string, permRe *regexp.Regexp, permConstants map[str
 func parseRouterRoutes(t *testing.T) []routerRoute {
 	t.Helper()
 
-	routerFile := "../router.go"
+	routerFile := "../adapters/http/router.go"
 	content, err := os.ReadFile(routerFile)
 	require.NoError(t, err, "failed to read router.go")
 
@@ -99,7 +99,7 @@ func parseRouterRoutes(t *testing.T) []routerRoute {
 func loadPermissionConstants(t *testing.T) map[string]string {
 	t.Helper()
 
-	constFile := "../../../domain/permission/constants.go"
+	constFile := "../domain/permission/constants.go"
 	content, err := os.ReadFile(constFile)
 	require.NoError(t, err, "failed to read permission constants")
 

@@ -1,4 +1,4 @@
-package registry_test
+package precommit_test
 
 import (
 	"bufio"
@@ -31,7 +31,7 @@ type handlerAnnotation struct {
 func parseHandlerAnnotations(t *testing.T) []handlerAnnotation {
 	t.Helper()
 
-	handlerDir := "../handler"
+	handlerDir := "../adapters/http/handler"
 	var annotations []handlerAnnotation
 
 	// 正则匹配

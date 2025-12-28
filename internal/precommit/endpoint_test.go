@@ -1,4 +1,4 @@
-package registry_test
+package precommit_test
 
 import (
 	"strings"
