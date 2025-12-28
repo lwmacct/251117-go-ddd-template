@@ -55,9 +55,11 @@ func (h *UserListSchemaHandler) Handle(ctx context.Context, query UserListSchema
 		return nil, err
 	}
 
-	// 3. 同步回写缓存
-	if err := h.schemaCache.SetUserSchema(ctx, query.UserID, query.CategoryKey, result); err != nil {
-		slog.Warn("failed to cache user schema", "userID", query.UserID, "categoryKey", query.CategoryKey, "err", err)
+	// 3. 同步回写缓存（仅非空结果，避免缓存无效数据）
+	if len(result) > 0 {
+		if err := h.schemaCache.SetUserSchema(ctx, query.UserID, query.CategoryKey, result); err != nil {
+			slog.Warn("failed to cache user schema", "userID", query.UserID, "categoryKey", query.CategoryKey, "err", err)
+		}
 	}
 
 	return result, nil

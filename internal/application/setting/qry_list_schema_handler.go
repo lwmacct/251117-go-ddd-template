@@ -50,9 +50,11 @@ func (h *ListSchemaHandler) Handle(ctx context.Context, query ListSchemaQuery) (
 		return nil, err
 	}
 
-	// 3. 同步回写缓存
-	if err := h.schemaCache.SetAdminSchema(ctx, query.CategoryKey, result); err != nil {
-		slog.Warn("failed to cache admin schema", "categoryKey", query.CategoryKey, "err", err)
+	// 3. 同步回写缓存（仅非空结果，避免缓存无效数据）
+	if len(result) > 0 {
+		if err := h.schemaCache.SetAdminSchema(ctx, query.CategoryKey, result); err != nil {
+			slog.Warn("failed to cache admin schema", "categoryKey", query.CategoryKey, "err", err)
+		}
 	}
 
 	return result, nil

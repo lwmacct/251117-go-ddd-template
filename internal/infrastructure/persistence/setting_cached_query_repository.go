@@ -239,6 +239,12 @@ func (r *cachedSettingQueryRepository) tryFilterFromCache(
 		}
 	}
 
+	// 过滤结果为空时，不信任部分缓存，回退到数据库查询
+	// 避免部分缓存（如只有 security 数据）导致其他分类查询返回空
+	if len(result) == 0 {
+		return nil, false
+	}
+
 	return result, true
 }
 
