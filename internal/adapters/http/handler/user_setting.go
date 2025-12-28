@@ -87,7 +87,7 @@ func (h *UserSettingHandler) ListUserSettingCategories(c *gin.Context) {
 // @Security     BearerAuth
 // @x-permission {"scope":"user:settings:read"}
 // @Param        category query string false "分类 Key（如 profile），为空返回全量"
-// @Success      200 {object} response.DataResponse[[]setting.UserSchemaCategoryDTO] "配置列表（层级结构）"
+// @Success      200 {object} response.DataResponse[[]setting.SchemaCategoryDTO] "配置列表（层级结构）"
 // @Failure      401 {object} response.ErrorResponse "未授权"
 // @Failure      404 {object} response.ErrorResponse "分类不存在"
 // @Failure      500 {object} response.ErrorResponse "服务器内部错误"

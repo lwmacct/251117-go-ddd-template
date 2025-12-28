@@ -5,10 +5,10 @@
  */
 import { computed } from "vue";
 import DynamicSettingField from "@/pages/admin/settings/components/DynamicSettingField.vue";
-import type { SettingUserSchemaSettingDTO } from "@models";
+import type { SettingSchemaSettingDTO, SettingSelectOptionDTO } from "@models";
 
 const props = defineProps<{
-  setting: SettingUserSchemaSettingDTO;
+  setting: SettingSchemaSettingDTO;
   modelValue: unknown;
   disabled?: boolean;
   hint?: string;
@@ -39,7 +39,7 @@ const formatDefaultValue = computed(() => {
     case "select": {
       // 尝试从 options 找到对应的 label
       // default_value 是 JSONB，可能是任意类型，需要转换为 unknown 进行比较
-      const option = props.setting.ui_config?.options?.find((o) => o.value === (defaultVal as unknown));
+      const option = props.setting.ui_config?.options?.find((o: SettingSelectOptionDTO) => o.value === (defaultVal as unknown));
       return option?.label ?? String(defaultVal);
     }
     default:

@@ -2934,7 +2934,7 @@
                     "200": {
                         "description": "配置列表（层级结构）",
                         "schema": {
-                            "$ref": "#/definitions/response.DataResponse-array_setting_UserSchemaCategoryDTO"
+                            "$ref": "#/definitions/response.DataResponse-array_setting_SchemaCategoryDTO"
                         }
                     },
                     "401": {
@@ -4629,29 +4629,6 @@
                 }
             }
         },
-        "response.DataResponse-array_setting_UserSchemaCategoryDTO": {
-            "type": "object",
-            "properties": {
-                "code": {
-                    "description": "HTTP 状态码",
-                    "type": "integer"
-                },
-                "data": {
-                    "description": "响应数据",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/setting.UserSchemaCategoryDTO"
-                    }
-                },
-                "error": {
-                    "description": "错误详情（仅失败时）"
-                },
-                "message": {
-                    "description": "消息描述",
-                    "type": "string"
-                }
-            }
-        },
         "response.DataResponse-auditlog_AuditLogDTO": {
             "type": "object",
             "properties": {
@@ -5539,11 +5516,11 @@
                     "description": "系统默认值"
                 },
                 "edit_permission": {
-                    "description": "编辑权限",
+                    "description": "仅 Admin",
                     "type": "string"
                 },
                 "is_customized": {
-                    "description": "始终为 false（系统配置）",
+                    "description": "是否用户自定义",
                     "type": "boolean"
                 },
                 "key": {
@@ -5556,20 +5533,20 @@
                     "type": "integer"
                 },
                 "scope": {
-                    "description": "system | user",
+                    "description": "仅 Admin: system | user",
                     "type": "string"
                 },
                 "ui_config": {
                     "$ref": "#/definitions/setting.UIConfigDTO"
                 },
                 "value": {
-                    "description": "默认值"
+                    "description": "实际生效值"
                 },
                 "value_type": {
                     "type": "string"
                 },
                 "view_permission": {
-                    "description": "查看权限",
+                    "description": "仅 Admin",
                     "type": "string"
                 }
             }
@@ -5663,73 +5640,6 @@
                 },
                 "validation": {
                     "description": "JSON Logic 验证规则"
-                }
-            }
-        },
-        "setting.UserSchemaCategoryDTO": {
-            "type": "object",
-            "properties": {
-                "category": {
-                    "type": "string"
-                },
-                "groups": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/setting.UserSchemaGroupDTO"
-                    }
-                },
-                "icon": {
-                    "type": "string"
-                },
-                "label": {
-                    "type": "string"
-                }
-            }
-        },
-        "setting.UserSchemaGroupDTO": {
-            "type": "object",
-            "properties": {
-                "group": {
-                    "type": "string"
-                },
-                "label": {
-                    "type": "string"
-                },
-                "settings": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/setting.UserSchemaSettingDTO"
-                    }
-                }
-            }
-        },
-        "setting.UserSchemaSettingDTO": {
-            "type": "object",
-            "properties": {
-                "default_value": {
-                    "description": "系统默认值"
-                },
-                "is_customized": {
-                    "description": "是否用户自定义",
-                    "type": "boolean"
-                },
-                "key": {
-                    "type": "string"
-                },
-                "label": {
-                    "type": "string"
-                },
-                "order": {
-                    "type": "integer"
-                },
-                "ui_config": {
-                    "$ref": "#/definitions/setting.UIConfigDTO"
-                },
-                "value": {
-                    "description": "实际生效值"
-                },
-                "value_type": {
-                    "type": "string"
                 }
             }
         },

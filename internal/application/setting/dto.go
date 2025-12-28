@@ -79,19 +79,20 @@ type CreateResultDTO struct {
 
 // ==================== Schema DTO ====================
 
-// SchemaSettingDTO Schema API 专用 DTO
+// SchemaSettingDTO Schema API 专用 DTO（Admin/User 统一）
+// Admin 场景返回全部字段，User 场景通过 omitempty 省略权限字段
 type SchemaSettingDTO struct {
 	Key            string      `json:"key"`
-	Value          any         `json:"value"`         // 默认值
-	DefaultValue   any         `json:"default_value"` // 系统默认值
-	IsCustomized   bool        `json:"is_customized"` // 始终为 false（系统配置）
-	Scope          string      `json:"scope"`         // system | user
+	Value          any         `json:"value"`           // 实际生效值
+	DefaultValue   any         `json:"default_value"`   // 系统默认值
+	IsCustomized   bool        `json:"is_customized"`   // 是否用户自定义
+	Scope          string      `json:"scope,omitempty"` // 仅 Admin: system | user
 	ValueType      string      `json:"value_type"`
 	Label          string      `json:"label"`
 	UIConfig       UIConfigDTO `json:"ui_config"`
 	Order          int         `json:"order"`
-	ViewPermission string      `json:"view_permission"` // 查看权限
-	EditPermission string      `json:"edit_permission"` // 编辑权限
+	ViewPermission string      `json:"view_permission,omitempty"` // 仅 Admin
+	EditPermission string      `json:"edit_permission,omitempty"` // 仅 Admin
 }
 
 // SchemaGroupDTO Schema API 分组
@@ -140,33 +141,6 @@ type UserSettingDTO struct {
 	Label        string      `json:"label"`
 	UIConfig     UIConfigDTO `json:"ui_config"`
 	Order        int         `json:"order"`
-}
-
-// UserSchemaSettingDTO 用户配置 Schema API 专用 DTO（带合并值）
-type UserSchemaSettingDTO struct {
-	Key          string      `json:"key"`
-	Value        any         `json:"value"`         // 实际生效值
-	DefaultValue any         `json:"default_value"` // 系统默认值
-	IsCustomized bool        `json:"is_customized"` // 是否用户自定义
-	ValueType    string      `json:"value_type"`
-	Label        string      `json:"label"`
-	UIConfig     UIConfigDTO `json:"ui_config"`
-	Order        int         `json:"order"`
-}
-
-// UserSchemaGroupDTO 用户配置 Schema API 分组
-type UserSchemaGroupDTO struct {
-	Group    string                 `json:"group"`
-	Label    string                 `json:"label"`
-	Settings []UserSchemaSettingDTO `json:"settings"`
-}
-
-// UserSchemaCategoryDTO 用户配置 Schema API 分类
-type UserSchemaCategoryDTO struct {
-	Category string               `json:"category"`
-	Label    string               `json:"label"`
-	Icon     string               `json:"icon"`
-	Groups   []UserSchemaGroupDTO `json:"groups"`
 }
 
 // UserSettingGroupDTO 按分组聚合的用户配置列表

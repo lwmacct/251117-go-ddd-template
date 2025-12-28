@@ -28,7 +28,7 @@ import type { HandlerSetUserSettingRequest } from '../models';
 // @ts-ignore
 import type { ResponseDataResponseArraySettingCategoryMetaDTO } from '../models';
 // @ts-ignore
-import type { ResponseDataResponseArraySettingUserSchemaCategoryDTO } from '../models';
+import type { ResponseDataResponseArraySettingSchemaCategoryDTO } from '../models';
 // @ts-ignore
 import type { ResponseDataResponseSettingUserSettingDTO } from '../models';
 // @ts-ignore
@@ -310,7 +310,7 @@ export const UserSettingsApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async apiUserSettingsGet(category?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseArraySettingUserSchemaCategoryDTO>> {
+        async apiUserSettingsGet(category?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseArraySettingSchemaCategoryDTO>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.apiUserSettingsGet(category, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['UserSettingsApi.apiUserSettingsGet']?.[localVarOperationServerIndex]?.url;
@@ -392,7 +392,7 @@ export const UserSettingsApiFactory = function (configuration?: Configuration, b
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiUserSettingsGet(category?: string, options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseArraySettingUserSchemaCategoryDTO> {
+        apiUserSettingsGet(category?: string, options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseArraySettingSchemaCategoryDTO> {
             return localVarFp.apiUserSettingsGet(category, options).then((request) => request(axios, basePath));
         },
         /**

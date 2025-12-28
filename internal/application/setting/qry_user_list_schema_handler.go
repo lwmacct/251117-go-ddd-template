@@ -3,7 +3,6 @@ package setting
 import (
 	"context"
 	"fmt"
-	"sort"
 
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/setting"
 )
@@ -36,7 +35,7 @@ func NewUserListSchemaHandler(
 // 支持 CategoryKey 过滤：
 //   - 为空时返回全量用户设置（用于总配置页）
 //   - 指定 Key 时只返回该分类（用于分散页面的懒加载）
-func (h *UserListSchemaHandler) Handle(ctx context.Context, query UserListSchemaQuery) ([]UserSchemaCategoryDTO, error) {
+func (h *UserListSchemaHandler) Handle(ctx context.Context, query UserListSchemaQuery) ([]SchemaCategoryDTO, error) {
 	// 1. 根据 CategoryKey 决定查询范围（只查询 user scope）
 	defs, err := h.fetchUserSettings(ctx, query.CategoryKey)
 	if err != nil {
@@ -61,8 +60,9 @@ func (h *UserListSchemaHandler) Handle(ctx context.Context, query UserListSchema
 		userSettingMap[us.SettingKey] = us
 	}
 
-	// 5. 构建 Schema
-	return h.buildSchema(defs, userSettingMap, categories), nil
+	// 5. 使用共享构建器
+	builder := NewSchemaBuilder(categories)
+	return builder.Build(defs, userSettingMap, UserSettingMapper), nil
 }
 
 // fetchUserSettings 根据 CategoryKey 获取用户可配置的设置列表
@@ -92,127 +92,6 @@ func (h *UserListSchemaHandler) fetchUserSettings(ctx context.Context, categoryK
 
 	// 过滤只保留 user scope
 	return filterUserScopeSettings(allDefs), nil
-}
-
-// buildSchema 构建 Category → Group → Settings 层级结构
-//
-//nolint:dupl // 与 ListSchemaHandler.buildSchema 结构相似但使用不同 DTO 类型
-func (h *UserListSchemaHandler) buildSchema(
-	defs []*setting.Setting,
-	userSettingMap map[string]*setting.UserSetting,
-	categoryEntities []*setting.SettingCategory,
-) []UserSchemaCategoryDTO {
-	// 构建 CategoryID → Category 实体映射
-	categoryByID := make(map[uint]*setting.SettingCategory, len(categoryEntities))
-	for _, cat := range categoryEntities {
-		categoryByID[cat.ID] = cat
-	}
-
-	// 按 CategoryID 分组
-	categoryMap := make(map[uint]map[string][]UserSchemaSettingDTO)
-
-	for _, def := range defs {
-		categoryID := def.CategoryID
-		group := def.Group
-		if group == "" {
-			group = "default"
-		}
-
-		if _, ok := categoryMap[categoryID]; !ok {
-			categoryMap[categoryID] = make(map[string][]UserSchemaSettingDTO)
-		}
-
-		dto := ToUserSchemaSettingDTO(def, userSettingMap[def.Key])
-		if dto != nil {
-			categoryMap[categoryID][group] = append(categoryMap[categoryID][group], *dto)
-		}
-	}
-
-	// 构建响应
-	result := make([]UserSchemaCategoryDTO, 0, len(categoryMap))
-	for categoryID, groupMap := range categoryMap {
-		cat, ok := categoryByID[categoryID]
-		if !ok {
-			// 跳过未知 category
-			continue
-		}
-
-		groups := make([]UserSchemaGroupDTO, 0, len(groupMap))
-		for group, settingDTOs := range groupMap {
-			// 按 Order 排序设置项
-			sort.Slice(settingDTOs, func(i, j int) bool {
-				return settingDTOs[i].Order < settingDTOs[j].Order
-			})
-
-			groups = append(groups, UserSchemaGroupDTO{
-				Group:    group,
-				Label:    h.getGroupLabel(group),
-				Settings: settingDTOs,
-			})
-		}
-
-		// 按 Group 名排序（default 在前）
-		sort.Slice(groups, func(i, j int) bool {
-			if groups[i].Group == "default" {
-				return true
-			}
-			if groups[j].Group == "default" {
-				return false
-			}
-			return groups[i].Group < groups[j].Group
-		})
-
-		result = append(result, UserSchemaCategoryDTO{
-			Category: cat.Key,
-			Label:    cat.Label,
-			Icon:     cat.Icon,
-			Groups:   groups,
-		})
-	}
-
-	// 按 Category Order 排序
-	sort.Slice(result, func(i, j int) bool {
-		catI := categoryByID[h.getCategoryIDByKey(categoryByID, result[i].Category)]
-		catJ := categoryByID[h.getCategoryIDByKey(categoryByID, result[j].Category)]
-		if catI == nil || catJ == nil {
-			return result[i].Category < result[j].Category
-		}
-		return catI.Order < catJ.Order
-	})
-
-	return result
-}
-
-// getCategoryIDByKey 根据 key 查找 CategoryID（用于排序）
-func (h *UserListSchemaHandler) getCategoryIDByKey(categoryByID map[uint]*setting.SettingCategory, key string) uint {
-	for id, cat := range categoryByID {
-		if cat.Key == key {
-			return id
-		}
-	}
-	return 0
-}
-
-// getGroupLabel 获取分组显示名称
-func (h *UserListSchemaHandler) getGroupLabel(group string) string {
-	labels := map[string]string{
-		"default":    "",
-		"basic":      "基本设置",
-		"locale":     "本地化",
-		"appearance": "外观",
-		"password":   "密码策略",
-		"session":    "会话管理",
-		"advanced":   "高级设置",
-		"general":    "基本设置",
-		"email":      "邮件通知",
-		"sms":        "短信通知",
-		"schedule":   "备份计划",
-	}
-
-	if label, ok := labels[group]; ok {
-		return label
-	}
-	return group
 }
 
 // filterUserScopeSettings 过滤只保留 user scope 的设置

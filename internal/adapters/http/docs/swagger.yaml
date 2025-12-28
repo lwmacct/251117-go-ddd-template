@@ -541,22 +541,6 @@ definitions:
         description: 消息描述
         type: string
     type: object
-  response.DataResponse-array_setting_UserSchemaCategoryDTO:
-    properties:
-      code:
-        description: HTTP 状态码
-        type: integer
-      data:
-        description: 响应数据
-        items:
-          $ref: '#/definitions/setting.UserSchemaCategoryDTO'
-        type: array
-      error:
-        description: 错误详情（仅失败时）
-      message:
-        description: 消息描述
-        type: string
-    type: object
   response.DataResponse-auditlog_AuditLogDTO:
     properties:
       code:
@@ -1129,10 +1113,10 @@ definitions:
       default_value:
         description: 系统默认值
       edit_permission:
-        description: 编辑权限
+        description: 仅 Admin
         type: string
       is_customized:
-        description: 始终为 false（系统配置）
+        description: 是否用户自定义
         type: boolean
       key:
         type: string
@@ -1141,16 +1125,16 @@ definitions:
       order:
         type: integer
       scope:
-        description: system | user
+        description: '仅 Admin: system | user'
         type: string
       ui_config:
         $ref: '#/definitions/setting.UIConfigDTO'
       value:
-        description: 默认值
+        description: 实际生效值
       value_type:
         type: string
       view_permission:
-        description: 查看权限
+        description: 仅 Admin
         type: string
     type: object
   setting.SelectOptionDTO:
@@ -1213,50 +1197,6 @@ definitions:
         type: array
       validation:
         description: JSON Logic 验证规则
-    type: object
-  setting.UserSchemaCategoryDTO:
-    properties:
-      category:
-        type: string
-      groups:
-        items:
-          $ref: '#/definitions/setting.UserSchemaGroupDTO'
-        type: array
-      icon:
-        type: string
-      label:
-        type: string
-    type: object
-  setting.UserSchemaGroupDTO:
-    properties:
-      group:
-        type: string
-      label:
-        type: string
-      settings:
-        items:
-          $ref: '#/definitions/setting.UserSchemaSettingDTO'
-        type: array
-    type: object
-  setting.UserSchemaSettingDTO:
-    properties:
-      default_value:
-        description: 系统默认值
-      is_customized:
-        description: 是否用户自定义
-        type: boolean
-      key:
-        type: string
-      label:
-        type: string
-      order:
-        type: integer
-      ui_config:
-        $ref: '#/definitions/setting.UIConfigDTO'
-      value:
-        description: 实际生效值
-      value_type:
-        type: string
     type: object
   setting.UserSettingDTO:
     properties:
@@ -3425,7 +3365,7 @@ paths:
         "200":
           description: 配置列表（层级结构）
           schema:
-            $ref: '#/definitions/response.DataResponse-array_setting_UserSchemaCategoryDTO'
+            $ref: '#/definitions/response.DataResponse-array_setting_SchemaCategoryDTO'
         "401":
           description: 未授权
           schema:

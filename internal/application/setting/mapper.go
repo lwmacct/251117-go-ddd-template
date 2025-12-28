@@ -111,21 +111,24 @@ func ToSettingDTOs(settings []*setting.Setting) []SettingDTO {
 	return dtos
 }
 
-// ToSchemaSettingDTO 将 Setting 转换为 SchemaSettingDTO
+// ToSchemaSettingDTO 将 Setting 转换为 SchemaSettingDTO（Admin 场景，包含全部字段）
 func ToSchemaSettingDTO(s *setting.Setting) *SchemaSettingDTO {
 	if s == nil {
 		return nil
 	}
 
 	return &SchemaSettingDTO{
-		Key:          s.Key,
-		Value:        s.DefaultValue,
-		DefaultValue: s.DefaultValue,
-		IsCustomized: false,
-		ValueType:    s.ValueType,
-		Label:        s.Label,
-		UIConfig:     parseUIConfig(s.UIConfig),
-		Order:        s.Order,
+		Key:            s.Key,
+		Value:          s.DefaultValue,
+		DefaultValue:   s.DefaultValue,
+		IsCustomized:   false,
+		Scope:          s.Scope, // Admin 返回
+		ValueType:      s.ValueType,
+		Label:          s.Label,
+		UIConfig:       parseUIConfig(s.UIConfig),
+		Order:          s.Order,
+		ViewPermission: s.ViewPermission, // Admin 返回
+		EditPermission: s.EditPermission, // Admin 返回
 	}
 }
 
@@ -159,21 +162,23 @@ func ToUserSettingDTO(s *setting.Setting, us *setting.UserSetting) *UserSettingD
 	return dto
 }
 
-// ToUserSchemaSettingDTO 将 Setting 定义和可选的 UserSetting 合并为 UserSchemaSettingDTO
-func ToUserSchemaSettingDTO(s *setting.Setting, us *setting.UserSetting) *UserSchemaSettingDTO {
+// ToUserSchemaSettingDTO 将 Setting 定义和可选的 UserSetting 合并为 SchemaSettingDTO
+// User 场景省略权限字段（Scope, ViewPermission, EditPermission 为空，omitempty 不输出）
+func ToUserSchemaSettingDTO(s *setting.Setting, us *setting.UserSetting) *SchemaSettingDTO {
 	if s == nil {
 		return nil
 	}
 
-	dto := &UserSchemaSettingDTO{
+	dto := &SchemaSettingDTO{
 		Key:          s.Key,
 		Value:        s.DefaultValue, // 默认使用系统默认值
 		DefaultValue: s.DefaultValue,
 		IsCustomized: false,
-		ValueType:    s.ValueType,
-		Label:        s.Label,
-		UIConfig:     parseUIConfig(s.UIConfig),
-		Order:        s.Order,
+		// Scope, ViewPermission, EditPermission 留空（omitempty 不输出）
+		ValueType: s.ValueType,
+		Label:     s.Label,
+		UIConfig:  parseUIConfig(s.UIConfig),
+		Order:     s.Order,
 	}
 
 	// 如果有用户自定义值，使用用户值

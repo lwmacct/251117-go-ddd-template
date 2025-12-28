@@ -57,7 +57,6 @@ models/response-data-response-array-pat-token-dto.ts
 models/response-data-response-array-setting-category-dto.ts
 models/response-data-response-array-setting-category-meta-dto.ts
 models/response-data-response-array-setting-schema-category-dto.ts
-models/response-data-response-array-setting-user-schema-category-dto.ts
 models/response-data-response-auditlog-audit-log-dto.ts
 models/response-data-response-auth-login-response-dto.ts
 models/response-data-response-auth-register-result-dto.ts
@@ -101,9 +100,6 @@ models/setting-schema-setting-dto.ts
 models/setting-select-option-dto.ts
 models/setting-setting-dto.ts
 models/setting-uiconfig-dto.ts
-models/setting-user-schema-category-dto.ts
-models/setting-user-schema-group-dto.ts
-models/setting-user-schema-setting-dto.ts
 models/setting-user-setting-dto.ts
 models/stats-audit-log-summary-dto.ts
 models/stats-stats-dto.ts

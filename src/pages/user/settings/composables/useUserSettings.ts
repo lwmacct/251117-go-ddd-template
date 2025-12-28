@@ -15,8 +15,8 @@ import { userSettingsApi } from "@/api";
 import { useLazyCategorySchema } from "@/composables";
 import type {
   SettingCategoryMetaDTO,
-  SettingUserSchemaCategoryDTO,
-  SettingUserSchemaSettingDTO,
+  SettingSchemaCategoryDTO,
+  SettingSchemaSettingDTO,
   HandlerBatchSetUserSettingsRequest,
   HandlerSetUserSettingRequest,
 } from "@models";
@@ -29,13 +29,13 @@ export function useUserSettings() {
   const {
     schema,
     loadedCategories,
-    loading: schemaLoading,
+    loading: schemaLoading, // eslint-disable-line @typescript-eslint/no-unused-vars
     fetchSchemaByCategory,
     isCategoryLoaded,
     reset: resetSchema,
-  } = useLazyCategorySchema<SettingUserSchemaCategoryDTO>(async (categoryKey) => {
+  } = useLazyCategorySchema<SettingSchemaCategoryDTO>(async (categoryKey) => {
     const response = await userSettingsApi.apiUserSettingsGet(categoryKey);
-    return (response.data.data ?? []) as SettingUserSchemaCategoryDTO[];
+    return (response.data.data ?? []) as SettingSchemaCategoryDTO[];
   });
 
   // 其他加载状态
@@ -46,7 +46,7 @@ export function useUserSettings() {
 
   // 按 key 索引的设置 Map
   const settingsMap = computed(() => {
-    const map = new Map<string, SettingUserSchemaSettingDTO>();
+    const map = new Map<string, SettingSchemaSettingDTO>();
     schema.value.forEach((cat) => {
       cat.groups?.forEach((group) => {
         group.settings?.forEach((s) => {
@@ -92,7 +92,7 @@ export function useUserSettings() {
 
       // 获取全量数据
       const response = await userSettingsApi.apiUserSettingsGet();
-      const allCategories = (response.data.data ?? []) as SettingUserSchemaCategoryDTO[];
+      const allCategories = (response.data.data ?? []) as SettingSchemaCategoryDTO[];
 
       // 逐个分类触发加载（标记为已加载）
       for (const cat of allCategories) {
