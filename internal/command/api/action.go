@@ -10,8 +10,11 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/lwmacct/251117-go-ddd-template/internal/bootstrap"
+	"github.com/gin-gonic/gin"
+	"go.uber.org/fx"
+
 	"github.com/lwmacct/251117-go-ddd-template/internal/config"
+	"github.com/lwmacct/251117-go-ddd-template/internal/container"
 	"github.com/lwmacct/251207-go-pkg-cfgm/pkg/cfgm"
 	"github.com/lwmacct/251207-go-pkg-version/pkg/version"
 	"github.com/lwmacct/251219-go-pkg-logm/pkg/logm"
@@ -31,29 +34,59 @@ func action(ctx context.Context, cmd *cli.Command) error {
 		cfg.Server.WebDist = cmd.String("static")
 	}
 
-	// 初始化容器 (依赖注入) - 使用 DDD+CQRS 架构容器
-	opts := &bootstrap.ContainerOptions{
-		AutoMigrate: cfg.Data.AutoMigrate, // 从配置读取是否自动迁移
-	}
-	container, err := bootstrap.NewContainer(ctx, cfg, opts)
-	if err != nil {
-		slog.Error("Failed to initialize container", "error", err)
-		os.Exit(1)
-	}
-	// 确保在退出时关闭所有资源
-	defer func() {
-		if err := container.Close(); err != nil {
-			slog.Error("Failed to close container resources", "error", err)
-		}
-	}()
-
 	slog.Info("Configuration loaded",
 		"server_addr", cfg.Server.Addr,
 		"server_env", cfg.Server.Env,
 	)
 
+	// 初始化选项
+	opts := &container.ContainerOptions{
+		AutoMigrate: cfg.Data.AutoMigrate,
+	}
+
+	// 用于接收 Router 的变量
+	var router *gin.Engine
+
+	// 创建 Fx 应用
+	app := fx.New(
+		fx.NopLogger,
+
+		// 提供配置
+		fx.Supply(cfg),
+		fx.Supply(opts),
+
+		// 核心模块
+		container.InfraModule,
+		container.CacheModule,
+		container.RepositoryModule,
+		container.ServiceModule,
+		container.UseCaseModule,
+		container.HTTPModule,
+
+		// 启动钩子
+		fx.Invoke(
+			container.RegisterEventHandlers,
+			container.WarmupCaches,
+		),
+
+		// 提取 Router
+		fx.Populate(&router),
+
+		fx.StartTimeout(30*time.Second),
+		fx.StopTimeout(30*time.Second),
+	)
+
+	// 启动 Fx 应用
+	startCtx, startCancel := context.WithTimeout(ctx, 30*time.Second)
+	defer startCancel()
+
+	if err := app.Start(startCtx); err != nil {
+		slog.Error("Failed to start application", "error", err)
+		return err
+	}
+
 	// 创建并启动 HTTP 服务器
-	server := httpserver.NewServer(container.Router, cfg.Server.Addr)
+	server := httpserver.NewServer(router, cfg.Server.Addr)
 
 	// 启动服务器 (在goroutine中)
 	go func() {
@@ -71,17 +104,26 @@ func action(ctx context.Context, cmd *cli.Command) error {
 
 	slog.Info("Shutting down API server...")
 
-	// 使用传入的 ctx 派生 shutdown context，符合 contextcheck 规范
-	shutdownCtx, cancel := context.WithTimeout(ctx, 5*time.Second)
-	defer cancel()
-
-	// 关闭日志系统（确保文件正确关闭）
-	if err := logm.Close(); err != nil {
-		return err
-	}
+	// 关闭 HTTP 服务器
+	shutdownCtx, shutdownCancel := context.WithTimeout(ctx, 5*time.Second)
+	defer shutdownCancel()
 
 	if err := server.Shutdown(shutdownCtx); err != nil {
 		slog.Error("Server forced to shutdown", "error", err)
+	}
+
+	// 关闭 Fx 应用 (停止所有组件)
+	// 使用独立 context：原 ctx 可能已取消，需要新超时
+	stopCtx, stopCancel := context.WithTimeout(context.Background(), 15*time.Second)
+	defer stopCancel()
+
+	if err := app.Stop(stopCtx); err != nil { //nolint:contextcheck // 关闭时需要独立超时
+		slog.Error("Failed to stop application", "error", err)
+		return err
+	}
+
+	// 关闭日志系统
+	if err := logm.Close(); err != nil {
 		return err
 	}
 

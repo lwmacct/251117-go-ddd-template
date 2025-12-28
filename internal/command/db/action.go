@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"log/slog"
 
-	"github.com/lwmacct/251117-go-ddd-template/internal/bootstrap"
 	"github.com/lwmacct/251117-go-ddd-template/internal/config"
+	"github.com/lwmacct/251117-go-ddd-template/internal/container"
 	"github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/cache"
 	"github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/database"
 	"github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/database/seeds"
@@ -83,7 +83,7 @@ func actionMigrate(ctx context.Context, cmd *cli.Command) error {
 
 	// 1. 执行 AutoMigrate
 	slog.Info("Running AutoMigrate...")
-	if err := db.AutoMigrate(bootstrap.GetAllModels()...); err != nil {
+	if err := db.AutoMigrate(container.GetAllModels()...); err != nil {
 		slog.Error("AutoMigrate failed", "error", err)
 		return err
 	}
@@ -148,7 +148,7 @@ func actionReset(ctx context.Context, cmd *cli.Command) error {
 
 	// 1. 删表 + 重建
 	slog.Info("Dropping all tables...")
-	manager := database.NewMigrationManager(db, bootstrap.GetAllModels())
+	manager := database.NewMigrationManager(db, container.GetAllModels())
 	if err := manager.ResetWithIndexes(getIndexMigrations()); err != nil {
 		slog.Error("Database reset failed", "error", err)
 		return err
