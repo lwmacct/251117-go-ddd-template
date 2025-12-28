@@ -63,9 +63,9 @@ func DefaultConfig() Config {
 			DocsDist: "docs/.vitepress/dist",
 		},
 		Data: Data{
-			PgsqlURL:       "postgresql://postgres@localhost:5432/app?sslmode=disable",
+			PgsqlURL:       "postgresql://postgres@localhost:5432/dev?sslmode=disable",
 			RedisURL:       "redis://localhost:6379/0",
-			RedisKeyPrefix: "app:",
+			RedisKeyPrefix: "dev:",
 			AutoMigrate:    false, // 默认关闭自动迁移，生产环境使用 migrate 命令
 		},
 		JWT: JWT{

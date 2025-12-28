@@ -109,9 +109,30 @@ ok, _ := client.SetNX(ctx, lockKey, "1", 30*time.Second).Result()
 
 ## Key 命名规范
 
-- 格式：`{prefix}{模块}:{标识}` 或 `{prefix}{模块}:{scope}:{id}:{key}`
+**环境前缀**（由 `config.Data.RedisKeyPrefix` 配置）：
+
+| 环境     | 默认前缀 | 示例 Key                           |
+| -------- | -------- | ---------------------------------- |
+| 开发环境 | `dev:`   | `dev:setting:security.timeout`     |
+| 生产环境 | 按需配置 | `{prefix}setting:security.timeout` |
+
+> 参见 `internal/config/config.go` 中的 `RedisKeyPrefix` 配置项
+
+**Key 格式**：
+
+- 标准格式：`{prefix}{模块}:{标识}` 或 `{prefix}{模块}:{scope}:{id}:{key}`
 - 预热标记：`{prefix}{模块}:_warmed_up`
 - 预热锁：`{prefix}{模块}:_warmup_lock`
+
+**调试命令**：
+
+```bash
+# 查看开发环境所有缓存 key
+redis-cli -u $REDIS_URL KEYS 'dev:*'
+
+# 清空开发环境缓存
+redis-cli -u $REDIS_URL KEYS 'dev:*' | xargs -r redis-cli -u $REDIS_URL DEL
+```
 
 ## DTO 规范
 
