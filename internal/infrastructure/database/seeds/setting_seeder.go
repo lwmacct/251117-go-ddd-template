@@ -39,7 +39,7 @@ func (s *SettingSeeder) Seed(ctx context.Context, db *gorm.DB) error {
 	result := db.Clauses(clause.OnConflict{
 		Columns: []clause.Column{{Name: "key"}},
 		DoUpdates: clause.AssignmentColumns([]string{
-			"ui_config", "group", "sort_order", "label", "scope", "view_permission", "edit_permission",
+			"ui_config", "group", "order", "label", "scope", "view_permission", "edit_permission",
 		}), // 更新 UI 元数据和权限字段，不覆盖用户修改的默认值
 	}).Create(&definitions)
 	if result.Error != nil {

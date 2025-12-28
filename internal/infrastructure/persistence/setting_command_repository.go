@@ -72,7 +72,7 @@ func (r *settingCommandRepository) BatchUpsert(ctx context.Context, settings []*
 	if err := r.db.WithContext(ctx).Clauses(clause.OnConflict{
 		Columns: []clause.Column{{Name: "key"}},
 		DoUpdates: clause.AssignmentColumns([]string{
-			"default_value", "category", "group", "value_type",
+			"default_value", "category_id", "group", "value_type",
 			"label", "ui_config", "order", "updated_at",
 		}),
 	}).Create(models).Error; err != nil {

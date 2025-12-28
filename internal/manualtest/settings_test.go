@@ -31,7 +31,7 @@ func TestSettingsFlow(t *testing.T) {
 	createReq := map[string]any{
 		"key":           settingKey,
 		"default_value": "测试值",
-		"category":      "test",
+		"category_id":   1, // 使用 general 分类（ID=1）
 		"group":         "basic",
 		"value_type":    "string",
 		"label":         "测试配置",
@@ -208,7 +208,7 @@ func TestBatchUpdateSettings(t *testing.T) {
 		createReq := map[string]any{
 			"key":           key,
 			"default_value": "初始值",
-			"category":      "test",
+			"category_id":   1, // 使用 general 分类（ID=1）
 			"group":         "batch",
 			"value_type":    "string",
 			"label":         "批量测试",
@@ -268,7 +268,7 @@ func TestDeleteSetting(t *testing.T) {
 	createReq := map[string]any{
 		"key":           settingKey,
 		"default_value": "待删除",
-		"category":      "test",
+		"category_id":   1, // 使用 general 分类（ID=1）
 		"group":         "delete",
 		"value_type":    "string",
 		"label":         "删除测试",
