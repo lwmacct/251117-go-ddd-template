@@ -78,12 +78,16 @@ func newSettingRepositoriesWithCache(p settingRepositoriesParams) persistence.Se
 		rawRepos.CategoryQuery,
 		p.CategoryCache,
 	)
+	cachedCategoryCommand := persistence.NewCachedSettingCategoryCommandRepository(
+		rawRepos.CategoryCommand,
+		p.CategoryCache,
+	)
 
 	return persistence.SettingRepositories{
 		Command:         cachedCommand,
 		Query:           cachedQuery,
 		CategoryQuery:   cachedCategoryQuery,
-		CategoryCommand: rawRepos.CategoryCommand,
+		CategoryCommand: cachedCategoryCommand,
 	}
 }
 
