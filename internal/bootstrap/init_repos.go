@@ -55,10 +55,16 @@ func newSettingRepositoriesWithCache(db *gorm.DB, cacheServices *CacheServicesMo
 		cacheServices.UserSetting,
 	)
 
+	// 用装饰器包装 Category Query 仓储
+	cachedCategoryQuery := persistence.NewCachedSettingCategoryQueryRepository(
+		rawRepos.CategoryQuery,
+		cacheServices.SettingCategory,
+	)
+
 	return persistence.SettingRepositories{
 		Command:         cachedCommand,
 		Query:           cachedQuery,
-		CategoryQuery:   rawRepos.CategoryQuery, // Category 暂不缓存
+		CategoryQuery:   cachedCategoryQuery,
 		CategoryCommand: rawRepos.CategoryCommand,
 	}
 }

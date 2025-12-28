@@ -102,8 +102,9 @@ func NewContainer(ctx context.Context, cfg *config.Config, opts *ContainerOption
 	// 6. 事件处理器
 	initEventHandlers(c.Infra.EventBus, c.Repos, c.Services, c.Cache)
 
-	// 7. 缓存预热（Setting 缓存）
+	// 7. 缓存预热（Setting 和 SettingCategory 缓存）
 	warmupSettingCache(ctx, c.Infra.DB, c.Cache)
+	warmupSettingCategoryCache(ctx, c.Infra.DB, c.Cache)
 
 	// 8. HTTP Handlers
 	c.Handlers = newHandlersModule(cfg, c.Infra, c.UseCases)
@@ -147,5 +148,19 @@ func warmupSettingCache(ctx context.Context, db *gorm.DB, cacheServices *CacheSe
 
 	if err := warmer.WarmUpWithTimeout(ctx); err != nil {
 		slog.Warn("Setting cache warmup failed, will use lazy loading", "err", err)
+	}
+}
+
+// warmupSettingCategoryCache 预热 SettingCategory 缓存
+//
+// 使用原始仓储（非缓存装饰器）避免循环依赖。
+// 预热失败不阻塞服务启动，降级为惰性加载。
+func warmupSettingCategoryCache(ctx context.Context, db *gorm.DB, cacheServices *CacheServicesModule) {
+	// 使用原始仓储避免循环依赖
+	rawRepos := persistence.NewSettingRepositories(db)
+	warmer := infracache.NewSettingCategoryCacheWarmer(rawRepos.CategoryQuery, cacheServices.SettingCategory)
+
+	if err := warmer.WarmUpWithTimeout(ctx); err != nil {
+		slog.Warn("SettingCategory cache warmup failed, will use lazy loading", "err", err)
 	}
 }

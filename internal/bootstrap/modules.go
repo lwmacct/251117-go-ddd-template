@@ -33,6 +33,7 @@ type InfrastructureModule struct {
 // 聚合所有业务域的缓存服务，在 Repositories 之前初始化
 type CacheServicesModule struct {
 	Setting          cache.SettingCacheService          // Domain 实体缓存
+	SettingCategory  cache.SettingCategoryCacheService  // Domain 实体缓存
 	UserSettingQuery cache.UserSettingQueryCacheService // Domain 实体缓存（Query 层）
 	UserSetting      cache.UserSettingCacheService      // Application DTO 缓存
 	Permission       cache.PermissionCacheService

@@ -10,18 +10,25 @@ import (
 
 // SettingModel 配置定义的 GORM 实体
 //
+// 索引设计：
+//   - idx_settings_category_sort: 复合索引 (category_id, group, order, key) 覆盖分类查询和排序
+//   - idx_settings_scope: 单列索引用于 scope 过滤
+//
 //nolint:recvcheck // TableName uses value receiver per GORM convention
 type SettingModel struct {
 	ID           uint           `gorm:"primaryKey"`
 	Key          string         `gorm:"uniqueIndex;size:100;not null"`
-	DefaultValue datatypes.JSON `gorm:"type:jsonb;not null;default:'null'"`    // JSONB 原生值
-	Scope        string         `gorm:"size:20;not null;default:'user';index"` // system | user
-	CategoryID   uint           `gorm:"index;not null"`                        // 逻辑关联 setting_categories.id（无物理 FK）
-	Group        string         `gorm:"size:50;index;default:''"`
-	ValueType    string         `gorm:"size:20;default:'string'"`
-	Label        string         `gorm:"size:200"`
-	UIConfig     datatypes.JSON `gorm:"type:jsonb;default:'{}'"`
-	Order        int            `gorm:"default:0;index"`
+	DefaultValue datatypes.JSON `gorm:"type:jsonb;not null;default:'null'"` // JSONB 原生值
+	Scope        string         `gorm:"size:20;not null;default:'user';index:idx_settings_scope"`
+
+	// 复合索引：覆盖 FindByCategoryID 的 WHERE + ORDER BY
+	CategoryID uint   `gorm:"not null;index:idx_settings_category_sort,priority:1"`
+	Group      string `gorm:"size:50;default:'';index:idx_settings_category_sort,priority:2"`
+	Order      int    `gorm:"default:0;index:idx_settings_category_sort,priority:3"`
+
+	ValueType string         `gorm:"size:20;default:'string'"`
+	Label     string         `gorm:"size:200"`
+	UIConfig  datatypes.JSON `gorm:"type:jsonb;default:'{}'"`
 
 	// 权限控制
 	ViewPermission string `gorm:"size:100;not null;default:'*:settings:read'"`

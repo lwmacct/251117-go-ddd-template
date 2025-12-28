@@ -6,8 +6,7 @@ import (
 	"os"
 
 	"github.com/lwmacct/251117-go-ddd-template/internal/command/api"
-	"github.com/lwmacct/251117-go-ddd-template/internal/command/migrate"
-	"github.com/lwmacct/251117-go-ddd-template/internal/command/seed"
+	"github.com/lwmacct/251117-go-ddd-template/internal/command/db"
 	"github.com/lwmacct/251117-go-ddd-template/internal/command/worker"
 	"github.com/urfave/cli/v3"
 )
@@ -15,10 +14,9 @@ import (
 // buildCommands 根据环境变量条件性构建命令列表
 func buildCommands() []*cli.Command {
 	commands := []*cli.Command{
-		api.Command,     // 🟢 API Service - REST API 服务
-		migrate.Command, // 🔧 Database Migration - 数据库迁移工具
-		seed.Command,    // 🌱 Database Seeder - 数据库种子数据填充
-		worker.Command,  // 🔄 Queue Worker - 后台任务处理器
+		api.Command,    // 🟢 API Service - REST API 服务
+		db.Command,     // 🗄️ Database - 数据库迁移与种子数据
+		worker.Command, // 🔄 Queue Worker - 后台任务处理器
 	}
 
 	if os.Getenv("SHOW_CLI_ITEM") == "1" {

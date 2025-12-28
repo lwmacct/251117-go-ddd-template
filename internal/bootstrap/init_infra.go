@@ -7,6 +7,7 @@ import (
 	"github.com/lwmacct/251117-go-ddd-template/internal/config"
 	"github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/database"
 	"github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/eventbus"
+	"github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/persistence"
 	"github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/redis"
 	"github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/telemetry"
 )
@@ -48,10 +49,17 @@ func newInfrastructureModule(ctx context.Context, cfg *config.Config, opts *Cont
 	// 2. 条件性执行自动迁移
 	if opts.AutoMigrate {
 		slog.Info("Auto-migration enabled, migrating database...")
-		migrator := database.NewMigrator(db)
-		if err = migrator.AutoMigrate(GetAllModels()...); err != nil {
+		if err = db.AutoMigrate(GetAllModels()...); err != nil {
 			return nil, err
 		}
+
+		// 为 SettingModel 创建复合索引（GORM AutoMigrate 不会为已存在的表创建新索引）
+		if err = database.CreateIndexes(db, &persistence.SettingModel{}, []string{
+			"idx_settings_category_sort",
+		}); err != nil {
+			return nil, err
+		}
+
 		slog.Info("Database migration completed")
 	} else {
 		slog.Info("Auto-migration disabled, skipping database migration")

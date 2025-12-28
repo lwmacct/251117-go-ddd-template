@@ -4,9 +4,10 @@
 //
 // 主要组件：
 //   - [SettingCacheWarmer]: 系统设置缓存预热服务
+//   - [SettingCategoryCacheWarmer]: 配置分类缓存预热服务
 //
 // 预热机制：
-//   - 使用分布式锁（[cache.SettingCacheService.TryAcquireWarmupLock]）防止多实例重复预热
+//   - 使用分布式锁防止多实例重复预热
 //   - 双重检查避免不必要的数据库查询
 //   - 预热失败时降级为惰性加载
 package cache

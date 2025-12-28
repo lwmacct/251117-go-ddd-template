@@ -16,12 +16,13 @@ import (
 )
 
 const (
-	settingCacheTTL    = 10 * time.Minute
-	warmupLockTTL      = 30 * time.Second
-	warmupPollInterval = 100 * time.Millisecond
-	settingKeyPrefix   = "setting:"
-	warmupLockKey      = "setting:_warmup_lock"
-	warmedUpKey        = "setting:_warmed_up"
+	settingCacheTTL      = 10 * time.Minute
+	settingWarmupFlagTTL = 24 * time.Hour // 预热标记独立 TTL，避免与数据同时过期
+	warmupLockTTL        = 30 * time.Second
+	warmupPollInterval   = 100 * time.Millisecond
+	settingKeyPrefix     = "setting:"
+	warmupLockKey        = "setting:_warmup_lock"
+	warmedUpKey          = "setting:_warmed_up"
 )
 
 // settingCacheDTO 用于 Redis 缓存的 Setting 数据结构。
@@ -297,9 +298,9 @@ func (s *settingCacheService) IsWarmedUp(ctx context.Context) bool {
 }
 
 // SetWarmedUp 标记缓存已预热完成。
-// TTL 与缓存数据一致，确保标记过期时触发重新预热。
+// 使用独立的 24 小时 TTL，避免与数据缓存同时过期。
 func (s *settingCacheService) SetWarmedUp(ctx context.Context) error {
-	return s.client.Set(ctx, s.keyPrefix+warmedUpKey, "1", settingCacheTTL).Err()
+	return s.client.Set(ctx, s.keyPrefix+warmedUpKey, "1", settingWarmupFlagTTL).Err()
 }
 
 // TryAcquireWarmupLock 尝试获取预热分布式锁。
