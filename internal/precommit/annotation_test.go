@@ -25,6 +25,7 @@ type handlerAnnotation struct {
 	Security    string // from @Security
 	Accept      string // from @Accept
 	Produce     string // from @Produce
+	SuccessDTO  string // from @Success, e.g., "user.UserWithRolesDTO"
 }
 
 // parseHandlerAnnotations 解析 handler 目录下所有 Go 文件的 Swagger 注解
@@ -43,6 +44,10 @@ func parseHandlerAnnotations(t *testing.T) []handlerAnnotation {
 	securityRe := regexp.MustCompile(`@Security\s+(\S+)`)
 	acceptRe := regexp.MustCompile(`@Accept\s+(\S+)`)
 	produceRe := regexp.MustCompile(`@Produce\s+(\S+)`)
+	// @Success 200 {object} response.DataResponse[user.UserDTO] "描述"
+	// @Success 200 {object} response.DataResponse[[]menu.MenuDTO] "描述" (数组类型)
+	// 提取泛型参数中的 DTO 类型，如 user.UserDTO 或 []menu.MenuDTO
+	successRe := regexp.MustCompile(`@Success\s+\d+\s+\{object\}\s+response\.\w+\[(\[\])?([^\]]+)\]`)
 
 	err := filepath.Walk(handlerDir, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
@@ -93,6 +98,9 @@ func parseHandlerAnnotations(t *testing.T) []handlerAnnotation {
 			}
 			if matches := produceRe.FindStringSubmatch(line); len(matches) == 2 {
 				current.Produce = matches[1]
+			}
+			if matches := successRe.FindStringSubmatch(line); len(matches) == 3 {
+				current.SuccessDTO = matches[2] // 第二组是实际 DTO 类型
 			}
 
 			// 遇到 func 定义，保存当前注解
@@ -262,6 +270,64 @@ func TestHandlerAnnotations_ContentType(t *testing.T) {
 				assert.Equal(t, "json", ann.Produce,
 					"@Produce should be 'json': got %q", ann.Produce)
 			}
+		})
+	}
+}
+
+// loadDTOTypes 加载 application 层所有 DTO 类型
+func loadDTOTypes(t *testing.T) map[string]bool {
+	t.Helper()
+
+	appDir := "../application"
+	dtoTypes := make(map[string]bool)
+	structRe := regexp.MustCompile(`^type\s+(\w+DTO)\s+struct`)
+
+	err := filepath.Walk(appDir, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		if info.IsDir() || !strings.HasSuffix(path, ".go") {
+			return nil
+		}
+
+		// 获取包名（目录名）
+		pkgName := filepath.Base(filepath.Dir(path))
+
+		file, err := os.Open(path) //nolint:gosec // 测试代码
+		if err != nil {
+			return nil
+		}
+		defer func() { _ = file.Close() }()
+
+		scanner := bufio.NewScanner(file)
+		for scanner.Scan() {
+			if matches := structRe.FindStringSubmatch(scanner.Text()); len(matches) == 2 {
+				// 存储为 "pkg.TypeDTO" 格式
+				fullName := pkgName + "." + matches[1]
+				dtoTypes[fullName] = true
+			}
+		}
+		return nil
+	})
+
+	require.NoError(t, err, "failed to load DTO types")
+	return dtoTypes
+}
+
+// TestHandlerAnnotations_SuccessDTOExists 验证 @Success 中的 DTO 类型存在于 application 层
+func TestHandlerAnnotations_SuccessDTOExists(t *testing.T) {
+	annotations := parseHandlerAnnotations(t)
+	dtoTypes := loadDTOTypes(t)
+
+	for _, ann := range annotations {
+		if !strings.HasPrefix(ann.Path, "/api") || ann.SuccessDTO == "" {
+			continue
+		}
+
+		t.Run(ann.File+"/"+ann.Method+ann.Path, func(t *testing.T) {
+			assert.True(t, dtoTypes[ann.SuccessDTO],
+				"@Success DTO type not found: %q\n  available types in package: check internal/application/{pkg}/dto.go",
+				ann.SuccessDTO)
 		})
 	}
 }
