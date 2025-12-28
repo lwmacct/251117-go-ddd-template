@@ -35,12 +35,15 @@ interface Props {
   bgColor?: string;
   /** 垂直布局时左侧 Tab 栏宽度 */
   railWidth?: string;
+  /** 内容区域最小高度（如 "400px", "calc(100vh - 300px)"） */
+  minContentHeight?: string;
 }
 
 withDefaults(defineProps<Props>(), {
   vertical: false,
   bgColor: undefined,
   railWidth: "200px",
+  minContentHeight: undefined,
 });
 
 const emit = defineEmits<{
@@ -67,7 +70,7 @@ const emit = defineEmits<{
       </v-tabs>
     </v-col>
     <v-divider vertical />
-    <v-col>
+    <v-col :style="minContentHeight ? { minHeight: minContentHeight } : undefined">
       <v-tabs-window :model-value="modelValue" class="pa-4">
         <v-tabs-window-item
           v-for="tab in tabs"
@@ -94,7 +97,11 @@ const emit = defineEmits<{
         {{ tab.label }}
       </v-tab>
     </v-tabs>
-    <v-tabs-window :model-value="modelValue" class="pa-4">
+    <v-tabs-window
+      :model-value="modelValue"
+      class="pa-4"
+      :style="minContentHeight ? { minHeight: minContentHeight } : undefined"
+    >
       <v-tabs-window-item
         v-for="tab in tabs"
         :key="tab.value"

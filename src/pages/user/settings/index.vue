@@ -311,7 +311,13 @@ onMounted(async () => {
     <v-row v-if="schema.length > 0">
       <v-col cols="12">
         <v-card>
-          <ResponsiveTabs :model-value="currentTab" :tabs="tabs" :vertical="isVertical" @update:model-value="handleTabChange">
+          <ResponsiveTabs
+            :model-value="currentTab"
+            :tabs="tabs"
+            :vertical="isVertical"
+            min-content-height="calc(100vh - 320px)"
+            @update:model-value="handleTabChange"
+          >
             <template v-for="tab in tabs" :key="tab.value" #[tab.value]>
               <!-- Tab 内容加载骨架屏 -->
               <SkeletonLoader v-if="!isCategoryLoaded(tab.value) && schemaLoading" type="form" :lines="4" />
