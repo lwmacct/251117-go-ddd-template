@@ -220,11 +220,20 @@ func setupAPIRoutes(r *gin.Engine, deps *RouterDependencies) {
 		// 系统配置
 		admin.GET("/settings", middleware.RequirePermission("admin:settings:read"), deps.SettingHandler.GetSettings)
 		admin.GET("/settings/schema", middleware.RequirePermission("admin:settings:read"), deps.SettingHandler.GetSettingsSchema)
-		admin.GET("/settings/:key", middleware.RequirePermission("admin:settings:read"), deps.SettingHandler.GetSetting)
 		admin.POST("/settings", middleware.RequirePermission("admin:settings:create"), deps.SettingHandler.CreateSetting)
+		admin.POST("/settings/batch", middleware.RequirePermission("admin:settings:update"), deps.SettingHandler.BatchUpdateSettings)
+
+		// 配置分类管理（必须在 :key 路由之前）
+		admin.GET("/settings/categories", middleware.RequirePermission("admin:settings:read"), deps.SettingHandler.GetCategories)
+		admin.GET("/settings/categories/:id", middleware.RequirePermission("admin:settings:read"), deps.SettingHandler.GetCategory)
+		admin.POST("/settings/categories", middleware.RequirePermission("admin:settings:create"), deps.SettingHandler.CreateCategory)
+		admin.PUT("/settings/categories/:id", middleware.RequirePermission("admin:settings:update"), deps.SettingHandler.UpdateCategory)
+		admin.DELETE("/settings/categories/:id", middleware.RequirePermission("admin:settings:delete"), deps.SettingHandler.DeleteCategory)
+
+		// 单个配置操作（:key 路由放在最后避免与上面的固定路径冲突）
+		admin.GET("/settings/:key", middleware.RequirePermission("admin:settings:read"), deps.SettingHandler.GetSetting)
 		admin.PUT("/settings/:key", middleware.RequirePermission("admin:settings:update"), deps.SettingHandler.UpdateSetting)
 		admin.DELETE("/settings/:key", middleware.RequirePermission("admin:settings:delete"), deps.SettingHandler.DeleteSetting)
-		admin.POST("/settings/batch", middleware.RequirePermission("admin:settings:update"), deps.SettingHandler.BatchUpdateSettings)
 	}
 
 	// 用户管理 API (/api/users/*) - 需要认证

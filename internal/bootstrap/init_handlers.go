@@ -84,6 +84,11 @@ func newHandlersModule(cfg *config.Config, infra *InfrastructureModule, useCases
 		useCases.Setting.Get,
 		useCases.Setting.List,
 		useCases.Setting.ListSchema,
+		useCases.Setting.CreateCategory,
+		useCases.Setting.UpdateCategory,
+		useCases.Setting.DeleteCategory,
+		useCases.Setting.GetCategory,
+		useCases.Setting.ListCategories,
 	)
 
 	// UserSetting Handler（用户配置）

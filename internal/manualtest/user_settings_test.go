@@ -172,7 +172,7 @@ func TestGetUserSetting(t *testing.T) {
 	t.Logf("  Value: %v", detail.Value)
 	t.Logf("  DefaultValue: %v", detail.DefaultValue)
 	t.Logf("  ValueType: %s", detail.ValueType)
-	t.Logf("  Category: %s", detail.Category)
+	t.Logf("  CategoryID: %d", detail.CategoryID)
 	t.Logf("  Group: %s", detail.Group)
 	t.Logf("  Label: %s", detail.Label)
 	t.Logf("  IsCustomized: %v", detail.IsCustomized)
@@ -190,15 +190,15 @@ func TestGetUserSetting(t *testing.T) {
 func TestGetUserSettingsByCategory(t *testing.T) {
 	c := helper.LoginAsAdmin(t)
 
-	t.Log("\n按类别筛选用户配置 (category=general)...")
+	t.Log("\n按类别筛选用户配置 (category_id=1)...")
 	settings, err := helper.Get[[]setting.UserSettingDTO](c, "/api/user/settings", map[string]string{
-		"category": "general",
+		"category_id": "1",
 	})
 	require.NoError(t, err, "获取用户配置失败")
 
-	t.Logf("general 类别配置数: %d", len(*settings))
+	t.Logf("category_id=1 配置数: %d", len(*settings))
 	for _, s := range *settings {
-		assert.Equal(t, "general", s.Category, "配置 %s 的 Category 不是 general", s.Key)
+		assert.Equal(t, uint(1), s.CategoryID, "配置 %s 的 CategoryID 不是 1", s.Key)
 		t.Logf("  %s: %v (自定义: %v)", s.Key, s.Value, s.IsCustomized)
 	}
 }
@@ -365,7 +365,7 @@ func TestBatchSetUserSettings(t *testing.T) {
 	var setting1, setting2 setting.UserSettingDTO
 	foundCount := 0
 	for _, s := range *settings {
-		if s.ValueType == "string" && s.Category == "general" {
+		if s.ValueType == "string" {
 			if foundCount == 0 {
 				setting1 = s
 				foundCount++

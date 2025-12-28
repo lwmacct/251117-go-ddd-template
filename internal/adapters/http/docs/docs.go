@@ -1149,7 +1149,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "获取所有系统配置，可按类别筛选",
+                "description": "获取所有系统配置，可按类别 ID 筛选",
                 "consumes": [
                     "application/json"
                 ],
@@ -1162,9 +1162,9 @@ const docTemplate = `{
                 "summary": "获取系统配置列表",
                 "parameters": [
                     {
-                        "type": "string",
-                        "description": "配置类别",
-                        "name": "category",
+                        "type": "integer",
+                        "description": "配置类别 ID",
+                        "name": "category_id",
                         "in": "query"
                     }
                 ],
@@ -1326,6 +1326,319 @@ const docTemplate = `{
                 },
                 "x-permission": {
                     "scope": "admin:settings:update"
+                }
+            }
+        },
+        "/api/admin/settings/categories": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "获取所有配置分类，按排序权重升序排列",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "管理员 - 配置分类 (Admin - Setting Categories)"
+                ],
+                "summary": "获取配置分类列表",
+                "responses": {
+                    "200": {
+                        "description": "分类列表",
+                        "schema": {
+                            "$ref": "#/definitions/response.DataResponse-array_setting_CategoryDTO"
+                        }
+                    },
+                    "401": {
+                        "description": "未授权",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "权限不足",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器内部错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                },
+                "x-permission": {
+                    "scope": "admin:settings:read"
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "管理员创建新的配置分类",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "管理员 - 配置分类 (Admin - Setting Categories)"
+                ],
+                "summary": "创建配置分类",
+                "parameters": [
+                    {
+                        "description": "分类信息",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.CreateCategoryRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "分类创建成功",
+                        "schema": {
+                            "$ref": "#/definitions/response.DataResponse-setting_CategoryDTO"
+                        }
+                    },
+                    "400": {
+                        "description": "参数错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "未授权",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "权限不足",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器内部错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                },
+                "x-permission": {
+                    "scope": "admin:settings:create"
+                }
+            }
+        },
+        "/api/admin/settings/categories/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "根据 ID 获取配置分类详情",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "管理员 - 配置分类 (Admin - Setting Categories)"
+                ],
+                "summary": "获取单个配置分类",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "分类 ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "分类详情",
+                        "schema": {
+                            "$ref": "#/definitions/response.DataResponse-setting_CategoryDTO"
+                        }
+                    },
+                    "401": {
+                        "description": "未授权",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "权限不足",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "分类不存在",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                },
+                "x-permission": {
+                    "scope": "admin:settings:read"
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "管理员更新指定配置分类的信息（Key 不可修改）",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "管理员 - 配置分类 (Admin - Setting Categories)"
+                ],
+                "summary": "更新配置分类",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "分类 ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "更新信息",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.UpdateCategoryRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "分类更新成功",
+                        "schema": {
+                            "$ref": "#/definitions/response.DataResponse-setting_CategoryDTO"
+                        }
+                    },
+                    "400": {
+                        "description": "参数错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "未授权",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "权限不足",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "分类不存在",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器内部错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                },
+                "x-permission": {
+                    "scope": "admin:settings:update"
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "管理员删除指定的配置分类（如有关联配置项则拒绝删除）",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "管理员 - 配置分类 (Admin - Setting Categories)"
+                ],
+                "summary": "删除配置分类",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "分类 ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "分类删除成功"
+                    },
+                    "400": {
+                        "description": "存在关联配置项",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "未授权",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "权限不足",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "分类不存在",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器内部错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                },
+                "x-permission": {
+                    "scope": "admin:settings:delete"
                 }
             }
         },
@@ -2780,9 +3093,9 @@ const docTemplate = `{
                 "summary": "获取用户配置列表",
                 "parameters": [
                     {
-                        "type": "string",
-                        "description": "配置类别",
-                        "name": "category",
+                        "type": "integer",
+                        "description": "配置类别 ID",
+                        "name": "category_id",
                         "in": "query"
                     }
                 ],
@@ -4067,17 +4380,42 @@ const docTemplate = `{
                 }
             }
         },
+        "handler.CreateCategoryRequest": {
+            "type": "object",
+            "required": [
+                "key",
+                "label"
+            ],
+            "properties": {
+                "icon": {
+                    "type": "string",
+                    "example": "mdi-cog"
+                },
+                "key": {
+                    "type": "string",
+                    "example": "custom"
+                },
+                "label": {
+                    "type": "string",
+                    "example": "自定义配置"
+                },
+                "order": {
+                    "type": "integer",
+                    "example": 100
+                }
+            }
+        },
         "handler.CreateSettingRequest": {
             "type": "object",
             "required": [
-                "category",
+                "category_id",
                 "default_value",
                 "key"
             ],
             "properties": {
-                "category": {
-                    "type": "string",
-                    "example": "general"
+                "category_id": {
+                    "type": "integer",
+                    "example": 1
                 },
                 "default_value": {},
                 "group": {
@@ -4111,6 +4449,23 @@ const docTemplate = `{
             "properties": {
                 "value": {
                     "description": "JSONB 原生值"
+                }
+            }
+        },
+        "handler.UpdateCategoryRequest": {
+            "type": "object",
+            "properties": {
+                "icon": {
+                    "type": "string",
+                    "example": "mdi-settings"
+                },
+                "label": {
+                    "type": "string",
+                    "example": "更新后的标签"
+                },
+                "order": {
+                    "type": "integer",
+                    "example": 50
                 }
             }
         },
@@ -4402,6 +4757,29 @@ const docTemplate = `{
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/pat.TokenDTO"
+                    }
+                },
+                "error": {
+                    "description": "错误详情（仅失败时）"
+                },
+                "message": {
+                    "description": "消息描述",
+                    "type": "string"
+                }
+            }
+        },
+        "response.DataResponse-array_setting_CategoryDTO": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "description": "HTTP 状态码",
+                    "type": "integer"
+                },
+                "data": {
+                    "description": "响应数据",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/setting.CategoryDTO"
                     }
                 },
                 "error": {
@@ -4829,6 +5207,30 @@ const docTemplate = `{
                     "allOf": [
                         {
                             "$ref": "#/definitions/role.RoleDTO"
+                        }
+                    ]
+                },
+                "error": {
+                    "description": "错误详情（仅失败时）"
+                },
+                "message": {
+                    "description": "消息描述",
+                    "type": "string"
+                }
+            }
+        },
+        "response.DataResponse-setting_CategoryDTO": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "description": "HTTP 状态码",
+                    "type": "integer"
+                },
+                "data": {
+                    "description": "响应数据",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/setting.CategoryDTO"
                         }
                     ]
                 },
@@ -5339,6 +5741,32 @@ const docTemplate = `{
                 }
             }
         },
+        "setting.CategoryDTO": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "icon": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "key": {
+                    "type": "string"
+                },
+                "label": {
+                    "type": "string"
+                },
+                "order": {
+                    "type": "integer"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
         "setting.DependsOnConfigDTO": {
             "type": "object",
             "properties": {
@@ -5395,6 +5823,10 @@ const docTemplate = `{
                 "default_value": {
                     "description": "系统默认值"
                 },
+                "edit_permission": {
+                    "description": "编辑权限",
+                    "type": "string"
+                },
                 "is_customized": {
                     "description": "始终为 false（系统配置）",
                     "type": "boolean"
@@ -5408,6 +5840,10 @@ const docTemplate = `{
                 "order": {
                     "type": "integer"
                 },
+                "scope": {
+                    "description": "system | user",
+                    "type": "string"
+                },
                 "ui_config": {
                     "$ref": "#/definitions/setting.UIConfigDTO"
                 },
@@ -5415,6 +5851,10 @@ const docTemplate = `{
                     "description": "默认值"
                 },
                 "value_type": {
+                    "type": "string"
+                },
+                "view_permission": {
+                    "description": "查看权限",
                     "type": "string"
                 }
             }
@@ -5433,14 +5873,18 @@ const docTemplate = `{
         "setting.SettingDTO": {
             "type": "object",
             "properties": {
-                "category": {
-                    "type": "string"
+                "category_id": {
+                    "type": "integer"
                 },
                 "created_at": {
                     "type": "string"
                 },
                 "default_value": {
                     "description": "JSONB 原生值"
+                },
+                "edit_permission": {
+                    "description": "编辑权限",
+                    "type": "string"
                 },
                 "group": {
                     "type": "string"
@@ -5457,6 +5901,10 @@ const docTemplate = `{
                 "order": {
                     "type": "integer"
                 },
+                "scope": {
+                    "description": "system | user",
+                    "type": "string"
+                },
                 "ui_config": {
                     "$ref": "#/definitions/setting.UIConfigDTO"
                 },
@@ -5464,6 +5912,10 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "value_type": {
+                    "type": "string"
+                },
+                "view_permission": {
+                    "description": "查看权限",
                     "type": "string"
                 }
             }
@@ -5569,8 +6021,8 @@ const docTemplate = `{
         "setting.UserSettingDTO": {
             "type": "object",
             "properties": {
-                "category": {
-                    "type": "string"
+                "category_id": {
+                    "type": "integer"
                 },
                 "default_value": {
                     "description": "系统默认值"

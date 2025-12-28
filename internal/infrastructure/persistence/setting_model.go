@@ -14,13 +14,18 @@ import (
 type SettingModel struct {
 	ID           uint           `gorm:"primaryKey"`
 	Key          string         `gorm:"uniqueIndex;size:100;not null"`
-	DefaultValue datatypes.JSON `gorm:"type:jsonb;not null;default:'null'"` // JSONB 原生值
-	Category     string         `gorm:"size:50;index;not null"`
+	DefaultValue datatypes.JSON `gorm:"type:jsonb;not null;default:'null'"`    // JSONB 原生值
+	Scope        string         `gorm:"size:20;not null;default:'user';index"` // system | user
+	CategoryID   uint           `gorm:"index;not null"`                        // 逻辑关联 setting_categories.id（无物理 FK）
 	Group        string         `gorm:"size:50;index;default:''"`
 	ValueType    string         `gorm:"size:20;default:'string'"`
 	Label        string         `gorm:"size:200"`
 	UIConfig     datatypes.JSON `gorm:"type:jsonb;default:'{}'"`
 	Order        int            `gorm:"default:0;index"`
+
+	// 权限控制
+	ViewPermission string `gorm:"size:100;not null;default:'*:settings:read'"`
+	EditPermission string `gorm:"size:100;not null;default:'admin:settings:update'"`
 
 	CreatedAt time.Time
 	UpdatedAt time.Time
@@ -28,7 +33,7 @@ type SettingModel struct {
 
 // TableName 指定配置定义表名
 func (SettingModel) TableName() string {
-	return "setting_definitions"
+	return "settings"
 }
 
 func newSettingModelFromEntity(entity *setting.Setting) *SettingModel {
@@ -40,17 +45,20 @@ func newSettingModelFromEntity(entity *setting.Setting) *SettingModel {
 	defaultValueJSON, _ := json.Marshal(entity.DefaultValue) //nolint:errchkjson // DefaultValue 是任意 JSONB 值
 
 	return &SettingModel{
-		ID:           entity.ID,
-		Key:          entity.Key,
-		DefaultValue: datatypes.JSON(defaultValueJSON),
-		Category:     entity.Category,
-		Group:        entity.Group,
-		ValueType:    entity.ValueType,
-		Label:        entity.Label,
-		UIConfig:     datatypes.JSON(entity.UIConfig),
-		Order:        entity.Order,
-		CreatedAt:    entity.CreatedAt,
-		UpdatedAt:    entity.UpdatedAt,
+		ID:             entity.ID,
+		Key:            entity.Key,
+		DefaultValue:   datatypes.JSON(defaultValueJSON),
+		Scope:          entity.Scope,
+		CategoryID:     entity.CategoryID,
+		Group:          entity.Group,
+		ValueType:      entity.ValueType,
+		Label:          entity.Label,
+		UIConfig:       datatypes.JSON(entity.UIConfig),
+		Order:          entity.Order,
+		ViewPermission: entity.ViewPermission,
+		EditPermission: entity.EditPermission,
+		CreatedAt:      entity.CreatedAt,
+		UpdatedAt:      entity.UpdatedAt,
 	}
 }
 
@@ -65,17 +73,20 @@ func (m *SettingModel) ToEntity() *setting.Setting {
 	_ = json.Unmarshal(m.DefaultValue, &defaultValue)
 
 	return &setting.Setting{
-		ID:           m.ID,
-		Key:          m.Key,
-		DefaultValue: defaultValue,
-		Category:     m.Category,
-		Group:        m.Group,
-		ValueType:    m.ValueType,
-		Label:        m.Label,
-		UIConfig:     string(m.UIConfig),
-		Order:        m.Order,
-		CreatedAt:    m.CreatedAt,
-		UpdatedAt:    m.UpdatedAt,
+		ID:             m.ID,
+		Key:            m.Key,
+		DefaultValue:   defaultValue,
+		Scope:          m.Scope,
+		CategoryID:     m.CategoryID,
+		Group:          m.Group,
+		ValueType:      m.ValueType,
+		Label:          m.Label,
+		UIConfig:       string(m.UIConfig),
+		Order:          m.Order,
+		ViewPermission: m.ViewPermission,
+		EditPermission: m.EditPermission,
+		CreatedAt:      m.CreatedAt,
+		UpdatedAt:      m.UpdatedAt,
 	}
 }
 

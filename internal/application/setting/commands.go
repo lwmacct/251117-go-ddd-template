@@ -1,10 +1,35 @@
 package setting
 
+// ==================== Category Commands ====================
+
+// CreateCategoryCommand 创建配置分类命令
+type CreateCategoryCommand struct {
+	Key   string
+	Label string
+	Icon  string
+	Order int
+}
+
+// UpdateCategoryCommand 更新配置分类命令
+type UpdateCategoryCommand struct {
+	ID    uint
+	Label string
+	Icon  string
+	Order int
+}
+
+// DeleteCategoryCommand 删除配置分类命令
+type DeleteCategoryCommand struct {
+	ID uint
+}
+
+// ==================== Setting Commands ====================
+
 // CreateCommand 创建配置命令
 type CreateCommand struct {
 	Key          string
 	DefaultValue any // JSONB 原生值
-	Category     string
+	CategoryID   uint
 	Group        string
 	ValueType    string
 	Label        string

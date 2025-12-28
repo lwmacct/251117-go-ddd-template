@@ -10,8 +10,8 @@ type QueryRepository interface {
 	// FindByKeys 根据多个 Key 批量查找配置定义
 	FindByKeys(ctx context.Context, keys []string) ([]*Setting, error)
 
-	// FindByCategory 根据分类查找配置定义列表
-	FindByCategory(ctx context.Context, category string) ([]*Setting, error)
+	// FindByCategoryID 根据分类 ID 查找配置定义列表
+	FindByCategoryID(ctx context.Context, categoryID uint) ([]*Setting, error)
 
 	// FindAll 查找所有配置定义
 	FindAll(ctx context.Context) ([]*Setting, error)

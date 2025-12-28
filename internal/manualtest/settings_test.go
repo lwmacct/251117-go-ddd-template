@@ -61,7 +61,7 @@ func TestSettingsFlow(t *testing.T) {
 	assert.Equal(t, "测试配置", detail.Label, "Label 不匹配")
 	t.Logf("  Key: %s", detail.Key)
 	t.Logf("  Label: %s", detail.Label)
-	t.Logf("  Category: %s", detail.Category)
+	t.Logf("  CategoryID: %d", detail.CategoryID)
 	t.Logf("  DefaultValue: %v", detail.DefaultValue)
 
 	// 测试 3: 更新配置
@@ -134,25 +134,25 @@ func TestGetSettingsWithFilters(t *testing.T) {
 			},
 		},
 		{
-			name:  "按 general 类别筛选",
-			query: map[string]string{"category": "general"},
+			name:  "按 category_id=1 筛选（general）",
+			query: map[string]string{"category_id": "1"},
 			validate: func(t *testing.T, settings []setting.SettingDTO) {
 				t.Helper()
 				for _, s := range settings {
-					assert.Equal(t, "general", s.Category, "配置 %s 的 Category 不是 general", s.Key)
+					assert.Equal(t, uint(1), s.CategoryID, "配置 %s 的 CategoryID 不是 1", s.Key)
 				}
-				t.Logf("general 类别配置数: %d", len(settings))
+				t.Logf("category_id=1 配置数: %d", len(settings))
 			},
 		},
 		{
-			name:  "按 security 类别筛选",
-			query: map[string]string{"category": "security"},
+			name:  "按 category_id=2 筛选（security）",
+			query: map[string]string{"category_id": "2"},
 			validate: func(t *testing.T, settings []setting.SettingDTO) {
 				t.Helper()
 				for _, s := range settings {
-					assert.Equal(t, "security", s.Category, "配置 %s 的 Category 不是 security", s.Key)
+					assert.Equal(t, uint(2), s.CategoryID, "配置 %s 的 CategoryID 不是 2", s.Key)
 				}
-				t.Logf("security 类别配置数: %d", len(settings))
+				t.Logf("category_id=2 配置数: %d", len(settings))
 			},
 		},
 	}

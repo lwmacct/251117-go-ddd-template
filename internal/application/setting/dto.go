@@ -2,6 +2,24 @@ package setting
 
 import "time"
 
+// ==================== Category DTO ====================
+
+// CategoryDTO 配置分类响应 DTO
+type CategoryDTO struct {
+	ID        uint      `json:"id"`
+	Key       string    `json:"key"`
+	Label     string    `json:"label"`
+	Icon      string    `json:"icon"`
+	Order     int       `json:"order"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+}
+
+// CreateCategoryResultDTO 创建分类结果 DTO
+type CreateCategoryResultDTO struct {
+	ID uint `json:"id"`
+}
+
 // ==================== UI 配置 DTO ====================
 
 // UIConfigDTO UI 配置（从 JSONB 解析）
@@ -30,17 +48,20 @@ type DependsOnConfigDTO struct {
 
 // SettingDTO 配置响应 DTO
 type SettingDTO struct {
-	ID           uint        `json:"id"`
-	Key          string      `json:"key"`
-	DefaultValue any         `json:"default_value"` // JSONB 原生值
-	Category     string      `json:"category"`
-	Group        string      `json:"group"`
-	ValueType    string      `json:"value_type"`
-	Label        string      `json:"label"`
-	UIConfig     UIConfigDTO `json:"ui_config"`
-	Order        int         `json:"order"`
-	CreatedAt    time.Time   `json:"created_at"`
-	UpdatedAt    time.Time   `json:"updated_at"`
+	ID             uint        `json:"id"`
+	Key            string      `json:"key"`
+	DefaultValue   any         `json:"default_value"` // JSONB 原生值
+	Scope          string      `json:"scope"`         // system | user
+	CategoryID     uint        `json:"category_id"`
+	Group          string      `json:"group"`
+	ValueType      string      `json:"value_type"`
+	Label          string      `json:"label"`
+	UIConfig       UIConfigDTO `json:"ui_config"`
+	Order          int         `json:"order"`
+	ViewPermission string      `json:"view_permission"` // 查看权限
+	EditPermission string      `json:"edit_permission"` // 编辑权限
+	CreatedAt      time.Time   `json:"created_at"`
+	UpdatedAt      time.Time   `json:"updated_at"`
 }
 
 // CreateResultDTO 创建配置结果 DTO
@@ -52,14 +73,17 @@ type CreateResultDTO struct {
 
 // SchemaSettingDTO Schema API 专用 DTO
 type SchemaSettingDTO struct {
-	Key          string      `json:"key"`
-	Value        any         `json:"value"`         // 默认值
-	DefaultValue any         `json:"default_value"` // 系统默认值
-	IsCustomized bool        `json:"is_customized"` // 始终为 false（系统配置）
-	ValueType    string      `json:"value_type"`
-	Label        string      `json:"label"`
-	UIConfig     UIConfigDTO `json:"ui_config"`
-	Order        int         `json:"order"`
+	Key            string      `json:"key"`
+	Value          any         `json:"value"`         // 默认值
+	DefaultValue   any         `json:"default_value"` // 系统默认值
+	IsCustomized   bool        `json:"is_customized"` // 始终为 false（系统配置）
+	Scope          string      `json:"scope"`         // system | user
+	ValueType      string      `json:"value_type"`
+	Label          string      `json:"label"`
+	UIConfig       UIConfigDTO `json:"ui_config"`
+	Order          int         `json:"order"`
+	ViewPermission string      `json:"view_permission"` // 查看权限
+	EditPermission string      `json:"edit_permission"` // 编辑权限
 }
 
 // SchemaGroupDTO Schema API 分组
@@ -102,7 +126,7 @@ type UserSettingDTO struct {
 	Value        any         `json:"value"`         // 实际生效值（用户值或默认值）
 	DefaultValue any         `json:"default_value"` // 系统默认值
 	IsCustomized bool        `json:"is_customized"` // 是否为用户自定义
-	Category     string      `json:"category"`
+	CategoryID   uint        `json:"category_id"`
 	Group        string      `json:"group"`
 	ValueType    string      `json:"value_type"`
 	Label        string      `json:"label"`

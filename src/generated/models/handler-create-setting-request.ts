@@ -22,10 +22,10 @@
 export interface HandlerCreateSettingRequest {
     /**
      * 
-     * @type {string}
+     * @type {number}
      * @memberof HandlerCreateSettingRequest
      */
-    'category': string;
+    'category_id': number;
     /**
      * 
      * @type {object}

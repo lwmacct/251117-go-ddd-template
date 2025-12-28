@@ -83,16 +83,25 @@ type MenuUseCases struct {
 
 // SettingUseCases 系统配置用例
 type SettingUseCases struct {
-	// Commands
+	// Setting Commands
 	Create      *setting.CreateHandler
 	Update      *setting.UpdateHandler
 	Delete      *setting.DeleteHandler
 	BatchUpdate *setting.BatchUpdateHandler
 
-	// Queries
+	// Setting Queries
 	Get        *setting.GetHandler
 	List       *setting.ListHandler
 	ListSchema *setting.ListSchemaHandler
+
+	// Category Commands
+	CreateCategory *setting.CreateCategoryHandler
+	UpdateCategory *setting.UpdateCategoryHandler
+	DeleteCategory *setting.DeleteCategoryHandler
+
+	// Category Queries
+	GetCategory    *setting.GetCategoryHandler
+	ListCategories *setting.ListCategoriesHandler
 }
 
 // UserSettingUseCases 用户配置用例

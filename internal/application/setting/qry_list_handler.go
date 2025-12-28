@@ -24,8 +24,8 @@ func (h *ListHandler) Handle(ctx context.Context, query ListQuery) ([]*SettingDT
 	var settings []*setting.Setting
 	var err error
 
-	if query.Category != "" {
-		settings, err = h.settingQueryRepo.FindByCategory(ctx, query.Category)
+	if query.CategoryID != 0 {
+		settings, err = h.settingQueryRepo.FindByCategoryID(ctx, query.CategoryID)
 	} else {
 		settings, err = h.settingQueryRepo.FindAll(ctx)
 	}

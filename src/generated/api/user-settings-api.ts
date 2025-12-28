@@ -83,11 +83,11 @@ export const UserSettingsApiAxiosParamCreator = function (configuration?: Config
         /**
          * 获取当前用户的所有配置（合并系统默认值）
          * @summary 获取用户配置列表
-         * @param {string} [category] 配置类别
+         * @param {number} [categoryId] 配置类别 ID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiUserSettingsGet: async (category?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        apiUserSettingsGet: async (categoryId?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             const localVarPath = `/api/user/settings`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -103,8 +103,8 @@ export const UserSettingsApiAxiosParamCreator = function (configuration?: Config
             // authentication BearerAuth required
             await setApiKeyToObject(localVarHeaderParameter, "Authorization", configuration)
 
-            if (category !== undefined) {
-                localVarQueryParameter['category'] = category;
+            if (categoryId !== undefined) {
+                localVarQueryParameter['category_id'] = categoryId;
             }
 
 
@@ -294,12 +294,12 @@ export const UserSettingsApiFp = function(configuration?: Configuration) {
         /**
          * 获取当前用户的所有配置（合并系统默认值）
          * @summary 获取用户配置列表
-         * @param {string} [category] 配置类别
+         * @param {number} [categoryId] 配置类别 ID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async apiUserSettingsGet(category?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseArraySettingUserSettingDTO>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.apiUserSettingsGet(category, options);
+        async apiUserSettingsGet(categoryId?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseArraySettingUserSettingDTO>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.apiUserSettingsGet(categoryId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['UserSettingsApi.apiUserSettingsGet']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -379,12 +379,12 @@ export const UserSettingsApiFactory = function (configuration?: Configuration, b
         /**
          * 获取当前用户的所有配置（合并系统默认值）
          * @summary 获取用户配置列表
-         * @param {string} [category] 配置类别
+         * @param {number} [categoryId] 配置类别 ID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiUserSettingsGet(category?: string, options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseArraySettingUserSettingDTO> {
-            return localVarFp.apiUserSettingsGet(category, options).then((request) => request(axios, basePath));
+        apiUserSettingsGet(categoryId?: number, options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseArraySettingUserSettingDTO> {
+            return localVarFp.apiUserSettingsGet(categoryId, options).then((request) => request(axios, basePath));
         },
         /**
          * 删除用户自定义配置，恢复为系统默认值
@@ -451,13 +451,13 @@ export class UserSettingsApi extends BaseAPI {
     /**
      * 获取当前用户的所有配置（合并系统默认值）
      * @summary 获取用户配置列表
-     * @param {string} [category] 配置类别
+     * @param {number} [categoryId] 配置类别 ID
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof UserSettingsApi
      */
-    public apiUserSettingsGet(category?: string, options?: RawAxiosRequestConfig) {
-        return UserSettingsApiFp(this.configuration).apiUserSettingsGet(category, options).then((request) => request(this.axios, this.basePath));
+    public apiUserSettingsGet(categoryId?: number, options?: RawAxiosRequestConfig) {
+        return UserSettingsApiFp(this.configuration).apiUserSettingsGet(categoryId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

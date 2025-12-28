@@ -31,8 +31,8 @@ func (h *UserListHandler) Handle(ctx context.Context, query UserListQuery) ([]*U
 	var defs []*setting.Setting
 	var err error
 
-	if query.Category != "" {
-		defs, err = h.settingQueryRepo.FindByCategory(ctx, query.Category)
+	if query.CategoryID != 0 {
+		defs, err = h.settingQueryRepo.FindByCategoryID(ctx, query.CategoryID)
 	} else {
 		defs, err = h.settingQueryRepo.FindAll(ctx)
 	}

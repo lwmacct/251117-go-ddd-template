@@ -6,6 +6,43 @@ import (
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/setting"
 )
 
+// ==================== Category Mappers ====================
+
+// ToCategoryDTO 将 SettingCategory 实体转换为 CategoryDTO
+func ToCategoryDTO(c *setting.SettingCategory) *CategoryDTO {
+	if c == nil {
+		return nil
+	}
+
+	return &CategoryDTO{
+		ID:        c.ID,
+		Key:       c.Key,
+		Label:     c.Label,
+		Icon:      c.Icon,
+		Order:     c.Order,
+		CreatedAt: c.CreatedAt,
+		UpdatedAt: c.UpdatedAt,
+	}
+}
+
+// ToCategoryDTOs 将 SettingCategory 实体列表转换为 CategoryDTO 列表
+func ToCategoryDTOs(categories []*setting.SettingCategory) []CategoryDTO {
+	if len(categories) == 0 {
+		return []CategoryDTO{}
+	}
+
+	dtos := make([]CategoryDTO, 0, len(categories))
+	for _, c := range categories {
+		if dto := ToCategoryDTO(c); dto != nil {
+			dtos = append(dtos, *dto)
+		}
+	}
+
+	return dtos
+}
+
+// ==================== Setting Mappers ====================
+
 // uiConfigRaw 内部结构用于解析 JSONB
 type uiConfigRaw struct {
 	InputType  string              `json:"input_type"`
@@ -41,17 +78,20 @@ func ToSettingDTO(s *setting.Setting) *SettingDTO {
 	}
 
 	return &SettingDTO{
-		ID:           s.ID,
-		Key:          s.Key,
-		DefaultValue: s.DefaultValue,
-		Category:     s.Category,
-		Group:        s.Group,
-		ValueType:    s.ValueType,
-		Label:        s.Label,
-		UIConfig:     parseUIConfig(s.UIConfig),
-		Order:        s.Order,
-		CreatedAt:    s.CreatedAt,
-		UpdatedAt:    s.UpdatedAt,
+		ID:             s.ID,
+		Key:            s.Key,
+		DefaultValue:   s.DefaultValue,
+		Scope:          s.Scope,
+		CategoryID:     s.CategoryID,
+		Group:          s.Group,
+		ValueType:      s.ValueType,
+		Label:          s.Label,
+		UIConfig:       parseUIConfig(s.UIConfig),
+		Order:          s.Order,
+		ViewPermission: s.ViewPermission,
+		EditPermission: s.EditPermission,
+		CreatedAt:      s.CreatedAt,
+		UpdatedAt:      s.UpdatedAt,
 	}
 }
 
@@ -102,7 +142,7 @@ func ToUserSettingDTO(s *setting.Setting, us *setting.UserSetting) *UserSettingD
 		Value:        s.DefaultValue, // 默认使用系统默认值
 		DefaultValue: s.DefaultValue,
 		IsCustomized: false,
-		Category:     s.Category,
+		CategoryID:   s.CategoryID,
 		Group:        s.Group,
 		ValueType:    s.ValueType,
 		Label:        s.Label,

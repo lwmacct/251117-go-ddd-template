@@ -25,10 +25,10 @@ import type { SettingUIConfigDTO } from './setting-uiconfig-dto';
 export interface SettingSettingDTO {
     /**
      * 
-     * @type {string}
+     * @type {number}
      * @memberof SettingSettingDTO
      */
-    'category'?: string;
+    'category_id'?: number;
     /**
      * 
      * @type {string}
@@ -41,6 +41,12 @@ export interface SettingSettingDTO {
      * @memberof SettingSettingDTO
      */
     'default_value'?: object;
+    /**
+     * 编辑权限
+     * @type {string}
+     * @memberof SettingSettingDTO
+     */
+    'edit_permission'?: string;
     /**
      * 
      * @type {string}
@@ -72,6 +78,12 @@ export interface SettingSettingDTO {
      */
     'order'?: number;
     /**
+     * system | user
+     * @type {string}
+     * @memberof SettingSettingDTO
+     */
+    'scope'?: string;
+    /**
      * 
      * @type {SettingUIConfigDTO}
      * @memberof SettingSettingDTO
@@ -89,5 +101,11 @@ export interface SettingSettingDTO {
      * @memberof SettingSettingDTO
      */
     'value_type'?: string;
+    /**
+     * 查看权限
+     * @type {string}
+     * @memberof SettingSettingDTO
+     */
+    'view_permission'?: string;
 }
 

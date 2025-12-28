@@ -98,13 +98,21 @@ func newSettingUseCases(repos *RepositoriesModule) *SettingUseCases {
 	validator := validation.NewJSONLogicValidator()
 
 	return &SettingUseCases{
+		// Setting handlers
 		Create:      setting.NewCreateHandler(repos.Setting.Command, repos.Setting.Query),
 		Update:      setting.NewUpdateHandler(repos.Setting.Command, repos.Setting.Query, validator),
 		Delete:      setting.NewDeleteHandler(repos.Setting.Command, repos.Setting.Query),
 		BatchUpdate: setting.NewBatchUpdateHandler(repos.Setting.Command, repos.Setting.Query, validator),
 		Get:         setting.NewGetHandler(repos.Setting.Query),
 		List:        setting.NewListHandler(repos.Setting.Query),
-		ListSchema:  setting.NewListSchemaHandler(repos.Setting.Query),
+		ListSchema:  setting.NewListSchemaHandler(repos.Setting.Query, repos.Setting.CategoryQuery),
+
+		// Category handlers
+		CreateCategory: setting.NewCreateCategoryHandler(repos.Setting.CategoryCommand, repos.Setting.CategoryQuery),
+		UpdateCategory: setting.NewUpdateCategoryHandler(repos.Setting.CategoryCommand, repos.Setting.CategoryQuery),
+		DeleteCategory: setting.NewDeleteCategoryHandler(repos.Setting.CategoryCommand, repos.Setting.CategoryQuery, repos.Setting.Query),
+		GetCategory:    setting.NewGetCategoryHandler(repos.Setting.CategoryQuery),
+		ListCategories: setting.NewListCategoriesHandler(repos.Setting.CategoryQuery),
 	}
 }
 
@@ -120,7 +128,7 @@ func newUserSettingUseCases(repos *RepositoriesModule) *UserSettingUseCases {
 		ResetAll:   setting.NewUserResetAllHandler(repos.UserSetting.Command),
 		Get:        setting.NewUserGetHandler(repos.Setting.Query, repos.UserSetting.Query),
 		List:       setting.NewUserListHandler(repos.Setting.Query, repos.UserSetting.Query),
-		ListSchema: setting.NewUserListSchemaHandler(repos.Setting.Query, repos.UserSetting.Query),
+		ListSchema: setting.NewUserListSchemaHandler(repos.Setting.Query, repos.UserSetting.Query, repos.Setting.CategoryQuery),
 	}
 }
 

@@ -25,10 +25,10 @@ import type { SettingUIConfigDTO } from './setting-uiconfig-dto';
 export interface SettingUserSettingDTO {
     /**
      * 
-     * @type {string}
+     * @type {number}
      * @memberof SettingUserSettingDTO
      */
-    'category'?: string;
+    'category_id'?: number;
     /**
      * 系统默认值
      * @type {object}

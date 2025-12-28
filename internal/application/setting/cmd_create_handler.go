@@ -46,7 +46,7 @@ func (h *CreateHandler) Handle(ctx context.Context, cmd CreateCommand) (*CreateR
 	s := &setting.Setting{
 		Key:          cmd.Key,
 		DefaultValue: cmd.DefaultValue,
-		Category:     cmd.Category,
+		CategoryID:   cmd.CategoryID,
 		Group:        cmd.Group,
 		ValueType:    valueType,
 		Label:        cmd.Label,

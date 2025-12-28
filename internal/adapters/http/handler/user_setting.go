@@ -1,6 +1,8 @@
 package handler
 
 import (
+	"strconv"
+
 	"github.com/gin-gonic/gin"
 	"github.com/lwmacct/251117-go-ddd-template/internal/adapters/http/response"
 	"github.com/lwmacct/251117-go-ddd-template/internal/application/setting"
@@ -50,7 +52,7 @@ func NewUserSettingHandler(
 // @Produce      json
 // @Security     BearerAuth
 // @x-permission {"scope":"user:settings:read"}
-// @Param        category query string false "配置类别" example:"general"
+// @Param        category_id query int false "配置类别 ID"
 // @Success      200 {object} response.DataResponse[[]setting.UserSettingDTO] "配置列表"
 // @Failure      401 {object} response.ErrorResponse "未授权"
 // @Failure      500 {object} response.ErrorResponse "服务器内部错误"
@@ -60,11 +62,15 @@ func (h *UserSettingHandler) GetUserSettings(c *gin.Context) {
 	if !ok {
 		return
 	}
-	category := c.Query("category")
+	var categoryID uint
+	if id := c.Query("category_id"); id != "" {
+		parsed, _ := strconv.ParseUint(id, 10, 64)
+		categoryID = uint(parsed)
+	}
 
 	settings, err := h.listHandler.Handle(c.Request.Context(), setting.UserListQuery{
-		UserID:   userID,
-		Category: category,
+		UserID:     userID,
+		CategoryID: categoryID,
 	})
 	if err != nil {
 		response.InternalError(c, err.Error())

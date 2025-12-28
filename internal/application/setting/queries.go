@@ -1,5 +1,17 @@
 package setting
 
+// ==================== Category Queries ====================
+
+// GetCategoryQuery 获取单个配置分类查询
+type GetCategoryQuery struct {
+	ID uint
+}
+
+// ListCategoriesQuery 获取配置分类列表查询
+type ListCategoriesQuery struct{}
+
+// ==================== Setting Queries ====================
+
 // GetQuery 获取配置查询
 type GetQuery struct {
 	Key string
@@ -7,7 +19,7 @@ type GetQuery struct {
 
 // ListQuery 获取配置列表查询
 type ListQuery struct {
-	Category string // 可选: 按类别过滤
+	CategoryID uint // 可选: 按类别 ID 过滤
 }
 
 // ListSchemaQuery 获取配置 Schema 查询（系统配置）
@@ -24,8 +36,8 @@ type UserGetQuery struct {
 
 // UserListQuery 获取用户配置列表查询（合并默认值）
 type UserListQuery struct {
-	UserID   uint
-	Category string // 可选: 按类别过滤
+	UserID     uint
+	CategoryID uint // 可选: 按类别 ID 过滤
 }
 
 // UserListSchemaQuery 获取用户配置 Schema 查询（带合并值）

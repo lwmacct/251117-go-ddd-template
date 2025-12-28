@@ -26,4 +26,19 @@ var (
 
 	// ErrInvalidValidationRule 无效的验证规则
 	ErrInvalidValidationRule = errors.New("invalid validation rule")
+
+	// ErrInvalidScope 无效的配置作用域
+	ErrInvalidScope = errors.New("invalid setting scope")
+
+	// ErrInvalidPermission 无效的权限配置
+	ErrInvalidPermission = errors.New("invalid permission configuration")
+
+	// ErrPermissionDenied 权限不足
+	ErrPermissionDenied = errors.New("permission denied")
+
+	// ErrCannotOverrideSystemSetting 系统设置不能被用户覆盖
+	ErrCannotOverrideSystemSetting = errors.New("cannot override system setting")
+
+	// ErrInvalidKeyFormat 无效的配置键格式
+	ErrInvalidKeyFormat = errors.New("invalid setting key format")
 )

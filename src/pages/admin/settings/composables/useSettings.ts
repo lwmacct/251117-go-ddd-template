@@ -20,17 +20,17 @@ export function useSettings() {
   const errorMessage = ref("");
   const successMessage = ref("");
 
-  // 按分类缓存的设置
+  // 按分类 ID 缓存的设置
   const settingsByCategory = computed(() => {
-    const map = new Map<string, Map<string, SettingSettingDTO>>();
+    const map = new Map<number, Map<string, SettingSettingDTO>>();
     settings.value.forEach((setting) => {
-      const category = setting.category ?? "default";
+      const categoryId = setting.category_id ?? 0;
       const key = setting.key ?? "";
       if (!key) return;
-      if (!map.has(category)) {
-        map.set(category, new Map());
+      if (!map.has(categoryId)) {
+        map.set(categoryId, new Map());
       }
-      map.get(category)!.set(key, setting);
+      map.get(categoryId)!.set(key, setting);
     });
     return map;
   });
@@ -83,12 +83,12 @@ export function useSettings() {
   };
 
   // 获取指定分类的设置
-  const fetchSettingsByCategory = async (category: string) => {
+  const fetchSettingsByCategory = async (categoryId: number) => {
     loading.value = true;
     errorMessage.value = "";
 
     try {
-      const response = await adminSettingsApi.apiAdminSettingsGet(category);
+      const response = await adminSettingsApi.apiAdminSettingsGet(categoryId);
       const categorySettings = (response.data.data ?? []) as SettingSettingDTO[];
       // 更新现有设置列表（合并）
       const existingKeys = new Set(settings.value.map((s) => s.key));

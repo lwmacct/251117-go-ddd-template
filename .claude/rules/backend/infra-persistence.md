@@ -77,3 +77,28 @@ setting_command_repository.go        # Setting 写仓储
 user_setting_model.go                # UserSetting Model
 user_setting_command_repository.go   # UserSetting 写仓储
 ```
+
+## 关联约束（禁止物理外键）
+
+```go
+// ❌ 禁止
+CategoryID uint `gorm:"constraint:OnDelete:CASCADE"`
+
+// ✅ 允许
+CategoryID uint `gorm:"index;not null"`  // 逻辑关联，应用层保证
+Roles []RoleModel `gorm:"many2many:user_roles"`  // 多对多仅定义表名
+```
+
+## GORM 高级特性
+
+| 特性        | 用途       | 关键 API                           |
+| ----------- | ---------- | ---------------------------------- |
+| Scopes      | 可复用查询 | `db.Scopes(fn).Find()`             |
+| Hooks       | 生命周期   | `BeforeCreate`, `AfterFind`        |
+| OnConflict  | Upsert     | `clause.OnConflict{DoUpdates:...}` |
+| Transaction | 事务       | `db.Transaction(func(tx)...)`      |
+| Association | 关联管理   | `Append`, `Replace`, `Clear`       |
+| Preload     | 预加载     | `db.Preload("Roles").Find()`       |
+| Batch       | 批量操作   | `CreateInBatches`, `FindInBatches` |
+| Soft Delete | 软删除     | `gorm.DeletedAt`                   |
+| JSONB       | JSON 字段  | `datatypes.JSON`                   |

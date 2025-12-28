@@ -10,13 +10,18 @@ import (
 
 // ListSchemaHandler 获取设置 Schema 查询处理器
 type ListSchemaHandler struct {
-	settingQueryRepo setting.QueryRepository
+	settingQueryRepo  setting.QueryRepository
+	categoryQueryRepo setting.SettingCategoryQueryRepository
 }
 
 // NewListSchemaHandler 创建 ListSchemaHandler 实例
-func NewListSchemaHandler(settingQueryRepo setting.QueryRepository) *ListSchemaHandler {
+func NewListSchemaHandler(
+	settingQueryRepo setting.QueryRepository,
+	categoryQueryRepo setting.SettingCategoryQueryRepository,
+) *ListSchemaHandler {
 	return &ListSchemaHandler{
-		settingQueryRepo: settingQueryRepo,
+		settingQueryRepo:  settingQueryRepo,
+		categoryQueryRepo: categoryQueryRepo,
 	}
 }
 
@@ -25,53 +30,61 @@ func NewListSchemaHandler(settingQueryRepo setting.QueryRepository) *ListSchemaH
 //
 
 func (h *ListSchemaHandler) Handle(ctx context.Context, _ ListSchemaQuery) ([]SchemaCategoryDTO, error) {
+	// 1. 查询所有配置定义
 	settings, err := h.settingQueryRepo.FindAll(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to fetch settings: %w", err)
 	}
 
-	return h.buildSchema(settings), nil
+	// 2. 查询所有分类元数据
+	categories, err := h.categoryQueryRepo.FindAll(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch setting categories: %w", err)
+	}
+
+	return h.buildSchema(settings, categories), nil
 }
 
 // buildSchema 构建 Category → Group → Settings 层级结构
 //
 //nolint:dupl // 与 UserListSchemaHandler.buildSchema 结构相似但使用不同 DTO 类型
-func (h *ListSchemaHandler) buildSchema(settings []*setting.Setting) []SchemaCategoryDTO {
-	// 按 Category 分组
-	categoryMap := make(map[string]map[string][]SchemaSettingDTO)
+func (h *ListSchemaHandler) buildSchema(
+	settings []*setting.Setting,
+	categoryEntities []*setting.SettingCategory,
+) []SchemaCategoryDTO {
+	// 构建 CategoryID → Category 实体映射
+	categoryByID := make(map[uint]*setting.SettingCategory, len(categoryEntities))
+	for _, cat := range categoryEntities {
+		categoryByID[cat.ID] = cat
+	}
+
+	// 按 CategoryID 分组
+	categoryMap := make(map[uint]map[string][]SchemaSettingDTO)
 
 	for _, s := range settings {
-		category := s.Category
+		categoryID := s.CategoryID
 		group := s.Group
 		if group == "" {
 			group = "default"
 		}
 
-		if _, ok := categoryMap[category]; !ok {
-			categoryMap[category] = make(map[string][]SchemaSettingDTO)
+		if _, ok := categoryMap[categoryID]; !ok {
+			categoryMap[categoryID] = make(map[string][]SchemaSettingDTO)
 		}
 
 		dto := ToSchemaSettingDTO(s)
 		if dto != nil {
-			categoryMap[category][group] = append(categoryMap[category][group], *dto)
+			categoryMap[categoryID][group] = append(categoryMap[categoryID][group], *dto)
 		}
 	}
 
-	// 获取 Category 元数据
-	categoryMetas := setting.DefaultCategoryMetas()
-
 	// 构建响应
-	categories := make([]SchemaCategoryDTO, 0, len(categoryMap))
-	for category, groupMap := range categoryMap {
-		meta, ok := categoryMetas[category]
+	result := make([]SchemaCategoryDTO, 0, len(categoryMap))
+	for categoryID, groupMap := range categoryMap {
+		cat, ok := categoryByID[categoryID]
 		if !ok {
-			meta = setting.CategoryMeta{
-				Label: category,
-				Icon:  "mdi-cog",
-				Order: 99,
-			}
-			// 将未知 category 的元数据添加到 map 中，用于后续排序
-			categoryMetas[category] = meta
+			// 跳过未知 category
+			continue
 		}
 
 		groups := make([]SchemaGroupDTO, 0, len(groupMap))
@@ -99,22 +112,35 @@ func (h *ListSchemaHandler) buildSchema(settings []*setting.Setting) []SchemaCat
 			return groups[i].Group < groups[j].Group
 		})
 
-		categories = append(categories, SchemaCategoryDTO{
-			Category: category,
-			Label:    meta.Label,
-			Icon:     meta.Icon,
+		result = append(result, SchemaCategoryDTO{
+			Category: cat.Key,
+			Label:    cat.Label,
+			Icon:     cat.Icon,
 			Groups:   groups,
 		})
 	}
 
-	// 按 Category Meta Order 排序
-	sort.Slice(categories, func(i, j int) bool {
-		metaI := categoryMetas[categories[i].Category]
-		metaJ := categoryMetas[categories[j].Category]
-		return metaI.Order < metaJ.Order
+	// 按 Category Order 排序
+	sort.Slice(result, func(i, j int) bool {
+		catI := categoryByID[h.getCategoryIDByKey(categoryByID, result[i].Category)]
+		catJ := categoryByID[h.getCategoryIDByKey(categoryByID, result[j].Category)]
+		if catI == nil || catJ == nil {
+			return result[i].Category < result[j].Category
+		}
+		return catI.Order < catJ.Order
 	})
 
-	return categories
+	return result
+}
+
+// getCategoryIDByKey 根据 key 查找 CategoryID（用于排序）
+func (h *ListSchemaHandler) getCategoryIDByKey(categoryByID map[uint]*setting.SettingCategory, key string) uint {
+	for id, cat := range categoryByID {
+		if cat.Key == key {
+			return id
+		}
+	}
+	return 0
 }
 
 // getGroupLabel 获取分组显示名称

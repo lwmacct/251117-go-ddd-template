@@ -2,18 +2,34 @@
 //
 // 本包管理应用程序的动态配置项，支持运行时修改而无需重启服务。
 //
-// # 双表设计
+// # 三表设计
 //
-// 采用配置定义与用户配置分离的设计：
-//   - [Setting]: 配置定义表，存储 Schema 和默认值
+// 采用配置定义、分类元数据与用户配置分离的设计：
+//   - [Setting]: 配置定义表，存储 Schema、默认值和权限
+//   - [SettingCategory]: 配置分类表，存储 Category 的 UI 元数据
 //   - [UserSetting]: 用户配置表，存储用户自定义值（覆盖模式）
+//
+// # 配置作用域 (Scope)
+//
+// Setting.Scope 决定配置的作用域和访问方式：
+//   - system: 系统设置，全局唯一，管理员直接修改 DefaultValue
+//   - user: 用户设置，DefaultValue 作为初始值，用户可在 user_settings 表覆盖
+//
+// # 权限控制
+//
+// 配置项的可见性和编辑权限由 RBAC 系统控制：
+//   - ViewPermission: 查看权限，如 "user:settings:read"
+//   - EditPermission: 编辑权限，如 "admin:settings:update"
+//
+// 权限格式遵循三段式 domain:resource:action，支持通配符匹配。
 //
 // # 配置分类 (Category)
 //
-//   - general: 通用配置
-//   - security: 安全相关配置
-//   - notification: 通知配置
-//   - backup: 备份配置
+// 分类元数据存储在 setting_categories 表，供前端直接渲染：
+//   - general: 常规设置
+//   - security: 安全设置
+//   - notification: 通知设置
+//   - backup: 备份设置
 //
 // # 值类型 (ValueType)
 //
@@ -28,6 +44,7 @@
 // 遵循 CQRS 模式，读写分离：
 //   - [CommandRepository]: 配置定义写操作
 //   - [QueryRepository]: 配置定义读操作
+//   - [SettingCategoryQueryRepository]: 配置分类只读操作
 //   - [UserSettingCommandRepository]: 用户配置写操作
 //   - [UserSettingQueryRepository]: 用户配置读操作
 //

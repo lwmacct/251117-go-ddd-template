@@ -5,6 +5,7 @@ api.ts
 api/admin-audit-log-api.ts
 api/admin-menu-management-api.ts
 api/admin-role-management-api.ts
+api/admin-setting-categories-api.ts
 api/admin-settings-api.ts
 api/admin-user-management-api.ts
 api/authentication-api.ts
@@ -41,8 +42,10 @@ models/github-com-lwmacct251117-go-ddd-template-internal-domain-health-status.ts
 models/handler-batch-set-user-settings-request-settings-inner.ts
 models/handler-batch-set-user-settings-request.ts
 models/handler-batch-update-settings-request.ts
+models/handler-create-category-request.ts
 models/handler-create-setting-request.ts
 models/handler-set-user-setting-request.ts
+models/handler-update-category-request.ts
 models/handler-update-profile-request.ts
 models/handler-update-setting-request.ts
 models/index.ts
@@ -56,6 +59,7 @@ models/pat-create-result-dto.ts
 models/pat-token-dto.ts
 models/response-data-response-array-menu-menu-dto.ts
 models/response-data-response-array-pat-token-dto.ts
+models/response-data-response-array-setting-category-dto.ts
 models/response-data-response-array-setting-schema-category-dto.ts
 models/response-data-response-array-setting-setting-dto.ts
 models/response-data-response-array-setting-user-schema-category-dto.ts
@@ -74,6 +78,7 @@ models/response-data-response-pat-create-result-dto.ts
 models/response-data-response-pat-token-dto.ts
 models/response-data-response-role-create-result-dto.ts
 models/response-data-response-role-role-dto.ts
+models/response-data-response-setting-category-dto.ts
 models/response-data-response-setting-setting-dto.ts
 models/response-data-response-setting-user-setting-dto.ts
 models/response-data-response-stats-stats-dto.ts
@@ -96,6 +101,7 @@ models/role-permission-dto.ts
 models/role-role-dto.ts
 models/role-set-permissions-dto.ts
 models/role-update-dto.ts
+models/setting-category-dto.ts
 models/setting-depends-on-config-dto.ts
 models/setting-schema-category-dto.ts
 models/setting-schema-group-dto.ts

@@ -30,6 +30,12 @@ export interface SettingSchemaSettingDTO {
      */
     'default_value'?: object;
     /**
+     * 编辑权限
+     * @type {string}
+     * @memberof SettingSchemaSettingDTO
+     */
+    'edit_permission'?: string;
+    /**
      * 始终为 false（系统配置）
      * @type {boolean}
      * @memberof SettingSchemaSettingDTO
@@ -54,6 +60,12 @@ export interface SettingSchemaSettingDTO {
      */
     'order'?: number;
     /**
+     * system | user
+     * @type {string}
+     * @memberof SettingSchemaSettingDTO
+     */
+    'scope'?: string;
+    /**
      * 
      * @type {SettingUIConfigDTO}
      * @memberof SettingSchemaSettingDTO
@@ -71,5 +83,11 @@ export interface SettingSchemaSettingDTO {
      * @memberof SettingSchemaSettingDTO
      */
     'value_type'?: string;
+    /**
+     * 查看权限
+     * @type {string}
+     * @memberof SettingSchemaSettingDTO
+     */
+    'view_permission'?: string;
 }
 

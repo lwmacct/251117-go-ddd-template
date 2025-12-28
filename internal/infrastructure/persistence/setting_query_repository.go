@@ -45,15 +45,15 @@ func (r *settingQueryRepository) FindByKeys(ctx context.Context, keys []string) 
 	return mapSettingModelsToEntities(models), nil
 }
 
-// FindByCategory 根据分类查找配置定义列表
-func (r *settingQueryRepository) FindByCategory(ctx context.Context, category string) ([]*setting.Setting, error) {
+// FindByCategoryID 根据分类 ID 查找配置定义列表
+func (r *settingQueryRepository) FindByCategoryID(ctx context.Context, categoryID uint) ([]*setting.Setting, error) {
 	var models []SettingModel
 	err := r.db.WithContext(ctx).
-		Where("category = ?", category).
+		Where("category_id = ?", categoryID).
 		Order(`"group" ASC, "order" ASC, key ASC`).
 		Find(&models).Error
 	if err != nil {
-		return nil, fmt.Errorf("failed to find setting definitions by category: %w", err)
+		return nil, fmt.Errorf("failed to find setting definitions by category ID: %w", err)
 	}
 	return mapSettingModelsToEntities(models), nil
 }
@@ -62,7 +62,7 @@ func (r *settingQueryRepository) FindByCategory(ctx context.Context, category st
 func (r *settingQueryRepository) FindAll(ctx context.Context) ([]*setting.Setting, error) {
 	var models []SettingModel
 	err := r.db.WithContext(ctx).
-		Order(`category ASC, "group" ASC, "order" ASC, key ASC`).
+		Order(`category_id ASC, "group" ASC, "order" ASC, key ASC`).
 		Find(&models).Error
 	if err != nil {
 		return nil, fmt.Errorf("failed to find all setting definitions: %w", err)
