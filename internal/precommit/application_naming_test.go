@@ -1,76 +1,12 @@
 package precommit_test
 
 import (
-	"bufio"
-	"os"
 	"path/filepath"
-	"regexp"
 	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
-
-// structInfo 从文件中提取的结构体信息
-type structInfo struct {
-	File string
-	Name string
-}
-
-// parseStructs 解析 Go 文件中的结构体定义
-func parseStructs(t *testing.T, filePath string) []structInfo {
-	t.Helper()
-
-	file, err := os.Open(filePath) //nolint:gosec // 测试代码
-	if err != nil {
-		return nil
-	}
-	defer func() { _ = file.Close() }()
-
-	structRe := regexp.MustCompile(`^\s*type\s+([A-Za-z_][A-Za-z0-9_]*)\s+struct`)
-	var structs []structInfo
-	scanner := bufio.NewScanner(file)
-
-	for scanner.Scan() {
-		if matches := structRe.FindStringSubmatch(scanner.Text()); len(matches) == 2 {
-			structs = append(structs, structInfo{
-				File: filepath.Base(filePath),
-				Name: matches[1],
-			})
-		}
-	}
-
-	return structs
-}
-
-// getApplicationFiles 获取 application 目录下的所有 Go 文件
-func getApplicationFiles(t *testing.T) []string {
-	t.Helper()
-
-	appDir := "../application"
-	var files []string
-
-	err := filepath.Walk(appDir, func(path string, info os.FileInfo, err error) error {
-		if err != nil {
-			return err
-		}
-		if info.IsDir() || !strings.HasSuffix(path, ".go") {
-			return nil
-		}
-		// 跳过测试文件和 handler 文件
-		if strings.HasSuffix(path, "_test.go") || strings.HasSuffix(path, "_handler.go") {
-			return nil
-		}
-		files = append(files, path)
-		return nil
-	})
-
-	if err != nil {
-		t.Logf("warning: failed to walk application directory: %v", err)
-	}
-
-	return files
-}
 
 // TestApplicationNaming_CommandSuffix 验证 commands.go / cmd_*.go 中的结构体以 Command 结尾
 func TestApplicationNaming_CommandSuffix(t *testing.T) {
