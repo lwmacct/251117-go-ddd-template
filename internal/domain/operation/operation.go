@@ -36,6 +36,25 @@ const (
 )
 
 // ============================================================================
+// 审计分类
+// ============================================================================
+
+// AuditCategory 审计分类。
+type AuditCategory string
+
+const (
+	AuditCatAuth        AuditCategory = "auth"
+	AuditCatUser        AuditCategory = "user"
+	AuditCatRole        AuditCategory = "role"
+	AuditCatMenu        AuditCategory = "menu"
+	AuditCatSetting     AuditCategory = "setting"
+	AuditCatCache       AuditCategory = "cache"
+	AuditCatProfile     AuditCategory = "profile"
+	AuditCatToken       AuditCategory = "token"
+	AuditCatUserSetting AuditCategory = "user_setting"
+)
+
+// ============================================================================
 // 元数据结构
 // ============================================================================
 
@@ -51,7 +70,7 @@ type operationMeta struct {
 
 	// 审计日志（GitHub Audit Log 风格）
 	AuditAction    string         // 审计操作标识，如 user.create（空=不审计）
-	AuditCategory  string         // 审计分类，如 user
+	AuditCategory  AuditCategory  // 审计分类
 	AuditOperation AuditOperation // 审计操作类型，如 create
 
 	// 显示信息

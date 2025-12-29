@@ -40,7 +40,7 @@ func ToAuditActionDTOs(actions []operation.AuditActionDefinition) []AuditActionD
 		result[i] = AuditActionDTO{
 			Action:      a.Action,
 			Operation:   string(a.Operation),
-			Category:    a.Category,
+			Category:    string(a.Category),
 			Label:       a.Label,
 			Description: a.Description,
 		}

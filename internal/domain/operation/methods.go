@@ -47,8 +47,8 @@ func (o Operation) AuditAction() string {
 	return ""
 }
 
-// AuditCategory 返回审计分类
-func (o Operation) AuditCategory() string {
+// AuditCat 返回审计分类
+func (o Operation) AuditCat() AuditCategory {
 	if m, ok := operationRegistry[o]; ok {
 		return m.AuditCategory
 	}
@@ -115,4 +115,50 @@ func (o Operation) NeedsRole() bool {
 func (o Operation) Valid() bool {
 	_, ok := operationRegistry[o]
 	return ok
+}
+
+// ============================================================================
+// AuditOperation 方法
+// ============================================================================
+
+//nolint:gochecknoglobals // 标签映射是只读配置
+var auditOperationLabels = map[AuditOperation]string{
+	AuditOpCreate:       "创建",
+	AuditOpUpdate:       "更新",
+	AuditOpDelete:       "删除",
+	AuditOpAccess:       "访问",
+	AuditOpAuthenticate: "认证",
+}
+
+// Label 返回审计操作的中文标签
+func (o AuditOperation) Label() string {
+	if label, ok := auditOperationLabels[o]; ok {
+		return label
+	}
+	return string(o)
+}
+
+// ============================================================================
+// AuditCategory 方法
+// ============================================================================
+
+//nolint:gochecknoglobals // 标签映射是只读配置
+var auditCategoryLabels = map[AuditCategory]string{
+	AuditCatAuth:        "认证",
+	AuditCatUser:        "用户",
+	AuditCatRole:        "角色",
+	AuditCatMenu:        "菜单",
+	AuditCatSetting:     "配置",
+	AuditCatCache:       "缓存",
+	AuditCatProfile:     "个人资料",
+	AuditCatToken:       "访问令牌",
+	AuditCatUserSetting: "用户配置",
+}
+
+// Label 返回审计分类的中文标签
+func (c AuditCategory) Label() string {
+	if label, ok := auditCategoryLabels[c]; ok {
+		return label
+	}
+	return string(c)
 }

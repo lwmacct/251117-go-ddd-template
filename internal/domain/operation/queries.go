@@ -66,7 +66,7 @@ func splitPermission(code string) [3]string {
 type AuditActionDefinition struct {
 	Action      string         `json:"action"`       // 审计操作标识，如 user.create
 	Operation   AuditOperation `json:"operation"`    // 操作类型，如 create
-	Category    string         `json:"category"`     // 分类，如 user
+	Category    AuditCategory  `json:"category"`     // 分类，如 user
 	Label       string         `json:"label"`        // 中文标签
 	Description string         `json:"description"`  // 英文描述
 	OperationID string         `json:"operation_id"` // API 操作标识
@@ -102,34 +102,17 @@ type CategoryOption struct {
 
 // AllAuditCategories 返回所有审计分类选项。
 func AllAuditCategories() []CategoryOption {
-	seen := make(map[string]bool)
-	categories := make([]CategoryOption, 0, 16) // 分类数量有限
-
-	categoryLabels := map[string]string{
-		"auth":         "认证",
-		"user":         "用户",
-		"role":         "角色",
-		"menu":         "菜单",
-		"setting":      "配置",
-		"cache":        "缓存",
-		"profile":      "个人资料",
-		"token":        "访问令牌",
-		"user_setting": "用户配置",
-	}
+	seen := make(map[AuditCategory]bool)
+	categories := make([]CategoryOption, 0, 16)
 
 	for _, meta := range operationRegistry {
 		if meta.AuditCategory == "" || seen[meta.AuditCategory] {
 			continue
 		}
 		seen[meta.AuditCategory] = true
-
-		label := categoryLabels[meta.AuditCategory]
-		if label == "" {
-			label = meta.AuditCategory
-		}
 		categories = append(categories, CategoryOption{
-			Value: meta.AuditCategory,
-			Label: label,
+			Value: string(meta.AuditCategory),
+			Label: meta.AuditCategory.Label(),
 		})
 	}
 
@@ -144,13 +127,18 @@ type OperationTypeOption struct {
 
 // AllAuditOperations 返回所有审计操作类型选项。
 func AllAuditOperations() []OperationTypeOption {
-	return []OperationTypeOption{
-		{Value: string(AuditOpCreate), Label: "创建"},
-		{Value: string(AuditOpUpdate), Label: "更新"},
-		{Value: string(AuditOpDelete), Label: "删除"},
-		{Value: string(AuditOpAccess), Label: "访问"},
-		{Value: string(AuditOpAuthenticate), Label: "认证"},
+	ops := []AuditOperation{
+		AuditOpCreate, AuditOpUpdate, AuditOpDelete,
+		AuditOpAccess, AuditOpAuthenticate,
 	}
+	result := make([]OperationTypeOption, len(ops))
+	for i, op := range ops {
+		result[i] = OperationTypeOption{
+			Value: string(op),
+			Label: op.Label(),
+		}
+	}
+	return result
 }
 
 // ByOperationID 通过操作标识符查找操作。
