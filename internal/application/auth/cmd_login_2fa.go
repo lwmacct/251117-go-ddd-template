@@ -8,17 +8,16 @@ import (
 
 	"github.com/lwmacct/251117-go-ddd-template/internal/application/auditlog"
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/auth"
+	"github.com/lwmacct/251117-go-ddd-template/internal/domain/twofa"
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/user"
-	authInfra "github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/auth"
-	twofaInfra "github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/twofa"
 )
 
 // Login2FAHandler 二次认证登录命令处理器
 type Login2FAHandler struct {
 	userQueryRepo   user.QueryRepository
 	authService     auth.Service
-	loginSession    *authInfra.LoginSessionService
-	twofaService    *twofaInfra.Service
+	loginSession    auth.SessionService
+	twofaService    twofa.Service
 	auditLogHandler *auditlog.CreateHandler
 }
 
@@ -26,8 +25,8 @@ type Login2FAHandler struct {
 func NewLogin2FAHandler(
 	userQueryRepo user.QueryRepository,
 	authService auth.Service,
-	loginSession *authInfra.LoginSessionService,
-	twofaService *twofaInfra.Service,
+	loginSession auth.SessionService,
+	twofaService twofa.Service,
 	auditLogHandler *auditlog.CreateHandler,
 ) *Login2FAHandler {
 	return &Login2FAHandler{

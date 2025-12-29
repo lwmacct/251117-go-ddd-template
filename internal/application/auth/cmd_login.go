@@ -10,7 +10,6 @@ import (
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/captcha"
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/twofa"
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/user"
-	authInfra "github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/auth"
 )
 
 // LoginHandler 登录命令处理器
@@ -19,7 +18,7 @@ type LoginHandler struct {
 	captchaCommandRepo captcha.CommandRepository
 	twofaQueryRepo     twofa.QueryRepository
 	authService        auth.Service
-	loginSession       *authInfra.LoginSessionService
+	loginSession       auth.SessionService
 	auditLogHandler    *auditlog.CreateHandler
 }
 
@@ -29,7 +28,7 @@ func NewLoginHandler(
 	captchaCommandRepo captcha.CommandRepository,
 	twofaQueryRepo twofa.QueryRepository,
 	authService auth.Service,
-	loginSession *authInfra.LoginSessionService,
+	loginSession auth.SessionService,
 	auditLogHandler *auditlog.CreateHandler,
 ) *LoginHandler {
 	return &LoginHandler{

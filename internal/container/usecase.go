@@ -11,16 +11,16 @@ import (
 	"github.com/lwmacct/251117-go-ddd-template/internal/application/role"
 	"github.com/lwmacct/251117-go-ddd-template/internal/application/setting"
 	"github.com/lwmacct/251117-go-ddd-template/internal/application/stats"
-	"github.com/lwmacct/251117-go-ddd-template/internal/application/twofa"
+	app_twofa "github.com/lwmacct/251117-go-ddd-template/internal/application/twofa"
 	"github.com/lwmacct/251117-go-ddd-template/internal/application/user"
 	domain_auth "github.com/lwmacct/251117-go-ddd-template/internal/domain/auth"
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/captcha"
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/event"
 	domain_stats "github.com/lwmacct/251117-go-ddd-template/internal/domain/stats"
+	domain_twofa "github.com/lwmacct/251117-go-ddd-template/internal/domain/twofa"
 	infra_auth "github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/auth"
 	infra_captcha "github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/captcha"
 	"github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/persistence"
-	infra_twofa "github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/twofa"
 	"github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/validation"
 )
 
@@ -70,7 +70,7 @@ type SettingUseCases struct {
 	BatchUpdate    *setting.BatchUpdateHandler
 	Get            *setting.GetHandler
 	List           *setting.ListHandler
-	ListSchema     *setting.ListSchemaHandler
+	ListSettings   *setting.ListSettingsHandler
 	CreateCategory *setting.CreateCategoryHandler
 	UpdateCategory *setting.UpdateCategoryHandler
 	DeleteCategory *setting.DeleteCategoryHandler
@@ -85,7 +85,7 @@ type UserSettingUseCases struct {
 	ResetAll       *setting.UserResetAllHandler
 	Get            *setting.UserGetHandler
 	List           *setting.UserListHandler
-	ListSchema     *setting.UserListSchemaHandler
+	ListSettings   *setting.UserListSettingsHandler
 	ListCategories *setting.UserListCategoriesHandler
 }
 
@@ -113,10 +113,10 @@ type CaptchaUseCases struct {
 }
 
 type TwoFAUseCases struct {
-	Setup        *twofa.SetupHandler
-	VerifyEnable *twofa.VerifyEnableHandler
-	Disable      *twofa.DisableHandler
-	GetStatus    *twofa.GetStatusHandler
+	Setup        *app_twofa.SetupHandler
+	VerifyEnable *app_twofa.VerifyEnableHandler
+	Disable      *app_twofa.DisableHandler
+	GetStatus    *app_twofa.GetStatusHandler
 }
 
 // --- Fx 模块 ---
@@ -156,8 +156,8 @@ type authUseCasesParams struct {
 	CaptchaCommand captcha.CommandRepository
 	TwoFARepos     persistence.TwoFARepositories
 	AuthSvc        domain_auth.Service
-	LoginSession   *infra_auth.LoginSessionService
-	TwoFASvc       *infra_twofa.Service
+	LoginSession   domain_auth.SessionService
+	TwoFASvc       domain_twofa.Service
 	AuditLog       *AuditLogUseCases
 }
 
@@ -228,24 +228,24 @@ func newMenuUseCases(repos persistence.MenuRepositories) *MenuUseCases {
 type settingUseCasesParams struct {
 	fx.In
 
-	SettingRepos persistence.SettingRepositories
-	SchemaCache  setting.SchemaCacheService
+	SettingRepos  persistence.SettingRepositories
+	SettingsCache setting.SettingsCacheService
 }
 
 func newSettingUseCases(p settingUseCasesParams) *SettingUseCases {
 	validator := validation.NewJSONLogicValidator()
 
 	return &SettingUseCases{
-		Create:         setting.NewCreateHandler(p.SettingRepos.Command, p.SettingRepos.Query, p.SchemaCache),
-		Update:         setting.NewUpdateHandler(p.SettingRepos.Command, p.SettingRepos.Query, validator, p.SchemaCache),
-		Delete:         setting.NewDeleteHandler(p.SettingRepos.Command, p.SettingRepos.Query, p.SchemaCache),
-		BatchUpdate:    setting.NewBatchUpdateHandler(p.SettingRepos.Command, p.SettingRepos.Query, validator, p.SchemaCache),
+		Create:         setting.NewCreateHandler(p.SettingRepos.Command, p.SettingRepos.Query, p.SettingsCache),
+		Update:         setting.NewUpdateHandler(p.SettingRepos.Command, p.SettingRepos.Query, validator, p.SettingsCache),
+		Delete:         setting.NewDeleteHandler(p.SettingRepos.Command, p.SettingRepos.Query, p.SettingsCache),
+		BatchUpdate:    setting.NewBatchUpdateHandler(p.SettingRepos.Command, p.SettingRepos.Query, validator, p.SettingsCache),
 		Get:            setting.NewGetHandler(p.SettingRepos.Query),
 		List:           setting.NewListHandler(p.SettingRepos.Query),
-		ListSchema:     setting.NewListSchemaHandler(p.SettingRepos.Query, p.SettingRepos.CategoryQuery, p.SchemaCache),
-		CreateCategory: setting.NewCreateCategoryHandler(p.SettingRepos.CategoryCommand, p.SettingRepos.CategoryQuery),
-		UpdateCategory: setting.NewUpdateCategoryHandler(p.SettingRepos.CategoryCommand, p.SettingRepos.CategoryQuery),
-		DeleteCategory: setting.NewDeleteCategoryHandler(p.SettingRepos.CategoryCommand, p.SettingRepos.CategoryQuery, p.SettingRepos.Query),
+		ListSettings:   setting.NewListSettingsHandler(p.SettingRepos.Query, p.SettingRepos.CategoryQuery, p.SettingsCache),
+		CreateCategory: setting.NewCreateCategoryHandler(p.SettingRepos.CategoryCommand, p.SettingRepos.CategoryQuery, p.SettingsCache),
+		UpdateCategory: setting.NewUpdateCategoryHandler(p.SettingRepos.CategoryCommand, p.SettingRepos.CategoryQuery, p.SettingsCache),
+		DeleteCategory: setting.NewDeleteCategoryHandler(p.SettingRepos.CategoryCommand, p.SettingRepos.CategoryQuery, p.SettingRepos.Query, p.SettingsCache),
 		GetCategory:    setting.NewGetCategoryHandler(p.SettingRepos.CategoryQuery),
 		ListCategories: setting.NewListCategoriesHandler(p.SettingRepos.CategoryQuery),
 	}
@@ -257,7 +257,7 @@ type userSettingUseCasesParams struct {
 
 	SettingRepos     persistence.SettingRepositories
 	UserSettingRepos persistence.UserSettingRepositories
-	SchemaCache      setting.SchemaCacheService
+	SettingsCache    setting.SettingsCacheService
 }
 
 func newUserSettingUseCases(p userSettingUseCasesParams) *UserSettingUseCases {
@@ -270,8 +270,8 @@ func newUserSettingUseCases(p userSettingUseCasesParams) *UserSettingUseCases {
 		ResetAll:       setting.NewUserResetAllHandler(p.UserSettingRepos.Command),
 		Get:            setting.NewUserGetHandler(p.SettingRepos.Query, p.UserSettingRepos.Query),
 		List:           setting.NewUserListHandler(p.SettingRepos.Query, p.UserSettingRepos.Query),
-		ListSchema:     setting.NewUserListSchemaHandler(p.SettingRepos.Query, p.UserSettingRepos.Query, p.SettingRepos.CategoryQuery, p.SchemaCache),
-		ListCategories: setting.NewUserListCategoriesHandler(p.SettingRepos.Query, p.SettingRepos.CategoryQuery, p.SchemaCache),
+		ListSettings:   setting.NewUserListSettingsHandler(p.SettingRepos.Query, p.UserSettingRepos.Query, p.SettingRepos.CategoryQuery, p.SettingsCache),
+		ListCategories: setting.NewUserListCategoriesHandler(p.SettingRepos.Query, p.SettingRepos.CategoryQuery, p.SettingsCache),
 	}
 }
 
@@ -310,11 +310,11 @@ func newCaptchaUseCases(
 	}
 }
 
-func newTwoFAUseCases(twofaSvc *infra_twofa.Service) *TwoFAUseCases {
+func newTwoFAUseCases(twofaSvc domain_twofa.Service) *TwoFAUseCases {
 	return &TwoFAUseCases{
-		Setup:        twofa.NewSetupHandler(twofaSvc),
-		VerifyEnable: twofa.NewVerifyEnableHandler(twofaSvc),
-		Disable:      twofa.NewDisableHandler(twofaSvc),
-		GetStatus:    twofa.NewGetStatusHandler(twofaSvc),
+		Setup:        app_twofa.NewSetupHandler(twofaSvc),
+		VerifyEnable: app_twofa.NewVerifyEnableHandler(twofaSvc),
+		Disable:      app_twofa.NewDisableHandler(twofaSvc),
+		GetStatus:    app_twofa.NewGetStatusHandler(twofaSvc),
 	}
 }

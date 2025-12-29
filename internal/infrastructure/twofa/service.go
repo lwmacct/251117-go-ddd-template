@@ -195,3 +195,5 @@ func (s *Service) GetStatus(ctx context.Context, userID uint) (bool, int, error)
 
 	return tfa.IsEnabled(), tfa.GetRecoveryCodesCount(), nil
 }
+
+var _ domainTwoFA.Service = (*Service)(nil)

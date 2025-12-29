@@ -8,6 +8,8 @@ import (
 	"fmt"
 	"sync"
 	"time"
+
+	domainauth "github.com/lwmacct/251117-go-ddd-template/internal/domain/auth"
 )
 
 const (
@@ -15,8 +17,8 @@ const (
 	SessionTokenExpiration = 5 * time.Minute
 )
 
-// LoginSessionData 登录会话数据
-type LoginSessionData struct {
+// loginSessionData 登录会话数据（内部存储）
+type loginSessionData struct {
 	UserID    uint      // 用户ID
 	Account   string    // 登录账号
 	CreatedAt time.Time // 创建时间
@@ -24,23 +26,23 @@ type LoginSessionData struct {
 }
 
 // IsExpired 检查是否过期
-func (s *LoginSessionData) IsExpired() bool {
+func (s *loginSessionData) IsExpired() bool {
 	return time.Now().After(s.ExpireAt)
 }
 
-// LoginSessionService 登录会话服务
+// loginSessionService 登录会话服务
 // 用于 2FA 验证流程中的临时会话管理
 // 🔒 安全策略：防止 2FA 暴力破解
-type LoginSessionService struct {
-	sessions  map[string]*LoginSessionData
+type loginSessionService struct {
+	sessions  map[string]*loginSessionData
 	mu        sync.RWMutex
 	stopClean chan struct{}
 }
 
 // NewLoginSessionService 创建登录会话服务
-func NewLoginSessionService() *LoginSessionService {
-	service := &LoginSessionService{
-		sessions:  make(map[string]*LoginSessionData),
+func NewLoginSessionService() domainauth.SessionService {
+	service := &loginSessionService{
+		sessions:  make(map[string]*loginSessionData),
 		stopClean: make(chan struct{}),
 	}
 
@@ -51,7 +53,7 @@ func NewLoginSessionService() *LoginSessionService {
 }
 
 // GenerateSessionToken 生成会话token
-func (s *LoginSessionService) GenerateSessionToken(ctx context.Context, userID uint, account string) (string, error) {
+func (s *loginSessionService) GenerateSessionToken(ctx context.Context, userID uint, account string) (string, error) {
 	// 生成随机token（32字节，hex编码后64个字符）
 	b := make([]byte, 32)
 	if _, err := rand.Read(b); err != nil {
@@ -64,7 +66,7 @@ func (s *LoginSessionService) GenerateSessionToken(ctx context.Context, userID u
 
 	// 存储会话数据
 	now := time.Now()
-	s.sessions[token] = &LoginSessionData{
+	s.sessions[token] = &loginSessionData{
 		UserID:    userID,
 		Account:   account,
 		CreatedAt: now,
@@ -76,7 +78,7 @@ func (s *LoginSessionService) GenerateSessionToken(ctx context.Context, userID u
 
 // VerifySessionToken 验证会话token
 // 验证后自动删除token（一次性使用）
-func (s *LoginSessionService) VerifySessionToken(ctx context.Context, token string) (*LoginSessionData, error) {
+func (s *loginSessionService) VerifySessionToken(ctx context.Context, token string) (*domainauth.SessionData, error) {
 	if token == "" {
 		return nil, errors.New("session token is required")
 	}
@@ -99,11 +101,17 @@ func (s *LoginSessionService) VerifySessionToken(ctx context.Context, token stri
 	// 验证成功后删除token（一次性使用）
 	delete(s.sessions, token)
 
-	return sessionData, nil
+	// 转换为 Domain 层结构
+	return &domainauth.SessionData{
+		UserID:    sessionData.UserID,
+		Account:   sessionData.Account,
+		CreatedAt: sessionData.CreatedAt,
+		ExpireAt:  sessionData.ExpireAt,
+	}, nil
 }
 
 // cleanupExpired 定期清理过期会话
-func (s *LoginSessionService) cleanupExpired() {
+func (s *loginSessionService) cleanupExpired() {
 	ticker := time.NewTicker(1 * time.Minute)
 	defer ticker.Stop()
 
@@ -124,7 +132,9 @@ func (s *LoginSessionService) cleanupExpired() {
 }
 
 // Close 关闭服务（停止清理协程）
-func (s *LoginSessionService) Close() error {
+func (s *loginSessionService) Close() error {
 	close(s.stopClean)
 	return nil
 }
+
+var _ domainauth.SessionService = (*loginSessionService)(nil)

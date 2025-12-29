@@ -3,11 +3,13 @@ package container
 import (
 	"go.uber.org/fx"
 
+	appauth "github.com/lwmacct/251117-go-ddd-template/internal/application/auth"
+	appuser "github.com/lwmacct/251117-go-ddd-template/internal/application/user"
 	"github.com/lwmacct/251117-go-ddd-template/internal/config"
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/auth"
-	"github.com/lwmacct/251117-go-ddd-template/internal/domain/cache"
+	domain_twofa "github.com/lwmacct/251117-go-ddd-template/internal/domain/twofa"
 	"github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/persistence"
-	"github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/twofa"
+	infra_twofa "github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/twofa"
 
 	infra_auth "github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/auth"
 	infra_captcha "github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/captcha"
@@ -41,8 +43,8 @@ func newJWTManager(cfg *config.Config) *infra_auth.JWTManager {
 }
 
 func newAuthPermissionCacheService(
-	permissionCache cache.PermissionCacheService,
-	userWithRolesCache cache.UserWithRolesCacheService,
+	permissionCache appauth.PermissionCacheService,
+	userWithRolesCache appuser.UserWithRolesCacheService,
 	userRepos persistence.UserRepositories,
 ) *infra_auth.PermissionCacheService {
 	return infra_auth.NewPermissionCacheService(
@@ -73,6 +75,6 @@ type twofaServiceParams struct {
 	UserRepos persistence.UserRepositories
 }
 
-func newTwoFAService(p twofaServiceParams) *twofa.Service {
-	return twofa.NewService(p.TwoFA.Command, p.TwoFA.Query, p.UserRepos.Query, p.Config.Auth.TwoFAIssuer)
+func newTwoFAService(p twofaServiceParams) domain_twofa.Service {
+	return infra_twofa.NewService(p.TwoFA.Command, p.TwoFA.Query, p.UserRepos.Query, p.Config.Auth.TwoFAIssuer)
 }
