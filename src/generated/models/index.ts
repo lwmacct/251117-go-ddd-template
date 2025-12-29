@@ -1,4 +1,8 @@
+export * from './auditlog-audit-action-dto';
+export * from './auditlog-audit-actions-response-dto';
 export * from './auditlog-audit-log-dto';
+export * from './auditlog-category-option-dto';
+export * from './auditlog-operation-type-dto';
 export * from './auth-login2-fadto';
 export * from './auth-login-dto';
 export * from './auth-login-response-dto';
@@ -38,6 +42,7 @@ export * from './response-data-response-array-pat-token-dto';
 export * from './response-data-response-array-setting-category-dto';
 export * from './response-data-response-array-setting-category-meta-dto';
 export * from './response-data-response-array-setting-schema-category-dto';
+export * from './response-data-response-auditlog-audit-actions-response-dto';
 export * from './response-data-response-auditlog-audit-log-dto';
 export * from './response-data-response-auth-login-response-dto';
 export * from './response-data-response-auth-register-result-dto';

@@ -4,7 +4,7 @@ import (
 	"context"
 	"log/slog"
 
-	"github.com/lwmacct/251117-go-ddd-template/internal/domain/permission"
+	"github.com/lwmacct/251117-go-ddd-template/internal/domain/operation"
 	_persistence "github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/persistence"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
@@ -33,8 +33,8 @@ func (s *RBACSeeder) Seed(ctx context.Context, db *gorm.DB) error {
 func (s *RBACSeeder) seedPermissions(ctx context.Context, db *gorm.DB) error {
 	db = db.WithContext(ctx)
 
-	// 从权限常量包获取所有权限定义
-	defs := permission.AllDefinitions()
+	// 从统一操作注册表获取所有权限定义
+	defs := operation.AllPermissions()
 	permissions := make([]_persistence.PermissionModel, 0, len(defs))
 	for _, def := range defs {
 		permissions = append(permissions, _persistence.PermissionModel{

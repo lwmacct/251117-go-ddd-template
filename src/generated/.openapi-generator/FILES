@@ -21,7 +21,11 @@ common.ts
 configuration.ts
 git_push.sh
 index.ts
+models/auditlog-audit-action-dto.ts
+models/auditlog-audit-actions-response-dto.ts
 models/auditlog-audit-log-dto.ts
+models/auditlog-category-option-dto.ts
+models/auditlog-operation-type-dto.ts
 models/auth-login-dto.ts
 models/auth-login-response-dto.ts
 models/auth-login2-fadto.ts
@@ -62,6 +66,7 @@ models/response-data-response-array-pat-token-dto.ts
 models/response-data-response-array-setting-category-dto.ts
 models/response-data-response-array-setting-category-meta-dto.ts
 models/response-data-response-array-setting-schema-category-dto.ts
+models/response-data-response-auditlog-audit-actions-response-dto.ts
 models/response-data-response-auditlog-audit-log-dto.ts
 models/response-data-response-auth-login-response-dto.ts
 models/response-data-response-auth-register-result-dto.ts

@@ -22,6 +22,8 @@ import { DUMMY_BASE_URL, assertParamExists, setApiKeyToObject, setBasicAuthToObj
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS, type RequestArgs, BaseAPI, RequiredError, operationServerMap } from '../base';
 // @ts-ignore
+import type { ResponseDataResponseAuditlogAuditActionsResponseDTO } from '../models';
+// @ts-ignore
 import type { ResponseDataResponseAuditlogAuditLogDTO } from '../models';
 // @ts-ignore
 import type { ResponseErrorResponse } from '../models';
@@ -33,6 +35,39 @@ import type { ResponsePagedResponseAuditlogAuditLogDTO } from '../models';
  */
 export const AdminAuditLogApiAxiosParamCreator = function (configuration?: Configuration) {
     return {
+        /**
+         * 获取所有审计操作的定义、分类和操作类型，供前端筛选器使用
+         * @summary 获取审计操作定义
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiAdminAuditlogsActionsGet: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/admin/auditlogs/actions`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication BearerAuth required
+            await setApiKeyToObject(localVarHeaderParameter, "Authorization", configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
         /**
          * 分页获取审计日志，支持按用户、操作、资源、状态、时间范围筛选
          * @summary 获取审计日志列表
@@ -154,6 +189,18 @@ export const AdminAuditLogApiFp = function(configuration?: Configuration) {
     const localVarAxiosParamCreator = AdminAuditLogApiAxiosParamCreator(configuration)
     return {
         /**
+         * 获取所有审计操作的定义、分类和操作类型，供前端筛选器使用
+         * @summary 获取审计操作定义
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async apiAdminAuditlogsActionsGet(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseAuditlogAuditActionsResponseDTO>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.apiAdminAuditlogsActionsGet(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AdminAuditLogApi.apiAdminAuditlogsActionsGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
          * 分页获取审计日志，支持按用户、操作、资源、状态、时间范围筛选
          * @summary 获取审计日志列表
          * @param {ApiAdminAuditlogsGetActionEnum} [action] Action 操作类型过滤
@@ -197,6 +244,15 @@ export const AdminAuditLogApiFactory = function (configuration?: Configuration, 
     const localVarFp = AdminAuditLogApiFp(configuration)
     return {
         /**
+         * 获取所有审计操作的定义、分类和操作类型，供前端筛选器使用
+         * @summary 获取审计操作定义
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiAdminAuditlogsActionsGet(options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseAuditlogAuditActionsResponseDTO> {
+            return localVarFp.apiAdminAuditlogsActionsGet(options).then((request) => request(axios, basePath));
+        },
+        /**
          * 分页获取审计日志，支持按用户、操作、资源、状态、时间范围筛选
          * @summary 获取审计日志列表
          * @param {ApiAdminAuditlogsGetActionEnum} [action] Action 操作类型过滤
@@ -233,6 +289,17 @@ export const AdminAuditLogApiFactory = function (configuration?: Configuration, 
  * @extends {BaseAPI}
  */
 export class AdminAuditLogApi extends BaseAPI {
+    /**
+     * 获取所有审计操作的定义、分类和操作类型，供前端筛选器使用
+     * @summary 获取审计操作定义
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof AdminAuditLogApi
+     */
+    public apiAdminAuditlogsActionsGet(options?: RawAxiosRequestConfig) {
+        return AdminAuditLogApiFp(this.configuration).apiAdminAuditlogsActionsGet(options).then((request) => request(this.axios, this.basePath));
+    }
+
     /**
      * 分页获取审计日志，支持按用户、操作、资源、状态、时间范围筛选
      * @summary 获取审计日志列表

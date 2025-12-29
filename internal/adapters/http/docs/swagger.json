@@ -145,6 +145,49 @@
                 }
             }
         },
+        "/api/admin/auditlogs/actions": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "获取所有审计操作的定义、分类和操作类型，供前端筛选器使用",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "管理员 - 审计日志 (Admin - Audit Log)"
+                ],
+                "summary": "获取审计操作定义",
+                "responses": {
+                    "200": {
+                        "description": "审计操作定义",
+                        "schema": {
+                            "$ref": "#/definitions/response.DataResponse-auditlog_AuditActionsResponseDTO"
+                        }
+                    },
+                    "401": {
+                        "description": "未授权",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "权限不足",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                },
+                "x-permission": {
+                    "scope": "admin:audit_logs:read"
+                }
+            }
+        },
         "/api/admin/auditlogs/{id}": {
             "get": {
                 "security": [
@@ -3842,6 +3885,57 @@
         }
     },
     "definitions": {
+        "auditlog.AuditActionDTO": {
+            "type": "object",
+            "properties": {
+                "action": {
+                    "description": "\"user.create\"",
+                    "type": "string"
+                },
+                "category": {
+                    "description": "\"user\"",
+                    "type": "string"
+                },
+                "description": {
+                    "description": "\"Create new user\"",
+                    "type": "string"
+                },
+                "label": {
+                    "description": "\"创建用户\"",
+                    "type": "string"
+                },
+                "operation": {
+                    "description": "\"create\"",
+                    "type": "string"
+                }
+            }
+        },
+        "auditlog.AuditActionsResponseDTO": {
+            "type": "object",
+            "properties": {
+                "actions": {
+                    "description": "操作定义列表",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/auditlog.AuditActionDTO"
+                    }
+                },
+                "categories": {
+                    "description": "分类选项",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/auditlog.CategoryOptionDTO"
+                    }
+                },
+                "operations": {
+                    "description": "操作类型选项",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/auditlog.OperationTypeDTO"
+                    }
+                }
+            }
+        },
         "auditlog.AuditLogDTO": {
             "type": "object",
             "properties": {
@@ -3871,6 +3965,32 @@
                 },
                 "user_id": {
                     "type": "integer"
+                }
+            }
+        },
+        "auditlog.CategoryOptionDTO": {
+            "type": "object",
+            "properties": {
+                "label": {
+                    "description": "\"用户管理\"",
+                    "type": "string"
+                },
+                "value": {
+                    "description": "\"user\"",
+                    "type": "string"
+                }
+            }
+        },
+        "auditlog.OperationTypeDTO": {
+            "type": "object",
+            "properties": {
+                "label": {
+                    "description": "\"创建\"",
+                    "type": "string"
+                },
+                "value": {
+                    "description": "\"create\"",
+                    "type": "string"
                 }
             }
         },
@@ -4701,6 +4821,30 @@
                     "items": {
                         "$ref": "#/definitions/setting.SchemaCategoryDTO"
                     }
+                },
+                "error": {
+                    "description": "错误详情（仅失败时）"
+                },
+                "message": {
+                    "description": "消息描述",
+                    "type": "string"
+                }
+            }
+        },
+        "response.DataResponse-auditlog_AuditActionsResponseDTO": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "description": "HTTP 状态码",
+                    "type": "integer"
+                },
+                "data": {
+                    "description": "响应数据",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/auditlog.AuditActionsResponseDTO"
+                        }
+                    ]
                 },
                 "error": {
                     "description": "错误详情（仅失败时）"

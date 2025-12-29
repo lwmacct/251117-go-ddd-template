@@ -107,7 +107,7 @@ func TestApplication_DTOSuffix(t *testing.T) {
 }
 
 // TestApplication_MapperFuncNaming 检查 mapper.go 文件的函数命名规范。
-// 规则：所有函数必须以 To 开头、DTO 结尾（如 ToUserDTO）。
+// 规则：所有函数必须以 To 开头、DTO 或 DTOs 结尾（如 ToUserDTO、ToAuditActionDTOs）。
 func TestApplication_MapperFuncNaming(t *testing.T) {
 	files := getApplicationFiles(t)
 
@@ -124,8 +124,9 @@ func TestApplication_MapperFuncNaming(t *testing.T) {
 			t.Run(f.File+"/"+f.Name, func(t *testing.T) {
 				assert.True(t, strings.HasPrefix(f.Name, "To"),
 					"func %q in %s should start with 'To'", f.Name, f.File)
-				assert.True(t, strings.HasSuffix(f.Name, "DTO"),
-					"func %q in %s should end with 'DTO'", f.Name, f.File)
+				validSuffix := strings.HasSuffix(f.Name, "DTO") || strings.HasSuffix(f.Name, "DTOs")
+				assert.True(t, validSuffix,
+					"func %q in %s should end with 'DTO' or 'DTOs'", f.Name, f.File)
 			})
 		}
 	}

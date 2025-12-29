@@ -138,3 +138,21 @@ func (h *AuditLogHandler) GetLog(c *gin.Context) {
 
 	response.OK(c, "success", log)
 }
+
+// GetActions returns audit action definitions
+//
+// @Summary      获取审计操作定义
+// @Description  获取所有审计操作的定义、分类和操作类型，供前端筛选器使用
+// @Tags         管理员 - 审计日志 (Admin - Audit Log)
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Success      200 {object} response.DataResponse[auditlog.AuditActionsResponseDTO] "审计操作定义"
+// @Failure      401 {object} response.ErrorResponse "未授权"
+// @Failure      403 {object} response.ErrorResponse "权限不足"
+// @Router       /api/admin/auditlogs/actions [get]
+// @x-permission {"scope":"admin:audit_logs:read"}
+func (h *AuditLogHandler) GetActions(c *gin.Context) {
+	resp := auditlog.ToAuditActionsResponseDTO()
+	response.OK(c, "success", resp)
+}

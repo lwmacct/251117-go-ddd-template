@@ -1,5 +1,41 @@
 basePath: /api
 definitions:
+  auditlog.AuditActionDTO:
+    properties:
+      action:
+        description: '"user.create"'
+        type: string
+      category:
+        description: '"user"'
+        type: string
+      description:
+        description: '"Create new user"'
+        type: string
+      label:
+        description: '"创建用户"'
+        type: string
+      operation:
+        description: '"create"'
+        type: string
+    type: object
+  auditlog.AuditActionsResponseDTO:
+    properties:
+      actions:
+        description: 操作定义列表
+        items:
+          $ref: '#/definitions/auditlog.AuditActionDTO'
+        type: array
+      categories:
+        description: 分类选项
+        items:
+          $ref: '#/definitions/auditlog.CategoryOptionDTO'
+        type: array
+      operations:
+        description: 操作类型选项
+        items:
+          $ref: '#/definitions/auditlog.OperationTypeDTO'
+        type: array
+    type: object
   auditlog.AuditLogDTO:
     properties:
       action:
@@ -20,6 +56,24 @@ definitions:
         type: string
       user_id:
         type: integer
+    type: object
+  auditlog.CategoryOptionDTO:
+    properties:
+      label:
+        description: '"用户管理"'
+        type: string
+      value:
+        description: '"user"'
+        type: string
+    type: object
+  auditlog.OperationTypeDTO:
+    properties:
+      label:
+        description: '"创建"'
+        type: string
+      value:
+        description: '"create"'
+        type: string
     type: object
   auth.Login2FADTO:
     properties:
@@ -599,6 +653,21 @@ definitions:
         items:
           $ref: '#/definitions/setting.SchemaCategoryDTO'
         type: array
+      error:
+        description: 错误详情（仅失败时）
+      message:
+        description: 消息描述
+        type: string
+    type: object
+  response.DataResponse-auditlog_AuditActionsResponseDTO:
+    properties:
+      code:
+        description: HTTP 状态码
+        type: integer
+      data:
+        allOf:
+        - $ref: '#/definitions/auditlog.AuditActionsResponseDTO'
+        description: 响应数据
       error:
         description: 错误详情（仅失败时）
       message:
@@ -1734,6 +1803,33 @@ paths:
       security:
       - BearerAuth: []
       summary: 获取审计日志详情
+      tags:
+      - 管理员 - 审计日志 (Admin - Audit Log)
+      x-permission:
+        scope: admin:audit_logs:read
+  /api/admin/auditlogs/actions:
+    get:
+      consumes:
+      - application/json
+      description: 获取所有审计操作的定义、分类和操作类型，供前端筛选器使用
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 审计操作定义
+          schema:
+            $ref: '#/definitions/response.DataResponse-auditlog_AuditActionsResponseDTO'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: 权限不足
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 获取审计操作定义
       tags:
       - 管理员 - 审计日志 (Admin - Audit Log)
       x-permission:

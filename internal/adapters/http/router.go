@@ -64,7 +64,7 @@ import (
 	"github.com/lwmacct/251117-go-ddd-template/internal/application/auditlog"
 
 	// 引入领域层包
-	"github.com/lwmacct/251117-go-ddd-template/internal/domain/permission"
+	op "github.com/lwmacct/251117-go-ddd-template/internal/domain/operation"
 
 	// 引入基础设施包
 	"github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/auth"
@@ -145,8 +145,8 @@ func SetupRouterWithDeps(deps *RouterDependencies) *gin.Engine {
 	// Swagger API 文档
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
-	// API 路由组
-	setupAPIRoutes(r, deps)
+	// 声明式路由注册
+	registerRoutes(r, deps)
 
 	// 静态文件服务
 	setupStaticRoutes(r, cfg)
@@ -154,126 +154,64 @@ func SetupRouterWithDeps(deps *RouterDependencies) *gin.Engine {
 	return r
 }
 
-// setupAPIRoutes 配置 API 路由组
-func setupAPIRoutes(r *gin.Engine, deps *RouterDependencies) {
-	api := r.Group("/api")
+// registerRoutes 自动注册所有路由
+// 根据 Operation 元数据自动构建中间件链
+func registerRoutes(r *gin.Engine, deps *RouterDependencies) {
+	bindings := deps.AllRouteBindings()
 
-	// 全局 API 中间件
-	api.Use(middleware.RequestID())   // 注入 Request ID（复用 OTel Trace ID）
-	api.Use(middleware.OperationID()) // 注入 Operation ID（从注册表查找）
+	for _, b := range bindings {
+		middlewares := buildMiddlewares(deps, b.Op)
+		middlewares = append(middlewares, b.Handler)
 
-	// 认证路由 (公开)
-	auth := api.Group("/auth")
-	{
-		auth.POST("/register", deps.AuthHandler.Register)
-		auth.POST("/login", deps.AuthHandler.Login)
-		auth.POST("/login/2fa", deps.AuthHandler.Login2FA)
-		auth.POST("/refresh", deps.AuthHandler.RefreshToken)
-		auth.GET("/captcha", deps.CaptchaHandler.GetCaptcha)
+		switch b.Op.Method() {
+		case op.HttpGET:
+			r.GET(b.Op.Path(), middlewares...)
+		case op.HttpPOST:
+			r.POST(b.Op.Path(), middlewares...)
+		case op.HttpPUT:
+			r.PUT(b.Op.Path(), middlewares...)
+		case op.HttpDELETE:
+			r.DELETE(b.Op.Path(), middlewares...)
+		case op.HttpPATCH:
+			r.PATCH(b.Op.Path(), middlewares...)
+		default:
+			slog.Warn("unknown HTTP method", "operation", b.Op, "method", b.Op.Method())
+		}
+	}
+}
+
+// buildMiddlewares 根据 Operation 自动构建中间件链
+// 中间件顺序：RequestID → OperationID → Auth → Role → Permission → Audit
+func buildMiddlewares(deps *RouterDependencies, o op.Operation) []gin.HandlerFunc {
+	var mws []gin.HandlerFunc
+
+	// 1. Request ID（所有请求）
+	mws = append(mws, middleware.RequestID())
+
+	// 2. Operation ID（所有请求）
+	mws = append(mws, middleware.SetOperationID(o.String()))
+
+	// 3. Auth（非公开操作需要认证）
+	if !o.IsPublic() {
+		mws = append(mws, middleware.Auth(deps.JWTManager, deps.PATService, deps.PermissionCacheService))
 	}
 
-	// 2FA 路由（需要认证）
-	twofa := api.Group("/auth/2fa")
-	twofa.Use(middleware.Auth(deps.JWTManager, deps.PATService, deps.PermissionCacheService))
-	{
-		twofa.POST("/setup", deps.TwoFAHandler.Setup)            // 设置 2FA
-		twofa.POST("/verify", deps.TwoFAHandler.VerifyAndEnable) // 验证并启用 2FA
-		twofa.POST("/disable", deps.TwoFAHandler.Disable)        // 禁用 2FA
-		twofa.GET("/status", deps.TwoFAHandler.GetStatus)        // 获取 2FA 状态
+	// 4. Role（需要角色验证）
+	if o.NeedsRole() {
+		mws = append(mws, middleware.RequireRole(o.Role()))
 	}
 
-	// 管理员路由 (/api/admin/*) - 使用三段式权限控制
-	admin := api.Group("/admin")
-	admin.Use(middleware.Auth(deps.JWTManager, deps.PATService, deps.PermissionCacheService))
-	admin.Use(middleware.AuditMiddleware(deps.CreateLogHandler))
-	admin.Use(middleware.RequireRole("admin"))
-	{
-		// 用户管理
-		admin.POST("/users", middleware.RequirePermission(permission.AdminUsersCreate), deps.AdminUserHandler.CreateUser)
-		admin.POST("/users/batch", middleware.RequirePermission(permission.AdminUsersCreate), deps.AdminUserHandler.BatchCreateUsers)
-		admin.GET("/users", middleware.RequirePermission(permission.AdminUsersRead), deps.AdminUserHandler.ListUsers)
-		admin.GET("/users/:id", middleware.RequirePermission(permission.AdminUsersRead), deps.AdminUserHandler.GetUser)
-		admin.PUT("/users/:id", middleware.RequirePermission(permission.AdminUsersUpdate), deps.AdminUserHandler.UpdateUser)
-		admin.DELETE("/users/:id", middleware.RequirePermission(permission.AdminUsersDelete), deps.AdminUserHandler.DeleteUser)
-		admin.PUT("/users/:id/roles", middleware.RequirePermission(permission.AdminUsersUpdate), deps.AdminUserHandler.AssignRoles)
-
-		// 角色管理
-		admin.POST("/roles", middleware.RequirePermission(permission.AdminRolesCreate), deps.RoleHandler.CreateRole)
-		admin.GET("/roles", middleware.RequirePermission(permission.AdminRolesRead), deps.RoleHandler.ListRoles)
-		admin.GET("/roles/:id", middleware.RequirePermission(permission.AdminRolesRead), deps.RoleHandler.GetRole)
-		admin.PUT("/roles/:id", middleware.RequirePermission(permission.AdminRolesUpdate), deps.RoleHandler.UpdateRole)
-		admin.DELETE("/roles/:id", middleware.RequirePermission(permission.AdminRolesDelete), deps.RoleHandler.DeleteRole)
-		admin.PUT("/roles/:id/permissions", middleware.RequirePermission(permission.AdminRolesUpdate), deps.RoleHandler.SetPermissions)
-
-		// 权限列表
-		admin.GET("/permissions", middleware.RequirePermission(permission.AdminPermissionsRead), deps.RoleHandler.ListPermissions)
-
-		// 审计日志
-		admin.GET("/auditlogs", middleware.RequirePermission(permission.AdminAuditLogsRead), deps.AuditLogHandler.ListLogs)
-		admin.GET("/auditlogs/:id", middleware.RequirePermission(permission.AdminAuditLogsRead), deps.AuditLogHandler.GetLog)
-
-		// 菜单管理
-		admin.POST("/menus", middleware.RequirePermission(permission.AdminMenusCreate), deps.MenuHandler.Create)
-		admin.GET("/menus", middleware.RequirePermission(permission.AdminMenusRead), deps.MenuHandler.List)
-		admin.GET("/menus/:id", middleware.RequirePermission(permission.AdminMenusRead), deps.MenuHandler.Get)
-		admin.PUT("/menus/:id", middleware.RequirePermission(permission.AdminMenusUpdate), deps.MenuHandler.Update)
-		admin.DELETE("/menus/:id", middleware.RequirePermission(permission.AdminMenusDelete), deps.MenuHandler.Delete)
-		admin.POST("/menus/reorder", middleware.RequirePermission(permission.AdminMenusUpdate), deps.MenuHandler.Reorder)
-
-		// 系统概览
-		admin.GET("/overview/stats", middleware.RequirePermission(permission.AdminOverviewRead), deps.OverviewHandler.GetStats)
-
-		// 系统配置
-		admin.GET("/settings", middleware.RequirePermission(permission.AdminSettingsRead), deps.SettingHandler.GetSettings)
-		admin.POST("/settings", middleware.RequirePermission(permission.AdminSettingsCreate), deps.SettingHandler.CreateSetting)
-		admin.POST("/settings/batch", middleware.RequirePermission(permission.AdminSettingsUpdate), deps.SettingHandler.BatchUpdateSettings)
-
-		// 配置分类管理（必须在 :key 路由之前）
-		admin.GET("/settings/categories", middleware.RequirePermission(permission.AdminSettingsRead), deps.SettingHandler.GetCategories)
-		admin.GET("/settings/categories/:id", middleware.RequirePermission(permission.AdminSettingsRead), deps.SettingHandler.GetCategory)
-		admin.POST("/settings/categories", middleware.RequirePermission(permission.AdminSettingsCreate), deps.SettingHandler.CreateCategory)
-		admin.PUT("/settings/categories/:id", middleware.RequirePermission(permission.AdminSettingsUpdate), deps.SettingHandler.UpdateCategory)
-		admin.DELETE("/settings/categories/:id", middleware.RequirePermission(permission.AdminSettingsDelete), deps.SettingHandler.DeleteCategory)
-
-		// 单个配置操作（:key 路由放在最后避免与上面的固定路径冲突）
-		admin.GET("/settings/:key", middleware.RequirePermission(permission.AdminSettingsRead), deps.SettingHandler.GetSetting)
-		admin.PUT("/settings/:key", middleware.RequirePermission(permission.AdminSettingsUpdate), deps.SettingHandler.UpdateSetting)
-		admin.DELETE("/settings/:key", middleware.RequirePermission(permission.AdminSettingsDelete), deps.SettingHandler.DeleteSetting)
-
-		// 缓存管理（Redis 风格 API）
-		admin.GET("/cache/info", middleware.RequirePermission(permission.AdminCacheRead), deps.CacheHandler.Info)
-		admin.GET("/cache/keys", middleware.RequirePermission(permission.AdminCacheRead), deps.CacheHandler.ScanKeys)
-		admin.GET("/cache/key", middleware.RequirePermission(permission.AdminCacheRead), deps.CacheHandler.GetKey)
-		admin.DELETE("/cache/key", middleware.RequirePermission(permission.AdminCacheDelete), deps.CacheHandler.DeleteKey)
-		admin.DELETE("/cache/keys", middleware.RequirePermission(permission.AdminCacheDelete), deps.CacheHandler.DeleteByPattern)
+	// 5. Permission（需要权限验证）
+	if o.Permission() != "" {
+		mws = append(mws, middleware.RequirePermission(o.Permission()))
 	}
 
-	// 用户路由 (/api/user/*) - 使用三段式权限控制
-	userGroup := api.Group("/user")
-	userGroup.Use(middleware.Auth(deps.JWTManager, deps.PATService, deps.PermissionCacheService))
-	{
-		// 个人资料管理
-		userGroup.GET("/profile", middleware.RequirePermission(permission.UserProfileRead), deps.UserProfileHandler.GetProfile)
-		userGroup.PUT("/profile", middleware.RequirePermission(permission.UserProfileUpdate), deps.UserProfileHandler.UpdateProfile)
-		userGroup.PUT("/password", middleware.RequirePermission(permission.UserPasswordUpdate), deps.UserProfileHandler.ChangePassword)
-		userGroup.DELETE("/account", middleware.RequirePermission(permission.UserProfileDelete), deps.UserProfileHandler.DeleteAccount)
-
-		// Personal Access Token 管理
-		userGroup.POST("/tokens", middleware.RequirePermission(permission.UserTokensCreate), deps.PATHandler.CreateToken)
-		userGroup.GET("/tokens", middleware.RequirePermission(permission.UserTokensRead), deps.PATHandler.ListTokens)
-		userGroup.GET("/tokens/:id", middleware.RequirePermission(permission.UserTokensRead), deps.PATHandler.GetToken)
-		userGroup.DELETE("/tokens/:id", middleware.RequirePermission(permission.UserTokensDelete), deps.PATHandler.DeleteToken)
-		userGroup.PATCH("/tokens/:id/disable", middleware.RequirePermission(permission.UserTokensDisable), deps.PATHandler.DisableToken)
-		userGroup.PATCH("/tokens/:id/enable", middleware.RequirePermission(permission.UserTokensEnable), deps.PATHandler.EnableToken)
-
-		// 用户配置管理
-		userGroup.GET("/settings/categories", middleware.RequirePermission(permission.UserSettingsRead), deps.UserSettingHandler.ListUserSettingCategories)
-		userGroup.GET("/settings", middleware.RequirePermission(permission.UserSettingsRead), deps.UserSettingHandler.GetUserSettings)
-		userGroup.GET("/settings/:key", middleware.RequirePermission(permission.UserSettingsRead), deps.UserSettingHandler.GetUserSetting)
-		userGroup.PUT("/settings/:key", middleware.RequirePermission(permission.UserSettingsUpdate), deps.UserSettingHandler.SetUserSetting)
-		userGroup.DELETE("/settings/:key", middleware.RequirePermission(permission.UserSettingsUpdate), deps.UserSettingHandler.ResetUserSetting)
-		userGroup.POST("/settings/batch", middleware.RequirePermission(permission.UserSettingsUpdate), deps.UserSettingHandler.BatchSetUserSettings)
+	// 6. Audit（需要审计的操作）
+	if o.NeedsAudit() {
+		mws = append(mws, middleware.AuditMiddleware(deps.CreateLogHandler))
 	}
+
+	return mws
 }
 
 // setupStaticRoutes 配置静态文件服务路由

@@ -5,24 +5,24 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/lwmacct/251117-go-ddd-template/internal/adapters/http/registry"
+	op "github.com/lwmacct/251117-go-ddd-template/internal/domain/operation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
-// TestAnnotation_MatchRegistry 检查 handler @Router 注解与 registry 的一致性。
-// 规则：每个 handler 的 @Router 路径和权限必须与 registry 匹配。
-func TestAnnotation_MatchRegistry(t *testing.T) {
+// TestAnnotation_MatchOperation 检查 handler @Router 注解与 operation 的一致性。
+// 规则：每个 handler 的 @Router 路径和权限必须与 operation 匹配。
+func TestAnnotation_MatchOperation(t *testing.T) {
 	annotations := parseHandlerAnnotations(t)
 	require.NotEmpty(t, annotations, "no handler annotations found")
 
-	// 构建 registry 索引 (method|path -> endpoint)
-	registryIndex := make(map[string]registry.Endpoint)
-	for _, ep := range registry.All() {
+	// 构建 operation 索引 (method|swaggerPath -> operation)
+	operationIndex := make(map[string]op.Operation)
+	for _, o := range op.All() {
 		// 将 Gin 路径 (:id) 转换为 Swagger 路径 ({id}) 以便比较
-		swaggerPath := regexp.MustCompile(`:(\w+)`).ReplaceAllString(ep.Path, "{$1}")
-		key := ep.Method + "|" + swaggerPath
-		registryIndex[key] = ep
+		swaggerPath := regexp.MustCompile(`:(\w+)`).ReplaceAllString(o.Path(), "{$1}")
+		key := string(o.Method()) + "|" + swaggerPath
+		operationIndex[key] = o
 	}
 
 	for _, ann := range annotations {
@@ -34,25 +34,25 @@ func TestAnnotation_MatchRegistry(t *testing.T) {
 		key := ann.Method + "|" + ann.Path
 
 		t.Run(ann.File+"/"+ann.Method+ann.Path, func(t *testing.T) {
-			// 检查路由是否在 registry 中
-			ep, exists := registryIndex[key]
-			if !assert.True(t, exists, "handler route not in registry: %s %s", ann.Method, ann.Path) {
+			// 检查路由是否在 operation 中
+			o, exists := operationIndex[key]
+			if !assert.True(t, exists, "handler route not in operation registry: %s %s", ann.Method, ann.Path) {
 				return
 			}
 
 			// 检查权限是否一致
-			if ann.Permission != "" || ep.Permission != "" {
-				assert.Equal(t, ep.Permission, ann.Permission,
-					"permission mismatch for %s %s\n  registry: %q\n  handler:  %q",
-					ann.Method, ann.Path, ep.Permission, ann.Permission)
+			if ann.Permission != "" || o.Permission() != "" {
+				assert.Equal(t, o.Permission(), ann.Permission,
+					"permission mismatch for %s %s\n  operation: %q\n  handler:   %q",
+					ann.Method, ann.Path, o.Permission(), ann.Permission)
 			}
 		})
 	}
 }
 
-// TestAnnotation_RegistryCoverage 检查 registry 端点是否都有对应的 handler 注解。
-// 规则：registry 中的每个端点都必须有带 @Router 注解的 handler。
-func TestAnnotation_RegistryCoverage(t *testing.T) {
+// TestAnnotation_OperationCoverage 检查 operation 端点是否都有对应的 handler 注解。
+// 规则：operation 中的每个端点都必须有带 @Router 注解的 handler。
+func TestAnnotation_OperationCoverage(t *testing.T) {
 	annotations := parseHandlerAnnotations(t)
 
 	// 构建 handler 注解索引
@@ -62,15 +62,15 @@ func TestAnnotation_RegistryCoverage(t *testing.T) {
 		handlerIndex[key] = true
 	}
 
-	for _, ep := range registry.All() {
+	for _, o := range op.All() {
 		// 将 Gin 路径 (:id) 转换为 Swagger 路径 ({id})
-		swaggerPath := regexp.MustCompile(`:(\w+)`).ReplaceAllString(ep.Path, "{$1}")
-		key := ep.Method + "|" + swaggerPath
+		swaggerPath := regexp.MustCompile(`:(\w+)`).ReplaceAllString(o.Path(), "{$1}")
+		key := string(o.Method()) + "|" + swaggerPath
 
-		t.Run(ep.OperationID, func(t *testing.T) {
+		t.Run(o.String(), func(t *testing.T) {
 			assert.True(t, handlerIndex[key],
-				"registry endpoint missing handler annotation: %s %s (OperationID: %s)",
-				ep.Method, ep.Path, ep.OperationID)
+				"operation missing handler annotation: %s %s (Operation: %s)",
+				o.Method(), o.Path(), o)
 		})
 	}
 }
@@ -103,15 +103,12 @@ func TestAnnotation_RequiredFields(t *testing.T) {
 func TestAnnotation_SecurityRequired(t *testing.T) {
 	annotations := parseHandlerAnnotations(t)
 
-	// 公开端点列表（不需要 @Security）
-	publicPaths := map[string]bool{
-		"/api/auth/register":   true,
-		"/api/auth/login":      true,
-		"/api/auth/login/2fa":  true,
-		"/api/auth/refresh":    true,
-		"/api/auth/captcha":    true,
-		"/api/auth/2fa/setup":  true, // 需要 JWT 但无权限检查
-		"/api/auth/2fa/verify": true,
+	// 从 operation 获取公开端点列表
+	publicPaths := make(map[string]bool)
+	for _, o := range op.All() {
+		if o.IsPublic() {
+			publicPaths[o.Path()] = true
+		}
 	}
 
 	for _, ann := range annotations {
@@ -119,8 +116,11 @@ func TestAnnotation_SecurityRequired(t *testing.T) {
 			continue
 		}
 
+		// 将 Swagger 路径 ({id}) 转换为 Gin 路径 (:id) 以便查找
+		ginPath := regexp.MustCompile(`\{(\w+)\}`).ReplaceAllString(ann.Path, ":$1")
+
 		t.Run(ann.File+"/"+ann.Method+ann.Path, func(t *testing.T) {
-			if publicPaths[ann.Path] {
+			if publicPaths[ginPath] {
 				// 公开端点不应有 @Security（或可选）
 				return
 			}
