@@ -8,9 +8,9 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// TestApplicationNaming_CommandSuffix 验证 commands.go 中的结构体以 Command 结尾
-// 注意：cmd_*.go 文件是 Handler，由 TestApplicationNaming_HandlerSuffix 验证
-func TestApplicationNaming_CommandSuffix(t *testing.T) {
+// TestApplication_CommandSuffix 检查 commands.go 文件的结构体命名规范。
+// 规则：所有结构体必须以 Command 结尾（如 CreateUserCommand）。
+func TestApplication_CommandSuffix(t *testing.T) {
 	files := getApplicationFiles(t)
 
 	for _, file := range files {
@@ -31,9 +31,9 @@ func TestApplicationNaming_CommandSuffix(t *testing.T) {
 	}
 }
 
-// TestApplicationNaming_QuerySuffix 验证 queries.go 中的结构体以 Query 结尾
-// 注意：qry_*.go 文件是 Handler，由 TestApplicationNaming_HandlerSuffix 验证
-func TestApplicationNaming_QuerySuffix(t *testing.T) {
+// TestApplication_QuerySuffix 检查 queries.go 文件的结构体命名规范。
+// 规则：所有结构体必须以 Query 结尾（如 GetUserQuery）。
+func TestApplication_QuerySuffix(t *testing.T) {
 	files := getApplicationFiles(t)
 
 	for _, file := range files {
@@ -54,9 +54,9 @@ func TestApplicationNaming_QuerySuffix(t *testing.T) {
 	}
 }
 
-// TestApplicationNaming_HandlerSuffix 验证 cmd_*.go / qry_*.go 中至少有一个 Handler 结构体
-// 允许文件中存在辅助结构体（如 Query 参数、Result 类型等）
-func TestApplicationNaming_HandlerSuffix(t *testing.T) {
+// TestApplication_HandlerSuffix 检查 cmd_*.go 和 qry_*.go 文件的结构体命名规范。
+// 规则：每个文件至少包含一个以 Handler 结尾的结构体（如 CreateUserHandler）。
+func TestApplication_HandlerSuffix(t *testing.T) {
 	files := getApplicationFiles(t)
 
 	for _, file := range files {
@@ -83,8 +83,9 @@ func TestApplicationNaming_HandlerSuffix(t *testing.T) {
 	}
 }
 
-// TestApplicationNaming_DTOSuffix 验证 dto.go 中的结构体以 DTO 结尾
-func TestApplicationNaming_DTOSuffix(t *testing.T) {
+// TestApplication_DTOSuffix 检查 dto.go 文件的结构体命名规范。
+// 规则：所有结构体必须以 DTO 结尾（如 UserDTO）。
+func TestApplication_DTOSuffix(t *testing.T) {
 	files := getApplicationFiles(t)
 
 	for _, file := range files {
@@ -105,8 +106,9 @@ func TestApplicationNaming_DTOSuffix(t *testing.T) {
 	}
 }
 
-// TestApplicationNaming_MapperFuncNaming 验证 mapper.go 中的函数以 To 开头、DTO 结尾
-func TestApplicationNaming_MapperFuncNaming(t *testing.T) {
+// TestApplication_MapperFuncNaming 检查 mapper.go 文件的函数命名规范。
+// 规则：所有函数必须以 To 开头、DTO 结尾（如 ToUserDTO）。
+func TestApplication_MapperFuncNaming(t *testing.T) {
 	files := getApplicationFiles(t)
 
 	for _, file := range files {
