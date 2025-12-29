@@ -10,18 +10,21 @@ import (
 
 // CreateCategoryHandler 创建配置分类命令处理器
 type CreateCategoryHandler struct {
-	commandRepo setting.SettingCategoryCommandRepository
-	queryRepo   setting.SettingCategoryQueryRepository
+	commandRepo   setting.SettingCategoryCommandRepository
+	queryRepo     setting.SettingCategoryQueryRepository
+	settingsCache SettingsCacheService
 }
 
 // NewCreateCategoryHandler 创建 CreateCategoryHandler 实例
 func NewCreateCategoryHandler(
 	commandRepo setting.SettingCategoryCommandRepository,
 	queryRepo setting.SettingCategoryQueryRepository,
+	settingsCache SettingsCacheService,
 ) *CreateCategoryHandler {
 	return &CreateCategoryHandler{
-		commandRepo: commandRepo,
-		queryRepo:   queryRepo,
+		commandRepo:   commandRepo,
+		queryRepo:     queryRepo,
+		settingsCache: settingsCache,
 	}
 }
 
@@ -59,6 +62,10 @@ func (h *CreateCategoryHandler) Handle(ctx context.Context, cmd CreateCategoryCo
 	if err := h.commandRepo.Create(ctx, category); err != nil {
 		return nil, fmt.Errorf("failed to create category: %w", err)
 	}
+
+	// 6. 失效 Settings 缓存（Category 变更影响所有设置页）
+	_ = h.settingsCache.DeleteAll(ctx)
+	_ = h.settingsCache.DeleteAllCategories(ctx)
 
 	return &CreateCategoryResultDTO{
 		ID: category.ID,

@@ -6,42 +6,42 @@ import (
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/setting"
 )
 
-// SchemaBuilder 构建 Category → Group → Settings 层级结构
-// 用于 ListSchemaHandler 和 UserListSchemaHandler 共享构建逻辑
-type SchemaBuilder struct {
+// SettingsBuilder 构建 Category → Group → Settings 层级结构
+// 用于 ListSettingsHandler 和 UserListSettingsHandler 共享构建逻辑
+type SettingsBuilder struct {
 	categoryByID  map[uint]*setting.SettingCategory
 	categoryByKey map[string]*setting.SettingCategory // 按 Key 索引，用于 O(1) 排序
 }
 
-// NewSchemaBuilder 创建 Schema 构建器
-func NewSchemaBuilder(categories []*setting.SettingCategory) *SchemaBuilder {
+// NewSettingsBuilder 创建 Settings 构建器
+func NewSettingsBuilder(categories []*setting.SettingCategory) *SettingsBuilder {
 	categoryByID := make(map[uint]*setting.SettingCategory, len(categories))
 	categoryByKey := make(map[string]*setting.SettingCategory, len(categories))
 	for _, cat := range categories {
 		categoryByID[cat.ID] = cat
 		categoryByKey[cat.Key] = cat
 	}
-	return &SchemaBuilder{
+	return &SettingsBuilder{
 		categoryByID:  categoryByID,
 		categoryByKey: categoryByKey,
 	}
 }
 
-// SettingMapper 将 Setting 转换为 SchemaSettingDTO 的函数类型
-// Admin 场景使用 ToSchemaSettingDTO，User 场景使用 ToUserSchemaSettingDTO
-type SettingMapper func(s *setting.Setting, us *setting.UserSetting) *SchemaSettingDTO
+// SettingMapper 将 Setting 转换为 SettingsItemDTO 的函数类型
+// Admin 场景使用 ToSettingsItemDTO，User 场景使用 ToUserSettingsItemDTO
+type SettingMapper func(s *setting.Setting, us *setting.UserSetting) *SettingsItemDTO
 
-// Build 构建 Schema 层级结构
+// Build 构建 Settings 层级结构
 // settings: 配置定义列表
 // userSettingMap: 用户配置映射（Admin 场景传 nil）
 // mapper: 转换函数
-func (b *SchemaBuilder) Build(
+func (b *SettingsBuilder) Build(
 	settings []*setting.Setting,
 	userSettingMap map[string]*setting.UserSetting,
 	mapper SettingMapper,
-) []SchemaCategoryDTO {
+) []SettingsCategoryDTO {
 	// 按 CategoryID 分组
-	categoryMap := make(map[uint]map[string][]SchemaSettingDTO)
+	categoryMap := make(map[uint]map[string][]SettingsItemDTO)
 
 	for _, s := range settings {
 		categoryID := s.CategoryID
@@ -51,7 +51,7 @@ func (b *SchemaBuilder) Build(
 		}
 
 		if _, ok := categoryMap[categoryID]; !ok {
-			categoryMap[categoryID] = make(map[string][]SchemaSettingDTO)
+			categoryMap[categoryID] = make(map[string][]SettingsItemDTO)
 		}
 
 		var us *setting.UserSetting
@@ -65,7 +65,7 @@ func (b *SchemaBuilder) Build(
 	}
 
 	// 构建响应
-	result := make([]SchemaCategoryDTO, 0, len(categoryMap))
+	result := make([]SettingsCategoryDTO, 0, len(categoryMap))
 	for categoryID, groupMap := range categoryMap {
 		cat, ok := b.categoryByID[categoryID]
 		if !ok {
@@ -73,7 +73,7 @@ func (b *SchemaBuilder) Build(
 			continue
 		}
 
-		groups := make([]SchemaGroupDTO, 0, len(groupMap))
+		groups := make([]SettingsGroupDTO, 0, len(groupMap))
 		for group, settingDTOs := range groupMap {
 			// 按 Order 排序设置项
 			sort.Slice(settingDTOs, func(i, j int) bool {
@@ -81,7 +81,7 @@ func (b *SchemaBuilder) Build(
 			})
 
 			// Group 字段直接存储 label（如 "基本设置"）
-			groups = append(groups, SchemaGroupDTO{
+			groups = append(groups, SettingsGroupDTO{
 				Name:     group,
 				Settings: settingDTOs,
 			})
@@ -102,7 +102,7 @@ func (b *SchemaBuilder) Build(
 			return minOrderI < minOrderJ
 		})
 
-		result = append(result, SchemaCategoryDTO{
+		result = append(result, SettingsCategoryDTO{
 			Category: cat.Key,
 			Label:    cat.Label,
 			Icon:     cat.Icon,
@@ -124,11 +124,11 @@ func (b *SchemaBuilder) Build(
 }
 
 // AdminSettingMapper Admin 场景的 Setting 转换器（包含全部字段）
-func AdminSettingMapper(s *setting.Setting, _ *setting.UserSetting) *SchemaSettingDTO {
-	return ToSchemaSettingDTO(s)
+func AdminSettingMapper(s *setting.Setting, _ *setting.UserSetting) *SettingsItemDTO {
+	return ToSettingsItemDTO(s)
 }
 
 // UserSettingMapper User 场景的 Setting 转换器（省略权限字段，合并用户值）
-func UserSettingMapper(s *setting.Setting, us *setting.UserSetting) *SchemaSettingDTO {
-	return ToUserSchemaSettingDTO(s, us)
+func UserSettingMapper(s *setting.Setting, us *setting.UserSetting) *SettingsItemDTO {
+	return ToUserSettingsItemDTO(s, us)
 }

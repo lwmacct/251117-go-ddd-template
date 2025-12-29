@@ -14,19 +14,19 @@ import (
 type UserListCategoriesHandler struct {
 	settingQueryRepo  setting.QueryRepository
 	categoryQueryRepo setting.SettingCategoryQueryRepository
-	schemaCache       SchemaCacheService
+	settingsCache     SettingsCacheService
 }
 
 // NewUserListCategoriesHandler 创建 UserListCategoriesHandler 实例
 func NewUserListCategoriesHandler(
 	settingQueryRepo setting.QueryRepository,
 	categoryQueryRepo setting.SettingCategoryQueryRepository,
-	schemaCache SchemaCacheService,
+	settingsCache SettingsCacheService,
 ) *UserListCategoriesHandler {
 	return &UserListCategoriesHandler{
 		settingQueryRepo:  settingQueryRepo,
 		categoryQueryRepo: categoryQueryRepo,
-		schemaCache:       schemaCache,
+		settingsCache:     settingsCache,
 	}
 }
 
@@ -34,7 +34,7 @@ func NewUserListCategoriesHandler(
 // 返回包含 scope="user" 设置的分类元信息（不含 settings 数据）
 func (h *UserListCategoriesHandler) Handle(ctx context.Context, _ UserListCategoriesQuery) ([]CategoryMetaDTO, error) {
 	// 1. 查缓存
-	cached, err := h.schemaCache.GetUserCategories(ctx)
+	cached, err := h.settingsCache.GetUserCategories(ctx)
 	if err != nil {
 		slog.Warn("cache get failed, fallback to db", "err", err)
 	}
@@ -64,7 +64,7 @@ func (h *UserListCategoriesHandler) Handle(ctx context.Context, _ UserListCatego
 	result := toCategoryMetaDTOs(categories)
 
 	// 6. 同步回写缓存
-	if err := h.schemaCache.SetUserCategories(ctx, result); err != nil {
+	if err := h.settingsCache.SetUserCategories(ctx, result); err != nil {
 		slog.Warn("cache set failed", "err", err)
 	}
 

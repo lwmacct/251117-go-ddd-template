@@ -13,19 +13,19 @@ import (
 type CreateHandler struct {
 	commandRepo setting.CommandRepository
 	queryRepo   setting.QueryRepository
-	schemaCache SchemaCacheService
+	settingsCache SettingsCacheService
 }
 
 // NewCreateHandler 创建 CreateHandler 实例
 func NewCreateHandler(
 	commandRepo setting.CommandRepository,
 	queryRepo setting.QueryRepository,
-	schemaCache SchemaCacheService,
+	settingsCache SettingsCacheService,
 ) *CreateHandler {
 	return &CreateHandler{
 		commandRepo: commandRepo,
 		queryRepo:   queryRepo,
-		schemaCache: schemaCache,
+		settingsCache: settingsCache,
 	}
 }
 
@@ -63,10 +63,10 @@ func (h *CreateHandler) Handle(ctx context.Context, cmd CreateCommand) (*CreateR
 		return nil, fmt.Errorf("failed to create setting: %w", err)
 	}
 
-	// 5. 失效 Schema 缓存
-	if h.schemaCache != nil {
-		if err := h.schemaCache.DeleteAdminSchemaAll(ctx); err != nil {
-			slog.Warn("admin schema cache invalidation failed", "key", cmd.Key, "err", err)
+	// 5. 失效 Settings 缓存
+	if h.settingsCache != nil {
+		if err := h.settingsCache.DeleteAdminSettingsAll(ctx); err != nil {
+			slog.Warn("admin settings cache invalidation failed", "key", cmd.Key, "err", err)
 		}
 	}
 

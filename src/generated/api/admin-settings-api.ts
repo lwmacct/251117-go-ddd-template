@@ -28,7 +28,7 @@ import type { HandlerCreateSettingRequest } from '../models';
 // @ts-ignore
 import type { HandlerUpdateSettingRequest } from '../models';
 // @ts-ignore
-import type { ResponseDataResponseArraySettingSchemaCategoryDTO } from '../models';
+import type { ResponseDataResponseArraySettingSettingsCategoryDTO } from '../models';
 // @ts-ignore
 import type { ResponseDataResponseSettingSettingDTO } from '../models';
 // @ts-ignore
@@ -304,7 +304,7 @@ export const AdminSettingsApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async apiAdminSettingsGet(category?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseArraySettingSchemaCategoryDTO>> {
+        async apiAdminSettingsGet(category?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseArraySettingSettingsCategoryDTO>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.apiAdminSettingsGet(category, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['AdminSettingsApi.apiAdminSettingsGet']?.[localVarOperationServerIndex]?.url;
@@ -390,7 +390,7 @@ export const AdminSettingsApiFactory = function (configuration?: Configuration, 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiAdminSettingsGet(category?: string, options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseArraySettingSchemaCategoryDTO> {
+        apiAdminSettingsGet(category?: string, options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseArraySettingSettingsCategoryDTO> {
             return localVarFp.apiAdminSettingsGet(category, options).then((request) => request(axios, basePath));
         },
         /**

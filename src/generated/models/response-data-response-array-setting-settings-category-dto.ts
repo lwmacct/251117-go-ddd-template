@@ -15,36 +15,36 @@
 
 // May contain unused imports in some cases
 // @ts-ignore
-import type { SettingSchemaCategoryDTO } from './setting-schema-category-dto';
+import type { SettingSettingsCategoryDTO } from './setting-settings-category-dto';
 
 /**
  * 
  * @export
- * @interface ResponseDataResponseArraySettingSchemaCategoryDTO
+ * @interface ResponseDataResponseArraySettingSettingsCategoryDTO
  */
-export interface ResponseDataResponseArraySettingSchemaCategoryDTO {
+export interface ResponseDataResponseArraySettingSettingsCategoryDTO {
     /**
      * HTTP 状态码
      * @type {number}
-     * @memberof ResponseDataResponseArraySettingSchemaCategoryDTO
+     * @memberof ResponseDataResponseArraySettingSettingsCategoryDTO
      */
     'code'?: number;
     /**
      * 响应数据
-     * @type {Array<SettingSchemaCategoryDTO>}
-     * @memberof ResponseDataResponseArraySettingSchemaCategoryDTO
+     * @type {Array<SettingSettingsCategoryDTO>}
+     * @memberof ResponseDataResponseArraySettingSettingsCategoryDTO
      */
-    'data'?: Array<SettingSchemaCategoryDTO>;
+    'data'?: Array<SettingSettingsCategoryDTO>;
     /**
      * 错误详情（仅失败时）
      * @type {object}
-     * @memberof ResponseDataResponseArraySettingSchemaCategoryDTO
+     * @memberof ResponseDataResponseArraySettingSettingsCategoryDTO
      */
     'error'?: object;
     /**
      * 消息描述
      * @type {string}
-     * @memberof ResponseDataResponseArraySettingSchemaCategoryDTO
+     * @memberof ResponseDataResponseArraySettingSettingsCategoryDTO
      */
     'message'?: string;
 }

@@ -10,7 +10,9 @@ internal/
 ├── application/     # 应用层 - Use Cases (Command/Query Handler)
 ├── domain/          # 领域层 - 业务模型、Repository 接口
 ├── infrastructure/  # 基础设施层 - Repository 实现、数据库
-├── bootstrap/       # 依赖注入容器
+├── container/       # 依赖注入容器
+├── manualtest/      # 手动测试脚本
+├── precommit/       # 预提交钩子脚本
 └── commands/        # CLI 命令
 ```
 

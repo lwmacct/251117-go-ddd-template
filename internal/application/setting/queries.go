@@ -28,11 +28,11 @@ type ListQuery struct {
 	CategoryID uint // 可选: 按类别 ID 过滤
 }
 
-// ListSchemaQuery 获取配置 Schema 查询（系统配置）
+// ListSettingsQuery 获取配置 Settings 查询（系统配置）
 // Schema 返回按 Category → Group → Settings 层级组织的数据
 //
 // 支持按 CategoryKey 过滤，用于按需加载（懒加载）场景。
-type ListSchemaQuery struct {
+type ListSettingsQuery struct {
 	CategoryKey string // 可选：按分类 Key 过滤（如 "general"），为空时返回全量
 }
 
@@ -50,10 +50,10 @@ type UserListQuery struct {
 	CategoryID uint // 可选: 按类别 ID 过滤
 }
 
-// UserListSchemaQuery 获取用户配置 Schema 查询（带合并值）
+// UserListSettingsQuery 获取用户配置 Settings 查询（带合并值）
 //
 // 支持按 CategoryKey 过滤，用于按需加载（懒加载）场景。
-type UserListSchemaQuery struct {
+type UserListSettingsQuery struct {
 	UserID      uint
 	CategoryKey string // 可选：按分类 Key 过滤（如 "profile"），为空时返回全量
 }

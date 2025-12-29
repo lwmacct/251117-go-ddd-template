@@ -19,7 +19,7 @@
 //   - [NewUserSettingCacheService]: 用户设置缓存
 //   - [NewPermissionCacheService]: 权限缓存
 //   - [NewUserWithRolesCacheService]: 用户实体缓存（含角色和权限）
-//   - [NewSchemaCacheService]: Schema API 响应缓存
+//   - [NewSettingsCacheService]: Settings API 响应缓存
 //
 // # 存储格式
 //

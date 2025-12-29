@@ -13,6 +13,7 @@ type DeleteCategoryHandler struct {
 	commandRepo      setting.SettingCategoryCommandRepository
 	queryRepo        setting.SettingCategoryQueryRepository
 	settingQueryRepo setting.QueryRepository // 用于检查关联的 Setting
+	settingsCache    SettingsCacheService
 }
 
 // NewDeleteCategoryHandler 创建 DeleteCategoryHandler 实例
@@ -20,11 +21,13 @@ func NewDeleteCategoryHandler(
 	commandRepo setting.SettingCategoryCommandRepository,
 	queryRepo setting.SettingCategoryQueryRepository,
 	settingQueryRepo setting.QueryRepository,
+	settingsCache SettingsCacheService,
 ) *DeleteCategoryHandler {
 	return &DeleteCategoryHandler{
 		commandRepo:      commandRepo,
 		queryRepo:        queryRepo,
 		settingQueryRepo: settingQueryRepo,
+		settingsCache:    settingsCache,
 	}
 }
 
@@ -52,6 +55,10 @@ func (h *DeleteCategoryHandler) Handle(ctx context.Context, cmd DeleteCategoryCo
 	if err := h.commandRepo.Delete(ctx, cmd.ID); err != nil {
 		return fmt.Errorf("failed to delete category: %w", err)
 	}
+
+	// 4. 失效 Settings 缓存（Category 变更影响所有设置页）
+	_ = h.settingsCache.DeleteAll(ctx)
+	_ = h.settingsCache.DeleteAllCategories(ctx)
 
 	return nil
 }

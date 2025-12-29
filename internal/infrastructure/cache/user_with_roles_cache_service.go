@@ -9,7 +9,7 @@ import (
 
 	"github.com/redis/go-redis/v9"
 
-	"github.com/lwmacct/251117-go-ddd-template/internal/domain/cache"
+	appuser "github.com/lwmacct/251117-go-ddd-template/internal/application/user"
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/role"
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/user"
 )
@@ -68,7 +68,7 @@ type userWithRolesCacheService struct {
 }
 
 // NewUserWithRolesCacheService 创建用户实体缓存服务。
-func NewUserWithRolesCacheService(client *redis.Client, keyPrefix string) cache.UserWithRolesCacheService {
+func NewUserWithRolesCacheService(client *redis.Client, keyPrefix string) appuser.UserWithRolesCacheService {
 	return &userWithRolesCacheService{
 		client:    client,
 		keyPrefix: keyPrefix,
@@ -222,4 +222,4 @@ func (s *userWithRolesCacheService) toEntity(dto *userWithRolesCacheDTO) *user.U
 	return u
 }
 
-var _ cache.UserWithRolesCacheService = (*userWithRolesCacheService)(nil)
+var _ appuser.UserWithRolesCacheService = (*userWithRolesCacheService)(nil)

@@ -16,6 +16,7 @@ import ResponsiveTabs from "@/components/ResponsiveTabs.vue";
 import SkeletonLoader from "@/components/SkeletonLoader.vue";
 import { useUserSettings } from "./composables/useUserSettings";
 import UserSettingField from "./components/UserSettingField.vue";
+import type { SettingSettingsGroupDTO, SettingSettingsItemDTO } from "@models";
 
 const {
   loading,
@@ -105,8 +106,8 @@ const parseValue = (value: unknown, valueType: string | undefined): unknown => {
 const initFormValues = () => {
   const values: Record<string, unknown> = {};
   schema.value.forEach((cat) => {
-    cat.groups?.forEach((group) => {
-      group.settings?.forEach((setting) => {
+    cat.groups?.forEach((group: SettingSettingsGroupDTO) => {
+      group.settings?.forEach((setting: SettingSettingsItemDTO) => {
         if (setting.key) {
           // 使用 value 字段（实际生效值），而非 default_value
           values[setting.key] = parseValue(setting.value, setting.value_type);

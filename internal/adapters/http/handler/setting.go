@@ -21,7 +21,7 @@ type SettingHandler struct {
 	// Setting Query Handlers
 	getHandler        *setting.GetHandler
 	listHandler       *setting.ListHandler
-	listSchemaHandler *setting.ListSchemaHandler
+	listSchemaHandler *setting.ListSettingsHandler
 
 	// Category Command Handlers
 	createCategoryHandler *setting.CreateCategoryHandler
@@ -41,7 +41,7 @@ func NewSettingHandler(
 	batchUpdateHandler *setting.BatchUpdateHandler,
 	getHandler *setting.GetHandler,
 	listHandler *setting.ListHandler,
-	listSchemaHandler *setting.ListSchemaHandler,
+	listSchemaHandler *setting.ListSettingsHandler,
 	createCategoryHandler *setting.CreateCategoryHandler,
 	updateCategoryHandler *setting.UpdateCategoryHandler,
 	deleteCategoryHandler *setting.DeleteCategoryHandler,
@@ -73,7 +73,7 @@ func NewSettingHandler(
 // @Produce      json
 // @Security     BearerAuth
 // @Param        category query string false "分类 Key（如 general），为空返回全量"
-// @Success      200 {object} response.DataResponse[[]setting.SchemaCategoryDTO] "配置列表（层级结构）"
+// @Success      200 {object} response.DataResponse[[]setting.SettingsCategoryDTO] "配置列表（层级结构）"
 // @Failure      401 {object} response.ErrorResponse "未授权"
 // @Failure      403 {object} response.ErrorResponse "权限不足"
 // @Failure      404 {object} response.ErrorResponse "分类不存在"
@@ -84,7 +84,7 @@ func (h *SettingHandler) GetSettings(c *gin.Context) {
 	categoryKey := c.Query("category")
 
 	// 调用 Schema Handler（返回层级结构）
-	schema, err := h.listSchemaHandler.Handle(c.Request.Context(), setting.ListSchemaQuery{
+	schema, err := h.listSchemaHandler.Handle(c.Request.Context(), setting.ListSettingsQuery{
 		CategoryKey: categoryKey,
 	})
 	if err != nil {

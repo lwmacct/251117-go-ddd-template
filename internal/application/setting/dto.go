@@ -75,10 +75,10 @@ type CreateResultDTO struct {
 	ID uint `json:"id"`
 }
 
-// ==================== Schema DTO ====================
+// ==================== Settings DTO ====================
 
-// SchemaSettingDTO Schema API 专用 DTO（Admin/User 统一）
-type SchemaSettingDTO struct {
+// SettingsItemDTO Settings API 专用 DTO（Admin/User 统一）
+type SettingsItemDTO struct {
 	Key          string      `json:"key"`
 	Value        any         `json:"value"`         // 实际生效值
 	DefaultValue any         `json:"default_value"` // 系统默认值
@@ -93,18 +93,18 @@ type SchemaSettingDTO struct {
 	UIConfig     UIConfigDTO `json:"ui_config"`            // hint/options/depends_on
 }
 
-// SchemaGroupDTO Schema API 分组
-type SchemaGroupDTO struct {
+// SettingsGroupDTO Settings API 分组
+type SettingsGroupDTO struct {
 	Name     string             `json:"name"` // 分组名称（如 "基本设置"）
-	Settings []SchemaSettingDTO `json:"settings"`
+	Settings []SettingsItemDTO `json:"settings"`
 }
 
-// SchemaCategoryDTO Schema API 分类
-type SchemaCategoryDTO struct {
+// SettingsCategoryDTO Settings API 分类
+type SettingsCategoryDTO struct {
 	Category string           `json:"category"`
 	Label    string           `json:"label"`
 	Icon     string           `json:"icon"`
-	Groups   []SchemaGroupDTO `json:"groups"`
+	Groups   []SettingsGroupDTO `json:"groups"`
 }
 
 // ==================== 分组聚合 DTO ====================

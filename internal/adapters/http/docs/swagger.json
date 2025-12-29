@@ -1469,7 +1469,7 @@
                     "200": {
                         "description": "配置列表（层级结构）",
                         "schema": {
-                            "$ref": "#/definitions/response.DataResponse-array_setting_SchemaCategoryDTO"
+                            "$ref": "#/definitions/response.DataResponse-array_setting_SettingsCategoryDTO"
                         }
                     },
                     "401": {
@@ -3237,7 +3237,7 @@
                     "200": {
                         "description": "配置列表（层级结构）",
                         "schema": {
-                            "$ref": "#/definitions/response.DataResponse-array_setting_SchemaCategoryDTO"
+                            "$ref": "#/definitions/response.DataResponse-array_setting_SettingsCategoryDTO"
                         }
                     },
                     "401": {
@@ -4808,7 +4808,7 @@
                 }
             }
         },
-        "response.DataResponse-array_setting_SchemaCategoryDTO": {
+        "response.DataResponse-array_setting_SettingsCategoryDTO": {
             "type": "object",
             "properties": {
                 "code": {
@@ -4819,7 +4819,7 @@
                     "description": "响应数据",
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/setting.SchemaCategoryDTO"
+                        "$ref": "#/definitions/setting.SettingsCategoryDTO"
                     }
                 },
                 "error": {
@@ -5794,91 +5794,6 @@
                 "value": {}
             }
         },
-        "setting.SchemaCategoryDTO": {
-            "type": "object",
-            "properties": {
-                "category": {
-                    "type": "string"
-                },
-                "groups": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/setting.SchemaGroupDTO"
-                    }
-                },
-                "icon": {
-                    "type": "string"
-                },
-                "label": {
-                    "type": "string"
-                }
-            }
-        },
-        "setting.SchemaGroupDTO": {
-            "type": "object",
-            "properties": {
-                "name": {
-                    "description": "分组名称（如 \"基本设置\"）",
-                    "type": "string"
-                },
-                "settings": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/setting.SchemaSettingDTO"
-                    }
-                }
-            }
-        },
-        "setting.SchemaSettingDTO": {
-            "type": "object",
-            "properties": {
-                "default_value": {
-                    "description": "系统默认值"
-                },
-                "input_type": {
-                    "description": "控件类型",
-                    "type": "string"
-                },
-                "is_customized": {
-                    "description": "是否用户自定义",
-                    "type": "boolean"
-                },
-                "key": {
-                    "type": "string"
-                },
-                "label": {
-                    "type": "string"
-                },
-                "order": {
-                    "type": "integer"
-                },
-                "public": {
-                    "description": "是否对所有用户可见（仅 scope=system 时有意义）",
-                    "type": "boolean"
-                },
-                "scope": {
-                    "description": "system | user（用于前端判断可编辑性）",
-                    "type": "string"
-                },
-                "ui_config": {
-                    "description": "hint/options/depends_on",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/setting.UIConfigDTO"
-                        }
-                    ]
-                },
-                "validation": {
-                    "description": "JSON Logic 规则"
-                },
-                "value": {
-                    "description": "实际生效值"
-                },
-                "value_type": {
-                    "type": "string"
-                }
-            }
-        },
         "setting.SelectOptionDTO": {
             "type": "object",
             "properties": {
@@ -5938,6 +5853,91 @@
                 },
                 "validation": {
                     "description": "JSON Logic 规则"
+                },
+                "value_type": {
+                    "type": "string"
+                }
+            }
+        },
+        "setting.SettingsCategoryDTO": {
+            "type": "object",
+            "properties": {
+                "category": {
+                    "type": "string"
+                },
+                "groups": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/setting.SettingsGroupDTO"
+                    }
+                },
+                "icon": {
+                    "type": "string"
+                },
+                "label": {
+                    "type": "string"
+                }
+            }
+        },
+        "setting.SettingsGroupDTO": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "description": "分组名称（如 \"基本设置\"）",
+                    "type": "string"
+                },
+                "settings": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/setting.SettingsItemDTO"
+                    }
+                }
+            }
+        },
+        "setting.SettingsItemDTO": {
+            "type": "object",
+            "properties": {
+                "default_value": {
+                    "description": "系统默认值"
+                },
+                "input_type": {
+                    "description": "控件类型",
+                    "type": "string"
+                },
+                "is_customized": {
+                    "description": "是否用户自定义",
+                    "type": "boolean"
+                },
+                "key": {
+                    "type": "string"
+                },
+                "label": {
+                    "type": "string"
+                },
+                "order": {
+                    "type": "integer"
+                },
+                "public": {
+                    "description": "是否对所有用户可见（仅 scope=system 时有意义）",
+                    "type": "boolean"
+                },
+                "scope": {
+                    "description": "system | user（用于前端判断可编辑性）",
+                    "type": "string"
+                },
+                "ui_config": {
+                    "description": "hint/options/depends_on",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/setting.UIConfigDTO"
+                        }
+                    ]
+                },
+                "validation": {
+                    "description": "JSON Logic 规则"
+                },
+                "value": {
+                    "description": "实际生效值"
                 },
                 "value_type": {
                     "type": "string"

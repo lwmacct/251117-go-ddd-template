@@ -643,7 +643,7 @@ definitions:
         description: 消息描述
         type: string
     type: object
-  response.DataResponse-array_setting_SchemaCategoryDTO:
+  response.DataResponse-array_setting_SettingsCategoryDTO:
     properties:
       code:
         description: HTTP 状态码
@@ -651,7 +651,7 @@ definitions:
       data:
         description: 响应数据
         items:
-          $ref: '#/definitions/setting.SchemaCategoryDTO'
+          $ref: '#/definitions/setting.SettingsCategoryDTO'
         type: array
       error:
         description: 错误详情（仅失败时）
@@ -1277,62 +1277,6 @@ definitions:
         type: string
       value: {}
     type: object
-  setting.SchemaCategoryDTO:
-    properties:
-      category:
-        type: string
-      groups:
-        items:
-          $ref: '#/definitions/setting.SchemaGroupDTO'
-        type: array
-      icon:
-        type: string
-      label:
-        type: string
-    type: object
-  setting.SchemaGroupDTO:
-    properties:
-      name:
-        description: 分组名称（如 "基本设置"）
-        type: string
-      settings:
-        items:
-          $ref: '#/definitions/setting.SchemaSettingDTO'
-        type: array
-    type: object
-  setting.SchemaSettingDTO:
-    properties:
-      default_value:
-        description: 系统默认值
-      input_type:
-        description: 控件类型
-        type: string
-      is_customized:
-        description: 是否用户自定义
-        type: boolean
-      key:
-        type: string
-      label:
-        type: string
-      order:
-        type: integer
-      public:
-        description: 是否对所有用户可见（仅 scope=system 时有意义）
-        type: boolean
-      scope:
-        description: system | user（用于前端判断可编辑性）
-        type: string
-      ui_config:
-        allOf:
-        - $ref: '#/definitions/setting.UIConfigDTO'
-        description: hint/options/depends_on
-      validation:
-        description: JSON Logic 规则
-      value:
-        description: 实际生效值
-      value_type:
-        type: string
-    type: object
   setting.SelectOptionDTO:
     properties:
       label:
@@ -1372,6 +1316,62 @@ definitions:
         type: string
       validation:
         description: JSON Logic 规则
+      value_type:
+        type: string
+    type: object
+  setting.SettingsCategoryDTO:
+    properties:
+      category:
+        type: string
+      groups:
+        items:
+          $ref: '#/definitions/setting.SettingsGroupDTO'
+        type: array
+      icon:
+        type: string
+      label:
+        type: string
+    type: object
+  setting.SettingsGroupDTO:
+    properties:
+      name:
+        description: 分组名称（如 "基本设置"）
+        type: string
+      settings:
+        items:
+          $ref: '#/definitions/setting.SettingsItemDTO'
+        type: array
+    type: object
+  setting.SettingsItemDTO:
+    properties:
+      default_value:
+        description: 系统默认值
+      input_type:
+        description: 控件类型
+        type: string
+      is_customized:
+        description: 是否用户自定义
+        type: boolean
+      key:
+        type: string
+      label:
+        type: string
+      order:
+        type: integer
+      public:
+        description: 是否对所有用户可见（仅 scope=system 时有意义）
+        type: boolean
+      scope:
+        description: system | user（用于前端判断可编辑性）
+        type: string
+      ui_config:
+        allOf:
+        - $ref: '#/definitions/setting.UIConfigDTO'
+        description: hint/options/depends_on
+      validation:
+        description: JSON Logic 规则
+      value:
+        description: 实际生效值
       value_type:
         type: string
     type: object
@@ -2622,7 +2622,7 @@ paths:
         "200":
           description: 配置列表（层级结构）
           schema:
-            $ref: '#/definitions/response.DataResponse-array_setting_SchemaCategoryDTO'
+            $ref: '#/definitions/response.DataResponse-array_setting_SettingsCategoryDTO'
         "401":
           description: 未授权
           schema:
@@ -3757,7 +3757,7 @@ paths:
         "200":
           description: 配置列表（层级结构）
           schema:
-            $ref: '#/definitions/response.DataResponse-array_setting_SchemaCategoryDTO'
+            $ref: '#/definitions/response.DataResponse-array_setting_SettingsCategoryDTO'
         "401":
           description: 未授权
           schema:

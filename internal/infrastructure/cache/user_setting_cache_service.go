@@ -10,7 +10,7 @@ import (
 
 	"github.com/redis/go-redis/v9"
 
-	"github.com/lwmacct/251117-go-ddd-template/internal/domain/cache"
+	appsetting "github.com/lwmacct/251117-go-ddd-template/internal/application/setting"
 )
 
 const userSettingCacheTTL = 30 * time.Minute
@@ -25,7 +25,7 @@ type userSettingCacheService struct {
 }
 
 // NewUserSettingCacheService 创建用户设置缓存服务。
-func NewUserSettingCacheService(client *redis.Client, keyPrefix string) cache.UserSettingCacheService {
+func NewUserSettingCacheService(client *redis.Client, keyPrefix string) appsetting.UserSettingCacheService {
 	return &userSettingCacheService{
 		client:    client,
 		keyPrefix: keyPrefix,
@@ -37,7 +37,7 @@ func NewUserSettingCacheService(client *redis.Client, keyPrefix string) cache.Us
 // =========================================================================
 
 // Get 获取用户的有效设置值（使用 RedisJSON）。
-func (s *userSettingCacheService) Get(ctx context.Context, userID uint, key string) (*cache.EffectiveUserSetting, error) {
+func (s *userSettingCacheService) Get(ctx context.Context, userID uint, key string) (*appsetting.EffectiveUserSetting, error) {
 	data, err := s.client.JSONGet(ctx, s.buildKey(userID, key), "$").Result()
 	if err != nil {
 		if errors.Is(err, redis.Nil) {
@@ -47,7 +47,7 @@ func (s *userSettingCacheService) Get(ctx context.Context, userID uint, key stri
 	}
 
 	// JSON.GET $ 返回数组包装：[actual_data]
-	var wrapper []cache.EffectiveUserSetting
+	var wrapper []appsetting.EffectiveUserSetting
 	if err := json.Unmarshal([]byte(data), &wrapper); err != nil {
 		// 缓存数据损坏，删除并返回未命中
 		_ = s.client.Del(ctx, s.buildKey(userID, key))
@@ -62,7 +62,7 @@ func (s *userSettingCacheService) Get(ctx context.Context, userID uint, key stri
 }
 
 // Set 缓存用户的有效设置值（使用 RedisJSON）。
-func (s *userSettingCacheService) Set(ctx context.Context, userID uint, value *cache.EffectiveUserSetting) error {
+func (s *userSettingCacheService) Set(ctx context.Context, userID uint, value *appsetting.EffectiveUserSetting) error {
 	if value == nil {
 		return nil
 	}
@@ -86,9 +86,9 @@ func (s *userSettingCacheService) Set(ctx context.Context, userID uint, value *c
 // =========================================================================
 
 // GetByKeys 批量获取用户的有效设置值（使用 RedisJSON）。
-func (s *userSettingCacheService) GetByKeys(ctx context.Context, userID uint, keys []string) (map[string]*cache.EffectiveUserSetting, error) {
+func (s *userSettingCacheService) GetByKeys(ctx context.Context, userID uint, keys []string) (map[string]*appsetting.EffectiveUserSetting, error) {
 	if len(keys) == 0 {
-		return map[string]*cache.EffectiveUserSetting{}, nil
+		return map[string]*appsetting.EffectiveUserSetting{}, nil
 	}
 
 	redisKeys := make([]string, len(keys))
@@ -102,7 +102,7 @@ func (s *userSettingCacheService) GetByKeys(ctx context.Context, userID uint, ke
 		return nil, fmt.Errorf("failed to json mget: %w", err)
 	}
 
-	result := make(map[string]*cache.EffectiveUserSetting)
+	result := make(map[string]*appsetting.EffectiveUserSetting)
 	for i, v := range values {
 		if v == nil {
 			continue
@@ -114,7 +114,7 @@ func (s *userSettingCacheService) GetByKeys(ctx context.Context, userID uint, ke
 		}
 
 		// JSON.MGET 返回数组包装
-		var wrapper []cache.EffectiveUserSetting
+		var wrapper []appsetting.EffectiveUserSetting
 		if json.Unmarshal([]byte(data), &wrapper) == nil && len(wrapper) > 0 {
 			result[keys[i]] = &wrapper[0]
 		}
@@ -124,7 +124,7 @@ func (s *userSettingCacheService) GetByKeys(ctx context.Context, userID uint, ke
 }
 
 // SetBatch 批量设置用户的有效设置值（使用 RedisJSON）。
-func (s *userSettingCacheService) SetBatch(ctx context.Context, userID uint, values []*cache.EffectiveUserSetting) error {
+func (s *userSettingCacheService) SetBatch(ctx context.Context, userID uint, values []*appsetting.EffectiveUserSetting) error {
 	if len(values) == 0 {
 		return nil
 	}
@@ -229,4 +229,4 @@ func (s *userSettingCacheService) buildSettingKeyPattern(settingKey string) stri
 	return fmt.Sprintf("%suser:*:setting:%s", s.keyPrefix, settingKey)
 }
 
-var _ cache.UserSettingCacheService = (*userSettingCacheService)(nil)
+var _ appsetting.UserSettingCacheService = (*userSettingCacheService)(nil)

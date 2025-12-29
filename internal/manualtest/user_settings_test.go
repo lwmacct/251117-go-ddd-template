@@ -212,7 +212,7 @@ func TestGetUserSettingsSchema(t *testing.T) {
 	c := helper.LoginAsAdmin(t)
 
 	t.Log("\n获取用户配置 Schema...")
-	schema, err := helper.Get[[]setting.SchemaCategoryDTO](c, "/api/user/settings/schema", nil)
+	schema, err := helper.Get[[]setting.SettingsCategoryDTO](c, "/api/user/settings/schema", nil)
 	require.NoError(t, err, "获取 Schema 失败")
 
 	t.Logf("Schema 层级结构:")

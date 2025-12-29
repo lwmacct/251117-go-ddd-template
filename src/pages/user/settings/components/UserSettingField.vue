@@ -9,10 +9,10 @@
  */
 import { computed } from "vue";
 import DynamicSettingField from "@/pages/admin/settings/components/DynamicSettingField.vue";
-import type { SettingSchemaSettingDTO, SettingSelectOptionDTO } from "@models";
+import type { SettingSettingsItemDTO, SettingSelectOptionDTO } from "@models";
 
 const props = defineProps<{
-  setting: SettingSchemaSettingDTO;
+  setting: SettingSettingsItemDTO;
   modelValue: unknown;
   disabled?: boolean;
   readonly?: boolean; // 只读模式（scope=system 的公开设置）
@@ -52,7 +52,7 @@ const formatDefaultValue = computed(() => {
   }
 });
 
-// 将 UserSchemaSettingDTO 适配为 SettingSchemaSettingDTO 格式
+// 将 UserSettingsItemDTO 适配为 SettingSettingsItemDTO 格式
 // 两者结构兼容，只是 UserSchema 多了 value 和 is_customized 字段
 const adaptedSetting = computed(() => ({
   key: props.setting.key,

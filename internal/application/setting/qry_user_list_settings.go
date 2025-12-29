@@ -8,30 +8,30 @@ import (
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/setting"
 )
 
-// UserListSchemaHandler 获取用户配置 Schema 查询处理器
-type UserListSchemaHandler struct {
+// UserListSettingsHandler 获取用户配置 Settings 查询处理器
+type UserListSettingsHandler struct {
 	settingQueryRepo  setting.QueryRepository
 	queryRepo         setting.UserSettingQueryRepository
 	categoryQueryRepo setting.SettingCategoryQueryRepository
-	schemaCache       SchemaCacheService
+	settingsCache     SettingsCacheService
 }
 
-// NewUserListSchemaHandler 创建 UserListSchemaHandler 实例
-func NewUserListSchemaHandler(
+// NewUserListSettingsHandler 创建 UserListSettingsHandler 实例
+func NewUserListSettingsHandler(
 	settingQueryRepo setting.QueryRepository,
 	queryRepo setting.UserSettingQueryRepository,
 	categoryQueryRepo setting.SettingCategoryQueryRepository,
-	schemaCache SchemaCacheService,
-) *UserListSchemaHandler {
-	return &UserListSchemaHandler{
+	settingsCache SettingsCacheService,
+) *UserListSettingsHandler {
+	return &UserListSettingsHandler{
 		settingQueryRepo:  settingQueryRepo,
 		queryRepo:         queryRepo,
 		categoryQueryRepo: categoryQueryRepo,
-		schemaCache:       schemaCache,
+		settingsCache:     settingsCache,
 	}
 }
 
-// Handle 处理获取用户配置 Schema 查询
+// Handle 处理获取用户配置 Settings 查询
 // 返回按 Category → Group → Settings 层级组织的数据，包含用户自定义值
 //
 // 返回用户可见的设置项：
@@ -45,30 +45,30 @@ func NewUserListSchemaHandler(
 // 缓存策略：
 //   - 先查缓存，命中直接返回
 //   - 未命中时查数据库，同步回写缓存
-func (h *UserListSchemaHandler) Handle(ctx context.Context, query UserListSchemaQuery) ([]SchemaCategoryDTO, error) {
+func (h *UserListSettingsHandler) Handle(ctx context.Context, query UserListSettingsQuery) ([]SettingsCategoryDTO, error) {
 	// 1. 查缓存
-	if cached, err := h.schemaCache.GetUserSchema(ctx, query.UserID, query.CategoryKey); err == nil && cached != nil {
+	if cached, err := h.settingsCache.GetUserSettings(ctx, query.UserID, query.CategoryKey); err == nil && cached != nil {
 		return cached, nil
 	}
 
 	// 2. 缓存未命中，执行原有逻辑
-	result, err := h.fetchAndBuildSchema(ctx, query)
+	result, err := h.fetchAndBuild(ctx, query)
 	if err != nil {
 		return nil, err
 	}
 
 	// 3. 同步回写缓存（仅非空结果，避免缓存无效数据）
 	if len(result) > 0 {
-		if err := h.schemaCache.SetUserSchema(ctx, query.UserID, query.CategoryKey, result); err != nil {
-			slog.Warn("failed to cache user schema", "userID", query.UserID, "categoryKey", query.CategoryKey, "err", err)
+		if err := h.settingsCache.SetUserSettings(ctx, query.UserID, query.CategoryKey, result); err != nil {
+			slog.Warn("failed to cache user settings", "userID", query.UserID, "categoryKey", query.CategoryKey, "err", err)
 		}
 	}
 
 	return result, nil
 }
 
-// fetchAndBuildSchema 从数据库获取数据并构建 Schema
-func (h *UserListSchemaHandler) fetchAndBuildSchema(ctx context.Context, query UserListSchemaQuery) ([]SchemaCategoryDTO, error) {
+// fetchAndBuild 从数据库获取数据并构建 Settings
+func (h *UserListSettingsHandler) fetchAndBuild(ctx context.Context, query UserListSettingsQuery) ([]SettingsCategoryDTO, error) {
 	// 1. 根据 CategoryKey 决定查询范围（只查询 user scope）
 	defs, err := h.fetchUserSettings(ctx, query.CategoryKey)
 	if err != nil {
@@ -94,14 +94,14 @@ func (h *UserListSchemaHandler) fetchAndBuildSchema(ctx context.Context, query U
 	}
 
 	// 5. 使用共享构建器
-	builder := NewSchemaBuilder(categories)
+	builder := NewSettingsBuilder(categories)
 	return builder.Build(defs, userSettingMap, UserSettingMapper), nil
 }
 
 // fetchUserSettings 根据 CategoryKey 获取用户可见的设置列表
 //
 // 返回 scope=user（可编辑）+ scope=system 且 public=true（只读）的设置
-func (h *UserListSchemaHandler) fetchUserSettings(ctx context.Context, categoryKey string) ([]*setting.Setting, error) {
+func (h *UserListSettingsHandler) fetchUserSettings(ctx context.Context, categoryKey string) ([]*setting.Setting, error) {
 	// 全量查询用户可见的设置
 	if categoryKey == "" {
 		defs, err := h.settingQueryRepo.FindVisibleToUser(ctx)

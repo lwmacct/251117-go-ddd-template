@@ -5,7 +5,7 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/lwmacct/251117-go-ddd-template/internal/domain/cache"
+	appsetting "github.com/lwmacct/251117-go-ddd-template/internal/application/setting"
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/setting"
 )
 
@@ -20,13 +20,13 @@ import (
 //   - [FindByUserAndKeys]: 从用户缓存中提取，部分未命中查库
 type cachedUserSettingQueryRepository struct {
 	delegate setting.UserSettingQueryRepository
-	cache    cache.UserSettingQueryCacheService
+	cache    appsetting.UserSettingQueryCacheService
 }
 
 // NewCachedUserSettingQueryRepository 创建带缓存的 UserSetting 查询仓储。
 func NewCachedUserSettingQueryRepository(
 	delegate setting.UserSettingQueryRepository,
-	cacheService cache.UserSettingQueryCacheService,
+	cacheService appsetting.UserSettingQueryCacheService,
 ) setting.UserSettingQueryRepository {
 	return &cachedUserSettingQueryRepository{
 		delegate: delegate,

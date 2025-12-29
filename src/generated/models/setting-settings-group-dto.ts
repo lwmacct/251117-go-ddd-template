@@ -15,25 +15,25 @@
 
 // May contain unused imports in some cases
 // @ts-ignore
-import type { SettingSchemaSettingDTO } from './setting-schema-setting-dto';
+import type { SettingSettingsItemDTO } from './setting-settings-item-dto';
 
 /**
  * 
  * @export
- * @interface SettingSchemaGroupDTO
+ * @interface SettingSettingsGroupDTO
  */
-export interface SettingSchemaGroupDTO {
+export interface SettingSettingsGroupDTO {
     /**
      * 分组名称（如 \"基本设置\"）
      * @type {string}
-     * @memberof SettingSchemaGroupDTO
+     * @memberof SettingSettingsGroupDTO
      */
     'name'?: string;
     /**
      * 
-     * @type {Array<SettingSchemaSettingDTO>}
-     * @memberof SettingSchemaGroupDTO
+     * @type {Array<SettingSettingsItemDTO>}
+     * @memberof SettingSettingsGroupDTO
      */
-    'settings'?: Array<SettingSchemaSettingDTO>;
+    'settings'?: Array<SettingSettingsItemDTO>;
 }
 

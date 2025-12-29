@@ -12,8 +12,9 @@ import { adminSettingsApi, adminSettingCategoriesApi, extractData } from "@/api"
 import { useLazyCategorySchema, useSnackbar } from "@/composables";
 import {
   type SettingSettingDTO,
-  type SettingSchemaCategoryDTO,
-  type SettingSchemaSettingDTO,
+  type SettingSettingsCategoryDTO,
+  type SettingSettingsGroupDTO,
+  type SettingSettingsItemDTO,
   type SettingCategoryDTO,
   type HandlerCreateSettingRequest,
   type HandlerUpdateSettingRequest,
@@ -32,9 +33,9 @@ export function useSettings() {
     fetchSchemaByCategory,
     isCategoryLoaded,
     reset: resetSchema,
-  } = useLazyCategorySchema<SettingSchemaCategoryDTO>(async (categoryKey) => {
+  } = useLazyCategorySchema<SettingSettingsCategoryDTO>(async (categoryKey) => {
     const response = await adminSettingsApi.apiAdminSettingsGet(categoryKey);
-    return (response.data.data ?? []) as SettingSchemaCategoryDTO[];
+    return (response.data.data ?? []) as SettingSettingsCategoryDTO[];
   });
 
   // 其他加载状态
@@ -58,10 +59,10 @@ export function useSettings() {
 
   // 按 key 索引的设置 Map（使用 Schema 数据）
   const settingsMap = computed(() => {
-    const map = new Map<string, SettingSchemaSettingDTO>();
+    const map = new Map<string, SettingSettingsItemDTO>();
     schema.value.forEach((cat) => {
-      cat.groups?.forEach((group) => {
-        group.settings?.forEach((s) => {
+      cat.groups?.forEach((group: SettingSettingsGroupDTO) => {
+        group.settings?.forEach((s: SettingSettingsItemDTO) => {
           if (s.key) {
             map.set(s.key, s);
           }
@@ -103,7 +104,7 @@ export function useSettings() {
 
       // 获取全量数据
       const response = await adminSettingsApi.apiAdminSettingsGet();
-      const allCategories = (response.data.data ?? []) as SettingSchemaCategoryDTO[];
+      const allCategories = (response.data.data ?? []) as SettingSettingsCategoryDTO[];
 
       // 逐个分类触发加载（标记为已加载）
       for (const cat of allCategories) {

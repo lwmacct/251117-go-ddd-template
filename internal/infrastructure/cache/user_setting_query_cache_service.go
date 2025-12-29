@@ -9,7 +9,7 @@ import (
 
 	"github.com/redis/go-redis/v9"
 
-	"github.com/lwmacct/251117-go-ddd-template/internal/domain/cache"
+	appsetting "github.com/lwmacct/251117-go-ddd-template/internal/application/setting"
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/setting"
 )
 
@@ -54,7 +54,7 @@ type userSettingQueryCacheService struct {
 }
 
 // NewUserSettingQueryCacheService 创建用户设置查询缓存服务。
-func NewUserSettingQueryCacheService(client *redis.Client, keyPrefix string) cache.UserSettingQueryCacheService {
+func NewUserSettingQueryCacheService(client *redis.Client, keyPrefix string) appsetting.UserSettingQueryCacheService {
 	return &userSettingQueryCacheService{
 		client:    client,
 		keyPrefix: keyPrefix,
@@ -126,4 +126,4 @@ func (s *userSettingQueryCacheService) buildKey(userID uint) string {
 	return fmt.Sprintf("%s%s%d", s.keyPrefix, userSettingQueryKeyPrefix, userID)
 }
 
-var _ cache.UserSettingQueryCacheService = (*userSettingQueryCacheService)(nil)
+var _ appsetting.UserSettingQueryCacheService = (*userSettingQueryCacheService)(nil)

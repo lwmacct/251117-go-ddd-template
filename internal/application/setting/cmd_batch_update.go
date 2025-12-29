@@ -13,7 +13,7 @@ type BatchUpdateHandler struct {
 	commandRepo setting.CommandRepository
 	queryRepo   setting.QueryRepository
 	validator   setting.Validator
-	schemaCache SchemaCacheService
+	settingsCache SettingsCacheService
 }
 
 // NewBatchUpdateHandler 创建 BatchUpdateHandler 实例
@@ -21,13 +21,13 @@ func NewBatchUpdateHandler(
 	commandRepo setting.CommandRepository,
 	queryRepo setting.QueryRepository,
 	validator setting.Validator,
-	schemaCache SchemaCacheService,
+	settingsCache SettingsCacheService,
 ) *BatchUpdateHandler {
 	return &BatchUpdateHandler{
 		commandRepo: commandRepo,
 		queryRepo:   queryRepo,
 		validator:   validator,
-		schemaCache: schemaCache,
+		settingsCache: settingsCache,
 	}
 }
 
@@ -78,10 +78,10 @@ func (h *BatchUpdateHandler) Handle(ctx context.Context, cmd BatchUpdateCommand)
 		return fmt.Errorf("failed to batch update settings: %w", err)
 	}
 
-	// 7. 失效 Schema 缓存
-	if h.schemaCache != nil {
-		if err := h.schemaCache.DeleteAdminSchemaAll(ctx); err != nil {
-			slog.Warn("admin schema cache invalidation failed after batch update", "err", err)
+	// 7. 失效 Settings 缓存
+	if h.settingsCache != nil {
+		if err := h.settingsCache.DeleteAdminSettingsAll(ctx); err != nil {
+			slog.Warn("admin settings cache invalidation failed after batch update", "err", err)
 		}
 	}
 

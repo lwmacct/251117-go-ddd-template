@@ -5,7 +5,8 @@ import (
 	"fmt"
 	"log/slog"
 
-	"github.com/lwmacct/251117-go-ddd-template/internal/domain/cache"
+	appauth "github.com/lwmacct/251117-go-ddd-template/internal/application/auth"
+	appuser "github.com/lwmacct/251117-go-ddd-template/internal/application/user"
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/user"
 )
 
@@ -19,17 +20,17 @@ import (
 // 查询数据库时，会同时写入用户实体缓存（UserWithRolesCacheService），
 // 供后续 Handler 通过 Repository 缓存装饰器直接命中，避免重复查询。
 //
-// 底层缓存操作委托给 [cache.PermissionCacheService] 接口实现。
+// 底层缓存操作委托给 [appauth.PermissionCacheService] 接口实现。
 type PermissionCacheService struct {
-	cache         cache.PermissionCacheService
-	userCache     cache.UserWithRolesCacheService
+	cache         appauth.PermissionCacheService
+	userCache     appuser.UserWithRolesCacheService
 	userQueryRepo user.QueryRepository
 }
 
 // NewPermissionCacheService 创建权限缓存服务
 func NewPermissionCacheService(
-	cacheService cache.PermissionCacheService,
-	userCacheService cache.UserWithRolesCacheService,
+	cacheService appauth.PermissionCacheService,
+	userCacheService appuser.UserWithRolesCacheService,
 	userQueryRepo user.QueryRepository,
 ) *PermissionCacheService {
 	return &PermissionCacheService{

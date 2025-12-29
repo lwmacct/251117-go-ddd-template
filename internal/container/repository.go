@@ -5,7 +5,7 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/lwmacct/251117-go-ddd-template/internal/application/setting"
-	"github.com/lwmacct/251117-go-ddd-template/internal/domain/cache"
+	"github.com/lwmacct/251117-go-ddd-template/internal/application/user"
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/captcha"
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/stats"
 	"github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/persistence"
@@ -45,7 +45,7 @@ var RepositoryModule = fx.Module("repository",
 
 func newUserRepositoriesWithCache(
 	db *gorm.DB,
-	userWithRolesCache cache.UserWithRolesCacheService,
+	userWithRolesCache user.UserWithRolesCacheService,
 ) persistence.UserRepositories {
 	rawRepos := persistence.NewUserRepositories(db)
 	cachedQuery := persistence.NewCachedUserQueryRepository(rawRepos.Query, userWithRolesCache)
@@ -58,38 +58,37 @@ func newUserRepositoriesWithCache(
 // newSettingRepositoriesWithCache 创建带缓存装饰的 Setting 仓储。
 //
 // 简化设计：
-//   - Query 直接使用原始仓储，不再缓存（由 Application 层 Schema 缓存覆盖）
-//   - Command 装饰器只负责写操作后失效下游缓存（Schema + UserSetting）
+//   - Query 直接使用原始仓储，不再缓存（由 Application 层 Settings 缓存覆盖）
+//   - Command 装饰器只负责写操作后失效下游缓存（Settings + UserSetting）
+//   - CategoryQuery 使用 SettingsCacheService 的 Category 缓存方法
+//   - CategoryCommand 直接使用原始仓储，缓存失效在 Handler 层处理
 func newSettingRepositoriesWithCache(
 	db *gorm.DB,
-	categoryCache cache.SettingCategoryCacheService,
-	userSettingCache cache.UserSettingCacheService,
-	schemaCache setting.SchemaCacheService,
+	userSettingCache setting.UserSettingCacheService,
+	settingsCache setting.SettingsCacheService,
 ) persistence.SettingRepositories {
 	rawRepos := persistence.NewSettingRepositories(db)
 
 	// 查询直接使用原始仓储，不再缓存
-	// 写操作装饰器：失效 Schema + UserSetting 缓存
+	// 写操作装饰器：失效 Settings + UserSetting 缓存
 	wrappedCommand := persistence.NewSettingCommandWithCacheInvalidation(
 		rawRepos.Command,
 		userSettingCache,
-		schemaCache,
+		settingsCache,
 	)
 
+	// Category 查询使用 SettingsCacheService（合并后的 Application 层缓存）
 	cachedCategoryQuery := persistence.NewCachedSettingCategoryQueryRepository(
 		rawRepos.CategoryQuery,
-		categoryCache,
-	)
-	cachedCategoryCommand := persistence.NewCachedSettingCategoryCommandRepository(
-		rawRepos.CategoryCommand,
-		categoryCache,
+		settingsCache,
 	)
 
+	// Category 命令直接使用原始仓储，缓存失效在 Handler 层统一处理
 	return persistence.SettingRepositories{
 		Command:         wrappedCommand,
 		Query:           rawRepos.Query,
 		CategoryQuery:   cachedCategoryQuery,
-		CategoryCommand: cachedCategoryCommand,
+		CategoryCommand: rawRepos.CategoryCommand,
 	}
 }
 
@@ -98,9 +97,9 @@ type userSettingRepositoriesParams struct {
 	fx.In
 
 	DB                    *gorm.DB
-	UserSettingQueryCache cache.UserSettingQueryCacheService
-	UserSettingCache      cache.UserSettingCacheService
-	SchemaCache           setting.SchemaCacheService
+	UserSettingQueryCache setting.UserSettingQueryCacheService
+	UserSettingCache      setting.UserSettingCacheService
+	SettingsCache         setting.SettingsCacheService
 }
 
 func newUserSettingRepositoriesWithCache(p userSettingRepositoriesParams) persistence.UserSettingRepositories {
@@ -114,7 +113,7 @@ func newUserSettingRepositoriesWithCache(p userSettingRepositoriesParams) persis
 		rawRepos.Command,
 		p.UserSettingQueryCache,
 		p.UserSettingCache,
-		p.SchemaCache,
+		p.SettingsCache,
 	)
 
 	return persistence.UserSettingRepositories{

@@ -20,7 +20,7 @@ type UserSettingHandler struct {
 	// Query Handlers
 	getHandler            *setting.UserGetHandler
 	listHandler           *setting.UserListHandler
-	listSchemaHandler     *setting.UserListSchemaHandler
+	listSchemaHandler     *setting.UserListSettingsHandler
 	listCategoriesHandler *setting.UserListCategoriesHandler
 }
 
@@ -32,7 +32,7 @@ func NewUserSettingHandler(
 	resetAllHandler *setting.UserResetAllHandler,
 	getHandler *setting.UserGetHandler,
 	listHandler *setting.UserListHandler,
-	listSchemaHandler *setting.UserListSchemaHandler,
+	listSchemaHandler *setting.UserListSettingsHandler,
 	listCategoriesHandler *setting.UserListCategoriesHandler,
 ) *UserSettingHandler {
 	return &UserSettingHandler{
@@ -87,7 +87,7 @@ func (h *UserSettingHandler) ListUserSettingCategories(c *gin.Context) {
 // @Security     BearerAuth
 // @x-permission {"scope":"user:settings:read"}
 // @Param        category query string false "分类 Key（如 profile），为空返回全量"
-// @Success      200 {object} response.DataResponse[[]setting.SchemaCategoryDTO] "配置列表（层级结构）"
+// @Success      200 {object} response.DataResponse[[]setting.SettingsCategoryDTO] "配置列表（层级结构）"
 // @Failure      401 {object} response.ErrorResponse "未授权"
 // @Failure      404 {object} response.ErrorResponse "分类不存在"
 // @Failure      500 {object} response.ErrorResponse "服务器内部错误"
@@ -101,7 +101,7 @@ func (h *UserSettingHandler) GetUserSettings(c *gin.Context) {
 	categoryKey := c.Query("category")
 
 	// 调用 Schema Handler（返回层级结构）
-	schema, err := h.listSchemaHandler.Handle(c.Request.Context(), setting.UserListSchemaQuery{
+	schema, err := h.listSchemaHandler.Handle(c.Request.Context(), setting.UserListSettingsQuery{
 		UserID:      userID,
 		CategoryKey: categoryKey,
 	})

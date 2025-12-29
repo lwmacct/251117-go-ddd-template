@@ -15,8 +15,9 @@ import { userSettingsApi } from "@/api";
 import { useLazyCategorySchema, useSnackbar } from "@/composables";
 import type {
   SettingCategoryMetaDTO,
-  SettingSchemaCategoryDTO,
-  SettingSchemaSettingDTO,
+  SettingSettingsCategoryDTO,
+  SettingSettingsGroupDTO,
+  SettingSettingsItemDTO,
   HandlerSetUserSettingRequest,
 } from "@models";
 
@@ -33,9 +34,9 @@ export function useUserSettings() {
     fetchSchemaByCategory,
     isCategoryLoaded,
     reset: resetSchema,
-  } = useLazyCategorySchema<SettingSchemaCategoryDTO>(async (categoryKey) => {
+  } = useLazyCategorySchema<SettingSettingsCategoryDTO>(async (categoryKey) => {
     const response = await userSettingsApi.apiUserSettingsGet(categoryKey);
-    return (response.data.data ?? []) as SettingSchemaCategoryDTO[];
+    return (response.data.data ?? []) as SettingSettingsCategoryDTO[];
   });
 
   // 其他加载状态
@@ -44,10 +45,10 @@ export function useUserSettings() {
 
   // 按 key 索引的设置 Map
   const settingsMap = computed(() => {
-    const map = new Map<string, SettingSchemaSettingDTO>();
+    const map = new Map<string, SettingSettingsItemDTO>();
     schema.value.forEach((cat) => {
-      cat.groups?.forEach((group) => {
-        group.settings?.forEach((s) => {
+      cat.groups?.forEach((group: SettingSettingsGroupDTO) => {
+        group.settings?.forEach((s: SettingSettingsItemDTO) => {
           if (s.key) {
             map.set(s.key, s);
           }
@@ -89,7 +90,7 @@ export function useUserSettings() {
 
       // 获取全量数据
       const response = await userSettingsApi.apiUserSettingsGet();
-      const allCategories = (response.data.data ?? []) as SettingSchemaCategoryDTO[];
+      const allCategories = (response.data.data ?? []) as SettingSettingsCategoryDTO[];
 
       // 逐个分类触发加载（标记为已加载）
       for (const cat of allCategories) {
@@ -118,9 +119,11 @@ export function useUserSettings() {
       // 由于 schema 使用 shallowRef，需要创建新引用触发响应式
       const updated = schema.value.map((cat) => ({
         ...cat,
-        groups: cat.groups?.map((group) => ({
+        groups: cat.groups?.map((group: SettingSettingsGroupDTO) => ({
           ...group,
-          settings: group.settings?.map((s) => (s.key === key ? { ...s, value, is_customized: true } : s)),
+          settings: group.settings?.map((s: SettingSettingsItemDTO) =>
+            s.key === key ? { ...s, value, is_customized: true } : s,
+          ),
         })),
       }));
       schema.value = updated;
@@ -144,7 +147,9 @@ export function useUserSettings() {
       // 从 schema 中找到包含该设置的分类（设置对象只有 category_id，没有 category 字符串）
       let categoryKey: string | undefined;
       for (const cat of schema.value) {
-        const found = cat.groups?.some((g) => g.settings?.some((s) => s.key === key));
+        const found = cat.groups?.some((g: SettingSettingsGroupDTO) =>
+          g.settings?.some((s: SettingSettingsItemDTO) => s.key === key),
+        );
         if (found) {
           categoryKey = cat.category;
           break;

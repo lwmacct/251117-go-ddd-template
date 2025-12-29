@@ -17,6 +17,7 @@ import SkeletonLoader from "@/components/SkeletonLoader.vue";
 import { useSettings } from "./composables/useSettings";
 import { useSettingsDependency } from "./composables/useSettingsDependency";
 import DynamicSettingField from "./components/DynamicSettingField.vue";
+import type { SettingSettingsGroupDTO, SettingSettingsItemDTO } from "@models";
 
 const {
   loading,
@@ -105,8 +106,8 @@ const parseValue = (value: unknown, valueType: string | undefined): unknown => {
 const initFormValues = () => {
   const values: Record<string, unknown> = {};
   schema.value.forEach((cat) => {
-    cat.groups?.forEach((group) => {
-      group.settings?.forEach((setting) => {
+    cat.groups?.forEach((group: SettingSettingsGroupDTO) => {
+      group.settings?.forEach((setting: SettingSettingsItemDTO) => {
         if (setting.key) {
           values[setting.key] = parseValue(setting.default_value, setting.value_type);
         }

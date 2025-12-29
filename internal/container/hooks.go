@@ -6,7 +6,7 @@ import (
 	"go.uber.org/fx"
 
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/event"
-	infra_auth "github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/auth"
+	"github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/auth"
 	"github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/eventhandler"
 	"github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/persistence"
 )
@@ -16,7 +16,7 @@ type eventHandlersParams struct {
 	fx.In
 
 	EventBus        event.EventBus
-	PermissionCache *infra_auth.PermissionCacheService
+	PermissionCache *auth.PermissionCacheService
 	UserRepos       persistence.UserRepositories
 	AuditLogRepos   persistence.AuditLogRepositories
 }

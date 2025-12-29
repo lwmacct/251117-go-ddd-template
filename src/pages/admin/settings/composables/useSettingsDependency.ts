@@ -2,7 +2,7 @@
  * 设置项依赖关系处理 Composable
  */
 import type { Ref } from "vue";
-import type { SettingSchemaSettingDTO } from "@models";
+import type { SettingSettingsItemDTO } from "@models";
 
 // 依赖关系配置
 interface DependsOnConfig {
@@ -12,13 +12,13 @@ interface DependsOnConfig {
 }
 
 export function useSettingsDependency(
-  settingsMap: Ref<Map<string, SettingSchemaSettingDTO>>,
+  settingsMap: Ref<Map<string, SettingSettingsItemDTO>>,
   formValues: Ref<Record<string, unknown>>,
 ) {
   /**
    * 解析依赖关系配置
    */
-  const parseDependsOn = (setting: SettingSchemaSettingDTO): DependsOnConfig | null => {
+  const parseDependsOn = (setting: SettingSettingsItemDTO): DependsOnConfig | null => {
     const dependsOn = setting.ui_config?.depends_on;
     if (!dependsOn) return null;
     try {
@@ -31,7 +31,7 @@ export function useSettingsDependency(
   /**
    * 检查设置项是否因依赖关系被禁用
    */
-  const isDisabled = (setting: SettingSchemaSettingDTO): boolean => {
+  const isDisabled = (setting: SettingSettingsItemDTO): boolean => {
     const dep = parseDependsOn(setting);
     if (!dep) return false;
 
@@ -56,7 +56,7 @@ export function useSettingsDependency(
   /**
    * 获取禁用原因提示
    */
-  const getDisabledHint = (setting: SettingSchemaSettingDTO): string | undefined => {
+  const getDisabledHint = (setting: SettingSettingsItemDTO): string | undefined => {
     const dep = parseDependsOn(setting);
     if (!dep || !isDisabled(setting)) return undefined;
 
@@ -67,7 +67,7 @@ export function useSettingsDependency(
   /**
    * 获取设置项的最终 hint（优先显示禁用原因）
    */
-  const getFinalHint = (setting: SettingSchemaSettingDTO): string | undefined => {
+  const getFinalHint = (setting: SettingSettingsItemDTO): string | undefined => {
     return getDisabledHint(setting) || setting.ui_config?.hint;
   };
 

@@ -8,27 +8,27 @@ import (
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/setting"
 )
 
-// ListSchemaHandler 获取设置 Schema 查询处理器
-type ListSchemaHandler struct {
+// ListSettingsHandler 获取设置 Settings 查询处理器
+type ListSettingsHandler struct {
 	settingQueryRepo  setting.QueryRepository
 	categoryQueryRepo setting.SettingCategoryQueryRepository
-	schemaCache       SchemaCacheService
+	settingsCache     SettingsCacheService
 }
 
-// NewListSchemaHandler 创建 ListSchemaHandler 实例
-func NewListSchemaHandler(
+// NewListSettingsHandler 创建 ListSettingsHandler 实例
+func NewListSettingsHandler(
 	settingQueryRepo setting.QueryRepository,
 	categoryQueryRepo setting.SettingCategoryQueryRepository,
-	schemaCache SchemaCacheService,
-) *ListSchemaHandler {
-	return &ListSchemaHandler{
+	settingsCache SettingsCacheService,
+) *ListSettingsHandler {
+	return &ListSettingsHandler{
 		settingQueryRepo:  settingQueryRepo,
 		categoryQueryRepo: categoryQueryRepo,
-		schemaCache:       schemaCache,
+		settingsCache:     settingsCache,
 	}
 }
 
-// Handle 处理获取设置 Schema 查询
+// Handle 处理获取设置 Settings 查询
 // 返回按 Category → Group → Settings 层级组织的精简数据
 //
 // 支持 CategoryKey 过滤：
@@ -38,30 +38,30 @@ func NewListSchemaHandler(
 // 缓存策略：
 //   - 先查缓存，命中直接返回
 //   - 未命中时查数据库，同步回写缓存
-func (h *ListSchemaHandler) Handle(ctx context.Context, query ListSchemaQuery) ([]SchemaCategoryDTO, error) {
+func (h *ListSettingsHandler) Handle(ctx context.Context, query ListSettingsQuery) ([]SettingsCategoryDTO, error) {
 	// 1. 查缓存
-	if cached, err := h.schemaCache.GetAdminSchema(ctx, query.CategoryKey); err == nil && cached != nil {
+	if cached, err := h.settingsCache.GetAdminSettings(ctx, query.CategoryKey); err == nil && cached != nil {
 		return cached, nil
 	}
 
 	// 2. 缓存未命中，执行原有逻辑
-	result, err := h.fetchAndBuildSchema(ctx, query)
+	result, err := h.fetchAndBuild(ctx, query)
 	if err != nil {
 		return nil, err
 	}
 
 	// 3. 同步回写缓存（仅非空结果，避免缓存无效数据）
 	if len(result) > 0 {
-		if err := h.schemaCache.SetAdminSchema(ctx, query.CategoryKey, result); err != nil {
-			slog.Warn("failed to cache admin schema", "categoryKey", query.CategoryKey, "err", err)
+		if err := h.settingsCache.SetAdminSettings(ctx, query.CategoryKey, result); err != nil {
+			slog.Warn("failed to cache admin settings", "categoryKey", query.CategoryKey, "err", err)
 		}
 	}
 
 	return result, nil
 }
 
-// fetchAndBuildSchema 从数据库获取数据并构建 Schema
-func (h *ListSchemaHandler) fetchAndBuildSchema(ctx context.Context, query ListSchemaQuery) ([]SchemaCategoryDTO, error) {
+// fetchAndBuild 从数据库获取数据并构建 Settings
+func (h *ListSettingsHandler) fetchAndBuild(ctx context.Context, query ListSettingsQuery) ([]SettingsCategoryDTO, error) {
 	// 1. 根据 CategoryKey 决定查询范围
 	settings, err := h.fetchSettings(ctx, query.CategoryKey)
 	if err != nil {
@@ -75,12 +75,12 @@ func (h *ListSchemaHandler) fetchAndBuildSchema(ctx context.Context, query ListS
 	}
 
 	// 3. 使用共享构建器
-	builder := NewSchemaBuilder(categories)
+	builder := NewSettingsBuilder(categories)
 	return builder.Build(settings, nil, AdminSettingMapper), nil
 }
 
 // fetchSettings 根据 CategoryKey 获取设置列表
-func (h *ListSchemaHandler) fetchSettings(ctx context.Context, categoryKey string) ([]*setting.Setting, error) {
+func (h *ListSettingsHandler) fetchSettings(ctx context.Context, categoryKey string) ([]*setting.Setting, error) {
 	// 全量查询
 	if categoryKey == "" {
 		settings, err := h.settingQueryRepo.FindAll(ctx)

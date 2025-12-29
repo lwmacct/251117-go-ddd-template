@@ -110,6 +110,12 @@ func (s *loginSessionService) VerifySessionToken(ctx context.Context, token stri
 	}, nil
 }
 
+// Close 关闭服务（停止清理协程）
+func (s *loginSessionService) Close() error {
+	close(s.stopClean)
+	return nil
+}
+
 // cleanupExpired 定期清理过期会话
 func (s *loginSessionService) cleanupExpired() {
 	ticker := time.NewTicker(1 * time.Minute)
@@ -129,12 +135,6 @@ func (s *loginSessionService) cleanupExpired() {
 			return
 		}
 	}
-}
-
-// Close 关闭服务（停止清理协程）
-func (s *loginSessionService) Close() error {
-	close(s.stopClean)
-	return nil
 }
 
 var _ domainauth.SessionService = (*loginSessionService)(nil)

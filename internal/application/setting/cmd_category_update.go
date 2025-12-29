@@ -10,18 +10,21 @@ import (
 
 // UpdateCategoryHandler 更新配置分类命令处理器
 type UpdateCategoryHandler struct {
-	commandRepo setting.SettingCategoryCommandRepository
-	queryRepo   setting.SettingCategoryQueryRepository
+	commandRepo   setting.SettingCategoryCommandRepository
+	queryRepo     setting.SettingCategoryQueryRepository
+	settingsCache SettingsCacheService
 }
 
 // NewUpdateCategoryHandler 创建 UpdateCategoryHandler 实例
 func NewUpdateCategoryHandler(
 	commandRepo setting.SettingCategoryCommandRepository,
 	queryRepo setting.SettingCategoryQueryRepository,
+	settingsCache SettingsCacheService,
 ) *UpdateCategoryHandler {
 	return &UpdateCategoryHandler{
-		commandRepo: commandRepo,
-		queryRepo:   queryRepo,
+		commandRepo:   commandRepo,
+		queryRepo:     queryRepo,
+		settingsCache: settingsCache,
 	}
 }
 
@@ -55,7 +58,11 @@ func (h *UpdateCategoryHandler) Handle(ctx context.Context, cmd UpdateCategoryCo
 		return nil, fmt.Errorf("failed to update category: %w", updateErr)
 	}
 
-	// 5. 重新查询返回最新数据
+	// 5. 失效 Settings 缓存（Category 变更影响所有设置页）
+	_ = h.settingsCache.DeleteAll(ctx)
+	_ = h.settingsCache.DeleteAllCategories(ctx)
+
+	// 6. 重新查询返回最新数据
 	updated, err := h.queryRepo.FindByID(ctx, cmd.ID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to fetch updated category: %w", err)

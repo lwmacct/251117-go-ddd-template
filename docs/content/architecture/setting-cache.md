@@ -6,23 +6,23 @@ Setting 模块采用**三层分布式缓存架构**，遵循 DDD 依赖倒置原
 
 ## Table of Contents
 
-- [架构概览](#架构概览) `:29+46`
-  - [三层架构设计](#三层架构设计) `:31+34`
-  - [各层职责](#各层职责) `:65+10`
-- [缓存类型](#缓存类型) `:75+82`
-  - [Setting 实体缓存](#setting-实体缓存) `:77+23`
-  - [SettingCategory 缓存](#settingcategory-缓存) `:100+12`
-  - [UserSetting 缓存](#usersetting-缓存) `:112+32`
-  - [Schema 缓存](#schema-缓存) `:144+13`
-- [缓存策略](#缓存策略) `:157+79`
-  - [Cache-Aside 模式](#cache-aside-模式) `:159+26`
-  - [预热机制](#预热机制) `:185+30`
-  - [失效策略](#失效策略) `:215+21`
-- [装饰器模式](#装饰器模式) `:236+45`
-  - [Repository 装饰器](#repository-装饰器) `:238+29`
-  - [初始化流程](#初始化流程) `:267+14`
-- [Key 命名规范](#key-命名规范) `:281+22`
-- [调试命令](#调试命令) `:303+26`
+- [架构概览](#架构概览) `:29+41`
+  - [三层架构设计](#三层架构设计) `:31+30`
+  - [各层职责](#各层职责) `:61+9`
+- [缓存类型](#缓存类型) `:70+82`
+  - [Setting 实体缓存](#setting-实体缓存) `:72+23`
+  - [SettingCategory 缓存](#settingcategory-缓存) `:95+12`
+  - [UserSetting 缓存](#usersetting-缓存) `:107+32`
+  - [Schema 缓存](#schema-缓存) `:139+13`
+- [缓存策略](#缓存策略) `:152+79`
+  - [Cache-Aside 模式](#cache-aside-模式) `:154+26`
+  - [预热机制](#预热机制) `:180+30`
+  - [失效策略](#失效策略) `:210+21`
+- [装饰器模式](#装饰器模式) `:231+45`
+  - [Repository 装饰器](#repository-装饰器) `:233+29`
+  - [初始化流程](#初始化流程) `:262+14`
+- [Key 命名规范](#key-命名规范) `:276+22`
+- [调试命令](#调试命令) `:298+27`
 
 <!--TOC-->
 
@@ -32,20 +32,17 @@ Setting 模块采用**三层分布式缓存架构**，遵循 DDD 依赖倒置原
 
 ```mermaid
 graph TB
-    subgraph Application["Application 层"]
-        SC[SchemaCacheService<br/>缓存 API 响应 DTO]
+    subgraph Application["Application 层接口"]
+        SC[SettingsCacheService<br/>缓存 API 响应 DTO]
+        SSC[SettingCacheService]
+        SCC[SettingCategoryCacheService]
+        USC[UserSettingCacheService]
+        USQC[UserSettingQueryCacheService]
     end
 
     subgraph Infrastructure["Infrastructure 层"]
         IMPL[Redis 实现]
         WARM[预热服务]
-    end
-
-    subgraph Domain["Domain 层接口"]
-        SSC[SettingCacheService]
-        SCC[SettingCategoryCacheService]
-        USC[UserSettingCacheService]
-        USQC[UserSettingQueryCacheService]
     end
 
     SC -.实现.-> IMPL
@@ -57,20 +54,18 @@ graph TB
 
     style Application fill:#fff4e1
     style Infrastructure fill:#e1ffe1
-    style Domain fill:#ffe1e1
 ```
 
-**依赖方向**: `Application → Infrastructure ← Domain`
+**依赖方向**: `Application → Infrastructure`
 
 ### 各层职责
 
-| 层                 | 位置                    | 缓存接口               | 缓存内容        |
-| ------------------ | ----------------------- | ---------------------- | --------------- |
-| **Domain**         | `domain/cache/`         | SettingCacheService 等 | Domain 实体     |
-| **Application**    | `application/setting/`  | SchemaCacheService     | Application DTO |
-| **Infrastructure** | `infrastructure/cache/` | Redis 实现 + 预热服务  | -               |
+| 层                 | 位置                    | 缓存接口               | 缓存内容              |
+| ------------------ | ----------------------- | ---------------------- | --------------------- |
+| **Application**    | `application/setting/`  | SettingCacheService 等 | Domain 实体 + App DTO |
+| **Infrastructure** | `infrastructure/cache/` | Redis 实现 + 预热服务  | -                     |
 
-> **为什么 SchemaCacheService 在 Application 层？** 因为它缓存的是 `SchemaCategoryDTO`（Application DTO），Domain 层不应知道 Application 层的 DTO 结构。
+> **架构原则**：所有缓存接口统一定义在 Application 层，Domain 层不定义缓存接口。
 
 ## 缓存类型
 
@@ -318,11 +313,12 @@ redis-cli -u $REDIS_URL KEYS 'dev:*' | xargs -r redis-cli -u $REDIS_URL DEL
 
 **文件位置速查：**
 
-| 类型             | 位置                                           |
-| ---------------- | ---------------------------------------------- |
-| Domain 接口      | `internal/domain/cache/`                       |
-| Application 接口 | `internal/application/setting/schema_cache.go` |
-| Redis 实现       | `internal/infrastructure/cache/`               |
-| 预热服务         | `internal/infrastructure/cache/warmup/`        |
-| 装饰器           | `internal/infrastructure/persistence/`         |
-| Bootstrap        | `internal/bootstrap/init_cache.go`             |
+| 类型             | 位置                                    |
+| ---------------- | --------------------------------------- |
+| Setting 缓存接口 | `internal/application/setting/cache.go` |
+| Auth 缓存接口    | `internal/application/auth/cache.go`    |
+| User 缓存接口    | `internal/application/user/cache.go`    |
+| Redis 实现       | `internal/infrastructure/cache/`        |
+| 预热服务         | `internal/infrastructure/cache/warmup/` |
+| 装饰器           | `internal/infrastructure/persistence/`  |
+| Container        | `internal/container/cache.go`           |

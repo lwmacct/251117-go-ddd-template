@@ -15,36 +15,36 @@
 
 // May contain unused imports in some cases
 // @ts-ignore
-import type { SettingSchemaGroupDTO } from './setting-schema-group-dto';
+import type { SettingSettingsGroupDTO } from './setting-settings-group-dto';
 
 /**
  * 
  * @export
- * @interface SettingSchemaCategoryDTO
+ * @interface SettingSettingsCategoryDTO
  */
-export interface SettingSchemaCategoryDTO {
+export interface SettingSettingsCategoryDTO {
     /**
      * 
      * @type {string}
-     * @memberof SettingSchemaCategoryDTO
+     * @memberof SettingSettingsCategoryDTO
      */
     'category'?: string;
     /**
      * 
-     * @type {Array<SettingSchemaGroupDTO>}
-     * @memberof SettingSchemaCategoryDTO
+     * @type {Array<SettingSettingsGroupDTO>}
+     * @memberof SettingSettingsCategoryDTO
      */
-    'groups'?: Array<SettingSchemaGroupDTO>;
+    'groups'?: Array<SettingSettingsGroupDTO>;
     /**
      * 
      * @type {string}
-     * @memberof SettingSchemaCategoryDTO
+     * @memberof SettingSettingsCategoryDTO
      */
     'icon'?: string;
     /**
      * 
      * @type {string}
-     * @memberof SettingSchemaCategoryDTO
+     * @memberof SettingSettingsCategoryDTO
      */
     'label'?: string;
 }

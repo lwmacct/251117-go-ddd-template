@@ -10,7 +10,7 @@
  */
 import { ref, type Ref } from "vue";
 import jsonLogic from "json-logic-js";
-import type { SettingSchemaCategoryDTO, SettingSchemaSettingDTO } from "@models";
+import type { SettingSettingsCategoryDTO, SettingSettingsItemDTO } from "@models";
 
 // 简单验证规则格式（向后兼容）
 interface SimpleValidationRule {
@@ -22,7 +22,7 @@ interface SimpleValidationRule {
   enum?: unknown[]; // 枚举值列表
 }
 
-export function useJsonLogicValidation(schema: Ref<SettingSchemaCategoryDTO[]>, formValues: Ref<Record<string, unknown>>) {
+export function useJsonLogicValidation(schema: Ref<SettingSettingsCategoryDTO[]>, formValues: Ref<Record<string, unknown>>) {
   // 验证错误 Map: key -> error message
   const errors = ref<Map<string, string>>(new Map());
 
@@ -156,7 +156,7 @@ export function useJsonLogicValidation(schema: Ref<SettingSchemaCategoryDTO[]>, 
   /**
    * 从 Schema 中查找设置项
    */
-  const findSettingInSchema = (key: string): SettingSchemaSettingDTO | undefined => {
+  const findSettingInSchema = (key: string): SettingSettingsItemDTO | undefined => {
     for (const cat of schema.value) {
       for (const group of cat.groups || []) {
         for (const setting of group.settings || []) {

@@ -4,7 +4,7 @@
  * 根据 setting.input_type 动态渲染对应的 Vuetify 控件
  */
 import { computed } from "vue";
-import type { SettingSchemaSettingDTO } from "@models";
+import type { SettingSettingsItemDTO } from "@models";
 
 // 选项配置
 interface SelectOption {
@@ -13,7 +13,7 @@ interface SelectOption {
 }
 
 const props = defineProps<{
-  setting: SettingSchemaSettingDTO;
+  setting: SettingSettingsItemDTO;
   modelValue: unknown;
   disabled?: boolean;
   hint?: string;

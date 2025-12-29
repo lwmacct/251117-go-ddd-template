@@ -16,7 +16,7 @@ import (
 	"github.com/lwmacct/251117-go-ddd-template/internal/adapters/http/handler"
 	"github.com/lwmacct/251117-go-ddd-template/internal/application/cache"
 	"github.com/lwmacct/251117-go-ddd-template/internal/config"
-	infra_auth "github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/auth"
+	"github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/auth"
 	"github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/health"
 )
 
@@ -124,7 +124,7 @@ func newAllHandlers(p handlersParams) HandlersResult {
 			p.Setting.BatchUpdate,
 			p.Setting.Get,
 			p.Setting.List,
-			p.Setting.ListSchema,
+			p.Setting.ListSettings,
 			p.Setting.CreateCategory,
 			p.Setting.UpdateCategory,
 			p.Setting.DeleteCategory,
@@ -138,7 +138,7 @@ func newAllHandlers(p handlersParams) HandlersResult {
 			p.UserSetting.ResetAll,
 			p.UserSetting.Get,
 			p.UserSetting.List,
-			p.UserSetting.ListSchema,
+			p.UserSetting.ListSettings,
 			p.UserSetting.ListCategories,
 		),
 		PAT: handler.NewPATHandler(
@@ -177,9 +177,9 @@ type routerParams struct {
 	RedisClient *redis.Client
 
 	// Services
-	JWTManager      *infra_auth.JWTManager
-	PATService      *infra_auth.PATService
-	PermissionCache *infra_auth.PermissionCacheService
+	JWTManager      *auth.JWTManager
+	PATService      *auth.PATService
+	PermissionCache *auth.PermissionCacheService
 
 	// UseCases
 	AuditLog *AuditLogUseCases

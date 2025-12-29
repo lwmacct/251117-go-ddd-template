@@ -20,79 +20,79 @@ import type { SettingUIConfigDTO } from './setting-uiconfig-dto';
 /**
  * 
  * @export
- * @interface SettingSchemaSettingDTO
+ * @interface SettingSettingsItemDTO
  */
-export interface SettingSchemaSettingDTO {
+export interface SettingSettingsItemDTO {
     /**
      * 系统默认值
      * @type {object}
-     * @memberof SettingSchemaSettingDTO
+     * @memberof SettingSettingsItemDTO
      */
     'default_value'?: object;
     /**
      * 控件类型
      * @type {string}
-     * @memberof SettingSchemaSettingDTO
+     * @memberof SettingSettingsItemDTO
      */
     'input_type'?: string;
     /**
      * 是否用户自定义
      * @type {boolean}
-     * @memberof SettingSchemaSettingDTO
+     * @memberof SettingSettingsItemDTO
      */
     'is_customized'?: boolean;
     /**
      * 
      * @type {string}
-     * @memberof SettingSchemaSettingDTO
+     * @memberof SettingSettingsItemDTO
      */
     'key'?: string;
     /**
      * 
      * @type {string}
-     * @memberof SettingSchemaSettingDTO
+     * @memberof SettingSettingsItemDTO
      */
     'label'?: string;
     /**
      * 
      * @type {number}
-     * @memberof SettingSchemaSettingDTO
+     * @memberof SettingSettingsItemDTO
      */
     'order'?: number;
     /**
      * 是否对所有用户可见（仅 scope=system 时有意义）
      * @type {boolean}
-     * @memberof SettingSchemaSettingDTO
+     * @memberof SettingSettingsItemDTO
      */
     'public'?: boolean;
     /**
      * system | user（用于前端判断可编辑性）
      * @type {string}
-     * @memberof SettingSchemaSettingDTO
+     * @memberof SettingSettingsItemDTO
      */
     'scope'?: string;
     /**
      * hint/options/depends_on
      * @type {SettingUIConfigDTO}
-     * @memberof SettingSchemaSettingDTO
+     * @memberof SettingSettingsItemDTO
      */
     'ui_config'?: SettingUIConfigDTO;
     /**
      * JSON Logic 规则
      * @type {object}
-     * @memberof SettingSchemaSettingDTO
+     * @memberof SettingSettingsItemDTO
      */
     'validation'?: object;
     /**
      * 实际生效值
      * @type {object}
-     * @memberof SettingSchemaSettingDTO
+     * @memberof SettingSettingsItemDTO
      */
     'value'?: object;
     /**
      * 
      * @type {string}
-     * @memberof SettingSchemaSettingDTO
+     * @memberof SettingSettingsItemDTO
      */
     'value_type'?: string;
 }

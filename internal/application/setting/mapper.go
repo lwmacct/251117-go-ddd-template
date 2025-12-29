@@ -122,8 +122,8 @@ func ToSettingListDTO(settings []*setting.Setting) []SettingDTO {
 	return dtos
 }
 
-// ToSchemaSettingDTO 将 Setting 转换为 SchemaSettingDTO（Admin 场景，包含全部字段）
-func ToSchemaSettingDTO(s *setting.Setting) *SchemaSettingDTO {
+// ToSettingsItemDTO 将 Setting 转换为 SettingsItemDTO（Admin 场景，包含全部字段）
+func ToSettingsItemDTO(s *setting.Setting) *SettingsItemDTO {
 	if s == nil {
 		return nil
 	}
@@ -134,7 +134,7 @@ func ToSchemaSettingDTO(s *setting.Setting) *SchemaSettingDTO {
 		inputType = "text"
 	}
 
-	return &SchemaSettingDTO{
+	return &SettingsItemDTO{
 		Key:          s.Key,
 		Value:        s.DefaultValue,
 		DefaultValue: s.DefaultValue,
@@ -188,12 +188,12 @@ func ToUserSettingDTO(s *setting.Setting, us *setting.UserSetting) *UserSettingD
 	return dto
 }
 
-// ToUserSchemaSettingDTO 将 Setting 定义和可选的 UserSetting 合并为 SchemaSettingDTO
+// ToUserSettingsItemDTO 将 Setting 定义和可选的 UserSetting 合并为 SettingsItemDTO
 //
 // User 场景现在也返回 Scope 和 Public 字段：
 //   - Scope: 前端根据此字段判断可编辑性（user=可编辑, system=只读）
 //   - Public: 标记系统设置是否对用户可见
-func ToUserSchemaSettingDTO(s *setting.Setting, us *setting.UserSetting) *SchemaSettingDTO {
+func ToUserSettingsItemDTO(s *setting.Setting, us *setting.UserSetting) *SettingsItemDTO {
 	if s == nil {
 		return nil
 	}
@@ -204,7 +204,7 @@ func ToUserSchemaSettingDTO(s *setting.Setting, us *setting.UserSetting) *Schema
 		inputType = "text"
 	}
 
-	dto := &SchemaSettingDTO{
+	dto := &SettingsItemDTO{
 		Key:          s.Key,
 		Value:        s.DefaultValue, // 默认使用系统默认值
 		DefaultValue: s.DefaultValue,

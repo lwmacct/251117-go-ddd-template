@@ -9,7 +9,7 @@ import (
 
 	"github.com/redis/go-redis/v9"
 
-	"github.com/lwmacct/251117-go-ddd-template/internal/domain/cache"
+	appauth "github.com/lwmacct/251117-go-ddd-template/internal/application/auth"
 )
 
 const permissionCacheTTL = 5 * time.Minute
@@ -32,7 +32,7 @@ type permissionCacheService struct {
 }
 
 // NewPermissionCacheService 创建权限缓存服务。
-func NewPermissionCacheService(client *redis.Client, keyPrefix string) cache.PermissionCacheService {
+func NewPermissionCacheService(client *redis.Client, keyPrefix string) appauth.PermissionCacheService {
 	return &permissionCacheService{
 		client:    client,
 		keyPrefix: keyPrefix,
@@ -128,4 +128,4 @@ func (s *permissionCacheService) buildKey(userID uint) string {
 	return fmt.Sprintf("%suser:perms:%d", s.keyPrefix, userID)
 }
 
-var _ cache.PermissionCacheService = (*permissionCacheService)(nil)
+var _ appauth.PermissionCacheService = (*permissionCacheService)(nil)

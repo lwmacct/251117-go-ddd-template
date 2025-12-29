@@ -1,4 +1,4 @@
-package cache
+package auth
 
 import "context"
 
@@ -14,7 +14,7 @@ import "context"
 //   - 用户角色变更时主动失效（通过 EventBus）
 //   - 角色权限变更时批量失效关联用户
 //
-// 实现位于 [infrastructure/cache.permissionCacheService]。
+// 实现位于 infrastructure/cache 包。
 type PermissionCacheService interface {
 	// GetUserPermissions 获取用户权限（角色名 + 权限码）。
 	// 缓存未命中返回三个 nil（不返回错误）。

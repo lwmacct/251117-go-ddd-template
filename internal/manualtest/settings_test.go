@@ -68,7 +68,7 @@ func TestSettingsFlow(t *testing.T) {
 
 	// 测试 4: 验证 Schema 包含新创建的配置（缓存一致性验证）
 	t.Log("\n测试 4: 验证 Schema 缓存一致性")
-	schema, err := helper.Get[[]setting.SchemaCategoryDTO](c, "/api/admin/settings", nil)
+	schema, err := helper.Get[[]setting.SettingsCategoryDTO](c, "/api/admin/settings", nil)
 	require.NoError(t, err, "获取 Schema 失败")
 
 	found := false
@@ -98,17 +98,17 @@ func TestSettingsFlow(t *testing.T) {
 func TestGetSettingsWithFilters(t *testing.T) {
 	c := helper.LoginAsAdmin(t)
 
-	// 注意：GET /api/admin/settings 返回 []SchemaCategoryDTO（层级结构）
+	// 注意：GET /api/admin/settings 返回 []SettingsCategoryDTO（层级结构）
 	// 使用 ?category=xxx 按分类 Key 筛选（不是 category_id）
 	cases := []struct {
 		name     string
 		query    map[string]string
-		validate func(t *testing.T, schema []setting.SchemaCategoryDTO)
+		validate func(t *testing.T, schema []setting.SettingsCategoryDTO)
 	}{
 		{
 			name:  "获取所有配置",
 			query: nil,
-			validate: func(t *testing.T, schema []setting.SchemaCategoryDTO) {
+			validate: func(t *testing.T, schema []setting.SettingsCategoryDTO) {
 				t.Helper()
 				assert.NotEmpty(t, schema, "Schema 为空")
 				t.Logf("分类总数: %d", len(schema))
@@ -124,7 +124,7 @@ func TestGetSettingsWithFilters(t *testing.T) {
 		{
 			name:  "按 category=general 筛选",
 			query: map[string]string{"category": "general"},
-			validate: func(t *testing.T, schema []setting.SchemaCategoryDTO) {
+			validate: func(t *testing.T, schema []setting.SettingsCategoryDTO) {
 				t.Helper()
 				require.Len(t, schema, 1, "应该只返回 1 个分类")
 				assert.Equal(t, "general", schema[0].Category, "分类 Key 不匹配")
@@ -137,7 +137,7 @@ func TestGetSettingsWithFilters(t *testing.T) {
 		{
 			name:  "按 category=security 筛选",
 			query: map[string]string{"category": "security"},
-			validate: func(t *testing.T, schema []setting.SchemaCategoryDTO) {
+			validate: func(t *testing.T, schema []setting.SettingsCategoryDTO) {
 				t.Helper()
 				require.Len(t, schema, 1, "应该只返回 1 个分类")
 				assert.Equal(t, "security", schema[0].Category, "分类 Key 不匹配")
@@ -148,7 +148,7 @@ func TestGetSettingsWithFilters(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			schema, err := helper.Get[[]setting.SchemaCategoryDTO](c, "/api/admin/settings", tc.query)
+			schema, err := helper.Get[[]setting.SettingsCategoryDTO](c, "/api/admin/settings", tc.query)
 			require.NoError(t, err, "获取配置失败")
 			tc.validate(t, *schema)
 		})
