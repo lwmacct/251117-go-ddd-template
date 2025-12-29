@@ -1690,13 +1690,7 @@ paths:
       - application/json
       description: 分页获取审计日志，支持按用户、操作、资源、状态、时间范围筛选
       parameters:
-      - description: Action 操作类型过滤
-        enum:
-        - create
-        - update
-        - delete
-        - login
-        - logout
+      - description: Action 操作类型过滤（语义化标识，如 setting.update）
         in: query
         name: action
         type: string
@@ -1717,12 +1711,7 @@ paths:
         minimum: 1
         name: page
         type: integer
-      - description: Resource 资源类型过滤
-        enum:
-        - user
-        - role
-        - menu
-        - setting
+      - description: Resource 资源分类过滤（如 setting, user）
         in: query
         name: resource
         type: string

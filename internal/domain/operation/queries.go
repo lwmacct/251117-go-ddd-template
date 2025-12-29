@@ -159,3 +159,80 @@ func All() []Operation {
 	}
 	return ops
 }
+
+// ByMethodAndPath 通过 HTTP 方法和路径查找操作。
+// 支持路径参数匹配：/api/admin/users/:id 匹配 /api/admin/users/123
+// 如果未找到返回空 Operation。
+func ByMethodAndPath(method HTTPMethod, path string) Operation {
+	for op, meta := range operationRegistry {
+		if meta.Method != method {
+			continue
+		}
+		if matchPath(meta.Path, path) {
+			return op
+		}
+	}
+	return ""
+}
+
+// matchPath 检查实际路径是否匹配模式路径。
+// pattern: /api/admin/users/:id（Gin 风格路径参数）
+// actual:  /api/admin/users/123
+func matchPath(pattern, actual string) bool {
+	patternSegs := splitPathSegments(pattern)
+	actualSegs := splitPathSegments(actual)
+
+	if len(patternSegs) != len(actualSegs) {
+		return false
+	}
+
+	for i, seg := range patternSegs {
+		// :param 匹配任意非空值
+		if len(seg) > 0 && seg[0] == ':' {
+			continue
+		}
+		if seg != actualSegs[i] {
+			return false
+		}
+	}
+
+	return true
+}
+
+// splitPathSegments 将路径分割为段。
+func splitPathSegments(path string) []string {
+	if len(path) == 0 {
+		return nil
+	}
+
+	// 移除开头的斜杠
+	if path[0] == '/' {
+		path = path[1:]
+	}
+
+	// 移除结尾的斜杠
+	if len(path) > 0 && path[len(path)-1] == '/' {
+		path = path[:len(path)-1]
+	}
+
+	if len(path) == 0 {
+		return nil
+	}
+
+	// 分割路径
+	var segments []string
+	start := 0
+	for i := range len(path) {
+		if path[i] == '/' {
+			if i > start {
+				segments = append(segments, path[start:i])
+			}
+			start = i + 1
+		}
+	}
+	if start < len(path) {
+		segments = append(segments, path[start:])
+	}
+
+	return segments
+}

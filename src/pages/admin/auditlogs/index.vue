@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, onMounted, computed } from "vue";
 import { useAuditLogs } from "./composables/useAuditLogs";
 import { ITEMS_PER_PAGE_OPTIONS } from "@/composables";
 import type { AuditlogAuditLogDTO } from "@models";
@@ -18,12 +18,20 @@ const {
   successMessage,
   filters,
   pagination,
+  actionOptions,
+  categoryOptions,
+  fetchFilterOptions,
   applyFilters,
   resetFilters,
   onTableOptionsUpdate,
   clearMessages,
   exportLogs,
 } = useAuditLogs();
+
+// 页面初始化
+onMounted(() => {
+  fetchFilterOptions();
+});
 
 // 对话框状态
 const detailDialog = ref(false);
@@ -41,31 +49,35 @@ const headers = [
   { title: "操作", key: "actions", sortable: false, width: "100px" },
 ];
 
-// 操作类型选项
-const actionOptions = [
-  { value: "", text: "全部" },
-  { value: "create", text: "创建" },
-  { value: "update", text: "更新" },
-  { value: "delete", text: "删除" },
-  { value: "login", text: "登录" },
-  { value: "logout", text: "登出" },
-];
+// 操作类型选项（带"全部"）
+const actionSelectOptions = computed(() => [{ action: "", label: "全部" }, ...actionOptions.value]);
 
-// 资源类型选项
-const resourceOptions = [
-  { value: "", text: "全部" },
-  { value: "user", text: "用户" },
-  { value: "role", text: "角色" },
-  { value: "menu", text: "菜单" },
-  { value: "setting", text: "设置" },
-];
+// 资源分类选项（带"全部"）
+const categorySelectOptions = computed(() => [{ value: "", label: "全部" }, ...categoryOptions.value]);
 
-// 状态选项
+// 状态选项（固定值）
 const statusOptions = [
   { value: "", text: "全部" },
   { value: "success", text: "成功" },
   { value: "failure", text: "失败" },
 ];
+
+// 构建 action 和 category 的 label 映射
+const actionLabelMap = computed(() => {
+  const map = new Map<string, string>();
+  for (const opt of actionOptions.value) {
+    map.set(opt.action ?? "", opt.label ?? opt.action ?? "");
+  }
+  return map;
+});
+
+const categoryLabelMap = computed(() => {
+  const map = new Map<string, string>();
+  for (const opt of categoryOptions.value) {
+    map.set(opt.value ?? "", opt.label ?? opt.value ?? "");
+  }
+  return map;
+});
 
 // 查看详情
 const viewDetail = (log: AuditlogAuditLogDTO) => {
@@ -89,26 +101,13 @@ const formatDate = (dateString?: string) => {
 // 格式化操作类型
 const formatAction = (action?: string) => {
   if (!action) return "-";
-  const actions: Record<string, string> = {
-    create: "创建",
-    update: "更新",
-    delete: "删除",
-    login: "登录",
-    logout: "登出",
-  };
-  return actions[action] || action;
+  return actionLabelMap.value.get(action) || action;
 };
 
 // 格式化资源类型
 const formatResource = (resource?: string) => {
   if (!resource) return "-";
-  const resources: Record<string, string> = {
-    user: "用户",
-    role: "角色",
-    menu: "菜单",
-    setting: "设置",
-  };
-  return resources[resource] || resource;
+  return categoryLabelMap.value.get(resource) || resource;
 };
 
 // 状态颜色
@@ -173,9 +172,9 @@ const getStatusText = (status?: string) => {
               <v-col cols="12" md="2">
                 <v-select
                   v-model="filters.action"
-                  :items="actionOptions"
-                  item-title="text"
-                  item-value="value"
+                  :items="actionSelectOptions"
+                  item-title="label"
+                  item-value="action"
                   label="操作类型"
                   variant="outlined"
                   density="compact"
@@ -186,10 +185,10 @@ const getStatusText = (status?: string) => {
               <v-col cols="12" md="2">
                 <v-select
                   v-model="filters.resource"
-                  :items="resourceOptions"
-                  item-title="text"
+                  :items="categorySelectOptions"
+                  item-title="label"
                   item-value="value"
-                  label="资源类型"
+                  label="资源分类"
                   variant="outlined"
                   density="compact"
                   hide-details

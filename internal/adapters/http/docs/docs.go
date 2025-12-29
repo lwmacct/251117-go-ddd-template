@@ -44,15 +44,8 @@ const docTemplate = `{
                 "summary": "获取审计日志列表",
                 "parameters": [
                     {
-                        "enum": [
-                            "create",
-                            "update",
-                            "delete",
-                            "login",
-                            "logout"
-                        ],
                         "type": "string",
-                        "description": "Action 操作类型过滤",
+                        "description": "Action 操作类型过滤（语义化标识，如 setting.update）",
                         "name": "action",
                         "in": "query"
                     },
@@ -80,14 +73,8 @@ const docTemplate = `{
                         "in": "query"
                     },
                     {
-                        "enum": [
-                            "user",
-                            "role",
-                            "menu",
-                            "setting"
-                        ],
                         "type": "string",
-                        "description": "Resource 资源类型过滤",
+                        "description": "Resource 资源分类过滤（如 setting, user）",
                         "name": "resource",
                         "in": "query"
                     },

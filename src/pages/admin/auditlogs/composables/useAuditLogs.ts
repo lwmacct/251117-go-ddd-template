@@ -9,7 +9,9 @@ import {
   extractList,
   extractData,
   type AuditlogAuditLogDTO,
-  type AuditAction,
+  type AuditlogAuditActionDTO,
+  type AuditlogCategoryOptionDTO,
+  type AuditlogAuditActionsResponseDTO,
   type AuditStatus,
 } from "@/api";
 import { exportToCSV, formatDateForExport, type CSVColumn } from "@/utils/export";
@@ -19,7 +21,7 @@ interface AuditLogQueryParams {
   page?: number;
   limit?: number;
   user_id?: number;
-  action?: AuditAction;
+  action?: string;
   resource?: string;
   status?: AuditStatus;
   start_date?: string;
@@ -33,6 +35,10 @@ export function useAuditLogs() {
   const exporting = ref(false);
   const errorMessage = ref("");
   const successMessage = ref("");
+
+  // 筛选选项（从 API 动态获取）
+  const actionOptions = ref<AuditlogAuditActionDTO[]>([]);
+  const categoryOptions = ref<AuditlogCategoryOptionDTO[]>([]);
 
   // 使用通用分页 composable
   const {
@@ -53,6 +59,20 @@ export function useAuditLogs() {
     start_date: "",
     end_date: "",
   });
+
+  /**
+   * 获取筛选选项（操作类型、资源分类）
+   */
+  const fetchFilterOptions = async () => {
+    try {
+      const response = await adminAuditLogApi.apiAdminAuditlogsActionsGet();
+      const result = extractData<AuditlogAuditActionsResponseDTO>(response.data);
+      actionOptions.value = result?.actions ?? [];
+      categoryOptions.value = result?.categories ?? [];
+    } catch (error) {
+      console.error("Failed to fetch filter options:", error);
+    }
+  };
 
   /**
    * 获取审计日志列表
@@ -212,9 +232,14 @@ export function useAuditLogs() {
     filters,
     pagination,
 
+    // 筛选选项
+    actionOptions,
+    categoryOptions,
+
     // 方法
     fetchLogs,
     fetchLogDetail,
+    fetchFilterOptions,
     applyFilters,
     resetFilters,
     onTableOptionsUpdate,

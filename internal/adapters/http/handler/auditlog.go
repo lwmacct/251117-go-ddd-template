@@ -15,10 +15,10 @@ type ListAuditLogsQuery struct {
 
 	// UserID 按用户 ID 过滤
 	UserID *uint `form:"user_id" json:"user_id" binding:"omitempty,gt=0"`
-	// Action 操作类型过滤
-	Action string `form:"action" json:"action" binding:"omitempty,oneof=create update delete login logout" enums:"create,update,delete,login,logout"`
-	// Resource 资源类型过滤
-	Resource string `form:"resource" json:"resource" binding:"omitempty,oneof=user role menu setting" enums:"user,role,menu,setting"`
+	// Action 操作类型过滤（语义化标识，如 setting.update）
+	Action string `form:"action" json:"action"`
+	// Resource 资源分类过滤（如 setting, user）
+	Resource string `form:"resource" json:"resource"`
 	// Status 状态过滤
 	Status string `form:"status" json:"status" binding:"omitempty,oneof=success failure" enums:"success,failure"`
 	// StartDate 开始时间（RFC3339 格式）

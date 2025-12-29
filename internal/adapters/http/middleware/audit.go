@@ -7,34 +7,34 @@ import (
 	"fmt"
 	"io"
 	"log/slog"
-	"net/http"
-	"slices"
 	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/lwmacct/251117-go-ddd-template/internal/application/auditlog"
+	"github.com/lwmacct/251117-go-ddd-template/internal/domain/operation"
 )
 
-// AuditMiddleware creates a middleware that logs user actions (CQRS: 只写操作)
+// AuditMiddleware 创建审计日志中间件。
+// 基于 operation registry 决策是否记录审计日志，未注册或无需审计的操作静默跳过。
 func AuditMiddleware(handler *auditlog.CreateHandler) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		// Skip audit for GET requests (read-only operations)
-		if c.Request.Method == http.MethodGet {
+		// 通过 operation registry 查找操作
+		op := operation.ByMethodAndPath(
+			operation.HTTPMethod(c.Request.Method),
+			c.Request.URL.Path,
+		)
+
+		// 未注册或无需审计的操作静默跳过
+		if !op.Valid() || !op.NeedsAudit() {
 			c.Next()
 			return
 		}
 
-		// Skip audit for health check and other non-sensitive endpoints
-		if c.Request.URL.Path == "/health" || c.Request.URL.Path == "/api/auth/login" || c.Request.URL.Path == "/api/auth/register" {
-			c.Next()
-			return
-		}
-
-		// Extract user information from context
+		// 提取用户信息
 		userID, _ := c.Get("user_id")
 		username, _ := c.Get("username")
 
-		// If no user context, skip audit (unauthenticated request)
+		// 未认证请求跳过审计
 		if userID == nil || username == nil {
 			c.Next()
 			return
@@ -52,141 +52,124 @@ func AuditMiddleware(handler *auditlog.CreateHandler) gin.HandlerFunc {
 			return
 		}
 
-		// Read request body for details
+		// 读取请求体用于记录详情
 		var requestBody []byte
 		if c.Request.Body != nil {
 			requestBody, _ = io.ReadAll(c.Request.Body)
 			c.Request.Body = io.NopCloser(bytes.NewBuffer(requestBody))
 		}
 
-		// Process the request
+		// 执行请求
 		startTime := time.Now()
 		c.Next()
 		duration := time.Since(startTime)
 
-		// Determine status based on response code
+		// 根据响应状态码确定审计状态
 		status := "success"
 		if c.Writer.Status() >= 400 {
 			status = "failure"
 		}
 
-		// Extract resource information from path
-		resource, resourceID := extractResourceInfo(c.Request.URL.Path)
+		// 从路径提取资源 ID
+		resourceID := extractResourceID(op.Path(), c.Request.URL.Path)
 
-		// Create audit log command
+		// 创建审计日志命令
 		cmd := auditlog.CreateCommand{
 			UserID:      uid,
 			Username:    uname,
-			Action:      fmt.Sprintf("%s %s", c.Request.Method, c.Request.URL.Path),
-			Resource:    resource,
+			Action:      op.AuditAction(),      // 语义化操作标识：setting.update
+			Resource:    string(op.AuditCat()), // 资源分类：setting
 			ResourceID:  resourceID,
 			IPAddress:   c.ClientIP(),
 			UserAgent:   c.Request.UserAgent(),
 			Details:     formatDetails(c.Request.Method, requestBody, c.Writer.Status(), duration),
 			Status:      status,
 			RequestID:   GetRequestID(c),
-			OperationID: GetOperationID(c),
+			OperationID: string(op), // 操作标识：admin.settings.update
 		}
 
-		// Save audit log asynchronously to avoid blocking the response
-		// 使用 WithoutCancel 保留 context 中的值（trace ID 等），但不会被请求取消影响
+		// 异步保存审计日志，避免阻塞响应
 		asyncCtx := context.WithoutCancel(c.Request.Context())
 		go func() {
 			if err := handler.Handle(asyncCtx, cmd); err != nil {
-				// Log error but don't fail the request
 				slog.Error("failed to create audit log", "error", err)
 			}
 		}()
 	}
 }
 
-// extractResourceInfo extracts resource type and ID from URL path
-//
-//nolint:nonamedreturns // named returns for self-documenting API
-func extractResourceInfo(path string) (resource, resourceID string) {
-	// Simple extraction logic
-	// Examples:
-	// /api/admin/users/123 -> resource: "users", resourceID: "123"
-	// /api/user/me -> resource: "profile", resourceID: "me"
-	// /api/admin/roles/5/permissions -> resource: "roles", resourceID: "5"
+// extractResourceID 从实际路径中提取资源 ID。
+// pattern: /api/admin/users/:id
+// actual:  /api/admin/users/123
+// 返回: "123"
+func extractResourceID(pattern, actual string) string {
+	patternSegs := splitPathSegments(pattern)
+	actualSegs := splitPathSegments(actual)
 
-	if len(path) == 0 {
-		return "", ""
+	if len(patternSegs) != len(actualSegs) {
+		return ""
 	}
 
-	// Remove leading slash
+	// 查找第一个路径参数对应的值
+	for i, seg := range patternSegs {
+		if len(seg) > 0 && seg[0] == ':' {
+			return actualSegs[i]
+		}
+	}
+
+	return ""
+}
+
+// splitPathSegments 将路径分割为段。
+func splitPathSegments(path string) []string {
+	if len(path) == 0 {
+		return nil
+	}
+
+	// 移除开头的斜杠
 	if path[0] == '/' {
 		path = path[1:]
 	}
 
-	// Split path into segments
-	segments := splitPath(path)
-
-	// Find resource and ID
-	for i, segment := range segments {
-		// Common resource identifiers
-		if segment == "users" || segment == "roles" || segment == "permissions" || segment == "audit-logs" {
-			resource = segment
-			if i+1 < len(segments) && !isAction(segments[i+1]) {
-				resourceID = segments[i+1]
-			}
-			break
-		}
-		if segment == "me" {
-			resource = "profile"
-			resourceID = "me"
-			break
-		}
+	// 移除结尾的斜杠
+	if len(path) > 0 && path[len(path)-1] == '/' {
+		path = path[:len(path)-1]
 	}
 
-	if resource == "" {
-		resource = "unknown"
+	if len(path) == 0 {
+		return nil
 	}
 
-	return resource, resourceID
-}
-
-// splitPath splits a path into segments
-func splitPath(path string) []string {
+	// 分割路径
 	var segments []string
-	var current string
-
-	for _, char := range path {
-		if char == '/' {
-			if current != "" {
-				segments = append(segments, current)
-				current = ""
+	start := 0
+	for i := range len(path) {
+		if path[i] == '/' {
+			if i > start {
+				segments = append(segments, path[start:i])
 			}
-		} else {
-			current += string(char)
+			start = i + 1
 		}
 	}
-
-	if current != "" {
-		segments = append(segments, current)
+	if start < len(path) {
+		segments = append(segments, path[start:])
 	}
 
 	return segments
 }
 
-// isAction checks if a segment is an action (not a resource ID)
-func isAction(segment string) bool {
-	actions := []string{"permissions", "roles", "status", "password", "email"}
-	return slices.Contains(actions, segment)
-}
-
-// formatDetails formats request details for audit log
+// formatDetails 格式化请求详情为 JSON。
 func formatDetails(method string, requestBody []byte, statusCode int, duration time.Duration) string {
 	details := make(map[string]any)
 	details["method"] = method
 	details["status_code"] = statusCode
 	details["duration_ms"] = duration.Milliseconds()
 
-	// Try to parse request body as JSON
-	if len(requestBody) > 0 && len(requestBody) < 10000 { // Limit to 10KB
+	// 解析请求体为 JSON（限制 10KB）
+	if len(requestBody) > 0 && len(requestBody) < 10000 {
 		var bodyJSON map[string]any
 		if err := json.Unmarshal(requestBody, &bodyJSON); err == nil {
-			// Remove sensitive fields
+			// 移除敏感字段
 			delete(bodyJSON, "password")
 			delete(bodyJSON, "old_password")
 			delete(bodyJSON, "new_password")
