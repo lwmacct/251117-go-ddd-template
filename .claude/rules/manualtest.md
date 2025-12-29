@@ -16,7 +16,7 @@ paths:
 MANUAL=1 go test -v ./internal/manualtest/
 
 # 运行单个测试
-MANUAL=1 go test -v -run TestLoginSuccess ./internal/manualtest/
+MANUAL=1 go test -v -run TestFunc ./internal/manualtest/
 ```
 
 ## DTO 使用原则

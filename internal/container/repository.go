@@ -7,7 +7,6 @@ import (
 	"github.com/lwmacct/251117-go-ddd-template/internal/application/setting"
 	"github.com/lwmacct/251117-go-ddd-template/internal/application/user"
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/captcha"
-	"github.com/lwmacct/251117-go-ddd-template/internal/domain/stats"
 	"github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/persistence"
 
 	infracaptcha "github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/captcha"
@@ -37,7 +36,7 @@ var RepositoryModule = fx.Module("repository",
 
 		// 特殊仓储
 		newCaptchaRepository,
-		newStatsQueryRepository,
+		infrastats.NewQueryRepository,
 	),
 )
 
@@ -49,8 +48,9 @@ func newUserRepositoriesWithCache(
 ) persistence.UserRepositories {
 	rawRepos := persistence.NewUserRepositories(db)
 	cachedQuery := persistence.NewCachedUserQueryRepository(rawRepos.Query, userWithRolesCache)
+	cachedCommand := persistence.NewCachedUserCommandRepository(rawRepos.Command, userWithRolesCache)
 	return persistence.UserRepositories{
-		Command: rawRepos.Command,
+		Command: cachedCommand,
 		Query:   cachedQuery,
 	}
 }
@@ -140,6 +140,3 @@ func newCaptchaRepository() CaptchaRepositoryResult {
 	}
 }
 
-func newStatsQueryRepository(db *gorm.DB) stats.QueryRepository {
-	return infrastats.NewQueryRepository(db)
-}

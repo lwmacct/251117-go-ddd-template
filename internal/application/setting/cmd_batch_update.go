@@ -100,7 +100,7 @@ func (h *BatchUpdateHandler) validateSettings(ctx context.Context, settings []*s
 	// 构建验证上下文
 	validationItems := make([]*setting.ValidationContext, 0)
 	for _, s := range settings {
-		rule := extractValidationRule(s.UIConfig)
+		rule := extractValidationRule(s.Validation)
 		if rule == "" {
 			continue
 		}

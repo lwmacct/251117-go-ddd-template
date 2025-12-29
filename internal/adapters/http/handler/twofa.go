@@ -38,6 +38,7 @@ func NewTwoFAHandler(
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
+// @x-permission {"scope":"auth:2fa:setup"}
 // @Success      200 {object} response.DataResponse[twofa.SetupDTO] "2FA初始化成功"
 // @Failure      400 {object} response.ErrorResponse "设置失败"
 // @Failure      401 {object} response.ErrorResponse "未授权"
@@ -75,6 +76,7 @@ func (h *TwoFAHandler) Setup(c *gin.Context) {
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
+// @x-permission {"scope":"auth:2fa:update"}
 // @Param        request body twofa.VerifyDTO true "TOTP验证码"
 // @Success      200 {object} response.DataResponse[twofa.EnableDTO] "2FA启用成功"
 // @Failure      400 {object} response.ErrorResponse "验证码错误"
@@ -118,6 +120,7 @@ func (h *TwoFAHandler) VerifyAndEnable(c *gin.Context) {
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
+// @x-permission {"scope":"auth:2fa:update"}
 // @Success      200 {object} response.MessageResponse "2FA禁用成功"
 // @Failure      400 {object} response.ErrorResponse "禁用失败"
 // @Failure      401 {object} response.ErrorResponse "未授权"
@@ -148,6 +151,7 @@ func (h *TwoFAHandler) Disable(c *gin.Context) {
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
+// @x-permission {"scope":"auth:2fa:read"}
 // @Success      200 {object} response.DataResponse[twofa.StatusDTO] "2FA状态"
 // @Failure      400 {object} response.ErrorResponse "获取失败"
 // @Failure      401 {object} response.ErrorResponse "未授权"

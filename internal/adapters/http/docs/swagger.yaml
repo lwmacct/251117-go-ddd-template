@@ -3402,6 +3402,8 @@ paths:
       summary: 禁用两步验证
       tags:
       - 认证 - 两步验证 (Authentication - 2FA)
+      x-permission:
+        scope: auth:2fa:update
   /api/auth/2fa/setup:
     post:
       consumes:
@@ -3427,6 +3429,8 @@ paths:
       summary: 初始化两步验证
       tags:
       - 认证 - 两步验证 (Authentication - 2FA)
+      x-permission:
+        scope: auth:2fa:setup
   /api/auth/2fa/status:
     get:
       consumes:
@@ -3452,6 +3456,8 @@ paths:
       summary: 获取两步验证状态
       tags:
       - 认证 - 两步验证 (Authentication - 2FA)
+      x-permission:
+        scope: auth:2fa:read
   /api/auth/2fa/verify:
     post:
       consumes:
@@ -3484,6 +3490,8 @@ paths:
       summary: 验证并启用两步验证
       tags:
       - 认证 - 两步验证 (Authentication - 2FA)
+      x-permission:
+        scope: auth:2fa:update
   /api/auth/captcha:
     get:
       consumes:

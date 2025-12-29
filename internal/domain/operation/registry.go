@@ -57,6 +57,7 @@ var operationRegistry = map[Operation]operationMeta{
 	Auth2FASetup: {
 		Method:         HttpPOST,
 		Path:           "/api/auth/2fa/setup",
+		Permission:     "auth:2fa:setup",
 		AuditAction:    "auth.2fa_setup",
 		AuditCategory:  AuditCatAuth,
 		AuditOperation: AuditOpUpdate,
@@ -67,6 +68,7 @@ var operationRegistry = map[Operation]operationMeta{
 	Auth2FAVerify: {
 		Method:         HttpPOST,
 		Path:           "/api/auth/2fa/verify",
+		Permission:     "auth:2fa:update",
 		AuditAction:    "auth.2fa_enable",
 		AuditCategory:  AuditCatAuth,
 		AuditOperation: AuditOpUpdate,
@@ -77,6 +79,7 @@ var operationRegistry = map[Operation]operationMeta{
 	Auth2FADisable: {
 		Method:         HttpPOST,
 		Path:           "/api/auth/2fa/disable",
+		Permission:     "auth:2fa:update",
 		AuditAction:    "auth.2fa_disable",
 		AuditCategory:  AuditCatAuth,
 		AuditOperation: AuditOpUpdate,
@@ -87,6 +90,7 @@ var operationRegistry = map[Operation]operationMeta{
 	Auth2FAStatus: {
 		Method:      HttpGET,
 		Path:        "/api/auth/2fa/status",
+		Permission:  "auth:2fa:read",
 		Label:       "2FA 状态",
 		Description: "Get 2FA status",
 		Group:       "认证 - 2FA (Auth - 2FA)",

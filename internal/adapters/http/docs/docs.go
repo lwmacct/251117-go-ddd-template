@@ -2678,6 +2678,9 @@ const docTemplate = `{
                             "$ref": "#/definitions/response.ErrorResponse"
                         }
                     }
+                },
+                "x-permission": {
+                    "scope": "auth:2fa:update"
                 }
             }
         },
@@ -2718,6 +2721,9 @@ const docTemplate = `{
                             "$ref": "#/definitions/response.ErrorResponse"
                         }
                     }
+                },
+                "x-permission": {
+                    "scope": "auth:2fa:setup"
                 }
             }
         },
@@ -2758,6 +2764,9 @@ const docTemplate = `{
                             "$ref": "#/definitions/response.ErrorResponse"
                         }
                     }
+                },
+                "x-permission": {
+                    "scope": "auth:2fa:read"
                 }
             }
         },
@@ -2809,6 +2818,9 @@ const docTemplate = `{
                             "$ref": "#/definitions/response.ErrorResponse"
                         }
                     }
+                },
+                "x-permission": {
+                    "scope": "auth:2fa:update"
                 }
             }
         },

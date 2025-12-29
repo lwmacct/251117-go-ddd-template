@@ -2672,6 +2672,9 @@
                             "$ref": "#/definitions/response.ErrorResponse"
                         }
                     }
+                },
+                "x-permission": {
+                    "scope": "auth:2fa:update"
                 }
             }
         },
@@ -2712,6 +2715,9 @@
                             "$ref": "#/definitions/response.ErrorResponse"
                         }
                     }
+                },
+                "x-permission": {
+                    "scope": "auth:2fa:setup"
                 }
             }
         },
@@ -2752,6 +2758,9 @@
                             "$ref": "#/definitions/response.ErrorResponse"
                         }
                     }
+                },
+                "x-permission": {
+                    "scope": "auth:2fa:read"
                 }
             }
         },
@@ -2803,6 +2812,9 @@
                             "$ref": "#/definitions/response.ErrorResponse"
                         }
                     }
+                },
+                "x-permission": {
+                    "scope": "auth:2fa:update"
                 }
             }
         },

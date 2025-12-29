@@ -99,7 +99,7 @@ func (h *UserBatchSetHandler) validateSettings(
 	validationItems := make([]*setting.ValidationContext, 0, len(keyValueMap))
 	for key, value := range keyValueMap {
 		def := defMap[key]
-		rule := extractValidationRule(def.UIConfig)
+		rule := extractValidationRule(def.Validation)
 		if rule == "" {
 			continue
 		}

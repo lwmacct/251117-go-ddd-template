@@ -5,7 +5,7 @@ import (
 	"log/slog"
 
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/operation"
-	_persistence "github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/persistence"
+	"github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/persistence"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -35,9 +35,9 @@ func (s *RBACSeeder) seedPermissions(ctx context.Context, db *gorm.DB) error {
 
 	// 从统一操作注册表获取所有权限定义
 	defs := operation.AllPermissions()
-	permissions := make([]_persistence.PermissionModel, 0, len(defs))
+	permissions := make([]persistence.PermissionModel, 0, len(defs))
 	for _, def := range defs {
-		permissions = append(permissions, _persistence.PermissionModel{
+		permissions = append(permissions, persistence.PermissionModel{
 			Domain:      def.Domain,
 			Resource:    def.Resource,
 			Action:      def.Action,
@@ -65,13 +65,13 @@ func (s *RBACSeeder) seedRoles(ctx context.Context, db *gorm.DB) error {
 	db = db.WithContext(ctx)
 
 	// 1. 获取所有权限（一次查询）
-	var allPermissions []_persistence.PermissionModel
+	var allPermissions []persistence.PermissionModel
 	if err := db.Find(&allPermissions).Error; err != nil {
 		return err
 	}
 
 	// 按 domain 分组
-	permByDomain := make(map[string][]_persistence.PermissionModel)
+	permByDomain := make(map[string][]persistence.PermissionModel)
 	for _, p := range allPermissions {
 		permByDomain[p.Domain] = append(permByDomain[p.Domain], p)
 	}
@@ -87,12 +87,12 @@ func (s *RBACSeeder) seedRoles(ctx context.Context, db *gorm.DB) error {
 
 	roles := []roleConfig{
 		{"admin", "Administrator", "Full system access with all permissions", true, nil},
-		{"user", "Regular User", "Standard user with limited permissions", true, []string{"user"}},
+		{"user", "Regular User", "Standard user with limited permissions", true, []string{"user", "auth"}},
 	}
 
 	// 3. 批量创建角色并分配权限
 	for _, r := range roles {
-		role := _persistence.RoleModel{
+		role := persistence.RoleModel{
 			Name:        r.name,
 			DisplayName: r.displayName,
 			Description: r.description,
@@ -108,7 +108,7 @@ func (s *RBACSeeder) seedRoles(ctx context.Context, db *gorm.DB) error {
 		}
 
 		// 确定该角色需要的权限
-		var perms []_persistence.PermissionModel
+		var perms []persistence.PermissionModel
 		if r.permDomains == nil {
 			perms = allPermissions
 		} else {
@@ -143,7 +143,7 @@ func (s *RBACSeeder) seedAdminUser(ctx context.Context, db *gorm.DB) error {
 	db = db.WithContext(ctx)
 
 	// Get admin role
-	var adminRole _persistence.RoleModel
+	var adminRole persistence.RoleModel
 	if err := db.Where("name = ?", "admin").First(&adminRole).Error; err != nil {
 		return err
 	}
@@ -154,7 +154,7 @@ func (s *RBACSeeder) seedAdminUser(ctx context.Context, db *gorm.DB) error {
 		return err
 	}
 
-	adminUser := _persistence.UserModel{
+	adminUser := persistence.UserModel{
 		Username: "admin",
 		Email:    "admin@example.com",
 		Password: string(hashedPassword),
