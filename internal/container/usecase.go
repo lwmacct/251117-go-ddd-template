@@ -166,7 +166,7 @@ func newAuthUseCases(p authUseCasesParams) *AuthUseCases {
 		Login:        auth.NewLoginHandler(p.UserRepos.Query, p.CaptchaCommand, p.TwoFARepos.Query, p.AuthSvc, p.LoginSession, p.AuditLog.CreateLog),
 		Login2FA:     auth.NewLogin2FAHandler(p.UserRepos.Query, p.AuthSvc, p.LoginSession, p.TwoFASvc, p.AuditLog.CreateLog),
 		Register:     auth.NewRegisterHandler(p.UserRepos.Command, p.UserRepos.Query, p.AuthSvc),
-		RefreshToken: auth.NewRefreshTokenHandler(p.UserRepos.Query, p.AuthSvc),
+		RefreshToken: auth.NewRefreshTokenHandler(p.UserRepos.Query, p.AuthSvc, p.AuditLog.CreateLog),
 	}
 }
 

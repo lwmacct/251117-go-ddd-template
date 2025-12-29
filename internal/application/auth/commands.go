@@ -29,4 +29,6 @@ type RegisterCommand struct {
 // RefreshTokenCommand 刷新令牌命令
 type RefreshTokenCommand struct {
 	RefreshToken string
+	ClientIP     string // 客户端 IP（用于审计日志）
+	UserAgent    string // 用户代理（用于审计日志）
 }

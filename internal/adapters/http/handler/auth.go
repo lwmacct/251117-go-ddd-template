@@ -158,8 +158,14 @@ func (h *AuthHandler) RefreshToken(c *gin.Context) {
 		return
 	}
 
-	// 调用 Use Case Handler
-	result, err := h.refreshTokenHandler.Handle(c.Request.Context(), auth.RefreshTokenCommand(req))
+	// 构建命令（添加 IP 和 UserAgent 用于审计）
+	cmd := auth.RefreshTokenCommand{
+		RefreshToken: req.RefreshToken,
+		ClientIP:     c.ClientIP(),
+		UserAgent:    c.Request.UserAgent(),
+	}
+
+	result, err := h.refreshTokenHandler.Handle(c.Request.Context(), cmd)
 
 	if err != nil {
 		// 处理特定错误
