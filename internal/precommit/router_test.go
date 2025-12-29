@@ -8,8 +8,9 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// TestRouterRoutes_MatchRegistry 验证 router.go 中的路由与 registry 一致
-func TestRouterRoutes_MatchRegistry(t *testing.T) {
+// TestRouter_MatchRegistry 检查 router.go 路由与 registry 的一致性。
+// 规则：router.go 中的每个路由都必须在 registry 中注册，权限配置一致。
+func TestRouter_MatchRegistry(t *testing.T) {
 	routerRoutes := parseRouterRoutes(t)
 	require.NotEmpty(t, routerRoutes, "no routes found in router.go")
 
@@ -39,8 +40,9 @@ func TestRouterRoutes_MatchRegistry(t *testing.T) {
 	}
 }
 
-// TestRegistry_AllRoutesInRouter 验证 registry 中的每个路由都在 router.go 中注册
-func TestRegistry_AllRoutesInRouter(t *testing.T) {
+// TestRouter_RegistryCoverage 检查 registry 路由是否都已在 router.go 中注册。
+// 规则：registry 中的每个端点都必须在 router.go 中有对应路由。
+func TestRouter_RegistryCoverage(t *testing.T) {
 	routerRoutes := parseRouterRoutes(t)
 
 	// 构建 router 路由索引

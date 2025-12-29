@@ -10,8 +10,9 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// TestHandlerAnnotations_MatchRegistry 验证 handler @Router 注解与 registry 一致
-func TestHandlerAnnotations_MatchRegistry(t *testing.T) {
+// TestAnnotation_MatchRegistry 检查 handler @Router 注解与 registry 的一致性。
+// 规则：每个 handler 的 @Router 路径和权限必须与 registry 匹配。
+func TestAnnotation_MatchRegistry(t *testing.T) {
 	annotations := parseHandlerAnnotations(t)
 	require.NotEmpty(t, annotations, "no handler annotations found")
 
@@ -49,8 +50,9 @@ func TestHandlerAnnotations_MatchRegistry(t *testing.T) {
 	}
 }
 
-// TestRegistry_AllRoutesHaveHandlerAnnotation 验证 registry 中的每个路由都有对应的 handler 注解
-func TestRegistry_AllRoutesHaveHandlerAnnotation(t *testing.T) {
+// TestAnnotation_RegistryCoverage 检查 registry 端点是否都有对应的 handler 注解。
+// 规则：registry 中的每个端点都必须有带 @Router 注解的 handler。
+func TestAnnotation_RegistryCoverage(t *testing.T) {
 	annotations := parseHandlerAnnotations(t)
 
 	// 构建 handler 注解索引
@@ -73,8 +75,9 @@ func TestRegistry_AllRoutesHaveHandlerAnnotation(t *testing.T) {
 	}
 }
 
-// TestHandlerAnnotations_RequiredFields 验证每个端点都有必需的 Swagger 注解
-func TestHandlerAnnotations_RequiredFields(t *testing.T) {
+// TestAnnotation_RequiredFields 检查 Swagger 注解必填字段。
+// 规则：每个 API 端点必须有 @Summary、@Tags、@Accept、@Produce。
+func TestAnnotation_RequiredFields(t *testing.T) {
 	annotations := parseHandlerAnnotations(t)
 
 	for _, ann := range annotations {
@@ -95,8 +98,9 @@ func TestHandlerAnnotations_RequiredFields(t *testing.T) {
 	}
 }
 
-// TestHandlerAnnotations_SecurityRequired 验证需要认证的端点有 @Security 注解
-func TestHandlerAnnotations_SecurityRequired(t *testing.T) {
+// TestAnnotation_SecurityRequired 检查非公开端点的 @Security 注解。
+// 规则：除公开端点外，所有 API 都必须有 @Security BearerAuth。
+func TestAnnotation_SecurityRequired(t *testing.T) {
 	annotations := parseHandlerAnnotations(t)
 
 	// 公开端点列表（不需要 @Security）
@@ -128,8 +132,9 @@ func TestHandlerAnnotations_SecurityRequired(t *testing.T) {
 	}
 }
 
-// TestHandlerAnnotations_TagsFormat 验证 @Tags 格式：中文名 (English Name)
-func TestHandlerAnnotations_TagsFormat(t *testing.T) {
+// TestAnnotation_TagsFormat 检查 @Tags 格式规范。
+// 规则：格式为「中文名 (English Name)」（如「用户管理 (User)」）。
+func TestAnnotation_TagsFormat(t *testing.T) {
 	annotations := parseHandlerAnnotations(t)
 	tagsRe := regexp.MustCompile(`^.+\s+\([A-Za-z].*\)$`)
 
@@ -145,8 +150,9 @@ func TestHandlerAnnotations_TagsFormat(t *testing.T) {
 	}
 }
 
-// TestHandlerAnnotations_ContentType 验证 @Accept 和 @Produce 为 json
-func TestHandlerAnnotations_ContentType(t *testing.T) {
+// TestAnnotation_ContentType 检查 @Accept 和 @Produce 值。
+// 规则：必须为 json。
+func TestAnnotation_ContentType(t *testing.T) {
 	annotations := parseHandlerAnnotations(t)
 
 	for _, ann := range annotations {
@@ -167,8 +173,9 @@ func TestHandlerAnnotations_ContentType(t *testing.T) {
 	}
 }
 
-// TestHandlerAnnotations_SuccessDTOExists 验证 @Success 中的 DTO 类型存在于 application 层
-func TestHandlerAnnotations_SuccessDTOExists(t *testing.T) {
+// TestAnnotation_SuccessDTOExists 检查 @Success 中的 DTO 类型是否存在。
+// 规则：DTO 类型必须在 internal/application/{pkg}/dto.go 中定义。
+func TestAnnotation_SuccessDTOExists(t *testing.T) {
 	annotations := parseHandlerAnnotations(t)
 	dtoTypes := loadDTOTypes(t)
 

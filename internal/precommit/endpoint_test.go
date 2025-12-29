@@ -9,8 +9,9 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// TestEndpoints_PermissionsExist 验证 registry 中的每个 Permission 都已定义为常量。
-func TestEndpoints_PermissionsExist(t *testing.T) {
+// TestEndpoint_PermissionsExist 检查 registry 中的权限是否已定义。
+// 规则：每个端点的 Permission 必须在 permission.AllDefinitions() 中存在。
+func TestEndpoint_PermissionsExist(t *testing.T) {
 	// 构建已定义权限集合
 	defined := make(map[string]bool)
 	for _, p := range permission.AllDefinitions() {
@@ -28,8 +29,9 @@ func TestEndpoints_PermissionsExist(t *testing.T) {
 	}
 }
 
-// TestEndpoints_OperationIDsUnique 验证所有 OperationID 唯一。
-func TestEndpoints_OperationIDsUnique(t *testing.T) {
+// TestEndpoint_OperationIDsUnique 检查 OperationID 唯一性。
+// 规则：所有端点的 OperationID 不能重复。
+func TestEndpoint_OperationIDsUnique(t *testing.T) {
 	seen := make(map[string]string) // operationID -> first endpoint path
 
 	for _, ep := range registry.All() {
@@ -41,8 +43,9 @@ func TestEndpoints_OperationIDsUnique(t *testing.T) {
 	}
 }
 
-// TestEndpoints_OperationIDFormat 验证 OperationID 格式为 domain.resource.action。
-func TestEndpoints_OperationIDFormat(t *testing.T) {
+// TestEndpoint_OperationIDFormat 检查 OperationID 格式规范。
+// 规则：格式为 domain.resource.action，domain 必须是 admin/user/auth。
+func TestEndpoint_OperationIDFormat(t *testing.T) {
 	for _, ep := range registry.All() {
 		parts := strings.Split(ep.OperationID, ".")
 		assert.GreaterOrEqual(t, len(parts), 2,
@@ -55,8 +58,9 @@ func TestEndpoints_OperationIDFormat(t *testing.T) {
 	}
 }
 
-// TestEndpoints_PathFormat 验证路径格式规范。
-func TestEndpoints_PathFormat(t *testing.T) {
+// TestEndpoint_PathFormat 检查路径格式规范。
+// 规则：以 /api 开头，参数使用 :param 格式（Gin 风格）。
+func TestEndpoint_PathFormat(t *testing.T) {
 	for _, ep := range registry.All() {
 		// 验证以 /api 开头
 		assert.True(t, strings.HasPrefix(ep.Path, "/api"),
@@ -68,8 +72,9 @@ func TestEndpoints_PathFormat(t *testing.T) {
 	}
 }
 
-// TestEndpoints_MethodValid 验证 HTTP 方法有效。
-func TestEndpoints_MethodValid(t *testing.T) {
+// TestEndpoint_MethodValid 检查 HTTP 方法有效性。
+// 规则：必须是 GET/POST/PUT/DELETE/PATCH 之一。
+func TestEndpoint_MethodValid(t *testing.T) {
 	validMethods := map[string]bool{
 		"GET": true, "POST": true, "PUT": true, "DELETE": true, "PATCH": true,
 	}
