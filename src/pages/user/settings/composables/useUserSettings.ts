@@ -12,18 +12,18 @@
  */
 import { ref, computed } from "vue";
 import { userSettingsApi } from "@/api";
-import { useLazyCategorySchema } from "@/composables";
+import { useLazyCategorySchema, useSnackbar } from "@/composables";
 import type {
   SettingCategoryMetaDTO,
   SettingSchemaCategoryDTO,
   SettingSchemaSettingDTO,
-  HandlerBatchSetUserSettingsRequest,
   HandlerSetUserSettingRequest,
 } from "@models";
 
 export function useUserSettings() {
   // 分类元信息（用于渲染 tabs，不含 settings 数据）
   const categories = ref<SettingCategoryMetaDTO[]>([]);
+  const snackbar = useSnackbar();
 
   // 使用封装的懒加载 composable
   const {
@@ -41,8 +41,6 @@ export function useUserSettings() {
   // 其他加载状态
   const loading = ref(false);
   const saving = ref(false);
-  const errorMessage = ref("");
-  const successMessage = ref("");
 
   // 按 key 索引的设置 Map
   const settingsMap = computed(() => {
@@ -65,13 +63,13 @@ export function useUserSettings() {
    */
   const fetchCategories = async () => {
     loading.value = true;
-    errorMessage.value = "";
 
     try {
       const response = await userSettingsApi.apiUserSettingsCategoriesGet();
       categories.value = (response.data.data ?? []) as SettingCategoryMetaDTO[];
     } catch (error) {
-      errorMessage.value = (error as Error).message || "获取分类列表失败";
+      const msg = (error as Error).message || "获取分类列表失败";
+      snackbar.error(msg);
       console.error("Failed to fetch user setting categories:", error);
     } finally {
       loading.value = false;
@@ -84,7 +82,6 @@ export function useUserSettings() {
    */
   const fetchSchema = async () => {
     loading.value = true;
-    errorMessage.value = "";
 
     try {
       // 重置懒加载状态
@@ -101,41 +98,11 @@ export function useUserSettings() {
         }
       }
     } catch (error) {
-      errorMessage.value = (error as Error).message || "获取设置失败";
+      const msg = (error as Error).message || "获取设置失败";
+      snackbar.error(msg);
       console.error("Failed to fetch user settings:", error);
     } finally {
       loading.value = false;
-    }
-  };
-
-  /**
-   * 批量更新用户设置
-   */
-  const batchUpdateSettings = async (updates: { key: string; value: object }[]): Promise<boolean> => {
-    saving.value = true;
-    errorMessage.value = "";
-    successMessage.value = "";
-
-    try {
-      const settingsData = updates.map((u) => ({
-        key: u.key,
-        value: u.value,
-      }));
-
-      const data: HandlerBatchSetUserSettingsRequest = { settings: settingsData };
-      await userSettingsApi.apiUserSettingsBatchPost(data);
-
-      // 重新获取 schema 以更新 is_customized 标识
-      await fetchSchema();
-
-      successMessage.value = "设置保存成功";
-      return true;
-    } catch (error) {
-      errorMessage.value = (error as Error).message || "保存设置失败";
-      console.error("Failed to batch update user settings:", error);
-      return false;
-    } finally {
-      saving.value = false;
     }
   };
 
@@ -160,7 +127,8 @@ export function useUserSettings() {
 
       return true;
     } catch (error) {
-      errorMessage.value = (error as Error).message || "保存失败";
+      const msg = (error as Error).message || "保存失败";
+      snackbar.error(msg);
       console.error("Failed to update user setting:", error);
       return false;
     }
@@ -171,7 +139,6 @@ export function useUserSettings() {
    */
   const resetSetting = async (key: string): Promise<boolean> => {
     saving.value = true;
-    errorMessage.value = "";
 
     try {
       // 从 schema 中找到包含该设置的分类（设置对象只有 category_id，没有 category 字符串）
@@ -198,9 +165,11 @@ export function useUserSettings() {
         await fetchSchemaByCategory(categoryKey);
       }
 
+      snackbar.success("已重置为默认值");
       return true;
     } catch (error) {
-      errorMessage.value = (error as Error).message || "重置设置失败";
+      const msg = (error as Error).message || "重置设置失败";
+      snackbar.error(msg);
       console.error("Failed to reset user setting:", error);
       return false;
     } finally {
@@ -216,11 +185,6 @@ export function useUserSettings() {
     return setting?.is_customized ?? false;
   };
 
-  const clearMessages = () => {
-    errorMessage.value = "";
-    successMessage.value = "";
-  };
-
   return {
     categories,
     schema,
@@ -229,16 +193,12 @@ export function useUserSettings() {
     loading,
     schemaLoading,
     saving,
-    errorMessage,
-    successMessage,
     fetchCategories,
     fetchSchema,
     fetchSchemaByCategory,
     isCategoryLoaded,
-    batchUpdateSettings,
     updateSettingQuietly,
     resetSetting,
     isCustomized,
-    clearMessages,
   };
 }

@@ -271,18 +271,17 @@ func TestSetting_BelongsToCategoryID(t *testing.T) {
 
 func TestSetting_HasValidationRule(t *testing.T) {
 	tests := []struct {
-		name     string
-		uiConfig string
-		want     bool
+		name       string
+		validation string
+		want       bool
 	}{
-		{"有验证规则", `{"validation": {"min": 6}}`, true},
-		{"无验证规则", `{"hint": "输入提示"}`, false},
-		{"空配置", "", false},
+		{"有验证规则", `{"min": 6}`, true},
+		{"空规则", "", false},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s := setting.Setting{UIConfig: tt.uiConfig}
+			s := setting.Setting{Validation: tt.validation}
 			assert.Equal(t, tt.want, s.HasValidationRule())
 		})
 	}
@@ -290,20 +289,20 @@ func TestSetting_HasValidationRule(t *testing.T) {
 
 func TestSetting_IsRequired(t *testing.T) {
 	tests := []struct {
-		name     string
-		uiConfig string
-		want     bool
+		name       string
+		validation string
+		want       bool
 	}{
-		{"required true 无空格", `{"validation": {"required":true}}`, true},
-		{"required true 有空格", `{"validation": {"required": true}}`, true},
-		{"required false", `{"validation": {"required": false}}`, false},
-		{"无 required", `{"validation": {"min": 6}}`, false},
+		{"required true 无空格", `{"required":true}`, true},
+		{"required true 有空格", `{"required": true}`, true},
+		{"required false", `{"required": false}`, false},
+		{"无 required", `{"min": 6}`, false},
 		{"空配置", "", false},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s := setting.Setting{UIConfig: tt.uiConfig}
+			s := setting.Setting{Validation: tt.validation}
 			assert.Equal(t, tt.want, s.IsRequired())
 		})
 	}

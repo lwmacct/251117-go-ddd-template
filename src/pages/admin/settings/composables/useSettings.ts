@@ -9,7 +9,7 @@
  */
 import { ref, computed } from "vue";
 import { adminSettingsApi, adminSettingCategoriesApi, extractData } from "@/api";
-import { useLazyCategorySchema } from "@/composables";
+import { useLazyCategorySchema, useSnackbar } from "@/composables";
 import {
   type SettingSettingDTO,
   type SettingSchemaCategoryDTO,
@@ -17,12 +17,12 @@ import {
   type SettingCategoryDTO,
   type HandlerCreateSettingRequest,
   type HandlerUpdateSettingRequest,
-  type HandlerBatchUpdateSettingsRequest,
 } from "@models";
 
 export function useSettings() {
   const settings = ref<SettingSettingDTO[]>([]);
   const categories = ref<SettingCategoryDTO[]>([]); // 分类列表（用于渲染 tabs）
+  const snackbar = useSnackbar();
 
   // 使用封装的懒加载 composable
   const {
@@ -40,8 +40,6 @@ export function useSettings() {
   // 其他加载状态
   const loading = ref(false);
   const saving = ref(false);
-  const errorMessage = ref("");
-  const successMessage = ref("");
 
   // 按分类 ID 缓存的设置
   const settingsByCategory = computed(() => {
@@ -79,13 +77,13 @@ export function useSettings() {
    */
   const fetchCategories = async () => {
     loading.value = true;
-    errorMessage.value = "";
 
     try {
       const response = await adminSettingCategoriesApi.apiAdminSettingsCategoriesGet();
       categories.value = (response.data.data ?? []) as SettingCategoryDTO[];
     } catch (error) {
-      errorMessage.value = (error as Error).message || "获取分类列表失败";
+      const msg = (error as Error).message || "获取分类列表失败";
+      snackbar.error(msg);
       console.error("Failed to fetch setting categories:", error);
     } finally {
       loading.value = false;
@@ -98,7 +96,6 @@ export function useSettings() {
    */
   const fetchSchema = async () => {
     loading.value = true;
-    errorMessage.value = "";
 
     try {
       // 重置懒加载状态
@@ -115,7 +112,8 @@ export function useSettings() {
         }
       }
     } catch (error) {
-      errorMessage.value = (error as Error).message || "获取设置失败";
+      const msg = (error as Error).message || "获取设置失败";
+      snackbar.error(msg);
       console.error("Failed to fetch settings:", error);
     } finally {
       loading.value = false;
@@ -160,7 +158,6 @@ export function useSettings() {
   // 创建单个设置
   const createSetting = async (data: HandlerCreateSettingRequest): Promise<boolean> => {
     saving.value = true;
-    errorMessage.value = "";
 
     try {
       const response = await adminSettingsApi.apiAdminSettingsPost(data);
@@ -168,10 +165,11 @@ export function useSettings() {
       if (newSetting) {
         settings.value.push(newSetting);
       }
-      successMessage.value = "设置创建成功";
+      snackbar.success("设置创建成功");
       return true;
     } catch (error) {
-      errorMessage.value = (error as Error).message || "创建设置失败";
+      const msg = (error as Error).message || "创建设置失败";
+      snackbar.error(msg);
       console.error("Failed to create setting:", error);
       return false;
     } finally {
@@ -182,7 +180,6 @@ export function useSettings() {
   // 更新单个设置
   const updateSetting = async (key: string, value: object): Promise<boolean> => {
     saving.value = true;
-    errorMessage.value = "";
 
     try {
       const data: HandlerUpdateSettingRequest = { default_value: value };
@@ -192,10 +189,11 @@ export function useSettings() {
       if (index !== -1 && updated) {
         settings.value[index] = updated;
       }
-      successMessage.value = "设置更新成功";
+      snackbar.success("设置更新成功");
       return true;
     } catch (error) {
-      errorMessage.value = (error as Error).message || "更新设置失败";
+      const msg = (error as Error).message || "更新设置失败";
+      snackbar.error(msg);
       console.error("Failed to update setting:", error);
       return false;
     } finally {
@@ -215,70 +213,30 @@ export function useSettings() {
       }
       return true;
     } catch (error) {
-      errorMessage.value = (error as Error).message || "更新设置失败";
+      const msg = (error as Error).message || "更新设置失败";
+      snackbar.error(msg);
       console.error("Failed to update setting:", error);
       return false;
-    }
-  };
-
-  // 批量更新设置
-  const batchUpdateSettings = async (updates: { key: string; value: object }[]): Promise<boolean> => {
-    saving.value = true;
-    errorMessage.value = "";
-    successMessage.value = "";
-
-    try {
-      // 构建批量更新请求
-      const settingsData = updates.map((u) => ({
-        key: u.key,
-        value: u.value,
-      }));
-
-      const data: HandlerBatchUpdateSettingsRequest = { settings: settingsData };
-      await adminSettingsApi.apiAdminSettingsBatchPost(data);
-
-      // 更新本地缓存
-      updates.forEach((update) => {
-        const index = settings.value.findIndex((s) => s.key === update.key);
-        const current = index !== -1 ? settings.value[index] : undefined;
-        if (current) {
-          current.default_value = update.value;
-        }
-      });
-
-      successMessage.value = "设置保存成功";
-      return true;
-    } catch (error) {
-      errorMessage.value = (error as Error).message || "批量更新设置失败";
-      console.error("Failed to batch update settings:", error);
-      return false;
-    } finally {
-      saving.value = false;
     }
   };
 
   // 删除设置
   const deleteSetting = async (key: string): Promise<boolean> => {
     saving.value = true;
-    errorMessage.value = "";
 
     try {
       await adminSettingsApi.apiAdminSettingsKeyDelete(key);
       settings.value = settings.value.filter((s) => s.key !== key);
-      successMessage.value = "设置删除成功";
+      snackbar.success("设置删除成功");
       return true;
     } catch (error) {
-      errorMessage.value = (error as Error).message || "删除设置失败";
+      const msg = (error as Error).message || "删除设置失败";
+      snackbar.error(msg);
       console.error("Failed to delete setting:", error);
       return false;
     } finally {
       saving.value = false;
     }
-  };
-
-  const clearMessages = () => {
-    errorMessage.value = "";
-    successMessage.value = "";
   };
 
   return {
@@ -291,8 +249,6 @@ export function useSettings() {
     loading,
     schemaLoading,
     saving,
-    errorMessage,
-    successMessage,
     fetchCategories,
     fetchSchema,
     fetchSchemaByCategory,
@@ -303,8 +259,6 @@ export function useSettings() {
     createSetting,
     updateSetting,
     updateSettingQuietly,
-    batchUpdateSettings,
     deleteSetting,
-    clearMessages,
   };
 }

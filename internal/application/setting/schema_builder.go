@@ -133,6 +133,10 @@ func GetGroupLabel(group string) string {
 		"email":      "邮件通知",
 		"sms":        "短信通知",
 		"schedule":   "备份计划",
+		"smtp":       "SMTP 服务器",
+		"sender":     "发件人",
+		"github":     "GitHub",
+		"google":     "Google",
 	}
 
 	if label, ok := labels[group]; ok {

@@ -43,38 +43,49 @@ func ToCategoryListDTO(categories []*setting.SettingCategory) []CategoryDTO {
 
 // ==================== Setting Mappers ====================
 
-// uiConfigRaw 内部结构用于解析 JSONB
+// uiConfigRaw 内部结构用于解析 UIConfig JSONB
 type uiConfigRaw struct {
-	InputType  string              `json:"input_type"`
-	Hint       string              `json:"hint"`
-	Options    []SelectOptionDTO   `json:"options"`
-	Validation any                 `json:"validation"`
-	DependsOn  *DependsOnConfigDTO `json:"depends_on"`
+	Hint      string              `json:"hint"`
+	Options   []SelectOptionDTO   `json:"options"`
+	DependsOn *DependsOnConfigDTO `json:"depends_on"`
 }
 
 // parseUIConfig 解析 UIConfig JSON 字符串
 func parseUIConfig(jsonStr string) UIConfigDTO {
 	if jsonStr == "" || jsonStr == "{}" {
-		return UIConfigDTO{InputType: "text"}
+		return UIConfigDTO{}
 	}
 
 	var raw uiConfigRaw
 	if err := json.Unmarshal([]byte(jsonStr), &raw); err != nil {
-		return UIConfigDTO{InputType: "text"}
-	}
-
-	// 设置默认 input_type
-	if raw.InputType == "" {
-		raw.InputType = "text"
+		return UIConfigDTO{}
 	}
 
 	return UIConfigDTO(raw)
+}
+
+// parseValidation 解析 Validation 字符串为 any 类型
+func parseValidation(validation string) any {
+	if validation == "" {
+		return nil
+	}
+	var result any
+	if err := json.Unmarshal([]byte(validation), &result); err != nil {
+		return nil
+	}
+	return result
 }
 
 // ToSettingDTO 将 Setting 实体转换为 SettingDTO
 func ToSettingDTO(s *setting.Setting) *SettingDTO {
 	if s == nil {
 		return nil
+	}
+
+	// 设置默认 InputType
+	inputType := s.InputType
+	if inputType == "" {
+		inputType = "text"
 	}
 
 	return &SettingDTO{
@@ -86,8 +97,10 @@ func ToSettingDTO(s *setting.Setting) *SettingDTO {
 		Group:          s.Group,
 		ValueType:      s.ValueType,
 		Label:          s.Label,
-		UIConfig:       parseUIConfig(s.UIConfig),
 		Order:          s.Order,
+		InputType:      inputType,
+		Validation:     parseValidation(s.Validation),
+		UIConfig:       parseUIConfig(s.UIConfig),
 		ViewPermission: s.ViewPermission,
 		EditPermission: s.EditPermission,
 		CreatedAt:      s.CreatedAt,
@@ -117,6 +130,12 @@ func ToSchemaSettingDTO(s *setting.Setting) *SchemaSettingDTO {
 		return nil
 	}
 
+	// 设置默认 InputType
+	inputType := s.InputType
+	if inputType == "" {
+		inputType = "text"
+	}
+
 	return &SchemaSettingDTO{
 		Key:            s.Key,
 		Value:          s.DefaultValue,
@@ -125,8 +144,10 @@ func ToSchemaSettingDTO(s *setting.Setting) *SchemaSettingDTO {
 		Scope:          s.Scope, // Admin 返回
 		ValueType:      s.ValueType,
 		Label:          s.Label,
-		UIConfig:       parseUIConfig(s.UIConfig),
 		Order:          s.Order,
+		InputType:      inputType,
+		Validation:     parseValidation(s.Validation),
+		UIConfig:       parseUIConfig(s.UIConfig),
 		ViewPermission: s.ViewPermission, // Admin 返回
 		EditPermission: s.EditPermission, // Admin 返回
 	}
@@ -140,6 +161,12 @@ func ToUserSettingDTO(s *setting.Setting, us *setting.UserSetting) *UserSettingD
 		return nil
 	}
 
+	// 设置默认 InputType
+	inputType := s.InputType
+	if inputType == "" {
+		inputType = "text"
+	}
+
 	dto := &UserSettingDTO{
 		Key:          s.Key,
 		Value:        s.DefaultValue, // 默认使用系统默认值
@@ -149,8 +176,10 @@ func ToUserSettingDTO(s *setting.Setting, us *setting.UserSetting) *UserSettingD
 		Group:        s.Group,
 		ValueType:    s.ValueType,
 		Label:        s.Label,
-		UIConfig:     parseUIConfig(s.UIConfig),
 		Order:        s.Order,
+		InputType:    inputType,
+		Validation:   parseValidation(s.Validation),
+		UIConfig:     parseUIConfig(s.UIConfig),
 	}
 
 	// 如果有用户自定义值，使用用户值
@@ -169,16 +198,24 @@ func ToUserSchemaSettingDTO(s *setting.Setting, us *setting.UserSetting) *Schema
 		return nil
 	}
 
+	// 设置默认 InputType
+	inputType := s.InputType
+	if inputType == "" {
+		inputType = "text"
+	}
+
 	dto := &SchemaSettingDTO{
 		Key:          s.Key,
 		Value:        s.DefaultValue, // 默认使用系统默认值
 		DefaultValue: s.DefaultValue,
 		IsCustomized: false,
 		// Scope, ViewPermission, EditPermission 留空（omitempty 不输出）
-		ValueType: s.ValueType,
-		Label:     s.Label,
-		UIConfig:  parseUIConfig(s.UIConfig),
-		Order:     s.Order,
+		ValueType:  s.ValueType,
+		Label:      s.Label,
+		Order:      s.Order,
+		InputType:  inputType,
+		Validation: parseValidation(s.Validation),
+		UIConfig:   parseUIConfig(s.UIConfig),
 	}
 
 	// 如果有用户自定义值，使用用户值
@@ -190,26 +227,7 @@ func ToUserSchemaSettingDTO(s *setting.Setting, us *setting.UserSetting) *Schema
 	return dto
 }
 
-// extractValidationRule 从 UIConfig 中提取验证规则
-func extractValidationRule(uiConfig string) string {
-	if uiConfig == "" || uiConfig == "{}" {
-		return ""
-	}
-
-	var raw struct {
-		Validation any `json:"validation"`
-	}
-	if err := json.Unmarshal([]byte(uiConfig), &raw); err != nil {
-		return ""
-	}
-
-	if raw.Validation == nil {
-		return ""
-	}
-
-	data, err := json.Marshal(raw.Validation)
-	if err != nil {
-		return ""
-	}
-	return string(data)
+// extractValidationRule 从 Setting.Validation 字段获取验证规则（用于 JSON Logic 验证器）
+func extractValidationRule(validation string) string {
+	return validation
 }

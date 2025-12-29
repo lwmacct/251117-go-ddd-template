@@ -53,6 +53,7 @@ const adaptedSetting = computed(() => ({
   key: props.setting.key,
   label: props.setting.label,
   value_type: props.setting.value_type,
+  input_type: props.setting.input_type,
   ui_config: props.setting.ui_config,
   order: props.setting.order,
   // 使用 value 作为默认值显示（DynamicSettingField 不使用 default_value）

@@ -25,7 +25,7 @@ func (s *SettingSeeder) Seed(ctx context.Context, db *gorm.DB) error {
 	}
 
 	// 验证必需的 Category 存在
-	requiredCategories := []string{"general", "security", "notification", "backup"}
+	requiredCategories := []string{"general", "security", "email", "oauth", "notification", "backup"}
 	for _, key := range requiredCategories {
 		if _, ok := categoryIDs[key]; !ok {
 			return fmt.Errorf("required category not found: %s (run SettingCategorySeeder first)", key)
@@ -39,7 +39,8 @@ func (s *SettingSeeder) Seed(ctx context.Context, db *gorm.DB) error {
 	result := db.Clauses(clause.OnConflict{
 		Columns: []clause.Column{{Name: "key"}},
 		DoUpdates: clause.AssignmentColumns([]string{
-			"ui_config", "group", "order", "label", "scope", "view_permission", "edit_permission",
+			"input_type", "validation", "ui_config", // hint 已移入 ui_config
+			"group", "order", "label", "scope", "view_permission", "edit_permission",
 		}), // 更新 UI 元数据和权限字段，不覆盖用户修改的默认值
 	}).Create(&definitions)
 	if result.Error != nil {
@@ -78,39 +79,49 @@ func (s *SettingSeeder) buildDefinitions(categoryIDs map[string]uint) []_persist
 			Key: "general.site_name", DefaultValue: datatypes.JSON(`""`), CategoryID: categoryIDs["general"], Group: "basic",
 			Scope: "system", ViewPermission: "*:settings:read", EditPermission: "admin:settings:update",
 			ValueType: "string", Label: "站点名称", Order: 10,
-			UIConfig: datatypes.JSON(`{"input_type":"text","hint":"显示在浏览器标签和页面标题中"}`),
+			InputType:  "text",
+			Validation: `{"min_length":1,"max_length":100}`,
+			UIConfig:   datatypes.JSON(`{"hint":"显示在浏览器标签和页面标题中"}`),
 		},
 		{
 			Key: "general.site_url", DefaultValue: datatypes.JSON(`""`), CategoryID: categoryIDs["general"], Group: "basic",
 			Scope: "system", ViewPermission: "*:settings:read", EditPermission: "admin:settings:update",
 			ValueType: "string", Label: "站点 URL", Order: 20,
-			UIConfig: datatypes.JSON(`{"input_type":"url","hint":"站点完整 URL，如 https://example.com"}`),
+			InputType: "url",
+			UIConfig:  datatypes.JSON(`{"hint":"站点完整 URL，如 https://example.com"}`),
 		},
 		{
 			Key: "general.admin_email", DefaultValue: datatypes.JSON(`""`), CategoryID: categoryIDs["general"], Group: "basic",
 			Scope: "system", ViewPermission: "admin:settings:read", EditPermission: "admin:settings:update",
 			ValueType: "string", Label: "管理员邮箱", Order: 30,
-			UIConfig: datatypes.JSON(`{"input_type":"email","hint":"用于接收系统通知和报警邮件"}`),
+			InputType: "email",
+			UIConfig:  datatypes.JSON(`{"hint":"用于接收系统通知和报警邮件"}`),
 		},
 		// locale 分组 - 本地化设置（用户级，用户可覆盖）
 		{
 			Key: "general.timezone", DefaultValue: datatypes.JSON(`"Asia/Shanghai"`), CategoryID: categoryIDs["general"], Group: "locale",
 			Scope: "user", ViewPermission: "user:settings:read", EditPermission: "user:settings:update",
 			ValueType: "string", Label: "时区", Order: 40,
-			UIConfig: datatypes.JSON(`{"input_type":"select","options":[{"value":"Asia/Shanghai","label":"中国标准时间 (UTC+8)"},{"value":"Asia/Tokyo","label":"日本标准时间 (UTC+9)"},{"value":"America/New_York","label":"美国东部时间 (UTC-5)"},{"value":"Europe/London","label":"格林威治时间 (UTC+0)"},{"value":"UTC","label":"协调世界时 (UTC)"}]}`),
+			InputType:  "select",
+			Validation: `{"enum":["Asia/Shanghai","Asia/Tokyo","America/New_York","Europe/London","UTC"]}`,
+			UIConfig:   datatypes.JSON(`{"options":[{"value":"Asia/Shanghai","label":"中国标准时间 (UTC+8)"},{"value":"Asia/Tokyo","label":"日本标准时间 (UTC+9)"},{"value":"America/New_York","label":"美国东部时间 (UTC-5)"},{"value":"Europe/London","label":"格林威治时间 (UTC+0)"},{"value":"UTC","label":"协调世界时 (UTC)"}]}`),
 		},
 		{
 			Key: "general.language", DefaultValue: datatypes.JSON(`"zh-CN"`), CategoryID: categoryIDs["general"], Group: "locale",
 			Scope: "user", ViewPermission: "user:settings:read", EditPermission: "user:settings:update",
 			ValueType: "string", Label: "语言", Order: 50,
-			UIConfig: datatypes.JSON(`{"input_type":"select","options":[{"value":"zh-CN","label":"简体中文"},{"value":"zh-TW","label":"繁體中文"},{"value":"en-US","label":"English (US)"},{"value":"ja-JP","label":"日本語"}]}`),
+			InputType:  "select",
+			Validation: `{"enum":["zh-CN","zh-TW","en-US","ja-JP"]}`,
+			UIConfig:   datatypes.JSON(`{"options":[{"value":"zh-CN","label":"简体中文"},{"value":"zh-TW","label":"繁體中文"},{"value":"en-US","label":"English (US)"},{"value":"ja-JP","label":"日本語"}]}`),
 		},
 		// appearance 分组 - 外观设置（用户级，用户可覆盖）
 		{
-			Key: "general.theme", DefaultValue: datatypes.JSON(`"light"`), CategoryID: categoryIDs["general"], Group: "appearance",
+			Key: "general.theme", DefaultValue: datatypes.JSON(`"system"`), CategoryID: categoryIDs["general"], Group: "appearance",
 			Scope: "user", ViewPermission: "user:settings:read", EditPermission: "user:settings:update",
 			ValueType: "string", Label: "默认主题", Order: 60,
-			UIConfig: datatypes.JSON(`{"input_type":"select","hint":"新用户默认使用的主题","options":[{"value":"light","label":"浅色模式"},{"value":"dark","label":"深色模式"},{"value":"system","label":"跟随系统"}]}`),
+			InputType:  "select",
+			Validation: `{"enum":["light","dark","system"]}`,
+			UIConfig:   datatypes.JSON(`{"hint":"新用户默认使用的主题","options":[{"value":"light","label":"浅色模式"},{"value":"dark","label":"深色模式"},{"value":"system","label":"跟随系统"}]}`),
 		},
 
 		// ==================== Security 安全设置（系统级，管理员专用）====================
@@ -119,27 +130,34 @@ func (s *SettingSeeder) buildDefinitions(categoryIDs map[string]uint) []_persist
 			Key: "security.password_min_length", DefaultValue: datatypes.JSON(`8`), CategoryID: categoryIDs["security"], Group: "password",
 			Scope: "system", ViewPermission: "admin:settings:read", EditPermission: "admin:settings:update",
 			ValueType: "number", Label: "密码最小长度", Order: 10,
-			UIConfig: datatypes.JSON(`{"input_type":"number","hint":"建议至少 8 位","validation":{"min":6,"max":32}}`),
+			InputType:  "number",
+			Validation: `{"min":6,"max":32}`,
+			UIConfig:   datatypes.JSON(`{"hint":"建议至少 8 位"}`),
 		},
 		{
 			Key: "security.max_login_attempts", DefaultValue: datatypes.JSON(`5`), CategoryID: categoryIDs["security"], Group: "password",
 			Scope: "system", ViewPermission: "admin:settings:read", EditPermission: "admin:settings:update",
 			ValueType: "number", Label: "最大登录尝试次数", Order: 20,
-			UIConfig: datatypes.JSON(`{"input_type":"number","hint":"超过后账户将被临时锁定","validation":{"min":3,"max":10}}`),
+			InputType:  "number",
+			Validation: `{"min":3,"max":10}`,
+			UIConfig:   datatypes.JSON(`{"hint":"超过后账户将被临时锁定"}`),
 		},
 		// session 分组 - 会话管理
 		{
 			Key: "security.session_timeout", DefaultValue: datatypes.JSON(`30`), CategoryID: categoryIDs["security"], Group: "session",
 			Scope: "system", ViewPermission: "admin:settings:read", EditPermission: "admin:settings:update",
 			ValueType: "number", Label: "会话超时时间（分钟）", Order: 30,
-			UIConfig: datatypes.JSON(`{"input_type":"number","hint":"用户无操作后自动登出的时间","validation":{"min":5,"max":1440}}`),
+			InputType:  "number",
+			Validation: `{"min":5,"max":1440}`,
+			UIConfig:   datatypes.JSON(`{"hint":"用户无操作后自动登出的时间"}`),
 		},
 		// advanced 分组 - 高级安全
 		{
 			Key: "security.enable_twofa", DefaultValue: datatypes.JSON(`false`), CategoryID: categoryIDs["security"], Group: "advanced",
 			Scope: "system", ViewPermission: "admin:settings:read", EditPermission: "admin:settings:update",
 			ValueType: "boolean", Label: "强制启用两步验证", Order: 40,
-			UIConfig: datatypes.JSON(`{"input_type":"switch","hint":"启用后所有用户必须配置两步验证才能登录"}`),
+			InputType: "switch",
+			UIConfig:  datatypes.JSON(`{"hint":"启用后所有用户必须配置两步验证才能登录"}`),
 		},
 
 		// ==================== Notification 通知设置 ====================
@@ -148,21 +166,24 @@ func (s *SettingSeeder) buildDefinitions(categoryIDs map[string]uint) []_persist
 			Key: "notification.enable_notifications", DefaultValue: datatypes.JSON(`true`), CategoryID: categoryIDs["notification"], Group: "general",
 			Scope: "system", ViewPermission: "admin:settings:read", EditPermission: "admin:settings:update",
 			ValueType: "boolean", Label: "启用系统通知", Order: 10,
-			UIConfig: datatypes.JSON(`{"input_type":"switch","hint":"关闭后所有通知渠道将停止发送"}`),
+			InputType: "switch",
+			UIConfig:  datatypes.JSON(`{"hint":"关闭后所有通知渠道将停止发送"}`),
 		},
 		// email 分组 - 邮件通知（用户级，用户可开关）
 		{
 			Key: "notification.enable_email", DefaultValue: datatypes.JSON(`true`), CategoryID: categoryIDs["notification"], Group: "email",
 			Scope: "user", ViewPermission: "user:settings:read", EditPermission: "user:settings:update",
 			ValueType: "boolean", Label: "启用邮件通知", Order: 20,
-			UIConfig: datatypes.JSON(`{"input_type":"switch","hint":"通过邮件发送系统通知","depends_on":{"key":"notification.enable_notifications","value":true}}`),
+			InputType: "switch",
+			UIConfig:  datatypes.JSON(`{"hint":"通过邮件发送系统通知","depends_on":{"key":"notification.enable_notifications","value":true}}`),
 		},
 		// sms 分组 - 短信通知（用户级，用户可开关）
 		{
 			Key: "notification.enable_sms", DefaultValue: datatypes.JSON(`false`), CategoryID: categoryIDs["notification"], Group: "sms",
 			Scope: "user", ViewPermission: "user:settings:read", EditPermission: "user:settings:update",
 			ValueType: "boolean", Label: "启用短信通知", Order: 30,
-			UIConfig: datatypes.JSON(`{"input_type":"switch","hint":"通过短信发送重要通知（需配置短信服务商）","depends_on":{"key":"notification.enable_notifications","value":true}}`),
+			InputType: "switch",
+			UIConfig:  datatypes.JSON(`{"hint":"通过短信发送重要通知（需配置短信服务商）","depends_on":{"key":"notification.enable_notifications","value":true}}`),
 		},
 
 		// ==================== Backup 备份设置（系统级，管理员专用）====================
@@ -171,20 +192,134 @@ func (s *SettingSeeder) buildDefinitions(categoryIDs map[string]uint) []_persist
 			Key: "backup.enable_backup", DefaultValue: datatypes.JSON(`false`), CategoryID: categoryIDs["backup"], Group: "general",
 			Scope: "system", ViewPermission: "admin:settings:read", EditPermission: "admin:settings:update",
 			ValueType: "boolean", Label: "启用自动备份", Order: 10,
-			UIConfig: datatypes.JSON(`{"input_type":"switch","hint":"开启数据自动备份功能"}`),
+			InputType: "switch",
+			UIConfig:  datatypes.JSON(`{"hint":"开启数据自动备份功能"}`),
 		},
 		// schedule 分组 - 备份计划
 		{
 			Key: "backup.backup_frequency", DefaultValue: datatypes.JSON(`24`), CategoryID: categoryIDs["backup"], Group: "schedule",
 			Scope: "system", ViewPermission: "admin:settings:read", EditPermission: "admin:settings:update",
 			ValueType: "number", Label: "备份频率（小时）", Order: 20,
-			UIConfig: datatypes.JSON(`{"input_type":"number","hint":"每隔多少小时执行一次备份","validation":{"and":[{">=":[{"var":"value"},1]},{"<=":[{"var":"value"},168]}]},"depends_on":{"key":"backup.enable_backup","value":true}}`),
+			InputType:  "number",
+			Validation: `{"min":1,"max":168}`,
+			UIConfig:   datatypes.JSON(`{"hint":"每隔多少小时执行一次备份","depends_on":{"key":"backup.enable_backup","value":true}}`),
 		},
 		{
 			Key: "backup.retention_days", DefaultValue: datatypes.JSON(`30`), CategoryID: categoryIDs["backup"], Group: "schedule",
 			Scope: "system", ViewPermission: "admin:settings:read", EditPermission: "admin:settings:update",
 			ValueType: "number", Label: "备份保留天数", Order: 30,
-			UIConfig: datatypes.JSON(`{"input_type":"number","hint":"超过保留期的备份将被自动删除","validation":{"min":7,"max":365},"depends_on":{"key":"backup.enable_backup","value":true}}`),
+			InputType:  "number",
+			Validation: `{"min":7,"max":365}`,
+			UIConfig:   datatypes.JSON(`{"hint":"超过保留期的备份将被自动删除","depends_on":{"key":"backup.enable_backup","value":true}}`),
+		},
+
+		// ==================== Email 邮件服务配置（系统级，管理员专用）====================
+		// general 分组 - 邮件服务开关
+		{
+			Key: "email.enabled", DefaultValue: datatypes.JSON(`false`), CategoryID: categoryIDs["email"], Group: "general",
+			Scope: "system", ViewPermission: "admin:settings:read", EditPermission: "admin:settings:update",
+			ValueType: "boolean", Label: "启用邮件服务", Order: 1,
+			InputType: "switch",
+			UIConfig:  datatypes.JSON(`{"hint":"启用后系统可发送邮件通知、验证码等"}`),
+		},
+		// smtp 分组 - SMTP 服务器配置
+		{
+			Key: "email.smtp_host", DefaultValue: datatypes.JSON(`""`), CategoryID: categoryIDs["email"], Group: "smtp",
+			Scope: "system", ViewPermission: "admin:settings:read", EditPermission: "admin:settings:update",
+			ValueType: "string", Label: "SMTP 服务器", Order: 10,
+			InputType: "text",
+			UIConfig:  datatypes.JSON(`{"hint":"如 smtp.gmail.com 或 smtp.qq.com","depends_on":{"key":"email.enabled","value":true}}`),
+		},
+		{
+			Key: "email.smtp_port", DefaultValue: datatypes.JSON(`587`), CategoryID: categoryIDs["email"], Group: "smtp",
+			Scope: "system", ViewPermission: "admin:settings:read", EditPermission: "admin:settings:update",
+			ValueType: "number", Label: "SMTP 端口", Order: 20,
+			InputType:  "number",
+			Validation: `{"min":1,"max":65535}`,
+			UIConfig:   datatypes.JSON(`{"hint":"常用端口：25(无加密)、465(SSL)、587(TLS)","depends_on":{"key":"email.enabled","value":true}}`),
+		},
+		{
+			Key: "email.smtp_encryption", DefaultValue: datatypes.JSON(`"tls"`), CategoryID: categoryIDs["email"], Group: "smtp",
+			Scope: "system", ViewPermission: "admin:settings:read", EditPermission: "admin:settings:update",
+			ValueType: "string", Label: "加密方式", Order: 30,
+			InputType:  "select",
+			Validation: `{"enum":["none","ssl","tls"]}`,
+			UIConfig:   datatypes.JSON(`{"options":[{"value":"none","label":"无加密"},{"value":"ssl","label":"SSL/TLS"},{"value":"tls","label":"STARTTLS"}],"depends_on":{"key":"email.enabled","value":true}}`),
+		},
+		{
+			Key: "email.smtp_username", DefaultValue: datatypes.JSON(`""`), CategoryID: categoryIDs["email"], Group: "smtp",
+			Scope: "system", ViewPermission: "admin:settings:read", EditPermission: "admin:settings:update",
+			ValueType: "string", Label: "SMTP 用户名", Order: 40,
+			InputType: "text",
+			UIConfig:  datatypes.JSON(`{"hint":"通常为邮箱地址","depends_on":{"key":"email.enabled","value":true}}`),
+		},
+		{
+			Key: "email.smtp_password", DefaultValue: datatypes.JSON(`""`), CategoryID: categoryIDs["email"], Group: "smtp",
+			Scope: "system", ViewPermission: "admin:settings:read", EditPermission: "admin:settings:update",
+			ValueType: "string", Label: "SMTP 密码", Order: 50,
+			InputType: "password",
+			UIConfig:  datatypes.JSON(`{"hint":"部分服务商需使用应用专用密码","depends_on":{"key":"email.enabled","value":true}}`),
+		},
+		// sender 分组 - 发件人配置
+		{
+			Key: "email.from_address", DefaultValue: datatypes.JSON(`""`), CategoryID: categoryIDs["email"], Group: "sender",
+			Scope: "system", ViewPermission: "admin:settings:read", EditPermission: "admin:settings:update",
+			ValueType: "string", Label: "发件人地址", Order: 60,
+			InputType: "email",
+			UIConfig:  datatypes.JSON(`{"hint":"系统发送邮件时使用的邮箱地址","depends_on":{"key":"email.enabled","value":true}}`),
+		},
+		{
+			Key: "email.from_name", DefaultValue: datatypes.JSON(`""`), CategoryID: categoryIDs["email"], Group: "sender",
+			Scope: "system", ViewPermission: "admin:settings:read", EditPermission: "admin:settings:update",
+			ValueType: "string", Label: "发件人名称", Order: 70,
+			InputType: "text",
+			UIConfig:  datatypes.JSON(`{"hint":"显示在收件人邮箱中的发件人名称","depends_on":{"key":"email.enabled","value":true}}`),
+		},
+
+		// ==================== OAuth 第三方登录配置（系统级，管理员专用）====================
+		// github 分组 - GitHub OAuth
+		{
+			Key: "oauth.github_enabled", DefaultValue: datatypes.JSON(`false`), CategoryID: categoryIDs["oauth"], Group: "github",
+			Scope: "system", ViewPermission: "admin:settings:read", EditPermission: "admin:settings:update",
+			ValueType: "boolean", Label: "启用 GitHub 登录", Order: 10,
+			InputType: "switch",
+			UIConfig:  datatypes.JSON(`{"hint":"允许用户使用 GitHub 账号登录"}`),
+		},
+		{
+			Key: "oauth.github_client_id", DefaultValue: datatypes.JSON(`""`), CategoryID: categoryIDs["oauth"], Group: "github",
+			Scope: "system", ViewPermission: "admin:settings:read", EditPermission: "admin:settings:update",
+			ValueType: "string", Label: "GitHub Client ID", Order: 20,
+			InputType: "text",
+			UIConfig:  datatypes.JSON(`{"hint":"在 GitHub Developer Settings 中创建 OAuth App 获取","depends_on":{"key":"oauth.github_enabled","value":true}}`),
+		},
+		{
+			Key: "oauth.github_client_secret", DefaultValue: datatypes.JSON(`""`), CategoryID: categoryIDs["oauth"], Group: "github",
+			Scope: "system", ViewPermission: "admin:settings:read", EditPermission: "admin:settings:update",
+			ValueType: "string", Label: "GitHub Client Secret", Order: 30,
+			InputType: "password",
+			UIConfig:  datatypes.JSON(`{"hint":"请妥善保管，不要泄露","depends_on":{"key":"oauth.github_enabled","value":true}}`),
+		},
+		// google 分组 - Google OAuth
+		{
+			Key: "oauth.google_enabled", DefaultValue: datatypes.JSON(`false`), CategoryID: categoryIDs["oauth"], Group: "google",
+			Scope: "system", ViewPermission: "admin:settings:read", EditPermission: "admin:settings:update",
+			ValueType: "boolean", Label: "启用 Google 登录", Order: 40,
+			InputType: "switch",
+			UIConfig:  datatypes.JSON(`{"hint":"允许用户使用 Google 账号登录"}`),
+		},
+		{
+			Key: "oauth.google_client_id", DefaultValue: datatypes.JSON(`""`), CategoryID: categoryIDs["oauth"], Group: "google",
+			Scope: "system", ViewPermission: "admin:settings:read", EditPermission: "admin:settings:update",
+			ValueType: "string", Label: "Google Client ID", Order: 50,
+			InputType: "text",
+			UIConfig:  datatypes.JSON(`{"hint":"在 Google Cloud Console 中创建 OAuth 凭据获取","depends_on":{"key":"oauth.google_enabled","value":true}}`),
+		},
+		{
+			Key: "oauth.google_client_secret", DefaultValue: datatypes.JSON(`""`), CategoryID: categoryIDs["oauth"], Group: "google",
+			Scope: "system", ViewPermission: "admin:settings:read", EditPermission: "admin:settings:update",
+			ValueType: "string", Label: "Google Client Secret", Order: 60,
+			InputType: "password",
+			UIConfig:  datatypes.JSON(`{"hint":"请妥善保管，不要泄露","depends_on":{"key":"oauth.google_enabled","value":true}}`),
 		},
 	}
 }

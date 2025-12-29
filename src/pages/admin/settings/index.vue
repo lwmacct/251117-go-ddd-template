@@ -25,13 +25,10 @@ const {
   categories,
   schema,
   settingsMap,
-  errorMessage,
-  successMessage,
   fetchCategories,
   fetchSchemaByCategory,
   isCategoryLoaded,
   updateSettingQuietly,
-  clearMessages,
 } = useSettings();
 
 // 表单值（按 key 存储）
@@ -178,18 +175,6 @@ onMounted(async () => {
       </v-col>
     </v-row>
 
-    <!-- 消息提示 -->
-    <v-row v-if="errorMessage || successMessage">
-      <v-col cols="12">
-        <v-alert v-if="errorMessage" type="error" closable @click:close="clearMessages">
-          {{ errorMessage }}
-        </v-alert>
-        <v-alert v-if="successMessage" type="success" closable @click:close="clearMessages">
-          {{ successMessage }}
-        </v-alert>
-      </v-col>
-    </v-row>
-
     <!-- 加载状态 -->
     <v-progress-linear v-if="loading" indeterminate color="primary" class="mb-4" />
 
@@ -232,7 +217,7 @@ onMounted(async () => {
                       v-for="setting in group.settings"
                       :key="setting.key"
                       cols="12"
-                      :md="setting.ui_config?.input_type === 'switch' ? 12 : 6"
+                      :md="setting.input_type === 'switch' ? 12 : 6"
                     >
                       <DynamicSettingField
                         v-if="setting.key"

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 /**
  * 动态设置字段组件
- * 根据 setting.ui_config.input_type 动态渲染对应的 Vuetify 控件
+ * 根据 setting.input_type 动态渲染对应的 Vuetify 控件
  */
 import { computed } from "vue";
 import type { SettingSchemaSettingDTO } from "@models";
@@ -57,8 +57,8 @@ const selectItems = computed(() =>
   })),
 );
 
-// 控件类型
-const inputType = computed(() => uiConfig.value.input_type || "text");
+// 控件类型（从顶层字段获取，非 ui_config）
+const inputType = computed(() => props.setting.input_type || "text");
 
 // 值类型转换（用于双向绑定 + 即时变更）
 const numericValue = computed({

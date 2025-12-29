@@ -5847,6 +5847,10 @@ const docTemplate = `{
                     "description": "仅 Admin",
                     "type": "string"
                 },
+                "input_type": {
+                    "description": "控件类型",
+                    "type": "string"
+                },
                 "is_customized": {
                     "description": "是否用户自定义",
                     "type": "boolean"
@@ -5865,7 +5869,15 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "ui_config": {
-                    "$ref": "#/definitions/setting.UIConfigDTO"
+                    "description": "hint/options/depends_on",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/setting.UIConfigDTO"
+                        }
+                    ]
+                },
+                "validation": {
+                    "description": "JSON Logic 规则"
                 },
                 "value": {
                     "description": "实际生效值"
@@ -5912,6 +5924,10 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
+                "input_type": {
+                    "description": "控件类型",
+                    "type": "string"
+                },
                 "key": {
                     "type": "string"
                 },
@@ -5926,10 +5942,18 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "ui_config": {
-                    "$ref": "#/definitions/setting.UIConfigDTO"
+                    "description": "hint/options/depends_on",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/setting.UIConfigDTO"
+                        }
+                    ]
                 },
                 "updated_at": {
                     "type": "string"
+                },
+                "validation": {
+                    "description": "JSON Logic 规则"
                 },
                 "value_type": {
                     "type": "string"
@@ -5955,19 +5979,12 @@ const docTemplate = `{
                     "description": "输入提示",
                     "type": "string"
                 },
-                "input_type": {
-                    "description": "控件类型: text, number, switch, select...",
-                    "type": "string"
-                },
                 "options": {
                     "description": "下拉选项",
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/setting.SelectOptionDTO"
                     }
-                },
-                "validation": {
-                    "description": "JSON Logic 验证规则"
                 }
             }
         },
@@ -5981,6 +5998,10 @@ const docTemplate = `{
                     "description": "系统默认值"
                 },
                 "group": {
+                    "type": "string"
+                },
+                "input_type": {
+                    "description": "控件类型",
                     "type": "string"
                 },
                 "is_customized": {
@@ -5997,7 +6018,15 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "ui_config": {
-                    "$ref": "#/definitions/setting.UIConfigDTO"
+                    "description": "hint/options/depends_on",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/setting.UIConfigDTO"
+                        }
+                    ]
+                },
+                "validation": {
+                    "description": "JSON Logic 规则"
                 },
                 "value": {
                     "description": "实际生效值（用户值或默认值）"

@@ -157,7 +157,7 @@ export function useJsonLogicValidation(schema: Ref<SettingSchemaCategoryDTO[]>, 
    */
   const validate = (key: string): string | null => {
     const setting = findSettingInSchema(key);
-    const validation = setting?.ui_config?.validation;
+    const validation = setting?.validation;
     if (!setting || !validation) {
       errors.value.delete(key);
       return null;
@@ -207,7 +207,7 @@ export function useJsonLogicValidation(schema: Ref<SettingSchemaCategoryDTO[]>, 
     for (const cat of schema.value) {
       for (const group of cat.groups || []) {
         for (const setting of group.settings || []) {
-          if (setting.key && setting.ui_config?.validation) {
+          if (setting.key && setting.validation) {
             validate(setting.key);
           }
         }

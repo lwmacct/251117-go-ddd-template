@@ -30,13 +30,11 @@ type CreateCategoryResultDTO struct {
 
 // ==================== UI 配置 DTO ====================
 
-// UIConfigDTO UI 配置（从 JSONB 解析）
+// UIConfigDTO UI 配置（前端展示配置）
 type UIConfigDTO struct {
-	InputType  string              `json:"input_type"`           // 控件类型: text, number, switch, select...
-	Hint       string              `json:"hint,omitempty"`       // 输入提示
-	Options    []SelectOptionDTO   `json:"options,omitempty"`    // 下拉选项
-	Validation any                 `json:"validation,omitempty"` // JSON Logic 验证规则
-	DependsOn  *DependsOnConfigDTO `json:"depends_on,omitempty"` // 依赖关系
+	Hint      string              `json:"hint,omitempty"`       // 输入提示
+	Options   []SelectOptionDTO   `json:"options,omitempty"`    // 下拉选项
+	DependsOn *DependsOnConfigDTO `json:"depends_on,omitempty"` // 依赖关系
 }
 
 // SelectOptionDTO 下拉选项
@@ -64,10 +62,12 @@ type SettingDTO struct {
 	Group          string      `json:"group"`
 	ValueType      string      `json:"value_type"`
 	Label          string      `json:"label"`
-	UIConfig       UIConfigDTO `json:"ui_config"`
 	Order          int         `json:"order"`
-	ViewPermission string      `json:"view_permission"` // 查看权限
-	EditPermission string      `json:"edit_permission"` // 编辑权限
+	InputType      string      `json:"input_type"`           // 控件类型
+	Validation     any         `json:"validation,omitempty"` // JSON Logic 规则
+	UIConfig       UIConfigDTO `json:"ui_config"`            // hint/options/depends_on
+	ViewPermission string      `json:"view_permission"`      // 查看权限
+	EditPermission string      `json:"edit_permission"`      // 编辑权限
 	CreatedAt      time.Time   `json:"created_at"`
 	UpdatedAt      time.Time   `json:"updated_at"`
 }
@@ -89,8 +89,10 @@ type SchemaSettingDTO struct {
 	Scope          string      `json:"scope,omitempty"` // 仅 Admin: system | user
 	ValueType      string      `json:"value_type"`
 	Label          string      `json:"label"`
-	UIConfig       UIConfigDTO `json:"ui_config"`
 	Order          int         `json:"order"`
+	InputType      string      `json:"input_type"`                // 控件类型
+	Validation     any         `json:"validation,omitempty"`      // JSON Logic 规则
+	UIConfig       UIConfigDTO `json:"ui_config"`                 // hint/options/depends_on
 	ViewPermission string      `json:"view_permission,omitempty"` // 仅 Admin
 	EditPermission string      `json:"edit_permission,omitempty"` // 仅 Admin
 }
@@ -139,8 +141,10 @@ type UserSettingDTO struct {
 	Group        string      `json:"group"`
 	ValueType    string      `json:"value_type"`
 	Label        string      `json:"label"`
-	UIConfig     UIConfigDTO `json:"ui_config"`
 	Order        int         `json:"order"`
+	InputType    string      `json:"input_type"`           // 控件类型
+	Validation   any         `json:"validation,omitempty"` // JSON Logic 规则
+	UIConfig     UIConfigDTO `json:"ui_config"`            // hint/options/depends_on
 }
 
 // UserSettingGroupDTO 按分组聚合的用户配置列表

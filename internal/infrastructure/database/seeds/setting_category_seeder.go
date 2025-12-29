@@ -10,6 +10,9 @@ import (
 )
 
 // SettingCategorySeeder 配置分类种子数据
+//
+// Icon 字段使用 @mdi/font 图标库，格式为 "mdi-{icon-name}"
+// 图标参考：https://pictogrammers.com/library/mdi/
 type SettingCategorySeeder struct{}
 
 // Seed 执行配置分类种子数据填充
@@ -30,16 +33,28 @@ func (s *SettingCategorySeeder) Seed(ctx context.Context, db *gorm.DB) error {
 			Order: 2,
 		},
 		{
+			Key:   "email",
+			Label: "邮件服务",
+			Icon:  "mdi-email-outline",
+			Order: 3,
+		},
+		{
+			Key:   "oauth",
+			Label: "第三方登录",
+			Icon:  "mdi-account-key",
+			Order: 4,
+		},
+		{
 			Key:   "notification",
 			Label: "通知设置",
 			Icon:  "mdi-bell",
-			Order: 3,
+			Order: 5,
 		},
 		{
 			Key:   "backup",
 			Label: "备份设置",
 			Icon:  "mdi-backup-restore",
-			Order: 4,
+			Order: 6,
 		},
 	}
 

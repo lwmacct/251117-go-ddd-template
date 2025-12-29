@@ -5,13 +5,15 @@
  * 职责：
  * - 路由视图渲染
  * - 路由切换时记录访问历史
+ * - 全局消息提示（Snackbar）
  */
 import { onMounted } from "vue";
 import { useRouter } from "vue-router";
-import { useNavbarStore } from "@/stores";
+import { useNavbarStore, useSnackbarStore } from "@/stores";
 
 const router = useRouter();
 const navbarStore = useNavbarStore();
+const snackbarStore = useSnackbarStore();
 
 onMounted(() => {
   // 路由切换时记录访问历史
@@ -36,5 +38,7 @@ onMounted(() => {
     <LoadingBar />
     <!-- 路由视图 - 渲染匹配的路由组件 -->
     <router-view />
+    <!-- 全局消息提示队列 -->
+    <v-snackbar-queue v-model="snackbarStore.queue" location="bottom" timer />
   </v-app>
 </template>

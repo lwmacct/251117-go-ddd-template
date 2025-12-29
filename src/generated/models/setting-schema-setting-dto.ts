@@ -36,6 +36,12 @@ export interface SettingSchemaSettingDTO {
      */
     'edit_permission'?: string;
     /**
+     * 控件类型
+     * @type {string}
+     * @memberof SettingSchemaSettingDTO
+     */
+    'input_type'?: string;
+    /**
      * 是否用户自定义
      * @type {boolean}
      * @memberof SettingSchemaSettingDTO
@@ -66,11 +72,17 @@ export interface SettingSchemaSettingDTO {
      */
     'scope'?: string;
     /**
-     * 
+     * hint/options/depends_on
      * @type {SettingUIConfigDTO}
      * @memberof SettingSchemaSettingDTO
      */
     'ui_config'?: SettingUIConfigDTO;
+    /**
+     * JSON Logic 规则
+     * @type {object}
+     * @memberof SettingSchemaSettingDTO
+     */
+    'validation'?: object;
     /**
      * 实际生效值
      * @type {object}

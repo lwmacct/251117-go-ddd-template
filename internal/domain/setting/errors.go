@@ -15,6 +15,9 @@ var (
 	// ErrInvalidValueType 无效的值类型
 	ErrInvalidValueType = errors.New("invalid value type")
 
+	// ErrInvalidInputType 无效的控件类型
+	ErrInvalidInputType = errors.New("invalid input type")
+
 	// ErrInvalidValue 无效的配置值
 	ErrInvalidValue = errors.New("invalid setting value")
 

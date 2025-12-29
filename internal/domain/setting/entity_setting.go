@@ -25,7 +25,9 @@ import (
 //   - ViewPermission: 查看权限，如 "user:settings:read"
 //   - EditPermission: 编辑权限，如 "admin:settings:update"
 //
-// UIConfig 字段（JSONB）统一存储前端渲染所需的 UI 配置（透传给前端，Domain 层不解析）。
+// InputType 决定前端控件类型和后端自动校验规则（email/url/password 等）。
+// Validation 存储自定义 JSON Logic 规则，用于业务级增强校验。
+// UIConfig 存储前端展示配置：hint（提示）、options（下拉选项）、depends_on（依赖关系）。
 type Setting struct {
 	ID           uint   // 唯一标识
 	Key          string // 配置键，唯一约束
@@ -33,10 +35,14 @@ type Setting struct {
 	Scope        string // 作用域：system（全局唯一）| user（可覆盖）
 	CategoryID   uint   // 外键关联 SettingCategory.ID
 	Group        string // 分类内子分组：basic, locale, appearance 等
-	ValueType    string // 值类型：string, number, boolean, json（用于 UI 提示）
+	ValueType    string // 值类型：string, number, boolean, json（用于类型校验）
 	Label        string // 显示标签
-	UIConfig     string // UI 配置（JSONB 字符串，透传给前端）
 	Order        int    // 排序权重（小的在前）
+
+	// UI 配置
+	InputType  string // 控件类型：text, email, url, password, select 等（决定自动校验规则）
+	Validation string // 自定义校验规则（JSON Logic 格式）
+	UIConfig   string // 前端展示配置：hint、options、depends_on（JSONB 字符串）
 
 	// 权限控制（复用 RBAC）
 	ViewPermission string // 查看权限
@@ -56,9 +62,11 @@ type Setting struct {
 //   - Key 非空且格式有效
 //   - CategoryID 非零（由数据库外键保证引用完整性）
 //   - ValueType 有效
+//   - InputType 有效
 //   - Scope 有效
 //   - ViewPermission 和 EditPermission 非空
 //   - DefaultValue 与 ValueType 匹配
+//   - DefaultValue 通过 InputType 格式校验
 func (s *Setting) Validate() error {
 	if s.Key == "" {
 		return ErrInvalidValue
@@ -72,6 +80,9 @@ func (s *Setting) Validate() error {
 	if !s.IsValidValueType() {
 		return ErrInvalidValueType
 	}
+	if !s.IsValidInputType() {
+		return ErrInvalidInputType
+	}
 	if !s.IsValidScope() {
 		return ErrInvalidScope
 	}
@@ -79,6 +90,9 @@ func (s *Setting) Validate() error {
 		return ErrInvalidPermission
 	}
 	if err := s.ValidateValue(s.DefaultValue); err != nil {
+		return err
+	}
+	if err := s.ValidateByInputType(s.DefaultValue); err != nil {
 		return err
 	}
 	return nil
@@ -227,26 +241,23 @@ func (s *Setting) BelongsToCategoryID(categoryID uint) bool {
 	return s.CategoryID == categoryID
 }
 
-// HasValidationRule 报告是否配置了验证规则。
+// HasValidationRule 报告是否配置了自定义验证规则。
 //
-// 检查 UIConfig 中是否包含 validation 字段。
+// 检查 Validation 字段是否非空。
 func (s *Setting) HasValidationRule() bool {
-	if s.UIConfig == "" {
-		return false
-	}
-	return strings.Contains(s.UIConfig, `"validation"`)
+	return s.Validation != ""
 }
 
 // IsRequired 报告是否为必填配置。
 //
-// 通过检查 UIConfig 中的 validation.required 字段判断。
+// 通过检查 Validation 中的 required 字段判断。
 func (s *Setting) IsRequired() bool {
-	if s.UIConfig == "" {
+	if s.Validation == "" {
 		return false
 	}
 	// 简单检查是否包含 required: true
-	return strings.Contains(s.UIConfig, `"required":true`) ||
-		strings.Contains(s.UIConfig, `"required": true`)
+	return strings.Contains(s.Validation, `"required":true`) ||
+		strings.Contains(s.Validation, `"required": true`)
 }
 
 // GetKeyCategory 从 Key 提取 category 部分。

@@ -39,22 +39,10 @@ export interface SettingUIConfigDTO {
      */
     'hint'?: string;
     /**
-     * 控件类型: text, number, switch, select...
-     * @type {string}
-     * @memberof SettingUIConfigDTO
-     */
-    'input_type'?: string;
-    /**
      * 下拉选项
      * @type {Array<SettingSelectOptionDTO>}
      * @memberof SettingUIConfigDTO
      */
     'options'?: Array<SettingSelectOptionDTO>;
-    /**
-     * JSON Logic 验证规则
-     * @type {object}
-     * @memberof SettingUIConfigDTO
-     */
-    'validation'?: object;
 }
 

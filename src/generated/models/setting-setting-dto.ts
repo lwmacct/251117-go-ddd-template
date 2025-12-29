@@ -60,6 +60,12 @@ export interface SettingSettingDTO {
      */
     'id'?: number;
     /**
+     * 控件类型
+     * @type {string}
+     * @memberof SettingSettingDTO
+     */
+    'input_type'?: string;
+    /**
      * 
      * @type {string}
      * @memberof SettingSettingDTO
@@ -84,7 +90,7 @@ export interface SettingSettingDTO {
      */
     'scope'?: string;
     /**
-     * 
+     * hint/options/depends_on
      * @type {SettingUIConfigDTO}
      * @memberof SettingSettingDTO
      */
@@ -95,6 +101,12 @@ export interface SettingSettingDTO {
      * @memberof SettingSettingDTO
      */
     'updated_at'?: string;
+    /**
+     * JSON Logic 规则
+     * @type {object}
+     * @memberof SettingSettingDTO
+     */
+    'validation'?: object;
     /**
      * 
      * @type {string}

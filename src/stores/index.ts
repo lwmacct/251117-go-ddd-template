@@ -4,3 +4,4 @@
 export * from "./auth";
 export * from "./counter";
 export * from "./navbar";
+export * from "./snackbar";

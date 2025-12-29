@@ -42,6 +42,12 @@ export interface SettingUserSettingDTO {
      */
     'group'?: string;
     /**
+     * 控件类型
+     * @type {string}
+     * @memberof SettingUserSettingDTO
+     */
+    'input_type'?: string;
+    /**
      * 是否为用户自定义
      * @type {boolean}
      * @memberof SettingUserSettingDTO
@@ -66,11 +72,17 @@ export interface SettingUserSettingDTO {
      */
     'order'?: number;
     /**
-     * 
+     * hint/options/depends_on
      * @type {SettingUIConfigDTO}
      * @memberof SettingUserSettingDTO
      */
     'ui_config'?: SettingUIConfigDTO;
+    /**
+     * JSON Logic 规则
+     * @type {object}
+     * @memberof SettingUserSettingDTO
+     */
+    'validation'?: object;
     /**
      * 实际生效值（用户值或默认值）
      * @type {object}

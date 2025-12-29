@@ -118,8 +118,15 @@ func (v *JSONLogicValidator) executeJSONLogic(rule any, data map[string]any) (bo
 }
 
 // isSimpleRule 检测是否为简单规则格式。
+//
+// 简单规则使用声明式 key，自动转换为 JSON Logic：
+//   - min/max: 数值范围，转换为 >=/<= 操作符
+//   - min_length/max_length: 字符串长度，使用 strlen 操作符
+//   - required: 必填，使用 !! 操作符
+//   - enum: 枚举，使用 in 操作符
+//   - message: 自定义错误消息
 func isSimpleRule(rule map[string]any) bool {
-	simpleKeys := []string{"min", "max", "minLength", "maxLength", "required", "pattern", "message"}
+	simpleKeys := []string{"min", "max", "min_length", "max_length", "required", "enum", "message"}
 	for key := range rule {
 		found := slices.Contains(simpleKeys, key)
 		if !found {
@@ -130,6 +137,14 @@ func isSimpleRule(rule map[string]any) bool {
 }
 
 // convertSimpleRule 将简单规则转换为 JSON Logic 格式。
+//
+// 转换映射：
+//   - required: true        → {"!!": {"var": "value"}}
+//   - min: N                → {">=": [{"var": "value"}, N]}
+//   - max: N                → {"<=": [{"var": "value"}, N]}
+//   - min_length: N         → {">=": [{"strlen": {"var": "value"}}, N]}
+//   - max_length: N         → {"<=": [{"strlen": {"var": "value"}}, N]}
+//   - enum: ["a", "b", "c"] → {"in": [{"var": "value"}, ["a", "b", "c"]]}
 func convertSimpleRule(rule map[string]any) any {
 	var conditions []any
 
@@ -154,8 +169,8 @@ func convertSimpleRule(rule map[string]any) any {
 		})
 	}
 
-	// minLength
-	if minLen, ok := rule["minLength"]; ok {
+	// min_length
+	if minLen, ok := rule["min_length"]; ok {
 		conditions = append(conditions, map[string]any{
 			">=": []any{
 				map[string]any{"strlen": map[string]any{"var": "value"}},
@@ -164,13 +179,20 @@ func convertSimpleRule(rule map[string]any) any {
 		})
 	}
 
-	// maxLength
-	if maxLen, ok := rule["maxLength"]; ok {
+	// max_length
+	if maxLen, ok := rule["max_length"]; ok {
 		conditions = append(conditions, map[string]any{
 			"<=": []any{
 				map[string]any{"strlen": map[string]any{"var": "value"}},
 				maxLen,
 			},
+		})
+	}
+
+	// enum - 使用 JSON Logic 原生 in 操作符
+	if enumVals, ok := rule["enum"].([]any); ok && len(enumVals) > 0 {
+		conditions = append(conditions, map[string]any{
+			"in": []any{map[string]any{"var": "value"}, enumVals},
 		})
 	}
 
@@ -207,20 +229,23 @@ func buildDefaultMessage(key string, rule map[string]any) string {
 
 	var parts []string
 
+	if req, ok := rule["required"].(bool); ok && req {
+		parts = append(parts, "不能为空")
+	}
 	if minVal, ok := rule["min"]; ok {
 		parts = append(parts, fmt.Sprintf("最小值为 %v", minVal))
 	}
 	if maxVal, ok := rule["max"]; ok {
 		parts = append(parts, fmt.Sprintf("最大值为 %v", maxVal))
 	}
-	if minLen, ok := rule["minLength"]; ok {
+	if minLen, ok := rule["min_length"]; ok {
 		parts = append(parts, fmt.Sprintf("最小长度为 %v", minLen))
 	}
-	if maxLen, ok := rule["maxLength"]; ok {
+	if maxLen, ok := rule["max_length"]; ok {
 		parts = append(parts, fmt.Sprintf("最大长度为 %v", maxLen))
 	}
-	if req, ok := rule["required"].(bool); ok && req {
-		parts = append(parts, "不能为空")
+	if enumVals, ok := rule["enum"].([]any); ok && len(enumVals) > 0 {
+		parts = append(parts, fmt.Sprintf("必须是 %v 之一", enumVals))
 	}
 
 	if len(parts) == 0 {

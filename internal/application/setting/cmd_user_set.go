@@ -39,12 +39,22 @@ func (h *UserSetHandler) Handle(ctx context.Context, cmd UserSetCommand) (*UserS
 		return nil, errors.New("setting key does not exist")
 	}
 
-	// 2. 执行验证（如果有验证器和验证规则）
-	if err := h.validateValue(ctx, def, cmd.Value); err != nil {
+	// 2. 基于 ValueType 的类型校验
+	if err := def.ValidateValue(cmd.Value); err != nil {
+		return nil, fmt.Errorf("value validation failed: %w", err)
+	}
+
+	// 3. 基于 InputType 的格式校验（email/url/password 等）
+	if err := def.ValidateByInputType(cmd.Value); err != nil {
 		return nil, err
 	}
 
-	// 3. Upsert 用户配置
+	// 4. 自定义 Validation 规则校验（JSON Logic）
+	if err := h.validateWithRule(ctx, def, cmd.Value); err != nil {
+		return nil, err
+	}
+
+	// 5. Upsert 用户配置
 	us := &setting.UserSetting{
 		UserID:     cmd.UserID,
 		SettingKey: cmd.Key,
@@ -57,14 +67,9 @@ func (h *UserSetHandler) Handle(ctx context.Context, cmd UserSetCommand) (*UserS
 	return ToUserSettingDTO(def, us), nil
 }
 
-// validateValue 验证配置值
-func (h *UserSetHandler) validateValue(ctx context.Context, def *setting.Setting, value any) error {
-	if h.validator == nil {
-		return nil
-	}
-
-	rule := extractValidationRule(def.UIConfig)
-	if rule == "" {
+// validateWithRule 使用自定义规则验证配置值
+func (h *UserSetHandler) validateWithRule(ctx context.Context, def *setting.Setting, value any) error {
+	if h.validator == nil || def.Validation == "" {
 		return nil
 	}
 
@@ -74,7 +79,7 @@ func (h *UserSetHandler) validateValue(ctx context.Context, def *setting.Setting
 	vctx := &setting.ValidationContext{
 		Key:         def.Key,
 		Value:       value,
-		Rule:        rule,
+		Rule:        def.Validation, // 直接使用实体字段
 		AllSettings: allSettings,
 	}
 

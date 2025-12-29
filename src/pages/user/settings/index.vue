@@ -24,25 +24,12 @@ const {
   categories,
   schema,
   settingsMap,
-  errorMessage,
   fetchCategories,
   fetchSchemaByCategory,
   isCategoryLoaded,
   updateSettingQuietly,
   resetSetting,
-  clearMessages,
 } = useUserSettings();
-
-// Snackbar 状态
-const snackbar = ref({
-  show: false,
-  message: "",
-  color: "success",
-});
-
-const showSnackbar = (message: string, color = "success") => {
-  snackbar.value = { show: true, message, color };
-};
 
 // 表单值（按 key 存储）
 const formValues = ref<Record<string, unknown>>({});
@@ -138,7 +125,7 @@ watch(schema, () => {
  */
 const validateField = (key: string, value: unknown): boolean => {
   const setting = settingsMap.value.get(key);
-  const validation = setting?.ui_config?.validation;
+  const validation = setting?.validation;
   if (!validation) return true;
 
   try {
@@ -254,8 +241,6 @@ const handleReset = async (key: string) => {
     }
     // 清除验证错误
     delete validationErrors.value[key];
-    // 显示临时提示
-    showSnackbar("已恢复默认值");
   }
   resettingKey.value = null;
 };
@@ -282,15 +267,6 @@ onMounted(async () => {
           <v-icon size="x-small" color="info" class="mx-1">mdi-restore</v-icon>
           按钮恢复默认值。
         </p>
-      </v-col>
-    </v-row>
-
-    <!-- 错误提示 -->
-    <v-row v-if="errorMessage">
-      <v-col cols="12">
-        <v-alert type="error" closable @click:close="clearMessages">
-          {{ errorMessage }}
-        </v-alert>
       </v-col>
     </v-row>
 
@@ -336,7 +312,7 @@ onMounted(async () => {
                       v-for="setting in group.settings"
                       :key="setting.key"
                       cols="12"
-                      :md="setting.ui_config?.input_type === 'switch' ? 12 : 6"
+                      :md="setting.input_type === 'switch' ? 12 : 6"
                     >
                       <UserSettingField
                         v-if="setting.key"
@@ -370,11 +346,6 @@ onMounted(async () => {
         </v-card>
       </v-col>
     </v-row>
-
-    <!-- 临时提示 -->
-    <v-snackbar v-model="snackbar.show" :color="snackbar.color" :timeout="3000" location="bottom">
-      {{ snackbar.message }}
-    </v-snackbar>
   </div>
 </template>
 

@@ -26,9 +26,13 @@ type SettingModel struct {
 	Group      string `gorm:"size:50;default:'';index:idx_settings_category_sort,priority:2"`
 	Order      int    `gorm:"default:0;index:idx_settings_category_sort,priority:3"`
 
-	ValueType string         `gorm:"size:20;default:'string'"`
-	Label     string         `gorm:"size:200"`
-	UIConfig  datatypes.JSON `gorm:"type:jsonb;default:'{}'"`
+	ValueType string `gorm:"size:20;default:'string'"`
+	Label     string `gorm:"size:200"`
+
+	// UI 配置
+	InputType  string         `gorm:"column:input_type;size:32;not null;default:'text'"` // 控件类型
+	Validation string         `gorm:"column:validation;type:text"`                       // JSON Logic 规则
+	UIConfig   datatypes.JSON `gorm:"type:jsonb;default:'{}'"`                           // hint/options/depends_on
 
 	// 权限控制
 	ViewPermission string `gorm:"size:100;not null;default:'*:settings:read'"`
@@ -60,8 +64,10 @@ func newSettingModelFromEntity(entity *setting.Setting) *SettingModel {
 		Group:          entity.Group,
 		ValueType:      entity.ValueType,
 		Label:          entity.Label,
-		UIConfig:       datatypes.JSON(entity.UIConfig),
 		Order:          entity.Order,
+		InputType:      entity.InputType,
+		Validation:     entity.Validation,
+		UIConfig:       datatypes.JSON(entity.UIConfig),
 		ViewPermission: entity.ViewPermission,
 		EditPermission: entity.EditPermission,
 		CreatedAt:      entity.CreatedAt,
@@ -88,8 +94,10 @@ func (m *SettingModel) ToEntity() *setting.Setting {
 		Group:          m.Group,
 		ValueType:      m.ValueType,
 		Label:          m.Label,
-		UIConfig:       string(m.UIConfig),
 		Order:          m.Order,
+		InputType:      m.InputType,
+		Validation:     m.Validation,
+		UIConfig:       string(m.UIConfig),
 		ViewPermission: m.ViewPermission,
 		EditPermission: m.EditPermission,
 		CreatedAt:      m.CreatedAt,

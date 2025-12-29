@@ -5,4 +5,5 @@ export * from "./useLazyLoader";
 export * from "./useLazyCategorySchema";
 export * from "./useResponsiveTabs";
 export * from "./useServerPagination";
+export * from "./useSnackbar";
 export * from "./useThemeToggle";

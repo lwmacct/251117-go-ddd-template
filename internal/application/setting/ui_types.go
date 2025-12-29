@@ -30,19 +30,5 @@ type DependsOnConfig struct {
 	Operator string `json:"operator,omitempty"` // 比较操作符: eq, ne, gt, lt（默认 eq）
 }
 
-// 控件类型常量。
-// 用于前端动态渲染对应的输入控件。
-const (
-	InputTypeText     = "text"     // 单行文本框
-	InputTypeTextarea = "textarea" // 多行文本框
-	InputTypeNumber   = "number"   // 数字输入框
-	InputTypeSwitch   = "switch"   // 开关
-	InputTypeSelect   = "select"   // 下拉选择
-	InputTypeRadio    = "radio"    // 单选按钮组
-	InputTypeCheckbox = "checkbox" // 多选复选框
-	InputTypePassword = "password" // 密码输入框
-	InputTypeEmail    = "email"    // 邮箱输入框
-	InputTypeURL      = "url"      // URL 输入框
-	InputTypeJSON     = "json"     // JSON 编辑器
-	InputTypeColor    = "color"    // 颜色选择器（预留）
-)
+// InputType 常量已移至 domain/setting/input_types.go
+// 使用 setting.InputTypeText, setting.InputTypeEmail 等

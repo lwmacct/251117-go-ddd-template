@@ -31,6 +31,8 @@ type settingCacheDTO struct {
 	Group          string `json:"group"`
 	ValueType      string `json:"value_type"`
 	Label          string `json:"label"`
+	InputType      string `json:"input_type"`
+	Validation     string `json:"validation"`
 	UIConfig       string `json:"ui_config"`
 	Order          int    `json:"order"`
 	ViewPermission string `json:"view_permission"`
@@ -48,6 +50,8 @@ func toSettingCacheDTO(s *setting.Setting) settingCacheDTO {
 		Group:          s.Group,
 		ValueType:      s.ValueType,
 		Label:          s.Label,
+		InputType:      s.InputType,
+		Validation:     s.Validation,
 		UIConfig:       s.UIConfig,
 		Order:          s.Order,
 		ViewPermission: s.ViewPermission,
@@ -66,6 +70,8 @@ func (d settingCacheDTO) toEntity() *setting.Setting {
 		Group:          d.Group,
 		ValueType:      d.ValueType,
 		Label:          d.Label,
+		InputType:      d.InputType,
+		Validation:     d.Validation,
 		UIConfig:       d.UIConfig,
 		Order:          d.Order,
 		ViewPermission: d.ViewPermission,

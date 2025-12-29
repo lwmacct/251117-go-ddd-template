@@ -2,7 +2,6 @@ package setting
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"log/slog"
@@ -44,16 +43,25 @@ func (h *UpdateHandler) Handle(ctx context.Context, cmd UpdateCommand) (*Setting
 		return nil, errors.New("setting not found")
 	}
 
-	// 2. 执行验证（如果有验证器和验证规则）
-	validationRule := extractValidationFromUIConfig(def.UIConfig)
-	if h.validator != nil && validationRule != "" {
+	// 2. 基于 ValueType 的类型校验
+	if err := def.ValidateValue(cmd.DefaultValue); err != nil {
+		return nil, fmt.Errorf("value validation failed: %w", err)
+	}
+
+	// 3. 基于 InputType 的格式校验（email/url/password 等）
+	if err := def.ValidateByInputType(cmd.DefaultValue); err != nil {
+		return nil, err
+	}
+
+	// 4. 自定义 Validation 规则校验（JSON Logic）
+	if h.validator != nil && def.Validation != "" {
 		// 获取所有设置用于跨字段验证
 		allSettings, _ := h.getAllSettingsMap(ctx)
 
 		vctx := &setting.ValidationContext{
 			Key:         cmd.Key,
 			Value:       cmd.DefaultValue, // 直接使用 any 类型，无需转换
-			Rule:        validationRule,
+			Rule:        def.Validation,   // 直接使用实体字段
 			AllSettings: allSettings,
 		}
 
@@ -66,7 +74,7 @@ func (h *UpdateHandler) Handle(ctx context.Context, cmd UpdateCommand) (*Setting
 		}
 	}
 
-	// 3. 更新字段
+	// 5. 更新字段
 	def.DefaultValue = cmd.DefaultValue
 	if cmd.Label != "" {
 		def.Label = cmd.Label
@@ -78,12 +86,12 @@ func (h *UpdateHandler) Handle(ctx context.Context, cmd UpdateCommand) (*Setting
 		def.Order = cmd.Order
 	}
 
-	// 4. 保存更新
+	// 6. 保存更新
 	if err := h.commandRepo.Update(ctx, def); err != nil {
 		return nil, fmt.Errorf("failed to update setting: %w", err)
 	}
 
-	// 5. 失效 Schema 缓存
+	// 7. 失效 Schema 缓存
 	if h.schemaCache != nil {
 		if err := h.schemaCache.DeleteAdminSchemaAll(ctx); err != nil {
 			slog.Warn("admin schema cache invalidation failed", "key", cmd.Key, "err", err)
@@ -105,29 +113,4 @@ func (h *UpdateHandler) getAllSettingsMap(ctx context.Context) (map[string]any, 
 		result[d.Key] = d.DefaultValue // 直接使用 any 类型
 	}
 	return result, nil
-}
-
-// extractValidationFromUIConfig 从 UIConfig JSON 中提取验证规则
-func extractValidationFromUIConfig(uiConfig string) string {
-	if uiConfig == "" || uiConfig == "{}" {
-		return ""
-	}
-
-	var raw struct {
-		Validation any `json:"validation"`
-	}
-	if err := json.Unmarshal([]byte(uiConfig), &raw); err != nil {
-		return ""
-	}
-
-	if raw.Validation == nil {
-		return ""
-	}
-
-	// 将验证规则转回 JSON 字符串
-	data, err := json.Marshal(raw.Validation)
-	if err != nil {
-		return ""
-	}
-	return string(data)
 }
