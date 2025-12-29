@@ -1,10 +1,15 @@
 package auth
 
-import "context"
+import (
+	"context"
+
+	"github.com/lwmacct/251117-go-ddd-template/internal/domain/role"
+)
 
 // PermissionCacheService 权限缓存服务接口。
 //
 // 提供用户权限的缓存操作，用于高并发场景下的权限检查优化。
+// 新 RBAC 模型：权限为 Operation + Resource Pattern 组合。
 //
 // Key 命名规范：{prefix}user:perms:{userID}
 // 默认 TTL：5 分钟
@@ -16,14 +21,15 @@ import "context"
 //
 // 实现位于 infrastructure/cache 包。
 type PermissionCacheService interface {
-	// GetUserPermissions 获取用户权限（角色名 + 权限码）。
+	// GetUserPermissions 获取用户权限（角色名 + 权限对象）。
+	// permissions 为 role.Permission 切片，支持 OperationPattern/ResourcePattern 匹配。
 	// 缓存未命中返回三个 nil（不返回错误）。
 	// 缓存数据损坏时自动清除并返回三个 nil。
-	GetUserPermissions(ctx context.Context, userID uint) (roles []string, permissions []string, err error)
+	GetUserPermissions(ctx context.Context, userID uint) (roles []string, permissions []role.Permission, err error)
 
 	// SetUserPermissions 设置用户权限缓存。
 	// 使用默认 TTL（5 分钟）。
-	SetUserPermissions(ctx context.Context, userID uint, roles, permissions []string) error
+	SetUserPermissions(ctx context.Context, userID uint, roles []string, permissions []role.Permission) error
 
 	// InvalidateUser 失效单个用户缓存。
 	// 用于用户角色变更、用户状态变更等场景。

@@ -181,7 +181,7 @@ func registerRoutes(r *gin.Engine, deps *RouterDependencies) {
 }
 
 // buildMiddlewares 根据 Operation 自动构建中间件链
-// 中间件顺序：RequestID → OperationID → Auth → Role → Permission → Audit
+// 中间件顺序：RequestID → OperationID → Auth → Permission → Audit
 func buildMiddlewares(deps *RouterDependencies, o op.Operation) []gin.HandlerFunc {
 	var mws []gin.HandlerFunc
 
@@ -191,22 +191,14 @@ func buildMiddlewares(deps *RouterDependencies, o op.Operation) []gin.HandlerFun
 	// 2. Operation ID（所有请求）
 	mws = append(mws, middleware.SetOperationID(o.String()))
 
-	// 3. Auth（非公开操作需要认证）
+	// 3. Auth + Permission（非公开操作需要认证和权限检查）
 	if !o.IsPublic() {
 		mws = append(mws, middleware.Auth(deps.JWTManager, deps.PATService, deps.PermissionCacheService))
+		// 新 RBAC 模型：使用 Operation 本身作为权限标识符
+		mws = append(mws, middleware.RequireOperation(o))
 	}
 
-	// 4. Role（需要角色验证）
-	if o.NeedsRole() {
-		mws = append(mws, middleware.RequireRole(o.Role()))
-	}
-
-	// 5. Permission（需要权限验证）
-	if o.Permission() != "" {
-		mws = append(mws, middleware.RequirePermission(o.Permission()))
-	}
-
-	// 6. Audit（需要审计的操作）
+	// 4. Audit（需要审计的操作）
 	if o.NeedsAudit() {
 		mws = append(mws, middleware.AuditMiddleware(deps.CreateLogHandler))
 	}

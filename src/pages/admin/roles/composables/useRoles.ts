@@ -3,7 +3,7 @@
  */
 import { ref, watch } from "vue";
 import { adminRoleApi, extractList, extractData } from "@/api";
-import type { RoleRoleDTO, RolePermissionDTO, RoleCreateDTO, RoleUpdateDTO, RoleSetPermissionsDTO } from "@models";
+import type { RoleRoleDTO, RoleCreateDTO, RoleUpdateDTO, RolePermissionInputDTO } from "@models";
 import { exportToCSV, type CSVColumn } from "@/utils/export";
 import { refDebounced } from "@vueuse/core";
 import { useServerPagination } from "@/composables";
@@ -33,7 +33,7 @@ export function useRoles() {
 
     try {
       const { limit, page } = getParams();
-      const response = await adminRoleApi.apiAdminRolesGet(limit, page);
+      const response = await adminRoleApi.apiSystemRolesGet(limit, page);
       const result = extractList<RoleRoleDTO>(response.data);
       roles.value = result.data;
       updateTotal(result.pagination.total, result.pagination.total_pages);
@@ -47,7 +47,7 @@ export function useRoles() {
 
   const fetchRole = async (id: number): Promise<RoleRoleDTO | null> => {
     try {
-      const response = await adminRoleApi.apiAdminRolesIdGet(id);
+      const response = await adminRoleApi.apiSystemRolesIdGet(id);
       return extractData<RoleRoleDTO>(response.data) ?? null;
     } catch (error) {
       errorMessage.value = (error as Error).message || "获取角色详情失败";
@@ -61,7 +61,7 @@ export function useRoles() {
     successMessage.value = "";
 
     try {
-      await adminRoleApi.apiAdminRolesPost(data);
+      await adminRoleApi.apiSystemRolesPost(data);
       successMessage.value = "角色创建成功";
       await fetchRoles();
       return true;
@@ -79,7 +79,7 @@ export function useRoles() {
     successMessage.value = "";
 
     try {
-      await adminRoleApi.apiAdminRolesIdPut(id, data);
+      await adminRoleApi.apiSystemRolesIdPut(id, data);
       successMessage.value = "角色更新成功";
       await fetchRoles();
       return true;
@@ -97,7 +97,7 @@ export function useRoles() {
     successMessage.value = "";
 
     try {
-      await adminRoleApi.apiAdminRolesIdDelete(id);
+      await adminRoleApi.apiSystemRolesIdDelete(id);
       successMessage.value = "角色删除成功";
       await fetchRoles();
       return true;
@@ -109,14 +109,13 @@ export function useRoles() {
     }
   };
 
-  const setPermissions = async (id: number, permissionIds: number[]): Promise<boolean> => {
+  const setPermissions = async (id: number, permissions: RolePermissionInputDTO[]): Promise<boolean> => {
     loading.value = true;
     errorMessage.value = "";
     successMessage.value = "";
 
     try {
-      const data: RoleSetPermissionsDTO = { permission_ids: permissionIds };
-      await adminRoleApi.apiAdminRolesIdPermissionsPut(id, data);
+      await adminRoleApi.apiSystemRolesIdPermissionsPut(id, { permissions });
       successMessage.value = "权限设置成功";
       await fetchRoles();
       return true;
@@ -126,14 +125,6 @@ export function useRoles() {
     } finally {
       loading.value = false;
     }
-  };
-
-  /**
-   * 获取权限列表
-   */
-  const listPermissions = async (params?: { page?: number; limit?: number }) => {
-    const response = await adminRoleApi.apiAdminPermissionsGet(params?.limit, params?.page);
-    return extractList<RolePermissionDTO>(response.data);
   };
 
   // 监听防抖搜索值变化，自动触发搜索
@@ -162,7 +153,7 @@ export function useRoles() {
 
     try {
       // 获取所有角色（最多 1000 条）
-      const response = await adminRoleApi.apiAdminRolesGet(1000, 1);
+      const response = await adminRoleApi.apiSystemRolesGet(1000, 1);
       const result = extractList<RoleRoleDTO>(response.data);
 
       if (result.data.length === 0) {
@@ -183,7 +174,7 @@ export function useRoles() {
         },
         {
           header: "权限列表",
-          key: (item) => item.permissions?.map((p) => p.code).join(", ") || "-",
+          key: (item) => item.permissions?.map((p) => p.operation_pattern).join(", ") || "-",
         },
         {
           header: "创建时间",
@@ -229,7 +220,6 @@ export function useRoles() {
     updateRole,
     deleteRole,
     setPermissions,
-    listPermissions,
     onTableOptionsUpdate,
     clearMessages,
     exportRoles,

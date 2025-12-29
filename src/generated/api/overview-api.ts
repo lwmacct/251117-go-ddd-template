@@ -37,8 +37,8 @@ export const OverviewApiAxiosParamCreator = function (configuration?: Configurat
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiAdminOverviewStatsGet: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            const localVarPath = `/api/admin/overview/stats`;
+        apiSystemOverviewStatsGet: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/system/overview/stats`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -80,10 +80,10 @@ export const OverviewApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async apiAdminOverviewStatsGet(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseStatsStatsDTO>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.apiAdminOverviewStatsGet(options);
+        async apiSystemOverviewStatsGet(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseStatsStatsDTO>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.apiSystemOverviewStatsGet(options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['OverviewApi.apiAdminOverviewStatsGet']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['OverviewApi.apiSystemOverviewStatsGet']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
     }
@@ -102,8 +102,8 @@ export const OverviewApiFactory = function (configuration?: Configuration, baseP
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiAdminOverviewStatsGet(options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseStatsStatsDTO> {
-            return localVarFp.apiAdminOverviewStatsGet(options).then((request) => request(axios, basePath));
+        apiSystemOverviewStatsGet(options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseStatsStatsDTO> {
+            return localVarFp.apiSystemOverviewStatsGet(options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -122,8 +122,8 @@ export class OverviewApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof OverviewApi
      */
-    public apiAdminOverviewStatsGet(options?: RawAxiosRequestConfig) {
-        return OverviewApiFp(this.configuration).apiAdminOverviewStatsGet(options).then((request) => request(this.axios, this.basePath));
+    public apiSystemOverviewStatsGet(options?: RawAxiosRequestConfig) {
+        return OverviewApiFp(this.configuration).apiSystemOverviewStatsGet(options).then((request) => request(this.axios, this.basePath));
     }
 }
 

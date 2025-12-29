@@ -10,14 +10,22 @@ import (
 	"github.com/redis/go-redis/v9"
 
 	appauth "github.com/lwmacct/251117-go-ddd-template/internal/application/auth"
+	"github.com/lwmacct/251117-go-ddd-template/internal/domain/role"
 )
 
 const permissionCacheTTL = 5 * time.Minute
 
 // userPermissions 用户权限缓存数据结构。
+// 新 RBAC 模型：permissions 为 Permission 对象数组。
 type userPermissions struct {
-	Roles       []string `json:"roles"`
-	Permissions []string `json:"permissions"`
+	Roles       []string              `json:"roles"`
+	Permissions []permissionCacheItem `json:"permissions"`
+}
+
+// permissionCacheItem 权限缓存条目。
+type permissionCacheItem struct {
+	OperationPattern string `json:"operation_pattern"`
+	ResourcePattern  string `json:"resource_pattern"`
 }
 
 // permissionCacheService 权限缓存服务的 Redis 实现。
@@ -41,7 +49,7 @@ func NewPermissionCacheService(client *redis.Client, keyPrefix string) appauth.P
 
 // GetUserPermissions 获取用户权限（使用 RedisJSON）。
 // 缓存未命中返回三个 nil。
-func (s *permissionCacheService) GetUserPermissions(ctx context.Context, userID uint) ([]string, []string, error) {
+func (s *permissionCacheService) GetUserPermissions(ctx context.Context, userID uint) ([]string, []role.Permission, error) {
 	data, err := s.client.JSONGet(ctx, s.buildKey(userID), "$").Result()
 	if err != nil {
 		if errors.Is(err, redis.Nil) {
@@ -62,12 +70,30 @@ func (s *permissionCacheService) GetUserPermissions(ctx context.Context, userID 
 		return nil, nil, nil // empty wrapper
 	}
 
-	return wrapper[0].Roles, wrapper[0].Permissions, nil
+	// 转换为 domain Permission
+	permissions := make([]role.Permission, len(wrapper[0].Permissions))
+	for i, p := range wrapper[0].Permissions {
+		permissions[i] = role.Permission{
+			OperationPattern: p.OperationPattern,
+			ResourcePattern:  p.ResourcePattern,
+		}
+	}
+
+	return wrapper[0].Roles, permissions, nil
 }
 
 // SetUserPermissions 设置用户权限缓存（使用 RedisJSON）。
-func (s *permissionCacheService) SetUserPermissions(ctx context.Context, userID uint, roles, permissions []string) error {
-	perms := userPermissions{Roles: roles, Permissions: permissions}
+func (s *permissionCacheService) SetUserPermissions(ctx context.Context, userID uint, roles []string, permissions []role.Permission) error {
+	// 转换为缓存格式
+	cacheItems := make([]permissionCacheItem, len(permissions))
+	for i, p := range permissions {
+		cacheItems[i] = permissionCacheItem{
+			OperationPattern: p.OperationPattern,
+			ResourcePattern:  p.ResourcePattern,
+		}
+	}
+
+	perms := userPermissions{Roles: roles, Permissions: cacheItems}
 
 	// 使用 Pipeline 执行 JSON.SET + EXPIRE
 	key := s.buildKey(userID)

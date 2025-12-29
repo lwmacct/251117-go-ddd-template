@@ -48,7 +48,7 @@ func newUserModelFromEntity(entity *user.User) *UserModel {
 		Avatar:    entity.Avatar,
 		Bio:       entity.Bio,
 		Status:    entity.Status,
-		Roles:     mapRoleEntitiesToModels(entity.Roles),
+		// Roles 不在这里映射，通过 user_roles 关联表管理
 	}
 
 	if entity.DeletedAt != nil {

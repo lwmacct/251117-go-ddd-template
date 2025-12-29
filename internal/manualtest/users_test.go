@@ -22,7 +22,7 @@ func TestAdminUsersFlow(t *testing.T) {
 
 	// 测试 1: 获取用户列表
 	t.Log("\n测试 1: 获取用户列表")
-	users, meta, err := helper.GetList[user.UserDTO](c, "/api/admin/users", map[string]string{
+	users, meta, err := helper.GetList[user.UserDTO](c, "/api/system/users", map[string]string{
 		"page":  "1",
 		"limit": "10",
 	})
@@ -43,7 +43,7 @@ func TestAdminUsersFlow(t *testing.T) {
 
 	// 测试 3: 获取用户详情
 	t.Log("\n测试 3: 获取用户详情")
-	userDetail, err := helper.Get[user.UserDTO](c, fmt.Sprintf("/api/admin/users/%d", testUser.ID), nil)
+	userDetail, err := helper.Get[user.UserDTO](c, fmt.Sprintf("/api/system/users/%d", testUser.ID), nil)
 	require.NoError(t, err, "获取用户详情失败")
 	t.Logf("  用户名: %s, 邮箱: %s", userDetail.Username, userDetail.Email)
 
@@ -56,7 +56,7 @@ func TestAdminUsersFlow(t *testing.T) {
 	updateReq := user.UpdateDTO{
 		FullName: &newFullName,
 	}
-	updatedUser, err := helper.Put[user.UserDTO](c, fmt.Sprintf("/api/admin/users/%d", testUser.ID), updateReq)
+	updatedUser, err := helper.Put[user.UserDTO](c, fmt.Sprintf("/api/system/users/%d", testUser.ID), updateReq)
 	require.NoError(t, err, "更新用户失败")
 	t.Logf("  更新成功! 全名: %s", updatedUser.FullName)
 
@@ -65,7 +65,7 @@ func TestAdminUsersFlow(t *testing.T) {
 
 	// 测试 5: 删除用户
 	t.Log("\n测试 5: 删除用户")
-	err = c.Delete(fmt.Sprintf("/api/admin/users/%d", testUser.ID))
+	err = c.Delete(fmt.Sprintf("/api/system/users/%d", testUser.ID))
 	require.NoError(t, err, "删除用户失败")
 	t.Log("  删除成功!")
 
@@ -84,7 +84,7 @@ func TestListUsers(t *testing.T) {
 	c := helper.LoginAsAdmin(t)
 
 	t.Log("获取用户列表...")
-	users, meta, err := helper.GetList[user.UserDTO](c, "/api/admin/users", map[string]string{
+	users, meta, err := helper.GetList[user.UserDTO](c, "/api/system/users", map[string]string{
 		"page":  "1",
 		"limit": "10",
 	})
@@ -120,7 +120,7 @@ func TestAssignRoles(t *testing.T) {
 	}
 	t.Logf("  分配角色 IDs: %v", assignReq.RoleIDs)
 
-	assignResp, err := helper.Put[user.UserWithRolesDTO](c, fmt.Sprintf("/api/admin/users/%d/roles", testUser.ID), assignReq)
+	assignResp, err := helper.Put[user.UserWithRolesDTO](c, fmt.Sprintf("/api/system/users/%d/roles", testUser.ID), assignReq)
 	require.NoError(t, err, "分配角色失败")
 
 	t.Logf("  分配成功! 用户现有角色数: %d", len(assignResp.Roles))
@@ -153,10 +153,10 @@ func TestBatchCreateUsers(t *testing.T) {
 	// 确保测试结束时清理资源
 	t.Cleanup(func() {
 		// 获取用户列表并删除测试用户
-		users, _, _ := helper.GetList[user.UserWithRolesDTO](c, "/api/admin/users", nil)
+		users, _, _ := helper.GetList[user.UserWithRolesDTO](c, "/api/system/users", nil)
 		for _, u := range users {
 			if u.Username == username1 || u.Username == username2 {
-				_ = c.Delete(fmt.Sprintf("/api/admin/users/%d", u.ID))
+				_ = c.Delete(fmt.Sprintf("/api/system/users/%d", u.ID))
 			}
 		}
 	})
@@ -190,7 +190,7 @@ func TestBatchCreateUsers(t *testing.T) {
 		},
 	}
 
-	result, err := helper.Post[user.BatchCreateResultDTO](c, "/api/admin/users/batch", batchReq)
+	result, err := helper.Post[user.BatchCreateResultDTO](c, "/api/system/users/batch", batchReq)
 	require.NoError(t, err, "批量创建请求失败")
 
 	t.Logf("\n批量创建结果:")
@@ -214,7 +214,7 @@ func TestBatchCreateUsers(t *testing.T) {
 
 	// 步骤 3: 验证用户已创建
 	t.Log("\n步骤 3: 验证用户已创建")
-	users, _, _ := helper.GetList[user.UserWithRolesDTO](c, "/api/admin/users", nil)
+	users, _, _ := helper.GetList[user.UserWithRolesDTO](c, "/api/system/users", nil)
 
 	// 使用 assert.Contains 验证用户名
 	usernames := helper.ExtractStrings(users, func(u user.UserWithRolesDTO) string { return u.Username })

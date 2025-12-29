@@ -16,7 +16,7 @@ func TestCacheAPI(t *testing.T) {
 
 	// 测试 1: 获取缓存信息
 	t.Run("Info", func(t *testing.T) {
-		info, err := helper.Get[cache.CacheInfoDTO](c, "/api/admin/cache/info", nil)
+		info, err := helper.Get[cache.CacheInfoDTO](c, "/api/system/cache/info", nil)
 		require.NoError(t, err, "获取缓存信息失败")
 
 		assert.NotEmpty(t, info.KeyPrefix, "KeyPrefix 不应为空")
@@ -26,7 +26,7 @@ func TestCacheAPI(t *testing.T) {
 
 	// 测试 2: 扫描所有 Keys
 	t.Run("ScanAllKeys", func(t *testing.T) {
-		result, err := helper.Get[cache.ScanKeysResultDTO](c, "/api/admin/cache/keys", nil)
+		result, err := helper.Get[cache.ScanKeysResultDTO](c, "/api/system/cache/keys", nil)
 		require.NoError(t, err, "扫描 Keys 失败")
 
 		t.Logf("扫描到 %d 个 Keys, Cursor=%s", len(result.Keys), result.Cursor)
@@ -39,7 +39,7 @@ func TestCacheAPI(t *testing.T) {
 
 	// 测试 3: 按 pattern 扫描 Keys
 	t.Run("ScanSettingKeys", func(t *testing.T) {
-		result, err := helper.Get[cache.ScanKeysResultDTO](c, "/api/admin/cache/keys", map[string]string{
+		result, err := helper.Get[cache.ScanKeysResultDTO](c, "/api/system/cache/keys", map[string]string{
 			"pattern": "setting:*",
 		})
 		require.NoError(t, err, "扫描 Setting Keys 失败")
@@ -53,7 +53,7 @@ func TestCacheAPI(t *testing.T) {
 	// 测试 4: 获取单个 Key 的值
 	t.Run("GetKey", func(t *testing.T) {
 		// 先扫描获取一个 key（任意类型）
-		scanResult, err := helper.Get[cache.ScanKeysResultDTO](c, "/api/admin/cache/keys", map[string]string{
+		scanResult, err := helper.Get[cache.ScanKeysResultDTO](c, "/api/system/cache/keys", map[string]string{
 			"limit": "1",
 		})
 		require.NoError(t, err, "扫描 Keys 失败")
@@ -66,7 +66,7 @@ func TestCacheAPI(t *testing.T) {
 		t.Logf("获取 Key: %s", key)
 
 		// 获取 key 的值（使用查询参数）
-		value, err := helper.Get[cache.CacheValueDTO](c, "/api/admin/cache/key", map[string]string{
+		value, err := helper.Get[cache.CacheValueDTO](c, "/api/system/cache/key", map[string]string{
 			"key": key,
 		})
 		require.NoError(t, err, "获取 Key 值失败")
@@ -80,7 +80,7 @@ func TestCacheAPI(t *testing.T) {
 	// 测试 5: 删除单个 Key
 	t.Run("DeleteSingleKey", func(t *testing.T) {
 		// 扫描 schema 缓存（这些是安全可删除的）
-		scanResult, err := helper.Get[cache.ScanKeysResultDTO](c, "/api/admin/cache/keys", map[string]string{
+		scanResult, err := helper.Get[cache.ScanKeysResultDTO](c, "/api/system/cache/keys", map[string]string{
 			"pattern": "schema:*",
 			"limit":   "1",
 		})
@@ -94,14 +94,14 @@ func TestCacheAPI(t *testing.T) {
 		t.Logf("删除 Key: %s", key)
 
 		// 删除 key（使用查询参数）
-		_, err = helper.Delete[cache.DeleteResultDTO](c, "/api/admin/cache/key", map[string]string{
+		_, err = helper.Delete[cache.DeleteResultDTO](c, "/api/system/cache/key", map[string]string{
 			"key": key,
 		})
 		require.NoError(t, err, "删除 Key 失败")
 		t.Logf("✓ 删除成功")
 
 		// 验证 key 不存在
-		_, err = helper.Get[cache.CacheValueDTO](c, "/api/admin/cache/key", map[string]string{
+		_, err = helper.Get[cache.CacheValueDTO](c, "/api/system/cache/key", map[string]string{
 			"key": key,
 		})
 		require.Error(t, err, "Key 应该已被删除")
@@ -111,7 +111,7 @@ func TestCacheAPI(t *testing.T) {
 	// 测试 6: 按 pattern 批量删除
 	t.Run("DeleteByPattern", func(t *testing.T) {
 		// 先查看 schema 缓存数量
-		before, err := helper.Get[cache.ScanKeysResultDTO](c, "/api/admin/cache/keys", map[string]string{
+		before, err := helper.Get[cache.ScanKeysResultDTO](c, "/api/system/cache/keys", map[string]string{
 			"pattern": "schema:*",
 		})
 		require.NoError(t, err, "扫描失败")
@@ -122,14 +122,14 @@ func TestCacheAPI(t *testing.T) {
 		}
 
 		// 按 pattern 删除
-		result, err := helper.Delete[cache.DeleteResultDTO](c, "/api/admin/cache/keys", map[string]string{
+		result, err := helper.Delete[cache.DeleteResultDTO](c, "/api/system/cache/keys", map[string]string{
 			"pattern": "schema:*",
 		})
 		require.NoError(t, err, "批量删除失败")
 		t.Logf("删除了 %d 个 Keys", result.DeletedCount)
 
 		// 验证已删除
-		after, err := helper.Get[cache.ScanKeysResultDTO](c, "/api/admin/cache/keys", map[string]string{
+		after, err := helper.Get[cache.ScanKeysResultDTO](c, "/api/system/cache/keys", map[string]string{
 			"pattern": "schema:*",
 		})
 		require.NoError(t, err, "扫描失败")

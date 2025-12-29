@@ -107,7 +107,6 @@ func newAllHandlers(p handlersParams) HandlersResult {
 			p.Role.SetPermissions,
 			p.Role.Get,
 			p.Role.List,
-			p.Role.ListPermissions,
 		),
 		Menu: handler.NewMenuHandler(
 			p.Menu.Create,

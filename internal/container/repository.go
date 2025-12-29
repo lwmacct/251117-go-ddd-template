@@ -24,7 +24,6 @@ var RepositoryModule = fx.Module("repository",
 		// 直接使用 persistence 构造函数（无需包装）
 		persistence.NewAuditLogRepositories,
 		persistence.NewRoleRepositories,
-		persistence.NewPermissionRepositories,
 		persistence.NewPATRepositories,
 		persistence.NewMenuRepositories,
 		persistence.NewTwoFARepositories,

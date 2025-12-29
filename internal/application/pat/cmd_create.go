@@ -4,9 +4,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strings"
 
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/auth"
+	"github.com/lwmacct/251117-go-ddd-template/internal/domain/operation"
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/pat"
+	"github.com/lwmacct/251117-go-ddd-template/internal/domain/role"
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/user"
 )
 
@@ -49,17 +52,21 @@ func (h *CreateHandler) Handle(ctx context.Context, cmd CreateCommand) (*Interna
 		return nil, fmt.Errorf("user not found: %w", err)
 	}
 
-	userPerms := u.GetPermissionCodes()
+	// 新 RBAC 模型：权限为 Permission 对象数组
+	userPerms := u.GetPermissions()
 	if len(userPerms) == 0 {
 		return nil, errors.New("user has no permissions")
 	}
 
+	// 转换为字符串格式供 PAT 存储
+	userPermStrings := permissionsToStrings(userPerms)
+
 	requestedPerms := cmd.Permissions
 	if len(requestedPerms) == 0 {
-		requestedPerms = userPerms // 默认继承全部权限
+		requestedPerms = userPermStrings // 默认继承全部权限
 	}
 
-	if err = validatePermissions(requestedPerms, userPerms); err != nil {
+	if err = validatePermissions(requestedPerms, userPermStrings); err != nil {
 		return nil, err
 	}
 
@@ -94,20 +101,64 @@ func (h *CreateHandler) Handle(ctx context.Context, cmd CreateCommand) (*Interna
 	}, nil
 }
 
+// permissionsToStrings 将 Permission 对象转换为字符串格式
+// 格式：operation_pattern|resource_pattern
+func permissionsToStrings(perms []role.Permission) []string {
+	result := make([]string, len(perms))
+	for i, p := range perms {
+		resPattern := p.ResourcePattern
+		if resPattern == "" {
+			resPattern = "*"
+		}
+		result[i] = p.OperationPattern + "|" + resPattern
+	}
+	return result
+}
+
 // validatePermissions ensures requested permissions are subset of user permissions.
+// 使用模式匹配验证请求的权限是否被用户权限覆盖。
 func validatePermissions(requested, userPerms []string) error {
 	if len(requested) == 0 {
 		return errors.New("at least one permission is required")
 	}
 
-	permSet := make(map[string]struct{}, len(userPerms))
+	// 解析用户权限为 role.Permission 对象列表
+	parsedUserPerms := make([]role.Permission, 0, len(userPerms))
 	for _, perm := range userPerms {
-		permSet[perm] = struct{}{}
+		parts := strings.SplitN(perm, "|", 2)
+		opPattern := parts[0]
+		resPattern := "*"
+		if len(parts) > 1 {
+			resPattern = parts[1]
+		}
+		parsedUserPerms = append(parsedUserPerms, role.Permission{
+			OperationPattern: opPattern,
+			ResourcePattern:  resPattern,
+		})
 	}
 
-	for _, perm := range requested {
-		if _, ok := permSet[perm]; !ok {
-			return fmt.Errorf("permission '%s' is not granted to user", perm)
+	// 验证每个请求的权限是否被用户权限覆盖
+	for _, reqPerm := range requested {
+		// 解析请求的权限（格式: operation 或 operation|resource）
+		parts := strings.SplitN(reqPerm, "|", 2)
+		reqOp := parts[0]
+		reqRes := "*"
+		if len(parts) > 1 {
+			reqRes = parts[1]
+		}
+
+		// 检查是否有任何用户权限能覆盖此请求
+		matched := false
+		for _, userPerm := range parsedUserPerms {
+			if operation.MatchOperation(userPerm.OperationPattern, reqOp) &&
+				operation.MatchResource(userPerm.ResourcePattern, reqRes) {
+				matched = true
+				break
+			}
+		}
+
+		if !matched {
+			return fmt.Errorf("permission '%s' is not granted to user", reqPerm)
 		}
 	}
 

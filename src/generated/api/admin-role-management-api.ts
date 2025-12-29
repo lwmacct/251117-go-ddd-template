@@ -30,8 +30,6 @@ import type { ResponseErrorResponse } from '../models';
 // @ts-ignore
 import type { ResponseMessageResponse } from '../models';
 // @ts-ignore
-import type { ResponsePagedResponseRolePermissionDTO } from '../models';
-// @ts-ignore
 import type { ResponsePagedResponseRoleRoleDTO } from '../models';
 // @ts-ignore
 import type { RoleCreateDTO } from '../models';
@@ -46,49 +44,6 @@ import type { RoleUpdateDTO } from '../models';
 export const AdminRoleManagementApiAxiosParamCreator = function (configuration?: Configuration) {
     return {
         /**
-         * 分页获取所有系统权限
-         * @summary 获取权限列表
-         * @param {number} [limit] Limit 每页数量，默认 20，最大 1000
-         * @param {number} [page] Page 页码，从 1 开始
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        apiAdminPermissionsGet: async (limit?: number, page?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            const localVarPath = `/api/admin/permissions`;
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication BearerAuth required
-            await setApiKeyToObject(localVarHeaderParameter, "Authorization", configuration)
-
-            if (limit !== undefined) {
-                localVarQueryParameter['limit'] = limit;
-            }
-
-            if (page !== undefined) {
-                localVarQueryParameter['page'] = page;
-            }
-
-
-    
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
          * 分页获取所有系统角色
          * @summary 获取角色列表
          * @param {number} [limit] Limit 每页数量，默认 20，最大 1000
@@ -96,8 +51,8 @@ export const AdminRoleManagementApiAxiosParamCreator = function (configuration?:
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiAdminRolesGet: async (limit?: number, page?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            const localVarPath = `/api/admin/roles`;
+        apiSystemRolesGet: async (limit?: number, page?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/system/roles`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -138,10 +93,10 @@ export const AdminRoleManagementApiAxiosParamCreator = function (configuration?:
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiAdminRolesIdDelete: async (id: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        apiSystemRolesIdDelete: async (id: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'id' is not null or undefined
-            assertParamExists('apiAdminRolesIdDelete', 'id', id)
-            const localVarPath = `/api/admin/roles/{id}`
+            assertParamExists('apiSystemRolesIdDelete', 'id', id)
+            const localVarPath = `/api/system/roles/{id}`
                 .replace(`{${"id"}}`, encodeURIComponent(String(id)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -175,10 +130,10 @@ export const AdminRoleManagementApiAxiosParamCreator = function (configuration?:
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiAdminRolesIdGet: async (id: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        apiSystemRolesIdGet: async (id: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'id' is not null or undefined
-            assertParamExists('apiAdminRolesIdGet', 'id', id)
-            const localVarPath = `/api/admin/roles/{id}`
+            assertParamExists('apiSystemRolesIdGet', 'id', id)
+            const localVarPath = `/api/system/roles/{id}`
                 .replace(`{${"id"}}`, encodeURIComponent(String(id)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -206,19 +161,19 @@ export const AdminRoleManagementApiAxiosParamCreator = function (configuration?:
             };
         },
         /**
-         * 管理员为指定角色设置权限（会覆盖现有权限）
+         * 管理员为指定角色设置权限（会覆盖现有权限）。新 RBAC 模型使用 Operation + Resource Pattern。
          * @summary 设置角色权限
          * @param {number} id 角色ID
-         * @param {RoleSetPermissionsDTO} request 权限ID列表
+         * @param {RoleSetPermissionsDTO} request 权限模式列表
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiAdminRolesIdPermissionsPut: async (id: number, request: RoleSetPermissionsDTO, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        apiSystemRolesIdPermissionsPut: async (id: number, request: RoleSetPermissionsDTO, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'id' is not null or undefined
-            assertParamExists('apiAdminRolesIdPermissionsPut', 'id', id)
+            assertParamExists('apiSystemRolesIdPermissionsPut', 'id', id)
             // verify required parameter 'request' is not null or undefined
-            assertParamExists('apiAdminRolesIdPermissionsPut', 'request', request)
-            const localVarPath = `/api/admin/roles/{id}/permissions`
+            assertParamExists('apiSystemRolesIdPermissionsPut', 'request', request)
+            const localVarPath = `/api/system/roles/{id}/permissions`
                 .replace(`{${"id"}}`, encodeURIComponent(String(id)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -256,12 +211,12 @@ export const AdminRoleManagementApiAxiosParamCreator = function (configuration?:
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiAdminRolesIdPut: async (id: number, request: RoleUpdateDTO, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        apiSystemRolesIdPut: async (id: number, request: RoleUpdateDTO, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'id' is not null or undefined
-            assertParamExists('apiAdminRolesIdPut', 'id', id)
+            assertParamExists('apiSystemRolesIdPut', 'id', id)
             // verify required parameter 'request' is not null or undefined
-            assertParamExists('apiAdminRolesIdPut', 'request', request)
-            const localVarPath = `/api/admin/roles/{id}`
+            assertParamExists('apiSystemRolesIdPut', 'request', request)
+            const localVarPath = `/api/system/roles/{id}`
                 .replace(`{${"id"}}`, encodeURIComponent(String(id)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -298,10 +253,10 @@ export const AdminRoleManagementApiAxiosParamCreator = function (configuration?:
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiAdminRolesPost: async (request: RoleCreateDTO, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        apiSystemRolesPost: async (request: RoleCreateDTO, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'request' is not null or undefined
-            assertParamExists('apiAdminRolesPost', 'request', request)
-            const localVarPath = `/api/admin/roles`;
+            assertParamExists('apiSystemRolesPost', 'request', request)
+            const localVarPath = `/api/system/roles`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -341,20 +296,6 @@ export const AdminRoleManagementApiFp = function(configuration?: Configuration) 
     const localVarAxiosParamCreator = AdminRoleManagementApiAxiosParamCreator(configuration)
     return {
         /**
-         * 分页获取所有系统权限
-         * @summary 获取权限列表
-         * @param {number} [limit] Limit 每页数量，默认 20，最大 1000
-         * @param {number} [page] Page 页码，从 1 开始
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async apiAdminPermissionsGet(limit?: number, page?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponsePagedResponseRolePermissionDTO>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.apiAdminPermissionsGet(limit, page, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['AdminRoleManagementApi.apiAdminPermissionsGet']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
          * 分页获取所有系统角色
          * @summary 获取角色列表
          * @param {number} [limit] Limit 每页数量，默认 20，最大 1000
@@ -362,10 +303,10 @@ export const AdminRoleManagementApiFp = function(configuration?: Configuration) 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async apiAdminRolesGet(limit?: number, page?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponsePagedResponseRoleRoleDTO>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.apiAdminRolesGet(limit, page, options);
+        async apiSystemRolesGet(limit?: number, page?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponsePagedResponseRoleRoleDTO>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.apiSystemRolesGet(limit, page, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['AdminRoleManagementApi.apiAdminRolesGet']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['AdminRoleManagementApi.apiSystemRolesGet']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -375,10 +316,10 @@ export const AdminRoleManagementApiFp = function(configuration?: Configuration) 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async apiAdminRolesIdDelete(id: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseMessageResponse>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.apiAdminRolesIdDelete(id, options);
+        async apiSystemRolesIdDelete(id: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseMessageResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.apiSystemRolesIdDelete(id, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['AdminRoleManagementApi.apiAdminRolesIdDelete']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['AdminRoleManagementApi.apiSystemRolesIdDelete']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -388,24 +329,24 @@ export const AdminRoleManagementApiFp = function(configuration?: Configuration) 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async apiAdminRolesIdGet(id: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseRoleRoleDTO>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.apiAdminRolesIdGet(id, options);
+        async apiSystemRolesIdGet(id: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseRoleRoleDTO>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.apiSystemRolesIdGet(id, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['AdminRoleManagementApi.apiAdminRolesIdGet']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['AdminRoleManagementApi.apiSystemRolesIdGet']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
-         * 管理员为指定角色设置权限（会覆盖现有权限）
+         * 管理员为指定角色设置权限（会覆盖现有权限）。新 RBAC 模型使用 Operation + Resource Pattern。
          * @summary 设置角色权限
          * @param {number} id 角色ID
-         * @param {RoleSetPermissionsDTO} request 权限ID列表
+         * @param {RoleSetPermissionsDTO} request 权限模式列表
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async apiAdminRolesIdPermissionsPut(id: number, request: RoleSetPermissionsDTO, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseMessageResponse>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.apiAdminRolesIdPermissionsPut(id, request, options);
+        async apiSystemRolesIdPermissionsPut(id: number, request: RoleSetPermissionsDTO, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseMessageResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.apiSystemRolesIdPermissionsPut(id, request, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['AdminRoleManagementApi.apiAdminRolesIdPermissionsPut']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['AdminRoleManagementApi.apiSystemRolesIdPermissionsPut']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -416,10 +357,10 @@ export const AdminRoleManagementApiFp = function(configuration?: Configuration) 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async apiAdminRolesIdPut(id: number, request: RoleUpdateDTO, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseRoleRoleDTO>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.apiAdminRolesIdPut(id, request, options);
+        async apiSystemRolesIdPut(id: number, request: RoleUpdateDTO, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseRoleRoleDTO>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.apiSystemRolesIdPut(id, request, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['AdminRoleManagementApi.apiAdminRolesIdPut']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['AdminRoleManagementApi.apiSystemRolesIdPut']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -429,10 +370,10 @@ export const AdminRoleManagementApiFp = function(configuration?: Configuration) 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async apiAdminRolesPost(request: RoleCreateDTO, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseRoleCreateResultDTO>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.apiAdminRolesPost(request, options);
+        async apiSystemRolesPost(request: RoleCreateDTO, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseRoleCreateResultDTO>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.apiSystemRolesPost(request, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['AdminRoleManagementApi.apiAdminRolesPost']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['AdminRoleManagementApi.apiSystemRolesPost']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
     }
@@ -446,17 +387,6 @@ export const AdminRoleManagementApiFactory = function (configuration?: Configura
     const localVarFp = AdminRoleManagementApiFp(configuration)
     return {
         /**
-         * 分页获取所有系统权限
-         * @summary 获取权限列表
-         * @param {number} [limit] Limit 每页数量，默认 20，最大 1000
-         * @param {number} [page] Page 页码，从 1 开始
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        apiAdminPermissionsGet(limit?: number, page?: number, options?: RawAxiosRequestConfig): AxiosPromise<ResponsePagedResponseRolePermissionDTO> {
-            return localVarFp.apiAdminPermissionsGet(limit, page, options).then((request) => request(axios, basePath));
-        },
-        /**
          * 分页获取所有系统角色
          * @summary 获取角色列表
          * @param {number} [limit] Limit 每页数量，默认 20，最大 1000
@@ -464,8 +394,8 @@ export const AdminRoleManagementApiFactory = function (configuration?: Configura
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiAdminRolesGet(limit?: number, page?: number, options?: RawAxiosRequestConfig): AxiosPromise<ResponsePagedResponseRoleRoleDTO> {
-            return localVarFp.apiAdminRolesGet(limit, page, options).then((request) => request(axios, basePath));
+        apiSystemRolesGet(limit?: number, page?: number, options?: RawAxiosRequestConfig): AxiosPromise<ResponsePagedResponseRoleRoleDTO> {
+            return localVarFp.apiSystemRolesGet(limit, page, options).then((request) => request(axios, basePath));
         },
         /**
          * 管理员删除指定角色（如果角色被用户使用，可能会失败）
@@ -474,8 +404,8 @@ export const AdminRoleManagementApiFactory = function (configuration?: Configura
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiAdminRolesIdDelete(id: number, options?: RawAxiosRequestConfig): AxiosPromise<ResponseMessageResponse> {
-            return localVarFp.apiAdminRolesIdDelete(id, options).then((request) => request(axios, basePath));
+        apiSystemRolesIdDelete(id: number, options?: RawAxiosRequestConfig): AxiosPromise<ResponseMessageResponse> {
+            return localVarFp.apiSystemRolesIdDelete(id, options).then((request) => request(axios, basePath));
         },
         /**
          * 根据角色ID获取角色详细信息（包含权限列表）
@@ -484,19 +414,19 @@ export const AdminRoleManagementApiFactory = function (configuration?: Configura
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiAdminRolesIdGet(id: number, options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseRoleRoleDTO> {
-            return localVarFp.apiAdminRolesIdGet(id, options).then((request) => request(axios, basePath));
+        apiSystemRolesIdGet(id: number, options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseRoleRoleDTO> {
+            return localVarFp.apiSystemRolesIdGet(id, options).then((request) => request(axios, basePath));
         },
         /**
-         * 管理员为指定角色设置权限（会覆盖现有权限）
+         * 管理员为指定角色设置权限（会覆盖现有权限）。新 RBAC 模型使用 Operation + Resource Pattern。
          * @summary 设置角色权限
          * @param {number} id 角色ID
-         * @param {RoleSetPermissionsDTO} request 权限ID列表
+         * @param {RoleSetPermissionsDTO} request 权限模式列表
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiAdminRolesIdPermissionsPut(id: number, request: RoleSetPermissionsDTO, options?: RawAxiosRequestConfig): AxiosPromise<ResponseMessageResponse> {
-            return localVarFp.apiAdminRolesIdPermissionsPut(id, request, options).then((request) => request(axios, basePath));
+        apiSystemRolesIdPermissionsPut(id: number, request: RoleSetPermissionsDTO, options?: RawAxiosRequestConfig): AxiosPromise<ResponseMessageResponse> {
+            return localVarFp.apiSystemRolesIdPermissionsPut(id, request, options).then((request) => request(axios, basePath));
         },
         /**
          * 管理员更新角色的显示名称和描述
@@ -506,8 +436,8 @@ export const AdminRoleManagementApiFactory = function (configuration?: Configura
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiAdminRolesIdPut(id: number, request: RoleUpdateDTO, options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseRoleRoleDTO> {
-            return localVarFp.apiAdminRolesIdPut(id, request, options).then((request) => request(axios, basePath));
+        apiSystemRolesIdPut(id: number, request: RoleUpdateDTO, options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseRoleRoleDTO> {
+            return localVarFp.apiSystemRolesIdPut(id, request, options).then((request) => request(axios, basePath));
         },
         /**
          * 管理员创建新的系统角色
@@ -516,8 +446,8 @@ export const AdminRoleManagementApiFactory = function (configuration?: Configura
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiAdminRolesPost(request: RoleCreateDTO, options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseRoleCreateResultDTO> {
-            return localVarFp.apiAdminRolesPost(request, options).then((request) => request(axios, basePath));
+        apiSystemRolesPost(request: RoleCreateDTO, options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseRoleCreateResultDTO> {
+            return localVarFp.apiSystemRolesPost(request, options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -530,19 +460,6 @@ export const AdminRoleManagementApiFactory = function (configuration?: Configura
  */
 export class AdminRoleManagementApi extends BaseAPI {
     /**
-     * 分页获取所有系统权限
-     * @summary 获取权限列表
-     * @param {number} [limit] Limit 每页数量，默认 20，最大 1000
-     * @param {number} [page] Page 页码，从 1 开始
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof AdminRoleManagementApi
-     */
-    public apiAdminPermissionsGet(limit?: number, page?: number, options?: RawAxiosRequestConfig) {
-        return AdminRoleManagementApiFp(this.configuration).apiAdminPermissionsGet(limit, page, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
      * 分页获取所有系统角色
      * @summary 获取角色列表
      * @param {number} [limit] Limit 每页数量，默认 20，最大 1000
@@ -551,8 +468,8 @@ export class AdminRoleManagementApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof AdminRoleManagementApi
      */
-    public apiAdminRolesGet(limit?: number, page?: number, options?: RawAxiosRequestConfig) {
-        return AdminRoleManagementApiFp(this.configuration).apiAdminRolesGet(limit, page, options).then((request) => request(this.axios, this.basePath));
+    public apiSystemRolesGet(limit?: number, page?: number, options?: RawAxiosRequestConfig) {
+        return AdminRoleManagementApiFp(this.configuration).apiSystemRolesGet(limit, page, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -563,8 +480,8 @@ export class AdminRoleManagementApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof AdminRoleManagementApi
      */
-    public apiAdminRolesIdDelete(id: number, options?: RawAxiosRequestConfig) {
-        return AdminRoleManagementApiFp(this.configuration).apiAdminRolesIdDelete(id, options).then((request) => request(this.axios, this.basePath));
+    public apiSystemRolesIdDelete(id: number, options?: RawAxiosRequestConfig) {
+        return AdminRoleManagementApiFp(this.configuration).apiSystemRolesIdDelete(id, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -575,21 +492,21 @@ export class AdminRoleManagementApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof AdminRoleManagementApi
      */
-    public apiAdminRolesIdGet(id: number, options?: RawAxiosRequestConfig) {
-        return AdminRoleManagementApiFp(this.configuration).apiAdminRolesIdGet(id, options).then((request) => request(this.axios, this.basePath));
+    public apiSystemRolesIdGet(id: number, options?: RawAxiosRequestConfig) {
+        return AdminRoleManagementApiFp(this.configuration).apiSystemRolesIdGet(id, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
-     * 管理员为指定角色设置权限（会覆盖现有权限）
+     * 管理员为指定角色设置权限（会覆盖现有权限）。新 RBAC 模型使用 Operation + Resource Pattern。
      * @summary 设置角色权限
      * @param {number} id 角色ID
-     * @param {RoleSetPermissionsDTO} request 权限ID列表
+     * @param {RoleSetPermissionsDTO} request 权限模式列表
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof AdminRoleManagementApi
      */
-    public apiAdminRolesIdPermissionsPut(id: number, request: RoleSetPermissionsDTO, options?: RawAxiosRequestConfig) {
-        return AdminRoleManagementApiFp(this.configuration).apiAdminRolesIdPermissionsPut(id, request, options).then((request) => request(this.axios, this.basePath));
+    public apiSystemRolesIdPermissionsPut(id: number, request: RoleSetPermissionsDTO, options?: RawAxiosRequestConfig) {
+        return AdminRoleManagementApiFp(this.configuration).apiSystemRolesIdPermissionsPut(id, request, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -601,8 +518,8 @@ export class AdminRoleManagementApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof AdminRoleManagementApi
      */
-    public apiAdminRolesIdPut(id: number, request: RoleUpdateDTO, options?: RawAxiosRequestConfig) {
-        return AdminRoleManagementApiFp(this.configuration).apiAdminRolesIdPut(id, request, options).then((request) => request(this.axios, this.basePath));
+    public apiSystemRolesIdPut(id: number, request: RoleUpdateDTO, options?: RawAxiosRequestConfig) {
+        return AdminRoleManagementApiFp(this.configuration).apiSystemRolesIdPut(id, request, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -613,8 +530,8 @@ export class AdminRoleManagementApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof AdminRoleManagementApi
      */
-    public apiAdminRolesPost(request: RoleCreateDTO, options?: RawAxiosRequestConfig) {
-        return AdminRoleManagementApiFp(this.configuration).apiAdminRolesPost(request, options).then((request) => request(this.axios, this.basePath));
+    public apiSystemRolesPost(request: RoleCreateDTO, options?: RawAxiosRequestConfig) {
+        return AdminRoleManagementApiFp(this.configuration).apiSystemRolesPost(request, options).then((request) => request(this.axios, this.basePath));
     }
 }
 

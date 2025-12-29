@@ -3,14 +3,110 @@ package middleware
 import (
 	"slices"
 	"strconv"
-	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/lwmacct/251117-go-ddd-template/internal/adapters/http/response"
+	op "github.com/lwmacct/251117-go-ddd-template/internal/domain/operation"
+	"github.com/lwmacct/251117-go-ddd-template/internal/domain/role"
 )
 
+// RequireOperation 检查用户是否有执行指定 Operation 的权限。
+// 新 RBAC 模型：权限为 Operation Pattern + Resource Pattern 组合。
+// 对于 user: 域的操作，自动检查 user/self 资源匹配。
+func RequireOperation(operation op.Operation) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		permissions, exists := c.Get("permissions")
+		if !exists {
+			response.Unauthorized(c, "No permissions found")
+			c.Abort()
+			return
+		}
+
+		permList, ok := permissions.([]role.Permission)
+		if !ok {
+			response.InternalError(c, "Invalid permissions format")
+			c.Abort()
+			return
+		}
+
+		// 检查是否有匹配的权限
+		hasPermission := false
+		operationStr := string(operation)
+
+		// 确定要检查的资源
+		// 对于 user: 域的操作，检查 user/self 和 *
+		resourcesToCheck := []string{"*"}
+		if operation.Domain() == "user" {
+			resourcesToCheck = appendUserResources(c, resourcesToCheck)
+		}
+
+		for _, p := range permList {
+			// 匹配 Operation Pattern
+			if op.MatchOperation(p.OperationPattern, operationStr) {
+				// 检查资源是否匹配任一候选资源
+				for _, res := range resourcesToCheck {
+					if op.MatchResource(p.ResourcePattern, res) {
+						hasPermission = true
+						break
+					}
+				}
+				if hasPermission {
+					break
+				}
+			}
+		}
+
+		if !hasPermission {
+			response.Forbidden(c, "Insufficient permissions")
+			c.Abort()
+			return
+		}
+
+		c.Next()
+	}
+}
+
+// RequireOperationWithResource 检查用户是否有对指定资源执行指定 Operation 的权限。
+// 支持细粒度资源控制，如 user/123、role/*。
+func RequireOperationWithResource(operation op.Operation, resource op.Resource) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		permissions, exists := c.Get("permissions")
+		if !exists {
+			response.Unauthorized(c, "No permissions found")
+			c.Abort()
+			return
+		}
+
+		permList, ok := permissions.([]role.Permission)
+		if !ok {
+			response.InternalError(c, "Invalid permissions format")
+			c.Abort()
+			return
+		}
+
+		hasPermission := false
+		operationStr := string(operation)
+		resourceStr := string(resource)
+		for _, p := range permList {
+			if op.MatchOperation(p.OperationPattern, operationStr) &&
+				op.MatchResource(p.ResourcePattern, resourceStr) {
+				hasPermission = true
+				break
+			}
+		}
+
+		if !hasPermission {
+			response.Forbidden(c, "Insufficient permissions")
+			c.Abort()
+			return
+		}
+
+		c.Next()
+	}
+}
+
 // RequireRole creates a middleware that checks if the user has a specific role
-func RequireRole(role string) gin.HandlerFunc {
+func RequireRole(roleName string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		roles, exists := c.Get("roles")
 		if !exists {
@@ -26,7 +122,7 @@ func RequireRole(role string) gin.HandlerFunc {
 			return
 		}
 
-		if !slices.Contains(rolesList, role) {
+		if !slices.Contains(rolesList, roleName) {
 			response.Forbidden(c, "Insufficient permissions")
 			c.Abort()
 			return
@@ -58,84 +154,6 @@ func RequireAnyRole(roles ...string) gin.HandlerFunc {
 		})
 
 		if !hasRole {
-			response.Forbidden(c, "Insufficient permissions")
-			c.Abort()
-			return
-		}
-
-		c.Next()
-	}
-}
-
-// RequirePermission creates a middleware that checks if the user has a specific permission
-// Supports three-part permission format: domain:resource:action
-// Also supports wildcard matching: admin:users:*, admin:*:create, *:*:*
-func RequirePermission(permission string) gin.HandlerFunc {
-	return func(c *gin.Context) {
-		permissions, exists := c.Get("permissions")
-		if !exists {
-			response.Unauthorized(c, "No permissions found")
-			c.Abort()
-			return
-		}
-
-		permissionsList, ok := permissions.([]string)
-		if !ok {
-			response.InternalError(c, "Invalid permissions format")
-			c.Abort()
-			return
-		}
-
-		hasPermission := false
-		for _, p := range permissionsList {
-			if matchPermission(p, permission) {
-				hasPermission = true
-				break
-			}
-		}
-
-		if !hasPermission {
-			response.Forbidden(c, "Insufficient permissions")
-			c.Abort()
-			return
-		}
-
-		c.Next()
-	}
-}
-
-// RequireAnyPermission creates a middleware that checks if the user has any of the specified permissions
-// Supports wildcard matching for three-part permission format
-func RequireAnyPermission(permissions ...string) gin.HandlerFunc {
-	return func(c *gin.Context) {
-		userPermissions, exists := c.Get("permissions")
-		if !exists {
-			response.Unauthorized(c, "No permissions found")
-			c.Abort()
-			return
-		}
-
-		permissionsList, ok := userPermissions.([]string)
-		if !ok {
-			response.InternalError(c, "Invalid permissions format")
-			c.Abort()
-			return
-		}
-
-		hasPermission := false
-		for _, requiredPermission := range permissions {
-			for _, userPermission := range permissionsList {
-				if matchPermission(userPermission, requiredPermission) {
-					hasPermission = true
-					break
-				}
-			}
-			if hasPermission {
-				break
-			}
-		}
-
-		if !hasPermission {
 			response.Forbidden(c, "Insufficient permissions")
 			c.Abort()
 			return
@@ -234,47 +252,6 @@ func RequireAdminOrOwnership(paramName ...string) gin.HandlerFunc {
 	}
 }
 
-// matchPermission checks if a user permission matches a required permission
-// Supports three-part wildcard matching: domain:resource:action
-//
-// Examples:
-//   - matchPermission("admin:users:create", "admin:users:create") -> true (exact match)
-//   - matchPermission("admin:users:*", "admin:users:create") -> true (action wildcard)
-//   - matchPermission("admin:*:create", "admin:users:create") -> true (resource wildcard)
-//   - matchPermission("*:users:create", "admin:users:create") -> true (domain wildcard)
-//   - matchPermission("admin:*:*", "admin:users:create") -> true (all admin permissions)
-//   - matchPermission("*:*:*", "admin:users:create") -> true (super admin)
-func matchPermission(userPerm, requiredPerm string) bool {
-	// Exact match
-	if userPerm == requiredPerm {
-		return true
-	}
-
-	// Split both permissions into parts
-	userParts := strings.Split(userPerm, ":")
-	requiredParts := strings.Split(requiredPerm, ":")
-
-	// Must be three-part format
-	if len(userParts) != 3 || len(requiredParts) != 3 {
-		return userPerm == requiredPerm // Fallback to exact match for non-standard format
-	}
-
-	// Check each part: domain, resource, action
-	for i := range 3 {
-		// Wildcard in user permission matches anything
-		if userParts[i] == "*" {
-			continue
-		}
-
-		// Parts must match exactly
-		if userParts[i] != requiredParts[i] {
-			return false
-		}
-	}
-
-	return true
-}
-
 // isAdmin 检查当前用户是否具有 admin 角色
 func isAdmin(c *gin.Context) bool {
 	roles, exists := c.Get("roles")
@@ -286,4 +263,20 @@ func isAdmin(c *gin.Context) bool {
 		return false
 	}
 	return slices.Contains(rolesList, "admin")
+}
+
+// appendUserResources 为 user: 域操作添加 user/self 和 user/{id} 资源
+func appendUserResources(c *gin.Context, resources []string) []string {
+	userID, exists := c.Get("user_id")
+	if !exists {
+		return resources
+	}
+	uid, ok := userID.(uint)
+	if !ok {
+		return resources
+	}
+	return append(resources,
+		"user/self",
+		"user/"+strconv.FormatUint(uint64(uid), 10),
+	)
 }

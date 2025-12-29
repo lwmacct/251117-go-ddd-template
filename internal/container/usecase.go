@@ -45,13 +45,12 @@ type UserUseCases struct {
 }
 
 type RoleUseCases struct {
-	Create          *role.CreateHandler
-	Update          *role.UpdateHandler
-	Delete          *role.DeleteHandler
-	SetPermissions  *role.SetPermissionsHandler
-	Get             *role.GetHandler
-	List            *role.ListHandler
-	ListPermissions *role.ListPermissionsHandler
+	Create         *role.CreateHandler
+	Update         *role.UpdateHandler
+	Delete         *role.DeleteHandler
+	SetPermissions *role.SetPermissionsHandler
+	Get            *role.GetHandler
+	List           *role.ListHandler
 }
 
 type MenuUseCases struct {
@@ -196,20 +195,18 @@ func newUserUseCases(p userUseCasesParams) *UserUseCases {
 type roleUseCasesParams struct {
 	fx.In
 
-	RoleRepos       persistence.RoleRepositories
-	PermissionRepos persistence.PermissionRepositories
-	EventBus        event.EventBus
+	RoleRepos persistence.RoleRepositories
+	EventBus  event.EventBus
 }
 
 func newRoleUseCases(p roleUseCasesParams) *RoleUseCases {
 	return &RoleUseCases{
-		Create:          role.NewCreateHandler(p.RoleRepos.Command, p.RoleRepos.Query),
-		Update:          role.NewUpdateHandler(p.RoleRepos.Command, p.RoleRepos.Query),
-		Delete:          role.NewDeleteHandler(p.RoleRepos.Command, p.RoleRepos.Query),
-		SetPermissions:  role.NewSetPermissionsHandler(p.RoleRepos.Command, p.RoleRepos.Query, p.PermissionRepos.Query, p.EventBus),
-		Get:             role.NewGetHandler(p.RoleRepos.Query),
-		List:            role.NewListHandler(p.RoleRepos.Query),
-		ListPermissions: role.NewListPermissionsHandler(p.PermissionRepos.Query),
+		Create:         role.NewCreateHandler(p.RoleRepos.Command, p.RoleRepos.Query),
+		Update:         role.NewUpdateHandler(p.RoleRepos.Command, p.RoleRepos.Query),
+		Delete:         role.NewDeleteHandler(p.RoleRepos.Command, p.RoleRepos.Query),
+		SetPermissions: role.NewSetPermissionsHandler(p.RoleRepos.Command, p.RoleRepos.Query, p.EventBus),
+		Get:            role.NewGetHandler(p.RoleRepos.Query),
+		List:           role.NewListHandler(p.RoleRepos.Query),
 	}
 }
 

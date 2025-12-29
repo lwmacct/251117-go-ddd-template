@@ -23,22 +23,6 @@ func (o Operation) Path() string {
 	return ""
 }
 
-// Permission 返回权限代码
-func (o Operation) Permission() string {
-	if m, ok := operationRegistry[o]; ok {
-		return m.Permission
-	}
-	return ""
-}
-
-// Role 返回要求角色
-func (o Operation) Role() string {
-	if m, ok := operationRegistry[o]; ok {
-		return m.Role
-	}
-	return ""
-}
-
 // AuditAction 返回审计操作标识
 func (o Operation) AuditAction() string {
 	if m, ok := operationRegistry[o]; ok {
@@ -87,10 +71,13 @@ func (o Operation) Group() string {
 	return ""
 }
 
-// IsPublic 报告操作是否公开（无需权限）
+// IsPublic 报告操作是否公开（无需权限检查）
+//
+// Operation-Centric RBAC: 默认所有操作需要权限检查，
+// 只有显式标记 Public: true 的操作才是公开的。
 func (o Operation) IsPublic() bool {
 	if m, ok := operationRegistry[o]; ok {
-		return m.Permission == ""
+		return m.Public
 	}
 	return false
 }
@@ -99,14 +86,6 @@ func (o Operation) IsPublic() bool {
 func (o Operation) NeedsAudit() bool {
 	if m, ok := operationRegistry[o]; ok {
 		return m.AuditAction != ""
-	}
-	return false
-}
-
-// NeedsRole 报告操作是否需要角色验证
-func (o Operation) NeedsRole() bool {
-	if m, ok := operationRegistry[o]; ok {
-		return m.Role != ""
 	}
 	return false
 }

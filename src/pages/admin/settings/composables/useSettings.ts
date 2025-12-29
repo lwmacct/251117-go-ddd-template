@@ -34,7 +34,7 @@ export function useSettings() {
     isCategoryLoaded,
     reset: resetSchema,
   } = useLazyCategorySchema<SettingSettingsCategoryDTO>(async (categoryKey) => {
-    const response = await adminSettingsApi.apiAdminSettingsGet(categoryKey);
+    const response = await adminSettingsApi.apiSystemSettingsGet(categoryKey);
     return (response.data.data ?? []) as SettingSettingsCategoryDTO[];
   });
 
@@ -80,7 +80,7 @@ export function useSettings() {
     loading.value = true;
 
     try {
-      const response = await adminSettingCategoriesApi.apiAdminSettingsCategoriesGet();
+      const response = await adminSettingCategoriesApi.apiSystemSettingsCategoriesGet();
       categories.value = (response.data.data ?? []) as SettingCategoryDTO[];
     } catch (error) {
       const msg = (error as Error).message || "获取分类列表失败";
@@ -103,7 +103,7 @@ export function useSettings() {
       resetSchema();
 
       // 获取全量数据
-      const response = await adminSettingsApi.apiAdminSettingsGet();
+      const response = await adminSettingsApi.apiSystemSettingsGet();
       const allCategories = (response.data.data ?? []) as SettingSettingsCategoryDTO[];
 
       // 逐个分类触发加载（标记为已加载）
@@ -149,7 +149,7 @@ export function useSettings() {
     saving.value = true;
 
     try {
-      const response = await adminSettingsApi.apiAdminSettingsPost(data);
+      const response = await adminSettingsApi.apiSystemSettingsPost(data);
       const newSetting = extractData<SettingSettingDTO>(response.data);
       if (newSetting) {
         settings.value.push(newSetting);
@@ -172,7 +172,7 @@ export function useSettings() {
 
     try {
       const data: HandlerUpdateSettingRequest = { default_value: value };
-      const response = await adminSettingsApi.apiAdminSettingsKeyPut(key, data);
+      const response = await adminSettingsApi.apiSystemSettingsKeyPut(key, data);
       const updated = extractData<SettingSettingDTO>(response.data);
       const index = settings.value.findIndex((s) => s.key === key);
       if (index !== -1 && updated) {
@@ -194,7 +194,7 @@ export function useSettings() {
   const updateSettingQuietly = async (key: string, value: object): Promise<boolean> => {
     try {
       const data: HandlerUpdateSettingRequest = { default_value: value };
-      const response = await adminSettingsApi.apiAdminSettingsKeyPut(key, data);
+      const response = await adminSettingsApi.apiSystemSettingsKeyPut(key, data);
       const updated = extractData<SettingSettingDTO>(response.data);
       const index = settings.value.findIndex((s) => s.key === key);
       if (index !== -1 && updated) {
@@ -214,7 +214,7 @@ export function useSettings() {
     saving.value = true;
 
     try {
-      await adminSettingsApi.apiAdminSettingsKeyDelete(key);
+      await adminSettingsApi.apiSystemSettingsKeyDelete(key);
       settings.value = settings.value.filter((s) => s.key !== key);
       snackbar.success("设置删除成功");
       return true;

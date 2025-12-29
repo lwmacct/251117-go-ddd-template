@@ -113,11 +113,11 @@ func (r *queryRepository) GetTotalRoles() (int64, error) {
 	return count, nil
 }
 
-// GetTotalPermissions 获取权限总数
+// GetTotalPermissions 获取权限总数（统计 role_permissions 表中的唯一权限模式数）
 func (r *queryRepository) GetTotalPermissions() (int64, error) {
 	var count int64
-	err := r.db.Table("permissions").
-		Where("deleted_at IS NULL").
+	// 新 RBAC 模型：统计角色权限关联表中的条目数
+	err := r.db.Table("role_permissions").
 		Count(&count).Error
 	if err != nil {
 		return 0, err

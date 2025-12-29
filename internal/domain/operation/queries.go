@@ -4,62 +4,40 @@ package operation
 // 派生查询函数
 // ============================================================================
 
-// PermissionDefinition 权限定义（替代 permission.Definition）
-type PermissionDefinition struct {
-	Code        string `json:"code"`        // 权限代码，如 admin:users:create
-	Domain      string `json:"domain"`      // 域，如 admin
-	Resource    string `json:"resource"`    // 资源，如 users
+// OperationDefinition 操作定义，供前端权限配置使用。
+type OperationDefinition struct {
+	Code        string `json:"code"`        // 操作代码，如 sys:users.create
+	Domain      string `json:"domain"`      // 域，如 sys
+	Module      string `json:"module"`      // 模块，如 users
 	Action      string `json:"action"`      // 操作，如 create
+	Label       string `json:"label"`       // 中文标签
 	Description string `json:"description"` // 英文描述
+	Group       string `json:"group"`       // Swagger 分组
 }
 
-// AllPermissions 返回所有权限定义，供 Seeder 使用。
-// 从注册表派生，仅返回有权限定义的操作。
-func AllPermissions() []PermissionDefinition {
-	seen := make(map[string]bool)
-	perms := make([]PermissionDefinition, 0, len(operationRegistry))
+// AllOperationDefinitions 返回所有操作定义，供前端权限配置使用。
+// 仅返回非公开操作（需要权限检查的操作）。
+func AllOperationDefinitions() []OperationDefinition {
+	ops := make([]OperationDefinition, 0, len(operationRegistry))
 
-	for _, meta := range operationRegistry {
-		if meta.Permission == "" {
+	for op, meta := range operationRegistry {
+		// 跳过公开操作
+		if meta.Public {
 			continue
 		}
-		if seen[meta.Permission] {
-			continue
-		}
-		seen[meta.Permission] = true
 
-		// 解析权限代码：domain:resource:action
-		parts := splitPermission(meta.Permission)
-		perms = append(perms, PermissionDefinition{
-			Code:        meta.Permission,
-			Domain:      parts[0],
-			Resource:    parts[1],
-			Action:      parts[2],
+		ops = append(ops, OperationDefinition{
+			Code:        string(op),
+			Domain:      op.Domain(),
+			Module:      op.Module(),
+			Action:      op.Action(),
+			Label:       meta.Label,
 			Description: meta.Description,
+			Group:       meta.Group,
 		})
 	}
 
-	return perms
-}
-
-// splitPermission 解析权限代码为 [domain, resource, action]
-func splitPermission(code string) [3]string {
-	var result [3]string
-	idx := 0
-	start := 0
-	for i, c := range code {
-		if c == ':' {
-			if idx < 3 {
-				result[idx] = code[start:i]
-				idx++
-				start = i + 1
-			}
-		}
-	}
-	if idx < 3 && start < len(code) {
-		result[idx] = code[start:]
-	}
-	return result
+	return ops
 }
 
 // AuditActionDefinition 审计操作定义，供前端动态选项使用。
@@ -161,7 +139,7 @@ func All() []Operation {
 }
 
 // ByMethodAndPath 通过 HTTP 方法和路径查找操作。
-// 支持路径参数匹配：/api/admin/users/:id 匹配 /api/admin/users/123
+// 支持路径参数匹配：/api/system/users/:id 匹配 /api/system/users/123
 // 如果未找到返回空 Operation。
 func ByMethodAndPath(method HTTPMethod, path string) Operation {
 	for op, meta := range operationRegistry {
@@ -176,8 +154,8 @@ func ByMethodAndPath(method HTTPMethod, path string) Operation {
 }
 
 // matchPath 检查实际路径是否匹配模式路径。
-// pattern: /api/admin/users/:id（Gin 风格路径参数）
-// actual:  /api/admin/users/123
+// pattern: /api/system/users/:id（Gin 风格路径参数）
+// actual:  /api/system/users/123
 func matchPath(pattern, actual string) bool {
 	patternSegs := splitPathSegments(pattern)
 	actualSegs := splitPathSegments(actual)

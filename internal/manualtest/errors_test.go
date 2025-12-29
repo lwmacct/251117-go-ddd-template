@@ -32,25 +32,25 @@ func TestNotFoundEndpoints(t *testing.T) {
 		{
 			name:       "不存在的配置",
 			method:     "GET",
-			endpoint:   "/api/admin/settings/non_existent_setting_key_12345",
+			endpoint:   "/api/system/settings/non_existent_setting_key_12345",
 			wantStatus: 404,
 		},
 		{
 			name:       "不存在的用户",
 			method:     "GET",
-			endpoint:   "/api/admin/users/99999999",
+			endpoint:   "/api/system/users/99999999",
 			wantStatus: 404,
 		},
 		{
 			name:       "不存在的角色",
 			method:     "GET",
-			endpoint:   "/api/admin/roles/99999999",
+			endpoint:   "/api/system/roles/99999999",
 			wantStatus: 404,
 		},
 		{
 			name:       "不存在的菜单",
 			method:     "GET",
-			endpoint:   "/api/admin/menus/99999999",
+			endpoint:   "/api/system/menus/99999999",
 			wantStatus: 404,
 		},
 	}
@@ -87,13 +87,13 @@ func TestUnauthorizedEndpoints(t *testing.T) {
 		{
 			name:       "未认证访问用户列表",
 			method:     "GET",
-			endpoint:   "/api/admin/users",
+			endpoint:   "/api/system/users",
 			wantStatus: 401,
 		},
 		{
 			name:       "未认证访问角色列表",
 			method:     "GET",
-			endpoint:   "/api/admin/roles",
+			endpoint:   "/api/system/roles",
 			wantStatus: 401,
 		},
 		{
@@ -105,7 +105,7 @@ func TestUnauthorizedEndpoints(t *testing.T) {
 		{
 			name:       "未认证访问配置列表",
 			method:     "GET",
-			endpoint:   "/api/admin/settings",
+			endpoint:   "/api/system/settings",
 			wantStatus: 401,
 		},
 	}

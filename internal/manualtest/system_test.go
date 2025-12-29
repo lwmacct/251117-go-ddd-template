@@ -39,7 +39,7 @@ func TestSystemStats(t *testing.T) {
 	c := helper.LoginAsAdmin(t)
 
 	t.Log("\n获取系统统计...")
-	statsResult, err := helper.Get[stats.StatsDTO](c, "/api/admin/overview/stats", nil)
+	statsResult, err := helper.Get[stats.StatsDTO](c, "/api/system/overview/stats", nil)
 	require.NoError(t, err, "获取系统统计失败")
 
 	// 验证返回的数据

@@ -2,6 +2,7 @@ package role
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/event"
@@ -10,29 +11,28 @@ import (
 )
 
 // SetPermissionsHandler 设置权限命令处理器
+// 新 RBAC 模型：接受 Permission 模式（OperationPattern + ResourcePattern）
 type SetPermissionsHandler struct {
-	roleCommandRepo     role.CommandRepository
-	roleQueryRepo       role.QueryRepository
-	permissionQueryRepo role.PermissionQueryRepository
-	eventBus            event.EventBus
+	roleCommandRepo role.CommandRepository
+	roleQueryRepo   role.QueryRepository
+	eventBus        event.EventBus
 }
 
 // NewSetPermissionsHandler 创建设置权限命令处理器
 func NewSetPermissionsHandler(
 	roleCommandRepo role.CommandRepository,
 	roleQueryRepo role.QueryRepository,
-	permissionQueryRepo role.PermissionQueryRepository,
 	eventBus event.EventBus,
 ) *SetPermissionsHandler {
 	return &SetPermissionsHandler{
-		roleCommandRepo:     roleCommandRepo,
-		roleQueryRepo:       roleQueryRepo,
-		permissionQueryRepo: permissionQueryRepo,
-		eventBus:            eventBus,
+		roleCommandRepo: roleCommandRepo,
+		roleQueryRepo:   roleQueryRepo,
+		eventBus:        eventBus,
 	}
 }
 
 // Handle 处理设置权限命令
+// 新 RBAC 模型：直接设置 Permission 模式，无需验证 PermissionID
 func (h *SetPermissionsHandler) Handle(ctx context.Context, cmd SetPermissionsCommand) error {
 	// 1. 验证角色是否存在
 	exists, err := h.roleQueryRepo.Exists(ctx, cmd.RoleID)
@@ -43,24 +43,22 @@ func (h *SetPermissionsHandler) Handle(ctx context.Context, cmd SetPermissionsCo
 		return fmt.Errorf("role not found with id: %d", cmd.RoleID)
 	}
 
-	// 2. 验证所有权限ID是否有效
-	for _, permID := range cmd.PermissionIDs {
-		permExists, err := h.permissionQueryRepo.Exists(ctx, permID)
-		if err != nil {
-			return fmt.Errorf("failed to check permission existence: %w", err)
+	// 2. 验证权限模式有效性（基本格式验证）
+	for _, perm := range cmd.Permissions {
+		if perm.OperationPattern == "" {
+			return errors.New("operation_pattern cannot be empty")
 		}
-		if !permExists {
-			return fmt.Errorf("permission not found with id: %d", permID)
-		}
+		// ResourcePattern 允许为空，默认为 "*"
 	}
 
 	// 3. 设置权限
-	if err := h.roleCommandRepo.SetPermissions(ctx, cmd.RoleID, cmd.PermissionIDs); err != nil {
+	if err := h.roleCommandRepo.SetPermissions(ctx, cmd.RoleID, cmd.Permissions); err != nil {
 		return fmt.Errorf("failed to set permissions: %w", err)
 	}
 
 	// 4. 发布角色权限变更事件，触发缓存失效
-	evt := events.NewRolePermissionsChangedEvent(cmd.RoleID, cmd.PermissionIDs)
+	// 使用空 PermissionIDs 因为新模型不再使用 ID
+	evt := events.NewRolePermissionsChangedEvent(cmd.RoleID, nil)
 	if h.eventBus != nil {
 		_ = h.eventBus.Publish(ctx, evt) // 缓存失效失败不阻塞业务
 	}

@@ -32,7 +32,7 @@ func TestPATFlow(t *testing.T) {
 	expiresIn := 30 // 30 天
 	createReq := pat.CreateDTO{
 		Name:        tokenName,
-		Permissions: []string{"user:profile:read"},
+		Permissions: []string{"user:profile.read"},
 		ExpiresIn:   &expiresIn,
 		Description: "测试用 PAT",
 	}
@@ -140,8 +140,8 @@ func TestPATWithPermissions(t *testing.T) {
 	createReq := pat.CreateDTO{
 		Name: tokenName,
 		Permissions: []string{
-			"user:profile:read",
-			"user:profile:update",
+			"user:profile.read",
+			"user:profile.update",
 		},
 		Description: "仅限读写个人资料",
 	}

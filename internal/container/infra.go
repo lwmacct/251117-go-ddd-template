@@ -134,11 +134,10 @@ func runAutoMigrate(db *gorm.DB) error {
 	}
 
 	// 为多对多关联表创建索引
+	// role_permissions 使用复合主键，PostgreSQL 自动利用前缀索引
 	if err := database.CreateJoinTableIndexes(db, []database.JoinTableIndex{
 		{Table: "user_roles", Name: "idx_user_roles_user_id", Columns: "user_id"},
 		{Table: "user_roles", Name: "idx_user_roles_role_id", Columns: "role_id"},
-		{Table: "role_permissions", Name: "idx_role_permissions_role_model_id", Columns: "role_model_id"},
-		{Table: "role_permissions", Name: "idx_role_permissions_permission_model_id", Columns: "permission_model_id"},
 	}); err != nil {
 		return err
 	}

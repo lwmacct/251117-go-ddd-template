@@ -32,19 +32,19 @@ func ToRoleDTO(role *role.Role) *RoleDTO {
 }
 
 // ToPermissionDTO 将权限实体转换为 DTO
+// 新 RBAC 模型：使用 OperationPattern + ResourcePattern
 func ToPermissionDTO(permission *role.Permission) *PermissionDTO {
 	if permission == nil {
 		return nil
 	}
 
+	resourcePattern := permission.ResourcePattern
+	if resourcePattern == "" {
+		resourcePattern = "*"
+	}
+
 	return &PermissionDTO{
-		ID:          permission.ID,
-		Code:        permission.Code,
-		Name:        permission.Code, // 使用 Code 作为 Name
-		Description: permission.Description,
-		Resource:    permission.Resource,
-		Action:      permission.Action,
-		CreatedAt:   permission.CreatedAt,
-		UpdatedAt:   permission.UpdatedAt,
+		OperationPattern: permission.OperationPattern,
+		ResourcePattern:  resourcePattern,
 	}
 }

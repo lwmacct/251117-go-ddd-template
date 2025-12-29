@@ -23,7 +23,7 @@ export function useMenus() {
     errorMessage.value = "";
 
     try {
-      const response = await adminMenuApi.apiAdminMenusGet();
+      const response = await adminMenuApi.apiSystemMenusGet();
       menus.value = (response.data.data ?? []) as Menu[];
     } catch (error) {
       errorMessage.value = (error as Error).message || "获取菜单列表失败";
@@ -35,7 +35,7 @@ export function useMenus() {
 
   const fetchMenu = async (id: number): Promise<Menu | null> => {
     try {
-      const response = await adminMenuApi.apiAdminMenusIdGet(id);
+      const response = await adminMenuApi.apiSystemMenusIdGet(id);
       return extractData<Menu>(response.data) ?? null;
     } catch (error) {
       errorMessage.value = (error as Error).message || "获取菜单详情失败";
@@ -49,7 +49,7 @@ export function useMenus() {
     successMessage.value = "";
 
     try {
-      await adminMenuApi.apiAdminMenusPost(data);
+      await adminMenuApi.apiSystemMenusPost(data);
       successMessage.value = "菜单创建成功";
       await fetchMenus();
       return true;
@@ -67,7 +67,7 @@ export function useMenus() {
     successMessage.value = "";
 
     try {
-      await adminMenuApi.apiAdminMenusIdPut(id, data);
+      await adminMenuApi.apiSystemMenusIdPut(id, data);
       successMessage.value = "菜单更新成功";
       await fetchMenus();
       return true;
@@ -85,7 +85,7 @@ export function useMenus() {
     successMessage.value = "";
 
     try {
-      await adminMenuApi.apiAdminMenusIdDelete(id);
+      await adminMenuApi.apiSystemMenusIdDelete(id);
       successMessage.value = "菜单删除成功";
       await fetchMenus();
       return true;
@@ -102,7 +102,7 @@ export function useMenus() {
     successMessage.value = "";
 
     try {
-      await adminMenuApi.apiAdminMenusReorderPost(data);
+      await adminMenuApi.apiSystemMenusReorderPost(data);
       successMessage.value = "菜单排序已更新";
       return true;
     } catch (error) {
@@ -144,7 +144,7 @@ export function useMenus() {
 
     try {
       // 获取所有菜单
-      const response = await adminMenuApi.apiAdminMenusGet();
+      const response = await adminMenuApi.apiSystemMenusGet();
       const menuList = (response.data.data ?? []) as Menu[];
 
       if (menuList.length === 0) {

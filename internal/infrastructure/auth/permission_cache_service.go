@@ -7,6 +7,7 @@ import (
 
 	appauth "github.com/lwmacct/251117-go-ddd-template/internal/application/auth"
 	appuser "github.com/lwmacct/251117-go-ddd-template/internal/application/user"
+	"github.com/lwmacct/251117-go-ddd-template/internal/domain/role"
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/user"
 )
 
@@ -15,6 +16,8 @@ import (
 // 本服务封装 Cache-Aside 逻辑，供中间件使用：
 //   - GetUserPermissions: 先查缓存，未命中则查数据库并回写缓存
 //   - InvalidateUsersWithRole: 按角色批量失效（需查询数据库获取用户列表）
+//
+// 新 RBAC 模型：返回 []role.Permission 支持 Operation + Resource Pattern 匹配。
 //
 // 性能优化：
 // 查询数据库时，会同时写入用户实体缓存（UserWithRolesCacheService），
@@ -47,7 +50,9 @@ func NewPermissionCacheService(
 //  2. 缓存未命中，查询数据库
 //  3. 同步写入权限缓存
 //  4. 同步写入用户实体缓存（供后续 Handler 通过 Repository 装饰器命中）
-func (s *PermissionCacheService) GetUserPermissions(ctx context.Context, userID uint) ([]string, []string, error) {
+//
+// 返回 []role.Permission 支持 Operation + Resource Pattern 匹配。
+func (s *PermissionCacheService) GetUserPermissions(ctx context.Context, userID uint) ([]string, []role.Permission, error) {
 	// 1. 尝试从缓存读取
 	roles, permissions, err := s.cache.GetUserPermissions(ctx, userID)
 	if err == nil && (roles != nil || permissions != nil) {
@@ -61,7 +66,7 @@ func (s *PermissionCacheService) GetUserPermissions(ctx context.Context, userID 
 	}
 
 	roles = u.GetRoleNames()
-	permissions = u.GetPermissionCodes()
+	permissions = u.GetPermissions()
 
 	// 3. 同步写入权限缓存（Redis 写入 < 1ms，延迟可忽略）
 	if err := s.cache.SetUserPermissions(ctx, userID, roles, permissions); err != nil {

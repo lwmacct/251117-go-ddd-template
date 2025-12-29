@@ -25,27 +25,3 @@ type QueryRepository interface {
 	// ExistsByName checks if a role exists by name
 	ExistsByName(ctx context.Context, name string) (bool, error)
 }
-
-// PermissionQueryRepository 权限查询仓储接口（读操作）
-type PermissionQueryRepository interface {
-	// FindByID finds a permission by ID
-	FindByID(ctx context.Context, id uint) (*Permission, error)
-
-	// FindByCode finds a permission by code
-	FindByCode(ctx context.Context, code string) (*Permission, error)
-
-	// FindByIDs finds multiple permissions by their IDs
-	FindByIDs(ctx context.Context, ids []uint) ([]Permission, error)
-
-	// List returns all permissions with pagination
-	List(ctx context.Context, page, limit int) ([]Permission, int64, error)
-
-	// ListByResource returns all permissions for a specific resource
-	ListByResource(ctx context.Context, resource string) ([]Permission, error)
-
-	// Exists checks if a permission exists by ID
-	Exists(ctx context.Context, id uint) (bool, error)
-
-	// ExistsByCode checks if a permission exists by code
-	ExistsByCode(ctx context.Context, code string) (bool, error)
-}

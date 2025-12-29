@@ -45,8 +45,8 @@ export const AdminMenuManagementApiAxiosParamCreator = function (configuration?:
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiAdminMenusGet: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            const localVarPath = `/api/admin/menus`;
+        apiSystemMenusGet: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/system/menus`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -79,10 +79,10 @@ export const AdminMenuManagementApiAxiosParamCreator = function (configuration?:
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiAdminMenusIdDelete: async (id: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        apiSystemMenusIdDelete: async (id: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'id' is not null or undefined
-            assertParamExists('apiAdminMenusIdDelete', 'id', id)
-            const localVarPath = `/api/admin/menus/{id}`
+            assertParamExists('apiSystemMenusIdDelete', 'id', id)
+            const localVarPath = `/api/system/menus/{id}`
                 .replace(`{${"id"}}`, encodeURIComponent(String(id)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -116,10 +116,10 @@ export const AdminMenuManagementApiAxiosParamCreator = function (configuration?:
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiAdminMenusIdGet: async (id: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        apiSystemMenusIdGet: async (id: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'id' is not null or undefined
-            assertParamExists('apiAdminMenusIdGet', 'id', id)
-            const localVarPath = `/api/admin/menus/{id}`
+            assertParamExists('apiSystemMenusIdGet', 'id', id)
+            const localVarPath = `/api/system/menus/{id}`
                 .replace(`{${"id"}}`, encodeURIComponent(String(id)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -154,12 +154,12 @@ export const AdminMenuManagementApiAxiosParamCreator = function (configuration?:
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiAdminMenusIdPut: async (id: number, request: MenuUpdateDTO, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        apiSystemMenusIdPut: async (id: number, request: MenuUpdateDTO, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'id' is not null or undefined
-            assertParamExists('apiAdminMenusIdPut', 'id', id)
+            assertParamExists('apiSystemMenusIdPut', 'id', id)
             // verify required parameter 'request' is not null or undefined
-            assertParamExists('apiAdminMenusIdPut', 'request', request)
-            const localVarPath = `/api/admin/menus/{id}`
+            assertParamExists('apiSystemMenusIdPut', 'request', request)
+            const localVarPath = `/api/system/menus/{id}`
                 .replace(`{${"id"}}`, encodeURIComponent(String(id)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -196,10 +196,10 @@ export const AdminMenuManagementApiAxiosParamCreator = function (configuration?:
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiAdminMenusPost: async (request: MenuCreateDTO, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        apiSystemMenusPost: async (request: MenuCreateDTO, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'request' is not null or undefined
-            assertParamExists('apiAdminMenusPost', 'request', request)
-            const localVarPath = `/api/admin/menus`;
+            assertParamExists('apiSystemMenusPost', 'request', request)
+            const localVarPath = `/api/system/menus`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -235,10 +235,10 @@ export const AdminMenuManagementApiAxiosParamCreator = function (configuration?:
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiAdminMenusReorderPost: async (request: MenuReorderDTO, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        apiSystemMenusReorderPost: async (request: MenuReorderDTO, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'request' is not null or undefined
-            assertParamExists('apiAdminMenusReorderPost', 'request', request)
-            const localVarPath = `/api/admin/menus/reorder`;
+            assertParamExists('apiSystemMenusReorderPost', 'request', request)
+            const localVarPath = `/api/system/menus/reorder`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -283,10 +283,10 @@ export const AdminMenuManagementApiFp = function(configuration?: Configuration) 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async apiAdminMenusGet(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseArrayMenuMenuDTO>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.apiAdminMenusGet(options);
+        async apiSystemMenusGet(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseArrayMenuMenuDTO>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.apiSystemMenusGet(options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['AdminMenuManagementApi.apiAdminMenusGet']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['AdminMenuManagementApi.apiSystemMenusGet']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -296,10 +296,10 @@ export const AdminMenuManagementApiFp = function(configuration?: Configuration) 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async apiAdminMenusIdDelete(id: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.apiAdminMenusIdDelete(id, options);
+        async apiSystemMenusIdDelete(id: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.apiSystemMenusIdDelete(id, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['AdminMenuManagementApi.apiAdminMenusIdDelete']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['AdminMenuManagementApi.apiSystemMenusIdDelete']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -309,10 +309,10 @@ export const AdminMenuManagementApiFp = function(configuration?: Configuration) 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async apiAdminMenusIdGet(id: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseMenuMenuDTO>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.apiAdminMenusIdGet(id, options);
+        async apiSystemMenusIdGet(id: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseMenuMenuDTO>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.apiSystemMenusIdGet(id, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['AdminMenuManagementApi.apiAdminMenusIdGet']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['AdminMenuManagementApi.apiSystemMenusIdGet']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -323,10 +323,10 @@ export const AdminMenuManagementApiFp = function(configuration?: Configuration) 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async apiAdminMenusIdPut(id: number, request: MenuUpdateDTO, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseMenuMenuDTO>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.apiAdminMenusIdPut(id, request, options);
+        async apiSystemMenusIdPut(id: number, request: MenuUpdateDTO, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseMenuMenuDTO>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.apiSystemMenusIdPut(id, request, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['AdminMenuManagementApi.apiAdminMenusIdPut']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['AdminMenuManagementApi.apiSystemMenusIdPut']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -336,10 +336,10 @@ export const AdminMenuManagementApiFp = function(configuration?: Configuration) 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async apiAdminMenusPost(request: MenuCreateDTO, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseMenuMenuDTO>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.apiAdminMenusPost(request, options);
+        async apiSystemMenusPost(request: MenuCreateDTO, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseMenuMenuDTO>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.apiSystemMenusPost(request, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['AdminMenuManagementApi.apiAdminMenusPost']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['AdminMenuManagementApi.apiSystemMenusPost']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -349,10 +349,10 @@ export const AdminMenuManagementApiFp = function(configuration?: Configuration) 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async apiAdminMenusReorderPost(request: MenuReorderDTO, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.apiAdminMenusReorderPost(request, options);
+        async apiSystemMenusReorderPost(request: MenuReorderDTO, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.apiSystemMenusReorderPost(request, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['AdminMenuManagementApi.apiAdminMenusReorderPost']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['AdminMenuManagementApi.apiSystemMenusReorderPost']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
     }
@@ -371,8 +371,8 @@ export const AdminMenuManagementApiFactory = function (configuration?: Configura
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiAdminMenusGet(options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseArrayMenuMenuDTO> {
-            return localVarFp.apiAdminMenusGet(options).then((request) => request(axios, basePath));
+        apiSystemMenusGet(options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseArrayMenuMenuDTO> {
+            return localVarFp.apiSystemMenusGet(options).then((request) => request(axios, basePath));
         },
         /**
          * 管理员删除指定菜单（如果有子菜单，可能会失败）
@@ -381,8 +381,8 @@ export const AdminMenuManagementApiFactory = function (configuration?: Configura
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiAdminMenusIdDelete(id: number, options?: RawAxiosRequestConfig): AxiosPromise<void> {
-            return localVarFp.apiAdminMenusIdDelete(id, options).then((request) => request(axios, basePath));
+        apiSystemMenusIdDelete(id: number, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.apiSystemMenusIdDelete(id, options).then((request) => request(axios, basePath));
         },
         /**
          * 根据菜单ID获取菜单详细信息
@@ -391,8 +391,8 @@ export const AdminMenuManagementApiFactory = function (configuration?: Configura
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiAdminMenusIdGet(id: number, options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseMenuMenuDTO> {
-            return localVarFp.apiAdminMenusIdGet(id, options).then((request) => request(axios, basePath));
+        apiSystemMenusIdGet(id: number, options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseMenuMenuDTO> {
+            return localVarFp.apiSystemMenusIdGet(id, options).then((request) => request(axios, basePath));
         },
         /**
          * 管理员更新菜单的标题、路径、图标等信息
@@ -402,8 +402,8 @@ export const AdminMenuManagementApiFactory = function (configuration?: Configura
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiAdminMenusIdPut(id: number, request: MenuUpdateDTO, options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseMenuMenuDTO> {
-            return localVarFp.apiAdminMenusIdPut(id, request, options).then((request) => request(axios, basePath));
+        apiSystemMenusIdPut(id: number, request: MenuUpdateDTO, options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseMenuMenuDTO> {
+            return localVarFp.apiSystemMenusIdPut(id, request, options).then((request) => request(axios, basePath));
         },
         /**
          * 管理员创建新的系统菜单项
@@ -412,8 +412,8 @@ export const AdminMenuManagementApiFactory = function (configuration?: Configura
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiAdminMenusPost(request: MenuCreateDTO, options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseMenuMenuDTO> {
-            return localVarFp.apiAdminMenusPost(request, options).then((request) => request(axios, basePath));
+        apiSystemMenusPost(request: MenuCreateDTO, options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseMenuMenuDTO> {
+            return localVarFp.apiSystemMenusPost(request, options).then((request) => request(axios, basePath));
         },
         /**
          * 管理员批量更新菜单的排序和父级关系
@@ -422,8 +422,8 @@ export const AdminMenuManagementApiFactory = function (configuration?: Configura
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiAdminMenusReorderPost(request: MenuReorderDTO, options?: RawAxiosRequestConfig): AxiosPromise<void> {
-            return localVarFp.apiAdminMenusReorderPost(request, options).then((request) => request(axios, basePath));
+        apiSystemMenusReorderPost(request: MenuReorderDTO, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.apiSystemMenusReorderPost(request, options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -442,8 +442,8 @@ export class AdminMenuManagementApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof AdminMenuManagementApi
      */
-    public apiAdminMenusGet(options?: RawAxiosRequestConfig) {
-        return AdminMenuManagementApiFp(this.configuration).apiAdminMenusGet(options).then((request) => request(this.axios, this.basePath));
+    public apiSystemMenusGet(options?: RawAxiosRequestConfig) {
+        return AdminMenuManagementApiFp(this.configuration).apiSystemMenusGet(options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -454,8 +454,8 @@ export class AdminMenuManagementApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof AdminMenuManagementApi
      */
-    public apiAdminMenusIdDelete(id: number, options?: RawAxiosRequestConfig) {
-        return AdminMenuManagementApiFp(this.configuration).apiAdminMenusIdDelete(id, options).then((request) => request(this.axios, this.basePath));
+    public apiSystemMenusIdDelete(id: number, options?: RawAxiosRequestConfig) {
+        return AdminMenuManagementApiFp(this.configuration).apiSystemMenusIdDelete(id, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -466,8 +466,8 @@ export class AdminMenuManagementApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof AdminMenuManagementApi
      */
-    public apiAdminMenusIdGet(id: number, options?: RawAxiosRequestConfig) {
-        return AdminMenuManagementApiFp(this.configuration).apiAdminMenusIdGet(id, options).then((request) => request(this.axios, this.basePath));
+    public apiSystemMenusIdGet(id: number, options?: RawAxiosRequestConfig) {
+        return AdminMenuManagementApiFp(this.configuration).apiSystemMenusIdGet(id, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -479,8 +479,8 @@ export class AdminMenuManagementApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof AdminMenuManagementApi
      */
-    public apiAdminMenusIdPut(id: number, request: MenuUpdateDTO, options?: RawAxiosRequestConfig) {
-        return AdminMenuManagementApiFp(this.configuration).apiAdminMenusIdPut(id, request, options).then((request) => request(this.axios, this.basePath));
+    public apiSystemMenusIdPut(id: number, request: MenuUpdateDTO, options?: RawAxiosRequestConfig) {
+        return AdminMenuManagementApiFp(this.configuration).apiSystemMenusIdPut(id, request, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -491,8 +491,8 @@ export class AdminMenuManagementApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof AdminMenuManagementApi
      */
-    public apiAdminMenusPost(request: MenuCreateDTO, options?: RawAxiosRequestConfig) {
-        return AdminMenuManagementApiFp(this.configuration).apiAdminMenusPost(request, options).then((request) => request(this.axios, this.basePath));
+    public apiSystemMenusPost(request: MenuCreateDTO, options?: RawAxiosRequestConfig) {
+        return AdminMenuManagementApiFp(this.configuration).apiSystemMenusPost(request, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -503,8 +503,8 @@ export class AdminMenuManagementApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof AdminMenuManagementApi
      */
-    public apiAdminMenusReorderPost(request: MenuReorderDTO, options?: RawAxiosRequestConfig) {
-        return AdminMenuManagementApiFp(this.configuration).apiAdminMenusReorderPost(request, options).then((request) => request(this.axios, this.basePath));
+    public apiSystemMenusReorderPost(request: MenuReorderDTO, options?: RawAxiosRequestConfig) {
+        return AdminMenuManagementApiFp(this.configuration).apiSystemMenusReorderPost(request, options).then((request) => request(this.axios, this.basePath));
     }
 }
 

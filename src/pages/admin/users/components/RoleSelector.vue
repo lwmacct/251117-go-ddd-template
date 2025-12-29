@@ -33,7 +33,7 @@ const fetchRoles = async () => {
   errorMessage.value = "";
 
   try {
-    const response = await adminRoleApi.apiAdminRolesGet(100, 1);
+    const response = await adminRoleApi.apiSystemRolesGet(100, 1);
     const result = extractList<RoleRoleDTO>(response.data);
     roles.value = result.data;
 

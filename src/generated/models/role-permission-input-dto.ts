@@ -17,19 +17,19 @@
 /**
  * 
  * @export
- * @interface RolePermissionDTO
+ * @interface RolePermissionInputDTO
  */
-export interface RolePermissionDTO {
+export interface RolePermissionInputDTO {
     /**
      * 
      * @type {string}
-     * @memberof RolePermissionDTO
+     * @memberof RolePermissionInputDTO
      */
-    'operation_pattern'?: string;
+    'operation_pattern': string;
     /**
      * 
      * @type {string}
-     * @memberof RolePermissionDTO
+     * @memberof RolePermissionInputDTO
      */
     'resource_pattern'?: string;
 }

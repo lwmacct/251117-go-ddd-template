@@ -1,5 +1,9 @@
 package role
 
+import (
+	"github.com/lwmacct/251117-go-ddd-template/internal/domain/role"
+)
+
 // CreateCommand 创建角色命令
 type CreateCommand struct {
 	Name        string // 角色名称（唯一）
@@ -20,7 +24,8 @@ type DeleteCommand struct {
 }
 
 // SetPermissionsCommand 设置角色权限命令
+// 新 RBAC 模型：使用 Permission 模式（OperationPattern + ResourcePattern）
 type SetPermissionsCommand struct {
-	RoleID        uint
-	PermissionIDs []uint
+	RoleID      uint
+	Permissions []role.Permission
 }

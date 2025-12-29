@@ -4,7 +4,7 @@ import { useRoles } from "./composables/useRoles";
 import { ITEMS_PER_PAGE_OPTIONS } from "@/composables";
 import RoleDialog from "./components/RoleDialog.vue";
 import PermissionSelector from "./components/PermissionSelector.vue";
-import type { RoleRoleDTO, RoleCreateDTO, RoleUpdateDTO } from "@models";
+import type { RoleRoleDTO, RoleCreateDTO, RoleUpdateDTO, RolePermissionInputDTO } from "@models";
 
 // 使用 composable（搜索现在通过 watch 自动触发）
 const {
@@ -85,10 +85,10 @@ const handleSaveRole = async (data: RoleCreateDTO | RoleUpdateDTO) => {
   }
 };
 
-const handleSavePermissions = async (permissionIds: number[]) => {
+const handleSavePermissions = async (permissions: RolePermissionInputDTO[]) => {
   if (!selectedRole.value?.id) return;
 
-  const success = await setPermissions(selectedRole.value.id, permissionIds);
+  const success = await setPermissions(selectedRole.value.id, permissions);
   if (success) {
     permissionDialog.value = false;
   }

@@ -4,23 +4,19 @@ import (
 	"context"
 	"log/slog"
 
-	"github.com/lwmacct/251117-go-ddd-template/internal/domain/operation"
 	"github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/persistence"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
 
-// RBACSeeder seeds roles, permissions, and admin user
+// RBACSeeder seeds roles and admin user
+// 使用 Operation-Centric RBAC：角色直接关联 Operation 模式
 type RBACSeeder struct{}
 
 // Seed implements Seeder interface
 func (s *RBACSeeder) Seed(ctx context.Context, db *gorm.DB) error {
 	return db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
-		if err := s.seedPermissions(ctx, tx); err != nil {
-			return err
-		}
-
 		if err := s.seedRoles(ctx, tx); err != nil {
 			return err
 		}
@@ -29,68 +25,51 @@ func (s *RBACSeeder) Seed(ctx context.Context, db *gorm.DB) error {
 	})
 }
 
-// seedPermissions seeds initial permissions with three-part format: domain:resource:action
-func (s *RBACSeeder) seedPermissions(ctx context.Context, db *gorm.DB) error {
-	db = db.WithContext(ctx)
-
-	// 从统一操作注册表获取所有权限定义
-	defs := operation.AllPermissions()
-	permissions := make([]persistence.PermissionModel, 0, len(defs))
-	for _, def := range defs {
-		permissions = append(permissions, persistence.PermissionModel{
-			Domain:      def.Domain,
-			Resource:    def.Resource,
-			Action:      def.Action,
-			Code:        def.Code,
-			Description: def.Description,
-		})
-	}
-
-	result := db.Clauses(clause.OnConflict{
-		Columns:   []clause.Column{{Name: "code"}},
-		DoNothing: true,
-	}).Create(&permissions)
-	if result.Error != nil {
-		return result.Error
-	}
-
-	slog.Info("Permissions ensured", "total", len(permissions), "inserted", result.RowsAffected)
-
-	return nil
-}
-
-// seedRoles seeds initial roles with permissions
-// 优化：直接操作关联表，避免 N+1 问题
+// seedRoles seeds initial roles with operation patterns
 func (s *RBACSeeder) seedRoles(ctx context.Context, db *gorm.DB) error {
 	db = db.WithContext(ctx)
 
-	// 1. 获取所有权限（一次查询）
-	var allPermissions []persistence.PermissionModel
-	if err := db.Find(&allPermissions).Error; err != nil {
-		return err
+	// 定义角色及其权限模式
+	// Operation-Centric RBAC: 使用 Operation 模式而非具体权限 ID
+	type permissionConfig struct {
+		operationPattern string
+		resourcePattern  string
 	}
 
-	// 按 domain 分组
-	permByDomain := make(map[string][]persistence.PermissionModel)
-	for _, p := range allPermissions {
-		permByDomain[p.Domain] = append(permByDomain[p.Domain], p)
-	}
-
-	// 2. 定义角色及其权限
 	type roleConfig struct {
 		name        string
 		displayName string
 		description string
 		isSystem    bool
-		permDomains []string // nil 表示所有权限
+		permissions []permissionConfig
 	}
 
 	roles := []roleConfig{
-		{"admin", "Administrator", "Full system access with all permissions", true, nil},
-		{"user", "Regular User", "Standard user with limited permissions", true, []string{"user", "auth"}},
+		{
+			name:        "admin",
+			displayName: "系统管理员",
+			description: "完整系统访问权限",
+			isSystem:    true,
+			permissions: []permissionConfig{
+				// 超级管理员：所有操作对所有资源
+				{operationPattern: "*", resourcePattern: "*"},
+			},
+		},
+		{
+			name:        "user",
+			displayName: "普通用户",
+			description: "标准用户权限",
+			isSystem:    true,
+			permissions: []permissionConfig{
+				// 用户自服务操作
+				{operationPattern: "user:*", resourcePattern: "user/self"},
+				// 2FA 操作
+				{operationPattern: "auth:2fa.*", resourcePattern: "*"},
+			},
+		},
 	}
 
-	// 3. 批量创建角色并分配权限
+	// 创建角色并分配权限
 	for _, r := range roles {
 		role := persistence.RoleModel{
 			Name:        r.name,
@@ -107,32 +86,32 @@ func (s *RBACSeeder) seedRoles(ctx context.Context, db *gorm.DB) error {
 			return err
 		}
 
-		// 确定该角色需要的权限
-		var perms []persistence.PermissionModel
-		if r.permDomains == nil {
-			perms = allPermissions
-		} else {
-			for _, domain := range r.permDomains {
-				perms = append(perms, permByDomain[domain]...)
-			}
+		// 删除现有权限（确保幂等）
+		if err := db.Where("role_id = ?", role.ID).Delete(&persistence.RolePermissionModel{}).Error; err != nil {
+			return err
 		}
 
-		// 4. 直接批量插入关联表（跳过 Association API）
-		if len(perms) > 0 {
-			records := make([]map[string]any, 0, len(perms))
-			for _, p := range perms {
-				records = append(records, map[string]any{
-					"role_model_id":       role.ID,
-					"permission_model_id": p.ID,
-				})
+		// 插入新权限
+		if len(r.permissions) > 0 {
+			perms := make([]persistence.RolePermissionModel, len(r.permissions))
+			for i, p := range r.permissions {
+				resPattern := p.resourcePattern
+				if resPattern == "" {
+					resPattern = "*"
+				}
+				perms[i] = persistence.RolePermissionModel{
+					RoleID:           role.ID,
+					OperationPattern: p.operationPattern,
+					ResourcePattern:  resPattern,
+				}
 			}
-			// 一次性插入所有关联，冲突时跳过
-			if err := db.Table("role_permissions").Clauses(clause.OnConflict{DoNothing: true}).Create(&records).Error; err != nil {
+
+			if err := db.Create(&perms).Error; err != nil {
 				return err
 			}
 		}
 
-		slog.Info("Role ensured", "name", role.Name, "permissions", len(perms))
+		slog.Info("Role ensured", "name", role.Name, "permissions", len(r.permissions))
 	}
 
 	return nil

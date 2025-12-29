@@ -1,16 +1,6 @@
 <script setup lang="ts">
-import { ref, onMounted, computed, watch } from "vue";
-import { adminRoleApi, extractList, type RolePermissionDTO } from "@/api";
-
-// 权限树节点类型
-interface PermissionTreeNode {
-  key: string;
-  label: string;
-  resource?: string;
-  permissions?: RolePermissionDTO[];
-  children?: PermissionTreeNode[];
-  permission?: RolePermissionDTO;
-}
+import { ref, watch, computed } from "vue";
+import type { RolePermissionDTO, RolePermissionInputDTO } from "@models";
 
 interface Props {
   modelValue: boolean;
@@ -20,116 +10,82 @@ interface Props {
 
 interface Emits {
   (e: "update:modelValue", value: boolean): void;
-  (e: "save", permissionIds: number[]): void;
+  (e: "save", permissions: RolePermissionInputDTO[]): void;
 }
 
 const props = defineProps<Props>();
 const emit = defineEmits<Emits>();
 
-const loading = ref(false);
-const permissions = ref<RolePermissionDTO[]>([]);
-const selectedPermissionIds = ref<number[]>([]);
+// 编辑中的权限列表
+const editingPermissions = ref<RolePermissionInputDTO[]>([]);
 const errorMessage = ref("");
-const expandAll = ref(false);
-const expandedPanels = ref<number[]>([]);
 
-// 将权限列表转换为树形结构
-const permissionTree = computed<PermissionTreeNode[]>(() => {
-  const tree: Map<string, PermissionTreeNode> = new Map();
+// 预定义的 Operation 模式示例
+const operationExamples = [
+  { pattern: "sys:users.*", desc: "用户管理所有操作" },
+  { pattern: "sys:roles.*", desc: "角色管理所有操作" },
+  { pattern: "sys:settings.*", desc: "设置管理所有操作" },
+  { pattern: "user:profile.*", desc: "个人资料所有操作" },
+  { pattern: "user:tokens.*", desc: "PAT 令牌所有操作" },
+];
 
-  permissions.value.forEach((perm) => {
-    // 从 resource 字段推断 domain（假设格式为 "domain:resource" 或仅 "resource"）
-    const resourceStr = perm.resource ?? "default";
-    const resourceParts = resourceStr.split(":");
-    const domain: string = resourceParts.length > 1 ? (resourceParts[0] ?? "default") : "default";
-    const resource: string = resourceParts.length > 1 ? (resourceParts[1] ?? resourceStr) : resourceStr;
-    const domainKey = domain;
-    const resourceKey = `${domain}:${resource}`;
+// 预定义的 Resource 模式示例
+const resourceExamples = [
+  { pattern: "*", desc: "所有资源" },
+  { pattern: "user/self", desc: "仅限自身" },
+  { pattern: "user/*", desc: "所有用户" },
+];
 
-    // 创建 domain 节点
-    if (!tree.has(domainKey)) {
-      tree.set(domainKey, {
-        key: domainKey,
-        label: domain,
-        children: [],
-      });
-    }
-
-    // 创建 resource 节点
-    const domainNode = tree.get(domainKey)!;
-    let resourceNode = domainNode.children?.find((c) => c.key === resourceKey);
-
-    if (!resourceNode) {
-      resourceNode = {
-        key: resourceKey,
-        label: resource,
-        children: [],
-      };
-      domainNode.children?.push(resourceNode);
-    }
-
-    // 添加 action 节点（叶子节点）
-    resourceNode.children?.push({
-      key: `${perm.code ?? ""}`,
-      label: `${perm.action ?? ""} ${perm.description ? `(${perm.description})` : ""}`,
-      permission: perm,
-    });
-  });
-
-  return Array.from(tree.values());
-});
-
-const fetchPermissions = async () => {
-  loading.value = true;
-  errorMessage.value = "";
-
-  try {
-    const response = await adminRoleApi.apiAdminPermissionsGet(1000, 1);
-    const result = extractList<RolePermissionDTO>(response.data);
-    permissions.value = result.data;
-    selectedPermissionIds.value = props.rolePermissions.map((p) => p.id).filter((id): id is number => id !== undefined);
-  } catch (error) {
-    errorMessage.value = (error as Error).message || "获取权限列表失败";
-  } finally {
-    loading.value = false;
-  }
+// 初始化编辑数据
+const initPermissions = () => {
+  editingPermissions.value = props.rolePermissions.map((p) => ({
+    operation_pattern: p.operation_pattern ?? "",
+    resource_pattern: p.resource_pattern ?? "*",
+  }));
 };
+
+// 添加新权限
+const addPermission = () => {
+  editingPermissions.value.push({
+    operation_pattern: "",
+    resource_pattern: "*",
+  });
+};
+
+// 删除权限
+const removePermission = (index: number) => {
+  editingPermissions.value.splice(index, 1);
+};
+
+// 验证权限
+const isValid = computed(() => {
+  return editingPermissions.value.every((p) => p.operation_pattern.trim() !== "");
+});
 
 const closeDialog = () => {
   emit("update:modelValue", false);
 };
 
 const handleSave = () => {
-  emit("save", selectedPermissionIds.value);
+  if (!isValid.value) {
+    errorMessage.value = "所有权限必须填写 Operation 模式";
+    return;
+  }
+  emit("save", editingPermissions.value);
   closeDialog();
 };
 
-// 切换权限选择
-const _togglePermission = (permId: number) => {
-  const index = selectedPermissionIds.value.indexOf(permId);
-  if (index > -1) {
-    selectedPermissionIds.value.splice(index, 1);
-  } else {
-    selectedPermissionIds.value.push(permId);
-  }
-};
-
-// 监听展开/折叠全部的变化
-watch(expandAll, (newVal) => {
-  if (newVal) {
-    // 展开全部：设置所有面板的索引
-    expandedPanels.value = permissionTree.value.map((_, i) => i);
-  } else {
-    // 折叠全部：清空数组
-    expandedPanels.value = [];
-  }
-});
-
-onMounted(() => {
-  if (props.modelValue) {
-    fetchPermissions();
-  }
-});
+// 监听对话框打开
+watch(
+  () => props.modelValue,
+  (newVal) => {
+    if (newVal) {
+      initPermissions();
+      errorMessage.value = "";
+    }
+  },
+  { immediate: true },
+);
 </script>
 
 <template>
@@ -144,59 +100,81 @@ onMounted(() => {
           {{ errorMessage }}
         </v-alert>
 
-        <div class="d-flex justify-end mb-2">
-          <v-btn variant="text" size="small" @click="expandAll = !expandAll">
-            {{ expandAll ? "折叠全部" : "展开全部" }}
-          </v-btn>
+        <!-- 说明 -->
+        <v-alert type="info" variant="tonal" class="mb-4">
+          <div class="text-subtitle-2 mb-2">新 RBAC 模型说明</div>
+          <div class="text-body-2">
+            权限由 <strong>Operation 模式</strong> + <strong>Resource 模式</strong> 组成。
+            <br />
+            • Operation 格式：<code>域:模块.动作</code>，如 <code>sys:users.create</code>
+            <br />
+            • Resource 格式：<code>类型/ID</code>，如 <code>user/*</code> 或 <code>user/self</code>
+            <br />
+            • 支持通配符：<code>*</code> 匹配所有
+          </div>
+        </v-alert>
+
+        <!-- 权限列表 -->
+        <div class="mb-4">
+          <div v-for="(perm, index) in editingPermissions" :key="index" class="d-flex align-center gap-2 mb-2">
+            <v-text-field
+              v-model="perm.operation_pattern"
+              label="Operation 模式"
+              placeholder="如: sys:users.*"
+              density="compact"
+              variant="outlined"
+              style="flex: 2"
+              :rules="[(v) => !!v || 'Operation 模式必填']"
+            />
+            <v-text-field
+              v-model="perm.resource_pattern"
+              label="Resource 模式"
+              placeholder="默认: *"
+              density="compact"
+              variant="outlined"
+              style="flex: 1"
+            />
+            <v-btn icon="mdi-delete" variant="text" color="error" size="small" @click="removePermission(index)" />
+          </div>
+
+          <v-btn variant="tonal" color="primary" size="small" prepend-icon="mdi-plus" @click="addPermission"> 添加权限 </v-btn>
         </div>
 
-        <v-progress-linear v-if="loading" indeterminate color="primary" class="mb-4"></v-progress-linear>
-
-        <!-- 权限树 -->
-        <div v-if="!loading && permissionTree.length > 0" class="permission-tree">
-          <v-expansion-panels v-model="expandedPanels" multiple>
-            <v-expansion-panel v-for="domainNode in permissionTree" :key="domainNode.key">
-              <v-expansion-panel-title>
-                <v-icon start>mdi-folder</v-icon>
-                <strong>{{ domainNode.label }}</strong>
-              </v-expansion-panel-title>
-              <v-expansion-panel-text>
-                <div v-for="resourceNode in domainNode.children" :key="resourceNode.key" class="ml-4 mb-3">
-                  <div class="text-subtitle-2 mb-2">
-                    <v-icon size="small">mdi-file-tree</v-icon>
-                    {{ resourceNode.label }}
-                  </div>
-                  <div class="ml-6">
-                    <v-checkbox
-                      v-for="actionNode in resourceNode.children"
-                      :key="actionNode.key"
-                      v-model="selectedPermissionIds"
-                      :value="actionNode.permission!.id"
-                      :label="actionNode.label"
-                      density="compact"
-                      hide-details
-                    ></v-checkbox>
-                  </div>
-                </div>
-              </v-expansion-panel-text>
-            </v-expansion-panel>
-          </v-expansion-panels>
-        </div>
-
-        <v-alert v-if="!loading && permissions.length === 0" type="info"> 暂无可用权限 </v-alert>
+        <!-- 快速添加示例 -->
+        <v-expansion-panels variant="accordion" class="mb-4">
+          <v-expansion-panel title="常用 Operation 模式">
+            <v-expansion-panel-text>
+              <v-chip
+                v-for="ex in operationExamples"
+                :key="ex.pattern"
+                class="ma-1"
+                size="small"
+                @click="
+                  editingPermissions.push({
+                    operation_pattern: ex.pattern,
+                    resource_pattern: '*',
+                  })
+                "
+              >
+                {{ ex.pattern }} - {{ ex.desc }}
+              </v-chip>
+            </v-expansion-panel-text>
+          </v-expansion-panel>
+          <v-expansion-panel title="常用 Resource 模式">
+            <v-expansion-panel-text>
+              <v-chip v-for="ex in resourceExamples" :key="ex.pattern" class="ma-1" size="small" disabled>
+                {{ ex.pattern }} - {{ ex.desc }}
+              </v-chip>
+            </v-expansion-panel-text>
+          </v-expansion-panel>
+        </v-expansion-panels>
       </v-card-text>
 
       <v-card-actions>
         <v-spacer></v-spacer>
         <v-btn variant="text" @click="closeDialog">取消</v-btn>
-        <v-btn color="primary" variant="elevated" :disabled="loading" @click="handleSave">保存</v-btn>
+        <v-btn color="primary" variant="elevated" :disabled="!isValid" @click="handleSave">保存</v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
 </template>
-
-<style scoped>
-.permission-tree {
-  width: 100%;
-}
-</style>

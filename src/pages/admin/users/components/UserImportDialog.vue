@@ -156,7 +156,7 @@ const handleImport = async () => {
       status: user.status as "active" | "inactive" | undefined,
     }));
 
-    const response = await adminUserApi.apiAdminUsersBatchPost({ users });
+    const response = await adminUserApi.apiSystemUsersBatchPost({ users });
     const result = response.data.data as UserBatchCreateResultDTO;
     importResult.value = {
       success: result.success ?? 0,

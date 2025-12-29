@@ -15,9 +15,16 @@ type UpdateDTO struct {
 	Description *string `json:"description,omitempty" binding:"omitempty,max=255"`
 }
 
+// PermissionInputDTO 权限输入 DTO（用于设置权限）
+type PermissionInputDTO struct {
+	OperationPattern string `json:"operation_pattern" binding:"required" example:"sys:users.*"`
+	ResourcePattern  string `json:"resource_pattern" binding:"omitempty" example:"user/*"`
+}
+
 // SetPermissionsDTO 设置角色权限请求 DTO
+// 新 RBAC 模型：使用 Operation + Resource Pattern
 type SetPermissionsDTO struct {
-	PermissionIDs []uint `json:"permission_ids" binding:"required"`
+	Permissions []PermissionInputDTO `json:"permissions" binding:"required"`
 }
 
 // CreateResultDTO 创建角色响应 DTO
@@ -40,15 +47,10 @@ type RoleDTO struct {
 }
 
 // PermissionDTO 权限响应 DTO
+// 新 RBAC 模型：Operation + Resource Pattern
 type PermissionDTO struct {
-	ID          uint      `json:"id"`
-	Code        string    `json:"code"`
-	Name        string    `json:"name"`
-	Description string    `json:"description"`
-	Resource    string    `json:"resource"`
-	Action      string    `json:"action"`
-	CreatedAt   time.Time `json:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at"`
+	OperationPattern string `json:"operation_pattern" example:"sys:users.*"`
+	ResourcePattern  string `json:"resource_pattern" example:"user/*"`
 }
 
 // ListRolesDTO 角色列表响应 DTO
@@ -57,12 +59,4 @@ type ListRolesDTO struct {
 	Total int64      `json:"total"`
 	Page  int        `json:"page"`
 	Limit int        `json:"limit"`
-}
-
-// ListPermissionsDTO 权限列表响应 DTO
-type ListPermissionsDTO struct {
-	Permissions []*PermissionDTO `json:"permissions"`
-	Total       int64            `json:"total"`
-	Page        int              `json:"page"`
-	Limit       int              `json:"limit"`
 }

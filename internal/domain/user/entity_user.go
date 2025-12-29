@@ -4,6 +4,7 @@ import (
 	"slices"
 	"time"
 
+	"github.com/lwmacct/251117-go-ddd-template/internal/domain/operation"
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/role"
 )
 
@@ -41,16 +42,20 @@ func (u *User) HasAnyRole(roleNames ...string) bool {
 	return slices.ContainsFunc(roleNames, u.HasRole)
 }
 
-// HasPermission 检查用户是否拥有指定权限
-func (u *User) HasPermission(permissionCode string) bool {
+// HasPermission 检查用户是否有指定操作对指定资源的权限。
+// 遍历用户所有角色的权限进行模式匹配。
+func (u *User) HasPermission(op operation.Operation, res operation.Resource) bool {
 	for _, r := range u.Roles {
-		for _, p := range r.Permissions {
-			if p.Code == permissionCode {
-				return true
-			}
+		if r.HasPermission(op, res) {
+			return true
 		}
 	}
 	return false
+}
+
+// HasOperationPermission 检查用户是否有指定操作的权限（资源为 *）。
+func (u *User) HasOperationPermission(op operation.Operation) bool {
+	return u.HasPermission(op, operation.ResourceAll)
 }
 
 // GetRoleNames 获取用户所有角色名称
@@ -62,30 +67,23 @@ func (u *User) GetRoleNames() []string {
 	return names
 }
 
-// GetPermissions 获取用户所有去重后的权限
+// GetPermissions 获取用户所有去重后的权限。
+// 基于 OperationPattern + ResourcePattern 去重。
 func (u *User) GetPermissions() []role.Permission {
-	permissionMap := make(map[uint]role.Permission)
+	seen := make(map[string]bool)
+	var permissions []role.Permission
+
 	for _, r := range u.Roles {
 		for _, p := range r.Permissions {
-			permissionMap[p.ID] = p
+			key := p.OperationPattern + ":" + p.ResourcePattern
+			if !seen[key] {
+				seen[key] = true
+				permissions = append(permissions, p)
+			}
 		}
 	}
 
-	permissions := make([]role.Permission, 0, len(permissionMap))
-	for _, p := range permissionMap {
-		permissions = append(permissions, p)
-	}
 	return permissions
-}
-
-// GetPermissionCodes 获取用户所有去重后的权限代码
-func (u *User) GetPermissionCodes() []string {
-	permissions := u.GetPermissions()
-	codes := make([]string, 0, len(permissions))
-	for _, p := range permissions {
-		codes = append(codes, p.Code)
-	}
-	return codes
 }
 
 // IsAdmin 检查用户是否拥有管理员角色

@@ -15,7 +15,7 @@ export function useOverview() {
     errorMessage.value = "";
 
     try {
-      const response = await overviewApi.apiAdminOverviewStatsGet();
+      const response = await overviewApi.apiSystemOverviewStatsGet();
       stats.value = extractData<StatsStatsDTO>(response.data) ?? null;
     } catch (error) {
       errorMessage.value = (error as Error).message || "获取统计信息失败";

@@ -13,6 +13,9 @@
  */
 
 
+// May contain unused imports in some cases
+// @ts-ignore
+import type { RolePermissionInputDTO } from './role-permission-input-dto';
 
 /**
  * 
@@ -22,9 +25,9 @@
 export interface RoleSetPermissionsDTO {
     /**
      * 
-     * @type {Array<number>}
+     * @type {Array<RolePermissionInputDTO>}
      * @memberof RoleSetPermissionsDTO
      */
-    'permission_ids': Array<number>;
+    'permissions': Array<RolePermissionInputDTO>;
 }
 

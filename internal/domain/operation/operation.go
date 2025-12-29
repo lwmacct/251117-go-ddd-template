@@ -1,7 +1,17 @@
 package operation
 
 // Operation 统一操作标识符。
-// 格式：{domain}.{resource}.{action}，如 admin.users.create
+// 格式：{domain}:{module}.{action}
+//
+// 域划分：
+//   - auth: 认证域（公开访问）
+//   - sys:  系统管理域（需管理员权限）
+//   - user: 用户自服务域（当前用户权限）
+//
+// 示例：
+//   - auth:login         认证域登录操作
+//   - sys:users.create   系统域用户模块创建操作
+//   - user:profile.read  用户域个人资料读取操作
 type Operation string
 
 // ============================================================================
@@ -59,14 +69,13 @@ const (
 // ============================================================================
 
 // operationMeta 操作元数据
+//
+// Operation-Centric RBAC: Operation code 本身即权限标识符，
+// 无需额外的 Permission 字段。权限检查直接使用 Operation code。
 type operationMeta struct {
 	// HTTP 路由
 	Method HTTPMethod // HTTP 方法
 	Path   string     // 路由路径（Gin 格式），如 /api/admin/users/:id
-
-	// 权限控制
-	Permission string // 权限代码，如 admin:users:create（空=公开）
-	Role       string // 要求角色，如 admin（空=不限角色）
 
 	// 审计日志（GitHub Audit Log 风格）
 	AuditAction    string         // 审计操作标识，如 user.create（空=不审计）
@@ -79,4 +88,7 @@ type operationMeta struct {
 
 	// Swagger 分组
 	Group string // Swagger Tags，如 管理员 - 用户管理 (Admin - User)
+
+	// 公开访问标记（默认需要权限检查）
+	Public bool // true=公开访问，无需权限检查
 }

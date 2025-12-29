@@ -25,13 +25,13 @@ func CreateTestUser(t *testing.T, c *Client, prefix string) *user.UserWithRolesD
 		FullName: "测试用户",
 	}
 
-	resp, err := Post[user.UserWithRolesDTO](c, "/api/admin/users", req)
+	resp, err := Post[user.UserWithRolesDTO](c, "/api/system/users", req)
 	require.NoError(t, err, "创建测试用户失败: %s", username)
 
 	userID := resp.ID
 	t.Cleanup(func() {
 		if userID > 0 {
-			_ = c.Delete(fmt.Sprintf("/api/admin/users/%d", userID))
+			_ = c.Delete(fmt.Sprintf("/api/system/users/%d", userID))
 		}
 	})
 
@@ -50,13 +50,13 @@ func CreateTestRole(t *testing.T, c *Client, prefix string) *role.CreateResultDT
 		Description: "自动创建的测试角色",
 	}
 
-	resp, err := Post[role.CreateResultDTO](c, "/api/admin/roles", req)
+	resp, err := Post[role.CreateResultDTO](c, "/api/system/roles", req)
 	require.NoError(t, err, "创建测试角色失败: %s", roleName)
 
 	roleID := resp.RoleID
 	t.Cleanup(func() {
 		if roleID > 0 {
-			_ = c.Delete(fmt.Sprintf("/api/admin/roles/%d", roleID))
+			_ = c.Delete(fmt.Sprintf("/api/system/roles/%d", roleID))
 		}
 	})
 
@@ -76,7 +76,7 @@ func CreateTestUserWithCleanupControl(t *testing.T, c *Client, prefix string) (*
 		FullName: "测试用户",
 	}
 
-	result, err := Post[user.UserWithRolesDTO](c, "/api/admin/users", req)
+	result, err := Post[user.UserWithRolesDTO](c, "/api/system/users", req)
 	require.NoError(t, err, "创建测试用户失败: %s", username)
 
 	userID := result.ID
@@ -84,7 +84,7 @@ func CreateTestUserWithCleanupControl(t *testing.T, c *Client, prefix string) (*
 
 	t.Cleanup(func() {
 		if !deleted && userID > 0 {
-			_ = c.Delete(fmt.Sprintf("/api/admin/users/%d", userID))
+			_ = c.Delete(fmt.Sprintf("/api/system/users/%d", userID))
 		}
 	})
 
@@ -103,7 +103,7 @@ func CreateTestRoleWithCleanupControl(t *testing.T, c *Client, prefix string) (*
 		Description: "自动创建的测试角色",
 	}
 
-	result, err := Post[role.CreateResultDTO](c, "/api/admin/roles", req)
+	result, err := Post[role.CreateResultDTO](c, "/api/system/roles", req)
 	require.NoError(t, err, "创建测试角色失败: %s", roleName)
 
 	roleID := result.RoleID
@@ -111,7 +111,7 @@ func CreateTestRoleWithCleanupControl(t *testing.T, c *Client, prefix string) (*
 
 	t.Cleanup(func() {
 		if !deleted && roleID > 0 {
-			_ = c.Delete(fmt.Sprintf("/api/admin/roles/%d", roleID))
+			_ = c.Delete(fmt.Sprintf("/api/system/roles/%d", roleID))
 		}
 	})
 
@@ -133,11 +133,11 @@ func CreateTestSetting(t *testing.T, c *Client, prefix string) *setting.SettingD
 		"label":         "测试配置",
 	}
 
-	result, err := Post[setting.SettingDTO](c, "/api/admin/settings", createReq)
+	result, err := Post[setting.SettingDTO](c, "/api/system/settings", createReq)
 	require.NoError(t, err, "创建测试配置失败: %s", key)
 
 	t.Cleanup(func() {
-		_ = c.Delete("/api/admin/settings/" + key)
+		_ = c.Delete("/api/system/settings/" + key)
 	})
 
 	return result
@@ -158,13 +158,13 @@ func CreateTestSettingWithCleanupControl(t *testing.T, c *Client, prefix string)
 		"label":         "测试配置",
 	}
 
-	result, err := Post[setting.SettingDTO](c, "/api/admin/settings", createReq)
+	result, err := Post[setting.SettingDTO](c, "/api/system/settings", createReq)
 	require.NoError(t, err, "创建测试配置失败: %s", key)
 
 	deleted := false
 	t.Cleanup(func() {
 		if !deleted {
-			_ = c.Delete("/api/admin/settings/" + key)
+			_ = c.Delete("/api/system/settings/" + key)
 		}
 	})
 

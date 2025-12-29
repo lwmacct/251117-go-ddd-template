@@ -198,6 +198,7 @@ func (r *userQueryRepository) GetUserIDsByRole(ctx context.Context, roleID uint)
 // userWithRolesRow 单次 JOIN 查询的结果行结构
 //
 // 由于是 LEFT JOIN，每个权限对应一行，用户和角色字段会重复。
+// 新 RBAC 模型：role_permissions 直接存储 operation_pattern 和 resource_pattern。
 type userWithRolesRow struct {
 	// User 字段
 	UserID        uint       `gorm:"column:user_id"`
@@ -221,25 +222,22 @@ type userWithRolesRow struct {
 	RoleDescription *string    `gorm:"column:role_description"`
 	RoleIsSystem    *bool      `gorm:"column:role_is_system"`
 
-	// Permission 字段（可能为 NULL）
-	PermID          *uint      `gorm:"column:perm_id"`
-	PermCreatedAt   *time.Time `gorm:"column:perm_created_at"`
-	PermUpdatedAt   *time.Time `gorm:"column:perm_updated_at"`
-	PermDomain      *string    `gorm:"column:perm_domain"`
-	PermResource    *string    `gorm:"column:perm_resource"`
-	PermAction      *string    `gorm:"column:perm_action"`
-	PermDescription *string    `gorm:"column:perm_description"`
-	PermCode        *string    `gorm:"column:perm_code"`
+	// Permission 字段（Operation + Resource Pattern，可能为 NULL）
+	OperationPattern *string `gorm:"column:operation_pattern"`
+	ResourcePattern  *string `gorm:"column:resource_pattern"`
 }
 
 // getUserWithRolesByCondition 通过单次 JOIN 查询获取用户及其角色权限
 //
-// 将 User、Role、Permission 的 5 次查询合并为 1 次 JOIN 查询，
+// 将 User、Role、Permission 的查询合并为 1 次 JOIN 查询，
 // 显著减少网络往返次数，适用于高延迟远程数据库场景。
+//
+// 新 RBAC 模型直接从 role_permissions 表获取 operation_pattern 和 resource_pattern。
 func (r *userQueryRepository) getUserWithRolesByCondition(ctx context.Context, condition string, args ...any) (*user.User, error) {
 	var rows []userWithRolesRow
 
 	// 单次 JOIN 查询获取所有数据
+	// 新模型：role_permissions 直接存储 pattern，不再关联 permissions 表
 	query := r.db.WithContext(ctx).
 		Table("users u").
 		Select(`
@@ -249,14 +247,11 @@ func (r *userQueryRepository) getUserWithRolesByCondition(ctx context.Context, c
 			r.id as role_id, r.created_at as role_created_at, r.updated_at as role_updated_at,
 			r.name as role_name, r.display_name as role_display_name,
 			r.description as role_description, r.is_system as role_is_system,
-			p.id as perm_id, p.created_at as perm_created_at, p.updated_at as perm_updated_at,
-			p.domain as perm_domain, p.resource as perm_resource, p.action as perm_action,
-			p.description as perm_description, p.code as perm_code
+			rp.operation_pattern, rp.resource_pattern
 		`).
 		Joins("LEFT JOIN user_roles ur ON u.id = ur.user_id").
 		Joins("LEFT JOIN roles r ON ur.role_id = r.id AND r.deleted_at IS NULL").
-		Joins("LEFT JOIN role_permissions rp ON r.id = rp.role_model_id").
-		Joins("LEFT JOIN permissions p ON rp.permission_model_id = p.id AND p.deleted_at IS NULL").
+		Joins("LEFT JOIN role_permissions rp ON r.id = rp.role_id").
 		Where("u.deleted_at IS NULL").
 		Where(condition, args...)
 
@@ -275,6 +270,7 @@ func (r *userQueryRepository) getUserWithRolesByCondition(ctx context.Context, c
 // buildUserFromRows 从 JOIN 查询结果构建 User 实体
 //
 // 将扁平化的行数据重建为 User → []Role → []Permission 的嵌套结构。
+// 使用 (OperationPattern, ResourcePattern) 组合作为权限去重键。
 func (r *userQueryRepository) buildUserFromRows(rows []userWithRolesRow) *user.User {
 	if len(rows) == 0 {
 		return nil
@@ -298,7 +294,8 @@ func (r *userQueryRepository) buildUserFromRows(rows []userWithRolesRow) *user.U
 
 	// 收集角色和权限（去重）
 	roleMap := make(map[uint]*role.Role)
-	permsByRole := make(map[uint]map[uint]bool) // role_id -> perm_id -> exists
+	// 权限去重：role_id -> "operation_pattern|resource_pattern" -> exists
+	permsByRole := make(map[uint]map[string]bool)
 
 	for _, row := range rows {
 		// 跳过无角色的行
@@ -320,23 +317,23 @@ func (r *userQueryRepository) buildUserFromRows(rows []userWithRolesRow) *user.U
 				IsSystem:    derefBool(row.RoleIsSystem),
 				Permissions: []role.Permission{},
 			}
-			permsByRole[roleID] = make(map[uint]bool)
+			permsByRole[roleID] = make(map[string]bool)
 		}
 
-		// 添加权限（去重）
-		if row.PermID != nil {
-			permID := *row.PermID
-			if !permsByRole[roleID][permID] {
-				permsByRole[roleID][permID] = true
+		// 添加权限（去重：使用 operation_pattern|resource_pattern 作为键）
+		if row.OperationPattern != nil {
+			opPattern := *row.OperationPattern
+			resPattern := derefString(row.ResourcePattern)
+			if resPattern == "" {
+				resPattern = "*"
+			}
+			permKey := opPattern + "|" + resPattern
+
+			if !permsByRole[roleID][permKey] {
+				permsByRole[roleID][permKey] = true
 				roleMap[roleID].Permissions = append(roleMap[roleID].Permissions, role.Permission{
-					ID:          permID,
-					CreatedAt:   derefTime(row.PermCreatedAt),
-					UpdatedAt:   derefTime(row.PermUpdatedAt),
-					Domain:      derefString(row.PermDomain),
-					Resource:    derefString(row.PermResource),
-					Action:      derefString(row.PermAction),
-					Description: derefString(row.PermDescription),
-					Code:        derefString(row.PermCode),
+					OperationPattern: opPattern,
+					ResourcePattern:  resPattern,
 				})
 			}
 		}

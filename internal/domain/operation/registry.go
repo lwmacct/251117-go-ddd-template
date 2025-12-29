@@ -2,12 +2,18 @@ package operation
 
 // operationRegistry 操作注册表（单一数据源）
 //
+// Operation-Centric RBAC:
+//   - Operation code 本身即权限标识符
+//   - Public: true 标记公开操作（无需权限检查）
+//   - 非公开操作默认需要权限检查
+//
 //nolint:gochecknoglobals // 注册表是只读全局配置
 var operationRegistry = map[Operation]operationMeta{
 	// ==================== Auth 域（公开） ====================
 	AuthRegister: {
 		Method:         HttpPOST,
 		Path:           "/api/auth/register",
+		Public:         true,
 		AuditAction:    "auth.register",
 		AuditCategory:  AuditCatAuth,
 		AuditOperation: AuditOpCreate,
@@ -18,6 +24,7 @@ var operationRegistry = map[Operation]operationMeta{
 	AuthLogin: {
 		Method:         HttpPOST,
 		Path:           "/api/auth/login",
+		Public:         true,
 		AuditAction:    "auth.login",
 		AuditCategory:  AuditCatAuth,
 		AuditOperation: AuditOpAuthenticate,
@@ -28,6 +35,7 @@ var operationRegistry = map[Operation]operationMeta{
 	AuthLogin2FA: {
 		Method:         HttpPOST,
 		Path:           "/api/auth/login/2fa",
+		Public:         true,
 		AuditAction:    "auth.login_2fa",
 		AuditCategory:  AuditCatAuth,
 		AuditOperation: AuditOpAuthenticate,
@@ -38,6 +46,7 @@ var operationRegistry = map[Operation]operationMeta{
 	AuthRefresh: {
 		Method:         HttpPOST,
 		Path:           "/api/auth/refresh",
+		Public:         true,
 		AuditAction:    "auth.refresh",
 		AuditCategory:  AuditCatAuth,
 		AuditOperation: AuditOpAuthenticate,
@@ -48,16 +57,16 @@ var operationRegistry = map[Operation]operationMeta{
 	AuthCaptcha: {
 		Method:      HttpGET,
 		Path:        "/api/auth/captcha",
+		Public:      true,
 		Label:       "获取验证码",
 		Description: "Get captcha image",
 		Group:       "认证 (Auth)",
 	},
 
-	// ==================== Auth 域 - 2FA ====================
+	// ==================== Auth 域 - 2FA（需认证） ====================
 	Auth2FASetup: {
 		Method:         HttpPOST,
 		Path:           "/api/auth/2fa/setup",
-		Permission:     "auth:2fa:setup",
 		AuditAction:    "auth.2fa_setup",
 		AuditCategory:  AuditCatAuth,
 		AuditOperation: AuditOpUpdate,
@@ -68,7 +77,6 @@ var operationRegistry = map[Operation]operationMeta{
 	Auth2FAVerify: {
 		Method:         HttpPOST,
 		Path:           "/api/auth/2fa/verify",
-		Permission:     "auth:2fa:update",
 		AuditAction:    "auth.2fa_enable",
 		AuditCategory:  AuditCatAuth,
 		AuditOperation: AuditOpUpdate,
@@ -79,7 +87,6 @@ var operationRegistry = map[Operation]operationMeta{
 	Auth2FADisable: {
 		Method:         HttpPOST,
 		Path:           "/api/auth/2fa/disable",
-		Permission:     "auth:2fa:update",
 		AuditAction:    "auth.2fa_disable",
 		AuditCategory:  AuditCatAuth,
 		AuditOperation: AuditOpUpdate,
@@ -90,461 +97,379 @@ var operationRegistry = map[Operation]operationMeta{
 	Auth2FAStatus: {
 		Method:      HttpGET,
 		Path:        "/api/auth/2fa/status",
-		Permission:  "auth:2fa:read",
 		Label:       "2FA 状态",
 		Description: "Get 2FA status",
 		Group:       "认证 - 2FA (Auth - 2FA)",
 	},
 
-	// ==================== Admin 域 - 用户管理 ====================
-	AdminUsersCreate: {
+	// ==================== Sys 域 - 用户管理 ====================
+	SysUsersCreate: {
 		Method:         HttpPOST,
-		Path:           "/api/admin/users",
-		Permission:     "admin:users:create",
-		Role:           "admin",
+		Path:           "/api/system/users",
 		AuditAction:    "user.create",
 		AuditCategory:  AuditCatUser,
 		AuditOperation: AuditOpCreate,
 		Label:          "创建用户",
 		Description:    "Create new user",
-		Group:          "管理员 - 用户管理 (Admin - User)",
+		Group:          "系统管理 - 用户管理 (Sys - User)",
 	},
-	AdminUsersBatchCreate: {
+	SysUsersBatchCreate: {
 		Method:         HttpPOST,
-		Path:           "/api/admin/users/batch",
-		Permission:     "admin:users:create",
-		Role:           "admin",
+		Path:           "/api/system/users/batch",
 		AuditAction:    "user.batch_create",
 		AuditCategory:  AuditCatUser,
 		AuditOperation: AuditOpCreate,
 		Label:          "批量创建用户",
 		Description:    "Batch create users",
-		Group:          "管理员 - 用户管理 (Admin - User)",
+		Group:          "系统管理 - 用户管理 (Sys - User)",
 	},
-	AdminUsersList: {
+	SysUsersList: {
 		Method:      HttpGET,
-		Path:        "/api/admin/users",
-		Permission:  "admin:users:read",
-		Role:        "admin",
+		Path:        "/api/system/users",
 		Label:       "用户列表",
 		Description: "List users",
-		Group:       "管理员 - 用户管理 (Admin - User)",
+		Group:       "系统管理 - 用户管理 (Sys - User)",
 	},
-	AdminUsersGet: {
+	SysUsersGet: {
 		Method:      HttpGET,
-		Path:        "/api/admin/users/:id",
-		Permission:  "admin:users:read",
-		Role:        "admin",
+		Path:        "/api/system/users/:id",
 		Label:       "用户详情",
 		Description: "Get user by ID",
-		Group:       "管理员 - 用户管理 (Admin - User)",
+		Group:       "系统管理 - 用户管理 (Sys - User)",
 	},
-	AdminUsersUpdate: {
+	SysUsersUpdate: {
 		Method:         HttpPUT,
-		Path:           "/api/admin/users/:id",
-		Permission:     "admin:users:update",
-		Role:           "admin",
+		Path:           "/api/system/users/:id",
 		AuditAction:    "user.update",
 		AuditCategory:  AuditCatUser,
 		AuditOperation: AuditOpUpdate,
 		Label:          "更新用户",
 		Description:    "Update user",
-		Group:          "管理员 - 用户管理 (Admin - User)",
+		Group:          "系统管理 - 用户管理 (Sys - User)",
 	},
-	AdminUsersDelete: {
+	SysUsersDelete: {
 		Method:         HttpDELETE,
-		Path:           "/api/admin/users/:id",
-		Permission:     "admin:users:delete",
-		Role:           "admin",
+		Path:           "/api/system/users/:id",
 		AuditAction:    "user.delete",
 		AuditCategory:  AuditCatUser,
 		AuditOperation: AuditOpDelete,
 		Label:          "删除用户",
 		Description:    "Delete user",
-		Group:          "管理员 - 用户管理 (Admin - User)",
+		Group:          "系统管理 - 用户管理 (Sys - User)",
 	},
-	AdminUsersAssignRoles: {
+	SysUsersAssignRoles: {
 		Method:         HttpPUT,
-		Path:           "/api/admin/users/:id/roles",
-		Permission:     "admin:users:update",
-		Role:           "admin",
+		Path:           "/api/system/users/:id/roles",
 		AuditAction:    "user.assign_roles",
 		AuditCategory:  AuditCatUser,
 		AuditOperation: AuditOpUpdate,
 		Label:          "分配角色",
 		Description:    "Assign roles to user",
-		Group:          "管理员 - 用户管理 (Admin - User)",
+		Group:          "系统管理 - 用户管理 (Sys - User)",
 	},
 
-	// ==================== Admin 域 - 角色管理 ====================
-	AdminRolesCreate: {
+	// ==================== Sys 域 - 角色管理 ====================
+	SysRolesCreate: {
 		Method:         HttpPOST,
-		Path:           "/api/admin/roles",
-		Permission:     "admin:roles:create",
-		Role:           "admin",
+		Path:           "/api/system/roles",
 		AuditAction:    "role.create",
 		AuditCategory:  AuditCatRole,
 		AuditOperation: AuditOpCreate,
 		Label:          "创建角色",
 		Description:    "Create role",
-		Group:          "管理员 - 角色管理 (Admin - Role)",
+		Group:          "系统管理 - 角色管理 (Sys - Role)",
 	},
-	AdminRolesList: {
+	SysRolesList: {
 		Method:      HttpGET,
-		Path:        "/api/admin/roles",
-		Permission:  "admin:roles:read",
-		Role:        "admin",
+		Path:        "/api/system/roles",
 		Label:       "角色列表",
 		Description: "List roles",
-		Group:       "管理员 - 角色管理 (Admin - Role)",
+		Group:       "系统管理 - 角色管理 (Sys - Role)",
 	},
-	AdminRolesGet: {
+	SysRolesGet: {
 		Method:      HttpGET,
-		Path:        "/api/admin/roles/:id",
-		Permission:  "admin:roles:read",
-		Role:        "admin",
+		Path:        "/api/system/roles/:id",
 		Label:       "角色详情",
 		Description: "Get role by ID",
-		Group:       "管理员 - 角色管理 (Admin - Role)",
+		Group:       "系统管理 - 角色管理 (Sys - Role)",
 	},
-	AdminRolesUpdate: {
+	SysRolesUpdate: {
 		Method:         HttpPUT,
-		Path:           "/api/admin/roles/:id",
-		Permission:     "admin:roles:update",
-		Role:           "admin",
+		Path:           "/api/system/roles/:id",
 		AuditAction:    "role.update",
 		AuditCategory:  AuditCatRole,
 		AuditOperation: AuditOpUpdate,
 		Label:          "更新角色",
 		Description:    "Update role",
-		Group:          "管理员 - 角色管理 (Admin - Role)",
+		Group:          "系统管理 - 角色管理 (Sys - Role)",
 	},
-	AdminRolesDelete: {
+	SysRolesDelete: {
 		Method:         HttpDELETE,
-		Path:           "/api/admin/roles/:id",
-		Permission:     "admin:roles:delete",
-		Role:           "admin",
+		Path:           "/api/system/roles/:id",
 		AuditAction:    "role.delete",
 		AuditCategory:  AuditCatRole,
 		AuditOperation: AuditOpDelete,
 		Label:          "删除角色",
 		Description:    "Delete role",
-		Group:          "管理员 - 角色管理 (Admin - Role)",
+		Group:          "系统管理 - 角色管理 (Sys - Role)",
 	},
-	AdminRolesSetPermissions: {
+	SysRolesSetPermissions: {
 		Method:         HttpPUT,
-		Path:           "/api/admin/roles/:id/permissions",
-		Permission:     "admin:roles:update",
-		Role:           "admin",
+		Path:           "/api/system/roles/:id/permissions",
 		AuditAction:    "role.set_permissions",
 		AuditCategory:  AuditCatRole,
 		AuditOperation: AuditOpUpdate,
 		Label:          "设置权限",
 		Description:    "Set role permissions",
-		Group:          "管理员 - 角色管理 (Admin - Role)",
+		Group:          "系统管理 - 角色管理 (Sys - Role)",
 	},
 
-	// ==================== Admin 域 - 权限管理 ====================
-	AdminPermissionsList: {
+	// ==================== Sys 域 - 操作列表 ====================
+	SysOperationsList: {
 		Method:      HttpGET,
-		Path:        "/api/admin/permissions",
-		Permission:  "admin:permissions:read",
-		Role:        "admin",
-		Label:       "权限列表",
-		Description: "List permissions",
-		Group:       "管理员 - 权限管理 (Admin - Permission)",
+		Path:        "/api/system/operations",
+		Label:       "操作列表",
+		Description: "List available operations",
+		Group:       "系统管理 - 操作管理 (Sys - Operation)",
 	},
 
-	// ==================== Admin 域 - 审计日志 ====================
-	AdminAuditLogsList: {
+	// ==================== Sys 域 - 审计日志 ====================
+	SysAuditLogsList: {
 		Method:      HttpGET,
-		Path:        "/api/admin/auditlogs",
-		Permission:  "admin:audit_logs:read",
-		Role:        "admin",
+		Path:        "/api/system/auditlogs",
 		Label:       "审计日志列表",
 		Description: "List audit logs",
-		Group:       "管理员 - 审计日志 (Admin - Audit Log)",
+		Group:       "系统管理 - 审计日志 (Sys - Audit Log)",
 	},
-	AdminAuditLogsGet: {
+	SysAuditLogsGet: {
 		Method:      HttpGET,
-		Path:        "/api/admin/auditlogs/:id",
-		Permission:  "admin:audit_logs:read",
-		Role:        "admin",
+		Path:        "/api/system/auditlogs/:id",
 		Label:       "审计日志详情",
 		Description: "Get audit log by ID",
-		Group:       "管理员 - 审计日志 (Admin - Audit Log)",
+		Group:       "系统管理 - 审计日志 (Sys - Audit Log)",
 	},
-	AdminAuditLogsActions: {
+	SysAuditLogsActions: {
 		Method:      HttpGET,
-		Path:        "/api/admin/auditlogs/actions",
-		Permission:  "admin:audit_logs:read",
-		Role:        "admin",
+		Path:        "/api/system/auditlogs/actions",
 		Label:       "审计操作定义",
 		Description: "Get audit action definitions",
-		Group:       "管理员 - 审计日志 (Admin - Audit Log)",
+		Group:       "系统管理 - 审计日志 (Sys - Audit Log)",
 	},
 
-	// ==================== Admin 域 - 菜单管理 ====================
-	AdminMenusCreate: {
+	// ==================== Sys 域 - 菜单管理 ====================
+	SysMenusCreate: {
 		Method:         HttpPOST,
-		Path:           "/api/admin/menus",
-		Permission:     "admin:menus:create",
-		Role:           "admin",
+		Path:           "/api/system/menus",
 		AuditAction:    "menu.create",
 		AuditCategory:  AuditCatMenu,
 		AuditOperation: AuditOpCreate,
 		Label:          "创建菜单",
 		Description:    "Create menu",
-		Group:          "管理员 - 菜单管理 (Admin - Menu)",
+		Group:          "系统管理 - 菜单管理 (Sys - Menu)",
 	},
-	AdminMenusList: {
+	SysMenusList: {
 		Method:      HttpGET,
-		Path:        "/api/admin/menus",
-		Permission:  "admin:menus:read",
-		Role:        "admin",
+		Path:        "/api/system/menus",
 		Label:       "菜单列表",
 		Description: "List menus",
-		Group:       "管理员 - 菜单管理 (Admin - Menu)",
+		Group:       "系统管理 - 菜单管理 (Sys - Menu)",
 	},
-	AdminMenusGet: {
+	SysMenusGet: {
 		Method:      HttpGET,
-		Path:        "/api/admin/menus/:id",
-		Permission:  "admin:menus:read",
-		Role:        "admin",
+		Path:        "/api/system/menus/:id",
 		Label:       "菜单详情",
 		Description: "Get menu by ID",
-		Group:       "管理员 - 菜单管理 (Admin - Menu)",
+		Group:       "系统管理 - 菜单管理 (Sys - Menu)",
 	},
-	AdminMenusUpdate: {
+	SysMenusUpdate: {
 		Method:         HttpPUT,
-		Path:           "/api/admin/menus/:id",
-		Permission:     "admin:menus:update",
-		Role:           "admin",
+		Path:           "/api/system/menus/:id",
 		AuditAction:    "menu.update",
 		AuditCategory:  AuditCatMenu,
 		AuditOperation: AuditOpUpdate,
 		Label:          "更新菜单",
 		Description:    "Update menu",
-		Group:          "管理员 - 菜单管理 (Admin - Menu)",
+		Group:          "系统管理 - 菜单管理 (Sys - Menu)",
 	},
-	AdminMenusDelete: {
+	SysMenusDelete: {
 		Method:         HttpDELETE,
-		Path:           "/api/admin/menus/:id",
-		Permission:     "admin:menus:delete",
-		Role:           "admin",
+		Path:           "/api/system/menus/:id",
 		AuditAction:    "menu.delete",
 		AuditCategory:  AuditCatMenu,
 		AuditOperation: AuditOpDelete,
 		Label:          "删除菜单",
 		Description:    "Delete menu",
-		Group:          "管理员 - 菜单管理 (Admin - Menu)",
+		Group:          "系统管理 - 菜单管理 (Sys - Menu)",
 	},
-	AdminMenusReorder: {
+	SysMenusReorder: {
 		Method:         HttpPOST,
-		Path:           "/api/admin/menus/reorder",
-		Permission:     "admin:menus:update",
-		Role:           "admin",
+		Path:           "/api/system/menus/reorder",
 		AuditAction:    "menu.reorder",
 		AuditCategory:  AuditCatMenu,
 		AuditOperation: AuditOpUpdate,
 		Label:          "重排菜单",
 		Description:    "Reorder menus",
-		Group:          "管理员 - 菜单管理 (Admin - Menu)",
+		Group:          "系统管理 - 菜单管理 (Sys - Menu)",
 	},
 
-	// ==================== Admin 域 - 系统概览 ====================
-	AdminOverviewStats: {
+	// ==================== Sys 域 - 系统概览 ====================
+	SysOverviewStats: {
 		Method:      HttpGET,
-		Path:        "/api/admin/overview/stats",
-		Permission:  "admin:overview:read",
-		Role:        "admin",
+		Path:        "/api/system/overview/stats",
 		Label:       "系统概览",
 		Description: "Get system overview stats",
-		Group:       "管理员 - 系统概览 (Admin - Overview)",
+		Group:       "系统管理 - 系统概览 (Sys - Overview)",
 	},
 
-	// ==================== Admin 域 - 系统配置 ====================
-	AdminSettingsCreate: {
+	// ==================== Sys 域 - 系统配置 ====================
+	SysSettingsCreate: {
 		Method:         HttpPOST,
-		Path:           "/api/admin/settings",
-		Permission:     "admin:settings:create",
-		Role:           "admin",
+		Path:           "/api/system/settings",
 		AuditAction:    "setting.create",
 		AuditCategory:  AuditCatSetting,
 		AuditOperation: AuditOpCreate,
 		Label:          "创建配置",
 		Description:    "Create setting",
-		Group:          "管理员 - 系统配置 (Admin - Setting)",
+		Group:          "系统管理 - 系统配置 (Sys - Setting)",
 	},
-	AdminSettingsList: {
+	SysSettingsList: {
 		Method:      HttpGET,
-		Path:        "/api/admin/settings",
-		Permission:  "admin:settings:read",
-		Role:        "admin",
+		Path:        "/api/system/settings",
 		Label:       "配置列表",
 		Description: "List settings",
-		Group:       "管理员 - 系统配置 (Admin - Setting)",
+		Group:       "系统管理 - 系统配置 (Sys - Setting)",
 	},
-	AdminSettingsGet: {
+	SysSettingsGet: {
 		Method:      HttpGET,
-		Path:        "/api/admin/settings/:key",
-		Permission:  "admin:settings:read",
-		Role:        "admin",
+		Path:        "/api/system/settings/:key",
 		Label:       "配置详情",
 		Description: "Get setting by key",
-		Group:       "管理员 - 系统配置 (Admin - Setting)",
+		Group:       "系统管理 - 系统配置 (Sys - Setting)",
 	},
-	AdminSettingsUpdate: {
+	SysSettingsUpdate: {
 		Method:         HttpPUT,
-		Path:           "/api/admin/settings/:key",
-		Permission:     "admin:settings:update",
-		Role:           "admin",
+		Path:           "/api/system/settings/:key",
 		AuditAction:    "setting.update",
 		AuditCategory:  AuditCatSetting,
 		AuditOperation: AuditOpUpdate,
 		Label:          "更新配置",
 		Description:    "Update setting",
-		Group:          "管理员 - 系统配置 (Admin - Setting)",
+		Group:          "系统管理 - 系统配置 (Sys - Setting)",
 	},
-	AdminSettingsDelete: {
+	SysSettingsDelete: {
 		Method:         HttpDELETE,
-		Path:           "/api/admin/settings/:key",
-		Permission:     "admin:settings:delete",
-		Role:           "admin",
+		Path:           "/api/system/settings/:key",
 		AuditAction:    "setting.delete",
 		AuditCategory:  AuditCatSetting,
 		AuditOperation: AuditOpDelete,
 		Label:          "删除配置",
 		Description:    "Delete setting",
-		Group:          "管理员 - 系统配置 (Admin - Setting)",
+		Group:          "系统管理 - 系统配置 (Sys - Setting)",
 	},
-	AdminSettingsBatchUpdate: {
+	SysSettingsBatchUpdate: {
 		Method:         HttpPOST,
-		Path:           "/api/admin/settings/batch",
-		Permission:     "admin:settings:update",
-		Role:           "admin",
+		Path:           "/api/system/settings/batch",
 		AuditAction:    "setting.batch_update",
 		AuditCategory:  AuditCatSetting,
 		AuditOperation: AuditOpUpdate,
 		Label:          "批量更新配置",
 		Description:    "Batch update settings",
-		Group:          "管理员 - 系统配置 (Admin - Setting)",
+		Group:          "系统管理 - 系统配置 (Sys - Setting)",
 	},
 
-	// ==================== Admin 域 - 配置分类 ====================
-	AdminSettingCategoriesList: {
+	// ==================== Sys 域 - 配置分类 ====================
+	SysSettingCategoriesList: {
 		Method:      HttpGET,
-		Path:        "/api/admin/settings/categories",
-		Permission:  "admin:settings:read",
-		Role:        "admin",
+		Path:        "/api/system/settings/categories",
 		Label:       "配置分类列表",
 		Description: "List setting categories",
-		Group:       "管理员 - 系统配置 (Admin - Setting)",
+		Group:       "系统管理 - 系统配置 (Sys - Setting)",
 	},
-	AdminSettingCategoriesGet: {
+	SysSettingCategoriesGet: {
 		Method:      HttpGET,
-		Path:        "/api/admin/settings/categories/:id",
-		Permission:  "admin:settings:read",
-		Role:        "admin",
+		Path:        "/api/system/settings/categories/:id",
 		Label:       "配置分类详情",
 		Description: "Get setting category by ID",
-		Group:       "管理员 - 系统配置 (Admin - Setting)",
+		Group:       "系统管理 - 系统配置 (Sys - Setting)",
 	},
-	AdminSettingCategoriesCreate: {
+	SysSettingCategoriesCreate: {
 		Method:         HttpPOST,
-		Path:           "/api/admin/settings/categories",
-		Permission:     "admin:settings:create",
-		Role:           "admin",
+		Path:           "/api/system/settings/categories",
 		AuditAction:    "setting_category.create",
 		AuditCategory:  AuditCatSetting,
 		AuditOperation: AuditOpCreate,
 		Label:          "创建配置分类",
 		Description:    "Create setting category",
-		Group:          "管理员 - 系统配置 (Admin - Setting)",
+		Group:          "系统管理 - 系统配置 (Sys - Setting)",
 	},
-	AdminSettingCategoriesUpdate: {
+	SysSettingCategoriesUpdate: {
 		Method:         HttpPUT,
-		Path:           "/api/admin/settings/categories/:id",
-		Permission:     "admin:settings:update",
-		Role:           "admin",
+		Path:           "/api/system/settings/categories/:id",
 		AuditAction:    "setting_category.update",
 		AuditCategory:  AuditCatSetting,
 		AuditOperation: AuditOpUpdate,
 		Label:          "更新配置分类",
 		Description:    "Update setting category",
-		Group:          "管理员 - 系统配置 (Admin - Setting)",
+		Group:          "系统管理 - 系统配置 (Sys - Setting)",
 	},
-	AdminSettingCategoriesDelete: {
+	SysSettingCategoriesDelete: {
 		Method:         HttpDELETE,
-		Path:           "/api/admin/settings/categories/:id",
-		Permission:     "admin:settings:delete",
-		Role:           "admin",
+		Path:           "/api/system/settings/categories/:id",
 		AuditAction:    "setting_category.delete",
 		AuditCategory:  AuditCatSetting,
 		AuditOperation: AuditOpDelete,
 		Label:          "删除配置分类",
 		Description:    "Delete setting category",
-		Group:          "管理员 - 系统配置 (Admin - Setting)",
+		Group:          "系统管理 - 系统配置 (Sys - Setting)",
 	},
 
-	// ==================== Admin 域 - 缓存管理 ====================
-	AdminCacheInfo: {
+	// ==================== Sys 域 - 缓存管理 ====================
+	SysCacheInfo: {
 		Method:      HttpGET,
-		Path:        "/api/admin/cache/info",
-		Permission:  "admin:cache:read",
-		Role:        "admin",
+		Path:        "/api/system/cache/info",
 		Label:       "缓存信息",
 		Description: "Get cache info",
-		Group:       "管理员 - 缓存管理 (Admin - Cache)",
+		Group:       "系统管理 - 缓存管理 (Sys - Cache)",
 	},
-	AdminCacheScanKeys: {
+	SysCacheScanKeys: {
 		Method:      HttpGET,
-		Path:        "/api/admin/cache/keys",
-		Permission:  "admin:cache:read",
-		Role:        "admin",
+		Path:        "/api/system/cache/keys",
 		Label:       "扫描缓存键",
 		Description: "Scan cache keys",
-		Group:       "管理员 - 缓存管理 (Admin - Cache)",
+		Group:       "系统管理 - 缓存管理 (Sys - Cache)",
 	},
-	AdminCacheGetKey: {
+	SysCacheGetKey: {
 		Method:      HttpGET,
-		Path:        "/api/admin/cache/key",
-		Permission:  "admin:cache:read",
-		Role:        "admin",
+		Path:        "/api/system/cache/key",
 		Label:       "获取缓存值",
 		Description: "Get cache key value",
-		Group:       "管理员 - 缓存管理 (Admin - Cache)",
+		Group:       "系统管理 - 缓存管理 (Sys - Cache)",
 	},
-	AdminCacheDeleteKey: {
+	SysCacheDeleteKey: {
 		Method:         HttpDELETE,
-		Path:           "/api/admin/cache/key",
-		Permission:     "admin:cache:delete",
-		Role:           "admin",
+		Path:           "/api/system/cache/key",
 		AuditAction:    "cache.delete",
 		AuditCategory:  AuditCatCache,
 		AuditOperation: AuditOpDelete,
 		Label:          "删除缓存键",
 		Description:    "Delete cache key",
-		Group:          "管理员 - 缓存管理 (Admin - Cache)",
+		Group:          "系统管理 - 缓存管理 (Sys - Cache)",
 	},
-	AdminCacheDeletePattern: {
+	SysCacheDeletePattern: {
 		Method:         HttpDELETE,
-		Path:           "/api/admin/cache/keys",
-		Permission:     "admin:cache:delete",
-		Role:           "admin",
+		Path:           "/api/system/cache/keys",
 		AuditAction:    "cache.delete_pattern",
 		AuditCategory:  AuditCatCache,
 		AuditOperation: AuditOpDelete,
 		Label:          "批量删除缓存",
 		Description:    "Delete cache keys by pattern",
-		Group:          "管理员 - 缓存管理 (Admin - Cache)",
+		Group:          "系统管理 - 缓存管理 (Sys - Cache)",
 	},
 
 	// ==================== User 域 - 个人资料 ====================
 	UserProfileGet: {
 		Method:      HttpGET,
 		Path:        "/api/user/profile",
-		Permission:  "user:profile:read",
 		Label:       "获取资料",
 		Description: "Get current user profile",
 		Group:       "用户中心 - 个人资料 (User - Profile)",
@@ -552,7 +477,6 @@ var operationRegistry = map[Operation]operationMeta{
 	UserProfileUpdate: {
 		Method:         HttpPUT,
 		Path:           "/api/user/profile",
-		Permission:     "user:profile:update",
 		AuditAction:    "profile.update",
 		AuditCategory:  AuditCatProfile,
 		AuditOperation: AuditOpUpdate,
@@ -563,7 +487,6 @@ var operationRegistry = map[Operation]operationMeta{
 	UserPasswordUpdate: {
 		Method:         HttpPUT,
 		Path:           "/api/user/password",
-		Permission:     "user:password:update",
 		AuditAction:    "password.update",
 		AuditCategory:  AuditCatProfile,
 		AuditOperation: AuditOpUpdate,
@@ -574,7 +497,6 @@ var operationRegistry = map[Operation]operationMeta{
 	UserAccountDelete: {
 		Method:         HttpDELETE,
 		Path:           "/api/user/account",
-		Permission:     "user:profile:delete",
 		AuditAction:    "account.delete",
 		AuditCategory:  AuditCatProfile,
 		AuditOperation: AuditOpDelete,
@@ -587,7 +509,6 @@ var operationRegistry = map[Operation]operationMeta{
 	UserTokensCreate: {
 		Method:         HttpPOST,
 		Path:           "/api/user/tokens",
-		Permission:     "user:tokens:create",
 		AuditAction:    "token.create",
 		AuditCategory:  AuditCatToken,
 		AuditOperation: AuditOpCreate,
@@ -598,7 +519,6 @@ var operationRegistry = map[Operation]operationMeta{
 	UserTokensList: {
 		Method:      HttpGET,
 		Path:        "/api/user/tokens",
-		Permission:  "user:tokens:read",
 		Label:       "令牌列表",
 		Description: "List personal access tokens",
 		Group:       "用户中心 - 访问令牌 (User - Token)",
@@ -606,7 +526,6 @@ var operationRegistry = map[Operation]operationMeta{
 	UserTokensGet: {
 		Method:      HttpGET,
 		Path:        "/api/user/tokens/:id",
-		Permission:  "user:tokens:read",
 		Label:       "令牌详情",
 		Description: "Get token by ID",
 		Group:       "用户中心 - 访问令牌 (User - Token)",
@@ -614,7 +533,6 @@ var operationRegistry = map[Operation]operationMeta{
 	UserTokensDelete: {
 		Method:         HttpDELETE,
 		Path:           "/api/user/tokens/:id",
-		Permission:     "user:tokens:delete",
 		AuditAction:    "token.delete",
 		AuditCategory:  AuditCatToken,
 		AuditOperation: AuditOpDelete,
@@ -625,7 +543,6 @@ var operationRegistry = map[Operation]operationMeta{
 	UserTokensDisable: {
 		Method:         HttpPATCH,
 		Path:           "/api/user/tokens/:id/disable",
-		Permission:     "user:tokens:disable",
 		AuditAction:    "token.disable",
 		AuditCategory:  AuditCatToken,
 		AuditOperation: AuditOpUpdate,
@@ -636,7 +553,6 @@ var operationRegistry = map[Operation]operationMeta{
 	UserTokensEnable: {
 		Method:         HttpPATCH,
 		Path:           "/api/user/tokens/:id/enable",
-		Permission:     "user:tokens:enable",
 		AuditAction:    "token.enable",
 		AuditCategory:  AuditCatToken,
 		AuditOperation: AuditOpUpdate,
@@ -649,7 +565,6 @@ var operationRegistry = map[Operation]operationMeta{
 	UserSettingsCategoriesList: {
 		Method:      HttpGET,
 		Path:        "/api/user/settings/categories",
-		Permission:  "user:settings:read",
 		Label:       "配置分类列表",
 		Description: "List user setting categories",
 		Group:       "用户中心 - 用户配置 (User - Setting)",
@@ -657,7 +572,6 @@ var operationRegistry = map[Operation]operationMeta{
 	UserSettingsList: {
 		Method:      HttpGET,
 		Path:        "/api/user/settings",
-		Permission:  "user:settings:read",
 		Label:       "用户配置列表",
 		Description: "Get all user settings",
 		Group:       "用户中心 - 用户配置 (User - Setting)",
@@ -665,7 +579,6 @@ var operationRegistry = map[Operation]operationMeta{
 	UserSettingsGet: {
 		Method:      HttpGET,
 		Path:        "/api/user/settings/:key",
-		Permission:  "user:settings:read",
 		Label:       "用户配置详情",
 		Description: "Get user setting by key",
 		Group:       "用户中心 - 用户配置 (User - Setting)",
@@ -673,7 +586,6 @@ var operationRegistry = map[Operation]operationMeta{
 	UserSettingsSet: {
 		Method:         HttpPUT,
 		Path:           "/api/user/settings/:key",
-		Permission:     "user:settings:update",
 		AuditAction:    "user_setting.set",
 		AuditCategory:  AuditCatUserSetting,
 		AuditOperation: AuditOpUpdate,
@@ -684,7 +596,6 @@ var operationRegistry = map[Operation]operationMeta{
 	UserSettingsReset: {
 		Method:         HttpDELETE,
 		Path:           "/api/user/settings/:key",
-		Permission:     "user:settings:update",
 		AuditAction:    "user_setting.reset",
 		AuditCategory:  AuditCatUserSetting,
 		AuditOperation: AuditOpUpdate,
@@ -695,7 +606,6 @@ var operationRegistry = map[Operation]operationMeta{
 	UserSettingsBatchSet: {
 		Method:         HttpPOST,
 		Path:           "/api/user/settings/batch",
-		Permission:     "user:settings:update",
 		AuditAction:    "user_setting.batch_set",
 		AuditCategory:  AuditCatUserSetting,
 		AuditOperation: AuditOpUpdate,

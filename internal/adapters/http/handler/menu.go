@@ -54,7 +54,7 @@ func NewMenuHandler(
 // @Failure      401 {object} response.ErrorResponse "未授权"
 // @Failure      403 {object} response.ErrorResponse "权限不足"
 // @Failure      500 {object} response.ErrorResponse "服务器内部错误"
-// @Router       /api/admin/menus [post]
+// @Router       /api/system/menus [post]
 // @x-permission {"scope":"admin:menus:create"}
 func (h *MenuHandler) Create(c *gin.Context) {
 	var req menu.CreateDTO
@@ -98,7 +98,7 @@ func (h *MenuHandler) Create(c *gin.Context) {
 // @Failure      401 {object} response.ErrorResponse "未授权"
 // @Failure      403 {object} response.ErrorResponse "权限不足"
 // @Failure      500 {object} response.ErrorResponse "服务器内部错误"
-// @Router       /api/admin/menus [get]
+// @Router       /api/system/menus [get]
 // @x-permission {"scope":"admin:menus:read"}
 func (h *MenuHandler) List(c *gin.Context) {
 	// 调用 Use Case Handler
@@ -126,7 +126,7 @@ func (h *MenuHandler) List(c *gin.Context) {
 // @Failure      401 {object} response.ErrorResponse "未授权"
 // @Failure      403 {object} response.ErrorResponse "权限不足"
 // @Failure      404 {object} response.ErrorResponse "菜单不存在"
-// @Router       /api/admin/menus/{id} [get]
+// @Router       /api/system/menus/{id} [get]
 // @x-permission {"scope":"admin:menus:read"}
 func (h *MenuHandler) Get(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
@@ -164,7 +164,7 @@ func (h *MenuHandler) Get(c *gin.Context) {
 // @Failure      403 {object} response.ErrorResponse "权限不足"
 // @Failure      404 {object} response.ErrorResponse "菜单不存在"
 // @Failure      500 {object} response.ErrorResponse "服务器内部错误"
-// @Router       /api/admin/menus/{id} [put]
+// @Router       /api/system/menus/{id} [put]
 // @x-permission {"scope":"admin:menus:update"}
 func (h *MenuHandler) Update(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
@@ -213,7 +213,7 @@ func (h *MenuHandler) Update(c *gin.Context) {
 // @Failure      403 {object} response.ErrorResponse "权限不足"
 // @Failure      404 {object} response.ErrorResponse "菜单不存在"
 // @Failure      500 {object} response.ErrorResponse "服务器内部错误或菜单有子项"
-// @Router       /api/admin/menus/{id} [delete]
+// @Router       /api/system/menus/{id} [delete]
 // @x-permission {"scope":"admin:menus:delete"}
 func (h *MenuHandler) Delete(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
@@ -249,7 +249,7 @@ func (h *MenuHandler) Delete(c *gin.Context) {
 // @Failure      401 {object} response.ErrorResponse "未授权"
 // @Failure      403 {object} response.ErrorResponse "权限不足"
 // @Failure      500 {object} response.ErrorResponse "服务器内部错误"
-// @Router       /api/admin/menus/reorder [post]
+// @Router       /api/system/menus/reorder [post]
 // @x-permission {"scope":"admin:menus:update"}
 func (h *MenuHandler) Reorder(c *gin.Context) {
 	var req menu.ReorderDTO

@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/lwmacct/251117-go-ddd-template/internal/adapters/http/response"
 	"github.com/lwmacct/251117-go-ddd-template/internal/application/role"
+	domainrole "github.com/lwmacct/251117-go-ddd-template/internal/domain/role"
 )
 
 // ListRolesQuery 角色列表查询参数
@@ -21,19 +22,6 @@ func (q *ListRolesQuery) ToQuery() role.ListQuery {
 	}
 }
 
-// ListPermissionsQuery 权限列表查询参数
-type ListPermissionsQuery struct {
-	response.PaginationQueryDTO
-}
-
-// ToQuery 转换为 Application 层 Query 对象
-func (q *ListPermissionsQuery) ToQuery() role.ListPermissionsQuery {
-	return role.ListPermissionsQuery{
-		Page:  q.GetPage(),
-		Limit: q.GetLimit(),
-	}
-}
-
 // RoleHandler handles role management operations (DDD+CQRS Use Case Pattern)
 type RoleHandler struct {
 	// Command Handlers
@@ -43,9 +31,8 @@ type RoleHandler struct {
 	setPermissionsHandler *role.SetPermissionsHandler
 
 	// Query Handlers
-	getRoleHandler         *role.GetHandler
-	listRolesHandler       *role.ListHandler
-	listPermissionsHandler *role.ListPermissionsHandler
+	getRoleHandler   *role.GetHandler
+	listRolesHandler *role.ListHandler
 }
 
 // NewRoleHandler creates a new RoleHandler instance
@@ -56,16 +43,14 @@ func NewRoleHandler(
 	setPermissionsHandler *role.SetPermissionsHandler,
 	getRoleHandler *role.GetHandler,
 	listRolesHandler *role.ListHandler,
-	listPermissionsHandler *role.ListPermissionsHandler,
 ) *RoleHandler {
 	return &RoleHandler{
-		createRoleHandler:      createRoleHandler,
-		updateRoleHandler:      updateRoleHandler,
-		deleteRoleHandler:      deleteRoleHandler,
-		setPermissionsHandler:  setPermissionsHandler,
-		getRoleHandler:         getRoleHandler,
-		listRolesHandler:       listRolesHandler,
-		listPermissionsHandler: listPermissionsHandler,
+		createRoleHandler:     createRoleHandler,
+		updateRoleHandler:     updateRoleHandler,
+		deleteRoleHandler:     deleteRoleHandler,
+		setPermissionsHandler: setPermissionsHandler,
+		getRoleHandler:        getRoleHandler,
+		listRolesHandler:      listRolesHandler,
 	}
 }
 
@@ -83,7 +68,7 @@ func NewRoleHandler(
 // @Failure      401 {object} response.ErrorResponse "未授权"
 // @Failure      403 {object} response.ErrorResponse "权限不足"
 // @Failure      500 {object} response.ErrorResponse "服务器内部错误"
-// @Router       /api/admin/roles [post]
+// @Router       /api/system/roles [post]
 // @x-permission {"scope":"admin:roles:create"}
 func (h *RoleHandler) CreateRole(c *gin.Context) {
 	var req role.CreateDTO
@@ -123,7 +108,7 @@ func (h *RoleHandler) CreateRole(c *gin.Context) {
 // @Failure      401 {object} response.ErrorResponse "未授权"
 // @Failure      403 {object} response.ErrorResponse "权限不足"
 // @Failure      500 {object} response.ErrorResponse "服务器内部错误"
-// @Router       /api/admin/roles [get]
+// @Router       /api/system/roles [get]
 // @x-permission {"scope":"admin:roles:read"}
 func (h *RoleHandler) ListRoles(c *gin.Context) {
 	var q ListRolesQuery
@@ -156,7 +141,7 @@ func (h *RoleHandler) ListRoles(c *gin.Context) {
 // @Failure      401 {object} response.ErrorResponse "未授权"
 // @Failure      403 {object} response.ErrorResponse "权限不足"
 // @Failure      404 {object} response.ErrorResponse "角色不存在"
-// @Router       /api/admin/roles/{id} [get]
+// @Router       /api/system/roles/{id} [get]
 // @x-permission {"scope":"admin:roles:read"}
 func (h *RoleHandler) GetRole(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
@@ -194,7 +179,7 @@ func (h *RoleHandler) GetRole(c *gin.Context) {
 // @Failure      403 {object} response.ErrorResponse "权限不足"
 // @Failure      404 {object} response.ErrorResponse "角色不存在"
 // @Failure      500 {object} response.ErrorResponse "服务器内部错误"
-// @Router       /api/admin/roles/{id} [put]
+// @Router       /api/system/roles/{id} [put]
 // @x-permission {"scope":"admin:roles:update"}
 func (h *RoleHandler) UpdateRole(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
@@ -240,7 +225,7 @@ func (h *RoleHandler) UpdateRole(c *gin.Context) {
 // @Failure      403 {object} response.ErrorResponse "权限不足"
 // @Failure      404 {object} response.ErrorResponse "角色不存在"
 // @Failure      500 {object} response.ErrorResponse "服务器内部错误或角色被使用中"
-// @Router       /api/admin/roles/{id} [delete]
+// @Router       /api/system/roles/{id} [delete]
 // @x-permission {"scope":"admin:roles:delete"}
 func (h *RoleHandler) DeleteRole(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
@@ -265,20 +250,20 @@ func (h *RoleHandler) DeleteRole(c *gin.Context) {
 // SetPermissions sets permissions for a role
 //
 // @Summary      设置角色权限
-// @Description  管理员为指定角色设置权限（会覆盖现有权限）
+// @Description  管理员为指定角色设置权限（会覆盖现有权限）。新 RBAC 模型使用 Operation + Resource Pattern。
 // @Tags         管理员 - 角色管理 (Admin - Role Management)
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
 // @Param        id path int true "角色ID" minimum(1)
-// @Param        request body role.SetPermissionsDTO true "权限ID列表"
+// @Param        request body role.SetPermissionsDTO true "权限模式列表"
 // @Success      200 {object} response.MessageResponse "权限设置成功"
 // @Failure      400 {object} response.ErrorResponse "无效的角色ID或参数错误"
 // @Failure      401 {object} response.ErrorResponse "未授权"
 // @Failure      403 {object} response.ErrorResponse "权限不足"
 // @Failure      404 {object} response.ErrorResponse "角色不存在"
 // @Failure      500 {object} response.ErrorResponse "服务器内部错误"
-// @Router       /api/admin/roles/{id}/permissions [put]
+// @Router       /api/system/roles/{id}/permissions [put]
 // @x-permission {"scope":"admin:roles:update"}
 func (h *RoleHandler) SetPermissions(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
@@ -294,10 +279,23 @@ func (h *RoleHandler) SetPermissions(c *gin.Context) {
 		return
 	}
 
+	// 转换 DTO 到 Domain Permission
+	permissions := make([]domainrole.Permission, len(req.Permissions))
+	for i, p := range req.Permissions {
+		resPattern := p.ResourcePattern
+		if resPattern == "" {
+			resPattern = "*"
+		}
+		permissions[i] = domainrole.Permission{
+			OperationPattern: p.OperationPattern,
+			ResourcePattern:  resPattern,
+		}
+	}
+
 	// 调用 Use Case Handler
 	err = h.setPermissionsHandler.Handle(c.Request.Context(), role.SetPermissionsCommand{
-		RoleID:        uint(id),
-		PermissionIDs: req.PermissionIDs,
+		RoleID:      uint(id),
+		Permissions: permissions,
 	})
 
 	if err != nil {
@@ -308,34 +306,6 @@ func (h *RoleHandler) SetPermissions(c *gin.Context) {
 	response.OK(c, "permissions set successfully", nil)
 }
 
-// ListPermissions lists all permissions
-//
-// @Summary      获取权限列表
-// @Description  分页获取所有系统权限
-// @Tags         管理员 - 角色管理 (Admin - Role Management)
-// @Accept       json
-// @Produce      json
-// @Security     BearerAuth
-// @Param        params query handler.ListPermissionsQuery false "查询参数"
-// @Success      200 {object} response.PagedResponse[role.PermissionDTO] "权限列表"
-// @Failure      401 {object} response.ErrorResponse "未授权"
-// @Failure      403 {object} response.ErrorResponse "权限不足"
-// @Failure      500 {object} response.ErrorResponse "服务器内部错误"
-// @Router       /api/admin/permissions [get]
-// @x-permission {"scope":"admin:permissions:read"}
-func (h *RoleHandler) ListPermissions(c *gin.Context) {
-	var q ListPermissionsQuery
-	if err := c.ShouldBindQuery(&q); err != nil {
-		response.ValidationError(c, err.Error())
-		return
-	}
-
-	result, err := h.listPermissionsHandler.Handle(c.Request.Context(), q.ToQuery())
-	if err != nil {
-		response.InternalError(c, err.Error())
-		return
-	}
-
-	meta := response.NewPaginationMeta(int(result.Total), q.GetPage(), q.GetLimit())
-	response.List(c, "success", result.Permissions, meta)
-}
+// ListPermissions 已移除
+// 新 RBAC 模型中，权限不再是独立实体，而是 Operation + Resource Pattern。
+// 如需获取可用操作列表，请使用 /api/system/operations 端点。

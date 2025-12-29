@@ -45,15 +45,10 @@ type roleCacheDTO struct {
 }
 
 // permissionCacheDTO 权限缓存数据结构。
+// 新 RBAC 模型：存储 Operation + Resource Pattern。
 type permissionCacheDTO struct {
-	ID          uint      `json:"id"`
-	CreatedAt   time.Time `json:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at"`
-	Domain      string    `json:"domain"`
-	Resource    string    `json:"resource"`
-	Action      string    `json:"action"`
-	Description string    `json:"description"`
-	Code        string    `json:"code"`
+	OperationPattern string `json:"operation_pattern"`
+	ResourcePattern  string `json:"resource_pattern"`
 }
 
 // userWithRolesCacheService 用户实体缓存服务的 Redis 实现。
@@ -158,14 +153,8 @@ func (s *userWithRolesCacheService) toDTO(u *user.User) *userWithRolesCacheDTO {
 
 		for _, p := range r.Permissions {
 			roleDTO.Permissions = append(roleDTO.Permissions, permissionCacheDTO{
-				ID:          p.ID,
-				CreatedAt:   p.CreatedAt,
-				UpdatedAt:   p.UpdatedAt,
-				Domain:      p.Domain,
-				Resource:    p.Resource,
-				Action:      p.Action,
-				Description: p.Description,
-				Code:        p.Code,
+				OperationPattern: p.OperationPattern,
+				ResourcePattern:  p.ResourcePattern,
 			})
 		}
 
@@ -205,14 +194,8 @@ func (s *userWithRolesCacheService) toEntity(dto *userWithRolesCacheDTO) *user.U
 
 		for _, p := range r.Permissions {
 			roleEntity.Permissions = append(roleEntity.Permissions, role.Permission{
-				ID:          p.ID,
-				CreatedAt:   p.CreatedAt,
-				UpdatedAt:   p.UpdatedAt,
-				Domain:      p.Domain,
-				Resource:    p.Resource,
-				Action:      p.Action,
-				Description: p.Description,
-				Code:        p.Code,
+				OperationPattern: p.OperationPattern,
+				ResourcePattern:  p.ResourcePattern,
 			})
 		}
 

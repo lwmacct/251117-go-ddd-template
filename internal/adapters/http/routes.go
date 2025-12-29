@@ -28,66 +28,63 @@ func (deps *RouterDependencies) AllRouteBindings() []RouteBinding {
 		{op.Auth2FADisable, deps.TwoFAHandler.Disable},
 		{op.Auth2FAStatus, deps.TwoFAHandler.GetStatus},
 
-		// ==================== Admin 域 - 用户管理 ====================
-		{op.AdminUsersCreate, deps.AdminUserHandler.CreateUser},
-		{op.AdminUsersBatchCreate, deps.AdminUserHandler.BatchCreateUsers},
-		{op.AdminUsersList, deps.AdminUserHandler.ListUsers},
-		{op.AdminUsersGet, deps.AdminUserHandler.GetUser},
-		{op.AdminUsersUpdate, deps.AdminUserHandler.UpdateUser},
-		{op.AdminUsersDelete, deps.AdminUserHandler.DeleteUser},
-		{op.AdminUsersAssignRoles, deps.AdminUserHandler.AssignRoles},
+		// ==================== Sys 域 - 用户管理 ====================
+		{op.SysUsersCreate, deps.AdminUserHandler.CreateUser},
+		{op.SysUsersBatchCreate, deps.AdminUserHandler.BatchCreateUsers},
+		{op.SysUsersList, deps.AdminUserHandler.ListUsers},
+		{op.SysUsersGet, deps.AdminUserHandler.GetUser},
+		{op.SysUsersUpdate, deps.AdminUserHandler.UpdateUser},
+		{op.SysUsersDelete, deps.AdminUserHandler.DeleteUser},
+		{op.SysUsersAssignRoles, deps.AdminUserHandler.AssignRoles},
 
-		// ==================== Admin 域 - 角色管理 ====================
-		{op.AdminRolesCreate, deps.RoleHandler.CreateRole},
-		{op.AdminRolesList, deps.RoleHandler.ListRoles},
-		{op.AdminRolesGet, deps.RoleHandler.GetRole},
-		{op.AdminRolesUpdate, deps.RoleHandler.UpdateRole},
-		{op.AdminRolesDelete, deps.RoleHandler.DeleteRole},
-		{op.AdminRolesSetPermissions, deps.RoleHandler.SetPermissions},
+		// ==================== Sys 域 - 角色管理 ====================
+		{op.SysRolesCreate, deps.RoleHandler.CreateRole},
+		{op.SysRolesList, deps.RoleHandler.ListRoles},
+		{op.SysRolesGet, deps.RoleHandler.GetRole},
+		{op.SysRolesUpdate, deps.RoleHandler.UpdateRole},
+		{op.SysRolesDelete, deps.RoleHandler.DeleteRole},
+		{op.SysRolesSetPermissions, deps.RoleHandler.SetPermissions},
 
-		// ==================== Admin 域 - 权限管理 ====================
-		{op.AdminPermissionsList, deps.RoleHandler.ListPermissions},
-
-		// ==================== Admin 域 - 审计日志 ====================
+		// ==================== Sys 域 - 审计日志 ====================
 		// 注意：actions 路由必须在 :id 路由之前
-		{op.AdminAuditLogsActions, deps.AuditLogHandler.GetActions},
-		{op.AdminAuditLogsList, deps.AuditLogHandler.ListLogs},
-		{op.AdminAuditLogsGet, deps.AuditLogHandler.GetLog},
+		{op.SysAuditLogsActions, deps.AuditLogHandler.GetActions},
+		{op.SysAuditLogsList, deps.AuditLogHandler.ListLogs},
+		{op.SysAuditLogsGet, deps.AuditLogHandler.GetLog},
 
-		// ==================== Admin 域 - 菜单管理 ====================
+		// ==================== Sys 域 - 菜单管理 ====================
 		// 注意：reorder 路由必须在 :id 路由之前
-		{op.AdminMenusReorder, deps.MenuHandler.Reorder},
-		{op.AdminMenusCreate, deps.MenuHandler.Create},
-		{op.AdminMenusList, deps.MenuHandler.List},
-		{op.AdminMenusGet, deps.MenuHandler.Get},
-		{op.AdminMenusUpdate, deps.MenuHandler.Update},
-		{op.AdminMenusDelete, deps.MenuHandler.Delete},
+		{op.SysMenusReorder, deps.MenuHandler.Reorder},
+		{op.SysMenusCreate, deps.MenuHandler.Create},
+		{op.SysMenusList, deps.MenuHandler.List},
+		{op.SysMenusGet, deps.MenuHandler.Get},
+		{op.SysMenusUpdate, deps.MenuHandler.Update},
+		{op.SysMenusDelete, deps.MenuHandler.Delete},
 
-		// ==================== Admin 域 - 系统概览 ====================
-		{op.AdminOverviewStats, deps.OverviewHandler.GetStats},
+		// ==================== Sys 域 - 系统概览 ====================
+		{op.SysOverviewStats, deps.OverviewHandler.GetStats},
 
-		// ==================== Admin 域 - 配置分类（必须在 :key 之前） ====================
-		{op.AdminSettingCategoriesList, deps.SettingHandler.GetCategories},
-		{op.AdminSettingCategoriesGet, deps.SettingHandler.GetCategory},
-		{op.AdminSettingCategoriesCreate, deps.SettingHandler.CreateCategory},
-		{op.AdminSettingCategoriesUpdate, deps.SettingHandler.UpdateCategory},
-		{op.AdminSettingCategoriesDelete, deps.SettingHandler.DeleteCategory},
+		// ==================== Sys 域 - 配置分类（必须在 :key 之前） ====================
+		{op.SysSettingCategoriesList, deps.SettingHandler.GetCategories},
+		{op.SysSettingCategoriesGet, deps.SettingHandler.GetCategory},
+		{op.SysSettingCategoriesCreate, deps.SettingHandler.CreateCategory},
+		{op.SysSettingCategoriesUpdate, deps.SettingHandler.UpdateCategory},
+		{op.SysSettingCategoriesDelete, deps.SettingHandler.DeleteCategory},
 
-		// ==================== Admin 域 - 系统配置 ====================
+		// ==================== Sys 域 - 系统配置 ====================
 		// 注意：batch 路由必须在 :key 路由之前
-		{op.AdminSettingsBatchUpdate, deps.SettingHandler.BatchUpdateSettings},
-		{op.AdminSettingsCreate, deps.SettingHandler.CreateSetting},
-		{op.AdminSettingsList, deps.SettingHandler.GetSettings},
-		{op.AdminSettingsGet, deps.SettingHandler.GetSetting},
-		{op.AdminSettingsUpdate, deps.SettingHandler.UpdateSetting},
-		{op.AdminSettingsDelete, deps.SettingHandler.DeleteSetting},
+		{op.SysSettingsBatchUpdate, deps.SettingHandler.BatchUpdateSettings},
+		{op.SysSettingsCreate, deps.SettingHandler.CreateSetting},
+		{op.SysSettingsList, deps.SettingHandler.GetSettings},
+		{op.SysSettingsGet, deps.SettingHandler.GetSetting},
+		{op.SysSettingsUpdate, deps.SettingHandler.UpdateSetting},
+		{op.SysSettingsDelete, deps.SettingHandler.DeleteSetting},
 
-		// ==================== Admin 域 - 缓存管理 ====================
-		{op.AdminCacheInfo, deps.CacheHandler.Info},
-		{op.AdminCacheScanKeys, deps.CacheHandler.ScanKeys},
-		{op.AdminCacheGetKey, deps.CacheHandler.GetKey},
-		{op.AdminCacheDeleteKey, deps.CacheHandler.DeleteKey},
-		{op.AdminCacheDeletePattern, deps.CacheHandler.DeleteByPattern},
+		// ==================== Sys 域 - 缓存管理 ====================
+		{op.SysCacheInfo, deps.CacheHandler.Info},
+		{op.SysCacheScanKeys, deps.CacheHandler.ScanKeys},
+		{op.SysCacheGetKey, deps.CacheHandler.GetKey},
+		{op.SysCacheDeleteKey, deps.CacheHandler.DeleteKey},
+		{op.SysCacheDeletePattern, deps.CacheHandler.DeleteByPattern},
 
 		// ==================== User 域 - 个人资料 ====================
 		{op.UserProfileGet, deps.UserProfileHandler.GetProfile},

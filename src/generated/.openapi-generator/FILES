@@ -95,13 +95,13 @@ models/response-error-detail.ts
 models/response-error-response.ts
 models/response-message-response.ts
 models/response-paged-response-auditlog-audit-log-dto.ts
-models/response-paged-response-role-permission-dto.ts
 models/response-paged-response-role-role-dto.ts
 models/response-paged-response-user-user-with-roles-dto.ts
 models/response-pagination-meta.ts
 models/role-create-dto.ts
 models/role-create-result-dto.ts
 models/role-permission-dto.ts
+models/role-permission-input-dto.ts
 models/role-role-dto.ts
 models/role-set-permissions-dto.ts
 models/role-update-dto.ts

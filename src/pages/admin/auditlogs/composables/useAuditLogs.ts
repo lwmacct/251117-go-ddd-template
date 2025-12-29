@@ -65,7 +65,7 @@ export function useAuditLogs() {
    */
   const fetchFilterOptions = async () => {
     try {
-      const response = await adminAuditLogApi.apiAdminAuditlogsActionsGet();
+      const response = await adminAuditLogApi.apiSystemAuditlogsActionsGet();
       const result = extractData<AuditlogAuditActionsResponseDTO>(response.data);
       actionOptions.value = result?.actions ?? [];
       categoryOptions.value = result?.categories ?? [];
@@ -84,7 +84,7 @@ export function useAuditLogs() {
     try {
       const { limit, page } = getParams();
       // 参数按字母顺序：action, endDate, limit, page, resource, startDate, status, userId
-      const response = await adminAuditLogApi.apiAdminAuditlogsGet(
+      const response = await adminAuditLogApi.apiSystemAuditlogsGet(
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (filters.action || undefined) as any,
         filters.end_date || undefined,
@@ -116,7 +116,7 @@ export function useAuditLogs() {
     errorMessage.value = "";
 
     try {
-      const response = await adminAuditLogApi.apiAdminAuditlogsIdGet(id);
+      const response = await adminAuditLogApi.apiSystemAuditlogsIdGet(id);
       selectedLog.value = extractData<AuditlogAuditLogDTO>(response.data) ?? null;
     } catch (error) {
       errorMessage.value = (error as Error).message || "获取日志详情失败";
@@ -172,7 +172,7 @@ export function useAuditLogs() {
 
     try {
       // 参数按字母顺序：action, endDate, limit, page, resource, startDate, status, userId
-      const response = await adminAuditLogApi.apiAdminAuditlogsGet(
+      const response = await adminAuditLogApi.apiSystemAuditlogsGet(
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (filters.action || undefined) as any,
         filters.end_date || undefined,

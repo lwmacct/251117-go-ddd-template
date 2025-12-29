@@ -85,7 +85,7 @@ func NewAuditLogHandler(
 // @Failure      401 {object} response.ErrorResponse "未授权"
 // @Failure      403 {object} response.ErrorResponse "权限不足"
 // @Failure      500 {object} response.ErrorResponse "服务器内部错误"
-// @Router       /api/admin/auditlogs [get]
+// @Router       /api/system/auditlogs [get]
 // @x-permission {"scope":"admin:audit_logs:read"}
 func (h *AuditLogHandler) ListLogs(c *gin.Context) {
 	var q ListAuditLogsQuery
@@ -118,7 +118,7 @@ func (h *AuditLogHandler) ListLogs(c *gin.Context) {
 // @Failure      401 {object} response.ErrorResponse "未授权"
 // @Failure      403 {object} response.ErrorResponse "权限不足"
 // @Failure      404 {object} response.ErrorResponse "日志不存在"
-// @Router       /api/admin/auditlogs/{id} [get]
+// @Router       /api/system/auditlogs/{id} [get]
 // @x-permission {"scope":"admin:audit_logs:read"}
 func (h *AuditLogHandler) GetLog(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
@@ -150,7 +150,7 @@ func (h *AuditLogHandler) GetLog(c *gin.Context) {
 // @Success      200 {object} response.DataResponse[auditlog.AuditActionsResponseDTO] "审计操作定义"
 // @Failure      401 {object} response.ErrorResponse "未授权"
 // @Failure      403 {object} response.ErrorResponse "权限不足"
-// @Router       /api/admin/auditlogs/actions [get]
+// @Router       /api/system/auditlogs/actions [get]
 // @x-permission {"scope":"admin:audit_logs:read"}
 func (h *AuditLogHandler) GetActions(c *gin.Context) {
 	resp := auditlog.ToAuditActionsResponseDTO()
