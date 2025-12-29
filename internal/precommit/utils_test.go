@@ -42,6 +42,7 @@ type handlerAnnotation struct {
 	Produce     string // from @Produce
 	SuccessDTO  string // from @Success, e.g., "user.UserWithRolesDTO"
 	ParamDTO    string // from @Param body, e.g., "auth.LoginDTO"
+	QueryType   string // from @Param query, e.g., "handler.ListUsersQuery"
 }
 
 // routerRoute 从 router.go 解析的路由信息
@@ -164,6 +165,9 @@ func parseHandlerAnnotations(t *testing.T) []handlerAnnotation {
 	// @Param request body auth.LoginDTO true "登录凭证"
 	// 提取 body 参数中的 DTO 类型，如 auth.LoginDTO
 	paramBodyRe := regexp.MustCompile(`@Param\s+\S+\s+body\s+(\S+)\s+`)
+	// @Param params query handler.ListUsersQuery false "查询参数"
+	// 提取 query 参数中的结构体类型（带 handler. 前缀或本地类型）
+	paramQueryRe := regexp.MustCompile(`@Param\s+\S+\s+query\s+(handler\.\w+|\w+Query)\s+`)
 
 	err := filepath.Walk(handlerDir, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
@@ -221,6 +225,9 @@ func parseHandlerAnnotations(t *testing.T) []handlerAnnotation {
 			if matches := paramBodyRe.FindStringSubmatch(line); len(matches) == 2 {
 				current.ParamDTO = matches[1]
 			}
+			if matches := paramQueryRe.FindStringSubmatch(line); len(matches) == 2 {
+				current.QueryType = matches[1]
+			}
 
 			// 遇到 func 定义，保存当前注解
 			if strings.HasPrefix(strings.TrimSpace(line), "func ") && current.Path != "" {
@@ -274,6 +281,45 @@ func loadDTOTypes(t *testing.T) map[string]bool {
 
 	require.NotEmpty(t, dtoTypes, "no DTO types found")
 	return dtoTypes
+}
+
+// loadHandlerQueryTypes 加载 handler 目录中定义的 Query 结构体类型
+func loadHandlerQueryTypes(t *testing.T) map[string]bool {
+	t.Helper()
+
+	handlerDir := "../adapters/http/handler"
+	queryTypes := make(map[string]bool)
+	// 匹配 type XXXQuery struct（不用行首锚点，因为是全文匹配）
+	typeRe := regexp.MustCompile(`type\s+(\w+Query)\s+struct`)
+
+	err := filepath.Walk(handlerDir, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		if info.IsDir() || !strings.HasSuffix(path, ".go") {
+			return nil
+		}
+		if strings.HasSuffix(path, "_test.go") {
+			return nil
+		}
+
+		content, err := os.ReadFile(path) //nolint:gosec // 测试代码
+		if err != nil {
+			return nil //nolint:nilerr // 跳过无法读取的文件
+		}
+
+		for _, match := range typeRe.FindAllStringSubmatch(string(content), -1) {
+			if len(match) == 2 {
+				// 存储两种格式：带 handler. 前缀和不带前缀
+				queryTypes[match[1]] = true
+				queryTypes["handler."+match[1]] = true
+			}
+		}
+		return nil
+	})
+
+	require.NoError(t, err, "failed to walk handler directory")
+	return queryTypes
 }
 
 // ============================================================

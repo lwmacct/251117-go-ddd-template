@@ -217,3 +217,22 @@ func TestAnnotation_ParamDTOExists(t *testing.T) {
 		})
 	}
 }
+
+// TestAnnotation_QueryTypeExists 检查 @Param query 中的结构体类型是否存在。
+// 规则：Query 类型必须在 handler 包中定义。
+func TestAnnotation_QueryTypeExists(t *testing.T) {
+	annotations := parseHandlerAnnotations(t)
+	queryTypes := loadHandlerQueryTypes(t)
+
+	for _, ann := range annotations {
+		if !strings.HasPrefix(ann.Path, "/api") || ann.QueryType == "" {
+			continue
+		}
+
+		t.Run(ann.File+"/"+ann.Method+ann.Path, func(t *testing.T) {
+			assert.True(t, queryTypes[ann.QueryType],
+				"@Param query type not found: %q\n  check handler file for type definition",
+				ann.QueryType)
+		})
+	}
+}
