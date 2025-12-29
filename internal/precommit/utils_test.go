@@ -22,6 +22,12 @@ type structInfo struct {
 	Name string
 }
 
+// funcInfo 从文件中提取的函数信息
+type funcInfo struct {
+	File string
+	Name string
+}
+
 // handlerAnnotation 从 handler 文件解析的注解信息
 type handlerAnnotation struct {
 	File        string
@@ -72,6 +78,33 @@ func parseStructs(t *testing.T, filePath string) []structInfo {
 	}
 
 	return structs
+}
+
+// parseFuncs 解析 Go 文件中的函数定义（仅顶级导出函数，不含方法）
+func parseFuncs(t *testing.T, filePath string) []funcInfo {
+	t.Helper()
+
+	file, err := os.Open(filePath) //nolint:gosec // 测试代码
+	if err != nil {
+		return nil
+	}
+	defer func() { _ = file.Close() }()
+
+	// 匹配顶级导出函数：func FuncName(
+	funcRe := regexp.MustCompile(`^func\s+([A-Z][A-Za-z0-9_]*)\s*\(`)
+	var funcs []funcInfo
+	scanner := bufio.NewScanner(file)
+
+	for scanner.Scan() {
+		if matches := funcRe.FindStringSubmatch(scanner.Text()); len(matches) == 2 {
+			funcs = append(funcs, funcInfo{
+				File: filepath.Base(filePath),
+				Name: matches[1],
+			})
+		}
+	}
+
+	return funcs
 }
 
 // getApplicationFiles 获取 application 目录下的所有 Go 文件

@@ -25,8 +25,8 @@ func ToCategoryDTO(c *setting.SettingCategory) *CategoryDTO {
 	}
 }
 
-// ToCategoryDTOs 将 SettingCategory 实体列表转换为 CategoryDTO 列表
-func ToCategoryDTOs(categories []*setting.SettingCategory) []CategoryDTO {
+// ToCategoryListDTO 将 SettingCategory 实体列表转换为 CategoryDTO 列表
+func ToCategoryListDTO(categories []*setting.SettingCategory) []CategoryDTO {
 	if len(categories) == 0 {
 		return []CategoryDTO{}
 	}
@@ -95,8 +95,8 @@ func ToSettingDTO(s *setting.Setting) *SettingDTO {
 	}
 }
 
-// ToSettingDTOs 将 Setting 实体列表转换为 SettingDTO 列表
-func ToSettingDTOs(settings []*setting.Setting) []SettingDTO {
+// ToSettingListDTO 将 Setting 实体列表转换为 SettingDTO 列表
+func ToSettingListDTO(settings []*setting.Setting) []SettingDTO {
 	if len(settings) == 0 {
 		return []SettingDTO{}
 	}

@@ -104,3 +104,27 @@ func TestApplicationNaming_DTOSuffix(t *testing.T) {
 		}
 	}
 }
+
+// TestApplicationNaming_MapperFuncNaming 验证 mapper.go 中的函数以 To 开头、DTO 结尾
+func TestApplicationNaming_MapperFuncNaming(t *testing.T) {
+	files := getApplicationFiles(t)
+
+	for _, file := range files {
+		filename := filepath.Base(file)
+
+		// 只检查 mapper.go 文件
+		if filename != "mapper.go" {
+			continue
+		}
+
+		funcs := parseFuncs(t, file)
+		for _, f := range funcs {
+			t.Run(f.File+"/"+f.Name, func(t *testing.T) {
+				assert.True(t, strings.HasPrefix(f.Name, "To"),
+					"func %q in %s should start with 'To'", f.Name, f.File)
+				assert.True(t, strings.HasSuffix(f.Name, "DTO"),
+					"func %q in %s should end with 'DTO'", f.Name, f.File)
+			})
+		}
+	}
+}

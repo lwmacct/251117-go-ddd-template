@@ -24,5 +24,5 @@ func (h *ListCategoriesHandler) Handle(ctx context.Context, _ ListCategoriesQuer
 		return nil, fmt.Errorf("failed to list categories: %w", err)
 	}
 
-	return ToCategoryDTOs(categories), nil
+	return ToCategoryListDTO(categories), nil
 }
