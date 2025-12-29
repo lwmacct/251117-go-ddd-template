@@ -191,3 +191,29 @@ func TestAnnotation_SuccessDTOExists(t *testing.T) {
 		})
 	}
 }
+
+// TestAnnotation_ParamDTOExists 检查 @Param body 中引用 application 层 DTO 是否存在。
+// 规则：带包前缀的 DTO（如 auth.LoginDTO）必须在 application 层定义。
+// 注意：无包前缀的本地类型（如 CreateSettingRequest）不检查。
+func TestAnnotation_ParamDTOExists(t *testing.T) {
+	annotations := parseHandlerAnnotations(t)
+	dtoTypes := loadDTOTypes(t)
+
+	for _, ann := range annotations {
+		if !strings.HasPrefix(ann.Path, "/api") || ann.ParamDTO == "" {
+			continue
+		}
+
+		// 只检查带包前缀的类型（如 auth.LoginDTO）
+		// 跳过 handler 本地定义的类型（无 . 分隔符）
+		if !strings.Contains(ann.ParamDTO, ".") {
+			continue
+		}
+
+		t.Run(ann.File+"/"+ann.Method+ann.Path, func(t *testing.T) {
+			assert.True(t, dtoTypes[ann.ParamDTO],
+				"@Param body DTO type not found: %q\n  available types in package: check internal/application/{pkg}/dto.go",
+				ann.ParamDTO)
+		})
+	}
+}

@@ -41,6 +41,7 @@ type handlerAnnotation struct {
 	Accept      string // from @Accept
 	Produce     string // from @Produce
 	SuccessDTO  string // from @Success, e.g., "user.UserWithRolesDTO"
+	ParamDTO    string // from @Param body, e.g., "auth.LoginDTO"
 }
 
 // routerRoute 从 router.go 解析的路由信息
@@ -160,6 +161,9 @@ func parseHandlerAnnotations(t *testing.T) []handlerAnnotation {
 	// @Success 200 {object} response.DataResponse[[]menu.MenuDTO] "描述" (数组类型)
 	// 提取泛型参数中的 DTO 类型，如 user.UserDTO 或 []menu.MenuDTO
 	successRe := regexp.MustCompile(`@Success\s+\d+\s+\{object\}\s+response\.\w+\[(\[\])?([^\]]+)\]`)
+	// @Param request body auth.LoginDTO true "登录凭证"
+	// 提取 body 参数中的 DTO 类型，如 auth.LoginDTO
+	paramBodyRe := regexp.MustCompile(`@Param\s+\S+\s+body\s+(\S+)\s+`)
 
 	err := filepath.Walk(handlerDir, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
@@ -213,6 +217,9 @@ func parseHandlerAnnotations(t *testing.T) []handlerAnnotation {
 			}
 			if matches := successRe.FindStringSubmatch(line); len(matches) == 3 {
 				current.SuccessDTO = matches[2] // 第二组是实际 DTO 类型
+			}
+			if matches := paramBodyRe.FindStringSubmatch(line); len(matches) == 2 {
+				current.ParamDTO = matches[1]
 			}
 
 			// 遇到 func 定义，保存当前注解
