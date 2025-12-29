@@ -109,25 +109,12 @@ export function useUserSettings() {
 
   /**
    * 静默更新单个设置（不显示成功提示，用于自动保存）
+   * 注意：不更新 schema，formValues 已是最新值，避免触发不必要的重绘
    */
   const updateSettingQuietly = async (key: string, value: object): Promise<boolean> => {
     try {
       const data: HandlerSetUserSettingRequest = { value };
       await userSettingsApi.apiUserSettingsKeyPut(key, data);
-
-      // 更新本地 schema 中对应项的 value 和 is_customized
-      // 由于 schema 使用 shallowRef，需要创建新引用触发响应式
-      const updated = schema.value.map((cat) => ({
-        ...cat,
-        groups: cat.groups?.map((group: SettingSettingsGroupDTO) => ({
-          ...group,
-          settings: group.settings?.map((s: SettingSettingsItemDTO) =>
-            s.key === key ? { ...s, value, is_customized: true } : s,
-          ),
-        })),
-      }));
-      schema.value = updated;
-
       return true;
     } catch (error) {
       const msg = (error as Error).message || "保存失败";
@@ -139,37 +126,13 @@ export function useUserSettings() {
 
   /**
    * 重置单个设置到系统默认值
+   * 注意：调用方需要手动更新表单值为默认值
    */
   const resetSetting = async (key: string): Promise<boolean> => {
     saving.value = true;
 
     try {
-      // 从 schema 中找到包含该设置的分类（设置对象只有 category_id，没有 category 字符串）
-      let categoryKey: string | undefined;
-      for (const cat of schema.value) {
-        const found = cat.groups?.some((g: SettingSettingsGroupDTO) =>
-          g.settings?.some((s: SettingSettingsItemDTO) => s.key === key),
-        );
-        if (found) {
-          categoryKey = cat.category;
-          break;
-        }
-      }
-
       await userSettingsApi.apiUserSettingsKeyDelete(key);
-
-      // 只刷新该设置所属的分类，而非全量刷新
-      if (categoryKey) {
-        // 从 loaded 集合中移除该分类，强制重新加载
-        // 注意：loadedCategories 是 ShallowRef<Set>，需创建新引用触发响应式
-        const newLoaded = new Set(loadedCategories.value);
-        newLoaded.delete(categoryKey);
-        loadedCategories.value = newLoaded;
-
-        // 只刷新这一个分类
-        await fetchSchemaByCategory(categoryKey);
-      }
-
       snackbar.success("已重置为默认值");
       return true;
     } catch (error) {

@@ -34,6 +34,13 @@ const {
 // 表单值（按 key 存储）
 const formValues = ref<Record<string, unknown>>({});
 
+// 设置项静态元数据（schema 加载时提取，之后不变）
+interface SettingMeta {
+  defaultValue: unknown;
+  isReadonly: boolean; // scope === "system"
+}
+const settingsMeta = ref<Map<string, SettingMeta>>(new Map());
+
 // 正在重置的设置 key
 const resettingKey = ref<string | null>(null);
 
@@ -77,7 +84,19 @@ const getGroupsByCategory = (category: string) => {
 
 // 解析值类型
 const parseValue = (value: unknown, valueType: string | undefined): unknown => {
-  if (value === undefined || value === null) return "";
+  // 处理空值：根据类型返回合适的默认值
+  if (value === undefined || value === null) {
+    switch (valueType) {
+      case "boolean":
+        return false;
+      case "number":
+        return 0;
+      case "json":
+        return {};
+      default:
+        return "";
+    }
+  }
   // 如果已经是正确的类型，直接返回
   if (valueType === "boolean" && typeof value === "boolean") return value;
   if (valueType === "number" && typeof value === "number") return value;
@@ -103,19 +122,33 @@ const parseValue = (value: unknown, valueType: string | undefined): unknown => {
 };
 
 // 初始化表单值（使用 value 字段，即用户实际生效值）
+// 注意：只更新新加载的 keys，保留用户已修改但未保存的值
 const initFormValues = () => {
-  const values: Record<string, unknown> = {};
+  const newMeta = new Map<string, SettingMeta>();
+
   schema.value.forEach((cat) => {
     cat.groups?.forEach((group: SettingSettingsGroupDTO) => {
       group.settings?.forEach((setting: SettingSettingsItemDTO) => {
-        if (setting.key) {
-          // 使用 value 字段（实际生效值），而非 default_value
-          values[setting.key] = parseValue(setting.value, setting.value_type);
+        if (!setting.key) return;
+
+        // 动态值：只初始化尚未存在的 key（保留用户已修改的值）
+        if (!(setting.key in formValues.value)) {
+          formValues.value[setting.key] = parseValue(setting.value, setting.value_type);
+        }
+
+        // 静态元数据：只提取新加载的（懒加载场景）
+        if (!settingsMeta.value.has(setting.key)) {
+          newMeta.set(setting.key, {
+            defaultValue: parseValue(setting.default_value, setting.value_type),
+            isReadonly: setting.scope === "system",
+          });
         }
       });
     });
   });
-  formValues.value = values;
+
+  // 合并新加载的元数据
+  newMeta.forEach((v, k) => settingsMeta.value.set(k, v));
 };
 
 // 监听 schema 变化，初始化表单值
@@ -133,12 +166,18 @@ interface DependsOnConfig {
 
 /**
  * 检查设置项是否因依赖关系被禁用
+ * 注意：系统级依赖不禁用，允许用户预配置
  */
 const isDisabled = (key: string): boolean => {
   const setting = settingsMap.value.get(key);
   const dependsOn = setting?.ui_config?.depends_on as DependsOnConfig | undefined;
   if (!dependsOn) return false;
 
+  // 系统级依赖不禁用（允许预配置）
+  const depSetting = settingsMap.value.get(dependsOn.key);
+  if (depSetting?.scope === "system") return false;
+
+  // 用户级依赖仍然禁用
   const depValue = formValues.value[dependsOn.key];
   const expectedValue = dependsOn.value;
   const operator = dependsOn.operator || "eq";
@@ -158,6 +197,36 @@ const isDisabled = (key: string): boolean => {
 };
 
 /**
+ * 检查设置项是否因系统级依赖而暂不生效
+ * 用户可以预配置，但需要管理员开启后才会生效
+ */
+const isSystemDependencyInactive = (key: string): boolean => {
+  const setting = settingsMap.value.get(key);
+  const dependsOn = setting?.ui_config?.depends_on as DependsOnConfig | undefined;
+  if (!dependsOn) return false;
+
+  // 检查依赖项是否是系统级设置
+  const depSetting = settingsMap.value.get(dependsOn.key);
+  if (depSetting?.scope !== "system") return false;
+
+  // 检查依赖条件是否未满足
+  const depValue = formValues.value[dependsOn.key];
+  return depValue !== dependsOn.value;
+};
+
+/**
+ * 获取系统级依赖的 label（用于 Tooltip 显示）
+ */
+const getSystemDependencyLabel = (key: string): string | undefined => {
+  const setting = settingsMap.value.get(key);
+  const dependsOn = setting?.ui_config?.depends_on as DependsOnConfig | undefined;
+  if (!dependsOn) return undefined;
+
+  const depSetting = settingsMap.value.get(dependsOn.key);
+  return depSetting?.label || dependsOn.key;
+};
+
+/**
  * 检查设置项是否为只读（scope=system 的公开设置）
  * 这些设置对用户可见，但只能由管理员修改
  */
@@ -167,25 +236,49 @@ const isReadonly = (key: string): boolean => {
 };
 
 /**
- * 获取字段提示（优先显示只读/禁用原因）
+ * 获取字段提示（优先显示禁用原因）
+ * 只读设置和系统依赖暂不生效时都保留原 hint，提示移到锁图标悬浮
  */
 const getFieldHint = (key: string): string | undefined => {
   const setting = settingsMap.value.get(key);
 
-  // 只读设置（系统级公开设置）
-  if (isReadonly(key)) {
-    return "由管理员设置，仅供查看";
-  }
-
-  // 依赖关系被禁用
+  // 用户级依赖被禁用时显示提示
   const dependsOn = setting?.ui_config?.depends_on as DependsOnConfig | undefined;
   if (dependsOn && isDisabled(key)) {
     const depSetting = settingsMap.value.get(dependsOn.key);
     return `需要先启用「${depSetting?.label || dependsOn.key}」`;
   }
 
+  // 其他情况（包括只读设置、系统依赖暂不生效）保持原 hint
   return setting?.ui_config?.hint;
 };
+
+/**
+ * 每个设置项是否应该显示重置按钮（响应式 Map）
+ *
+ * 使用 computed 而非函数的原因：
+ * - 普通函数在模板中调用时，Vue 无法正确追踪响应式依赖
+ * - 修改设置 A 时可能触发其他设置项的错误重新计算
+ * - computed Map 确保依赖追踪正确，且同一渲染周期内不重复计算
+ */
+const resetButtonVisibility = computed(() => {
+  const map = new Map<string, boolean>();
+
+  // 只遍历 formValues，不遍历 schema（避免 schema 更新触发重绘）
+  for (const key of Object.keys(formValues.value)) {
+    const meta = settingsMeta.value.get(key);
+    if (!meta || meta.isReadonly) {
+      map.set(key, false);
+      continue;
+    }
+
+    const currentValue = formValues.value[key];
+    const isDifferent = JSON.stringify(currentValue) !== JSON.stringify(meta.defaultValue);
+    map.set(key, isDifferent);
+  }
+
+  return map;
+});
 
 // 处理即时变更（switch/select）
 const handleFieldChange = async (key: string, value: unknown) => {
@@ -215,10 +308,16 @@ const handleReset = async (key: string) => {
   resettingKey.value = key;
   const success = await resetSetting(key);
   if (success) {
-    // 更新表单值为默认值
-    const setting = settingsMap.value.get(key);
-    if (setting) {
-      formValues.value[key] = parseValue(setting.default_value, setting.value_type);
+    // 更新表单值为默认值（优先使用 settingsMeta 中已解析的值）
+    const meta = settingsMeta.value.get(key);
+    if (meta) {
+      formValues.value[key] = meta.defaultValue;
+    } else {
+      // 回退：从 settingsMap 获取并解析
+      const setting = settingsMap.value.get(key);
+      if (setting) {
+        formValues.value[key] = parseValue(setting.default_value, setting.value_type);
+      }
     }
     // 清除验证错误
     clearError(key);
@@ -301,6 +400,9 @@ onMounted(async () => {
                         :setting="setting"
                         :disabled="savingKeys.has(setting.key) || isDisabled(setting.key) || isReadonly(setting.key)"
                         :readonly="isReadonly(setting.key)"
+                        :system-dependency-inactive="isSystemDependencyInactive(setting.key)"
+                        :system-dependency-label="getSystemDependencyLabel(setting.key)"
+                        :show-reset-button="resetButtonVisibility.get(setting.key) ?? false"
                         :resetting="resettingKey === setting.key"
                         :error-messages="getFieldErrors(setting.key)"
                         :hint="getFieldHint(setting.key)"

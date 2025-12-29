@@ -3,9 +3,10 @@
  * 用户设置字段组件
  * 包装 DynamicSettingField，添加重置到默认值功能
  *
- * 支持两种状态：
+ * 支持三种状态：
  * - 可编辑（scope=user）：显示重置按钮
  * - 只读（scope=system）：显示锁定图标，不可编辑
+ * - 暂不生效（系统依赖未满足）：可编辑，显示警告锁图标
  */
 import { computed } from "vue";
 import DynamicSettingField from "@/pages/admin/settings/components/DynamicSettingField.vue";
@@ -16,6 +17,9 @@ const props = defineProps<{
   modelValue: unknown;
   disabled?: boolean;
   readonly?: boolean; // 只读模式（scope=system 的公开设置）
+  systemDependencyInactive?: boolean; // 因系统级依赖而暂不生效（可编辑但无效）
+  systemDependencyLabel?: string; // 依赖项的 label（用于 Tooltip）
+  showResetButton?: boolean; // 是否显示重置按钮（由父组件判断）
   hint?: string;
   errorMessages?: string[];
   resetting?: boolean;
@@ -27,9 +31,6 @@ const emit = defineEmits<{
   blur: []; // 透传失焦
   reset: [];
 }>();
-
-// 是否显示重置按钮（只读模式下不显示）
-const showResetButton = computed(() => props.setting.is_customized === true && !props.readonly);
 
 // 格式化默认值用于 tooltip 显示
 const formatDefaultValue = computed(() => {
@@ -82,10 +83,18 @@ const adaptedSetting = computed(() => ({
       </div>
 
       <!-- 只读标识（系统设置） -->
-      <v-tooltip v-if="readonly" text="由管理员设置">
+      <v-tooltip v-if="readonly" text="由管理员设置，仅供查看">
         <template #activator="{ props: tooltipProps }">
-          <v-icon v-bind="tooltipProps" icon="mdi-lock" size="small" color="grey" class="ml-2 mt-4" />
+          <v-btn v-bind="tooltipProps" icon="mdi-lock" size="small" variant="text" color="grey" class="ml-2 mt-3" />
         </template>
+      </v-tooltip>
+
+      <!-- 系统依赖暂不生效提示（可配置但当前无效） -->
+      <v-tooltip v-else-if="systemDependencyInactive" location="top">
+        <template #activator="{ props: tooltipProps }">
+          <v-btn v-bind="tooltipProps" icon="mdi-lock-outline" size="small" variant="text" color="warning" class="ml-2 mt-3" />
+        </template>
+        <div class="text-center">需要管理员开启「{{ systemDependencyLabel }}」后才会生效</div>
       </v-tooltip>
 
       <!-- 重置按钮（仅可编辑且已自定义时显示） -->
