@@ -2,7 +2,6 @@ package response
 
 import (
 	"errors"
-	"net/http"
 
 	appErrors "github.com/lwmacct/251117-go-ddd-template/internal/application/errors"
 
@@ -144,23 +143,4 @@ func DomainValidationError(c *gin.Context, err error) {
 		return
 	}
 	HandleError(c, err)
-}
-
-// ============================================================================
-// 错误映射（用于向后兼容）
-// ============================================================================
-
-// MapErrorToStatus 将错误映射到 HTTP 状态码
-// 用于需要手动处理错误状态码的场景
-func MapErrorToStatus(err error) int {
-	if err == nil {
-		return http.StatusOK
-	}
-
-	var domainErr appErrors.DomainError
-	if errors.As(err, &domainErr) {
-		return domainErr.HTTPStatus()
-	}
-
-	return http.StatusInternalServerError
 }

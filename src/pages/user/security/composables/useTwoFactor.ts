@@ -15,7 +15,6 @@ export function useTwoFactor() {
   const loading = ref(false);
   const enabled = ref(false);
   const recoveryCodesCount = ref(0);
-  const showSetupDialog = ref(false); // 保留以兼容旧弹窗逻辑，当前流程使用页内步骤
   const showDisableDialog = ref(false);
 
   // 设置 2FA 相关状态
@@ -82,7 +81,6 @@ export function useTwoFactor() {
         qrcodeImage.value = response.data.qrcode_img;
         secret.value = response.data.secret;
         setupStep.value = "setup";
-        showSetupDialog.value = true;
         successMessage.value = response.message || "2FA 密钥已生成";
       } else {
         throw new Error(response.message || "设置 2FA 失败");
@@ -156,7 +154,6 @@ export function useTwoFactor() {
    * 关闭设置对话框
    */
   function closeSetupDialog() {
-    showSetupDialog.value = false;
     setupStep.value = "status";
     verifyCode.value = "";
     qrcodeImage.value = "";
@@ -198,7 +195,6 @@ export function useTwoFactor() {
     loading,
     enabled,
     recoveryCodesCount,
-    showSetupDialog,
     showDisableDialog,
     qrcodeImage,
     secret,

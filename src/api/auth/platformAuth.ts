@@ -145,9 +145,3 @@ export class AuthAPI {
     return data;
   }
 }
-
-/**
- * @deprecated 使用 AuthAPI 代替
- * 向后兼容的别名
- */
-export const PlatformAuthAPI = AuthAPI;

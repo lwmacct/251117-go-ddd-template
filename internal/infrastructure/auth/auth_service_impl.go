@@ -94,7 +94,7 @@ func (s *authServiceImpl) ValidateAccessToken(ctx context.Context, token string)
 	return &domainAuth.TokenClaims{
 		UserID:   claims.UserID,
 		Username: claims.Username,
-		Roles:    claims.Roles,
+		Roles:    nil, // 角色信息从缓存中获取，不存储在 JWT 中
 		Exp:      claims.ExpiresAt.Unix(),
 	}, nil
 }

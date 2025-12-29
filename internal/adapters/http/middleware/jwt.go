@@ -4,7 +4,6 @@
 //
 // 认证中间件：
 //   - Auth: 统一认证（支持 JWT 和 PAT 双模式）
-//   - JWTAuth: 仅 JWT 认证（已废弃，保留向后兼容）
 //
 // 授权中间件：
 //   - RequireRole: 角色检查（如 RequireRole("admin")）
@@ -16,7 +15,7 @@
 //   - AuditMiddleware: 审计日志记录
 //
 // 权限缓存机制：
-// 新架构中，JWT/PAT 仅存储 user_id，权限信息从 PermissionCacheService
+// JWT/PAT 仅存储 user_id，权限信息从 PermissionCacheService
 // 实时查询，支持权限变更后立即生效。
 package middleware
 
@@ -71,66 +70,18 @@ func Auth(jwtManager *auth.JWTManager, patService *auth.PATService, permCacheSer
 	}
 }
 
-// JWTAuth JWT 认证中间件 (向后兼容，已废弃)
-//
-// Deprecated: 使用 Auth(jwtManager, patService, permissionCacheService) 代替
-func JWTAuth(jwtManager *auth.JWTManager) gin.HandlerFunc {
-	return func(c *gin.Context) {
-		authHeader := c.GetHeader("Authorization")
-		if authHeader == "" {
-			response.Unauthorized(c, "Authorization header is required")
-			c.Abort()
-			return
-		}
-
-		parts := strings.SplitN(authHeader, " ", 2)
-		if len(parts) != 2 || parts[0] != "Bearer" {
-			response.Unauthorized(c, "Authorization header format must be Bearer {token}")
-			c.Abort()
-			return
-		}
-
-		tokenString := parts[1]
-
-		// 旧方法：仅从 token 中读取权限（不支持实时权限查询）
-		claims, err := jwtManager.ValidateToken(tokenString)
-		if err != nil {
-			response.Unauthorized(c, err.Error())
-			c.Abort()
-			return
-		}
-
-		c.Set("user_id", claims.UserID)
-		c.Set("username", claims.Username)
-		c.Set("email", claims.Email)
-		c.Set("roles", claims.Roles)
-		c.Set("permissions", claims.Permissions)
-		c.Set("auth_type", "jwt")
-
-		c.Next()
-	}
-}
-
 // authenticateWithJWT 使用 JWT 进行认证
-// 新架构：从 token 获取 user_id，权限信息从缓存实时查询
+// 从 token 获取 user_id，权限信息从缓存实时查询
 func authenticateWithJWT(ctx context.Context, c *gin.Context, jwtManager *auth.JWTManager, permCacheService *auth.PermissionCacheService, tokenString string) error {
 	claims, err := jwtManager.ValidateToken(tokenString)
 	if err != nil {
 		return err
 	}
 
-	// 从缓存查询权限信息（向后兼容：优先使用 token 中的权限，如果为空则查询缓存）
-	var roles, permissions []string
-	if len(claims.Roles) > 0 || len(claims.Permissions) > 0 {
-		// 旧 token 包含权限信息，直接使用（向后兼容）
-		roles = claims.Roles
-		permissions = claims.Permissions
-	} else {
-		// 新 token 不包含权限信息，从缓存查询
-		roles, permissions, err = permCacheService.GetUserPermissions(ctx, claims.UserID)
-		if err != nil {
-			return fmt.Errorf("failed to get user permissions: %w", err)
-		}
+	// 从缓存查询权限信息
+	roles, permissions, err := permCacheService.GetUserPermissions(ctx, claims.UserID)
+	if err != nil {
+		return fmt.Errorf("failed to get user permissions: %w", err)
 	}
 
 	// 将用户信息存入上下文

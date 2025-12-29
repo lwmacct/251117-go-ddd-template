@@ -121,18 +121,6 @@ export function useSettings() {
     }
   };
 
-  // 获取所有设置（保留用于兼容性，内部调用 fetchSchema）
-  const fetchSettings = async () => {
-    await fetchSchema();
-  };
-
-  // 获取指定分类的设置（已废弃，保留用于兼容性）
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const fetchSettingsByCategory = async (_categoryId: number) => {
-    // 新的 API 不再支持按 categoryId 过滤，直接获取全量
-    await fetchSchema();
-  };
-
   // 获取单个设置的值
   const getSetting = <T = string>(key: string, defaultValue: T): T => {
     const setting = settings.value.find((s) => s.key === key);
@@ -254,8 +242,6 @@ export function useSettings() {
     fetchSchema,
     fetchSchemaByCategory,
     isCategoryLoaded,
-    fetchSettings,
-    fetchSettingsByCategory,
     getSetting,
     createSetting,
     updateSetting,
