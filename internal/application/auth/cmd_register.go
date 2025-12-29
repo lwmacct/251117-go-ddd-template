@@ -3,6 +3,7 @@ package auth
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/auth"
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/user"
@@ -90,6 +91,6 @@ func (h *RegisterHandler) Handle(ctx context.Context, cmd RegisterCommand) (*Reg
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
 		TokenType:    "Bearer",
-		ExpiresIn:    int(expiresAt.Sub(expiresAt).Seconds()),
+		ExpiresIn:    int(time.Until(expiresAt).Seconds()),
 	}, nil
 }
