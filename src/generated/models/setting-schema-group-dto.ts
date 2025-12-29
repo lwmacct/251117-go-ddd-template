@@ -24,17 +24,11 @@ import type { SettingSchemaSettingDTO } from './setting-schema-setting-dto';
  */
 export interface SettingSchemaGroupDTO {
     /**
-     * 
+     * 分组名称（如 \"基本设置\"）
      * @type {string}
      * @memberof SettingSchemaGroupDTO
      */
-    'group'?: string;
-    /**
-     * 
-     * @type {string}
-     * @memberof SettingSchemaGroupDTO
-     */
-    'label'?: string;
+    'name'?: string;
     /**
      * 
      * @type {Array<SettingSchemaSettingDTO>}

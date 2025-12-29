@@ -54,22 +54,20 @@ type DependsOnConfigDTO struct {
 
 // SettingDTO 配置响应 DTO
 type SettingDTO struct {
-	ID             uint        `json:"id"`
-	Key            string      `json:"key"`
-	DefaultValue   any         `json:"default_value"` // JSONB 原生值
-	Scope          string      `json:"scope"`         // system | user
-	CategoryID     uint        `json:"category_id"`
-	Group          string      `json:"group"`
-	ValueType      string      `json:"value_type"`
-	Label          string      `json:"label"`
-	Order          int         `json:"order"`
-	InputType      string      `json:"input_type"`           // 控件类型
-	Validation     any         `json:"validation,omitempty"` // JSON Logic 规则
-	UIConfig       UIConfigDTO `json:"ui_config"`            // hint/options/depends_on
-	ViewPermission string      `json:"view_permission"`      // 查看权限
-	EditPermission string      `json:"edit_permission"`      // 编辑权限
-	CreatedAt      time.Time   `json:"created_at"`
-	UpdatedAt      time.Time   `json:"updated_at"`
+	ID           uint        `json:"id"`
+	Key          string      `json:"key"`
+	DefaultValue any         `json:"default_value"` // JSONB 原生值
+	Scope        string      `json:"scope"`         // system | user
+	CategoryID   uint        `json:"category_id"`
+	Group        string      `json:"group"`
+	ValueType    string      `json:"value_type"`
+	Label        string      `json:"label"`
+	Order        int         `json:"order"`
+	InputType    string      `json:"input_type"`           // 控件类型
+	Validation   any         `json:"validation,omitempty"` // JSON Logic 规则
+	UIConfig     UIConfigDTO `json:"ui_config"`            // hint/options/depends_on
+	CreatedAt    time.Time   `json:"created_at"`
+	UpdatedAt    time.Time   `json:"updated_at"`
 }
 
 // CreateResultDTO 创建配置结果 DTO
@@ -80,27 +78,24 @@ type CreateResultDTO struct {
 // ==================== Schema DTO ====================
 
 // SchemaSettingDTO Schema API 专用 DTO（Admin/User 统一）
-// Admin 场景返回全部字段，User 场景通过 omitempty 省略权限字段
 type SchemaSettingDTO struct {
-	Key            string      `json:"key"`
-	Value          any         `json:"value"`           // 实际生效值
-	DefaultValue   any         `json:"default_value"`   // 系统默认值
-	IsCustomized   bool        `json:"is_customized"`   // 是否用户自定义
-	Scope          string      `json:"scope,omitempty"` // 仅 Admin: system | user
-	ValueType      string      `json:"value_type"`
-	Label          string      `json:"label"`
-	Order          int         `json:"order"`
-	InputType      string      `json:"input_type"`                // 控件类型
-	Validation     any         `json:"validation,omitempty"`      // JSON Logic 规则
-	UIConfig       UIConfigDTO `json:"ui_config"`                 // hint/options/depends_on
-	ViewPermission string      `json:"view_permission,omitempty"` // 仅 Admin
-	EditPermission string      `json:"edit_permission,omitempty"` // 仅 Admin
+	Key          string      `json:"key"`
+	Value        any         `json:"value"`         // 实际生效值
+	DefaultValue any         `json:"default_value"` // 系统默认值
+	IsCustomized bool        `json:"is_customized"` // 是否用户自定义
+	Scope        string      `json:"scope"`         // system | user（用于前端判断可编辑性）
+	Public       bool        `json:"public"`        // 是否对所有用户可见（仅 scope=system 时有意义）
+	ValueType    string      `json:"value_type"`
+	Label        string      `json:"label"`
+	Order        int         `json:"order"`
+	InputType    string      `json:"input_type"`           // 控件类型
+	Validation   any         `json:"validation,omitempty"` // JSON Logic 规则
+	UIConfig     UIConfigDTO `json:"ui_config"`            // hint/options/depends_on
 }
 
 // SchemaGroupDTO Schema API 分组
 type SchemaGroupDTO struct {
-	Group    string             `json:"group"`
-	Label    string             `json:"label"`
+	Name     string             `json:"name"` // 分组名称（如 "基本设置"）
 	Settings []SchemaSettingDTO `json:"settings"`
 }
 
@@ -116,8 +111,7 @@ type SchemaCategoryDTO struct {
 
 // SettingGroupDTO 按分组聚合的配置列表
 type SettingGroupDTO struct {
-	Group    string       `json:"group"`
-	Label    string       `json:"label"`
+	Name     string       `json:"name"` // 分组名称（如 "基本设置"）
 	Settings []SettingDTO `json:"settings"`
 }
 
@@ -149,8 +143,7 @@ type UserSettingDTO struct {
 
 // UserSettingGroupDTO 按分组聚合的用户配置列表
 type UserSettingGroupDTO struct {
-	Group    string           `json:"group"`
-	Label    string           `json:"label"`
+	Name     string           `json:"name"` // 分组名称（如 "基本设置"）
 	Settings []UserSettingDTO `json:"settings"`
 }
 

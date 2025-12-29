@@ -55,37 +55,39 @@ func newUserRepositoriesWithCache(
 	}
 }
 
-// settingRepositoriesParams 聚合 Setting 仓储所需的缓存服务。
-type settingRepositoriesParams struct {
-	fx.In
+// newSettingRepositoriesWithCache 创建带缓存装饰的 Setting 仓储。
+//
+// 简化设计：
+//   - Query 直接使用原始仓储，不再缓存（由 Application 层 Schema 缓存覆盖）
+//   - Command 装饰器只负责写操作后失效下游缓存（Schema + UserSetting）
+func newSettingRepositoriesWithCache(
+	db *gorm.DB,
+	categoryCache cache.SettingCategoryCacheService,
+	userSettingCache cache.UserSettingCacheService,
+	schemaCache setting.SchemaCacheService,
+) persistence.SettingRepositories {
+	rawRepos := persistence.NewSettingRepositories(db)
 
-	DB               *gorm.DB
-	SettingCache     cache.SettingCacheService
-	CategoryCache    cache.SettingCategoryCacheService
-	UserSettingCache cache.UserSettingCacheService
-}
-
-func newSettingRepositoriesWithCache(p settingRepositoriesParams) persistence.SettingRepositories {
-	rawRepos := persistence.NewSettingRepositories(p.DB)
-
-	cachedQuery := persistence.NewCachedSettingQueryRepository(rawRepos.Query, p.SettingCache)
-	cachedCommand := persistence.NewCachedSettingCommandRepositoryWithUserCache(
+	// 查询直接使用原始仓储，不再缓存
+	// 写操作装饰器：失效 Schema + UserSetting 缓存
+	wrappedCommand := persistence.NewSettingCommandWithCacheInvalidation(
 		rawRepos.Command,
-		p.SettingCache,
-		p.UserSettingCache,
+		userSettingCache,
+		schemaCache,
 	)
+
 	cachedCategoryQuery := persistence.NewCachedSettingCategoryQueryRepository(
 		rawRepos.CategoryQuery,
-		p.CategoryCache,
+		categoryCache,
 	)
 	cachedCategoryCommand := persistence.NewCachedSettingCategoryCommandRepository(
 		rawRepos.CategoryCommand,
-		p.CategoryCache,
+		categoryCache,
 	)
 
 	return persistence.SettingRepositories{
-		Command:         cachedCommand,
-		Query:           cachedQuery,
+		Command:         wrappedCommand,
+		Query:           rawRepos.Query,
 		CategoryQuery:   cachedCategoryQuery,
 		CategoryCommand: cachedCategoryCommand,
 	}

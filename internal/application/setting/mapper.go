@@ -89,22 +89,20 @@ func ToSettingDTO(s *setting.Setting) *SettingDTO {
 	}
 
 	return &SettingDTO{
-		ID:             s.ID,
-		Key:            s.Key,
-		DefaultValue:   s.DefaultValue,
-		Scope:          s.Scope,
-		CategoryID:     s.CategoryID,
-		Group:          s.Group,
-		ValueType:      s.ValueType,
-		Label:          s.Label,
-		Order:          s.Order,
-		InputType:      inputType,
-		Validation:     parseValidation(s.Validation),
-		UIConfig:       parseUIConfig(s.UIConfig),
-		ViewPermission: s.ViewPermission,
-		EditPermission: s.EditPermission,
-		CreatedAt:      s.CreatedAt,
-		UpdatedAt:      s.UpdatedAt,
+		ID:           s.ID,
+		Key:          s.Key,
+		DefaultValue: s.DefaultValue,
+		Scope:        s.Scope,
+		CategoryID:   s.CategoryID,
+		Group:        s.Group,
+		ValueType:    s.ValueType,
+		Label:        s.Label,
+		Order:        s.Order,
+		InputType:    inputType,
+		Validation:   parseValidation(s.Validation),
+		UIConfig:     parseUIConfig(s.UIConfig),
+		CreatedAt:    s.CreatedAt,
+		UpdatedAt:    s.UpdatedAt,
 	}
 }
 
@@ -137,19 +135,18 @@ func ToSchemaSettingDTO(s *setting.Setting) *SchemaSettingDTO {
 	}
 
 	return &SchemaSettingDTO{
-		Key:            s.Key,
-		Value:          s.DefaultValue,
-		DefaultValue:   s.DefaultValue,
-		IsCustomized:   false,
-		Scope:          s.Scope, // Admin 返回
-		ValueType:      s.ValueType,
-		Label:          s.Label,
-		Order:          s.Order,
-		InputType:      inputType,
-		Validation:     parseValidation(s.Validation),
-		UIConfig:       parseUIConfig(s.UIConfig),
-		ViewPermission: s.ViewPermission, // Admin 返回
-		EditPermission: s.EditPermission, // Admin 返回
+		Key:          s.Key,
+		Value:        s.DefaultValue,
+		DefaultValue: s.DefaultValue,
+		IsCustomized: false,
+		Scope:        s.Scope,
+		Public:       s.Public,
+		ValueType:    s.ValueType,
+		Label:        s.Label,
+		Order:        s.Order,
+		InputType:    inputType,
+		Validation:   parseValidation(s.Validation),
+		UIConfig:     parseUIConfig(s.UIConfig),
 	}
 }
 
@@ -192,7 +189,10 @@ func ToUserSettingDTO(s *setting.Setting, us *setting.UserSetting) *UserSettingD
 }
 
 // ToUserSchemaSettingDTO 将 Setting 定义和可选的 UserSetting 合并为 SchemaSettingDTO
-// User 场景省略权限字段（Scope, ViewPermission, EditPermission 为空，omitempty 不输出）
+//
+// User 场景现在也返回 Scope 和 Public 字段：
+//   - Scope: 前端根据此字段判断可编辑性（user=可编辑, system=只读）
+//   - Public: 标记系统设置是否对用户可见
 func ToUserSchemaSettingDTO(s *setting.Setting, us *setting.UserSetting) *SchemaSettingDTO {
 	if s == nil {
 		return nil
@@ -209,16 +209,17 @@ func ToUserSchemaSettingDTO(s *setting.Setting, us *setting.UserSetting) *Schema
 		Value:        s.DefaultValue, // 默认使用系统默认值
 		DefaultValue: s.DefaultValue,
 		IsCustomized: false,
-		// Scope, ViewPermission, EditPermission 留空（omitempty 不输出）
-		ValueType:  s.ValueType,
-		Label:      s.Label,
-		Order:      s.Order,
-		InputType:  inputType,
-		Validation: parseValidation(s.Validation),
-		UIConfig:   parseUIConfig(s.UIConfig),
+		Scope:        s.Scope,  // 返回 Scope，前端判断可编辑性
+		Public:       s.Public, // 返回 Public 字段
+		ValueType:    s.ValueType,
+		Label:        s.Label,
+		Order:        s.Order,
+		InputType:    inputType,
+		Validation:   parseValidation(s.Validation),
+		UIConfig:     parseUIConfig(s.UIConfig),
 	}
 
-	// 如果有用户自定义值，使用用户值
+	// 如果有用户自定义值，使用用户值（仅 scope=user 才有用户值）
 	if us != nil {
 		dto.Value = us.Value
 		dto.IsCustomized = true

@@ -15,7 +15,6 @@ import (
 type CacheServicesResult struct {
 	fx.Out
 
-	Setting          cache.SettingCacheService
 	SettingCategory  cache.SettingCategoryCacheService
 	UserSettingQuery cache.UserSettingQueryCacheService
 	UserSetting      cache.UserSettingCacheService
@@ -33,7 +32,6 @@ var CacheModule = fx.Module("cache",
 func NewAllCacheServices(client *redis.Client, cfg *config.Config) CacheServicesResult {
 	prefix := cfg.Data.RedisKeyPrefix
 	return CacheServicesResult{
-		Setting:          infracache.NewSettingCacheService(client, prefix),
 		SettingCategory:  infracache.NewSettingCategoryCacheService(client, prefix),
 		UserSettingQuery: infracache.NewUserSettingQueryCacheService(client, prefix),
 		UserSetting:      infracache.NewUserSettingCacheService(client, prefix),

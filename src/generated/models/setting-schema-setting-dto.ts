@@ -30,12 +30,6 @@ export interface SettingSchemaSettingDTO {
      */
     'default_value'?: object;
     /**
-     * 仅 Admin
-     * @type {string}
-     * @memberof SettingSchemaSettingDTO
-     */
-    'edit_permission'?: string;
-    /**
      * 控件类型
      * @type {string}
      * @memberof SettingSchemaSettingDTO
@@ -66,7 +60,13 @@ export interface SettingSchemaSettingDTO {
      */
     'order'?: number;
     /**
-     * 仅 Admin: system | user
+     * 是否对所有用户可见（仅 scope=system 时有意义）
+     * @type {boolean}
+     * @memberof SettingSchemaSettingDTO
+     */
+    'public'?: boolean;
+    /**
+     * system | user（用于前端判断可编辑性）
      * @type {string}
      * @memberof SettingSchemaSettingDTO
      */
@@ -95,11 +95,5 @@ export interface SettingSchemaSettingDTO {
      * @memberof SettingSchemaSettingDTO
      */
     'value_type'?: string;
-    /**
-     * 仅 Admin
-     * @type {string}
-     * @memberof SettingSchemaSettingDTO
-     */
-    'view_permission'?: string;
 }
 

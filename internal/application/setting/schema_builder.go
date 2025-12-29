@@ -80,22 +80,26 @@ func (b *SchemaBuilder) Build(
 				return settingDTOs[i].Order < settingDTOs[j].Order
 			})
 
+			// Group 字段直接存储 label（如 "基本设置"）
 			groups = append(groups, SchemaGroupDTO{
-				Group:    group,
-				Label:    GetGroupLabel(group),
+				Name:     group,
 				Settings: settingDTOs,
 			})
 		}
 
-		// 按 Group 名排序（default 在前）
+		// 按分组内最小 Order 排序（Settings 已按 Order 排序，首个即最小）
 		sort.Slice(groups, func(i, j int) bool {
-			if groups[i].Group == "default" {
-				return true
-			}
-			if groups[j].Group == "default" {
+			// default 组（无分组）排在最后
+			if groups[i].Name == "default" {
 				return false
 			}
-			return groups[i].Group < groups[j].Group
+			if groups[j].Name == "default" {
+				return true
+			}
+			// 按组内最小 Order 排序
+			minOrderI := groups[i].Settings[0].Order
+			minOrderJ := groups[j].Settings[0].Order
+			return minOrderI < minOrderJ
 		})
 
 		result = append(result, SchemaCategoryDTO{
@@ -117,32 +121,6 @@ func (b *SchemaBuilder) Build(
 	})
 
 	return result
-}
-
-// GetGroupLabel 获取分组显示名称
-func GetGroupLabel(group string) string {
-	labels := map[string]string{
-		"default":    "",
-		"basic":      "基本设置",
-		"locale":     "本地化",
-		"appearance": "外观",
-		"password":   "密码策略",
-		"session":    "会话管理",
-		"advanced":   "高级设置",
-		"general":    "基本设置",
-		"email":      "邮件通知",
-		"sms":        "短信通知",
-		"schedule":   "备份计划",
-		"smtp":       "SMTP 服务器",
-		"sender":     "发件人",
-		"github":     "GitHub",
-		"google":     "Google",
-	}
-
-	if label, ok := labels[group]; ok {
-		return label
-	}
-	return group
 }
 
 // AdminSettingMapper Admin 场景的 Setting 转换器（包含全部字段）

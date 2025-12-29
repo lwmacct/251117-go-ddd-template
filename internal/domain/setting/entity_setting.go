@@ -17,13 +17,13 @@ import (
 //   - 布尔值: true
 //   - JSON 对象/数组: {"key": "value"} 或 [1, 2, 3]
 //
-// Scope 字段决定配置的作用域：
-//   - "system": 系统设置，全局唯一，管理员直接修改 DefaultValue
-//   - "user": 用户设置，DefaultValue 作为初始值，用户可在 user_settings 表覆盖
+// Scope 字段决定配置的可编辑性：
+//   - "system": 系统设置，仅管理员可编辑
+//   - "user": 用户设置，用户可在 user_settings 表覆盖
 //
-// 权限字段用于 RBAC 控制：
-//   - ViewPermission: 查看权限，如 "user:settings:read"
-//   - EditPermission: 编辑权限，如 "admin:settings:update"
+// Public 字段决定配置值的可见性（仅对 scope=system 有意义）：
+//   - true: 所有用户可见（用于依赖检查、默认值继承）
+//   - false: 仅管理员可见（敏感配置如密码、密钥）
 //
 // InputType 决定前端控件类型和后端自动校验规则（email/url/password 等）。
 // Validation 存储自定义 JSON Logic 规则，用于业务级增强校验。
@@ -33,8 +33,9 @@ type Setting struct {
 	Key          string // 配置键，唯一约束
 	DefaultValue any    // 默认值（JSONB 原生值）
 	Scope        string // 作用域：system（全局唯一）| user（可覆盖）
+	Public       bool   // 是否对所有用户可见（仅 scope=system 时有意义）
 	CategoryID   uint   // 外键关联 SettingCategory.ID
-	Group        string // 分类内子分组：basic, locale, appearance 等
+	Group        string // 分组显示标签：基本设置, 本地化 等（直接存 label，空字符串表示无分组）
 	ValueType    string // 值类型：string, number, boolean, json（用于类型校验）
 	Label        string // 显示标签
 	Order        int    // 排序权重（小的在前）
@@ -43,10 +44,6 @@ type Setting struct {
 	InputType  string // 控件类型：text, email, url, password, select 等（决定自动校验规则）
 	Validation string // 自定义校验规则（JSON Logic 格式）
 	UIConfig   string // 前端展示配置：hint、options、depends_on（JSONB 字符串）
-
-	// 权限控制（复用 RBAC）
-	ViewPermission string // 查看权限
-	EditPermission string // 编辑权限
 
 	CreatedAt time.Time
 	UpdatedAt time.Time
@@ -64,7 +61,6 @@ type Setting struct {
 //   - ValueType 有效
 //   - InputType 有效
 //   - Scope 有效
-//   - ViewPermission 和 EditPermission 非空
 //   - DefaultValue 与 ValueType 匹配
 //   - DefaultValue 通过 InputType 格式校验
 func (s *Setting) Validate() error {
@@ -85,9 +81,6 @@ func (s *Setting) Validate() error {
 	}
 	if !s.IsValidScope() {
 		return ErrInvalidScope
-	}
-	if s.ViewPermission == "" || s.EditPermission == "" {
-		return ErrInvalidPermission
 	}
 	if err := s.ValidateValue(s.DefaultValue); err != nil {
 		return err
@@ -174,62 +167,22 @@ func (s *Setting) IsUserScope() bool {
 	return s.Scope == ScopeUser
 }
 
-// =============================================================================
-// 权限方法
-// =============================================================================
-
-// CanView 报告给定权限列表是否可以查看此配置。
+// IsPublic 报告是否对所有用户可见。
 //
-// 权限格式遵循 RBAC 三段式：domain:resource:action
-// 支持通配符匹配：
-//   - "*:settings:read" 匹配所有 domain
-//   - "admin:*:*" 匹配 admin 的所有操作
-func (s *Setting) CanView(permissions []string) bool {
-	return matchPermission(permissions, s.ViewPermission)
+// 仅对 scope=system 的配置有意义：
+//   - true: 所有用户可见（用于依赖检查、默认值继承）
+//   - false: 仅管理员可见（敏感配置）
+func (s *Setting) IsPublic() bool {
+	return s.Public
 }
 
-// CanEdit 报告给定权限列表是否可以编辑此配置。
+// IsVisibleToUser 报告普通用户是否可见此配置。
 //
-// 对于 system scope 配置，需要检查 EditPermission。
-// 对于 user scope 配置，用户可以编辑自己的覆盖值（此检查在 Service 层处理）。
-func (s *Setting) CanEdit(permissions []string) bool {
-	return matchPermission(permissions, s.EditPermission)
-}
-
-// matchPermission 检查权限列表中是否有匹配的权限。
-//
-// 支持通配符匹配规则：
-//   - 精确匹配
-//   - "*" 匹配任意单段
-//   - "*:*:*" 匹配所有
-func matchPermission(permissions []string, required string) bool {
-	if required == "" {
-		return true // 无需权限
-	}
-
-	requiredParts := strings.Split(required, ":")
-	if len(requiredParts) != 3 {
-		return false // 无效的权限格式
-	}
-
-	for _, perm := range permissions {
-		permParts := strings.Split(perm, ":")
-		if len(permParts) != 3 {
-			continue
-		}
-
-		match := true
-		for i := range 3 {
-			if permParts[i] != "*" && permParts[i] != requiredParts[i] {
-				match = false
-				break
-			}
-		}
-		if match {
-			return true
-		}
-	}
-	return false
+// 可见条件：
+//   - scope=user（用户自己的配置）
+//   - scope=system 且 public=true（公开的系统配置）
+func (s *Setting) IsVisibleToUser() bool {
+	return s.IsUserScope() || (s.IsSystemScope() && s.IsPublic())
 }
 
 // =============================================================================

@@ -1,6 +1,12 @@
 /**
  * JSON Logic 验证 Composable
  * 与后端共用同一套验证规则，确保前后端验证一致
+ *
+ * 支持两种规则格式：
+ * 1. JSON Logic 原生格式（如 {">=": [{"var": "value"}, 6]}）
+ * 2. 简单规则格式（如 {"min": 6, "max": 32}、{"enum": ["a", "b"]}）
+ *
+ * 简单规则会自动转换为 JSON Logic 格式执行
  */
 import { ref, type Ref } from "vue";
 import jsonLogic from "json-logic-js";
@@ -13,6 +19,7 @@ interface SimpleValidationRule {
   required?: boolean;
   pattern?: string;
   message?: string;
+  enum?: unknown[]; // 枚举值列表
 }
 
 export function useJsonLogicValidation(schema: Ref<SettingSchemaCategoryDTO[]>, formValues: Ref<Record<string, unknown>>) {
@@ -62,6 +69,7 @@ export function useJsonLogicValidation(schema: Ref<SettingSchemaCategoryDTO[]>, 
 
   /**
    * 将简单规则转换为 JSON Logic 格式
+   * 与后端 jsonlogic_validator.go 保持一致
    */
   const convertSimpleRule = (rule: SimpleValidationRule): object => {
     const conditions: object[] = [];
@@ -78,6 +86,11 @@ export function useJsonLogicValidation(schema: Ref<SettingSchemaCategoryDTO[]>, 
       conditions.push({ ">=": [{ var: "value" }, rule.min] });
     } else if (rule.max !== undefined) {
       conditions.push({ "<=": [{ var: "value" }, rule.max] });
+    }
+
+    // enum - 使用 JSON Logic 原生 in 操作符（与后端一致）
+    if (rule.enum && Array.isArray(rule.enum) && rule.enum.length > 0) {
+      conditions.push({ in: [{ var: "value" }, rule.enum] });
     }
 
     if (rule.pattern) {
@@ -115,6 +128,9 @@ export function useJsonLogicValidation(schema: Ref<SettingSchemaCategoryDTO[]>, 
     }
     if (simple.required) {
       return `${fieldName}不能为空`;
+    }
+    if (simple.enum) {
+      return `${fieldName}必须是有效选项`;
     }
 
     return `${fieldName}验证失败`;

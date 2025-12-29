@@ -2,6 +2,10 @@
 /**
  * 用户设置字段组件
  * 包装 DynamicSettingField，添加重置到默认值功能
+ *
+ * 支持两种状态：
+ * - 可编辑（scope=user）：显示重置按钮
+ * - 只读（scope=system）：显示锁定图标，不可编辑
  */
 import { computed } from "vue";
 import DynamicSettingField from "@/pages/admin/settings/components/DynamicSettingField.vue";
@@ -11,6 +15,7 @@ const props = defineProps<{
   setting: SettingSchemaSettingDTO;
   modelValue: unknown;
   disabled?: boolean;
+  readonly?: boolean; // 只读模式（scope=system 的公开设置）
   hint?: string;
   errorMessages?: string[];
   resetting?: boolean;
@@ -23,8 +28,8 @@ const emit = defineEmits<{
   reset: [];
 }>();
 
-// 是否显示重置按钮
-const showResetButton = computed(() => props.setting.is_customized === true);
+// 是否显示重置按钮（只读模式下不显示）
+const showResetButton = computed(() => props.setting.is_customized === true && !props.readonly);
 
 // 格式化默认值用于 tooltip 显示
 const formatDefaultValue = computed(() => {
@@ -76,8 +81,15 @@ const adaptedSetting = computed(() => ({
         />
       </div>
 
-      <!-- 重置按钮 -->
-      <v-tooltip v-if="showResetButton" :text="`重置为默认值: ${formatDefaultValue}`">
+      <!-- 只读标识（系统设置） -->
+      <v-tooltip v-if="readonly" text="由管理员设置">
+        <template #activator="{ props: tooltipProps }">
+          <v-icon v-bind="tooltipProps" icon="mdi-lock" size="small" color="grey" class="ml-2 mt-4" />
+        </template>
+      </v-tooltip>
+
+      <!-- 重置按钮（仅可编辑且已自定义时显示） -->
+      <v-tooltip v-else-if="showResetButton" :text="`重置为默认值: ${formatDefaultValue}`">
         <template #activator="{ props: tooltipProps }">
           <v-btn
             v-bind="tooltipProps"

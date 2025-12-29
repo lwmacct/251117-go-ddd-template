@@ -5,9 +5,11 @@
 // # 业务缓存服务（推荐）
 //
 // 针对特定业务域的缓存服务，封装 Key 命名、TTL 策略和失效逻辑：
-//   - [SettingCacheService]: Setting 配置缓存
+//   - [SettingCategoryCacheService]: Setting 分类元数据缓存
+//   - [UserSettingCacheService]: 用户有效设置值缓存
+//   - [UserSettingQueryCacheService]: 用户自定义配置缓存
 //   - [PermissionCacheService]: 用户权限缓存
-//   - [SchemaCacheService]: Schema API 响应缓存
+//   - [UserWithRolesCacheService]: 用户角色关联缓存
 //
 // # 通用缓存仓储（已废弃）
 //

@@ -11,12 +11,11 @@
  * - URL 参数同步（Tab 状态持久化）
  */
 import { ref, computed, onMounted, watch } from "vue";
-import { useResponsiveTabs, type TabItem } from "@/composables";
+import { useResponsiveTabs, useJsonLogicValidation, type TabItem } from "@/composables";
 import ResponsiveTabs from "@/components/ResponsiveTabs.vue";
 import SkeletonLoader from "@/components/SkeletonLoader.vue";
 import { useSettings } from "./composables/useSettings";
 import { useSettingsDependency } from "./composables/useSettingsDependency";
-import { useJsonLogicValidation } from "./composables/useJsonLogicValidation";
 import DynamicSettingField from "./components/DynamicSettingField.vue";
 
 const {
@@ -206,10 +205,10 @@ onMounted(async () => {
               <!-- 正常内容 -->
               <template v-else>
                 <!-- 按 Group 渲染 -->
-                <template v-for="group in getGroupsByCategory(tab.value)" :key="group.group">
+                <template v-for="group in getGroupsByCategory(tab.value)" :key="group.name">
                   <!-- 分组标题 -->
-                  <div v-if="group.label" class="text-subtitle-1 font-weight-medium mb-3 mt-4">
-                    {{ group.label }}
+                  <div v-if="group.name" class="text-subtitle-1 font-weight-medium mb-3 mt-4">
+                    {{ group.name }}
                   </div>
 
                   <v-row>

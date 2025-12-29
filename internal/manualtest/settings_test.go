@@ -77,7 +77,7 @@ func TestSettingsFlow(t *testing.T) {
 			for _, s := range group.Settings {
 				if s.Key == settingKey {
 					found = true
-					t.Logf("  ✓ 配置存在于 Schema: 分类=%s, 分组=%s", cat.Category, group.Group)
+					t.Logf("  ✓ 配置存在于 Schema: 分类=%s, 分组=%s", cat.Category, group.Name)
 					break
 				}
 			}
@@ -130,7 +130,7 @@ func TestGetSettingsWithFilters(t *testing.T) {
 				assert.Equal(t, "general", schema[0].Category, "分类 Key 不匹配")
 				t.Logf("general 分类: %d 分组", len(schema[0].Groups))
 				for _, g := range schema[0].Groups {
-					t.Logf("  - %s: %d 配置", g.Group, len(g.Settings))
+					t.Logf("  - %s: %d 配置", g.Name, len(g.Settings))
 				}
 			},
 		},

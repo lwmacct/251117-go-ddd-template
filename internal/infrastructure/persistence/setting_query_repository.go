@@ -71,6 +71,20 @@ func (r *settingQueryRepository) FindByScope(ctx context.Context, scope string) 
 	return mapSettingModelsToEntities(models), nil
 }
 
+// FindVisibleToUser 查找普通用户可见的配置定义
+// 包含: scope=user（用户设置）+ scope=system 且 public=true（公开系统设置）
+func (r *settingQueryRepository) FindVisibleToUser(ctx context.Context) ([]*setting.Setting, error) {
+	var models []SettingModel
+	err := r.db.WithContext(ctx).
+		Where("scope = ? OR (scope = ? AND public = ?)", setting.ScopeUser, setting.ScopeSystem, true).
+		Order(`category_id ASC, "group" ASC, "order" ASC, key ASC`).
+		Find(&models).Error
+	if err != nil {
+		return nil, fmt.Errorf("failed to find settings visible to user: %w", err)
+	}
+	return mapSettingModelsToEntities(models), nil
+}
+
 // FindAll 查找所有配置定义
 func (r *settingQueryRepository) FindAll(ctx context.Context) ([]*setting.Setting, error) {
 	var models []SettingModel

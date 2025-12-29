@@ -219,7 +219,7 @@ func TestGetUserSettingsSchema(t *testing.T) {
 	for _, cat := range *schema {
 		t.Logf("  📁 %s (%s) [icon: %s]", cat.Label, cat.Category, cat.Icon)
 		for _, group := range cat.Groups {
-			t.Logf("    📂 %s (%s)", group.Label, group.Group)
+			t.Logf("    📂 %s", group.Name)
 			for _, s := range group.Settings {
 				customIcon := " "
 				if s.IsCustomized {

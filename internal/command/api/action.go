@@ -66,7 +66,6 @@ func action(ctx context.Context, cmd *cli.Command) error {
 		// 启动钩子
 		fx.Invoke(
 			container.RegisterEventHandlers,
-			container.WarmupCaches,
 		),
 
 		// 提取 Router

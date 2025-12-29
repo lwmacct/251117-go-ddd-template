@@ -5823,10 +5823,8 @@ const docTemplate = `{
         "setting.SchemaGroupDTO": {
             "type": "object",
             "properties": {
-                "group": {
-                    "type": "string"
-                },
-                "label": {
+                "name": {
+                    "description": "分组名称（如 \"基本设置\"）",
                     "type": "string"
                 },
                 "settings": {
@@ -5842,10 +5840,6 @@ const docTemplate = `{
             "properties": {
                 "default_value": {
                     "description": "系统默认值"
-                },
-                "edit_permission": {
-                    "description": "仅 Admin",
-                    "type": "string"
                 },
                 "input_type": {
                     "description": "控件类型",
@@ -5864,8 +5858,12 @@ const docTemplate = `{
                 "order": {
                     "type": "integer"
                 },
+                "public": {
+                    "description": "是否对所有用户可见（仅 scope=system 时有意义）",
+                    "type": "boolean"
+                },
                 "scope": {
-                    "description": "仅 Admin: system | user",
+                    "description": "system | user（用于前端判断可编辑性）",
                     "type": "string"
                 },
                 "ui_config": {
@@ -5883,10 +5881,6 @@ const docTemplate = `{
                     "description": "实际生效值"
                 },
                 "value_type": {
-                    "type": "string"
-                },
-                "view_permission": {
-                    "description": "仅 Admin",
                     "type": "string"
                 }
             }
@@ -5913,10 +5907,6 @@ const docTemplate = `{
                 },
                 "default_value": {
                     "description": "JSONB 原生值"
-                },
-                "edit_permission": {
-                    "description": "编辑权限",
-                    "type": "string"
                 },
                 "group": {
                     "type": "string"
@@ -5956,10 +5946,6 @@ const docTemplate = `{
                     "description": "JSON Logic 规则"
                 },
                 "value_type": {
-                    "type": "string"
-                },
-                "view_permission": {
-                    "description": "查看权限",
                     "type": "string"
                 }
             }

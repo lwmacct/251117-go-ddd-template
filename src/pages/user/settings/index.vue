@@ -11,8 +11,7 @@
  * - URL 参数同步（Tab 状态持久化）
  */
 import { ref, computed, onMounted, watch } from "vue";
-import jsonLogic from "json-logic-js";
-import { useResponsiveTabs, type TabItem } from "@/composables";
+import { useResponsiveTabs, useJsonLogicValidation, type TabItem } from "@/composables";
 import ResponsiveTabs from "@/components/ResponsiveTabs.vue";
 import SkeletonLoader from "@/components/SkeletonLoader.vue";
 import { useUserSettings } from "./composables/useUserSettings";
@@ -40,8 +39,14 @@ const resettingKey = ref<string | null>(null);
 // 正在保存的设置 keys
 const savingKeys = ref<Set<string>>(new Set());
 
-// 验证错误（按 key 存储）
-const validationErrors = ref<Record<string, string[]>>({});
+// JSON Logic 验证（使用共享 composable）
+const { validate, getError, clearError } = useJsonLogicValidation(schema, formValues);
+
+// 获取字段验证错误（转换为数组格式供 Vuetify 使用）
+const getFieldErrors = (key: string): string[] => {
+  const error = getError(key);
+  return error ? [error] : [];
+};
 
 // Tab 列表（从 categories 元信息获取，而非 schema）
 const tabs = computed<TabItem[]>(() =>
@@ -117,46 +122,6 @@ watch(schema, () => {
   initFormValues();
 });
 
-// =============== 验证逻辑 ===============
-
-/**
- * 验证单个字段
- * 支持 JSON Logic 规则和简单规则两种格式
- */
-const validateField = (key: string, value: unknown): boolean => {
-  const setting = settingsMap.value.get(key);
-  const validation = setting?.validation;
-  if (!validation) return true;
-
-  try {
-    // 构建数据上下文（支持跨字段验证）
-    const data = {
-      value,
-      key,
-      settings: formValues.value,
-    };
-
-    // 执行 JSON Logic 验证
-    const result = jsonLogic.apply(validation, data);
-    if (!result) {
-      const msg = (validation as { message?: string }).message || `${setting?.label || key}验证失败`;
-      validationErrors.value[key] = [msg];
-      return false;
-    }
-    delete validationErrors.value[key];
-    return true;
-  } catch (e) {
-    console.error(`Validation error for ${key}:`, e);
-    validationErrors.value[key] = [`${setting?.label || key}验证规则执行失败`];
-    return false;
-  }
-};
-
-// 获取字段验证错误
-const getFieldErrors = (key: string): string[] => {
-  return validationErrors.value[key] ?? [];
-};
-
 // =============== 依赖逻辑 ===============
 
 interface DependsOnConfig {
@@ -192,12 +157,27 @@ const isDisabled = (key: string): boolean => {
 };
 
 /**
- * 获取字段提示（优先显示禁用原因）
+ * 检查设置项是否为只读（scope=system 的公开设置）
+ * 这些设置对用户可见，但只能由管理员修改
+ */
+const isReadonly = (key: string): boolean => {
+  const setting = settingsMap.value.get(key);
+  return setting?.scope === "system";
+};
+
+/**
+ * 获取字段提示（优先显示只读/禁用原因）
  */
 const getFieldHint = (key: string): string | undefined => {
   const setting = settingsMap.value.get(key);
-  const dependsOn = setting?.ui_config?.depends_on as DependsOnConfig | undefined;
 
+  // 只读设置（系统级公开设置）
+  if (isReadonly(key)) {
+    return "由管理员设置，仅供查看";
+  }
+
+  // 依赖关系被禁用
+  const dependsOn = setting?.ui_config?.depends_on as DependsOnConfig | undefined;
   if (dependsOn && isDisabled(key)) {
     const depSetting = settingsMap.value.get(dependsOn.key);
     return `需要先启用「${depSetting?.label || dependsOn.key}」`;
@@ -208,8 +188,8 @@ const getFieldHint = (key: string): string | undefined => {
 
 // 处理即时变更（switch/select）
 const handleFieldChange = async (key: string, value: unknown) => {
-  // 验证
-  if (!validateField(key, value)) return;
+  // 验证（composable 从 formValues 读取最新值）
+  if (validate(key) !== null) return;
 
   savingKeys.value.add(key);
   await updateSettingQuietly(key, value as object);
@@ -222,7 +202,7 @@ const handleFieldBlur = async (key: string) => {
   if (value === undefined) return;
 
   // 验证
-  if (!validateField(key, value)) return;
+  if (validate(key) !== null) return;
 
   savingKeys.value.add(key);
   await updateSettingQuietly(key, value as object);
@@ -240,7 +220,7 @@ const handleReset = async (key: string) => {
       formValues.value[key] = parseValue(setting.default_value, setting.value_type);
     }
     // 清除验证错误
-    delete validationErrors.value[key];
+    clearError(key);
   }
   resettingKey.value = null;
 };
@@ -301,10 +281,10 @@ onMounted(async () => {
               <!-- 正常内容 -->
               <template v-else>
                 <!-- 按 Group 渲染 -->
-                <template v-for="group in getGroupsByCategory(tab.value)" :key="group.group">
+                <template v-for="group in getGroupsByCategory(tab.value)" :key="group.name">
                   <!-- 分组标题 -->
-                  <div v-if="group.label" class="text-subtitle-1 font-weight-medium mb-3 mt-4">
-                    {{ group.label }}
+                  <div v-if="group.name" class="text-subtitle-1 font-weight-medium mb-3 mt-4">
+                    {{ group.name }}
                   </div>
 
                   <v-row>
@@ -318,7 +298,8 @@ onMounted(async () => {
                         v-if="setting.key"
                         v-model="formValues[setting.key]"
                         :setting="setting"
-                        :disabled="savingKeys.has(setting.key) || isDisabled(setting.key)"
+                        :disabled="savingKeys.has(setting.key) || isDisabled(setting.key) || isReadonly(setting.key)"
+                        :readonly="isReadonly(setting.key)"
                         :resetting="resettingKey === setting.key"
                         :error-messages="getFieldErrors(setting.key)"
                         :hint="getFieldHint(setting.key)"

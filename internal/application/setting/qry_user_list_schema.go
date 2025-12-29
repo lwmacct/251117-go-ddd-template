@@ -34,10 +34,12 @@ func NewUserListSchemaHandler(
 // Handle 处理获取用户配置 Schema 查询
 // 返回按 Category → Group → Settings 层级组织的数据，包含用户自定义值
 //
-// 仅返回 scope="user" 的设置项（用户可配置项），排除系统级设置
+// 返回用户可见的设置项：
+//   - scope="user" 的设置（用户可编辑）
+//   - scope="system" 且 public=true 的设置（只读，用于依赖检查和默认值展示）
 //
 // 支持 CategoryKey 过滤：
-//   - 为空时返回全量用户设置（用于总配置页）
+//   - 为空时返回全量用户可见设置（用于总配置页）
 //   - 指定 Key 时只返回该分类（用于分散页面的懒加载）
 //
 // 缓存策略：
@@ -96,13 +98,15 @@ func (h *UserListSchemaHandler) fetchAndBuildSchema(ctx context.Context, query U
 	return builder.Build(defs, userSettingMap, UserSettingMapper), nil
 }
 
-// fetchUserSettings 根据 CategoryKey 获取用户可配置的设置列表
+// fetchUserSettings 根据 CategoryKey 获取用户可见的设置列表
+//
+// 返回 scope=user（可编辑）+ scope=system 且 public=true（只读）的设置
 func (h *UserListSchemaHandler) fetchUserSettings(ctx context.Context, categoryKey string) ([]*setting.Setting, error) {
-	// 全量查询用户可配置的设置
+	// 全量查询用户可见的设置
 	if categoryKey == "" {
-		defs, err := h.settingQueryRepo.FindByScope(ctx, "user")
+		defs, err := h.settingQueryRepo.FindVisibleToUser(ctx)
 		if err != nil {
-			return nil, fmt.Errorf("failed to find setting definitions: %w", err)
+			return nil, fmt.Errorf("failed to find visible settings: %w", err)
 		}
 		return defs, nil
 	}
@@ -121,15 +125,16 @@ func (h *UserListSchemaHandler) fetchUserSettings(ctx context.Context, categoryK
 		return nil, fmt.Errorf("failed to find setting definitions: %w", err)
 	}
 
-	// 过滤只保留 user scope
-	return filterUserScopeSettings(allDefs), nil
+	// 过滤只保留用户可见的设置
+	return filterVisibleToUserSettings(allDefs), nil
 }
 
-// filterUserScopeSettings 过滤只保留 user scope 的设置
-func filterUserScopeSettings(settings []*setting.Setting) []*setting.Setting {
+// filterVisibleToUserSettings 过滤只保留用户可见的设置
+// 包含 scope=user 和 scope=system 且 public=true
+func filterVisibleToUserSettings(settings []*setting.Setting) []*setting.Setting {
 	result := make([]*setting.Setting, 0, len(settings))
 	for _, s := range settings {
-		if s.IsUserScope() {
+		if s.IsVisibleToUser() {
 			result = append(result, s)
 		}
 	}

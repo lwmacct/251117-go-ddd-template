@@ -25,8 +25,6 @@ func TestSetting_Validate_Valid(t *testing.T) {
 				Scope:          setting.ScopeSystem,
 				CategoryID:     1,
 				ValueType:      setting.ValueTypeString,
-				ViewPermission: "*:settings:read",
-				EditPermission: "admin:settings:update",
 			},
 		},
 		{
@@ -37,8 +35,6 @@ func TestSetting_Validate_Valid(t *testing.T) {
 				Scope:          setting.ScopeSystem,
 				CategoryID:     2,
 				ValueType:      setting.ValueTypeNumber,
-				ViewPermission: "admin:settings:read",
-				EditPermission: "admin:settings:update",
 			},
 		},
 		{
@@ -49,8 +45,6 @@ func TestSetting_Validate_Valid(t *testing.T) {
 				Scope:          setting.ScopeUser,
 				CategoryID:     3,
 				ValueType:      setting.ValueTypeBoolean,
-				ViewPermission: "user:settings:read",
-				EditPermission: "user:settings:update",
 			},
 		},
 		{
@@ -61,8 +55,6 @@ func TestSetting_Validate_Valid(t *testing.T) {
 				Scope:          setting.ScopeSystem,
 				CategoryID:     4,
 				ValueType:      setting.ValueTypeJSON,
-				ViewPermission: "admin:settings:read",
-				EditPermission: "admin:settings:update",
 			},
 		},
 		{
@@ -73,8 +65,6 @@ func TestSetting_Validate_Valid(t *testing.T) {
 				Scope:          setting.ScopeUser,
 				CategoryID:     1,
 				ValueType:      setting.ValueTypeString,
-				ViewPermission: "user:settings:read",
-				EditPermission: "user:settings:update",
 			},
 		},
 	}
@@ -90,11 +80,9 @@ func TestSetting_Validate_Valid(t *testing.T) {
 func TestSetting_Validate_Invalid(t *testing.T) {
 	// 有效的基础配置（用于测试单个字段无效的情况）
 	validBase := setting.Setting{
-		Scope:          setting.ScopeSystem,
-		CategoryID:     1,
-		ValueType:      setting.ValueTypeString,
-		ViewPermission: "*:settings:read",
-		EditPermission: "admin:settings:update",
+		Scope:      setting.ScopeSystem,
+		CategoryID: 1,
+		ValueType:  setting.ValueTypeString,
 	}
 
 	tests := []struct {
@@ -105,97 +93,61 @@ func TestSetting_Validate_Invalid(t *testing.T) {
 		{
 			name: "空 Key",
 			s: setting.Setting{
-				Key:            "",
-				Scope:          validBase.Scope,
-				CategoryID:     validBase.CategoryID,
-				ValueType:      validBase.ValueType,
-				ViewPermission: validBase.ViewPermission,
-				EditPermission: validBase.EditPermission,
+				Key:        "",
+				Scope:      validBase.Scope,
+				CategoryID: validBase.CategoryID,
+				ValueType:  validBase.ValueType,
 			},
 			wantErr: setting.ErrInvalidValue,
 		},
 		{
 			name: "无效 Key 格式",
 			s: setting.Setting{
-				Key:            "invalid",
-				Scope:          validBase.Scope,
-				CategoryID:     validBase.CategoryID,
-				ValueType:      validBase.ValueType,
-				ViewPermission: validBase.ViewPermission,
-				EditPermission: validBase.EditPermission,
+				Key:        "invalid",
+				Scope:      validBase.Scope,
+				CategoryID: validBase.CategoryID,
+				ValueType:  validBase.ValueType,
 			},
 			wantErr: setting.ErrInvalidKeyFormat,
 		},
 		{
 			name: "无效分类（CategoryID 为 0）",
 			s: setting.Setting{
-				Key:            "general.test",
-				Scope:          validBase.Scope,
-				CategoryID:     0,
-				ValueType:      validBase.ValueType,
-				ViewPermission: validBase.ViewPermission,
-				EditPermission: validBase.EditPermission,
+				Key:        "general.test",
+				Scope:      validBase.Scope,
+				CategoryID: 0,
+				ValueType:  validBase.ValueType,
 			},
 			wantErr: setting.ErrCategoryNotFound,
 		},
 		{
 			name: "无效值类型",
 			s: setting.Setting{
-				Key:            "general.test",
-				Scope:          validBase.Scope,
-				CategoryID:     validBase.CategoryID,
-				ValueType:      "invalid",
-				ViewPermission: validBase.ViewPermission,
-				EditPermission: validBase.EditPermission,
+				Key:        "general.test",
+				Scope:      validBase.Scope,
+				CategoryID: validBase.CategoryID,
+				ValueType:  "invalid",
 			},
 			wantErr: setting.ErrInvalidValueType,
 		},
 		{
 			name: "无效 Scope",
 			s: setting.Setting{
-				Key:            "general.test",
-				Scope:          "invalid",
-				CategoryID:     validBase.CategoryID,
-				ValueType:      validBase.ValueType,
-				ViewPermission: validBase.ViewPermission,
-				EditPermission: validBase.EditPermission,
+				Key:        "general.test",
+				Scope:      "invalid",
+				CategoryID: validBase.CategoryID,
+				ValueType:  validBase.ValueType,
 			},
 			wantErr: setting.ErrInvalidScope,
 		},
 		{
-			name: "空 ViewPermission",
-			s: setting.Setting{
-				Key:            "general.test",
-				Scope:          validBase.Scope,
-				CategoryID:     validBase.CategoryID,
-				ValueType:      validBase.ValueType,
-				ViewPermission: "",
-				EditPermission: validBase.EditPermission,
-			},
-			wantErr: setting.ErrInvalidPermission,
-		},
-		{
-			name: "空 EditPermission",
-			s: setting.Setting{
-				Key:            "general.test",
-				Scope:          validBase.Scope,
-				CategoryID:     validBase.CategoryID,
-				ValueType:      validBase.ValueType,
-				ViewPermission: validBase.ViewPermission,
-				EditPermission: "",
-			},
-			wantErr: setting.ErrInvalidPermission,
-		},
-		{
 			name: "默认值类型不匹配",
 			s: setting.Setting{
-				Key:            "general.test",
-				DefaultValue:   123, // 应该是 string
-				Scope:          validBase.Scope,
-				CategoryID:     validBase.CategoryID,
-				ValueType:      validBase.ValueType,
-				ViewPermission: validBase.ViewPermission,
-				EditPermission: validBase.EditPermission,
+				Key:          "general.test",
+				DefaultValue: 123, // 应该是 string
+				Scope:        validBase.Scope,
+				CategoryID:   validBase.CategoryID,
+				ValueType:    validBase.ValueType,
 			},
 			wantErr: setting.ErrInvalidValueType,
 		},
@@ -582,129 +534,4 @@ func TestSetting_IsUserScope(t *testing.T) {
 			assert.Equal(t, tt.want, s.IsUserScope())
 		})
 	}
-}
-
-// =============================================================================
-// Permission Method Tests
-// =============================================================================
-
-func TestSetting_CanView(t *testing.T) {
-	tests := []struct {
-		name           string
-		viewPermission string
-		permissions    []string
-		want           bool
-	}{
-		{
-			name:           "精确匹配",
-			viewPermission: "user:settings:read",
-			permissions:    []string{"user:settings:read"},
-			want:           true,
-		},
-		{
-			name:           "通配符匹配 domain",
-			viewPermission: "user:settings:read",
-			permissions:    []string{"*:settings:read"},
-			want:           true,
-		},
-		{
-			name:           "通配符匹配 resource",
-			viewPermission: "admin:settings:read",
-			permissions:    []string{"admin:*:read"},
-			want:           true,
-		},
-		{
-			name:           "通配符匹配 action",
-			viewPermission: "admin:settings:read",
-			permissions:    []string{"admin:settings:*"},
-			want:           true,
-		},
-		{
-			name:           "全通配符",
-			viewPermission: "admin:settings:read",
-			permissions:    []string{"*:*:*"},
-			want:           true,
-		},
-		{
-			name:           "多权限匹配",
-			viewPermission: "admin:settings:read",
-			permissions:    []string{"user:profile:read", "admin:settings:read"},
-			want:           true,
-		},
-		{
-			name:           "无匹配权限",
-			viewPermission: "admin:settings:read",
-			permissions:    []string{"user:settings:read"},
-			want:           false,
-		},
-		{
-			name:           "空权限列表",
-			viewPermission: "admin:settings:read",
-			permissions:    []string{},
-			want:           false,
-		},
-		{
-			name:           "部分段不匹配",
-			viewPermission: "admin:settings:read",
-			permissions:    []string{"admin:users:read"},
-			want:           false,
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			s := setting.Setting{ViewPermission: tt.viewPermission}
-			assert.Equal(t, tt.want, s.CanView(tt.permissions))
-		})
-	}
-}
-
-func TestSetting_CanEdit(t *testing.T) {
-	tests := []struct {
-		name           string
-		editPermission string
-		permissions    []string
-		want           bool
-	}{
-		{
-			name:           "精确匹配",
-			editPermission: "admin:settings:update",
-			permissions:    []string{"admin:settings:update"},
-			want:           true,
-		},
-		{
-			name:           "通配符匹配",
-			editPermission: "admin:settings:update",
-			permissions:    []string{"admin:*:*"},
-			want:           true,
-		},
-		{
-			name:           "无匹配权限",
-			editPermission: "admin:settings:update",
-			permissions:    []string{"user:settings:update"},
-			want:           false,
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			s := setting.Setting{EditPermission: tt.editPermission}
-			assert.Equal(t, tt.want, s.CanEdit(tt.permissions))
-		})
-	}
-}
-
-func TestSetting_CanView_EmptyPermissionAllowed(t *testing.T) {
-	// 空的 ViewPermission 表示无需权限即可查看
-	s := setting.Setting{ViewPermission: ""}
-	assert.True(t, s.CanView([]string{}))
-	assert.True(t, s.CanView([]string{"any:permission:here"}))
-}
-
-func TestSetting_CanView_InvalidFormat(t *testing.T) {
-	// 无效的权限格式（非三段式）应该不匹配
-	s := setting.Setting{ViewPermission: "admin:settings:read"}
-	assert.False(t, s.CanView([]string{"invalid-permission"}))
-	assert.False(t, s.CanView([]string{"only:two"}))
-	assert.False(t, s.CanView([]string{"too:many:parts:here"}))
 }

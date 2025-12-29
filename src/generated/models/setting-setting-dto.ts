@@ -42,12 +42,6 @@ export interface SettingSettingDTO {
      */
     'default_value'?: object;
     /**
-     * 编辑权限
-     * @type {string}
-     * @memberof SettingSettingDTO
-     */
-    'edit_permission'?: string;
-    /**
      * 
      * @type {string}
      * @memberof SettingSettingDTO
@@ -113,11 +107,5 @@ export interface SettingSettingDTO {
      * @memberof SettingSettingDTO
      */
     'value_type'?: string;
-    /**
-     * 查看权限
-     * @type {string}
-     * @memberof SettingSettingDTO
-     */
-    'view_permission'?: string;
 }
 

@@ -13,18 +13,20 @@ import (
 // 索引设计：
 //   - idx_settings_category_sort: 复合索引 (category_id, group, order, key) 覆盖分类查询和排序
 //   - idx_settings_scope: 单列索引用于 scope 过滤
+//   - idx_settings_visible_to_user: 复合索引 (scope, public) 用于 FindVisibleToUser 查询
 //
 //nolint:recvcheck // TableName uses value receiver per GORM convention
 type SettingModel struct {
 	ID           uint           `gorm:"primaryKey"`
 	Key          string         `gorm:"uniqueIndex;size:100;not null"`
 	DefaultValue datatypes.JSON `gorm:"type:jsonb;not null;default:'null'"` // JSONB 原生值
-	Scope        string         `gorm:"size:20;not null;default:'user';index:idx_settings_scope"`
+	Scope        string         `gorm:"size:20;not null;default:'user';index:idx_settings_scope;index:idx_settings_visible_to_user,priority:1"`
+	Public       bool           `gorm:"not null;default:false;index:idx_settings_visible_to_user,priority:2"` // 是否对用户可见
 
 	// 复合索引：覆盖 FindByCategoryID 的 WHERE + ORDER BY
 	CategoryID uint   `gorm:"not null;index:idx_settings_category_sort,priority:1"`
-	Group      string `gorm:"size:50;default:'';index:idx_settings_category_sort,priority:2"`
-	Order      int    `gorm:"default:0;index:idx_settings_category_sort,priority:3"`
+	Group      string `gorm:"size:100;default:''"`                                   // 分组显示标签（直接存 label，空字符串表示无分组）
+	Order      int    `gorm:"default:0;index:idx_settings_category_sort,priority:2"` // 排序（组间 + 组内）
 
 	ValueType string `gorm:"size:20;default:'string'"`
 	Label     string `gorm:"size:200"`
@@ -33,10 +35,6 @@ type SettingModel struct {
 	InputType  string         `gorm:"column:input_type;size:32;not null;default:'text'"` // 控件类型
 	Validation string         `gorm:"column:validation;type:text"`                       // JSON Logic 规则
 	UIConfig   datatypes.JSON `gorm:"type:jsonb;default:'{}'"`                           // hint/options/depends_on
-
-	// 权限控制
-	ViewPermission string `gorm:"size:100;not null;default:'*:settings:read'"`
-	EditPermission string `gorm:"size:100;not null;default:'admin:settings:update'"`
 
 	CreatedAt time.Time
 	UpdatedAt time.Time
@@ -56,22 +54,21 @@ func newSettingModelFromEntity(entity *setting.Setting) *SettingModel {
 	defaultValueJSON, _ := json.Marshal(entity.DefaultValue) //nolint:errchkjson // DefaultValue 是任意 JSONB 值
 
 	return &SettingModel{
-		ID:             entity.ID,
-		Key:            entity.Key,
-		DefaultValue:   datatypes.JSON(defaultValueJSON),
-		Scope:          entity.Scope,
-		CategoryID:     entity.CategoryID,
-		Group:          entity.Group,
-		ValueType:      entity.ValueType,
-		Label:          entity.Label,
-		Order:          entity.Order,
-		InputType:      entity.InputType,
-		Validation:     entity.Validation,
-		UIConfig:       datatypes.JSON(entity.UIConfig),
-		ViewPermission: entity.ViewPermission,
-		EditPermission: entity.EditPermission,
-		CreatedAt:      entity.CreatedAt,
-		UpdatedAt:      entity.UpdatedAt,
+		ID:           entity.ID,
+		Key:          entity.Key,
+		DefaultValue: datatypes.JSON(defaultValueJSON),
+		Scope:        entity.Scope,
+		Public:       entity.Public,
+		CategoryID:   entity.CategoryID,
+		Group:        entity.Group,
+		Order:        entity.Order,
+		ValueType:    entity.ValueType,
+		Label:        entity.Label,
+		InputType:    entity.InputType,
+		Validation:   entity.Validation,
+		UIConfig:     datatypes.JSON(entity.UIConfig),
+		CreatedAt:    entity.CreatedAt,
+		UpdatedAt:    entity.UpdatedAt,
 	}
 }
 
@@ -86,22 +83,21 @@ func (m *SettingModel) ToEntity() *setting.Setting {
 	_ = json.Unmarshal(m.DefaultValue, &defaultValue)
 
 	return &setting.Setting{
-		ID:             m.ID,
-		Key:            m.Key,
-		DefaultValue:   defaultValue,
-		Scope:          m.Scope,
-		CategoryID:     m.CategoryID,
-		Group:          m.Group,
-		ValueType:      m.ValueType,
-		Label:          m.Label,
-		Order:          m.Order,
-		InputType:      m.InputType,
-		Validation:     m.Validation,
-		UIConfig:       string(m.UIConfig),
-		ViewPermission: m.ViewPermission,
-		EditPermission: m.EditPermission,
-		CreatedAt:      m.CreatedAt,
-		UpdatedAt:      m.UpdatedAt,
+		ID:           m.ID,
+		Key:          m.Key,
+		DefaultValue: defaultValue,
+		Scope:        m.Scope,
+		Public:       m.Public,
+		CategoryID:   m.CategoryID,
+		Group:        m.Group,
+		ValueType:    m.ValueType,
+		Label:        m.Label,
+		Order:        m.Order,
+		InputType:    m.InputType,
+		Validation:   m.Validation,
+		UIConfig:     string(m.UIConfig),
+		CreatedAt:    m.CreatedAt,
+		UpdatedAt:    m.UpdatedAt,
 	}
 }
 
