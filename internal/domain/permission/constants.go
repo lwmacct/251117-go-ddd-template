@@ -1,41 +1,4 @@
-package operation
-
-import op "github.com/lwmacct/251117-go-ddd-template/pkg/operation"
-
-// ============================================================================
-// 类型别名（来自 pkg/operation）
-// ============================================================================
-
-// Operation 是 [op.Operation] 的类型别名。
-type Operation = op.Operation
-
-// Resource 是 [op.Resource] 的类型别名。
-type Resource = op.Resource
-
-// HTTPMethod 是 [op.HTTPMethod] 的类型别名。
-type HTTPMethod = op.HTTPMethod
-
-// ResourceAll 表示所有资源。
-const ResourceAll = op.ResourceAll
-
-// HTTP 方法常量。
-const (
-	GET    = op.GET
-	POST   = op.POST
-	PUT    = op.PUT
-	DELETE = op.DELETE
-	PATCH  = op.PATCH
-)
-
-// ============================================================================
-// 匹配函数重导出（来自 pkg/operation）
-// ============================================================================
-
-// MatchOperation 检查操作是否匹配模式。
-var MatchOperation = op.MatchOperation
-
-// MatchResource 检查资源是否匹配模式。
-var MatchResource = op.MatchResource
+package permission
 
 // ============================================================================
 // 操作常量
@@ -170,3 +133,112 @@ const (
 	SelfSettingsReset          Operation = "self:settings:reset"
 	SelfSettingsBatchSet       Operation = "self:settings:batch-set"
 )
+
+// ============================================================================
+// 常量名查找（供代码生成工具使用）
+// ============================================================================
+
+// constNameRegistry 常量名到 Operation 的映射。
+// 用于从源代码解析的常量名反查 Operation。
+//
+//nolint:gochecknoglobals // 只读注册表
+var constNameRegistry = map[string]Operation{
+	// Public 域
+	"PublicAuthRegister": PublicAuthRegister,
+	"PublicAuthLogin":    PublicAuthLogin,
+	"PublicAuthLogin2FA": PublicAuthLogin2FA,
+	"PublicAuthRefresh":  PublicAuthRefresh,
+	"PublicAuthCaptcha":  PublicAuthCaptcha,
+
+	// Self 域 - 2FA
+	"Self2FASetup":   Self2FASetup,
+	"Self2FAVerify":  Self2FAVerify,
+	"Self2FADisable": Self2FADisable,
+	"Self2FAStatus":  Self2FAStatus,
+
+	// Sys 域 - 用户管理
+	"SysUsersCreate":      SysUsersCreate,
+	"SysUsersBatchCreate": SysUsersBatchCreate,
+	"SysUsersList":        SysUsersList,
+	"SysUsersGet":         SysUsersGet,
+	"SysUsersUpdate":      SysUsersUpdate,
+	"SysUsersDelete":      SysUsersDelete,
+	"SysUsersAssignRoles": SysUsersAssignRoles,
+
+	// Sys 域 - 角色管理
+	"SysRolesCreate":         SysRolesCreate,
+	"SysRolesList":           SysRolesList,
+	"SysRolesGet":            SysRolesGet,
+	"SysRolesUpdate":         SysRolesUpdate,
+	"SysRolesDelete":         SysRolesDelete,
+	"SysRolesSetPermissions": SysRolesSetPermissions,
+
+	// Sys 域 - 操作列表
+	"SysOperationsList": SysOperationsList,
+
+	// Sys 域 - 审计日志
+	"SysAuditLogsList":    SysAuditLogsList,
+	"SysAuditLogsGet":     SysAuditLogsGet,
+	"SysAuditLogsActions": SysAuditLogsActions,
+
+	// Sys 域 - 菜单管理
+	"SysMenusCreate":  SysMenusCreate,
+	"SysMenusList":    SysMenusList,
+	"SysMenusGet":     SysMenusGet,
+	"SysMenusUpdate":  SysMenusUpdate,
+	"SysMenusDelete":  SysMenusDelete,
+	"SysMenusReorder": SysMenusReorder,
+
+	// Sys 域 - 系统概览
+	"SysOverviewStats": SysOverviewStats,
+
+	// Sys 域 - 系统配置
+	"SysSettingsCreate":      SysSettingsCreate,
+	"SysSettingsList":        SysSettingsList,
+	"SysSettingsGet":         SysSettingsGet,
+	"SysSettingsUpdate":      SysSettingsUpdate,
+	"SysSettingsDelete":      SysSettingsDelete,
+	"SysSettingsBatchUpdate": SysSettingsBatchUpdate,
+
+	// Sys 域 - 配置分类
+	"SysSettingCategoriesList":   SysSettingCategoriesList,
+	"SysSettingCategoriesGet":    SysSettingCategoriesGet,
+	"SysSettingCategoriesCreate": SysSettingCategoriesCreate,
+	"SysSettingCategoriesUpdate": SysSettingCategoriesUpdate,
+	"SysSettingCategoriesDelete": SysSettingCategoriesDelete,
+
+	// Sys 域 - 缓存管理
+	"SysCacheInfo":          SysCacheInfo,
+	"SysCacheScanKeys":      SysCacheScanKeys,
+	"SysCacheGetKey":        SysCacheGetKey,
+	"SysCacheDeleteKey":     SysCacheDeleteKey,
+	"SysCacheDeletePattern": SysCacheDeletePattern,
+
+	// Self 域 - 个人资料
+	"SelfProfileGet":     SelfProfileGet,
+	"SelfProfileUpdate":  SelfProfileUpdate,
+	"SelfPasswordUpdate": SelfPasswordUpdate,
+	"SelfAccountDelete":  SelfAccountDelete,
+
+	// Self 域 - 访问令牌
+	"SelfTokensCreate":  SelfTokensCreate,
+	"SelfTokensList":    SelfTokensList,
+	"SelfTokensGet":     SelfTokensGet,
+	"SelfTokensDelete":  SelfTokensDelete,
+	"SelfTokensDisable": SelfTokensDisable,
+	"SelfTokensEnable":  SelfTokensEnable,
+
+	// Self 域 - 用户配置
+	"SelfSettingsCategoriesList": SelfSettingsCategoriesList,
+	"SelfSettingsList":           SelfSettingsList,
+	"SelfSettingsGet":            SelfSettingsGet,
+	"SelfSettingsSet":            SelfSettingsSet,
+	"SelfSettingsReset":          SelfSettingsReset,
+	"SelfSettingsBatchSet":       SelfSettingsBatchSet,
+}
+
+// ByConstName 通过常量名查找操作。
+// 如果未找到返回空 Operation。
+func ByConstName(name string) Operation {
+	return constNameRegistry[name]
+}

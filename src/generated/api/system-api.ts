@@ -22,7 +22,7 @@ import { DUMMY_BASE_URL, assertParamExists, setApiKeyToObject, setBasicAuthToObj
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS, type RequestArgs, BaseAPI, RequiredError, operationServerMap } from '../base';
 // @ts-ignore
-import type { ResponseDataResponseArrayOperationOperationDefinition } from '../models';
+import type { ResponseDataResponseArrayRoutesOperationDefinition } from '../models';
 // @ts-ignore
 import type { ResponseDataResponseCacheCacheInfoDTO } from '../models';
 // @ts-ignore
@@ -387,7 +387,7 @@ export const SystemApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async apiSystemOperationsGet(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseArrayOperationOperationDefinition>> {
+        async apiSystemOperationsGet(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseArrayRoutesOperationDefinition>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.apiSystemOperationsGet(options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['SystemApi.apiSystemOperationsGet']?.[localVarOperationServerIndex]?.url;
@@ -472,7 +472,7 @@ export const SystemApiFactory = function (configuration?: Configuration, basePat
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiSystemOperationsGet(options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseArrayOperationOperationDefinition> {
+        apiSystemOperationsGet(options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseArrayRoutesOperationDefinition> {
             return localVarFp.apiSystemOperationsGet(options).then((request) => request(axios, basePath));
         },
         /**

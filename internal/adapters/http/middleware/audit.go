@@ -10,8 +10,8 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/lwmacct/251117-go-ddd-template/internal/adapters/http/routes"
 	"github.com/lwmacct/251117-go-ddd-template/internal/application/auditlog"
-	"github.com/lwmacct/251117-go-ddd-template/internal/domain/operation"
 )
 
 // AuditMiddleware 创建审计日志中间件。
@@ -19,13 +19,13 @@ import (
 func AuditMiddleware(handler *auditlog.CreateHandler) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// 通过 operation registry 查找操作
-		op := operation.ByMethodAndPath(
-			operation.HTTPMethod(c.Request.Method),
+		op := routes.ByMethodAndPath(
+			routes.HTTPMethod(c.Request.Method),
 			c.Request.URL.Path,
 		)
 
 		// 未注册或无需审计的操作静默跳过
-		if !operation.Valid(op) || !operation.NeedsAudit(op) {
+		if !routes.Valid(op) || !routes.NeedsAudit(op) {
 			c.Next()
 			return
 		}
@@ -71,21 +71,21 @@ func AuditMiddleware(handler *auditlog.CreateHandler) gin.HandlerFunc {
 		}
 
 		// 从路径提取资源 ID
-		resourceID := extractResourceID(operation.Path(op), c.Request.URL.Path)
+		resourceID := extractResourceID(routes.Path(op), c.Request.URL.Path)
 
 		// 创建审计日志命令
 		cmd := auditlog.CreateCommand{
 			UserID:      uid,
 			Username:    uname,
-			Action:      operation.AuditAction(op),      // 语义化操作标识：setting.update
-			Resource:    string(operation.AuditCat(op)), // 资源分类：setting
+			Action:      routes.AuditAction(op),           // 语义化操作标识：setting.update
+			Resource:    string(routes.AuditCategory(op)), // 资源分类：setting
 			ResourceID:  resourceID,
 			IPAddress:   c.ClientIP(),
 			UserAgent:   c.Request.UserAgent(),
 			Details:     formatDetails(c.Request.Method, requestBody, c.Writer.Status(), duration),
 			Status:      status,
 			RequestID:   GetRequestID(c),
-			OperationID: string(op), // 操作标识：admin.settings.update
+			OperationID: string(op),
 		}
 
 		// 异步保存审计日志，避免阻塞响应

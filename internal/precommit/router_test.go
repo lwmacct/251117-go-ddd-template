@@ -3,7 +3,7 @@ package precommit_test
 import (
 	"testing"
 
-	op "github.com/lwmacct/251117-go-ddd-template/internal/domain/operation"
+	"github.com/lwmacct/251117-go-ddd-template/internal/adapters/http/routes"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -16,11 +16,11 @@ func TestRoutes_Bindings(t *testing.T) {
 	// 路由与 operation 的一致性在编译时就已保证。
 	// 这里只验证 operation 数据的有效性。
 
-	for _, o := range op.All() {
+	for _, o := range routes.All() {
 		t.Run(o.String(), func(t *testing.T) {
 			// 验证每个 operation 都有有效的元数据
-			assert.NotEmpty(t, op.Method(o), "operation %s missing Method", o)
-			assert.NotEmpty(t, op.Path(o), "operation %s missing Path", o)
+			assert.NotEmpty(t, routes.Method(o), "operation %s missing Method", o)
+			assert.NotEmpty(t, routes.Path(o), "operation %s missing Path", o)
 		})
 	}
 }
@@ -28,9 +28,9 @@ func TestRoutes_Bindings(t *testing.T) {
 // TestRoutes_PathFormat 检查路径格式的一致性。
 // 规则：所有 API 路径必须以 /api/ 开头。
 func TestRoutes_PathFormat(t *testing.T) {
-	for _, o := range op.All() {
+	for _, o := range routes.All() {
 		t.Run(o.String(), func(t *testing.T) {
-			path := op.Path(o)
+			path := routes.Path(o)
 			assert.True(t, len(path) > 0 && path[0] == '/',
 				"path should start with /: got %q", path)
 			assert.Contains(t, path, "/api/",
@@ -42,7 +42,7 @@ func TestRoutes_PathFormat(t *testing.T) {
 // TestRoutes_AuditActionsConsistency 检查审计操作的一致性。
 // 规则：同一分类的审计操作应该使用一致的命名模式。
 func TestRoutes_AuditActionsConsistency(t *testing.T) {
-	actions := op.AllAuditActions()
+	actions := routes.AllAuditActions()
 
 	for _, a := range actions {
 		t.Run(a.Action, func(t *testing.T) {

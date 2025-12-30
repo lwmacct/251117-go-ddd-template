@@ -5,7 +5,8 @@ import (
 	"strings"
 	"testing"
 
-	op "github.com/lwmacct/251117-go-ddd-template/internal/domain/operation"
+	"github.com/lwmacct/251117-go-ddd-template/internal/adapters/http/routes"
+	"github.com/lwmacct/251117-go-ddd-template/internal/domain/permission"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -17,11 +18,11 @@ func TestAnnotation_MatchOperation(t *testing.T) {
 	require.NotEmpty(t, annotations, "no handler annotations found")
 
 	// 构建 operation 索引 (method|swaggerPath -> operation)
-	operationIndex := make(map[string]op.Operation)
-	for _, o := range op.All() {
+	operationIndex := make(map[string]permission.Operation)
+	for _, o := range routes.All() {
 		// 将 Gin 路径 (:id) 转换为 Swagger 路径 ({id}) 以便比较
-		swaggerPath := regexp.MustCompile(`:(\w+)`).ReplaceAllString(op.Path(o), "{$1}")
-		key := string(op.Method(o)) + "|" + swaggerPath
+		swaggerPath := regexp.MustCompile(`:(\w+)`).ReplaceAllString(routes.Path(o), "{$1}")
+		key := string(routes.Method(o)) + "|" + swaggerPath
 		operationIndex[key] = o
 	}
 
@@ -53,15 +54,15 @@ func TestAnnotation_OperationCoverage(t *testing.T) {
 		handlerIndex[key] = true
 	}
 
-	for _, o := range op.All() {
+	for _, o := range routes.All() {
 		// 将 Gin 路径 (:id) 转换为 Swagger 路径 ({id})
-		swaggerPath := regexp.MustCompile(`:(\w+)`).ReplaceAllString(op.Path(o), "{$1}")
-		key := string(op.Method(o)) + "|" + swaggerPath
+		swaggerPath := regexp.MustCompile(`:(\w+)`).ReplaceAllString(routes.Path(o), "{$1}")
+		key := string(routes.Method(o)) + "|" + swaggerPath
 
 		t.Run(o.String(), func(t *testing.T) {
 			assert.True(t, handlerIndex[key],
 				"operation missing handler annotation: %s %s (Operation: %s)",
-				op.Method(o), op.Path(o), o)
+				routes.Method(o), routes.Path(o), o)
 		})
 	}
 }
@@ -96,9 +97,9 @@ func TestAnnotation_SecurityRequired(t *testing.T) {
 
 	// 从 operation 获取公开端点列表
 	publicPaths := make(map[string]bool)
-	for _, o := range op.All() {
-		if op.IsPublic(o) {
-			publicPaths[op.Path(o)] = true
+	for _, o := range routes.All() {
+		if o.IsPublic() {
+			publicPaths[routes.Path(o)] = true
 		}
 	}
 
@@ -167,7 +168,7 @@ func TestAnnotation_ContentType(t *testing.T) {
 
 // TestAnnotation_SuccessDTOExists 检查 @Success 中的 DTO 类型是否存在。
 // 规则：DTO 类型必须在 internal/application/{pkg}/dto.go 中定义。
-// 例外：operation.* 类型（定义在 domain/operation，是 registry 的一部分）。
+// 例外：routes.* 类型（定义在 adapters/http/routes，是路由配置的一部分）。
 func TestAnnotation_SuccessDTOExists(t *testing.T) {
 	annotations := parseHandlerAnnotations(t)
 	dtoTypes := loadDTOTypes(t)
@@ -177,8 +178,8 @@ func TestAnnotation_SuccessDTOExists(t *testing.T) {
 			continue
 		}
 
-		// 跳过 operation.* 类型（定义在 domain 层）
-		if strings.HasPrefix(ann.SuccessDTO, "operation.") {
+		// 跳过 routes.* 类型（定义在 adapters 层）
+		if strings.HasPrefix(ann.SuccessDTO, "routes.") {
 			continue
 		}
 

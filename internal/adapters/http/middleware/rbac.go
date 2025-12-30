@@ -6,15 +6,14 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/lwmacct/251117-go-ddd-template/internal/adapters/http/response"
-	"github.com/lwmacct/251117-go-ddd-template/internal/domain/operation"
+	"github.com/lwmacct/251117-go-ddd-template/internal/domain/permission"
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/role"
-	pkgop "github.com/lwmacct/251117-go-ddd-template/pkg/operation"
 )
 
 // RequireOperation 检查用户是否有执行指定 Operation 的权限。
 // URN 风格 RBAC：权限为 Operation Pattern + Resource Pattern 组合。
 // 对于 self: 域的操作，自动检查 self:user:@me 资源匹配。
-func RequireOperation(op operation.Operation) gin.HandlerFunc {
+func RequireOperation(op permission.Operation) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		permissions, exists := c.Get("permissions")
 		if !exists {
@@ -43,10 +42,10 @@ func RequireOperation(op operation.Operation) gin.HandlerFunc {
 
 		for _, p := range permList {
 			// 匹配 Operation Pattern
-			if operation.MatchOperation(p.OperationPattern, operationStr) {
+			if permission.MatchOperation(p.OperationPattern, operationStr) {
 				// 检查资源是否匹配任一候选资源
 				for _, res := range resourcesToCheck {
-					if operation.MatchResource(p.ResourcePattern, res) {
+					if permission.MatchResource(p.ResourcePattern, res) {
 						hasPermission = true
 						break
 					}
@@ -69,7 +68,7 @@ func RequireOperation(op operation.Operation) gin.HandlerFunc {
 
 // RequireOperationWithResource 检查用户是否有对指定资源执行指定 Operation 的权限。
 // 支持细粒度资源控制，如 sys:user:123、sys:role:*。
-func RequireOperationWithResource(op operation.Operation, resource operation.Resource) gin.HandlerFunc {
+func RequireOperationWithResource(op permission.Operation, resource permission.Resource) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		permissions, exists := c.Get("permissions")
 		if !exists {
@@ -89,8 +88,8 @@ func RequireOperationWithResource(op operation.Operation, resource operation.Res
 		operationStr := string(op)
 		resourceStr := string(resource)
 		for _, p := range permList {
-			if operation.MatchOperation(p.OperationPattern, operationStr) &&
-				operation.MatchResource(p.ResourcePattern, resourceStr) {
+			if permission.MatchOperation(p.OperationPattern, operationStr) &&
+				permission.MatchResource(p.ResourcePattern, resourceStr) {
 				hasPermission = true
 				break
 			}
@@ -278,7 +277,7 @@ func appendSelfResources(c *gin.Context, resources []string) []string {
 	}
 
 	// 创建 resolver 并解析 @me
-	resolver := pkgop.NewResolver(map[string]string{
+	resolver := permission.NewResolver(map[string]string{
 		"@me": strconv.FormatUint(uint64(uid), 10),
 	})
 	selfUserResource := resolver.ResolveString("self:user:@me")

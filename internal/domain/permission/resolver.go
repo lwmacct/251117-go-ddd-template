@@ -1,21 +1,21 @@
-package operation
+package permission
 
 import (
 	"maps"
 	"strings"
 )
 
-// Resolver performs variable substitution in URNs.
+// Resolver 执行 URN 中的变量替换。
 //
-// Variables are arbitrary strings that get replaced with their values.
-// Common convention uses @ prefix (e.g., @me, @org) but any string works.
+// 变量是任意字符串，会被替换为对应的值。
+// 常用约定使用 @ 前缀（如 @me, @org），但任何字符串都可以。
 type Resolver struct {
 	vars map[string]string
 }
 
-// NewResolver creates a new Resolver with the given variable mappings.
+// NewResolver 创建变量解析器。
 //
-// Example:
+// 示例：
 //
 //	r := NewResolver(map[string]string{
 //	    "@me":  "123",
@@ -24,21 +24,29 @@ type Resolver struct {
 //	r.ResolveString("self:user:@me")  // "self:user:123"
 //	r.ResolveString("org.@org:*:*")   // "org.acme:*:*"
 func NewResolver(vars map[string]string) *Resolver {
-	// Copy the map to prevent external modification
+	// 复制 map 防止外部修改
 	m := make(map[string]string, len(vars))
 	maps.Copy(m, vars)
 	return &Resolver{vars: m}
 }
 
-// Resolve replaces all variables in the URN with their values.
-func (r *Resolver) Resolve(u URN) URN {
+// Resolve 替换 Operation 中的所有变量。
+func (r *Resolver) Resolve(o Operation) Operation {
 	if r == nil || len(r.vars) == 0 {
-		return u
+		return o
 	}
-	return URN(r.ResolveString(string(u)))
+	return Operation(r.ResolveString(string(o)))
 }
 
-// ResolveString replaces all variables in the string with their values.
+// ResolveResource 替换 Resource 中的所有变量。
+func (r *Resolver) ResolveResource(res Resource) Resource {
+	if r == nil || len(r.vars) == 0 {
+		return res
+	}
+	return Resource(r.ResolveString(string(res)))
+}
+
+// ResolveString 替换字符串中的所有变量。
 func (r *Resolver) ResolveString(s string) string {
 	if r == nil || len(r.vars) == 0 {
 		return s
@@ -49,12 +57,11 @@ func (r *Resolver) ResolveString(s string) string {
 	return s
 }
 
-// ContainsVar reports whether the URN contains any of the resolver's variables.
-func (r *Resolver) ContainsVar(u URN) bool {
+// ContainsVar 报告字符串是否包含解析器中的任何变量。
+func (r *Resolver) ContainsVar(s string) bool {
 	if r == nil || len(r.vars) == 0 {
 		return false
 	}
-	s := string(u)
 	for k := range r.vars {
 		if strings.Contains(s, k) {
 			return true
@@ -63,7 +70,7 @@ func (r *Resolver) ContainsVar(u URN) bool {
 	return false
 }
 
-// Vars returns a copy of the variable mappings.
+// Vars 返回变量映射的副本。
 func (r *Resolver) Vars() map[string]string {
 	if r == nil {
 		return nil

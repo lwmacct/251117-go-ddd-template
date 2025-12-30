@@ -15,36 +15,36 @@
 
 // May contain unused imports in some cases
 // @ts-ignore
-import type { OperationOperationDefinition } from './operation-operation-definition';
+import type { RoutesOperationDefinition } from './routes-operation-definition';
 
 /**
  * 
  * @export
- * @interface ResponseDataResponseArrayOperationOperationDefinition
+ * @interface ResponseDataResponseArrayRoutesOperationDefinition
  */
-export interface ResponseDataResponseArrayOperationOperationDefinition {
+export interface ResponseDataResponseArrayRoutesOperationDefinition {
     /**
      * HTTP 状态码
      * @type {number}
-     * @memberof ResponseDataResponseArrayOperationOperationDefinition
+     * @memberof ResponseDataResponseArrayRoutesOperationDefinition
      */
     'code'?: number;
     /**
      * 响应数据
-     * @type {Array<OperationOperationDefinition>}
-     * @memberof ResponseDataResponseArrayOperationOperationDefinition
+     * @type {Array<RoutesOperationDefinition>}
+     * @memberof ResponseDataResponseArrayRoutesOperationDefinition
      */
-    'data'?: Array<OperationOperationDefinition>;
+    'data'?: Array<RoutesOperationDefinition>;
     /**
      * 错误详情（仅失败时）
      * @type {object}
-     * @memberof ResponseDataResponseArrayOperationOperationDefinition
+     * @memberof ResponseDataResponseArrayRoutesOperationDefinition
      */
     'error'?: object;
     /**
      * 消息描述
      * @type {string}
-     * @memberof ResponseDataResponseArrayOperationOperationDefinition
+     * @memberof ResponseDataResponseArrayRoutesOperationDefinition
      */
     'message'?: string;
 }

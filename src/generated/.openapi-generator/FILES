@@ -57,13 +57,12 @@ models/menu-menu-dto.ts
 models/menu-reorder-dto.ts
 models/menu-reorder-dtomenus-inner.ts
 models/menu-update-dto.ts
-models/operation-operation-definition.ts
 models/pat-create-dto.ts
 models/pat-create-result-dto.ts
 models/pat-token-dto.ts
 models/response-data-response-array-menu-menu-dto.ts
-models/response-data-response-array-operation-operation-definition.ts
 models/response-data-response-array-pat-token-dto.ts
+models/response-data-response-array-routes-operation-definition.ts
 models/response-data-response-array-setting-category-dto.ts
 models/response-data-response-array-setting-category-meta-dto.ts
 models/response-data-response-array-setting-settings-category-dto.ts
@@ -106,6 +105,7 @@ models/role-permission-input-dto.ts
 models/role-role-dto.ts
 models/role-set-permissions-dto.ts
 models/role-update-dto.ts
+models/routes-operation-definition.ts
 models/setting-category-dto.ts
 models/setting-category-meta-dto.ts
 models/setting-depends-on-config-dto.ts

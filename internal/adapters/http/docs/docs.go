@@ -1245,7 +1245,7 @@ const docTemplate = `{
                     "200": {
                         "description": "操作列表",
                         "schema": {
-                            "$ref": "#/definitions/response.DataResponse-array_operation_OperationDefinition"
+                            "$ref": "#/definitions/response.DataResponse-array_routes_OperationDefinition"
                         }
                     },
                     "401": {
@@ -4422,39 +4422,6 @@ const docTemplate = `{
                 }
             }
         },
-        "operation.OperationDefinition": {
-            "type": "object",
-            "properties": {
-                "code": {
-                    "description": "操作代码，如 sys:users:create",
-                    "type": "string"
-                },
-                "description": {
-                    "description": "英文描述",
-                    "type": "string"
-                },
-                "group": {
-                    "description": "Swagger 分组",
-                    "type": "string"
-                },
-                "identifier": {
-                    "description": "标识符，如 create",
-                    "type": "string"
-                },
-                "label": {
-                    "description": "中文标签",
-                    "type": "string"
-                },
-                "scope": {
-                    "description": "Scope，如 sys",
-                    "type": "string"
-                },
-                "type": {
-                    "description": "类型，如 users",
-                    "type": "string"
-                }
-            }
-        },
         "pat.CreateDTO": {
             "type": "object",
             "required": [
@@ -4572,29 +4539,6 @@ const docTemplate = `{
                 }
             }
         },
-        "response.DataResponse-array_operation_OperationDefinition": {
-            "type": "object",
-            "properties": {
-                "code": {
-                    "description": "HTTP 状态码",
-                    "type": "integer"
-                },
-                "data": {
-                    "description": "响应数据",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/operation.OperationDefinition"
-                    }
-                },
-                "error": {
-                    "description": "错误详情（仅失败时）"
-                },
-                "message": {
-                    "description": "消息描述",
-                    "type": "string"
-                }
-            }
-        },
         "response.DataResponse-array_pat_TokenDTO": {
             "type": "object",
             "properties": {
@@ -4607,6 +4551,29 @@ const docTemplate = `{
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/pat.TokenDTO"
+                    }
+                },
+                "error": {
+                    "description": "错误详情（仅失败时）"
+                },
+                "message": {
+                    "description": "消息描述",
+                    "type": "string"
+                }
+            }
+        },
+        "response.DataResponse-array_routes_OperationDefinition": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "description": "HTTP 状态码",
+                    "type": "integer"
+                },
+                "data": {
+                    "description": "响应数据",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/routes.OperationDefinition"
                     }
                 },
                 "error": {
@@ -5562,6 +5529,39 @@ const docTemplate = `{
                 "display_name": {
                     "type": "string",
                     "maxLength": 100
+                }
+            }
+        },
+        "routes.OperationDefinition": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "description": "操作代码，如 sys:users:create",
+                    "type": "string"
+                },
+                "description": {
+                    "description": "描述",
+                    "type": "string"
+                },
+                "group": {
+                    "description": "Swagger 分组",
+                    "type": "string"
+                },
+                "identifier": {
+                    "description": "标识符，如 create",
+                    "type": "string"
+                },
+                "label": {
+                    "description": "中文标签",
+                    "type": "string"
+                },
+                "scope": {
+                    "description": "Scope，如 sys",
+                    "type": "string"
+                },
+                "type": {
+                    "description": "类型，如 users",
+                    "type": "string"
                 }
             }
         },

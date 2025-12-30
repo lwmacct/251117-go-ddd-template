@@ -2,7 +2,7 @@ package handler
 
 import (
 	"github.com/gin-gonic/gin"
-	op "github.com/lwmacct/251117-go-ddd-template/internal/domain/operation"
+	"github.com/lwmacct/251117-go-ddd-template/internal/adapters/http/routes"
 
 	"github.com/lwmacct/251117-go-ddd-template/internal/adapters/http/response"
 )
@@ -23,11 +23,11 @@ func NewOperationHandler() *OperationHandler {
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
-// @Success      200 {object} response.DataResponse[[]operation.OperationDefinition] "操作列表"
+// @Success      200 {object} response.DataResponse[[]routes.OperationDefinition] "操作列表"
 // @Failure      401 {object} response.ErrorResponse "未认证"
 // @Failure      403 {object} response.ErrorResponse "权限不足"
 // @Router       /api/system/operations [get]
 func (h *OperationHandler) ListOperations(c *gin.Context) {
-	ops := op.AllOperationDefinitions()
+	ops := routes.AllOperationDefinitions()
 	response.OK(c, "operations retrieved successfully", ops)
 }

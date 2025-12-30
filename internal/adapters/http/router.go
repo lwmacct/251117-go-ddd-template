@@ -59,12 +59,13 @@ import (
 	"github.com/lwmacct/251117-go-ddd-template/internal/adapters/http/handler"
 	"github.com/lwmacct/251117-go-ddd-template/internal/adapters/http/middleware"
 	"github.com/lwmacct/251117-go-ddd-template/internal/adapters/http/response"
+	"github.com/lwmacct/251117-go-ddd-template/internal/adapters/http/routes"
 
 	// 引入应用层包
 	"github.com/lwmacct/251117-go-ddd-template/internal/application/auditlog"
 
 	// 引入领域层包
-	op "github.com/lwmacct/251117-go-ddd-template/internal/domain/operation"
+	"github.com/lwmacct/251117-go-ddd-template/internal/domain/permission"
 
 	// 引入基础设施包
 	"github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/auth"
@@ -164,26 +165,26 @@ func registerRoutes(r *gin.Engine, deps *RouterDependencies) {
 		middlewares := buildMiddlewares(deps, b.Op)
 		middlewares = append(middlewares, b.Handler)
 
-		switch op.Method(b.Op) {
-		case op.GET:
-			r.GET(op.Path(b.Op), middlewares...)
-		case op.POST:
-			r.POST(op.Path(b.Op), middlewares...)
-		case op.PUT:
-			r.PUT(op.Path(b.Op), middlewares...)
-		case op.DELETE:
-			r.DELETE(op.Path(b.Op), middlewares...)
-		case op.PATCH:
-			r.PATCH(op.Path(b.Op), middlewares...)
+		switch routes.Method(b.Op) {
+		case routes.GET:
+			r.GET(routes.Path(b.Op), middlewares...)
+		case routes.POST:
+			r.POST(routes.Path(b.Op), middlewares...)
+		case routes.PUT:
+			r.PUT(routes.Path(b.Op), middlewares...)
+		case routes.DELETE:
+			r.DELETE(routes.Path(b.Op), middlewares...)
+		case routes.PATCH:
+			r.PATCH(routes.Path(b.Op), middlewares...)
 		default:
-			slog.Warn("unknown HTTP method", "operation", b.Op, "method", op.Method(b.Op))
+			slog.Warn("unknown HTTP method", "operation", b.Op, "method", routes.Method(b.Op))
 		}
 	}
 }
 
 // buildMiddlewares 根据 Operation 自动构建中间件链
 // 中间件顺序：RequestID → OperationID → Auth → Permission → Audit
-func buildMiddlewares(deps *RouterDependencies, o op.Operation) []gin.HandlerFunc {
+func buildMiddlewares(deps *RouterDependencies, o permission.Operation) []gin.HandlerFunc {
 	var mws []gin.HandlerFunc
 
 	// 1. Request ID（所有请求）
@@ -193,14 +194,14 @@ func buildMiddlewares(deps *RouterDependencies, o op.Operation) []gin.HandlerFun
 	mws = append(mws, middleware.SetOperationID(o.String()))
 
 	// 3. Auth + Permission（非公开操作需要认证和权限检查）
-	if !op.IsPublic(o) {
+	if !o.IsPublic() {
 		mws = append(mws, middleware.Auth(deps.JWTManager, deps.PATService, deps.PermissionCacheService))
 		// 新 RBAC 模型：使用 Operation 本身作为权限标识符
 		mws = append(mws, middleware.RequireOperation(o))
 	}
 
 	// 4. Audit（需要审计的操作）
-	if op.NeedsAudit(o) {
+	if routes.NeedsAudit(o) {
 		mws = append(mws, middleware.AuditMiddleware(deps.CreateLogHandler))
 	}
 

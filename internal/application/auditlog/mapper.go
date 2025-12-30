@@ -1,8 +1,8 @@
 package auditlog
 
 import (
+	"github.com/lwmacct/251117-go-ddd-template/internal/adapters/http/routes"
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/auditlog"
-	"github.com/lwmacct/251117-go-ddd-template/internal/domain/operation"
 )
 
 // ToAuditLogDTO 将领域实体转换为 DTO
@@ -27,14 +27,14 @@ func ToAuditLogDTO(log *auditlog.AuditLog) *AuditLogDTO {
 // ToAuditActionsResponseDTO 将 operation 包的审计操作定义转换为 DTO
 func ToAuditActionsResponseDTO() AuditActionsResponseDTO {
 	return AuditActionsResponseDTO{
-		Actions:    ToAuditActionDTOs(operation.AllAuditActions()),
-		Categories: ToCategoryOptionDTOs(operation.AllAuditCategories()),
-		Operations: ToOperationTypeDTOs(operation.AllAuditOperations()),
+		Actions:    ToAuditActionDTOs(routes.AllAuditActions()),
+		Categories: ToCategoryOptionDTOs(routes.AllAuditCategories()),
+		Operations: ToOperationTypeDTOs(routes.AllAuditOperations()),
 	}
 }
 
 // ToAuditActionDTOs 将审计操作定义列表转换为 DTO 列表
-func ToAuditActionDTOs(actions []operation.AuditActionDefinition) []AuditActionDTO {
+func ToAuditActionDTOs(actions []routes.AuditActionDefinition) []AuditActionDTO {
 	result := make([]AuditActionDTO, len(actions))
 	for i, a := range actions {
 		result[i] = AuditActionDTO{
@@ -49,7 +49,7 @@ func ToAuditActionDTOs(actions []operation.AuditActionDefinition) []AuditActionD
 }
 
 // ToCategoryOptionDTOs 将分类选项列表转换为 DTO 列表
-func ToCategoryOptionDTOs(options []operation.CategoryOption) []CategoryOptionDTO {
+func ToCategoryOptionDTOs(options []routes.CategoryOption) []CategoryOptionDTO {
 	result := make([]CategoryOptionDTO, len(options))
 	for i, o := range options {
 		result[i] = CategoryOptionDTO{
@@ -61,7 +61,7 @@ func ToCategoryOptionDTOs(options []operation.CategoryOption) []CategoryOptionDT
 }
 
 // ToOperationTypeDTOs 将操作类型选项列表转换为 DTO 列表
-func ToOperationTypeDTOs(options []operation.OperationTypeOption) []OperationTypeDTO {
+func ToOperationTypeDTOs(options []routes.OperationTypeOption) []OperationTypeDTO {
 	result := make([]OperationTypeDTO, len(options))
 	for i, o := range options {
 		result[i] = OperationTypeDTO{

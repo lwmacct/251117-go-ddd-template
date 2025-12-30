@@ -8,7 +8,8 @@ import (
 	"strings"
 	"testing"
 
-	op "github.com/lwmacct/251117-go-ddd-template/internal/domain/operation"
+	"github.com/lwmacct/251117-go-ddd-template/internal/adapters/http/routes"
+	"github.com/lwmacct/251117-go-ddd-template/internal/domain/permission"
 	"github.com/stretchr/testify/require"
 )
 
@@ -54,7 +55,7 @@ func TestGenerate_SwaggerAnnotations(t *testing.T) {
 
 // routeBinding 表示一个路由绑定
 type routeBinding struct {
-	operation   op.Operation
+	operation   permission.Operation
 	handlerFile string // 如 "admin_user.go"
 	handlerFunc string // 如 "CreateUser"
 	handlerType string // 如 "AdminUserHandler"
@@ -69,8 +70,8 @@ func parseRouteBindings(t *testing.T) []routeBinding {
 
 	var bindings []routeBinding
 
-	// 匹配形如: {op.SysUsersCreate, deps.AdminUserHandler.CreateUser},
-	bindingRe := regexp.MustCompile(`\{op\.(\w+),\s*deps\.(\w+)\.(\w+)\}`)
+	// 匹配形如: {permission.SysUsersCreate, deps.AdminUserHandler.CreateUser},
+	bindingRe := regexp.MustCompile(`\{permission\.(\w+),\s*deps\.(\w+)\.(\w+)\}`)
 
 	for _, match := range bindingRe.FindAllStringSubmatch(string(content), -1) {
 		if len(match) == 4 {
@@ -79,7 +80,7 @@ func parseRouteBindings(t *testing.T) []routeBinding {
 			funcName := match[3]
 
 			// 直接通过常量名查找操作
-			operation := op.ByConstName(opName)
+			operation := permission.ByConstName(opName)
 			if operation == "" {
 				continue
 			}
@@ -287,28 +288,28 @@ func extractPreserved(lines []string) preservedAnnot {
 }
 
 // generateAnnotation 生成注解块
-func generateAnnotation(o op.Operation, preserved preservedAnnot) []string {
+func generateAnnotation(o permission.Operation, preserved preservedAnnot) []string {
 	var result []string
 
 	// @Summary
-	result = append(result, "// @Summary      "+op.Summary(o))
+	result = append(result, "// @Summary      "+routes.Summary(o))
 
 	// @Description（保留原有或使用 operationMeta）
 	if preserved.description != "" {
 		result = append(result, "// @Description  "+preserved.description)
-	} else if desc := op.Description(o); desc != "" {
+	} else if desc := routes.Description(o); desc != "" {
 		result = append(result, "// @Description  "+desc)
 	}
 
 	// @Tags
-	result = append(result, "// @Tags         "+op.Tags(o))
+	result = append(result, "// @Tags         "+routes.Tags(o))
 
 	// @Accept/@Produce
 	result = append(result, "// @Accept       json")
 	result = append(result, "// @Produce      json")
 
 	// @Security（非 public 操作）
-	if !op.IsPublic(o) {
+	if !o.IsPublic() {
 		result = append(result, "// @Security     BearerAuth")
 	}
 
@@ -320,8 +321,8 @@ func generateAnnotation(o op.Operation, preserved preservedAnnot) []string {
 	result = append(result, preserved.failure...)
 
 	// @Router
-	swaggerPath := ginToSwaggerPath(op.Path(o))
-	method := strings.ToLower(string(op.Method(o)))
+	swaggerPath := ginToSwaggerPath(routes.Path(o))
+	method := strings.ToLower(string(routes.Method(o)))
 	result = append(result, fmt.Sprintf("// @Router       %s [%s]", swaggerPath, method))
 
 	return result

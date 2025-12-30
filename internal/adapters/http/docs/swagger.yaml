@@ -515,30 +515,6 @@ definitions:
       visible:
         type: boolean
     type: object
-  operation.OperationDefinition:
-    properties:
-      code:
-        description: 操作代码，如 sys:users:create
-        type: string
-      description:
-        description: 英文描述
-        type: string
-      group:
-        description: Swagger 分组
-        type: string
-      identifier:
-        description: 标识符，如 create
-        type: string
-      label:
-        description: 中文标签
-        type: string
-      scope:
-        description: Scope，如 sys
-        type: string
-      type:
-        description: 类型，如 users
-        type: string
-    type: object
   pat.CreateDTO:
     properties:
       description:
@@ -619,22 +595,6 @@ definitions:
         description: 消息描述
         type: string
     type: object
-  response.DataResponse-array_operation_OperationDefinition:
-    properties:
-      code:
-        description: HTTP 状态码
-        type: integer
-      data:
-        description: 响应数据
-        items:
-          $ref: '#/definitions/operation.OperationDefinition'
-        type: array
-      error:
-        description: 错误详情（仅失败时）
-      message:
-        description: 消息描述
-        type: string
-    type: object
   response.DataResponse-array_pat_TokenDTO:
     properties:
       code:
@@ -644,6 +604,22 @@ definitions:
         description: 响应数据
         items:
           $ref: '#/definitions/pat.TokenDTO'
+        type: array
+      error:
+        description: 错误详情（仅失败时）
+      message:
+        description: 消息描述
+        type: string
+    type: object
+  response.DataResponse-array_routes_OperationDefinition:
+    properties:
+      code:
+        description: HTTP 状态码
+        type: integer
+      data:
+        description: 响应数据
+        items:
+          $ref: '#/definitions/routes.OperationDefinition'
         type: array
       error:
         description: 错误详情（仅失败时）
@@ -1260,6 +1236,30 @@ definitions:
         type: string
       display_name:
         maxLength: 100
+        type: string
+    type: object
+  routes.OperationDefinition:
+    properties:
+      code:
+        description: 操作代码，如 sys:users:create
+        type: string
+      description:
+        description: 描述
+        type: string
+      group:
+        description: Swagger 分组
+        type: string
+      identifier:
+        description: 标识符，如 create
+        type: string
+      label:
+        description: 中文标签
+        type: string
+      scope:
+        description: Scope，如 sys
+        type: string
+      type:
+        description: 类型，如 users
         type: string
     type: object
   setting.CategoryDTO:
@@ -2488,7 +2488,7 @@ paths:
         "200":
           description: 操作列表
           schema:
-            $ref: '#/definitions/response.DataResponse-array_operation_OperationDefinition'
+            $ref: '#/definitions/response.DataResponse-array_routes_OperationDefinition'
         "401":
           description: 未认证
           schema:

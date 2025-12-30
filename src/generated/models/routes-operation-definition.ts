@@ -17,49 +17,49 @@
 /**
  * 
  * @export
- * @interface OperationOperationDefinition
+ * @interface RoutesOperationDefinition
  */
-export interface OperationOperationDefinition {
+export interface RoutesOperationDefinition {
     /**
      * 操作代码，如 sys:users:create
      * @type {string}
-     * @memberof OperationOperationDefinition
+     * @memberof RoutesOperationDefinition
      */
     'code'?: string;
     /**
-     * 英文描述
+     * 描述
      * @type {string}
-     * @memberof OperationOperationDefinition
+     * @memberof RoutesOperationDefinition
      */
     'description'?: string;
     /**
      * Swagger 分组
      * @type {string}
-     * @memberof OperationOperationDefinition
+     * @memberof RoutesOperationDefinition
      */
     'group'?: string;
     /**
      * 标识符，如 create
      * @type {string}
-     * @memberof OperationOperationDefinition
+     * @memberof RoutesOperationDefinition
      */
     'identifier'?: string;
     /**
      * 中文标签
      * @type {string}
-     * @memberof OperationOperationDefinition
+     * @memberof RoutesOperationDefinition
      */
     'label'?: string;
     /**
      * Scope，如 sys
      * @type {string}
-     * @memberof OperationOperationDefinition
+     * @memberof RoutesOperationDefinition
      */
     'scope'?: string;
     /**
      * 类型，如 users
      * @type {string}
-     * @memberof OperationOperationDefinition
+     * @memberof RoutesOperationDefinition
      */
     'type'?: string;
 }

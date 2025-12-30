@@ -3,7 +3,7 @@ package role
 import (
 	"time"
 
-	"github.com/lwmacct/251117-go-ddd-template/internal/domain/operation"
+	"github.com/lwmacct/251117-go-ddd-template/internal/domain/permission"
 )
 
 // ============================================================================
@@ -36,9 +36,9 @@ func NewPermission(opPattern, resPattern string) Permission {
 }
 
 // Matches 检查权限是否匹配指定操作和资源。
-func (p Permission) Matches(op operation.Operation, res operation.Resource) bool {
-	return operation.MatchOperation(p.OperationPattern, string(op)) &&
-		operation.MatchResource(p.ResourcePattern, string(res))
+func (p Permission) Matches(op permission.Operation, res permission.Resource) bool {
+	return permission.MatchOperation(p.OperationPattern, string(op)) &&
+		permission.MatchResource(p.ResourcePattern, string(res))
 }
 
 // ============================================================================
@@ -78,7 +78,7 @@ func (r *Role) CanBeModified() bool {
 }
 
 // HasPermission 检查角色是否有指定操作对指定资源的权限。
-func (r *Role) HasPermission(op operation.Operation, res operation.Resource) bool {
+func (r *Role) HasPermission(op permission.Operation, res permission.Resource) bool {
 	for _, p := range r.Permissions {
 		if p.Matches(op, res) {
 			return true
@@ -89,8 +89,8 @@ func (r *Role) HasPermission(op operation.Operation, res operation.Resource) boo
 
 // HasOperationPermission 检查角色是否有指定操作的权限（资源为 *）。
 // 这是 HasPermission 的简化版本，用于不需要资源级别控制的场景。
-func (r *Role) HasOperationPermission(op operation.Operation) bool {
-	return r.HasPermission(op, operation.ResourceAll)
+func (r *Role) HasOperationPermission(op permission.Operation) bool {
+	return r.HasPermission(op, permission.ResourceAll)
 }
 
 // GetPermissionCount 获取权限数量。

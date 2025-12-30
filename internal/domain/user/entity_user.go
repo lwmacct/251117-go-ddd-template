@@ -4,7 +4,7 @@ import (
 	"slices"
 	"time"
 
-	"github.com/lwmacct/251117-go-ddd-template/internal/domain/operation"
+	"github.com/lwmacct/251117-go-ddd-template/internal/domain/permission"
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/role"
 )
 
@@ -44,7 +44,7 @@ func (u *User) HasAnyRole(roleNames ...string) bool {
 
 // HasPermission 检查用户是否有指定操作对指定资源的权限。
 // 遍历用户所有角色的权限进行模式匹配。
-func (u *User) HasPermission(op operation.Operation, res operation.Resource) bool {
+func (u *User) HasPermission(op permission.Operation, res permission.Resource) bool {
 	for _, r := range u.Roles {
 		if r.HasPermission(op, res) {
 			return true
@@ -54,8 +54,8 @@ func (u *User) HasPermission(op operation.Operation, res operation.Resource) boo
 }
 
 // HasOperationPermission 检查用户是否有指定操作的权限（资源为 *）。
-func (u *User) HasOperationPermission(op operation.Operation) bool {
-	return u.HasPermission(op, operation.ResourceAll)
+func (u *User) HasOperationPermission(op permission.Operation) bool {
+	return u.HasPermission(op, permission.ResourceAll)
 }
 
 // GetRoleNames 获取用户所有角色名称
