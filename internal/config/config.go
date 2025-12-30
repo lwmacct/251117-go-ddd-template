@@ -65,7 +65,7 @@ func DefaultConfig() Config {
 		Data: Data{
 			PgsqlURL:       "postgresql://postgres@localhost:5432/dev?sslmode=disable",
 			RedisURL:       "redis://localhost:6379/0",
-			RedisKeyPrefix: "dev:",
+			RedisKeyPrefix: "app:",
 			AutoMigrate:    false, // 默认关闭自动迁移，生产环境使用 migrate 命令
 		},
 		JWT: JWT{

@@ -5,6 +5,22 @@ paths:
 
 # Application 层缓存接口规范
 
+## 数据类型约束
+
+**缓存接口仅使用 Application DTO**，禁止直接缓存 Domain 实体。
+
+```go
+// ✅ 正确
+type UserCacheService interface {
+    Get(ctx context.Context, userID uint) (*UserWithRolesDTO, error)
+}
+
+// ❌ 禁止
+type UserCacheService interface {
+    Get(ctx context.Context, userID uint) (*user.User, error)
+}
+```
+
 ## 接口命名
 
 | 模式                        | 说明            | 示例                           |
@@ -55,5 +71,3 @@ if errors.Is(err, ErrCacheMiss) {
 > Go 标准库惯例：`sql.ErrNoRows`、`redis.Nil`
 
 **选择建议**：项目内保持一致即可，两种模式各有优劣。
-
-> 缓存接口定义在 Application 层，实现位于 `infrastructure/cache/`
