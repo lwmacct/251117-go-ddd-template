@@ -212,6 +212,8 @@ type userWithRolesRow struct {
 	Avatar        string     `gorm:"column:avatar"`
 	Bio           string     `gorm:"column:bio"`
 	Status        string     `gorm:"column:status"`
+	Type          string     `gorm:"column:type"`
+	IsSystem      bool       `gorm:"column:is_system"`
 
 	// Role 字段（可能为 NULL）
 	RoleID          *uint      `gorm:"column:role_id"`
@@ -239,7 +241,7 @@ func (r *userQueryRepository) getUserWithRolesByCondition(ctx context.Context, c
 		Select(`
 			u.id as user_id, u.created_at as user_created_at, u.updated_at as user_updated_at,
 			u.deleted_at as user_deleted_at, u.username, u.email, u.password,
-			u.full_name, u.avatar, u.bio, u.status,
+			u.full_name, u.avatar, u.bio, u.status, u.type, u.is_system,
 			r.id as role_id, r.created_at as role_created_at, r.updated_at as role_updated_at,
 			r.name as role_name, r.display_name as role_display_name,
 			r.description as role_description, r.is_system as role_is_system,
@@ -285,6 +287,8 @@ func (r *userQueryRepository) buildUserFromRows(rows []userWithRolesRow) *user.U
 		Avatar:    first.Avatar,
 		Bio:       first.Bio,
 		Status:    first.Status,
+		Type:      user.UserType(first.Type),
+		IsSystem:  first.IsSystem,
 	}
 
 	// 收集角色（去重）

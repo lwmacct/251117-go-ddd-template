@@ -56,19 +56,19 @@ func NewRoleHandler(
 
 // CreateRole creates a new role
 //
-// @Summary      创建角色
-// @Description  管理员创建新的系统角色
-// @Tags         Admin - Role Management
-// @Accept       json
-// @Produce      json
-// @Security     BearerAuth
-// @Param        request body role.CreateDTO true "角色信息"
-// @Success      201 {object} response.DataResponse[role.CreateResultDTO] "角色创建成功"
-// @Failure      400 {object} response.ErrorResponse "参数错误或角色名已存在"
-// @Failure      401 {object} response.ErrorResponse "未授权"
-// @Failure      403 {object} response.ErrorResponse "权限不足"
-// @Failure      500 {object} response.ErrorResponse "服务器内部错误"
-// @Router       /api/system/roles [post]
+//	@Summary		创建角色
+//	@Description	管理员创建新的系统角色
+//	@Tags			Admin - Role Management
+//	@Accept			json
+//	@Produce		json
+//	@Security		BearerAuth
+//	@Param			request	body		role.CreateDTO								true	"角色信息"
+//	@Success		201		{object}	response.DataResponse[role.CreateResultDTO]	"角色创建成功"
+//	@Failure		400		{object}	response.ErrorResponse						"参数错误或角色名已存在"
+//	@Failure		401		{object}	response.ErrorResponse						"未授权"
+//	@Failure		403		{object}	response.ErrorResponse						"权限不足"
+//	@Failure		500		{object}	response.ErrorResponse						"服务器内部错误"
+//	@Router			/api/system/roles [post]
 func (h *RoleHandler) CreateRole(c *gin.Context) {
 	var req role.CreateDTO
 
@@ -96,18 +96,18 @@ func (h *RoleHandler) CreateRole(c *gin.Context) {
 
 // ListRoles lists all roles
 //
-// @Summary      角色列表
-// @Description  分页获取所有系统角色
-// @Tags         Admin - Role Management
-// @Accept       json
-// @Produce      json
-// @Security     BearerAuth
-// @Param        params query handler.ListRolesQuery false "查询参数"
-// @Success      200 {object} response.PagedResponse[role.RoleDTO] "角色列表"
-// @Failure      401 {object} response.ErrorResponse "未授权"
-// @Failure      403 {object} response.ErrorResponse "权限不足"
-// @Failure      500 {object} response.ErrorResponse "服务器内部错误"
-// @Router       /api/system/roles [get]
+//	@Summary		角色列表
+//	@Description	分页获取所有系统角色
+//	@Tags			Admin - Role Management
+//	@Accept			json
+//	@Produce		json
+//	@Security		BearerAuth
+//	@Param			params	query		handler.ListRolesQuery					false	"查询参数"
+//	@Success		200		{object}	response.PagedResponse[role.RoleDTO]	"角色列表"
+//	@Failure		401		{object}	response.ErrorResponse					"未授权"
+//	@Failure		403		{object}	response.ErrorResponse					"权限不足"
+//	@Failure		500		{object}	response.ErrorResponse					"服务器内部错误"
+//	@Router			/api/system/roles [get]
 func (h *RoleHandler) ListRoles(c *gin.Context) {
 	var q ListRolesQuery
 	if err := c.ShouldBindQuery(&q); err != nil {
@@ -127,19 +127,19 @@ func (h *RoleHandler) ListRoles(c *gin.Context) {
 
 // GetRole gets a role by ID
 //
-// @Summary      角色详情
-// @Description  根据角色ID获取角色详细信息（包含权限列表）
-// @Tags         Admin - Role Management
-// @Accept       json
-// @Produce      json
-// @Security     BearerAuth
-// @Param        id path int true "角色ID" minimum(1)
-// @Success      200 {object} response.DataResponse[role.RoleDTO] "角色详情"
-// @Failure      400 {object} response.ErrorResponse "无效的角色ID"
-// @Failure      401 {object} response.ErrorResponse "未授权"
-// @Failure      403 {object} response.ErrorResponse "权限不足"
-// @Failure      404 {object} response.ErrorResponse "角色不存在"
-// @Router       /api/system/roles/{id} [get]
+//	@Summary		角色详情
+//	@Description	根据角色ID获取角色详细信息（包含权限列表）
+//	@Tags			Admin - Role Management
+//	@Accept			json
+//	@Produce		json
+//	@Security		BearerAuth
+//	@Param			id	path		int									true	"角色ID"	minimum(1)
+//	@Success		200	{object}	response.DataResponse[role.RoleDTO]	"角色详情"
+//	@Failure		400	{object}	response.ErrorResponse				"无效的角色ID"
+//	@Failure		401	{object}	response.ErrorResponse				"未授权"
+//	@Failure		403	{object}	response.ErrorResponse				"权限不足"
+//	@Failure		404	{object}	response.ErrorResponse				"角色不存在"
+//	@Router			/api/system/roles/{id} [get]
 func (h *RoleHandler) GetRole(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
@@ -162,21 +162,21 @@ func (h *RoleHandler) GetRole(c *gin.Context) {
 
 // UpdateRole updates a role
 //
-// @Summary      更新角色
-// @Description  管理员更新角色的显示名称和描述
-// @Tags         Admin - Role Management
-// @Accept       json
-// @Produce      json
-// @Security     BearerAuth
-// @Param        id path int true "角色ID" minimum(1)
-// @Param        request body role.UpdateDTO true "更新信息"
-// @Success      200 {object} response.DataResponse[role.RoleDTO] "角色更新成功"
-// @Failure      400 {object} response.ErrorResponse "无效的角色ID或参数错误"
-// @Failure      401 {object} response.ErrorResponse "未授权"
-// @Failure      403 {object} response.ErrorResponse "权限不足"
-// @Failure      404 {object} response.ErrorResponse "角色不存在"
-// @Failure      500 {object} response.ErrorResponse "服务器内部错误"
-// @Router       /api/system/roles/{id} [put]
+//	@Summary		更新角色
+//	@Description	管理员更新角色的显示名称和描述
+//	@Tags			Admin - Role Management
+//	@Accept			json
+//	@Produce		json
+//	@Security		BearerAuth
+//	@Param			id		path		int									true	"角色ID"	minimum(1)
+//	@Param			request	body		role.UpdateDTO						true	"更新信息"
+//	@Success		200		{object}	response.DataResponse[role.RoleDTO]	"角色更新成功"
+//	@Failure		400		{object}	response.ErrorResponse				"无效的角色ID或参数错误"
+//	@Failure		401		{object}	response.ErrorResponse				"未授权"
+//	@Failure		403		{object}	response.ErrorResponse				"权限不足"
+//	@Failure		404		{object}	response.ErrorResponse				"角色不存在"
+//	@Failure		500		{object}	response.ErrorResponse				"服务器内部错误"
+//	@Router			/api/system/roles/{id} [put]
 func (h *RoleHandler) UpdateRole(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
@@ -208,20 +208,20 @@ func (h *RoleHandler) UpdateRole(c *gin.Context) {
 
 // DeleteRole deletes a role
 //
-// @Summary      删除角色
-// @Description  管理员删除指定角色（如果角色被用户使用，可能会失败）
-// @Tags         Admin - Role Management
-// @Accept       json
-// @Produce      json
-// @Security     BearerAuth
-// @Param        id path int true "角色ID" minimum(1)
-// @Success      200 {object} response.MessageResponse "角色删除成功"
-// @Failure      400 {object} response.ErrorResponse "无效的角色ID"
-// @Failure      401 {object} response.ErrorResponse "未授权"
-// @Failure      403 {object} response.ErrorResponse "权限不足"
-// @Failure      404 {object} response.ErrorResponse "角色不存在"
-// @Failure      500 {object} response.ErrorResponse "服务器内部错误或角色被使用中"
-// @Router       /api/system/roles/{id} [delete]
+//	@Summary		删除角色
+//	@Description	管理员删除指定角色（如果角色被用户使用，可能会失败）
+//	@Tags			Admin - Role Management
+//	@Accept			json
+//	@Produce		json
+//	@Security		BearerAuth
+//	@Param			id	path		int							true	"角色ID"	minimum(1)
+//	@Success		200	{object}	response.MessageResponse	"角色删除成功"
+//	@Failure		400	{object}	response.ErrorResponse		"无效的角色ID"
+//	@Failure		401	{object}	response.ErrorResponse		"未授权"
+//	@Failure		403	{object}	response.ErrorResponse		"权限不足"
+//	@Failure		404	{object}	response.ErrorResponse		"角色不存在"
+//	@Failure		500	{object}	response.ErrorResponse		"服务器内部错误或角色被使用中"
+//	@Router			/api/system/roles/{id} [delete]
 func (h *RoleHandler) DeleteRole(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
@@ -244,21 +244,21 @@ func (h *RoleHandler) DeleteRole(c *gin.Context) {
 
 // SetPermissions sets permissions for a role
 //
-// @Summary      设置权限
-// @Description  管理员为指定角色设置权限（会覆盖现有权限）。新 RBAC 模型使用 Operation + Resource Pattern。
-// @Tags         Admin - Role Management
-// @Accept       json
-// @Produce      json
-// @Security     BearerAuth
-// @Param        id path int true "角色ID" minimum(1)
-// @Param        request body role.SetPermissionsDTO true "权限模式列表"
-// @Success      200 {object} response.MessageResponse "权限设置成功"
-// @Failure      400 {object} response.ErrorResponse "无效的角色ID或参数错误"
-// @Failure      401 {object} response.ErrorResponse "未授权"
-// @Failure      403 {object} response.ErrorResponse "权限不足"
-// @Failure      404 {object} response.ErrorResponse "角色不存在"
-// @Failure      500 {object} response.ErrorResponse "服务器内部错误"
-// @Router       /api/system/roles/{id}/permissions [put]
+//	@Summary		设置权限
+//	@Description	管理员为指定角色设置权限（会覆盖现有权限）。新 RBAC 模型使用 Operation + Resource Pattern。
+//	@Tags			Admin - Role Management
+//	@Accept			json
+//	@Produce		json
+//	@Security		BearerAuth
+//	@Param			id		path		int							true	"角色ID"	minimum(1)
+//	@Param			request	body		role.SetPermissionsDTO		true	"权限模式列表"
+//	@Success		200		{object}	response.MessageResponse	"权限设置成功"
+//	@Failure		400		{object}	response.ErrorResponse		"无效的角色ID或参数错误"
+//	@Failure		401		{object}	response.ErrorResponse		"未授权"
+//	@Failure		403		{object}	response.ErrorResponse		"权限不足"
+//	@Failure		404		{object}	response.ErrorResponse		"角色不存在"
+//	@Failure		500		{object}	response.ErrorResponse		"服务器内部错误"
+//	@Router			/api/system/roles/{id}/permissions [put]
 func (h *RoleHandler) SetPermissions(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {

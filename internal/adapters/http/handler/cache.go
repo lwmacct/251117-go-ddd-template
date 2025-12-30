@@ -34,15 +34,15 @@ func NewCacheHandler(
 
 // Info 获取缓存信息
 //
-// @Summary      缓存信息
-// @Description  查看缓存状态信息（类似 redis-cli INFO）
-// @Tags         System
-// @Accept       json
-// @Produce      json
-// @Security     BearerAuth
-// @Success      200 {object} response.DataResponse[cache.CacheInfoDTO] "成功"
-// @Failure      500 {object} response.ErrorResponse "服务器错误"
-// @Router       /api/system/cache/info [get]
+//	@Summary		缓存信息
+//	@Description	查看缓存状态信息（类似 redis-cli INFO）
+//	@Tags			System
+//	@Accept			json
+//	@Produce		json
+//	@Security		BearerAuth
+//	@Success		200	{object}	response.DataResponse[cache.CacheInfoDTO]	"成功"
+//	@Failure		500	{object}	response.ErrorResponse						"服务器错误"
+//	@Router			/api/system/cache/info [get]
 func (h *CacheHandler) Info(c *gin.Context) {
 	info, err := h.infoHandler.Handle(c.Request.Context())
 	if err != nil {
@@ -67,17 +67,17 @@ type ScanKeysQuery struct {
 
 // ScanKeys 扫描缓存 Keys
 //
-// @Summary      扫描缓存键
-// @Description  按 pattern 扫描缓存 keys（类似 redis-cli SCAN）
-// @Tags         System
-// @Accept       json
-// @Produce      json
-// @Security     BearerAuth
-// @Param        params query ScanKeysQuery false "查询参数"
-// @Success      200 {object} response.DataResponse[cache.ScanKeysResultDTO] "成功"
-// @Failure      400 {object} response.ErrorResponse "参数错误"
-// @Failure      500 {object} response.ErrorResponse "服务器错误"
-// @Router       /api/system/cache/keys [get]
+//	@Summary		扫描缓存键
+//	@Description	按 pattern 扫描缓存 keys（类似 redis-cli SCAN）
+//	@Tags			System
+//	@Accept			json
+//	@Produce		json
+//	@Security		BearerAuth
+//	@Param			params	query		ScanKeysQuery									false	"查询参数"
+//	@Success		200		{object}	response.DataResponse[cache.ScanKeysResultDTO]	"成功"
+//	@Failure		400		{object}	response.ErrorResponse							"参数错误"
+//	@Failure		500		{object}	response.ErrorResponse							"服务器错误"
+//	@Router			/api/system/cache/keys [get]
 func (h *CacheHandler) ScanKeys(c *gin.Context) {
 	var q ScanKeysQuery
 	if err := c.ShouldBindQuery(&q); err != nil {
@@ -106,18 +106,18 @@ type GetKeyQuery struct {
 
 // GetKey 获取单个 Key 的值
 //
-// @Summary      获取缓存值
-// @Description  获取指定 key 的完整信息和值（类似 redis-cli GET/JSON.GET）
-// @Tags         System
-// @Accept       json
-// @Produce      json
-// @Security     BearerAuth
-// @Param        params query GetKeyQuery true "查询参数"
-// @Success      200 {object} response.DataResponse[cache.CacheValueDTO] "成功"
-// @Failure      400 {object} response.ErrorResponse "参数错误"
-// @Failure      404 {object} response.ErrorResponse "Key 不存在"
-// @Failure      500 {object} response.ErrorResponse "服务器错误"
-// @Router       /api/system/cache/key [get]
+//	@Summary		获取缓存值
+//	@Description	获取指定 key 的完整信息和值（类似 redis-cli GET/JSON.GET）
+//	@Tags			System
+//	@Accept			json
+//	@Produce		json
+//	@Security		BearerAuth
+//	@Param			params	query		GetKeyQuery									true	"查询参数"
+//	@Success		200		{object}	response.DataResponse[cache.CacheValueDTO]	"成功"
+//	@Failure		400		{object}	response.ErrorResponse						"参数错误"
+//	@Failure		404		{object}	response.ErrorResponse						"Key 不存在"
+//	@Failure		500		{object}	response.ErrorResponse						"服务器错误"
+//	@Router			/api/system/cache/key [get]
 func (h *CacheHandler) GetKey(c *gin.Context) {
 	var q GetKeyQuery
 	if err := c.ShouldBindQuery(&q); err != nil {
@@ -146,17 +146,17 @@ type DeleteKeyQuery struct {
 
 // DeleteKey 删除单个 Key
 //
-// @Summary      删除缓存键
-// @Description  删除指定的单个 key（类似 redis-cli DEL）
-// @Tags         System
-// @Accept       json
-// @Produce      json
-// @Security     BearerAuth
-// @Param        params query DeleteKeyQuery true "查询参数"
-// @Success      200 {object} response.DataResponse[cache.DeleteResultDTO] "成功"
-// @Failure      400 {object} response.ErrorResponse "参数错误"
-// @Failure      500 {object} response.ErrorResponse "服务器错误"
-// @Router       /api/system/cache/key [delete]
+//	@Summary		删除缓存键
+//	@Description	删除指定的单个 key（类似 redis-cli DEL）
+//	@Tags			System
+//	@Accept			json
+//	@Produce		json
+//	@Security		BearerAuth
+//	@Param			params	query		DeleteKeyQuery									true	"查询参数"
+//	@Success		200		{object}	response.DataResponse[cache.DeleteResultDTO]	"成功"
+//	@Failure		400		{object}	response.ErrorResponse							"参数错误"
+//	@Failure		500		{object}	response.ErrorResponse							"服务器错误"
+//	@Router			/api/system/cache/key [delete]
 func (h *CacheHandler) DeleteKey(c *gin.Context) {
 	var q DeleteKeyQuery
 	if err := c.ShouldBindQuery(&q); err != nil {
@@ -181,17 +181,17 @@ type DeleteByPatternQuery struct {
 
 // DeleteByPattern 按 pattern 批量删除 Keys
 //
-// @Summary      批量删除缓存
-// @Description  批量删除匹配 pattern 的所有 keys
-// @Tags         System
-// @Accept       json
-// @Produce      json
-// @Security     BearerAuth
-// @Param        params query DeleteByPatternQuery true "查询参数"
-// @Success      200 {object} response.DataResponse[cache.DeleteResultDTO] "成功"
-// @Failure      400 {object} response.ErrorResponse "参数错误"
-// @Failure      500 {object} response.ErrorResponse "服务器错误"
-// @Router       /api/system/cache/keys [delete]
+//	@Summary		批量删除缓存
+//	@Description	批量删除匹配 pattern 的所有 keys
+//	@Tags			System
+//	@Accept			json
+//	@Produce		json
+//	@Security		BearerAuth
+//	@Param			params	query		DeleteByPatternQuery							true	"查询参数"
+//	@Success		200		{object}	response.DataResponse[cache.DeleteResultDTO]	"成功"
+//	@Failure		400		{object}	response.ErrorResponse							"参数错误"
+//	@Failure		500		{object}	response.ErrorResponse							"服务器错误"
+//	@Router			/api/system/cache/keys [delete]
 func (h *CacheHandler) DeleteByPattern(c *gin.Context) {
 	var q DeleteByPatternQuery
 	if err := c.ShouldBindQuery(&q); err != nil {

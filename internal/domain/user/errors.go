@@ -34,3 +34,30 @@ var (
 	// ErrInvalidPassword 密码错误
 	ErrInvalidPassword = errors.New("invalid password")
 )
+
+// 系统用户保护相关错误
+var (
+	// ErrCannotDeleteSystemUser 不能删除系统用户
+	ErrCannotDeleteSystemUser = errors.New("cannot delete system user")
+
+	// ErrCannotModifySystemUsername 不能修改系统用户的用户名
+	ErrCannotModifySystemUsername = errors.New("cannot modify system user's username")
+
+	// ErrCannotModifyRootStatus 不能修改 root 用户状态
+	ErrCannotModifyRootStatus = errors.New("cannot modify root user's status")
+
+	// ErrCannotModifyRootRoles 不能修改 root 用户的角色
+	ErrCannotModifyRootRoles = errors.New("cannot modify root user's roles")
+)
+
+// 用户类型相关错误
+var (
+	// ErrInvalidUserType 无效的用户类型
+	ErrInvalidUserType = errors.New("invalid user type")
+
+	// ErrCannotModifyUserType 用户类型不可修改
+	ErrCannotModifyUserType = errors.New("user type cannot be modified")
+
+	// ErrServiceAccountPasswordLogin 服务账户不能密码登录
+	ErrServiceAccountPasswordLogin = errors.New("service account cannot login with password")
+)

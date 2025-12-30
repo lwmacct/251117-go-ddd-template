@@ -1,4 +1,3 @@
-basePath: /api
 definitions:
   auditlog.AuditActionDTO:
     properties:
@@ -23,17 +22,17 @@ definitions:
       actions:
         description: 操作定义列表
         items:
-          $ref: '#/definitions/auditlog.AuditActionDTO'
+          $ref: "#/definitions/auditlog.AuditActionDTO"
         type: array
       categories:
         description: 分类选项
         items:
-          $ref: '#/definitions/auditlog.CategoryOptionDTO'
+          $ref: "#/definitions/auditlog.CategoryOptionDTO"
         type: array
       operations:
         description: 操作类型选项
         items:
-          $ref: '#/definitions/auditlog.OperationTypeDTO'
+          $ref: "#/definitions/auditlog.OperationTypeDTO"
         type: array
     type: object
   auditlog.AuditLogDTO:
@@ -86,8 +85,8 @@ definitions:
         example: "123456"
         type: string
     required:
-    - session_token
-    - two_factor_code
+      - session_token
+      - two_factor_code
     type: object
   auth.LoginDTO:
     properties:
@@ -108,10 +107,10 @@ definitions:
         example: admin123
         type: string
     required:
-    - account
-    - captcha
-    - captcha_id
-    - password
+      - account
+      - captcha
+      - captcha_id
+      - password
     type: object
   auth.LoginResponseDTO:
     properties:
@@ -129,7 +128,7 @@ definitions:
       token_type:
         type: string
       user:
-        $ref: '#/definitions/auth.UserBriefDTO'
+        $ref: "#/definitions/auth.UserBriefDTO"
     type: object
   auth.RefreshTokenDTO:
     properties:
@@ -137,7 +136,7 @@ definitions:
         example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
         type: string
     required:
-    - refresh_token
+      - refresh_token
     type: object
   auth.RegisterDTO:
     properties:
@@ -158,9 +157,9 @@ definitions:
         minLength: 3
         type: string
     required:
-    - email
-    - password
-    - username
+      - email
+      - password
+      - username
     type: object
   auth.RegisterResultDTO:
     properties:
@@ -255,7 +254,7 @@ definitions:
       keys:
         description: Keys key 列表
         items:
-          $ref: '#/definitions/cache.CacheKeyDTO'
+          $ref: "#/definitions/cache.CacheKeyDTO"
         type: array
       total_scanned:
         description: TotalScanned 本次扫描的 key 数量
@@ -280,10 +279,10 @@ definitions:
     properties:
       checks:
         additionalProperties:
-          $ref: '#/definitions/github_com_lwmacct_251117-go-ddd-template_internal_domain_health.CheckResult'
+          $ref: "#/definitions/github_com_lwmacct_251117-go-ddd-template_internal_domain_health.CheckResult"
         type: object
       status:
-        $ref: '#/definitions/github_com_lwmacct_251117-go-ddd-template_internal_domain_health.Status'
+        $ref: "#/definitions/github_com_lwmacct_251117-go-ddd-template_internal_domain_health.Status"
     type: object
   github_com_lwmacct_251117-go-ddd-template_internal_domain_health.CheckResult:
     properties:
@@ -293,18 +292,18 @@ definitions:
         additionalProperties: {}
         type: object
       status:
-        $ref: '#/definitions/github_com_lwmacct_251117-go-ddd-template_internal_domain_health.Status'
+        $ref: "#/definitions/github_com_lwmacct_251117-go-ddd-template_internal_domain_health.Status"
     type: object
   github_com_lwmacct_251117-go-ddd-template_internal_domain_health.Status:
     enum:
-    - healthy
-    - unhealthy
-    - degraded
+      - healthy
+      - unhealthy
+      - degraded
     type: string
     x-enum-varnames:
-    - StatusHealthy
-    - StatusUnhealthy
-    - StatusDegraded
+      - StatusHealthy
+      - StatusUnhealthy
+      - StatusDegraded
   handler.BatchSetUserSettingsRequest:
     properties:
       settings:
@@ -315,12 +314,12 @@ definitions:
             value:
               description: JSONB 原生值
           required:
-          - key
+            - key
           type: object
         minItems: 1
         type: array
     required:
-    - settings
+      - settings
     type: object
   handler.BatchUpdateSettingsRequest:
     properties:
@@ -333,12 +332,12 @@ definitions:
             value:
               description: JSONB 原生值
           required:
-          - key
+            - key
           type: object
         minItems: 1
         type: array
     required:
-    - settings
+      - settings
     type: object
   handler.CreateCategoryRequest:
     properties:
@@ -355,8 +354,8 @@ definitions:
         example: 100
         type: integer
     required:
-    - key
-    - label
+      - key
+      - label
     type: object
   handler.CreateSettingRequest:
     properties:
@@ -377,15 +376,15 @@ definitions:
         example: 0
         type: integer
       ui_config:
-        example: '{}'
+        example: "{}"
         type: string
       value_type:
         example: string
         type: string
     required:
-    - category_id
-    - default_value
-    - key
+      - category_id
+      - default_value
+      - key
     type: object
   handler.SetUserSettingRequest:
     properties:
@@ -455,14 +454,14 @@ definitions:
           type: string
         type: array
     required:
-    - name
+      - name
     type: object
   pat.CreateResultDTO:
     properties:
       plain_token:
         type: string
       token:
-        $ref: '#/definitions/pat.TokenDTO'
+        $ref: "#/definitions/pat.TokenDTO"
     type: object
   pat.ScopeInfoDTO:
     properties:
@@ -510,7 +509,7 @@ definitions:
       data:
         description: 响应数据
         items:
-          $ref: '#/definitions/pat.ScopeInfoDTO'
+          $ref: "#/definitions/pat.ScopeInfoDTO"
         type: array
       error:
         description: 错误详情（仅失败时）
@@ -526,7 +525,7 @@ definitions:
       data:
         description: 响应数据
         items:
-          $ref: '#/definitions/pat.TokenDTO'
+          $ref: "#/definitions/pat.TokenDTO"
         type: array
       error:
         description: 错误详情（仅失败时）
@@ -542,7 +541,7 @@ definitions:
       data:
         description: 响应数据
         items:
-          $ref: '#/definitions/routes.OperationDefinition'
+          $ref: "#/definitions/routes.OperationDefinition"
         type: array
       error:
         description: 错误详情（仅失败时）
@@ -558,7 +557,7 @@ definitions:
       data:
         description: 响应数据
         items:
-          $ref: '#/definitions/setting.CategoryDTO'
+          $ref: "#/definitions/setting.CategoryDTO"
         type: array
       error:
         description: 错误详情（仅失败时）
@@ -574,7 +573,7 @@ definitions:
       data:
         description: 响应数据
         items:
-          $ref: '#/definitions/setting.CategoryMetaDTO'
+          $ref: "#/definitions/setting.CategoryMetaDTO"
         type: array
       error:
         description: 错误详情（仅失败时）
@@ -590,7 +589,7 @@ definitions:
       data:
         description: 响应数据
         items:
-          $ref: '#/definitions/setting.SettingsCategoryDTO'
+          $ref: "#/definitions/setting.SettingsCategoryDTO"
         type: array
       error:
         description: 错误详情（仅失败时）
@@ -605,7 +604,7 @@ definitions:
         type: integer
       data:
         allOf:
-        - $ref: '#/definitions/auditlog.AuditActionsResponseDTO'
+          - $ref: "#/definitions/auditlog.AuditActionsResponseDTO"
         description: 响应数据
       error:
         description: 错误详情（仅失败时）
@@ -620,7 +619,7 @@ definitions:
         type: integer
       data:
         allOf:
-        - $ref: '#/definitions/auditlog.AuditLogDTO'
+          - $ref: "#/definitions/auditlog.AuditLogDTO"
         description: 响应数据
       error:
         description: 错误详情（仅失败时）
@@ -635,7 +634,7 @@ definitions:
         type: integer
       data:
         allOf:
-        - $ref: '#/definitions/auth.LoginResponseDTO'
+          - $ref: "#/definitions/auth.LoginResponseDTO"
         description: 响应数据
       error:
         description: 错误详情（仅失败时）
@@ -650,7 +649,7 @@ definitions:
         type: integer
       data:
         allOf:
-        - $ref: '#/definitions/auth.RegisterResultDTO'
+          - $ref: "#/definitions/auth.RegisterResultDTO"
         description: 响应数据
       error:
         description: 错误详情（仅失败时）
@@ -665,7 +664,7 @@ definitions:
         type: integer
       data:
         allOf:
-        - $ref: '#/definitions/auth.TokenDTO'
+          - $ref: "#/definitions/auth.TokenDTO"
         description: 响应数据
       error:
         description: 错误详情（仅失败时）
@@ -680,7 +679,7 @@ definitions:
         type: integer
       data:
         allOf:
-        - $ref: '#/definitions/cache.CacheInfoDTO'
+          - $ref: "#/definitions/cache.CacheInfoDTO"
         description: 响应数据
       error:
         description: 错误详情（仅失败时）
@@ -695,7 +694,7 @@ definitions:
         type: integer
       data:
         allOf:
-        - $ref: '#/definitions/cache.CacheValueDTO'
+          - $ref: "#/definitions/cache.CacheValueDTO"
         description: 响应数据
       error:
         description: 错误详情（仅失败时）
@@ -710,7 +709,7 @@ definitions:
         type: integer
       data:
         allOf:
-        - $ref: '#/definitions/cache.DeleteResultDTO'
+          - $ref: "#/definitions/cache.DeleteResultDTO"
         description: 响应数据
       error:
         description: 错误详情（仅失败时）
@@ -725,7 +724,7 @@ definitions:
         type: integer
       data:
         allOf:
-        - $ref: '#/definitions/cache.ScanKeysResultDTO'
+          - $ref: "#/definitions/cache.ScanKeysResultDTO"
         description: 响应数据
       error:
         description: 错误详情（仅失败时）
@@ -740,7 +739,7 @@ definitions:
         type: integer
       data:
         allOf:
-        - $ref: '#/definitions/captcha.GenerateResultDTO'
+          - $ref: "#/definitions/captcha.GenerateResultDTO"
         description: 响应数据
       error:
         description: 错误详情（仅失败时）
@@ -755,7 +754,7 @@ definitions:
         type: integer
       data:
         allOf:
-        - $ref: '#/definitions/github_com_lwmacct_251117-go-ddd-template_internal_application_health.HealthReport'
+          - $ref: "#/definitions/github_com_lwmacct_251117-go-ddd-template_internal_application_health.HealthReport"
         description: 响应数据
       error:
         description: 错误详情（仅失败时）
@@ -770,7 +769,7 @@ definitions:
         type: integer
       data:
         allOf:
-        - $ref: '#/definitions/pat.CreateResultDTO'
+          - $ref: "#/definitions/pat.CreateResultDTO"
         description: 响应数据
       error:
         description: 错误详情（仅失败时）
@@ -785,7 +784,7 @@ definitions:
         type: integer
       data:
         allOf:
-        - $ref: '#/definitions/pat.TokenDTO'
+          - $ref: "#/definitions/pat.TokenDTO"
         description: 响应数据
       error:
         description: 错误详情（仅失败时）
@@ -800,7 +799,7 @@ definitions:
         type: integer
       data:
         allOf:
-        - $ref: '#/definitions/role.CreateResultDTO'
+          - $ref: "#/definitions/role.CreateResultDTO"
         description: 响应数据
       error:
         description: 错误详情（仅失败时）
@@ -815,7 +814,7 @@ definitions:
         type: integer
       data:
         allOf:
-        - $ref: '#/definitions/role.RoleDTO'
+          - $ref: "#/definitions/role.RoleDTO"
         description: 响应数据
       error:
         description: 错误详情（仅失败时）
@@ -830,7 +829,7 @@ definitions:
         type: integer
       data:
         allOf:
-        - $ref: '#/definitions/setting.CategoryDTO'
+          - $ref: "#/definitions/setting.CategoryDTO"
         description: 响应数据
       error:
         description: 错误详情（仅失败时）
@@ -845,7 +844,7 @@ definitions:
         type: integer
       data:
         allOf:
-        - $ref: '#/definitions/setting.SettingDTO'
+          - $ref: "#/definitions/setting.SettingDTO"
         description: 响应数据
       error:
         description: 错误详情（仅失败时）
@@ -860,7 +859,7 @@ definitions:
         type: integer
       data:
         allOf:
-        - $ref: '#/definitions/setting.UserSettingDTO'
+          - $ref: "#/definitions/setting.UserSettingDTO"
         description: 响应数据
       error:
         description: 错误详情（仅失败时）
@@ -875,7 +874,7 @@ definitions:
         type: integer
       data:
         allOf:
-        - $ref: '#/definitions/stats.StatsDTO'
+          - $ref: "#/definitions/stats.StatsDTO"
         description: 响应数据
       error:
         description: 错误详情（仅失败时）
@@ -890,7 +889,7 @@ definitions:
         type: integer
       data:
         allOf:
-        - $ref: '#/definitions/twofa.EnableDTO'
+          - $ref: "#/definitions/twofa.EnableDTO"
         description: 响应数据
       error:
         description: 错误详情（仅失败时）
@@ -905,7 +904,7 @@ definitions:
         type: integer
       data:
         allOf:
-        - $ref: '#/definitions/twofa.SetupDTO'
+          - $ref: "#/definitions/twofa.SetupDTO"
         description: 响应数据
       error:
         description: 错误详情（仅失败时）
@@ -920,7 +919,7 @@ definitions:
         type: integer
       data:
         allOf:
-        - $ref: '#/definitions/twofa.StatusDTO'
+          - $ref: "#/definitions/twofa.StatusDTO"
         description: 响应数据
       error:
         description: 错误详情（仅失败时）
@@ -935,7 +934,7 @@ definitions:
         type: integer
       data:
         allOf:
-        - $ref: '#/definitions/user.BatchCreateResultDTO'
+          - $ref: "#/definitions/user.BatchCreateResultDTO"
         description: 响应数据
       error:
         description: 错误详情（仅失败时）
@@ -950,7 +949,7 @@ definitions:
         type: integer
       data:
         allOf:
-        - $ref: '#/definitions/user.UserWithRolesDTO'
+          - $ref: "#/definitions/user.UserWithRolesDTO"
         description: 响应数据
       error:
         description: 错误详情（仅失败时）
@@ -972,7 +971,7 @@ definitions:
   response.ErrorResponse:
     properties:
       error:
-        $ref: '#/definitions/response.ErrorDetail'
+        $ref: "#/definitions/response.ErrorDetail"
     type: object
   response.MessageResponse:
     description: 纯消息响应格式
@@ -992,14 +991,14 @@ definitions:
       data:
         description: 数据列表
         items:
-          $ref: '#/definitions/auditlog.AuditLogDTO'
+          $ref: "#/definitions/auditlog.AuditLogDTO"
         type: array
       message:
         description: 消息描述
         type: string
       meta:
         allOf:
-        - $ref: '#/definitions/response.PaginationMeta'
+          - $ref: "#/definitions/response.PaginationMeta"
         description: 分页信息
     type: object
   response.PagedResponse-role_RoleDTO:
@@ -1010,14 +1009,14 @@ definitions:
       data:
         description: 数据列表
         items:
-          $ref: '#/definitions/role.RoleDTO'
+          $ref: "#/definitions/role.RoleDTO"
         type: array
       message:
         description: 消息描述
         type: string
       meta:
         allOf:
-        - $ref: '#/definitions/response.PaginationMeta'
+          - $ref: "#/definitions/response.PaginationMeta"
         description: 分页信息
     type: object
   response.PagedResponse-user_UserWithRolesDTO:
@@ -1028,14 +1027,14 @@ definitions:
       data:
         description: 数据列表
         items:
-          $ref: '#/definitions/user.UserWithRolesDTO'
+          $ref: "#/definitions/user.UserWithRolesDTO"
         type: array
       message:
         description: 消息描述
         type: string
       meta:
         allOf:
-        - $ref: '#/definitions/response.PaginationMeta'
+          - $ref: "#/definitions/response.PaginationMeta"
         description: 分页信息
     type: object
   response.PaginationMeta:
@@ -1075,8 +1074,8 @@ definitions:
         minLength: 2
         type: string
     required:
-    - display_name
-    - name
+      - display_name
+      - name
     type: object
   role.CreateResultDTO:
     properties:
@@ -1105,7 +1104,7 @@ definitions:
         example: user/*
         type: string
     required:
-    - operation_pattern
+      - operation_pattern
     type: object
   role.RoleDTO:
     properties:
@@ -1123,7 +1122,7 @@ definitions:
         type: string
       permissions:
         items:
-          $ref: '#/definitions/role.PermissionDTO'
+          $ref: "#/definitions/role.PermissionDTO"
         type: array
       updated_at:
         type: string
@@ -1132,10 +1131,10 @@ definitions:
     properties:
       permissions:
         items:
-          $ref: '#/definitions/role.PermissionInputDTO'
+          $ref: "#/definitions/role.PermissionInputDTO"
         type: array
     required:
-    - permissions
+      - permissions
     type: object
   role.UpdateDTO:
     properties:
@@ -1241,7 +1240,7 @@ definitions:
         type: string
       ui_config:
         allOf:
-        - $ref: '#/definitions/setting.UIConfigDTO'
+          - $ref: "#/definitions/setting.UIConfigDTO"
         description: hint/options/depends_on
       updated_at:
         type: string
@@ -1256,7 +1255,7 @@ definitions:
         type: string
       groups:
         items:
-          $ref: '#/definitions/setting.SettingsGroupDTO'
+          $ref: "#/definitions/setting.SettingsGroupDTO"
         type: array
       icon:
         type: string
@@ -1270,7 +1269,7 @@ definitions:
         type: string
       settings:
         items:
-          $ref: '#/definitions/setting.SettingsItemDTO'
+          $ref: "#/definitions/setting.SettingsItemDTO"
         type: array
     type: object
   setting.SettingsItemDTO:
@@ -1297,7 +1296,7 @@ definitions:
         type: string
       ui_config:
         allOf:
-        - $ref: '#/definitions/setting.UIConfigDTO'
+          - $ref: "#/definitions/setting.UIConfigDTO"
         description: hint/options/depends_on
       validation:
         description: JSON Logic 规则
@@ -1310,7 +1309,7 @@ definitions:
     properties:
       depends_on:
         allOf:
-        - $ref: '#/definitions/setting.DependsOnConfigDTO'
+          - $ref: "#/definitions/setting.DependsOnConfigDTO"
         description: 依赖关系
       hint:
         description: 输入提示
@@ -1318,7 +1317,7 @@ definitions:
       options:
         description: 下拉选项
         items:
-          $ref: '#/definitions/setting.SelectOptionDTO'
+          $ref: "#/definitions/setting.SelectOptionDTO"
         type: array
     type: object
   setting.UserSettingDTO:
@@ -1343,7 +1342,7 @@ definitions:
         type: integer
       ui_config:
         allOf:
-        - $ref: '#/definitions/setting.UIConfigDTO'
+          - $ref: "#/definitions/setting.UIConfigDTO"
         description: hint/options/depends_on
       validation:
         description: JSON Logic 规则
@@ -1379,7 +1378,7 @@ definitions:
         type: integer
       recent_audit_logs:
         items:
-          $ref: '#/definitions/stats.AuditLogSummaryDTO'
+          $ref: "#/definitions/stats.AuditLogSummaryDTO"
         type: array
       total_permissions:
         type: integer
@@ -1427,7 +1426,7 @@ definitions:
         example: "123456"
         type: string
     required:
-    - code
+      - code
     type: object
   user.AssignRolesDTO:
     properties:
@@ -1436,18 +1435,18 @@ definitions:
           type: integer
         type: array
     required:
-    - role_ids
+      - role_ids
     type: object
   user.BatchCreateDTO:
     properties:
       users:
         items:
-          $ref: '#/definitions/user.BatchItemDTO'
+          $ref: "#/definitions/user.BatchItemDTO"
         maxItems: 100
         minItems: 1
         type: array
     required:
-    - users
+      - users
     type: object
   user.BatchCreateErrorDTO:
     properties:
@@ -1464,7 +1463,7 @@ definitions:
     properties:
       errors:
         items:
-          $ref: '#/definitions/user.BatchCreateErrorDTO'
+          $ref: "#/definitions/user.BatchCreateErrorDTO"
         type: array
       failed:
         type: integer
@@ -1489,17 +1488,17 @@ definitions:
         type: array
       status:
         enum:
-        - active
-        - inactive
+          - active
+          - inactive
         type: string
       username:
         maxLength: 50
         minLength: 3
         type: string
     required:
-    - email
-    - password
-    - username
+      - email
+      - password
+      - username
     type: object
   user.ChangePasswordDTO:
     properties:
@@ -1509,8 +1508,8 @@ definitions:
       old_password:
         type: string
     required:
-    - new_password
-    - old_password
+      - new_password
+      - old_password
     type: object
   user.CreateDTO:
     properties:
@@ -1528,17 +1527,17 @@ definitions:
         type: array
       status:
         enum:
-        - active
-        - inactive
+          - active
+          - inactive
         type: string
       username:
         maxLength: 50
         minLength: 3
         type: string
     required:
-    - email
-    - password
-    - username
+      - email
+      - password
+      - username
     type: object
   user.RoleDTO:
     properties:
@@ -1565,9 +1564,9 @@ definitions:
         type: string
       status:
         enum:
-        - active
-        - inactive
-        - banned
+          - active
+          - inactive
+          - banned
         type: string
       username:
         maxLength: 50
@@ -1592,7 +1591,7 @@ definitions:
         type: boolean
       roles:
         items:
-          $ref: '#/definitions/user.RoleDTO'
+          $ref: "#/definitions/user.RoleDTO"
         type: array
       status:
         type: string
@@ -1603,2157 +1602,2140 @@ definitions:
       username:
         type: string
     type: object
-host: localhost:40012
 info:
-  contact:
-    email: lwmacct@icloud.com
-    name: API Support
-    url: https://github.com/lwmacct/251117-go-ddd-template/issues
-  description: 基于 DDD+CQRS 架构的 Go Web 应用 API 文档
-  license:
-    name: MIT
-    url: https://opensource.org/licenses/MIT
-  termsOfService: https://github.com/lwmacct/251117-go-ddd-template
-  title: Go DDD Template API
-  version: 1.0.3
+  contact: {}
 paths:
   /api/auth/2fa/disable:
     post:
       consumes:
-      - application/json
+        - application/json
       description: 禁用当前用户的两步验证功能
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: 2FA禁用成功
           schema:
-            $ref: '#/definitions/response.MessageResponse'
+            $ref: "#/definitions/response.MessageResponse"
         "400":
           description: 禁用失败
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: 禁用 2FA
       tags:
-      - Authentication - 2FA
+        - Authentication - 2FA
   /api/auth/2fa/setup:
     post:
       consumes:
-      - application/json
+        - application/json
       description: 为当前用户生成2FA密钥和二维码，用于配置身份验证器应用
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: 2FA初始化成功
           schema:
-            $ref: '#/definitions/response.DataResponse-twofa_SetupDTO'
+            $ref: "#/definitions/response.DataResponse-twofa_SetupDTO"
         "400":
           description: 设置失败
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: 设置 2FA
       tags:
-      - Authentication - 2FA
+        - Authentication - 2FA
   /api/auth/2fa/status:
     get:
       consumes:
-      - application/json
+        - application/json
       description: 获取当前用户的2FA启用状态和剩余恢复代码数量
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: 2FA状态
           schema:
-            $ref: '#/definitions/response.DataResponse-twofa_StatusDTO'
+            $ref: "#/definitions/response.DataResponse-twofa_StatusDTO"
         "400":
           description: 获取失败
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: 2FA 状态
       tags:
-      - Authentication - 2FA
+        - Authentication - 2FA
   /api/auth/2fa/verify:
     post:
       consumes:
-      - application/json
+        - application/json
       description: 验证身份验证器应用生成的TOTP代码，成功后启用2FA并返回恢复代码
       parameters:
-      - description: TOTP验证码
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/twofa.VerifyDTO'
+        - description: TOTP验证码
+          in: body
+          name: request
+          required: true
+          schema:
+            $ref: "#/definitions/twofa.VerifyDTO"
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: 2FA启用成功
           schema:
-            $ref: '#/definitions/response.DataResponse-twofa_EnableDTO'
+            $ref: "#/definitions/response.DataResponse-twofa_EnableDTO"
         "400":
           description: 验证码错误
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: 启用 2FA
       tags:
-      - Authentication - 2FA
+        - Authentication - 2FA
   /api/auth/captcha:
     get:
       consumes:
-      - application/json
+        - application/json
       description: 生成图形验证码用于登录。支持开发模式（通过code和secret参数指定验证码值）
       parameters:
-      - description: 开发模式：指定验证码值
-        in: query
-        name: code
-        type: string
-      - description: 开发模式：密钥
-        in: query
-        name: secret
-        type: string
+        - description: 开发模式：指定验证码值
+          in: query
+          name: code
+          type: string
+        - description: 开发模式：密钥
+          in: query
+          name: secret
+          type: string
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: 验证码生成成功
           schema:
-            $ref: '#/definitions/response.DataResponse-captcha_GenerateResultDTO'
+            $ref: "#/definitions/response.DataResponse-captcha_GenerateResultDTO"
         "500":
           description: 生成失败
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
       summary: 获取验证码
       tags:
-      - Authentication
+        - Authentication
   /api/auth/login:
     post:
       consumes:
-      - application/json
+        - application/json
       description: 使用手机号/用户名/邮箱和密码登录系统，需要提供图形验证码。如果启用了2FA，返回session_token用于后续2FA验证
       parameters:
-      - description: 登录凭证
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/auth.LoginDTO'
+        - description: 登录凭证
+          in: body
+          name: request
+          required: true
+          schema:
+            $ref: "#/definitions/auth.LoginDTO"
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: 登录成功或需要2FA验证
           schema:
-            $ref: '#/definitions/response.DataResponse-auth_LoginResponseDTO'
+            $ref: "#/definitions/response.DataResponse-auth_LoginResponseDTO"
         "401":
           description: 登录失败：凭证无效、验证码错误或账户被禁用
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
       summary: 登录
       tags:
-      - Authentication
+        - Authentication
   /api/auth/login/2fa:
     post:
       consumes:
-      - application/json
+        - application/json
       description: 使用session_token和2FA验证码完成登录（适用于启用了2FA的账户）
       parameters:
-      - description: 二次认证凭证
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/auth.Login2FADTO'
+        - description: 二次认证凭证
+          in: body
+          name: request
+          required: true
+          schema:
+            $ref: "#/definitions/auth.Login2FADTO"
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: 登录成功
           schema:
-            $ref: '#/definitions/response.DataResponse-auth_TokenDTO'
+            $ref: "#/definitions/response.DataResponse-auth_TokenDTO"
         "401":
           description: 验证失败：session_token无效或2FA验证码错误
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
       summary: 2FA 登录
       tags:
-      - Authentication
+        - Authentication
   /api/auth/refresh:
     post:
       consumes:
-      - application/json
+        - application/json
       description: 使用refresh_token获取新的access_token和refresh_token，延长会话有效期
       parameters:
-      - description: 刷新令牌
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/auth.RefreshTokenDTO'
+        - description: 刷新令牌
+          in: body
+          name: request
+          required: true
+          schema:
+            $ref: "#/definitions/auth.RefreshTokenDTO"
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: 令牌刷新成功
           schema:
-            $ref: '#/definitions/response.DataResponse-auth_TokenDTO'
+            $ref: "#/definitions/response.DataResponse-auth_TokenDTO"
         "401":
           description: 刷新令牌无效或已过期
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
       summary: 刷新令牌
       tags:
-      - Authentication
+        - Authentication
   /api/auth/register:
     post:
       consumes:
-      - application/json
+        - application/json
       description: 创建新用户账号，注册成功后自动登录并返回访问令牌
       parameters:
-      - description: 注册信息
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/auth.RegisterDTO'
+        - description: 注册信息
+          in: body
+          name: request
+          required: true
+          schema:
+            $ref: "#/definitions/auth.RegisterDTO"
       produces:
-      - application/json
+        - application/json
       responses:
         "201":
           description: 注册成功
           schema:
-            $ref: '#/definitions/response.DataResponse-auth_RegisterResultDTO'
+            $ref: "#/definitions/response.DataResponse-auth_RegisterResultDTO"
         "400":
           description: 参数错误或用户名/邮箱已存在
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
       summary: 注册
       tags:
-      - Authentication
+        - Authentication
   /api/system/auditlogs:
     get:
       consumes:
-      - application/json
+        - application/json
       description: 分页获取审计日志，支持按用户、操作、资源、状态、时间范围筛选
       parameters:
-      - description: Action 操作类型过滤（语义化标识，如 setting.update）
-        in: query
-        name: action
-        type: string
-      - description: EndDate 结束时间（RFC3339 格式）
-        in: query
-        name: end_date
-        type: string
-      - default: 20
-        description: Limit 每页数量，默认 20，最大 1000
-        in: query
-        maximum: 1000
-        minimum: 1
-        name: limit
-        type: integer
-      - default: 1
-        description: Page 页码，从 1 开始
-        in: query
-        minimum: 1
-        name: page
-        type: integer
-      - description: Resource 资源分类过滤（如 setting, user）
-        in: query
-        name: resource
-        type: string
-      - description: StartDate 开始时间（RFC3339 格式）
-        in: query
-        name: start_date
-        type: string
-      - description: Status 状态过滤
-        enum:
-        - success
-        - failure
-        in: query
-        name: status
-        type: string
-      - description: UserID 按用户 ID 过滤
-        in: query
-        name: user_id
-        type: integer
+        - description: Action 操作类型过滤（语义化标识，如 setting.update）
+          in: query
+          name: action
+          type: string
+        - description: EndDate 结束时间（RFC3339 格式）
+          in: query
+          name: end_date
+          type: string
+        - default: 20
+          description: Limit 每页数量，默认 20，最大 1000
+          in: query
+          maximum: 1000
+          minimum: 1
+          name: limit
+          type: integer
+        - default: 1
+          description: Page 页码，从 1 开始
+          in: query
+          minimum: 1
+          name: page
+          type: integer
+        - description: Resource 资源分类过滤（如 setting, user）
+          in: query
+          name: resource
+          type: string
+        - description: StartDate 开始时间（RFC3339 格式）
+          in: query
+          name: start_date
+          type: string
+        - description: Status 状态过滤
+          enum:
+            - success
+            - failure
+          in: query
+          name: status
+          type: string
+        - description: UserID 按用户 ID 过滤
+          in: query
+          name: user_id
+          type: integer
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: 审计日志列表
           schema:
-            $ref: '#/definitions/response.PagedResponse-auditlog_AuditLogDTO'
+            $ref: "#/definitions/response.PagedResponse-auditlog_AuditLogDTO"
         "400":
           description: 参数错误
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "403":
           description: 权限不足
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: 审计日志列表
       tags:
-      - Admin - Audit Log
+        - Admin - Audit Log
   /api/system/auditlogs/{id}:
     get:
       consumes:
-      - application/json
+        - application/json
       description: 根据日志ID获取审计日志详细信息
       parameters:
-      - description: 日志ID
-        in: path
-        minimum: 1
-        name: id
-        required: true
-        type: integer
+        - description: 日志ID
+          in: path
+          minimum: 1
+          name: id
+          required: true
+          type: integer
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: 日志详情
           schema:
-            $ref: '#/definitions/response.DataResponse-auditlog_AuditLogDTO'
+            $ref: "#/definitions/response.DataResponse-auditlog_AuditLogDTO"
         "400":
           description: 无效的日志ID
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "403":
           description: 权限不足
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "404":
           description: 日志不存在
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: 审计日志详情
       tags:
-      - Admin - Audit Log
+        - Admin - Audit Log
   /api/system/auditlogs/actions:
     get:
       consumes:
-      - application/json
+        - application/json
       description: 获取所有审计操作的定义、分类和操作类型，供前端筛选器使用
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: 审计操作定义
           schema:
-            $ref: '#/definitions/response.DataResponse-auditlog_AuditActionsResponseDTO'
+            $ref: "#/definitions/response.DataResponse-auditlog_AuditActionsResponseDTO"
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "403":
           description: 权限不足
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: 审计操作定义
       tags:
-      - Admin - Audit Log
+        - Admin - Audit Log
   /api/system/cache/info:
     get:
       consumes:
-      - application/json
+        - application/json
       description: 查看缓存状态信息（类似 redis-cli INFO）
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: 成功
           schema:
-            $ref: '#/definitions/response.DataResponse-cache_CacheInfoDTO'
+            $ref: "#/definitions/response.DataResponse-cache_CacheInfoDTO"
         "500":
           description: 服务器错误
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: 缓存信息
       tags:
-      - System
+        - System
   /api/system/cache/key:
     delete:
       consumes:
-      - application/json
+        - application/json
       description: 删除指定的单个 key（类似 redis-cli DEL）
       parameters:
-      - description: Key 完整的 key 名称（含前缀）
-        in: query
-        name: key
-        required: true
-        type: string
+        - description: Key 完整的 key 名称（含前缀）
+          in: query
+          name: key
+          required: true
+          type: string
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: 成功
           schema:
-            $ref: '#/definitions/response.DataResponse-cache_DeleteResultDTO'
+            $ref: "#/definitions/response.DataResponse-cache_DeleteResultDTO"
         "400":
           description: 参数错误
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "500":
           description: 服务器错误
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: 删除缓存键
       tags:
-      - System
+        - System
     get:
       consumes:
-      - application/json
+        - application/json
       description: 获取指定 key 的完整信息和值（类似 redis-cli GET/JSON.GET）
       parameters:
-      - description: Key 完整的 key 名称（含前缀）
-        in: query
-        name: key
-        required: true
-        type: string
+        - description: Key 完整的 key 名称（含前缀）
+          in: query
+          name: key
+          required: true
+          type: string
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: 成功
           schema:
-            $ref: '#/definitions/response.DataResponse-cache_CacheValueDTO'
+            $ref: "#/definitions/response.DataResponse-cache_CacheValueDTO"
         "400":
           description: 参数错误
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "404":
           description: Key 不存在
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "500":
           description: 服务器错误
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: 获取缓存值
       tags:
-      - System
+        - System
   /api/system/cache/keys:
     delete:
       consumes:
-      - application/json
+        - application/json
       description: 批量删除匹配 pattern 的所有 keys
       parameters:
-      - description: Pattern 匹配模式（不含应用前缀，如 "setting:*"）
-        in: query
-        name: pattern
-        required: true
-        type: string
+        - description: Pattern 匹配模式（不含应用前缀，如 "setting:*"）
+          in: query
+          name: pattern
+          required: true
+          type: string
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: 成功
           schema:
-            $ref: '#/definitions/response.DataResponse-cache_DeleteResultDTO'
+            $ref: "#/definitions/response.DataResponse-cache_DeleteResultDTO"
         "400":
           description: 参数错误
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "500":
           description: 服务器错误
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: 批量删除缓存
       tags:
-      - System
+        - System
     get:
       consumes:
-      - application/json
+        - application/json
       description: 按 pattern 扫描缓存 keys（类似 redis-cli SCAN）
       parameters:
-      - description: Cursor 游标（用于分页），首次查询传 "0" 或留空
-        in: query
-        name: cursor
-        type: string
-      - description: Limit 每次返回的最大数量
-        in: query
-        maximum: 1000
-        minimum: 1
-        name: limit
-        type: integer
-      - description: Pattern 匹配模式（不含应用前缀，如 "setting:*"）
-        in: query
-        name: pattern
-        type: string
+        - description: Cursor 游标（用于分页），首次查询传 "0" 或留空
+          in: query
+          name: cursor
+          type: string
+        - description: Limit 每次返回的最大数量
+          in: query
+          maximum: 1000
+          minimum: 1
+          name: limit
+          type: integer
+        - description: Pattern 匹配模式（不含应用前缀，如 "setting:*"）
+          in: query
+          name: pattern
+          type: string
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: 成功
           schema:
-            $ref: '#/definitions/response.DataResponse-cache_ScanKeysResultDTO'
+            $ref: "#/definitions/response.DataResponse-cache_ScanKeysResultDTO"
         "400":
           description: 参数错误
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "500":
           description: 服务器错误
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: 扫描缓存键
       tags:
-      - System
+        - System
   /api/system/operations:
     get:
       consumes:
-      - application/json
+        - application/json
       description: 返回所有可用的操作定义，供前端权限配置使用
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: 操作列表
           schema:
-            $ref: '#/definitions/response.DataResponse-array_routes_OperationDefinition'
+            $ref: "#/definitions/response.DataResponse-array_routes_OperationDefinition"
         "401":
           description: 未认证
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "403":
           description: 权限不足
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: 操作列表
       tags:
-      - System
+        - System
   /api/system/overview/stats:
     get:
       consumes:
-      - application/json
+        - application/json
       description: 获取用户、角色、权限、菜单等统计信息
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: 统计信息
           schema:
-            $ref: '#/definitions/response.DataResponse-stats_StatsDTO'
+            $ref: "#/definitions/response.DataResponse-stats_StatsDTO"
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "403":
           description: 权限不足
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: 系统概览
       tags:
-      - Overview
+        - Overview
   /api/system/roles:
     get:
       consumes:
-      - application/json
+        - application/json
       description: 分页获取所有系统角色
       parameters:
-      - default: 20
-        description: Limit 每页数量，默认 20，最大 1000
-        in: query
-        maximum: 1000
-        minimum: 1
-        name: limit
-        type: integer
-      - default: 1
-        description: Page 页码，从 1 开始
-        in: query
-        minimum: 1
-        name: page
-        type: integer
+        - default: 20
+          description: Limit 每页数量，默认 20，最大 1000
+          in: query
+          maximum: 1000
+          minimum: 1
+          name: limit
+          type: integer
+        - default: 1
+          description: Page 页码，从 1 开始
+          in: query
+          minimum: 1
+          name: page
+          type: integer
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: 角色列表
           schema:
-            $ref: '#/definitions/response.PagedResponse-role_RoleDTO'
+            $ref: "#/definitions/response.PagedResponse-role_RoleDTO"
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "403":
           description: 权限不足
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: 角色列表
       tags:
-      - Admin - Role Management
+        - Admin - Role Management
     post:
       consumes:
-      - application/json
+        - application/json
       description: 管理员创建新的系统角色
       parameters:
-      - description: 角色信息
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/role.CreateDTO'
+        - description: 角色信息
+          in: body
+          name: request
+          required: true
+          schema:
+            $ref: "#/definitions/role.CreateDTO"
       produces:
-      - application/json
+        - application/json
       responses:
         "201":
           description: 角色创建成功
           schema:
-            $ref: '#/definitions/response.DataResponse-role_CreateResultDTO'
+            $ref: "#/definitions/response.DataResponse-role_CreateResultDTO"
         "400":
           description: 参数错误或角色名已存在
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "403":
           description: 权限不足
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: 创建角色
       tags:
-      - Admin - Role Management
+        - Admin - Role Management
   /api/system/roles/{id}:
     delete:
       consumes:
-      - application/json
+        - application/json
       description: 管理员删除指定角色（如果角色被用户使用，可能会失败）
       parameters:
-      - description: 角色ID
-        in: path
-        minimum: 1
-        name: id
-        required: true
-        type: integer
+        - description: 角色ID
+          in: path
+          minimum: 1
+          name: id
+          required: true
+          type: integer
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: 角色删除成功
           schema:
-            $ref: '#/definitions/response.MessageResponse'
+            $ref: "#/definitions/response.MessageResponse"
         "400":
           description: 无效的角色ID
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "403":
           description: 权限不足
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "404":
           description: 角色不存在
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "500":
           description: 服务器内部错误或角色被使用中
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: 删除角色
       tags:
-      - Admin - Role Management
+        - Admin - Role Management
     get:
       consumes:
-      - application/json
+        - application/json
       description: 根据角色ID获取角色详细信息（包含权限列表）
       parameters:
-      - description: 角色ID
-        in: path
-        minimum: 1
-        name: id
-        required: true
-        type: integer
+        - description: 角色ID
+          in: path
+          minimum: 1
+          name: id
+          required: true
+          type: integer
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: 角色详情
           schema:
-            $ref: '#/definitions/response.DataResponse-role_RoleDTO'
+            $ref: "#/definitions/response.DataResponse-role_RoleDTO"
         "400":
           description: 无效的角色ID
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "403":
           description: 权限不足
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "404":
           description: 角色不存在
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: 角色详情
       tags:
-      - Admin - Role Management
+        - Admin - Role Management
     put:
       consumes:
-      - application/json
+        - application/json
       description: 管理员更新角色的显示名称和描述
       parameters:
-      - description: 角色ID
-        in: path
-        minimum: 1
-        name: id
-        required: true
-        type: integer
-      - description: 更新信息
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/role.UpdateDTO'
+        - description: 角色ID
+          in: path
+          minimum: 1
+          name: id
+          required: true
+          type: integer
+        - description: 更新信息
+          in: body
+          name: request
+          required: true
+          schema:
+            $ref: "#/definitions/role.UpdateDTO"
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: 角色更新成功
           schema:
-            $ref: '#/definitions/response.DataResponse-role_RoleDTO'
+            $ref: "#/definitions/response.DataResponse-role_RoleDTO"
         "400":
           description: 无效的角色ID或参数错误
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "403":
           description: 权限不足
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "404":
           description: 角色不存在
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: 更新角色
       tags:
-      - Admin - Role Management
+        - Admin - Role Management
   /api/system/roles/{id}/permissions:
     put:
       consumes:
-      - application/json
+        - application/json
       description: 管理员为指定角色设置权限（会覆盖现有权限）。新 RBAC 模型使用 Operation + Resource Pattern。
       parameters:
-      - description: 角色ID
-        in: path
-        minimum: 1
-        name: id
-        required: true
-        type: integer
-      - description: 权限模式列表
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/role.SetPermissionsDTO'
+        - description: 角色ID
+          in: path
+          minimum: 1
+          name: id
+          required: true
+          type: integer
+        - description: 权限模式列表
+          in: body
+          name: request
+          required: true
+          schema:
+            $ref: "#/definitions/role.SetPermissionsDTO"
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: 权限设置成功
           schema:
-            $ref: '#/definitions/response.MessageResponse'
+            $ref: "#/definitions/response.MessageResponse"
         "400":
           description: 无效的角色ID或参数错误
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "403":
           description: 权限不足
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "404":
           description: 角色不存在
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: 设置权限
       tags:
-      - Admin - Role Management
+        - Admin - Role Management
   /api/system/settings:
     get:
       consumes:
-      - application/json
+        - application/json
       description: 获取按 Category → Group → Settings 层级组织的配置数据，用于前端动态渲染设置页面。支持按分类过滤（懒加载）。
       parameters:
-      - description: 分类 Key（如 general），为空返回全量
-        in: query
-        name: category
-        type: string
+        - description: 分类 Key（如 general），为空返回全量
+          in: query
+          name: category
+          type: string
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: 配置列表（层级结构）
           schema:
-            $ref: '#/definitions/response.DataResponse-array_setting_SettingsCategoryDTO'
+            $ref: "#/definitions/response.DataResponse-array_setting_SettingsCategoryDTO"
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "403":
           description: 权限不足
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "404":
           description: 分类不存在
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: 配置列表
       tags:
-      - Admin - Settings
+        - Admin - Settings
     post:
       consumes:
-      - application/json
+        - application/json
       description: 管理员创建新的系统配置项
       parameters:
-      - description: 配置信息
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/handler.CreateSettingRequest'
+        - description: 配置信息
+          in: body
+          name: request
+          required: true
+          schema:
+            $ref: "#/definitions/handler.CreateSettingRequest"
       produces:
-      - application/json
+        - application/json
       responses:
         "201":
           description: 配置创建成功
           schema:
-            $ref: '#/definitions/response.DataResponse-setting_SettingDTO'
+            $ref: "#/definitions/response.DataResponse-setting_SettingDTO"
         "400":
           description: 参数错误
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "403":
           description: 权限不足
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: 创建配置
       tags:
-      - Admin - Settings
+        - Admin - Settings
   /api/system/settings/{key}:
     delete:
       consumes:
-      - application/json
+        - application/json
       description: 管理员删除指定的系统配置项
       parameters:
-      - description: 配置键
-        in: path
-        name: key
-        required: true
-        type: string
+        - description: 配置键
+          in: path
+          name: key
+          required: true
+          type: string
       produces:
-      - application/json
+        - application/json
       responses:
         "204":
           description: 配置删除成功
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "403":
           description: 权限不足
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "404":
           description: 配置不存在
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: 删除配置
       tags:
-      - Admin - Settings
+        - Admin - Settings
     get:
       consumes:
-      - application/json
+        - application/json
       description: 根据配置键获取配置详情
       parameters:
-      - description: 配置键
-        in: path
-        name: key
-        required: true
-        type: string
+        - description: 配置键
+          in: path
+          name: key
+          required: true
+          type: string
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: 配置详情
           schema:
-            $ref: '#/definitions/response.DataResponse-setting_SettingDTO'
+            $ref: "#/definitions/response.DataResponse-setting_SettingDTO"
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "403":
           description: 权限不足
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "404":
           description: 配置不存在
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: 配置详情
       tags:
-      - Admin - Settings
+        - Admin - Settings
     put:
       consumes:
-      - application/json
+        - application/json
       description: 管理员更新指定配置项的值和标签
       parameters:
-      - description: 配置键
-        in: path
-        name: key
-        required: true
-        type: string
-      - description: 更新信息
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/handler.UpdateSettingRequest'
+        - description: 配置键
+          in: path
+          name: key
+          required: true
+          type: string
+        - description: 更新信息
+          in: body
+          name: request
+          required: true
+          schema:
+            $ref: "#/definitions/handler.UpdateSettingRequest"
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: 配置更新成功
           schema:
-            $ref: '#/definitions/response.DataResponse-setting_SettingDTO'
+            $ref: "#/definitions/response.DataResponse-setting_SettingDTO"
         "400":
           description: 参数错误
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "403":
           description: 权限不足
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "404":
           description: 配置不存在
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: 更新配置
       tags:
-      - Admin - Settings
+        - Admin - Settings
   /api/system/settings/batch:
     post:
       consumes:
-      - application/json
+        - application/json
       description: 管理员批量更新多个系统配置项的值
       parameters:
-      - description: 配置列表
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/handler.BatchUpdateSettingsRequest'
+        - description: 配置列表
+          in: body
+          name: request
+          required: true
+          schema:
+            $ref: "#/definitions/handler.BatchUpdateSettingsRequest"
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: 批量更新成功
           schema:
-            $ref: '#/definitions/response.MessageResponse'
+            $ref: "#/definitions/response.MessageResponse"
         "400":
           description: 参数错误
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "403":
           description: 权限不足
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: 批量更新配置
       tags:
-      - Admin - Settings
+        - Admin - Settings
   /api/system/settings/categories:
     get:
       consumes:
-      - application/json
+        - application/json
       description: 获取所有配置分类，按排序权重升序排列
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: 分类列表
           schema:
-            $ref: '#/definitions/response.DataResponse-array_setting_CategoryDTO'
+            $ref: "#/definitions/response.DataResponse-array_setting_CategoryDTO"
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "403":
           description: 权限不足
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: 配置分类列表
       tags:
-      - Admin - Setting Categories
+        - Admin - Setting Categories
     post:
       consumes:
-      - application/json
+        - application/json
       description: 管理员创建新的配置分类
       parameters:
-      - description: 分类信息
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/handler.CreateCategoryRequest'
+        - description: 分类信息
+          in: body
+          name: request
+          required: true
+          schema:
+            $ref: "#/definitions/handler.CreateCategoryRequest"
       produces:
-      - application/json
+        - application/json
       responses:
         "201":
           description: 分类创建成功
           schema:
-            $ref: '#/definitions/response.DataResponse-setting_CategoryDTO'
+            $ref: "#/definitions/response.DataResponse-setting_CategoryDTO"
         "400":
           description: 参数错误
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "403":
           description: 权限不足
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: 创建配置分类
       tags:
-      - Admin - Setting Categories
+        - Admin - Setting Categories
   /api/system/settings/categories/{id}:
     delete:
       consumes:
-      - application/json
+        - application/json
       description: 管理员删除指定的配置分类（如有关联配置项则拒绝删除）
       parameters:
-      - description: 分类 ID
-        in: path
-        name: id
-        required: true
-        type: integer
+        - description: 分类 ID
+          in: path
+          name: id
+          required: true
+          type: integer
       produces:
-      - application/json
+        - application/json
       responses:
         "204":
           description: 分类删除成功
         "400":
           description: 存在关联配置项
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "403":
           description: 权限不足
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "404":
           description: 分类不存在
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: 删除配置分类
       tags:
-      - Admin - Setting Categories
+        - Admin - Setting Categories
     get:
       consumes:
-      - application/json
+        - application/json
       description: 根据 ID 获取配置分类详情
       parameters:
-      - description: 分类 ID
-        in: path
-        name: id
-        required: true
-        type: integer
+        - description: 分类 ID
+          in: path
+          name: id
+          required: true
+          type: integer
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: 分类详情
           schema:
-            $ref: '#/definitions/response.DataResponse-setting_CategoryDTO'
+            $ref: "#/definitions/response.DataResponse-setting_CategoryDTO"
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "403":
           description: 权限不足
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "404":
           description: 分类不存在
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: 配置分类详情
       tags:
-      - Admin - Setting Categories
+        - Admin - Setting Categories
     put:
       consumes:
-      - application/json
+        - application/json
       description: 管理员更新指定配置分类的信息（Key 不可修改）
       parameters:
-      - description: 分类 ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      - description: 更新信息
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/handler.UpdateCategoryRequest'
+        - description: 分类 ID
+          in: path
+          name: id
+          required: true
+          type: integer
+        - description: 更新信息
+          in: body
+          name: request
+          required: true
+          schema:
+            $ref: "#/definitions/handler.UpdateCategoryRequest"
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: 分类更新成功
           schema:
-            $ref: '#/definitions/response.DataResponse-setting_CategoryDTO'
+            $ref: "#/definitions/response.DataResponse-setting_CategoryDTO"
         "400":
           description: 参数错误
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "403":
           description: 权限不足
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "404":
           description: 分类不存在
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: 更新配置分类
       tags:
-      - Admin - Setting Categories
+        - Admin - Setting Categories
   /api/system/users:
     get:
       consumes:
-      - application/json
+        - application/json
       description: 分页获取所有用户列表（包含角色信息）
       parameters:
-      - default: 20
-        description: Limit 每页数量，默认 20，最大 1000
-        in: query
-        maximum: 1000
-        minimum: 1
-        name: limit
-        type: integer
-      - default: 1
-        description: Page 页码，从 1 开始
-        in: query
-        minimum: 1
-        name: page
-        type: integer
-      - description: Search 搜索关键词（用户名或邮箱）
-        in: query
-        name: search
-        type: string
+        - default: 20
+          description: Limit 每页数量，默认 20，最大 1000
+          in: query
+          maximum: 1000
+          minimum: 1
+          name: limit
+          type: integer
+        - default: 1
+          description: Page 页码，从 1 开始
+          in: query
+          minimum: 1
+          name: page
+          type: integer
+        - description: Search 搜索关键词（用户名或邮箱）
+          in: query
+          name: search
+          type: string
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: 用户列表
           schema:
-            $ref: '#/definitions/response.PagedResponse-user_UserWithRolesDTO'
+            $ref: "#/definitions/response.PagedResponse-user_UserWithRolesDTO"
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "403":
           description: 权限不足
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: 用户列表
       tags:
-      - Admin - User Management
+        - Admin - User Management
     post:
       consumes:
-      - application/json
+        - application/json
       description: 管理员创建新用户账号，可同时分配角色
       parameters:
-      - description: 用户信息
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/user.CreateDTO'
+        - description: 用户信息
+          in: body
+          name: request
+          required: true
+          schema:
+            $ref: "#/definitions/user.CreateDTO"
       produces:
-      - application/json
+        - application/json
       responses:
         "201":
           description: 用户创建成功
           schema:
-            $ref: '#/definitions/response.DataResponse-user_UserWithRolesDTO'
+            $ref: "#/definitions/response.DataResponse-user_UserWithRolesDTO"
         "400":
           description: 参数错误或用户名/邮箱已存在
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "403":
           description: 权限不足
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: 创建用户
       tags:
-      - Admin - User Management
+        - Admin - User Management
   /api/system/users/{id}:
     delete:
       consumes:
-      - application/json
+        - application/json
       description: 管理员删除指定用户（物理删除或软删除）
       parameters:
-      - description: 用户ID
-        in: path
-        minimum: 1
-        name: id
-        required: true
-        type: integer
+        - description: 用户ID
+          in: path
+          minimum: 1
+          name: id
+          required: true
+          type: integer
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: 用户删除成功
           schema:
-            $ref: '#/definitions/response.MessageResponse'
+            $ref: "#/definitions/response.MessageResponse"
         "400":
           description: 无效的用户ID
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "403":
           description: 权限不足
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "404":
           description: 用户不存在
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: 删除用户
       tags:
-      - Admin - User Management
+        - Admin - User Management
     get:
       consumes:
-      - application/json
+        - application/json
       description: 根据用户ID获取用户详细信息（包含角色信息）
       parameters:
-      - description: 用户ID
-        in: path
-        minimum: 1
-        name: id
-        required: true
-        type: integer
+        - description: 用户ID
+          in: path
+          minimum: 1
+          name: id
+          required: true
+          type: integer
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: 用户详情
           schema:
-            $ref: '#/definitions/response.DataResponse-user_UserWithRolesDTO'
+            $ref: "#/definitions/response.DataResponse-user_UserWithRolesDTO"
         "400":
           description: 无效的用户ID
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "403":
           description: 权限不足
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "404":
           description: 用户不存在
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: 用户详情
       tags:
-      - Admin - User Management
+        - Admin - User Management
     put:
       consumes:
-      - application/json
+        - application/json
       description: 管理员更新用户的基本信息和状态
       parameters:
-      - description: 用户ID
-        in: path
-        minimum: 1
-        name: id
-        required: true
-        type: integer
-      - description: 更新信息
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/user.UpdateDTO'
+        - description: 用户ID
+          in: path
+          minimum: 1
+          name: id
+          required: true
+          type: integer
+        - description: 更新信息
+          in: body
+          name: request
+          required: true
+          schema:
+            $ref: "#/definitions/user.UpdateDTO"
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: 用户更新成功
           schema:
-            $ref: '#/definitions/response.DataResponse-user_UserWithRolesDTO'
+            $ref: "#/definitions/response.DataResponse-user_UserWithRolesDTO"
         "400":
           description: 无效的用户ID或参数错误
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "403":
           description: 权限不足
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "404":
           description: 用户不存在
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: 更新用户
       tags:
-      - Admin - User Management
+        - Admin - User Management
   /api/system/users/{id}/roles:
     put:
       consumes:
-      - application/json
+        - application/json
       description: 管理员为指定用户分配角色（会覆盖现有角色）
       parameters:
-      - description: 用户ID
-        in: path
-        minimum: 1
-        name: id
-        required: true
-        type: integer
-      - description: 角色ID列表
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/user.AssignRolesDTO'
+        - description: 用户ID
+          in: path
+          minimum: 1
+          name: id
+          required: true
+          type: integer
+        - description: 角色ID列表
+          in: body
+          name: request
+          required: true
+          schema:
+            $ref: "#/definitions/user.AssignRolesDTO"
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: 角色分配成功
           schema:
-            $ref: '#/definitions/response.DataResponse-user_UserWithRolesDTO'
+            $ref: "#/definitions/response.DataResponse-user_UserWithRolesDTO"
         "400":
           description: 无效的用户ID或参数错误
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "403":
           description: 权限不足
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "404":
           description: 用户不存在
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: 分配角色
       tags:
-      - Admin - User Management
+        - Admin - User Management
   /api/system/users/batch:
     post:
       consumes:
-      - application/json
+        - application/json
       description: 管理员从 CSV 等来源批量创建用户，支持部分失败（单个失败不影响其他用户）
       parameters:
-      - description: 用户列表（最多 100 个）
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/user.BatchCreateDTO'
+        - description: 用户列表（最多 100 个）
+          in: body
+          name: request
+          required: true
+          schema:
+            $ref: "#/definitions/user.BatchCreateDTO"
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: 批量创建结果
           schema:
-            $ref: '#/definitions/response.DataResponse-user_BatchCreateResultDTO'
+            $ref: "#/definitions/response.DataResponse-user_BatchCreateResultDTO"
         "400":
           description: 参数错误
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "403":
           description: 权限不足
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: 批量创建用户
       tags:
-      - Admin - User Management
+        - Admin - User Management
   /api/user/account:
     delete:
       consumes:
-      - application/json
+        - application/json
       description: 用户删除自己的账号（不可恢复）
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: 账号删除成功
           schema:
-            $ref: '#/definitions/response.MessageResponse'
+            $ref: "#/definitions/response.MessageResponse"
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: 注销账户
       tags:
-      - User - Profile
+        - User - Profile
   /api/user/password:
     put:
       consumes:
-      - application/json
+        - application/json
       description: 用户修改自己的登录密码
       parameters:
-      - description: 密码信息
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/user.ChangePasswordDTO'
+        - description: 密码信息
+          in: body
+          name: request
+          required: true
+          schema:
+            $ref: "#/definitions/user.ChangePasswordDTO"
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: 密码修改成功
           schema:
-            $ref: '#/definitions/response.MessageResponse'
+            $ref: "#/definitions/response.MessageResponse"
         "400":
           description: 参数错误或旧密码不正确
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: 修改密码
       tags:
-      - User - Profile
+        - User - Profile
   /api/user/profile:
     get:
       consumes:
-      - application/json
+        - application/json
       description: 获取当前登录用户的个人资料和角色信息
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: 个人资料
           schema:
-            $ref: '#/definitions/response.DataResponse-user_UserWithRolesDTO'
+            $ref: "#/definitions/response.DataResponse-user_UserWithRolesDTO"
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "404":
           description: 用户不存在
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: 获取资料
       tags:
-      - User - Profile
+        - User - Profile
     put:
       consumes:
-      - application/json
+        - application/json
       description: 用户更新自己的姓名、头像和个人简介
       parameters:
-      - description: 更新信息
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/handler.UpdateProfileRequest'
+        - description: 更新信息
+          in: body
+          name: request
+          required: true
+          schema:
+            $ref: "#/definitions/handler.UpdateProfileRequest"
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: 资料更新成功
           schema:
-            $ref: '#/definitions/response.DataResponse-user_UserWithRolesDTO'
+            $ref: "#/definitions/response.DataResponse-user_UserWithRolesDTO"
         "400":
           description: 参数错误
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: 更新资料
       tags:
-      - User - Profile
+        - User - Profile
   /api/user/settings:
     get:
       consumes:
-      - application/json
+        - application/json
       description: 获取按 Category → Group → Settings 层级组织的配置数据，包含用户自定义值。支持按分类过滤（懒加载）。
       parameters:
-      - description: 分类 Key（如 profile），为空返回全量
-        in: query
-        name: category
-        type: string
+        - description: 分类 Key（如 profile），为空返回全量
+          in: query
+          name: category
+          type: string
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: 配置列表（层级结构）
           schema:
-            $ref: '#/definitions/response.DataResponse-array_setting_SettingsCategoryDTO'
+            $ref: "#/definitions/response.DataResponse-array_setting_SettingsCategoryDTO"
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "404":
           description: 分类不存在
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: 用户配置列表
       tags:
-      - User - Settings
+        - User - Settings
   /api/user/settings/{key}:
     delete:
       consumes:
-      - application/json
+        - application/json
       description: 删除用户自定义配置，恢复为系统默认值
       parameters:
-      - description: 配置键
-        in: path
-        name: key
-        required: true
-        type: string
+        - description: 配置键
+          in: path
+          name: key
+          required: true
+          type: string
       produces:
-      - application/json
+        - application/json
       responses:
         "204":
           description: 重置成功
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: 重置用户配置
       tags:
-      - User - Settings
+        - User - Settings
     get:
       consumes:
-      - application/json
+        - application/json
       description: 根据配置键获取用户配置（合并系统默认值）
       parameters:
-      - description: 配置键
-        in: path
-        name: key
-        required: true
-        type: string
+        - description: 配置键
+          in: path
+          name: key
+          required: true
+          type: string
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: 配置详情
           schema:
-            $ref: '#/definitions/response.DataResponse-setting_UserSettingDTO'
+            $ref: "#/definitions/response.DataResponse-setting_UserSettingDTO"
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "404":
           description: 配置不存在
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: 用户配置详情
       tags:
-      - User - Settings
+        - User - Settings
     put:
       consumes:
-      - application/json
+        - application/json
       description: 用户设置自定义配置值
       parameters:
-      - description: 配置键
-        in: path
-        name: key
-        required: true
-        type: string
-      - description: 配置值
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/handler.SetUserSettingRequest'
+        - description: 配置键
+          in: path
+          name: key
+          required: true
+          type: string
+        - description: 配置值
+          in: body
+          name: request
+          required: true
+          schema:
+            $ref: "#/definitions/handler.SetUserSettingRequest"
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: 设置成功
           schema:
-            $ref: '#/definitions/response.DataResponse-setting_UserSettingDTO'
+            $ref: "#/definitions/response.DataResponse-setting_UserSettingDTO"
         "400":
           description: 参数错误
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "404":
           description: 配置不存在
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: 设置用户配置
       tags:
-      - User - Settings
+        - User - Settings
   /api/user/settings/batch:
     post:
       consumes:
-      - application/json
+        - application/json
       description: 用户批量设置多个自定义配置值
       parameters:
-      - description: 配置列表
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/handler.BatchSetUserSettingsRequest'
+        - description: 配置列表
+          in: body
+          name: request
+          required: true
+          schema:
+            $ref: "#/definitions/handler.BatchSetUserSettingsRequest"
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: 批量设置成功
           schema:
-            $ref: '#/definitions/response.MessageResponse'
+            $ref: "#/definitions/response.MessageResponse"
         "400":
           description: 参数错误
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: 批量设置配置
       tags:
-      - User - Settings
+        - User - Settings
   /api/user/settings/categories:
     get:
       consumes:
-      - application/json
+        - application/json
       description: 获取包含用户可配置项的分类列表（不含 settings 数据，用于懒加载场景）
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: 分类列表
           schema:
-            $ref: '#/definitions/response.DataResponse-array_setting_CategoryMetaDTO'
+            $ref: "#/definitions/response.DataResponse-array_setting_CategoryMetaDTO"
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: 配置分类列表
       tags:
-      - User - Settings
+        - User - Settings
   /api/user/tokens:
     get:
       consumes:
-      - application/json
+        - application/json
       description: 获取当前用户的所有个人访问令牌（不包含令牌值）
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: 令牌列表
           schema:
-            $ref: '#/definitions/response.DataResponse-array_pat_TokenDTO'
+            $ref: "#/definitions/response.DataResponse-array_pat_TokenDTO"
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: 令牌列表
       tags:
-      - User - Personal Access Token
+        - User - Personal Access Token
     post:
       consumes:
-      - application/json
+        - application/json
       description: 用户创建新的个人访问令牌(PAT)，用于API访问。令牌仅在创建时显示一次
       parameters:
-      - description: 令牌信息
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/pat.CreateDTO'
+        - description: 令牌信息
+          in: body
+          name: request
+          required: true
+          schema:
+            $ref: "#/definitions/pat.CreateDTO"
       produces:
-      - application/json
+        - application/json
       responses:
         "201":
           description: 令牌创建成功
           schema:
-            $ref: '#/definitions/response.DataResponse-pat_CreateResultDTO'
+            $ref: "#/definitions/response.DataResponse-pat_CreateResultDTO"
         "400":
           description: 参数错误
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: 创建令牌
       tags:
-      - User - Personal Access Token
+        - User - Personal Access Token
   /api/user/tokens/{id}:
     delete:
       consumes:
-      - application/json
+        - application/json
       description: 用户删除指定的个人访问令牌（不可恢复）
       parameters:
-      - description: 令牌ID
-        in: path
-        minimum: 1
-        name: id
-        required: true
-        type: integer
+        - description: 令牌ID
+          in: path
+          minimum: 1
+          name: id
+          required: true
+          type: integer
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: 令牌删除成功
           schema:
-            $ref: '#/definitions/response.MessageResponse'
+            $ref: "#/definitions/response.MessageResponse"
         "400":
           description: 无效的令牌ID
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "404":
           description: 令牌不存在
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: 删除令牌
       tags:
-      - User - Personal Access Token
+        - User - Personal Access Token
     get:
       consumes:
-      - application/json
+        - application/json
       description: 获取指定个人访问令牌的详细信息（不包含令牌值）
       parameters:
-      - description: 令牌ID
-        in: path
-        minimum: 1
-        name: id
-        required: true
-        type: integer
+        - description: 令牌ID
+          in: path
+          minimum: 1
+          name: id
+          required: true
+          type: integer
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: 令牌详情
           schema:
-            $ref: '#/definitions/response.DataResponse-pat_TokenDTO'
+            $ref: "#/definitions/response.DataResponse-pat_TokenDTO"
         "400":
           description: 无效的令牌ID
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "404":
           description: 令牌不存在
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: 令牌详情
       tags:
-      - User - Personal Access Token
+        - User - Personal Access Token
   /api/user/tokens/{id}/disable:
     patch:
       consumes:
-      - application/json
+        - application/json
       description: 暂停指定令牌的使用（可再次启用）
       parameters:
-      - description: 令牌ID
-        in: path
-        minimum: 1
-        name: id
-        required: true
-        type: integer
+        - description: 令牌ID
+          in: path
+          minimum: 1
+          name: id
+          required: true
+          type: integer
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: 令牌已禁用
           schema:
-            $ref: '#/definitions/response.MessageResponse'
+            $ref: "#/definitions/response.MessageResponse"
         "400":
           description: 无效的令牌ID
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: 禁用令牌
       tags:
-      - User - Personal Access Token
+        - User - Personal Access Token
   /api/user/tokens/{id}/enable:
     patch:
       consumes:
-      - application/json
+        - application/json
       description: 重新启用已禁用的令牌
       parameters:
-      - description: 令牌ID
-        in: path
-        minimum: 1
-        name: id
-        required: true
-        type: integer
+        - description: 令牌ID
+          in: path
+          minimum: 1
+          name: id
+          required: true
+          type: integer
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: 令牌已启用
           schema:
-            $ref: '#/definitions/response.MessageResponse'
+            $ref: "#/definitions/response.MessageResponse"
         "400":
           description: 无效的令牌ID
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: 启用令牌
       tags:
-      - User - Personal Access Token
+        - User - Personal Access Token
   /api/user/tokens/scopes:
     get:
       consumes:
-      - application/json
+        - application/json
       description: 获取创建 PAT 时可选的权限范围列表
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: Scope 列表
           schema:
-            $ref: '#/definitions/response.DataResponse-array_pat_ScopeInfoDTO'
+            $ref: "#/definitions/response.DataResponse-array_pat_ScopeInfoDTO"
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: "#/definitions/response.ErrorResponse"
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: Scope 列表
       tags:
-      - User - Personal Access Token
+        - User - Personal Access Token
   /health:
     get:
       consumes:
-      - application/json
+        - application/json
       description: 检查系统服务健康状态（数据库、Redis）
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: 服务健康
           schema:
-            $ref: '#/definitions/response.DataResponse-github_com_lwmacct_251117-go-ddd-template_internal_application_health_HealthReport'
+            $ref: "#/definitions/response.DataResponse-github_com_lwmacct_251117-go-ddd-template_internal_application_health_HealthReport"
         "503":
           description: 服务降级
           schema:
-            $ref: '#/definitions/response.DataResponse-github_com_lwmacct_251117-go-ddd-template_internal_application_health_HealthReport'
+            $ref: "#/definitions/response.DataResponse-github_com_lwmacct_251117-go-ddd-template_internal_application_health_HealthReport"
       summary: 健康检查
       tags:
-      - 系统 (System)
-securityDefinitions:
-  BearerAuth:
-    description: 'Bearer token authentication. Format: "Bearer {token}"'
-    in: header
-    name: Authorization
-    type: apiKey
+        - 系统 (System)
 swagger: "2.0"

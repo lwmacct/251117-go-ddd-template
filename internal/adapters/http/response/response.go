@@ -64,7 +64,8 @@ type Response struct {
 }
 
 // DataResponse 泛型数据响应（用于 Swagger 文档，消除 allOf 嵌套）
-// @Description 统一数据响应格式
+//
+//	@Description	统一数据响应格式
 type DataResponse[T any] struct {
 	Code    int    `json:"code"`            // HTTP 状态码
 	Message string `json:"message"`         // 消息描述
@@ -73,7 +74,8 @@ type DataResponse[T any] struct {
 }
 
 // MessageResponse 纯消息响应（无数据）
-// @Description 纯消息响应格式
+//
+//	@Description	纯消息响应格式
 type MessageResponse struct {
 	Code    int    `json:"code"`    // HTTP 状态码
 	Message string `json:"message"` // 消息描述
@@ -102,7 +104,8 @@ type ListResponse struct {
 }
 
 // PagedResponse 泛型分页响应（用于 Swagger 文档，消除 allOf 嵌套）
-// @Description 分页列表响应格式
+//
+//	@Description	分页列表响应格式
 type PagedResponse[T any] struct {
 	Code    int             `json:"code"`           // HTTP 状态码
 	Message string          `json:"message"`        // 消息描述

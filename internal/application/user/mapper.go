@@ -18,6 +18,8 @@ func ToUserDTO(u *user.User) *UserDTO {
 		Avatar:    u.Avatar,
 		Bio:       u.Bio,
 		Status:    u.Status,
+		Type:      string(u.Type),
+		IsSystem:  u.IsSystem,
 		CreatedAt: u.CreatedAt,
 		UpdatedAt: u.UpdatedAt,
 	}
@@ -51,6 +53,8 @@ func ToUserWithRolesDTO(u *user.User) *UserWithRolesDTO {
 		Avatar:    u.Avatar,
 		Bio:       u.Bio,
 		Status:    u.Status,
+		Type:      string(u.Type),
+		IsSystem:  u.IsSystem,
 		Roles:     roles,
 		CreatedAt: u.CreatedAt,
 		UpdatedAt: u.UpdatedAt,

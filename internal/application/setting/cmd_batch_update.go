@@ -10,9 +10,9 @@ import (
 
 // BatchUpdateHandler 批量更新配置命令处理器
 type BatchUpdateHandler struct {
-	commandRepo setting.CommandRepository
-	queryRepo   setting.QueryRepository
-	validator   setting.Validator
+	commandRepo   setting.CommandRepository
+	queryRepo     setting.QueryRepository
+	validator     setting.Validator
 	settingsCache SettingsCacheService
 }
 
@@ -24,9 +24,9 @@ func NewBatchUpdateHandler(
 	settingsCache SettingsCacheService,
 ) *BatchUpdateHandler {
 	return &BatchUpdateHandler{
-		commandRepo: commandRepo,
-		queryRepo:   queryRepo,
-		validator:   validator,
+		commandRepo:   commandRepo,
+		queryRepo:     queryRepo,
+		validator:     validator,
 		settingsCache: settingsCache,
 	}
 }

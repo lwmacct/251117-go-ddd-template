@@ -32,8 +32,12 @@ func (h *UpdateHandler) Handle(ctx context.Context, cmd UpdateCommand) (*UpdateR
 		return nil, user.ErrUserNotFound
 	}
 
-	// 2. 更新用户属性
+	// 2. 系统用户保护检查
 	if cmd.Username != nil && *cmd.Username != u.Username {
+		// 系统用户不可修改用户名
+		if !u.CanModifyUsername() {
+			return nil, user.ErrCannotModifySystemUsername
+		}
 		// 检查用户名是否已存在
 		exists, err := h.userQueryRepo.ExistsByUsername(ctx, *cmd.Username)
 		if err != nil {
@@ -65,6 +69,10 @@ func (h *UpdateHandler) Handle(ctx context.Context, cmd UpdateCommand) (*UpdateR
 		u.Bio = *cmd.Bio
 	}
 	if cmd.Status != nil {
+		// root 用户状态不可修改
+		if !u.CanModifyStatus() {
+			return nil, user.ErrCannotModifyRootStatus
+		}
 		// 使用领域模型方法
 		switch *cmd.Status {
 		case "active":

@@ -137,4 +137,3 @@ func newCaptchaRepository() CaptchaRepositoryResult {
 		Query:   repo,
 	}
 }
-

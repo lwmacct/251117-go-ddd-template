@@ -26,20 +26,10 @@ func (h *ListHandler) Handle(ctx context.Context, query ListQuery) (*UserListDTO
 		return nil, err
 	}
 
-	// 转换为 DTO
+	// 转换为 DTO（使用统一的 mapper 函数）
 	userResponses := make([]*UserDTO, 0, len(users))
 	for _, u := range users {
-		userResponses = append(userResponses, &UserDTO{
-			ID:        u.ID,
-			Username:  u.Username,
-			Email:     u.Email,
-			FullName:  u.FullName,
-			Avatar:    u.Avatar,
-			Bio:       u.Bio,
-			Status:    u.Status,
-			CreatedAt: u.CreatedAt,
-			UpdatedAt: u.UpdatedAt,
-		})
+		userResponses = append(userResponses, ToUserDTO(u))
 	}
 
 	return &UserListDTO{

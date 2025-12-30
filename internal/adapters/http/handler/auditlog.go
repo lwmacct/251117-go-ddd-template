@@ -73,19 +73,19 @@ func NewAuditLogHandler(
 
 // ListLogs lists audit logs with filtering
 //
-// @Summary      审计日志列表
-// @Description  分页获取审计日志，支持按用户、操作、资源、状态、时间范围筛选
-// @Tags         Admin - Audit Log
-// @Accept       json
-// @Produce      json
-// @Security     BearerAuth
-// @Param        params query handler.ListAuditLogsQuery false "查询参数"
-// @Success      200 {object} response.PagedResponse[auditlog.AuditLogDTO] "审计日志列表"
-// @Failure      400 {object} response.ErrorResponse "参数错误"
-// @Failure      401 {object} response.ErrorResponse "未授权"
-// @Failure      403 {object} response.ErrorResponse "权限不足"
-// @Failure      500 {object} response.ErrorResponse "服务器内部错误"
-// @Router       /api/system/auditlogs [get]
+//	@Summary		审计日志列表
+//	@Description	分页获取审计日志，支持按用户、操作、资源、状态、时间范围筛选
+//	@Tags			Admin - Audit Log
+//	@Accept			json
+//	@Produce		json
+//	@Security		BearerAuth
+//	@Param			params	query		handler.ListAuditLogsQuery						false	"查询参数"
+//	@Success		200		{object}	response.PagedResponse[auditlog.AuditLogDTO]	"审计日志列表"
+//	@Failure		400		{object}	response.ErrorResponse							"参数错误"
+//	@Failure		401		{object}	response.ErrorResponse							"未授权"
+//	@Failure		403		{object}	response.ErrorResponse							"权限不足"
+//	@Failure		500		{object}	response.ErrorResponse							"服务器内部错误"
+//	@Router			/api/system/auditlogs [get]
 func (h *AuditLogHandler) ListLogs(c *gin.Context) {
 	var q ListAuditLogsQuery
 	if err := c.ShouldBindQuery(&q); err != nil {
@@ -105,19 +105,19 @@ func (h *AuditLogHandler) ListLogs(c *gin.Context) {
 
 // GetLog gets an audit log by ID
 //
-// @Summary      审计日志详情
-// @Description  根据日志ID获取审计日志详细信息
-// @Tags         Admin - Audit Log
-// @Accept       json
-// @Produce      json
-// @Security     BearerAuth
-// @Param        id path int true "日志ID" minimum(1)
-// @Success      200 {object} response.DataResponse[auditlog.AuditLogDTO] "日志详情"
-// @Failure      400 {object} response.ErrorResponse "无效的日志ID"
-// @Failure      401 {object} response.ErrorResponse "未授权"
-// @Failure      403 {object} response.ErrorResponse "权限不足"
-// @Failure      404 {object} response.ErrorResponse "日志不存在"
-// @Router       /api/system/auditlogs/{id} [get]
+//	@Summary		审计日志详情
+//	@Description	根据日志ID获取审计日志详细信息
+//	@Tags			Admin - Audit Log
+//	@Accept			json
+//	@Produce		json
+//	@Security		BearerAuth
+//	@Param			id	path		int											true	"日志ID"	minimum(1)
+//	@Success		200	{object}	response.DataResponse[auditlog.AuditLogDTO]	"日志详情"
+//	@Failure		400	{object}	response.ErrorResponse						"无效的日志ID"
+//	@Failure		401	{object}	response.ErrorResponse						"未授权"
+//	@Failure		403	{object}	response.ErrorResponse						"权限不足"
+//	@Failure		404	{object}	response.ErrorResponse						"日志不存在"
+//	@Router			/api/system/auditlogs/{id} [get]
 func (h *AuditLogHandler) GetLog(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
@@ -139,16 +139,16 @@ func (h *AuditLogHandler) GetLog(c *gin.Context) {
 
 // GetActions returns audit action definitions
 //
-// @Summary      审计操作定义
-// @Description  获取所有审计操作的定义、分类和操作类型，供前端筛选器使用
-// @Tags         Admin - Audit Log
-// @Accept       json
-// @Produce      json
-// @Security     BearerAuth
-// @Success      200 {object} response.DataResponse[auditlog.AuditActionsResponseDTO] "审计操作定义"
-// @Failure      401 {object} response.ErrorResponse "未授权"
-// @Failure      403 {object} response.ErrorResponse "权限不足"
-// @Router       /api/system/auditlogs/actions [get]
+//	@Summary		审计操作定义
+//	@Description	获取所有审计操作的定义、分类和操作类型，供前端筛选器使用
+//	@Tags			Admin - Audit Log
+//	@Accept			json
+//	@Produce		json
+//	@Security		BearerAuth
+//	@Success		200	{object}	response.DataResponse[auditlog.AuditActionsResponseDTO]	"审计操作定义"
+//	@Failure		401	{object}	response.ErrorResponse									"未授权"
+//	@Failure		403	{object}	response.ErrorResponse									"权限不足"
+//	@Router			/api/system/auditlogs/actions [get]
 func (h *AuditLogHandler) GetActions(c *gin.Context) {
 	resp := auditlog.ToAuditActionsResponseDTO()
 	response.OK(c, "success", resp)

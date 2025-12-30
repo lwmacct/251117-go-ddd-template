@@ -60,13 +60,6 @@ func (r *queryRepository) GetSystemStats(recentLogsLimit int) (*domain.SystemSta
 	}
 	s.TotalPermissions = permissions
 
-	// 统计菜单
-	menus, err := r.GetTotalMenus()
-	if err != nil {
-		return nil, fmt.Errorf("failed to get total menus: %w", err)
-	}
-	s.TotalMenus = menus
-
 	// 获取最近审计日志
 	logs, err := r.GetRecentAuditLogs(recentLogsLimit)
 	if err != nil {
@@ -113,24 +106,15 @@ func (r *queryRepository) GetTotalRoles() (int64, error) {
 	return count, nil
 }
 
-// GetTotalPermissions 获取权限总数（统计 role_permissions 表中的唯一权限模式数）
+// GetTotalPermissions 获取权限总数（统计所有角色的 permissions JSONB 数组条目总数）
 func (r *queryRepository) GetTotalPermissions() (int64, error) {
 	var count int64
-	// 新 RBAC 模型：统计角色权限关联表中的条目数
-	err := r.db.Table("role_permissions").
-		Count(&count).Error
-	if err != nil {
-		return 0, err
-	}
-	return count, nil
-}
-
-// GetTotalMenus 获取菜单总数
-func (r *queryRepository) GetTotalMenus() (int64, error) {
-	var count int64
-	err := r.db.Table("menus").
+	// 新 RBAC 模型：权限存储在 roles.permissions JSONB 字段中
+	// 使用 PostgreSQL jsonb_array_length 统计每个角色的权限数，然后求和
+	err := r.db.Table("roles").
 		Where("deleted_at IS NULL").
-		Count(&count).Error
+		Select("COALESCE(SUM(jsonb_array_length(permissions)), 0)").
+		Scan(&count).Error
 	if err != nil {
 		return 0, err
 	}

@@ -17,16 +17,16 @@ func NewOperationHandler() *OperationHandler {
 
 // ListOperations 获取所有可用操作列表
 //
-// @Summary      操作列表
-// @Description  返回所有可用的操作定义，供前端权限配置使用
-// @Tags         System
-// @Accept       json
-// @Produce      json
-// @Security     BearerAuth
-// @Success      200 {object} response.DataResponse[[]routes.OperationDefinition] "操作列表"
-// @Failure      401 {object} response.ErrorResponse "未认证"
-// @Failure      403 {object} response.ErrorResponse "权限不足"
-// @Router       /api/system/operations [get]
+//	@Summary		操作列表
+//	@Description	返回所有可用的操作定义，供前端权限配置使用
+//	@Tags			System
+//	@Accept			json
+//	@Produce		json
+//	@Security		BearerAuth
+//	@Success		200	{object}	response.DataResponse[[]routes.OperationDefinition]	"操作列表"
+//	@Failure		401	{object}	response.ErrorResponse								"未认证"
+//	@Failure		403	{object}	response.ErrorResponse								"权限不足"
+//	@Router			/api/system/operations [get]
 func (h *OperationHandler) ListOperations(c *gin.Context) {
 	ops := routes.AllOperationDefinitions()
 	response.OK(c, "operations retrieved successfully", ops)

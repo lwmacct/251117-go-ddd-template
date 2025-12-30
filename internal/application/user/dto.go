@@ -42,6 +42,8 @@ type UserDTO struct {
 	Avatar    string    `json:"avatar"`
 	Bio       string    `json:"bio"`
 	Status    string    `json:"status"`
+	Type      string    `json:"type"`
+	IsSystem  bool      `json:"is_system"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
@@ -55,6 +57,8 @@ type UserWithRolesDTO struct {
 	Avatar    string    `json:"avatar"`
 	Bio       string    `json:"bio"`
 	Status    string    `json:"status"`
+	Type      string    `json:"type"`
+	IsSystem  bool      `json:"is_system"`
 	Roles     []RoleDTO `json:"roles"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`

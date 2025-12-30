@@ -25,11 +25,13 @@ src/layout/
 <!-- AdminLayout.vue -->
 <script setup lang="ts">
 import BaseLayout from "./BaseLayout.vue";
-import { adminMenuItems } from "@/config/menus";
+import { useMenus } from "@/composables/useMenus";
+
+const { adminMenus } = useMenus();
 </script>
 
 <template>
-  <BaseLayout :menu-items="adminMenuItems" />
+  <BaseLayout :menu-items="adminMenus" />
 </template>
 ```
 

@@ -75,13 +75,19 @@ func (h *LoginHandler) Handle(ctx context.Context, cmd LoginCommand) (*LoginResu
 		}
 	}
 
-	// 4. 验证密码
+	// 4. 服务账户不能使用密码登录（必须使用 PAT）
+	if u.IsServiceAccount() {
+		h.logLoginEvent(ctx, u.ID, u.Username, cmd.ClientIP, cmd.UserAgent, "service_account_password_login", "failure")
+		return nil, user.ErrServiceAccountPasswordLogin
+	}
+
+	// 5. 验证密码
 	if err = h.authService.VerifyPassword(ctx, u.Password, cmd.Password); err != nil {
 		h.logLoginEvent(ctx, u.ID, u.Username, cmd.ClientIP, cmd.UserAgent, "invalid_password", "failure")
 		return nil, auth.ErrInvalidCredentials
 	}
 
-	// 5. 检查是否启用 2FA
+	// 6. 检查是否启用 2FA
 	tfa, err := h.twofaQueryRepo.FindByUserID(ctx, u.ID)
 	if err == nil && tfa != nil && tfa.Enabled {
 		// 需要 2FA 验证，生成临时 session token
@@ -99,7 +105,7 @@ func (h *LoginHandler) Handle(ctx context.Context, cmd LoginCommand) (*LoginResu
 		}, nil
 	}
 
-	// 6. 生成访问令牌（新架构：不传递 roles，权限从缓存查询）
+	// 7. 生成访问令牌（新架构：不传递 roles，权限从缓存查询）
 	accessToken, expiresAt, err := h.authService.GenerateAccessToken(ctx, u.ID, u.Username)
 	if err != nil {
 		return nil, fmt.Errorf("failed to generate access token: %w", err)

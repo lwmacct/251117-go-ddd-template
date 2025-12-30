@@ -42,7 +42,6 @@ func toStatsDTO(s *stats.SystemStats) *StatsDTO {
 		BannedUsers:      s.BannedUsers,
 		TotalRoles:       s.TotalRoles,
 		TotalPermissions: s.TotalPermissions,
-		TotalMenus:       s.TotalMenus,
 	}
 
 	if len(s.RecentAuditLogs) > 0 {

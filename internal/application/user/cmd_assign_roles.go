@@ -30,15 +30,23 @@ func NewAssignRolesHandler(
 
 // Handle 处理分配角色命令
 func (h *AssignRolesHandler) Handle(ctx context.Context, cmd AssignRolesCommand) error {
-	if _, err := h.userQueryRepo.GetByID(ctx, cmd.UserID); err != nil {
+	// 1. 获取用户
+	u, err := h.userQueryRepo.GetByID(ctx, cmd.UserID)
+	if err != nil {
 		return err
 	}
 
+	// 2. root 用户角色保护：root 用户角色不可修改
+	if !u.CanModifyRoles() {
+		return user.ErrCannotModifyRootRoles
+	}
+
+	// 3. 分配角色
 	if err := h.userCommandRepo.AssignRoles(ctx, cmd.UserID, cmd.RoleIDs); err != nil {
 		return err
 	}
 
-	// 发布用户角色分配事件，触发缓存失效
+	// 4. 发布用户角色分配事件，触发缓存失效
 	evt := events.NewUserRoleAssignedEvent(cmd.UserID, cmd.RoleIDs)
 	if h.eventBus != nil {
 		_ = h.eventBus.Publish(ctx, evt) // 缓存失效失败不阻塞业务

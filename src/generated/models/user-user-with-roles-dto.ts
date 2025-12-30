@@ -61,6 +61,12 @@ export interface UserUserWithRolesDTO {
     'id'?: number;
     /**
      * 
+     * @type {boolean}
+     * @memberof UserUserWithRolesDTO
+     */
+    'is_system'?: boolean;
+    /**
+     * 
      * @type {Array<UserRoleDTO>}
      * @memberof UserUserWithRolesDTO
      */
@@ -71,6 +77,12 @@ export interface UserUserWithRolesDTO {
      * @memberof UserUserWithRolesDTO
      */
     'status'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof UserUserWithRolesDTO
+     */
+    'type'?: string;
     /**
      * 
      * @type {string}

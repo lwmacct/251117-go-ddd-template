@@ -24,14 +24,14 @@ func NewHealthHandler(checker health.Checker) *HealthHandler {
 
 // Check 执行健康检查
 //
-// @Summary      健康检查
-// @Description  检查系统服务健康状态（数据库、Redis）
-// @Tags         系统 (System)
-// @Accept       json
-// @Produce      json
-// @Success      200 {object} response.DataResponse[health.HealthReport] "服务健康"
-// @Failure      503 {object} response.DataResponse[health.HealthReport] "服务降级"
-// @Router       /health [get]
+//	@Summary		健康检查
+//	@Description	检查系统服务健康状态（数据库、Redis）
+//	@Tags			系统 (System)
+//	@Accept			json
+//	@Produce		json
+//	@Success		200	{object}	response.DataResponse[health.HealthReport]	"服务健康"
+//	@Failure		503	{object}	response.DataResponse[health.HealthReport]	"服务降级"
+//	@Router			/health [get]
 func (h *HealthHandler) Check(c *gin.Context) {
 	ctx, cancel := context.WithTimeout(c.Request.Context(), 2*time.Second)
 	defer cancel()

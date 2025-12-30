@@ -95,15 +95,15 @@ type SettingsItemDTO struct {
 
 // SettingsGroupDTO Settings API 分组
 type SettingsGroupDTO struct {
-	Name     string             `json:"name"` // 分组名称（如 "基本设置"）
+	Name     string            `json:"name"` // 分组名称（如 "基本设置"）
 	Settings []SettingsItemDTO `json:"settings"`
 }
 
 // SettingsCategoryDTO Settings API 分类
 type SettingsCategoryDTO struct {
-	Category string           `json:"category"`
-	Label    string           `json:"label"`
-	Icon     string           `json:"icon"`
+	Category string             `json:"category"`
+	Label    string             `json:"label"`
+	Icon     string             `json:"icon"`
 	Groups   []SettingsGroupDTO `json:"groups"`
 }
 

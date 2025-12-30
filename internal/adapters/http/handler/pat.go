@@ -45,17 +45,17 @@ func NewPATHandler(
 
 // CreateToken creates a new Personal Access Token
 //
-// @Summary      创建令牌
-// @Description  用户创建新的个人访问令牌(PAT)，用于API访问。令牌仅在创建时显示一次
-// @Tags         User - Personal Access Token
-// @Accept       json
-// @Produce      json
-// @Security     BearerAuth
-// @Param        request body pat.CreateDTO true "令牌信息"
-// @Success      201 {object} response.DataResponse[pat.CreateResultDTO] "令牌创建成功"
-// @Failure      400 {object} response.ErrorResponse "参数错误"
-// @Failure      401 {object} response.ErrorResponse "未授权"
-// @Router       /api/user/tokens [post]
+//	@Summary		创建令牌
+//	@Description	用户创建新的个人访问令牌(PAT)，用于API访问。令牌仅在创建时显示一次
+//	@Tags			User - Personal Access Token
+//	@Accept			json
+//	@Produce		json
+//	@Security		BearerAuth
+//	@Param			request	body		pat.CreateDTO								true	"令牌信息"
+//	@Success		201		{object}	response.DataResponse[pat.CreateResultDTO]	"令牌创建成功"
+//	@Failure		400		{object}	response.ErrorResponse						"参数错误"
+//	@Failure		401		{object}	response.ErrorResponse						"未授权"
+//	@Router			/api/user/tokens [post]
 func (h *PATHandler) CreateToken(c *gin.Context) {
 	var req pat.CreateDTO
 
@@ -103,16 +103,16 @@ func (h *PATHandler) CreateToken(c *gin.Context) {
 
 // ListTokens lists all tokens for the current user
 //
-// @Summary      令牌列表
-// @Description  获取当前用户的所有个人访问令牌（不包含令牌值）
-// @Tags         User - Personal Access Token
-// @Accept       json
-// @Produce      json
-// @Security     BearerAuth
-// @Success      200 {object} response.DataResponse[[]pat.TokenDTO] "令牌列表"
-// @Failure      401 {object} response.ErrorResponse "未授权"
-// @Failure      500 {object} response.ErrorResponse "服务器内部错误"
-// @Router       /api/user/tokens [get]
+//	@Summary		令牌列表
+//	@Description	获取当前用户的所有个人访问令牌（不包含令牌值）
+//	@Tags			User - Personal Access Token
+//	@Accept			json
+//	@Produce		json
+//	@Security		BearerAuth
+//	@Success		200	{object}	response.DataResponse[[]pat.TokenDTO]	"令牌列表"
+//	@Failure		401	{object}	response.ErrorResponse					"未授权"
+//	@Failure		500	{object}	response.ErrorResponse					"服务器内部错误"
+//	@Router			/api/user/tokens [get]
 func (h *PATHandler) ListTokens(c *gin.Context) {
 	userID, exists := c.Get("user_id")
 	if !exists {
@@ -141,18 +141,18 @@ func (h *PATHandler) ListTokens(c *gin.Context) {
 
 // DeleteToken deletes a specific token
 //
-// @Summary      删除令牌
-// @Description  用户删除指定的个人访问令牌（不可恢复）
-// @Tags         User - Personal Access Token
-// @Accept       json
-// @Produce      json
-// @Security     BearerAuth
-// @Param        id path int true "令牌ID" minimum(1)
-// @Success      200 {object} response.MessageResponse "令牌删除成功"
-// @Failure      400 {object} response.ErrorResponse "无效的令牌ID"
-// @Failure      401 {object} response.ErrorResponse "未授权"
-// @Failure      404 {object} response.ErrorResponse "令牌不存在"
-// @Router       /api/user/tokens/{id} [delete]
+//	@Summary		删除令牌
+//	@Description	用户删除指定的个人访问令牌（不可恢复）
+//	@Tags			User - Personal Access Token
+//	@Accept			json
+//	@Produce		json
+//	@Security		BearerAuth
+//	@Param			id	path		int							true	"令牌ID"	minimum(1)
+//	@Success		200	{object}	response.MessageResponse	"令牌删除成功"
+//	@Failure		400	{object}	response.ErrorResponse		"无效的令牌ID"
+//	@Failure		401	{object}	response.ErrorResponse		"未授权"
+//	@Failure		404	{object}	response.ErrorResponse		"令牌不存在"
+//	@Router			/api/user/tokens/{id} [delete]
 func (h *PATHandler) DeleteToken(c *gin.Context) {
 	userID, exists := c.Get("user_id")
 	if !exists {
@@ -187,18 +187,18 @@ func (h *PATHandler) DeleteToken(c *gin.Context) {
 
 // GetToken retrieves details of a specific token
 //
-// @Summary      令牌详情
-// @Description  获取指定个人访问令牌的详细信息（不包含令牌值）
-// @Tags         User - Personal Access Token
-// @Accept       json
-// @Produce      json
-// @Security     BearerAuth
-// @Param        id path int true "令牌ID" minimum(1)
-// @Success      200 {object} response.DataResponse[pat.TokenDTO] "令牌详情"
-// @Failure      400 {object} response.ErrorResponse "无效的令牌ID"
-// @Failure      401 {object} response.ErrorResponse "未授权"
-// @Failure      404 {object} response.ErrorResponse "令牌不存在"
-// @Router       /api/user/tokens/{id} [get]
+//	@Summary		令牌详情
+//	@Description	获取指定个人访问令牌的详细信息（不包含令牌值）
+//	@Tags			User - Personal Access Token
+//	@Accept			json
+//	@Produce		json
+//	@Security		BearerAuth
+//	@Param			id	path		int									true	"令牌ID"	minimum(1)
+//	@Success		200	{object}	response.DataResponse[pat.TokenDTO]	"令牌详情"
+//	@Failure		400	{object}	response.ErrorResponse				"无效的令牌ID"
+//	@Failure		401	{object}	response.ErrorResponse				"未授权"
+//	@Failure		404	{object}	response.ErrorResponse				"令牌不存在"
+//	@Router			/api/user/tokens/{id} [get]
 func (h *PATHandler) GetToken(c *gin.Context) {
 	userID, exists := c.Get("user_id")
 	if !exists {
@@ -235,17 +235,17 @@ func (h *PATHandler) GetToken(c *gin.Context) {
 
 // DisableToken 暂停令牌
 //
-// @Summary      禁用令牌
-// @Description  暂停指定令牌的使用（可再次启用）
-// @Tags         User - Personal Access Token
-// @Accept       json
-// @Produce      json
-// @Security     BearerAuth
-// @Param        id path int true "令牌ID" minimum(1)
-// @Success      200 {object} response.MessageResponse "令牌已禁用"
-// @Failure      400 {object} response.ErrorResponse "无效的令牌ID"
-// @Failure      401 {object} response.ErrorResponse "未授权"
-// @Router       /api/user/tokens/{id}/disable [patch]
+//	@Summary		禁用令牌
+//	@Description	暂停指定令牌的使用（可再次启用）
+//	@Tags			User - Personal Access Token
+//	@Accept			json
+//	@Produce		json
+//	@Security		BearerAuth
+//	@Param			id	path		int							true	"令牌ID"	minimum(1)
+//	@Success		200	{object}	response.MessageResponse	"令牌已禁用"
+//	@Failure		400	{object}	response.ErrorResponse		"无效的令牌ID"
+//	@Failure		401	{object}	response.ErrorResponse		"未授权"
+//	@Router			/api/user/tokens/{id}/disable [patch]
 func (h *PATHandler) DisableToken(c *gin.Context) {
 	userID, exists := c.Get("user_id")
 	if !exists {
@@ -278,17 +278,17 @@ func (h *PATHandler) DisableToken(c *gin.Context) {
 
 // EnableToken 启用令牌
 //
-// @Summary      启用令牌
-// @Description  重新启用已禁用的令牌
-// @Tags         User - Personal Access Token
-// @Accept       json
-// @Produce      json
-// @Security     BearerAuth
-// @Param        id path int true "令牌ID" minimum(1)
-// @Success      200 {object} response.MessageResponse "令牌已启用"
-// @Failure      400 {object} response.ErrorResponse "无效的令牌ID"
-// @Failure      401 {object} response.ErrorResponse "未授权"
-// @Router       /api/user/tokens/{id}/enable [patch]
+//	@Summary		启用令牌
+//	@Description	重新启用已禁用的令牌
+//	@Tags			User - Personal Access Token
+//	@Accept			json
+//	@Produce		json
+//	@Security		BearerAuth
+//	@Param			id	path		int							true	"令牌ID"	minimum(1)
+//	@Success		200	{object}	response.MessageResponse	"令牌已启用"
+//	@Failure		400	{object}	response.ErrorResponse		"无效的令牌ID"
+//	@Failure		401	{object}	response.ErrorResponse		"未授权"
+//	@Router			/api/user/tokens/{id}/enable [patch]
 func (h *PATHandler) EnableToken(c *gin.Context) {
 	userID, exists := c.Get("user_id")
 	if !exists {
@@ -321,15 +321,15 @@ func (h *PATHandler) EnableToken(c *gin.Context) {
 
 // ListScopes returns available scopes for PAT creation
 //
-// @Summary      Scope 列表
-// @Description  获取创建 PAT 时可选的权限范围列表
-// @Tags         User - Personal Access Token
-// @Accept       json
-// @Produce      json
-// @Security     BearerAuth
-// @Success      200 {object} response.DataResponse[[]pat.ScopeInfoDTO] "Scope 列表"
-// @Failure      401 {object} response.ErrorResponse "未授权"
-// @Router       /api/user/tokens/scopes [get]
+//	@Summary		Scope 列表
+//	@Description	获取创建 PAT 时可选的权限范围列表
+//	@Tags			User - Personal Access Token
+//	@Accept			json
+//	@Produce		json
+//	@Security		BearerAuth
+//	@Success		200	{object}	response.DataResponse[[]pat.ScopeInfoDTO]	"Scope 列表"
+//	@Failure		401	{object}	response.ErrorResponse						"未授权"
+//	@Router			/api/user/tokens/scopes [get]
 func (h *PATHandler) ListScopes(c *gin.Context) {
 	// 将 domain 类型映射到 DTO
 	scopes := make([]pat.ScopeInfoDTO, len(patdomain.AllScopes))

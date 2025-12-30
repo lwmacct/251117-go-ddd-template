@@ -52,12 +52,6 @@ export interface StatsStatsDTO {
      * @type {number}
      * @memberof StatsStatsDTO
      */
-    'total_menus'?: number;
-    /**
-     * 
-     * @type {number}
-     * @memberof StatsStatsDTO
-     */
     'total_permissions'?: number;
     /**
      * 

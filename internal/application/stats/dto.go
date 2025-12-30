@@ -10,7 +10,6 @@ type StatsDTO struct {
 	BannedUsers      int64                `json:"banned_users"`
 	TotalRoles       int64                `json:"total_roles"`
 	TotalPermissions int64                `json:"total_permissions"`
-	TotalMenus       int64                `json:"total_menus"`
 	RecentAuditLogs  []AuditLogSummaryDTO `json:"recent_audit_logs,omitempty"`
 }
 

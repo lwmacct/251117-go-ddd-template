@@ -10,7 +10,6 @@ type SystemStats struct {
 	BannedUsers      int64
 	TotalRoles       int64
 	TotalPermissions int64
-	TotalMenus       int64
 	RecentAuditLogs  []AuditLogSummary
 }
 
@@ -41,9 +40,6 @@ type QueryRepository interface {
 
 	// GetTotalPermissions 获取权限总数
 	GetTotalPermissions() (int64, error)
-
-	// GetTotalMenus 获取菜单总数
-	GetTotalMenus() (int64, error)
 
 	// GetRecentAuditLogs 获取最近的审计日志
 	GetRecentAuditLogs(limit int) ([]AuditLogSummary, error)

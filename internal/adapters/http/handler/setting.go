@@ -66,19 +66,19 @@ func NewSettingHandler(
 
 // GetSettings 获取系统配置（层级结构）
 //
-// @Summary      配置列表
-// @Description  获取按 Category → Group → Settings 层级组织的配置数据，用于前端动态渲染设置页面。支持按分类过滤（懒加载）。
-// @Tags         Admin - Settings
-// @Accept       json
-// @Produce      json
-// @Security     BearerAuth
-// @Param        category query string false "分类 Key（如 general），为空返回全量"
-// @Success      200 {object} response.DataResponse[[]setting.SettingsCategoryDTO] "配置列表（层级结构）"
-// @Failure      401 {object} response.ErrorResponse "未授权"
-// @Failure      403 {object} response.ErrorResponse "权限不足"
-// @Failure      404 {object} response.ErrorResponse "分类不存在"
-// @Failure      500 {object} response.ErrorResponse "服务器内部错误"
-// @Router       /api/system/settings [get]
+//	@Summary		配置列表
+//	@Description	获取按 Category → Group → Settings 层级组织的配置数据，用于前端动态渲染设置页面。支持按分类过滤（懒加载）。
+//	@Tags			Admin - Settings
+//	@Accept			json
+//	@Produce		json
+//	@Security		BearerAuth
+//	@Param			category	query		string													false	"分类 Key（如 general），为空返回全量"
+//	@Success		200			{object}	response.DataResponse[[]setting.SettingsCategoryDTO]	"配置列表（层级结构）"
+//	@Failure		401			{object}	response.ErrorResponse									"未授权"
+//	@Failure		403			{object}	response.ErrorResponse									"权限不足"
+//	@Failure		404			{object}	response.ErrorResponse									"分类不存在"
+//	@Failure		500			{object}	response.ErrorResponse									"服务器内部错误"
+//	@Router			/api/system/settings [get]
 func (h *SettingHandler) GetSettings(c *gin.Context) {
 	categoryKey := c.Query("category")
 
@@ -101,18 +101,18 @@ func (h *SettingHandler) GetSettings(c *gin.Context) {
 
 // GetSetting 获取单个配置
 //
-// @Summary      配置详情
-// @Description  根据配置键获取配置详情
-// @Tags         Admin - Settings
-// @Accept       json
-// @Produce      json
-// @Security     BearerAuth
-// @Param        key path string true "配置键" example:"site_name"
-// @Success      200 {object} response.DataResponse[setting.SettingDTO] "配置详情"
-// @Failure      401 {object} response.ErrorResponse "未授权"
-// @Failure      403 {object} response.ErrorResponse "权限不足"
-// @Failure      404 {object} response.ErrorResponse "配置不存在"
-// @Router       /api/system/settings/{key} [get]
+//	@Summary		配置详情
+//	@Description	根据配置键获取配置详情
+//	@Tags			Admin - Settings
+//	@Accept			json
+//	@Produce		json
+//	@Security		BearerAuth
+//	@Param			key	path		string										true	"配置键"	example:"site_name"
+//	@Success		200	{object}	response.DataResponse[setting.SettingDTO]	"配置详情"
+//	@Failure		401	{object}	response.ErrorResponse						"未授权"
+//	@Failure		403	{object}	response.ErrorResponse						"权限不足"
+//	@Failure		404	{object}	response.ErrorResponse						"配置不存在"
+//	@Router			/api/system/settings/{key} [get]
 func (h *SettingHandler) GetSetting(c *gin.Context) {
 	key := c.Param("key")
 
@@ -143,19 +143,19 @@ type CreateSettingRequest struct {
 
 // CreateSetting 创建配置
 //
-// @Summary      创建配置
-// @Description  管理员创建新的系统配置项
-// @Tags         Admin - Settings
-// @Accept       json
-// @Produce      json
-// @Security     BearerAuth
-// @Param        request body CreateSettingRequest true "配置信息"
-// @Success      201 {object} response.DataResponse[setting.SettingDTO] "配置创建成功"
-// @Failure      400 {object} response.ErrorResponse "参数错误"
-// @Failure      401 {object} response.ErrorResponse "未授权"
-// @Failure      403 {object} response.ErrorResponse "权限不足"
-// @Failure      500 {object} response.ErrorResponse "服务器内部错误"
-// @Router       /api/system/settings [post]
+//	@Summary		创建配置
+//	@Description	管理员创建新的系统配置项
+//	@Tags			Admin - Settings
+//	@Accept			json
+//	@Produce		json
+//	@Security		BearerAuth
+//	@Param			request	body		CreateSettingRequest						true	"配置信息"
+//	@Success		201		{object}	response.DataResponse[setting.SettingDTO]	"配置创建成功"
+//	@Failure		400		{object}	response.ErrorResponse						"参数错误"
+//	@Failure		401		{object}	response.ErrorResponse						"未授权"
+//	@Failure		403		{object}	response.ErrorResponse						"权限不足"
+//	@Failure		500		{object}	response.ErrorResponse						"服务器内部错误"
+//	@Router			/api/system/settings [post]
 func (h *SettingHandler) CreateSetting(c *gin.Context) {
 	var req CreateSettingRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -202,21 +202,21 @@ type UpdateSettingRequest struct {
 
 // UpdateSetting 更新配置
 //
-// @Summary      更新配置
-// @Description  管理员更新指定配置项的值和标签
-// @Tags         Admin - Settings
-// @Accept       json
-// @Produce      json
-// @Security     BearerAuth
-// @Param        key path string true "配置键" example:"site_name"
-// @Param        request body UpdateSettingRequest true "更新信息"
-// @Success      200 {object} response.DataResponse[setting.SettingDTO] "配置更新成功"
-// @Failure      400 {object} response.ErrorResponse "参数错误"
-// @Failure      401 {object} response.ErrorResponse "未授权"
-// @Failure      403 {object} response.ErrorResponse "权限不足"
-// @Failure      404 {object} response.ErrorResponse "配置不存在"
-// @Failure      500 {object} response.ErrorResponse "服务器内部错误"
-// @Router       /api/system/settings/{key} [put]
+//	@Summary		更新配置
+//	@Description	管理员更新指定配置项的值和标签
+//	@Tags			Admin - Settings
+//	@Accept			json
+//	@Produce		json
+//	@Security		BearerAuth
+//	@Param			key		path		string										true	"配置键"	example:"site_name"
+//	@Param			request	body		UpdateSettingRequest						true	"更新信息"
+//	@Success		200		{object}	response.DataResponse[setting.SettingDTO]	"配置更新成功"
+//	@Failure		400		{object}	response.ErrorResponse						"参数错误"
+//	@Failure		401		{object}	response.ErrorResponse						"未授权"
+//	@Failure		403		{object}	response.ErrorResponse						"权限不足"
+//	@Failure		404		{object}	response.ErrorResponse						"配置不存在"
+//	@Failure		500		{object}	response.ErrorResponse						"服务器内部错误"
+//	@Router			/api/system/settings/{key} [put]
 func (h *SettingHandler) UpdateSetting(c *gin.Context) {
 	key := c.Param("key")
 
@@ -249,19 +249,19 @@ func (h *SettingHandler) UpdateSetting(c *gin.Context) {
 
 // DeleteSetting 删除配置
 //
-// @Summary      删除配置
-// @Description  管理员删除指定的系统配置项
-// @Tags         Admin - Settings
-// @Accept       json
-// @Produce      json
-// @Security     BearerAuth
-// @Param        key path string true "配置键" example:"site_name"
-// @Success      204 "配置删除成功"
-// @Failure      401 {object} response.ErrorResponse "未授权"
-// @Failure      403 {object} response.ErrorResponse "权限不足"
-// @Failure      404 {object} response.ErrorResponse "配置不存在"
-// @Failure      500 {object} response.ErrorResponse "服务器内部错误"
-// @Router       /api/system/settings/{key} [delete]
+//	@Summary		删除配置
+//	@Description	管理员删除指定的系统配置项
+//	@Tags			Admin - Settings
+//	@Accept			json
+//	@Produce		json
+//	@Security		BearerAuth
+//	@Param			key	path	string	true	"配置键"	example:"site_name"
+//	@Success		204	"配置删除成功"
+//	@Failure		401	{object}	response.ErrorResponse	"未授权"
+//	@Failure		403	{object}	response.ErrorResponse	"权限不足"
+//	@Failure		404	{object}	response.ErrorResponse	"配置不存在"
+//	@Failure		500	{object}	response.ErrorResponse	"服务器内部错误"
+//	@Router			/api/system/settings/{key} [delete]
 func (h *SettingHandler) DeleteSetting(c *gin.Context) {
 	key := c.Param("key")
 
@@ -288,19 +288,19 @@ type BatchUpdateSettingsRequest struct {
 
 // BatchUpdateSettings 批量更新配置
 //
-// @Summary      批量更新配置
-// @Description  管理员批量更新多个系统配置项的值
-// @Tags         Admin - Settings
-// @Accept       json
-// @Produce      json
-// @Security     BearerAuth
-// @Param        request body BatchUpdateSettingsRequest true "配置列表"
-// @Success      200 {object} response.MessageResponse "批量更新成功"
-// @Failure      400 {object} response.ErrorResponse "参数错误"
-// @Failure      401 {object} response.ErrorResponse "未授权"
-// @Failure      403 {object} response.ErrorResponse "权限不足"
-// @Failure      500 {object} response.ErrorResponse "服务器内部错误"
-// @Router       /api/system/settings/batch [post]
+//	@Summary		批量更新配置
+//	@Description	管理员批量更新多个系统配置项的值
+//	@Tags			Admin - Settings
+//	@Accept			json
+//	@Produce		json
+//	@Security		BearerAuth
+//	@Param			request	body		BatchUpdateSettingsRequest	true	"配置列表"
+//	@Success		200		{object}	response.MessageResponse	"批量更新成功"
+//	@Failure		400		{object}	response.ErrorResponse		"参数错误"
+//	@Failure		401		{object}	response.ErrorResponse		"未授权"
+//	@Failure		403		{object}	response.ErrorResponse		"权限不足"
+//	@Failure		500		{object}	response.ErrorResponse		"服务器内部错误"
+//	@Router			/api/system/settings/batch [post]
 func (h *SettingHandler) BatchUpdateSettings(c *gin.Context) {
 	var req BatchUpdateSettingsRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -340,17 +340,17 @@ func (h *SettingHandler) BatchUpdateSettings(c *gin.Context) {
 
 // GetCategories 获取配置分类列表
 //
-// @Summary      配置分类列表
-// @Description  获取所有配置分类，按排序权重升序排列
-// @Tags         Admin - Setting Categories
-// @Accept       json
-// @Produce      json
-// @Security     BearerAuth
-// @Success      200 {object} response.DataResponse[[]setting.CategoryDTO] "分类列表"
-// @Failure      401 {object} response.ErrorResponse "未授权"
-// @Failure      403 {object} response.ErrorResponse "权限不足"
-// @Failure      500 {object} response.ErrorResponse "服务器内部错误"
-// @Router       /api/system/settings/categories [get]
+//	@Summary		配置分类列表
+//	@Description	获取所有配置分类，按排序权重升序排列
+//	@Tags			Admin - Setting Categories
+//	@Accept			json
+//	@Produce		json
+//	@Security		BearerAuth
+//	@Success		200	{object}	response.DataResponse[[]setting.CategoryDTO]	"分类列表"
+//	@Failure		401	{object}	response.ErrorResponse							"未授权"
+//	@Failure		403	{object}	response.ErrorResponse							"权限不足"
+//	@Failure		500	{object}	response.ErrorResponse							"服务器内部错误"
+//	@Router			/api/system/settings/categories [get]
 func (h *SettingHandler) GetCategories(c *gin.Context) {
 	categories, err := h.listCategoriesHandler.Handle(c.Request.Context(), setting.ListCategoriesQuery{})
 	if err != nil {
@@ -363,18 +363,18 @@ func (h *SettingHandler) GetCategories(c *gin.Context) {
 
 // GetCategory 获取单个配置分类
 //
-// @Summary      配置分类详情
-// @Description  根据 ID 获取配置分类详情
-// @Tags         Admin - Setting Categories
-// @Accept       json
-// @Produce      json
-// @Security     BearerAuth
-// @Param        id path int true "分类 ID"
-// @Success      200 {object} response.DataResponse[setting.CategoryDTO] "分类详情"
-// @Failure      401 {object} response.ErrorResponse "未授权"
-// @Failure      403 {object} response.ErrorResponse "权限不足"
-// @Failure      404 {object} response.ErrorResponse "分类不存在"
-// @Router       /api/system/settings/categories/{id} [get]
+//	@Summary		配置分类详情
+//	@Description	根据 ID 获取配置分类详情
+//	@Tags			Admin - Setting Categories
+//	@Accept			json
+//	@Produce		json
+//	@Security		BearerAuth
+//	@Param			id	path		int											true	"分类 ID"
+//	@Success		200	{object}	response.DataResponse[setting.CategoryDTO]	"分类详情"
+//	@Failure		401	{object}	response.ErrorResponse						"未授权"
+//	@Failure		403	{object}	response.ErrorResponse						"权限不足"
+//	@Failure		404	{object}	response.ErrorResponse						"分类不存在"
+//	@Router			/api/system/settings/categories/{id} [get]
 func (h *SettingHandler) GetCategory(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
@@ -403,19 +403,19 @@ type CreateCategoryRequest struct {
 
 // CreateCategory 创建配置分类
 //
-// @Summary      创建配置分类
-// @Description  管理员创建新的配置分类
-// @Tags         Admin - Setting Categories
-// @Accept       json
-// @Produce      json
-// @Security     BearerAuth
-// @Param        request body CreateCategoryRequest true "分类信息"
-// @Success      201 {object} response.DataResponse[setting.CategoryDTO] "分类创建成功"
-// @Failure      400 {object} response.ErrorResponse "参数错误"
-// @Failure      401 {object} response.ErrorResponse "未授权"
-// @Failure      403 {object} response.ErrorResponse "权限不足"
-// @Failure      500 {object} response.ErrorResponse "服务器内部错误"
-// @Router       /api/system/settings/categories [post]
+//	@Summary		创建配置分类
+//	@Description	管理员创建新的配置分类
+//	@Tags			Admin - Setting Categories
+//	@Accept			json
+//	@Produce		json
+//	@Security		BearerAuth
+//	@Param			request	body		CreateCategoryRequest						true	"分类信息"
+//	@Success		201		{object}	response.DataResponse[setting.CategoryDTO]	"分类创建成功"
+//	@Failure		400		{object}	response.ErrorResponse						"参数错误"
+//	@Failure		401		{object}	response.ErrorResponse						"未授权"
+//	@Failure		403		{object}	response.ErrorResponse						"权限不足"
+//	@Failure		500		{object}	response.ErrorResponse						"服务器内部错误"
+//	@Router			/api/system/settings/categories [post]
 func (h *SettingHandler) CreateCategory(c *gin.Context) {
 	var req CreateCategoryRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -455,21 +455,21 @@ type UpdateCategoryRequest struct {
 
 // UpdateCategory 更新配置分类
 //
-// @Summary      更新配置分类
-// @Description  管理员更新指定配置分类的信息（Key 不可修改）
-// @Tags         Admin - Setting Categories
-// @Accept       json
-// @Produce      json
-// @Security     BearerAuth
-// @Param        id path int true "分类 ID"
-// @Param        request body UpdateCategoryRequest true "更新信息"
-// @Success      200 {object} response.DataResponse[setting.CategoryDTO] "分类更新成功"
-// @Failure      400 {object} response.ErrorResponse "参数错误"
-// @Failure      401 {object} response.ErrorResponse "未授权"
-// @Failure      403 {object} response.ErrorResponse "权限不足"
-// @Failure      404 {object} response.ErrorResponse "分类不存在"
-// @Failure      500 {object} response.ErrorResponse "服务器内部错误"
-// @Router       /api/system/settings/categories/{id} [put]
+//	@Summary		更新配置分类
+//	@Description	管理员更新指定配置分类的信息（Key 不可修改）
+//	@Tags			Admin - Setting Categories
+//	@Accept			json
+//	@Produce		json
+//	@Security		BearerAuth
+//	@Param			id		path		int											true	"分类 ID"
+//	@Param			request	body		UpdateCategoryRequest						true	"更新信息"
+//	@Success		200		{object}	response.DataResponse[setting.CategoryDTO]	"分类更新成功"
+//	@Failure		400		{object}	response.ErrorResponse						"参数错误"
+//	@Failure		401		{object}	response.ErrorResponse						"未授权"
+//	@Failure		403		{object}	response.ErrorResponse						"权限不足"
+//	@Failure		404		{object}	response.ErrorResponse						"分类不存在"
+//	@Failure		500		{object}	response.ErrorResponse						"服务器内部错误"
+//	@Router			/api/system/settings/categories/{id} [put]
 func (h *SettingHandler) UpdateCategory(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
@@ -499,20 +499,20 @@ func (h *SettingHandler) UpdateCategory(c *gin.Context) {
 
 // DeleteCategory 删除配置分类
 //
-// @Summary      删除配置分类
-// @Description  管理员删除指定的配置分类（如有关联配置项则拒绝删除）
-// @Tags         Admin - Setting Categories
-// @Accept       json
-// @Produce      json
-// @Security     BearerAuth
-// @Param        id path int true "分类 ID"
-// @Success      204 "分类删除成功"
-// @Failure      400 {object} response.ErrorResponse "存在关联配置项"
-// @Failure      401 {object} response.ErrorResponse "未授权"
-// @Failure      403 {object} response.ErrorResponse "权限不足"
-// @Failure      404 {object} response.ErrorResponse "分类不存在"
-// @Failure      500 {object} response.ErrorResponse "服务器内部错误"
-// @Router       /api/system/settings/categories/{id} [delete]
+//	@Summary		删除配置分类
+//	@Description	管理员删除指定的配置分类（如有关联配置项则拒绝删除）
+//	@Tags			Admin - Setting Categories
+//	@Accept			json
+//	@Produce		json
+//	@Security		BearerAuth
+//	@Param			id	path	int	true	"分类 ID"
+//	@Success		204	"分类删除成功"
+//	@Failure		400	{object}	response.ErrorResponse	"存在关联配置项"
+//	@Failure		401	{object}	response.ErrorResponse	"未授权"
+//	@Failure		403	{object}	response.ErrorResponse	"权限不足"
+//	@Failure		404	{object}	response.ErrorResponse	"分类不存在"
+//	@Failure		500	{object}	response.ErrorResponse	"服务器内部错误"
+//	@Router			/api/system/settings/categories/{id} [delete]
 func (h *SettingHandler) DeleteCategory(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {

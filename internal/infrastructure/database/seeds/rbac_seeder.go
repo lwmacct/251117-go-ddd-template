@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"log/slog"
 
+	"github.com/lwmacct/251117-go-ddd-template/internal/domain/user"
 	"github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/persistence"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
@@ -99,7 +100,7 @@ func (s *RBACSeeder) seedRoles(ctx context.Context, db *gorm.DB) error {
 	return nil
 }
 
-// seedAdminUser seeds an initial admin user
+// seedAdminUser seeds initial system users (root and admin) and demo users
 func (s *RBACSeeder) seedAdminUser(ctx context.Context, db *gorm.DB) error {
 	db = db.WithContext(ctx)
 
@@ -109,50 +110,101 @@ func (s *RBACSeeder) seedAdminUser(ctx context.Context, db *gorm.DB) error {
 		return err
 	}
 
+	// Get user role
+	var userRole persistence.RoleModel
+	if err := db.Where("name = ?", "user").First(&userRole).Error; err != nil {
+		return err
+	}
+
 	// Hash password for default user creation
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte("admin123"), bcrypt.DefaultCost)
 	if err != nil {
 		return err
 	}
 
-	adminUser := persistence.UserModel{
-		Username: "admin",
-		Email:    "admin@example.com",
-		Password: string(hashedPassword),
-		FullName: "System Administrator",
-		Status:   "active",
+	// 定义用户配置
+	type userConfig struct {
+		username string
+		email    string
+		fullName string
+		isSystem bool
+		role     *persistence.RoleModel // nil 表示不分配角色（root 用户硬编码权限）
 	}
 
-	// Upsert admin user
-	result := db.Clauses(clause.OnConflict{
-		Columns:   []clause.Column{{Name: "username"}},
-		DoNothing: true,
-	}).Create(&adminUser)
-	if result.Error != nil {
-		return result.Error
+	users := []userConfig{
+		// 系统用户
+		{
+			username: user.RootUsername,
+			email:    "root@localhost",
+			fullName: "Root Administrator",
+			isSystem: true,
+			role:     nil, // root 用户权限硬编码，不需要角色
+		},
+		{
+			username: user.AdminUsername,
+			email:    "admin@example.com",
+			fullName: "System Administrator",
+			isSystem: true,
+			role:     &adminRole,
+		},
+		// 普通用户（用于测试）
+		{
+			username: "human",
+			email:    "human@example.com",
+			fullName: "Human User",
+			isSystem: false,
+			role:     &userRole,
+		},
 	}
 
-	if result.RowsAffected > 0 {
-		slog.Info("Created admin user", "username", adminUser.Username)
-		slog.Warn("Default admin credentials", "username", "admin", "password", "admin123", "warning", "PLEASE CHANGE THIS PASSWORD IMMEDIATELY")
-	} else {
-		// 如果用户已存在，需要获取其 ID
-		if err := db.Where("username = ?", "admin").First(&adminUser).Error; err != nil {
-			return err
+	for _, cfg := range users {
+		userModel := persistence.UserModel{
+			Username: cfg.username,
+			Email:    cfg.email,
+			Password: string(hashedPassword),
+			FullName: cfg.fullName,
+			Status:   "active",
+			Type:     string(user.UserTypeHuman),
+			IsSystem: cfg.isSystem,
 		}
-		slog.Info("Admin user ensured", "username", adminUser.Username)
+
+		// Upsert 用户
+		result := db.Clauses(clause.OnConflict{
+			Columns:   []clause.Column{{Name: "username"}},
+			DoUpdates: clause.AssignmentColumns([]string{"is_system", "type"}), // 确保标记被更新
+		}).Create(&userModel)
+		if result.Error != nil {
+			return result.Error
+		}
+
+		// 用户已存在时，获取其 ID
+		if result.RowsAffected == 0 {
+			if err := db.Where("username = ?", cfg.username).First(&userModel).Error; err != nil {
+				return err
+			}
+			slog.Info("User ensured", "username", userModel.Username, "is_system", userModel.IsSystem)
+		} else {
+			slog.Info("Created user", "username", userModel.Username, "is_system", cfg.isSystem)
+		}
+
+		// 系统用户提示修改默认密码
+		if result.RowsAffected > 0 && cfg.isSystem {
+			slog.Warn("Default credentials", "username", cfg.username, "password", "admin123", "warning", "PLEASE CHANGE THIS PASSWORD IMMEDIATELY")
+		}
+
+		// 分配角色（如果配置了角色）
+		if cfg.role != nil {
+			userRole := map[string]any{
+				"user_id": userModel.ID,
+				"role_id": cfg.role.ID,
+			}
+			if err := db.Table("user_roles").Clauses(clause.OnConflict{DoNothing: true}).Create(&userRole).Error; err != nil {
+				return err
+			}
+			slog.Info("Assigned role to user", "username", userModel.Username, "role", cfg.role.Name)
+		}
 	}
 
-	// 直接插入用户-角色关联（跳过 Association API）
-	userRole := map[string]any{
-		"user_id": adminUser.ID,
-		"role_id": adminRole.ID,
-	}
-	if err := db.Table("user_roles").Clauses(clause.OnConflict{DoNothing: true}).Create(&userRole).Error; err != nil {
-		return err
-	}
-
-	slog.Info("Assigned admin role to admin user", "username", adminUser.Username, "role", adminRole.Name)
 	return nil
 }
 

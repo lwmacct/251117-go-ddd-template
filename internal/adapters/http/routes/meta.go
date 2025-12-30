@@ -22,7 +22,7 @@ type routeMeta struct {
 	Audit bool // 是否启用审计（审计详情从 Operation 派生）
 
 	// Swagger 注解字段
-	Tags        string // @Tags，如 Admin - Users
-	Summary     string // @Summary，如 创建用户
-	Description string // @Description（可选）
+	Tags        string //	@Tags，如	Admin - Users
+	Summary     string //	@Summary，如	创建用户
+	Description string //	@Description（可选）
 }

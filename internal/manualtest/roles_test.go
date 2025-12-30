@@ -151,3 +151,52 @@ func testSetRolePermissions(t *testing.T, c *helper.Client, roleID uint) {
 		t.Logf("    - %s | %s", p.OperationPattern, p.ResourcePattern)
 	}
 }
+
+// TestSystemRoleProtection 测试系统角色保护机制。
+//
+// 系统角色（admin、user）不可删除。
+//
+// 手动运行:
+//
+//	MANUAL=1 go test -v -run TestSystemRoleProtection ./internal/manualtest/
+func TestSystemRoleProtection(t *testing.T) {
+	c := helper.LoginAsAdmin(t)
+
+	// 获取系统角色
+	t.Log("\n步骤 1: 获取系统角色")
+	roles, _, err := helper.GetList[role.RoleDTO](c, "/api/system/roles", nil)
+	require.NoError(t, err, "获取角色列表失败")
+
+	var adminRole, userRole *role.RoleDTO
+	for i := range roles {
+		if roles[i].Name == "admin" {
+			adminRole = &roles[i]
+		}
+		if roles[i].Name == "user" {
+			userRole = &roles[i]
+		}
+	}
+	require.NotNil(t, adminRole, "未找到 admin 角色")
+	require.NotNil(t, userRole, "未找到 user 角色")
+
+	t.Logf("  admin 角色: ID=%d, IsSystem=%v", adminRole.ID, adminRole.IsSystem)
+	t.Logf("  user 角色: ID=%d, IsSystem=%v", userRole.ID, userRole.IsSystem)
+
+	// 验证系统角色标记
+	assert.True(t, adminRole.IsSystem, "admin 应为系统角色")
+	assert.True(t, userRole.IsSystem, "user 应为系统角色")
+
+	// 测试 2: 尝试删除 admin 角色（应失败）
+	t.Log("\n步骤 2: 尝试删除 admin 角色（应失败）")
+	err = c.Delete(fmt.Sprintf("/api/system/roles/%d", adminRole.ID))
+	require.Error(t, err, "删除 admin 角色应该失败")
+	t.Logf("  预期失败: %v", err)
+
+	// 测试 3: 尝试删除 user 角色（应失败）
+	t.Log("\n步骤 3: 尝试删除 user 角色（应失败）")
+	err = c.Delete(fmt.Sprintf("/api/system/roles/%d", userRole.ID))
+	require.Error(t, err, "删除 user 角色应该失败")
+	t.Logf("  预期失败: %v", err)
+
+	t.Log("\n系统角色保护测试完成!")
+}

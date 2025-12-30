@@ -223,3 +223,127 @@ func TestBatchCreateUsers(t *testing.T) {
 
 	t.Log("\n批量创建用户测试完成!")
 }
+
+// TestSystemUserProtection 测试系统用户保护机制。
+//
+// 系统用户（root、admin）不可删除，部分字段不可修改。
+//
+// 手动运行:
+//
+//	MANUAL=1 go test -v -run TestSystemUserProtection ./internal/manualtest/
+func TestSystemUserProtection(t *testing.T) {
+	c := helper.LoginAsAdmin(t)
+
+	// 获取系统用户
+	t.Log("\n步骤 1: 获取系统用户")
+	users, _, err := helper.GetList[user.UserDTO](c, "/api/system/users", nil)
+	require.NoError(t, err, "获取用户列表失败")
+
+	var rootUser, adminUser *user.UserDTO
+	for i := range users {
+		if users[i].Username == "root" {
+			rootUser = &users[i]
+		}
+		if users[i].Username == "admin" {
+			adminUser = &users[i]
+		}
+	}
+	require.NotNil(t, rootUser, "未找到 root 用户")
+	require.NotNil(t, adminUser, "未找到 admin 用户")
+
+	t.Logf("  root 用户: ID=%d, Type=%s, IsSystem=%v", rootUser.ID, rootUser.Type, rootUser.IsSystem)
+	t.Logf("  admin 用户: ID=%d, Type=%s, IsSystem=%v", adminUser.ID, adminUser.Type, adminUser.IsSystem)
+
+	// 验证系统用户标记
+	assert.True(t, rootUser.IsSystem, "root 应为系统用户")
+	assert.True(t, adminUser.IsSystem, "admin 应为系统用户")
+	assert.Equal(t, "human", rootUser.Type, "root 应为 human 类型")
+
+	// 测试 2: 尝试删除 root 用户（应失败）
+	t.Log("\n步骤 2: 尝试删除 root 用户（应失败）")
+	err = c.Delete(fmt.Sprintf("/api/system/users/%d", rootUser.ID))
+	require.Error(t, err, "删除 root 用户应该失败")
+	t.Logf("  预期失败: %v", err)
+
+	// 测试 3: 尝试删除 admin 用户（应失败）
+	t.Log("\n步骤 3: 尝试删除 admin 用户（应失败）")
+	err = c.Delete(fmt.Sprintf("/api/system/users/%d", adminUser.ID))
+	require.Error(t, err, "删除 admin 用户应该失败")
+	t.Logf("  预期失败: %v", err)
+
+	// 测试 4: 尝试修改 root 用户名（应失败）
+	t.Log("\n步骤 4: 尝试修改 root 用户名（应失败）")
+	newUsername := "root_renamed"
+	updateReq := user.UpdateDTO{
+		Username: &newUsername,
+	}
+	_, err = helper.Put[user.UserDTO](c, fmt.Sprintf("/api/system/users/%d", rootUser.ID), updateReq)
+	require.Error(t, err, "修改 root 用户名应该失败")
+	t.Logf("  预期失败: %v", err)
+
+	// 测试 5: 尝试修改 root 状态（应失败）
+	t.Log("\n步骤 5: 尝试修改 root 状态（应失败）")
+	inactiveStatus := "inactive"
+	statusReq := user.UpdateDTO{
+		Status: &inactiveStatus,
+	}
+	_, err = helper.Put[user.UserDTO](c, fmt.Sprintf("/api/system/users/%d", rootUser.ID), statusReq)
+	require.Error(t, err, "修改 root 状态应该失败")
+	t.Logf("  预期失败: %v", err)
+
+	// 测试 6: 修改 admin 邮箱（应成功，非保护字段）
+	t.Log("\n步骤 6: 修改 admin 邮箱（应成功）")
+	newEmail := "admin_updated@example.com"
+	emailReq := user.UpdateDTO{
+		Email: &newEmail,
+	}
+	updatedAdmin, err := helper.Put[user.UserDTO](c, fmt.Sprintf("/api/system/users/%d", adminUser.ID), emailReq)
+	require.NoError(t, err, "修改 admin 邮箱应该成功")
+	t.Logf("  修改成功! 新邮箱: %s", updatedAdmin.Email)
+
+	// 恢复 admin 邮箱
+	originalEmail := "admin@example.com"
+	restoreReq := user.UpdateDTO{
+		Email: &originalEmail,
+	}
+	_, _ = helper.Put[user.UserDTO](c, fmt.Sprintf("/api/system/users/%d", adminUser.ID), restoreReq)
+
+	t.Log("\n系统用户保护测试完成!")
+}
+
+// TestRootRoleProtection 测试 root 用户角色保护。
+//
+// root 用户的角色不可修改（始终拥有 *:*:* 权限）。
+//
+// 手动运行:
+//
+//	MANUAL=1 go test -v -run TestRootRoleProtection ./internal/manualtest/
+func TestRootRoleProtection(t *testing.T) {
+	c := helper.LoginAsAdmin(t)
+
+	// 获取 root 用户
+	t.Log("\n步骤 1: 获取 root 用户")
+	users, _, err := helper.GetList[user.UserDTO](c, "/api/system/users", nil)
+	require.NoError(t, err, "获取用户列表失败")
+
+	var rootUser *user.UserDTO
+	for i := range users {
+		if users[i].Username == "root" {
+			rootUser = &users[i]
+			break
+		}
+	}
+	require.NotNil(t, rootUser, "未找到 root 用户")
+	t.Logf("  root 用户 ID: %d", rootUser.ID)
+
+	// 测试: 尝试修改 root 用户角色（应失败）
+	t.Log("\n步骤 2: 尝试修改 root 用户角色（应失败）")
+	assignReq := user.AssignRolesDTO{
+		RoleIDs: []uint{2}, // user 角色
+	}
+	_, err = helper.Put[user.UserWithRolesDTO](c, fmt.Sprintf("/api/system/users/%d/roles", rootUser.ID), assignReq)
+	require.Error(t, err, "修改 root 用户角色应该失败")
+	t.Logf("  预期失败: %v", err)
+
+	t.Log("\nroot 用户角色保护测试完成!")
+}

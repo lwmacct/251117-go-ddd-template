@@ -16,23 +16,23 @@
 // 权限控制采用三段式格式：domain:resource:action
 // 例如：admin:users:create, user:profile:read
 //
-// @title           Go DDD Template API
-// @version         1.0
-// @description     基于 DDD + CQRS 架构的 Go Web 应用模板
+//	@title						Go DDD Template API
+//	@version					1.0
+//	@description				基于 DDD + CQRS 架构的 Go Web 应用模板
 //
-// @contact.name    API Support
-// @contact.url     https://github.com/lwmacct/251117-go-ddd-template
+//	@contact.name				API Support
+//	@contact.url				https://github.com/lwmacct/251117-go-ddd-template
 //
-// @license.name    MIT
-// @license.url     https://opensource.org/licenses/MIT
+//	@license.name				MIT
+//	@license.url				https://opensource.org/licenses/MIT
 //
-// @host            localhost:8080
-// @BasePath        /
+//	@host						localhost:8080
+//	@BasePath					/
 //
-// @securityDefinitions.apikey BearerAuth
-// @in header
-// @name Authorization
-// @description Bearer token authentication
+//	@securityDefinitions.apikey	BearerAuth
+//	@in							header
+//	@name						Authorization
+//	@description				Bearer token authentication
 package http
 
 import (

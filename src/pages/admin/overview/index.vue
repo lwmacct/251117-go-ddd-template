@@ -44,12 +44,6 @@ const statsCards = computed(() => [
     icon: "mdi-account-cancel",
     color: "error",
   },
-  {
-    title: "菜单数量",
-    value: stats.value?.total_menus || 0,
-    icon: "mdi-menu",
-    color: "purple",
-  },
 ]);
 
 const userStatusSummary = computed(() => {
@@ -151,25 +145,19 @@ onMounted(() => {
           </v-card-title>
           <v-card-text>
             <v-row>
-              <v-col cols="12" md="3">
+              <v-col cols="12" md="4">
                 <v-btn block color="primary" to="/admin/users" variant="tonal">
                   <v-icon start>mdi-account-plus</v-icon>
                   管理用户
                 </v-btn>
               </v-col>
-              <v-col cols="12" md="3">
+              <v-col cols="12" md="4">
                 <v-btn block color="info" to="/admin/roles" variant="tonal">
                   <v-icon start>mdi-shield-plus</v-icon>
                   管理角色
                 </v-btn>
               </v-col>
-              <v-col cols="12" md="3">
-                <v-btn block color="warning" to="/admin/menus" variant="tonal">
-                  <v-icon start>mdi-menu</v-icon>
-                  管理菜单
-                </v-btn>
-              </v-col>
-              <v-col cols="12" md="3">
+              <v-col cols="12" md="4">
                 <v-btn block color="success" to="/admin/auditlogs" variant="tonal">
                   <v-icon start>mdi-file-document</v-icon>
                   审计日志

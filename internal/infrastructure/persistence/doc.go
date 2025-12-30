@@ -14,17 +14,14 @@
 // 角色模块：
 //   - [RoleCommandRepository]: 角色写操作
 //   - [RoleQueryRepository]: 角色读操作
-//   - [PermissionCommandRepository]: 权限写操作
-//   - [PermissionQueryRepository]: 权限读操作
 //
-// 其他模块（Menu、PAT、Setting、TwoFA、AuditLog）遵循相同模式。
+// 其他模块（PAT、Setting、TwoFA、AuditLog）遵循相同模式。
 //
 // # GORM Model
 //
 // 每个领域实体都有对应的 GORM Model（*_model.go）：
 //   - [UserModel]: 用户持久化模型
 //   - [RoleModel]: 角色持久化模型
-//   - [MenuModel]: 菜单持久化模型
 //   - 其他 Model...
 //
 // Model 与 Entity 通过映射函数转换：

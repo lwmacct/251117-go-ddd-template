@@ -54,7 +54,6 @@ func TestSystemStats(t *testing.T) {
 	t.Logf("  封禁用户数: %d", statsResult.BannedUsers)
 	t.Logf("  总角色数: %d", statsResult.TotalRoles)
 	t.Logf("  总权限数: %d", statsResult.TotalPermissions)
-	t.Logf("  总菜单数: %d", statsResult.TotalMenus)
 	if len(statsResult.RecentAuditLogs) > 0 {
 		t.Logf("  最近审计日志: %d 条", len(statsResult.RecentAuditLogs))
 	}

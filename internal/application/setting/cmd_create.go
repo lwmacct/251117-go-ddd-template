@@ -11,8 +11,8 @@ import (
 
 // CreateHandler 创建配置命令处理器
 type CreateHandler struct {
-	commandRepo setting.CommandRepository
-	queryRepo   setting.QueryRepository
+	commandRepo   setting.CommandRepository
+	queryRepo     setting.QueryRepository
 	settingsCache SettingsCacheService
 }
 
@@ -23,8 +23,8 @@ func NewCreateHandler(
 	settingsCache SettingsCacheService,
 ) *CreateHandler {
 	return &CreateHandler{
-		commandRepo: commandRepo,
-		queryRepo:   queryRepo,
+		commandRepo:   commandRepo,
+		queryRepo:     queryRepo,
 		settingsCache: settingsCache,
 	}
 }

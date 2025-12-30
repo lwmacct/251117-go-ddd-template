@@ -11,11 +11,7 @@ import (
 //
 //nolint:recvcheck // TableName uses value receiver per GORM convention
 type UserModel struct {
-	ID        uint `gorm:"primaryKey"`
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	DeletedAt gorm.DeletedAt `gorm:"index"`
-
+	ID       uint   `gorm:"primaryKey"`
 	Username string `gorm:"uniqueIndex;size:50;not null"`
 	Email    string `gorm:"uniqueIndex;size:100;not null"`
 	Password string `gorm:"size:255;not null"`
@@ -24,7 +20,17 @@ type UserModel struct {
 	Bio      string `gorm:"type:text"`
 	Status   string `gorm:"size:20;default:'active'"`
 
+	// Type 用户类型：human（人类用户）或 service（服务账户）
+	Type string `gorm:"size:20;default:'human';not null;index"`
+
+	// IsSystem 系统预置用户标记（如 root、admin），不可删除
+	IsSystem bool `gorm:"default:false;not null;index"`
+
 	Roles []RoleModel `gorm:"many2many:user_roles;joinForeignKey:UserID;joinReferences:RoleID;foreignKey:ID;references:ID"`
+
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	DeletedAt gorm.DeletedAt `gorm:"index"`
 }
 
 // TableName 指定用户表名
@@ -48,6 +54,8 @@ func newUserModelFromEntity(entity *user.User) *UserModel {
 		Avatar:    entity.Avatar,
 		Bio:       entity.Bio,
 		Status:    entity.Status,
+		Type:      string(entity.Type),
+		IsSystem:  entity.IsSystem,
 		// Roles 不在这里映射，通过 user_roles 关联表管理
 	}
 
@@ -75,6 +83,8 @@ func (m *UserModel) ToEntity() *user.User {
 		Avatar:    m.Avatar,
 		Bio:       m.Bio,
 		Status:    m.Status,
+		Type:      user.UserType(m.Type),
+		IsSystem:  m.IsSystem,
 		Roles:     mapRoleModelsToEntities(m.Roles),
 	}
 

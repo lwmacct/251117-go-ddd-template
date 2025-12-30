@@ -5415,9 +5415,6 @@
                         "$ref": "#/definitions/stats.AuditLogSummaryDTO"
                     }
                 },
-                "total_menus": {
-                    "type": "integer"
-                },
                 "total_permissions": {
                     "type": "integer"
                 },
@@ -5719,6 +5716,9 @@
                 "id": {
                     "type": "integer"
                 },
+                "is_system": {
+                    "type": "boolean"
+                },
                 "roles": {
                     "type": "array",
                     "items": {
@@ -5726,6 +5726,9 @@
                     }
                 },
                 "status": {
+                    "type": "string"
+                },
+                "type": {
                     "type": "string"
                 },
                 "updated_at": {

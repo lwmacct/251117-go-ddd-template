@@ -50,7 +50,6 @@ const (
 	AuditCatAuth        AuditCategory = "auth"
 	AuditCatUser        AuditCategory = "user"
 	AuditCatRole        AuditCategory = "role"
-	AuditCatMenu        AuditCategory = "menu"
 	AuditCatSetting     AuditCategory = "setting"
 	AuditCatCache       AuditCategory = "cache"
 	AuditCatProfile     AuditCategory = "profile"
@@ -63,7 +62,6 @@ var auditCategoryLabels = map[AuditCategory]string{
 	AuditCatAuth:        "认证",
 	AuditCatUser:        "用户",
 	AuditCatRole:        "角色",
-	AuditCatMenu:        "菜单",
 	AuditCatSetting:     "配置",
 	AuditCatCache:       "缓存",
 	AuditCatProfile:     "个人资料",
@@ -94,7 +92,6 @@ func (c AuditCategory) String() string {
 var typeToCategory = map[string]AuditCategory{
 	"users":               AuditCatUser,
 	"roles":               AuditCatRole,
-	"menus":               AuditCatMenu,
 	"settings":            AuditCatSetting,
 	"settings-categories": AuditCatSetting,
 	"cache":               AuditCatCache,

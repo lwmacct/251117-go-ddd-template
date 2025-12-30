@@ -6,7 +6,6 @@ import (
 
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/event"
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/event/events"
-	"github.com/lwmacct/251117-go-ddd-template/internal/domain/user"
 	"github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/auth"
 )
 
@@ -14,18 +13,15 @@ import (
 // 处理角色权限变更和用户角色分配事件，自动失效相关缓存
 type CacheInvalidationHandler struct {
 	permissionCache *auth.PermissionCacheService
-	userQueryRepo   user.QueryRepository
 	logger          *slog.Logger
 }
 
 // NewCacheInvalidationHandler 创建缓存失效处理器
 func NewCacheInvalidationHandler(
 	permissionCache *auth.PermissionCacheService,
-	userQueryRepo user.QueryRepository,
 ) *CacheInvalidationHandler {
 	return &CacheInvalidationHandler{
 		permissionCache: permissionCache,
-		userQueryRepo:   userQueryRepo,
 		logger:          slog.Default(),
 	}
 }
@@ -66,38 +62,20 @@ func (h *CacheInvalidationHandler) handleUserRoleAssigned(ctx context.Context, e
 }
 
 // handleRolePermissionsChanged 处理角色权限变更事件
-// 失效拥有该角色的所有用户的权限缓存
+// 失效拥有该角色的所有用户的权限缓存（批量删除）
 func (h *CacheInvalidationHandler) handleRolePermissionsChanged(ctx context.Context, evt *events.RolePermissionsChangedEvent) error {
 	h.logger.Info("invalidating permission cache for role",
 		"event", evt.EventName(),
 		"role_id", evt.RoleID,
 	)
 
-	// 获取拥有该角色的所有用户
-	userIDs, err := h.userQueryRepo.GetUserIDsByRole(ctx, evt.RoleID)
-	if err != nil {
-		h.logger.Error("failed to get users by role",
+	// 批量失效拥有该角色的所有用户缓存（内部使用 Pipeline）
+	if err := h.permissionCache.InvalidateUsersWithRole(ctx, evt.RoleID); err != nil {
+		h.logger.Error("failed to invalidate users permission cache",
 			"role_id", evt.RoleID,
 			"error", err,
 		)
-		return nil
 	}
-
-	// 逐个失效用户缓存
-	for _, userID := range userIDs {
-		if err := h.permissionCache.InvalidateUser(ctx, userID); err != nil {
-			h.logger.Error("failed to invalidate user permission cache",
-				"user_id", userID,
-				"error", err,
-			)
-			// 继续处理其他用户
-		}
-	}
-
-	h.logger.Info("invalidated permission cache for users",
-		"role_id", evt.RoleID,
-		"user_count", len(userIDs),
-	)
 
 	return nil
 }

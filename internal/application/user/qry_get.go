@@ -42,6 +42,8 @@ func (h *GetHandler) Handle(ctx context.Context, query GetQuery) (*UserWithRoles
 		Avatar:    u.Avatar,
 		Bio:       u.Bio,
 		Status:    u.Status,
+		Type:      string(u.Type),
+		IsSystem:  u.IsSystem,
 		CreatedAt: u.CreatedAt,
 		UpdatedAt: u.UpdatedAt,
 	}

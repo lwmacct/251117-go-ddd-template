@@ -11,9 +11,9 @@ import (
 
 // UpdateHandler 更新配置命令处理器
 type UpdateHandler struct {
-	commandRepo setting.CommandRepository
-	queryRepo   setting.QueryRepository
-	validator   setting.Validator
+	commandRepo   setting.CommandRepository
+	queryRepo     setting.QueryRepository
+	validator     setting.Validator
 	settingsCache SettingsCacheService
 }
 
@@ -25,9 +25,9 @@ func NewUpdateHandler(
 	settingsCache SettingsCacheService,
 ) *UpdateHandler {
 	return &UpdateHandler{
-		commandRepo: commandRepo,
-		queryRepo:   queryRepo,
-		validator:   validator,
+		commandRepo:   commandRepo,
+		queryRepo:     queryRepo,
+		validator:     validator,
 		settingsCache: settingsCache,
 	}
 }

@@ -213,9 +213,16 @@ func TestListPATScopes(t *testing.T) {
 
 // TestPATScopeEnforcement 测试 PAT Scope 权限过滤是否生效。
 //
-// 重要：超级管理员（仅有 *:*:* 权限）使用限制性 Scope 时，
-// 由于 *:*:* 不匹配 self:/sys: 前缀，结果为空权限。
-// 这是预期的安全行为——要使限制性 PAT 生效，用户需要有具体的域权限。
+// 隐性角色机制：所有已认证用户自动拥有 "user" 角色及其权限 (self:*:*)。
+// 因此 Admin 用户实际权限为 *:*:* (admin 角色) + self:*:* (隐性 user 角色)。
+//
+// self scope PAT 过滤结果：
+//   - *:*:* → 被过滤（不匹配 self: 前缀）
+//   - self:*:* → 保留
+//
+// 测试验证：
+//   - self scope PAT 可以访问 self 域 API（200）
+//   - self scope PAT 不能访问 sys 域 API（403）
 //
 // 手动运行:
 //
@@ -225,7 +232,7 @@ func TestPATScopeEnforcement(t *testing.T) {
 	jwtClient := helper.LoginAsAdmin(t)
 
 	t.Log("\n===== PAT Scope 权限过滤测试 =====")
-	t.Log("注意: Admin 用户仅有 *:*:* 权限，限制性 Scope 会导致空权限")
+	t.Log("注意: Admin 用户有隐性 'user' 角色，self scope PAT 保留 self:*:* 权限")
 
 	// 2. 创建仅 self scope 的 PAT
 	t.Log("\n步骤 1: 创建仅 self scope 的 PAT")
@@ -254,29 +261,29 @@ func TestPATScopeEnforcement(t *testing.T) {
 	patClient := helper.NewClient()
 	patClient.SetToken(created.PlainToken)
 
-	// 4. 测试 self 域 API
-	// 由于 admin 只有 *:*:* 权限，过滤后为空，所以会返回 403
-	t.Log("\n步骤 2: 使用 self scope PAT 访问 API")
-	t.Log("  预期: 由于 *:*:* 不匹配 self: 前缀，权限为空，返回 403")
+	// 4. 测试 self 域 API（应成功，因为隐性 user 角色有 self:*:* 权限）
+	t.Log("\n步骤 2: 使用 self scope PAT 访问 self 域 API")
+	t.Log("  预期: 200（隐性 user 角色的 self:*:* 权限被保留）")
 
 	// 访问 /api/user/profile（self:profile:get）
 	resp, err := patClient.R().Get("/api/user/profile")
 	require.NoError(t, err, "请求失败")
 	t.Logf("  GET /api/user/profile -> 状态码: %d", resp.StatusCode())
-	// 超管使用限制性 scope 时，权限为空，应返回 403
-	assert.Equal(t, 403, resp.StatusCode(), "超管用 self scope PAT 应返回 403（权限为空）")
+	// 隐性 user 角色有 self:*:* 权限，匹配 self scope，可以访问
+	assert.Equal(t, 200, resp.StatusCode(), "self scope PAT 应能访问 self 域（隐性 user 角色权限）")
 
-	// 5. 测试 sys 域 API（同样应该被拒绝）
+	// 5. 测试 sys 域 API（应被拒绝，因为 *:*:* 被过滤）
 	t.Log("\n步骤 3: 使用 self scope PAT 访问 sys 域 API")
+	t.Log("  预期: 403（*:*:* 被过滤，无 sys 域权限）")
 
 	// 访问 /api/system/users（sys:users:list）- 正确路径
 	resp, err = patClient.R().Get("/api/system/users")
 	require.NoError(t, err, "请求失败")
 	t.Logf("  GET /api/system/users -> 状态码: %d", resp.StatusCode())
-	assert.Equal(t, 403, resp.StatusCode(), "self scope PAT 不应能访问 sys 域")
+	assert.Equal(t, 403, resp.StatusCode(), "self scope PAT 不应能访问 sys 域（*:*:* 已被过滤）")
 
 	t.Log("\n===== PAT Scope 权限过滤测试完成 =====")
-	t.Log("结论: 超管使用限制性 Scope 时权限为空，这是预期的安全行为")
+	t.Log("结论: PAT Scope 正确过滤权限，保留匹配前缀的权限（包括隐性角色权限）")
 }
 
 // TestPATFullScopeAccess 测试 full scope PAT 可以访问所有 API。

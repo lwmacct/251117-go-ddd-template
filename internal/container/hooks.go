@@ -30,7 +30,6 @@ func RegisterEventHandlers(p eventHandlersParams) {
 	// 缓存失效处理器
 	cacheHandler := eventhandler.NewCacheInvalidationHandler(
 		p.PermissionCache,
-		p.UserRepos.Query,
 	)
 
 	// 审计日志处理器
