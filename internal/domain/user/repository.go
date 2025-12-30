@@ -108,12 +108,11 @@ type RoleQueryRepository interface {
 }
 
 // ============================================================================
-// Query Repository - 聚合接口（保持向后兼容）
+// Query Repository - 聚合接口
 // ============================================================================
 
-// QueryRepository 用户查询仓储接口（聚合接口）
-// 组合所有细粒度接口，用于需要完整功能的场景
-// 实现类只需实现此接口即可满足所有子接口的依赖
+// QueryRepository 用户查询仓储接口（聚合接口）。
+// 组合所有细粒度接口，实现类只需实现此接口即可满足所有子接口的类型约束。
 type QueryRepository interface {
 	BaseQueryRepository
 	AuthQueryRepository

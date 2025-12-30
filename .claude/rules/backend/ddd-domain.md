@@ -76,6 +76,35 @@ type QueryRepository interface {
 }
 ```
 
+## 细粒度接口模式（可选）
+
+当 QueryRepository 方法较多且使用场景明确分化时，可拆分为细粒度接口：
+
+```go
+// 细粒度接口（遵循 ISP）
+type BaseQueryRepository interface { ... }
+type AuthQueryRepository interface { ... }
+type ValidationQueryRepository interface { ... }
+
+// 聚合接口
+type QueryRepository interface {
+    BaseQueryRepository
+    AuthQueryRepository
+    ValidationQueryRepository
+}
+```
+
+**适用场景**：
+
+- 接口方法超过 10 个
+- 调用方有明确的功能子集需求（如认证、验证、列表）
+- 需要精细化的 Mock 测试
+
+**设计要点**：
+
+- 实现类只需实现聚合接口
+- 调用方可按需注入细粒度接口或聚合接口
+
 ## doc.go 规范
 
 ```go
