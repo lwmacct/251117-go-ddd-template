@@ -6,6 +6,7 @@ export * from './auditlog-operation-type-dto';
 export * from './auth-login2-fadto';
 export * from './auth-login-dto';
 export * from './auth-login-response-dto';
+export * from './auth-login-role-dto';
 export * from './auth-refresh-token-dto';
 export * from './auth-register-dto';
 export * from './auth-register-result-dto';

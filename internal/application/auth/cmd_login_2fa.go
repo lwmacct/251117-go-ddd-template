@@ -92,6 +92,15 @@ func (h *Login2FAHandler) Handle(ctx context.Context, cmd Login2FACommand) (*Log
 	// 记录 2FA 登录成功
 	h.logLoginEvent(ctx, u.ID, u.Username, cmd.ClientIP, cmd.UserAgent, "2fa_login_success", "success")
 
+	// 构建角色列表
+	roles := make([]LoginRoleDTO, 0, len(u.Roles))
+	for _, r := range u.Roles {
+		roles = append(roles, LoginRoleDTO{
+			ID:   r.ID,
+			Name: r.Name,
+		})
+	}
+
 	return &LoginResultDTO{
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
@@ -100,6 +109,7 @@ func (h *Login2FAHandler) Handle(ctx context.Context, cmd Login2FACommand) (*Log
 		UserID:       u.ID,
 		Username:     u.Username,
 		Requires2FA:  false,
+		Roles:        roles,
 	}, nil
 }
 

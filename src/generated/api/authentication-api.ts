@@ -286,7 +286,7 @@ export const AuthenticationApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async apiAuthRefreshPost(request: AuthRefreshTokenDTO, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseAuthTokenDTO>> {
+        async apiAuthRefreshPost(request: AuthRefreshTokenDTO, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseAuthLoginResponseDTO>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.apiAuthRefreshPost(request, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['AuthenticationApi.apiAuthRefreshPost']?.[localVarOperationServerIndex]?.url;
@@ -353,7 +353,7 @@ export const AuthenticationApiFactory = function (configuration?: Configuration,
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiAuthRefreshPost(request: AuthRefreshTokenDTO, options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseAuthTokenDTO> {
+        apiAuthRefreshPost(request: AuthRefreshTokenDTO, options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseAuthLoginResponseDTO> {
             return localVarFp.apiAuthRefreshPost(request, options).then((request) => request(axios, basePath));
         },
         /**

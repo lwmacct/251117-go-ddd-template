@@ -71,11 +71,23 @@ func (h *RefreshTokenHandler) Handle(ctx context.Context, cmd RefreshTokenComman
 	// 6. 记录审计日志
 	h.logRefreshEvent(ctx, u.ID, u.Username, cmd.ClientIP, cmd.UserAgent, "token_refreshed", "success")
 
+	// 构建角色列表
+	roles := make([]LoginRoleDTO, 0, len(u.Roles))
+	for _, r := range u.Roles {
+		roles = append(roles, LoginRoleDTO{
+			ID:   r.ID,
+			Name: r.Name,
+		})
+	}
+
 	return &RefreshTokenResultDTO{
 		AccessToken:  accessToken,
 		RefreshToken: newRefreshToken,
 		TokenType:    "Bearer",
 		ExpiresIn:    int(time.Until(expiresAt).Seconds()),
+		UserID:       u.ID,
+		Username:     u.Username,
+		Roles:        roles,
 	}, nil
 }
 

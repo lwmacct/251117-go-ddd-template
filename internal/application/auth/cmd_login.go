@@ -121,6 +121,15 @@ func (h *LoginHandler) Handle(ctx context.Context, cmd LoginCommand) (*LoginResu
 	// 记录登录成功
 	h.logLoginEvent(ctx, u.ID, u.Username, cmd.ClientIP, cmd.UserAgent, "login_success", "success")
 
+	// 构建角色列表
+	roles := make([]LoginRoleDTO, 0, len(u.Roles))
+	for _, r := range u.Roles {
+		roles = append(roles, LoginRoleDTO{
+			ID:   r.ID,
+			Name: r.Name,
+		})
+	}
+
 	return &LoginResultDTO{
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
@@ -129,6 +138,7 @@ func (h *LoginHandler) Handle(ctx context.Context, cmd LoginCommand) (*LoginResu
 		UserID:       u.ID,
 		Username:     u.Username,
 		Requires2FA:  false,
+		Roles:        roles,
 	}, nil
 }
 

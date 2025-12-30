@@ -131,6 +131,13 @@ definitions:
       user:
         $ref: '#/definitions/auth.UserBriefDTO'
     type: object
+  auth.LoginRoleDTO:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
   auth.RefreshTokenDTO:
     properties:
       refresh_token:
@@ -192,6 +199,10 @@ definitions:
     type: object
   auth.UserBriefDTO:
     properties:
+      roles:
+        items:
+          $ref: '#/definitions/auth.LoginRoleDTO'
+        type: array
       user_id:
         type: integer
       username:
@@ -1822,7 +1833,7 @@ paths:
         "200":
           description: 令牌刷新成功
           schema:
-            $ref: '#/definitions/response.DataResponse-auth_TokenDTO'
+            $ref: '#/definitions/response.DataResponse-auth_LoginResponseDTO'
         "401":
           description: 刷新令牌无效或已过期
           schema:

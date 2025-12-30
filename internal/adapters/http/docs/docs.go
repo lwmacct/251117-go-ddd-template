@@ -346,7 +346,7 @@ const docTemplate = `{
                     "200": {
                         "description": "令牌刷新成功",
                         "schema": {
-                            "$ref": "#/definitions/response.DataResponse-auth_TokenDTO"
+                            "$ref": "#/definitions/response.DataResponse-auth_LoginResponseDTO"
                         }
                     },
                     "401": {
@@ -3538,6 +3538,17 @@ const docTemplate = `{
                 }
             }
         },
+        "auth.LoginRoleDTO": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
         "auth.RefreshTokenDTO": {
             "type": "object",
             "required": [
@@ -3626,6 +3637,12 @@ const docTemplate = `{
         "auth.UserBriefDTO": {
             "type": "object",
             "properties": {
+                "roles": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/auth.LoginRoleDTO"
+                    }
+                },
                 "user_id": {
                     "type": "integer"
                 },

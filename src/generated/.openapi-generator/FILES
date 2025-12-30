@@ -26,6 +26,7 @@ models/auditlog-category-option-dto.ts
 models/auditlog-operation-type-dto.ts
 models/auth-login-dto.ts
 models/auth-login-response-dto.ts
+models/auth-login-role-dto.ts
 models/auth-login2-fadto.ts
 models/auth-refresh-token-dto.ts
 models/auth-register-dto.ts

@@ -53,6 +53,7 @@ type LoginResultDTO struct {
 	Username     string `json:"username"`
 	Requires2FA  bool   `json:"requires_2fa"`
 	SessionToken string `json:"session_token"`
+	Roles        []LoginRoleDTO
 }
 
 // RefreshTokenResultDTO 刷新令牌结果 DTO（Handler 返回类型）
@@ -61,6 +62,25 @@ type RefreshTokenResultDTO struct {
 	RefreshToken string `json:"refresh_token"`
 	TokenType    string `json:"token_type"`
 	ExpiresIn    int    `json:"expires_in"`
+	UserID       uint
+	Username     string
+	Roles        []LoginRoleDTO
+}
+
+// ToRefreshTokenResponse 将 RefreshTokenResultDTO 转换为 HTTP 响应格式
+// 复用 LoginResponseDTO 结构，保持登录和刷新响应格式一致
+func (r *RefreshTokenResultDTO) ToRefreshTokenResponse() *LoginResponseDTO {
+	return &LoginResponseDTO{
+		AccessToken:  r.AccessToken,
+		RefreshToken: r.RefreshToken,
+		TokenType:    r.TokenType,
+		ExpiresIn:    r.ExpiresIn,
+		User: UserBriefDTO{
+			UserID:   r.UserID,
+			Username: r.Username,
+			Roles:    r.Roles,
+		},
+	}
 }
 
 // RegisterResultDTO 注册结果 DTO（Handler 返回类型）
@@ -74,10 +94,17 @@ type RegisterResultDTO struct {
 	ExpiresIn    int    `json:"expires_in"`
 }
 
+// LoginRoleDTO 登录响应中的角色信息 DTO
+type LoginRoleDTO struct {
+	ID   uint   `json:"id"`
+	Name string `json:"name"`
+}
+
 // UserBriefDTO 用户简要信息响应 DTO
 type UserBriefDTO struct {
-	UserID   uint   `json:"user_id"`
-	Username string `json:"username"`
+	UserID   uint           `json:"user_id"`
+	Username string         `json:"username"`
+	Roles    []LoginRoleDTO `json:"roles"`
 }
 
 // TwoFARequiredDTO 需要二次认证响应 DTO
@@ -109,6 +136,7 @@ func (r *LoginResultDTO) ToLoginResponse() *LoginResponseDTO {
 		User: UserBriefDTO{
 			UserID:   r.UserID,
 			Username: r.Username,
+			Roles:    r.Roles,
 		},
 		Requires2FA:  r.Requires2FA,
 		SessionToken: r.SessionToken,

@@ -6,7 +6,7 @@
  * 2. 所有 OpenAPI 生成的 API 类实例
  */
 import axios, { type AxiosError } from "axios";
-import { accessToken, refreshToken, clearAuthTokens } from "@/utils/auth";
+import { accessToken, refreshToken, clearAuthTokens, storedUser } from "@/utils/auth";
 import type { AuthLoginResponseDTO } from "@models";
 import type { ApiResponse, ErrorResponse } from "../types";
 import { extractErrorFromAxios } from "../errors";
@@ -66,6 +66,11 @@ apiClient.interceptors.response.use(
             // 保存新 token
             accessToken.value = data.data.access_token;
             refreshToken.value = data.data.refresh_token;
+
+            // 更新用户信息
+            if (data.data.user) {
+              storedUser.value = data.data.user;
+            }
 
             // 重试原请求
             originalRequest.headers.Authorization = `Bearer ${data.data.access_token}`;

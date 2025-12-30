@@ -3,37 +3,32 @@
  * 用户菜单组件
  *
  * 功能：
- * - 用户头像（显示首字母或图片）
- * - 用户信息卡片（用户名、邮箱、复制按钮）
+ * - 用户头像（显示首字母）
  * - 动态菜单项（用户中心菜单）
  * - 登出/登录按钮
  */
 import { ref, computed } from "vue";
 import { useRouter } from "vue-router";
 import { useAuthStore, useNavbarStore } from "@/stores";
-import { useClipboard } from "@vueuse/core";
 
 const authStore = useAuthStore();
 const navbarStore = useNavbarStore();
 const router = useRouter();
 const menuOpen = ref(false);
 
-// 剪贴板（VueUse）
-const { copy, isSupported: clipboardSupported } = useClipboard();
-
 /** 显示名称 */
 const displayName = computed(() => {
-  return authStore.currentUser?.full_name || authStore.currentUser?.username || "未登录";
+  return authStore.currentUser?.username || "未登录";
 });
 
 /** 用户头像 */
 const userAvatar = computed(() => {
-  return authStore.currentUser?.avatar || undefined;
+  return undefined; // 简化版不存储头像
 });
 
 /** 用户名首字母 */
 const userInitial = computed(() => {
-  const name = authStore.currentUser?.full_name || authStore.currentUser?.username || "?";
+  const name = authStore.currentUser?.username || "?";
   return name.charAt(0).toUpperCase();
 });
 
@@ -48,26 +43,11 @@ const menuItems = computed(() => {
     }));
 });
 
-/** 复制成功提示 */
-const copySuccess = ref(false);
-
 /** 导航到指定页面 */
 function navigateTo(path: string) {
   menuOpen.value = false;
   navbarStore.handleNavigation();
   router.push(path);
-}
-
-/** 复制邮箱 */
-async function copyEmail() {
-  const email = authStore.currentUser?.email;
-  if (email && clipboardSupported) {
-    await copy(email);
-    copySuccess.value = true;
-    setTimeout(() => {
-      copySuccess.value = false;
-    }, 2000);
-  }
 }
 
 /** 退出登录 */
@@ -104,18 +84,6 @@ async function handleLogout() {
           </template>
 
           <v-card-title class="text-subtitle-1">{{ displayName }}</v-card-title>
-          <v-card-subtitle class="text-caption d-flex align-center justify-space-between">
-            <span>{{ authStore.currentUser?.email }}</span>
-            <v-btn
-              v-if="authStore.currentUser?.email && clipboardSupported"
-              :icon="copySuccess ? 'mdi-check' : 'mdi-content-copy'"
-              :color="copySuccess ? 'success' : undefined"
-              size="x-small"
-              variant="text"
-              density="compact"
-              @click="copyEmail"
-            />
-          </v-card-subtitle>
         </v-card-item>
 
         <v-divider v-if="authStore.isAuthenticated" />

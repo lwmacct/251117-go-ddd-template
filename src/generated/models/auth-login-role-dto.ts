@@ -13,33 +13,24 @@
  */
 
 
-// May contain unused imports in some cases
-// @ts-ignore
-import type { AuthLoginRoleDTO } from './auth-login-role-dto';
 
 /**
  * 
  * @export
- * @interface AuthUserBriefDTO
+ * @interface AuthLoginRoleDTO
  */
-export interface AuthUserBriefDTO {
-    /**
-     * 
-     * @type {Array<AuthLoginRoleDTO>}
-     * @memberof AuthUserBriefDTO
-     */
-    'roles'?: Array<AuthLoginRoleDTO>;
+export interface AuthLoginRoleDTO {
     /**
      * 
      * @type {number}
-     * @memberof AuthUserBriefDTO
+     * @memberof AuthLoginRoleDTO
      */
-    'user_id'?: number;
+    'id'?: number;
     /**
      * 
      * @type {string}
-     * @memberof AuthUserBriefDTO
+     * @memberof AuthLoginRoleDTO
      */
-    'username'?: string;
+    'name'?: string;
 }
 

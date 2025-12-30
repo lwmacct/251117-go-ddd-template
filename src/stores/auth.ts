@@ -3,20 +3,14 @@
  */
 import { defineStore } from "pinia";
 import { ref, computed } from "vue";
-import { userProfileApi, extractData, AuthAPI } from "@/api";
-import { accessToken, refreshToken, clearAuthTokens } from "@/utils/auth";
-import type { AuthLoginDTO, UserUserWithRolesDTO } from "@models";
+import { AuthAPI } from "@/api";
+import { accessToken, refreshToken, clearAuthTokens, storedUser } from "@/utils/auth";
+import type { AuthLoginDTO, AuthUserBriefDTO } from "@models";
 import type { LoginResult } from "@/api";
-
-/**
- * initAuth Promise 缓存，防止并发调用时重复请求
- * 解决 main.ts 和 router guard 同时调用 initAuth 的竞态问题
- */
-let initAuthPromise: Promise<void> | null = null;
 
 export const useAuthStore = defineStore("auth", () => {
   // 状态
-  const currentUser = ref<UserUserWithRolesDTO | null>(null);
+  const currentUser = ref<AuthUserBriefDTO | null>(null);
   const isLoading = ref(false);
   const error = ref<string | null>(null);
 
@@ -26,40 +20,20 @@ export const useAuthStore = defineStore("auth", () => {
 
   /**
    * 初始化认证状态
-   * 检查 localStorage 中的 token，如果存在则获取用户信息
-   * 使用 Promise 缓存防止并发调用时重复请求
+   * 从 localStorage 恢复用户信息（不请求 profile API）
    */
-  async function initAuth() {
-    // 如果正在初始化，返回现有 Promise（防重入）
-    if (initAuthPromise) {
-      return initAuthPromise;
-    }
-
+  function initAuth() {
     const token = accessToken.value;
     if (!token) {
       currentUser.value = null;
+      storedUser.value = null;
       return;
     }
 
-    // 创建并缓存 Promise
-    initAuthPromise = (async () => {
-      try {
-        isLoading.value = true;
-        error.value = null;
-        const response = await userProfileApi.apiUserProfileGet();
-        currentUser.value = extractData<UserUserWithRolesDTO>(response.data) ?? null;
-      } catch (err) {
-        // token 无效，清除并重置状态
-        clearAuthTokens();
-        currentUser.value = null;
-        error.value = (err as Error).message || "Failed to initialize auth";
-      } finally {
-        isLoading.value = false;
-        initAuthPromise = null; // 完成后清除缓存，允许后续调用
-      }
-    })();
-
-    return initAuthPromise;
+    // 从 localStorage 恢复用户信息
+    if (storedUser.value) {
+      currentUser.value = storedUser.value;
+    }
   }
 
   /**
@@ -91,9 +65,10 @@ export const useAuthStore = defineStore("auth", () => {
           refreshToken.value = response.data.refresh_token;
         }
 
-        // 保存用户信息
+        // 保存用户信息（内存 + localStorage）
         if (response.data?.user) {
           currentUser.value = response.data.user;
+          storedUser.value = response.data.user;
         }
         return {
           success: true,
@@ -142,8 +117,9 @@ export const useAuthStore = defineStore("auth", () => {
   /**
    * 更新用户信息
    */
-  function updateUser(user: UserUserWithRolesDTO) {
+  function updateUser(user: AuthUserBriefDTO) {
     currentUser.value = user;
+    storedUser.value = user;
   }
 
   return {
