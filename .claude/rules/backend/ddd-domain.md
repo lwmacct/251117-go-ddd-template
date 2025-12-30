@@ -13,7 +13,7 @@ DDD 架构核心，**不依赖任何外层**。
 
 ```
 internal/domain/{module}/
-├── entity_{module}.go       # 主实体
+├── entity.go                # 主实体
 ├── entity_{xxx}.go          # 次要实体（可选）
 ├── repository.go            # Repository 接口（Command + Query）
 ├── cmd_{entity}.go          # 写仓储接口（多实体时）
