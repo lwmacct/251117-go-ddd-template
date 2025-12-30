@@ -63,8 +63,6 @@ func (s *RBACSeeder) seedRoles(ctx context.Context, db *gorm.DB) error {
 			permissions: []permissionConfig{
 				// self 域所有操作（对自己的资源）
 				{operationPattern: "self:*:*", resourcePattern: "self:user:@me"},
-				// public 域操作（虽然公开但显式授权更清晰）
-				{operationPattern: "public:*:*", resourcePattern: "*:*:*"},
 			},
 		},
 	}
