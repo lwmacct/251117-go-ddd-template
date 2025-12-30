@@ -2,20 +2,6 @@
 
 基于领域驱动设计（DDD）和 CQRS 模式的企业级应用模板。
 
-<!--TOC-->
-
-## Table of Contents
-
-- [技术栈](#技术栈) `:19+9`
-- [快速开始](#快速开始) `:28+18`
-- [项目结构](#项目结构) `:46+13`
-- [核心功能](#核心功能) `:59+7`
-- [文档](#文档) `:66+11`
-- [开发命令](#开发命令) `:77+9`
-- [License](#license) `:86+3`
-
-<!--TOC-->
-
 ## 技术栈
 
 | 后端                     | 前端                         | 文档      |
@@ -31,17 +17,15 @@
 # 1. 启动依赖服务
 docker-compose up -d
 
-# 2. 数据库迁移
-go run main.go migrate up
+# 2. 初始化数据库（迁移 + 种子数据）
+go run main.go db reset --force
 
-# 3. 填充种子数据
-go run main.go seed
-
-# 4. 启动服务
-air  # 或 go run main.go api
+# 3. 启动服务
+air       # 后端（热重载）
+nr dev    # 前端
 ```
 
-**预置账号**: `admin / password123`
+**预置账号**: `admin / admin123`
 
 ## 项目结构
 
@@ -77,10 +61,10 @@ internal/
 ## 开发命令
 
 ```bash
-task go:run -- api       # 启动 API
-task go:run -- migrate up # 数据库迁移
-task go:build            # 构建二进制
-golangci-lint run        # 代码检查
+air                        # 启动 API（热重载）
+go run main.go db migrate  # 数据库迁移
+go run main.go db reset    # 重置数据库 开发常用 --force
+golangci-lint run          # 代码检查
 ```
 
 ## License
