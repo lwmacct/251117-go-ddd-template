@@ -34,6 +34,7 @@ export * from './pat-create-dto';
 export * from './pat-create-result-dto';
 export * from './pat-scope-info-dto';
 export * from './pat-token-dto';
+export * from './response-data-response-any';
 export * from './response-data-response-array-pat-scope-info-dto';
 export * from './response-data-response-array-pat-token-dto';
 export * from './response-data-response-array-routes-operation-definition';

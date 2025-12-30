@@ -4,29 +4,23 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
-
-	"github.com/redis/go-redis/v9"
 )
 
 // DeleteHandler 缓存删除 Handler（类似 redis-cli DEL）。
 type DeleteHandler struct {
-	client    *redis.Client
-	keyPrefix string
+	svc AdminCacheService
 }
 
 // NewDeleteHandler 创建缓存删除 Handler。
-func NewDeleteHandler(client *redis.Client, keyPrefix string) *DeleteHandler {
-	return &DeleteHandler{
-		client:    client,
-		keyPrefix: keyPrefix,
-	}
+func NewDeleteHandler(svc AdminCacheService) *DeleteHandler {
+	return &DeleteHandler{svc: svc}
 }
 
 // DeleteKey 删除单个 Key。
 //
 // key 参数是完整的 key 名称（含应用前缀）。
 func (h *DeleteHandler) DeleteKey(ctx context.Context, key string) (*DeleteResultDTO, error) {
-	deleted, err := h.client.Del(ctx, key).Result()
+	deleted, err := h.svc.DeleteKey(ctx, key)
 	if err != nil {
 		return nil, fmt.Errorf("delete key failed: %w", err)
 	}
@@ -42,19 +36,19 @@ func (h *DeleteHandler) DeleteKey(ctx context.Context, key string) (*DeleteResul
 //
 // pattern 参数不含应用前缀（如 "setting:*"）。
 func (h *DeleteHandler) DeleteByPattern(ctx context.Context, pattern string) (*DeleteResultDTO, error) {
-	fullPattern := h.keyPrefix + pattern
+	fullPattern := h.svc.KeyPrefix() + pattern
 
 	var deleted int64
 	var cursor uint64
 
 	for {
-		keys, nextCursor, err := h.client.Scan(ctx, cursor, fullPattern, 100).Result()
+		keys, nextCursor, err := h.svc.ScanKeys(ctx, fullPattern, cursor, 100)
 		if err != nil {
 			return nil, fmt.Errorf("scan keys failed: %w", err)
 		}
 
 		if len(keys) > 0 {
-			n, err := h.client.Del(ctx, keys...).Result()
+			n, err := h.svc.DeleteKeys(ctx, keys...)
 			if err != nil {
 				slog.Warn("delete keys failed", "pattern", fullPattern, "err", err)
 			}

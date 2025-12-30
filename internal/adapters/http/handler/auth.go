@@ -147,6 +147,7 @@ func (h *AuthHandler) Login2FA(c *gin.Context) {
 //	@Tags			Authentication
 //	@Accept			json
 //	@Produce		json
+//	@Security		BearerAuth
 //	@Param			request	body		auth.RefreshTokenDTO							true	"刷新令牌"
 //	@Success		200		{object}	response.DataResponse[auth.LoginResponseDTO]	"令牌刷新成功"
 //	@Failure		401		{object}	response.ErrorResponse							"刷新令牌无效或已过期"

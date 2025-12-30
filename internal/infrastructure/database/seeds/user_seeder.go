@@ -59,3 +59,8 @@ func (s *UserSeeder) Seed(ctx context.Context, db *gorm.DB) error {
 
 	return nil
 }
+
+// Name 返回种子器名称。
+func (s *UserSeeder) Name() string {
+	return "UserSeeder"
+}

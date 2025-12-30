@@ -20,8 +20,8 @@ import (
 //   - Operation: "sys:*", "sys:users.*", "*:*.read"
 //   - Resource:  "user/*", "*"
 type Permission struct {
-	OperationPattern string `json:"operation_pattern"` // 操作模式
-	ResourcePattern  string `json:"resource_pattern"`  // 资源模式，默认 "*"
+	OperationPattern string // 操作模式
+	ResourcePattern  string // 资源模式，默认 "*"
 }
 
 // NewPermission 创建权限条目。
@@ -51,15 +51,15 @@ func (p Permission) Matches(op permission.Operation, res permission.Resource) bo
 //   - 角色直接关联操作模式，无需独立的权限实体
 //   - 支持通配符实现细粒度和粗粒度权限控制
 type Role struct {
-	ID          uint         `json:"id"`
-	CreatedAt   time.Time    `json:"created_at"`
-	UpdatedAt   time.Time    `json:"updated_at"`
-	DeletedAt   *time.Time   `json:"-"`
-	Name        string       `json:"name"`
-	DisplayName string       `json:"display_name"`
-	Description string       `json:"description"`
-	IsSystem    bool         `json:"is_system"`
-	Permissions []Permission `json:"permissions,omitempty"`
+	ID          uint
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
+	DeletedAt   *time.Time
+	Name        string
+	DisplayName string
+	Description string
+	IsSystem    bool
+	Permissions []Permission
 }
 
 // IsSystemRole 检查是否为系统角色。

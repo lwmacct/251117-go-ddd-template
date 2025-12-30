@@ -13,15 +13,15 @@ const (
 
 // CheckResult 单个组件的检查结果
 type CheckResult struct {
-	Status Status         `json:"status"`
-	Error  string         `json:"error,omitempty"`
-	Stats  map[string]any `json:"stats,omitempty"`
+	Status Status
+	Error  string
+	Stats  map[string]any
 }
 
 // HealthReport 系统健康报告
 type HealthReport struct {
-	Status Status                 `json:"status"`
-	Checks map[string]CheckResult `json:"checks"`
+	Status Status
+	Checks map[string]CheckResult
 }
 
 // Checker 定义健康检查服务接口

@@ -71,3 +71,8 @@ func (s *SettingCategorySeeder) Seed(ctx context.Context, db *gorm.DB) error {
 	slog.Info("Seeded setting categories", "attempted", len(categories), "inserted", result.RowsAffected)
 	return nil
 }
+
+// Name 返回种子器名称。
+func (s *SettingCategorySeeder) Name() string {
+	return "SettingCategorySeeder"
+}

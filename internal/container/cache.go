@@ -8,6 +8,7 @@ import (
 	"github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/cache"
 
 	"github.com/lwmacct/251117-go-ddd-template/internal/application/auth"
+	appcache "github.com/lwmacct/251117-go-ddd-template/internal/application/cache"
 	"github.com/lwmacct/251117-go-ddd-template/internal/application/setting"
 	"github.com/lwmacct/251117-go-ddd-template/internal/application/user"
 )
@@ -21,6 +22,7 @@ type CacheServicesResult struct {
 	UserWithRoles    user.UserWithRolesCacheService
 	Permission       auth.PermissionCacheService
 	Settings         setting.SettingsCacheService
+	Admin            appcache.AdminCacheService
 }
 
 // CacheModule 提供所有缓存服务。
@@ -37,5 +39,6 @@ func NewAllCacheServices(client *redis.Client, cfg *config.Config) CacheServices
 		UserWithRoles:    cache.NewUserWithRolesCacheService(client, prefix),
 		Permission:       cache.NewPermissionCacheService(client, prefix),
 		Settings:         cache.NewSettingsCacheService(client, prefix),
+		Admin:            cache.NewAdminCacheService(client, prefix),
 	}
 }

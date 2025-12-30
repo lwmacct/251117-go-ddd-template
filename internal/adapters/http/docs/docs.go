@@ -320,6 +320,11 @@ const docTemplate = `{
         },
         "/api/auth/refresh": {
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "使用refresh_token获取新的access_token和refresh_token，延长会话有效期",
                 "consumes": [
                     "application/json"
@@ -3349,6 +3354,52 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/health/live": {
+            "get": {
+                "description": "Kubernetes liveness probe，检查应用是否存活",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "系统 (System)"
+                ],
+                "summary": "存活检查",
+                "responses": {
+                    "200": {
+                        "description": "存活",
+                        "schema": {
+                            "$ref": "#/definitions/response.DataResponse-any"
+                        }
+                    }
+                }
+            }
+        },
+        "/health/ready": {
+            "get": {
+                "description": "Kubernetes readiness probe，检查应用是否就绪接受流量",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "系统 (System)"
+                ],
+                "summary": "就绪检查",
+                "responses": {
+                    "200": {
+                        "description": "就绪",
+                        "schema": {
+                            "$ref": "#/definitions/response.DataResponse-any"
+                        }
+                    },
+                    "503": {
+                        "description": "未就绪",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -4087,6 +4138,25 @@ const docTemplate = `{
                 },
                 "user_id": {
                     "type": "integer"
+                }
+            }
+        },
+        "response.DataResponse-any": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "description": "HTTP 状态码",
+                    "type": "integer"
+                },
+                "data": {
+                    "description": "响应数据"
+                },
+                "error": {
+                    "description": "错误详情（仅失败时）"
+                },
+                "message": {
+                    "description": "消息描述",
+                    "type": "string"
                 }
             }
         },

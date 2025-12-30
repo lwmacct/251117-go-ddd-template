@@ -142,6 +142,8 @@ func SetupRouterWithDeps(deps *RouterDependencies) *gin.Engine {
 
 	// 健康检查
 	r.GET("/health", deps.HealthHandler.Check)
+	r.GET("/health/live", deps.HealthHandler.Live)
+	r.GET("/health/ready", deps.HealthHandler.Ready)
 
 	// Swagger API 文档
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))

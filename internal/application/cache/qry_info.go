@@ -3,32 +3,27 @@ package cache
 import (
 	"context"
 	"fmt"
-
-	"github.com/redis/go-redis/v9"
 )
 
 // InfoHandler 缓存信息查询 Handler（类似 redis-cli INFO）。
 type InfoHandler struct {
-	client    *redis.Client
-	keyPrefix string
+	svc AdminCacheService
 }
 
 // NewInfoHandler 创建缓存信息查询 Handler。
-func NewInfoHandler(client *redis.Client, keyPrefix string) *InfoHandler {
-	return &InfoHandler{
-		client:    client,
-		keyPrefix: keyPrefix,
-	}
+func NewInfoHandler(svc AdminCacheService) *InfoHandler {
+	return &InfoHandler{svc: svc}
 }
 
 // Handle 查询缓存信息。
 func (h *InfoHandler) Handle(ctx context.Context) (*CacheInfoDTO, error) {
+	keyPrefix := h.svc.KeyPrefix()
 	result := &CacheInfoDTO{
-		KeyPrefix: h.keyPrefix,
+		KeyPrefix: keyPrefix,
 	}
 
 	// 统计应用前缀下的 key 数量
-	pattern := h.keyPrefix + "*"
+	pattern := keyPrefix + "*"
 	count, err := h.countKeys(ctx, pattern)
 	if err != nil {
 		return nil, fmt.Errorf("count keys failed: %w", err)
@@ -36,15 +31,10 @@ func (h *InfoHandler) Handle(ctx context.Context) (*CacheInfoDTO, error) {
 	result.DBSize = count
 
 	// 获取 Redis 服务器信息
-	info, err := h.client.Info(ctx, "server").Result()
+	version, memoryUsage, err := h.svc.GetInfo(ctx)
 	if err == nil {
-		result.RedisVersion = extractRedisVersion(info)
-	}
-
-	// 获取内存使用量
-	memInfo, err := h.client.Info(ctx, "memory").Result()
-	if err == nil {
-		result.MemoryUsage = extractMemoryUsage(memInfo)
+		result.RedisVersion = version
+		result.MemoryUsage = memoryUsage
 	}
 
 	return result, nil
@@ -56,13 +46,11 @@ func (h *InfoHandler) countKeys(ctx context.Context, pattern string) (int64, err
 	var cursor uint64
 
 	for {
-		_, nextCursor, err := h.client.Scan(ctx, cursor, pattern, 1000).Result()
+		keys, nextCursor, err := h.svc.ScanKeys(ctx, pattern, cursor, 1000)
 		if err != nil {
 			return count, err
 		}
 
-		// SCAN 返回的是本次扫描的 key 数量
-		keys, _, _ := h.client.Scan(ctx, cursor, pattern, 1000).Result()
 		count += int64(len(keys))
 
 		cursor = nextCursor
@@ -72,48 +60,4 @@ func (h *InfoHandler) countKeys(ctx context.Context, pattern string) (int64, err
 	}
 
 	return count, nil
-}
-
-// extractRedisVersion 从 INFO server 输出中提取 Redis 版本
-func extractRedisVersion(info string) string {
-	// INFO 输出格式：redis_version:7.2.0
-	const prefix = "redis_version:"
-	start := 0
-	for i := range info {
-		if info[i:i+1] == "\n" || i == 0 {
-			if i > 0 {
-				start = i + 1
-			}
-			if len(info) > start+len(prefix) && info[start:start+len(prefix)] == prefix {
-				end := start + len(prefix)
-				for end < len(info) && info[end] != '\r' && info[end] != '\n' {
-					end++
-				}
-				return info[start+len(prefix) : end]
-			}
-		}
-	}
-	return ""
-}
-
-// extractMemoryUsage 从 INFO memory 输出中提取内存使用量
-func extractMemoryUsage(info string) string {
-	// INFO 输出格式：used_memory_human:1.23M
-	const prefix = "used_memory_human:"
-	start := 0
-	for i := range info {
-		if info[i:i+1] == "\n" || i == 0 {
-			if i > 0 {
-				start = i + 1
-			}
-			if len(info) > start+len(prefix) && info[start:start+len(prefix)] == prefix {
-				end := start + len(prefix)
-				for end < len(info) && info[end] != '\r' && info[end] != '\n' {
-					end++
-				}
-				return info[start+len(prefix) : end]
-			}
-		}
-	}
-	return ""
 }

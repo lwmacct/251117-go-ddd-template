@@ -10,29 +10,29 @@ import (
 
 // User 用户实体
 type User struct {
-	ID        uint       `json:"id"`
-	CreatedAt time.Time  `json:"created_at"`
-	UpdatedAt time.Time  `json:"updated_at"`
-	DeletedAt *time.Time `json:"-"`
+	ID        uint
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	DeletedAt *time.Time
 
-	Username string `json:"username"`
-	Email    string `json:"email"`
-	Password string `json:"-"`
-	FullName string `json:"full_name"`
-	Avatar   string `json:"avatar"`
-	Bio      string `json:"bio"`
-	Status   string `json:"status"`
+	Username string
+	Email    string
+	Password string
+	FullName string
+	Avatar   string
+	Bio      string
+	Status   string
 
 	// Type 用户类型：human（人类用户）或 service（服务账户）。
 	// 服务账户无密码，仅通过 PAT 认证。
-	Type UserType `json:"type"`
+	Type UserType
 
 	// IsSystem 系统预置用户标记。
 	// 系统用户（如 root、admin）不可删除，部分字段不可修改。
-	IsSystem bool `json:"is_system"`
+	IsSystem bool
 
 	// RBAC: Many-to-Many relationship with roles
-	Roles []role.Role `json:"roles,omitempty"`
+	Roles []role.Role
 }
 
 // HasRole 检查用户是否拥有指定角色

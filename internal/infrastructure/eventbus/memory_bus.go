@@ -2,6 +2,7 @@ package eventbus
 
 import (
 	"context"
+	"log/slog"
 	"strings"
 	"sync"
 
@@ -101,14 +102,17 @@ func (b *InMemoryEventBus) publishOne(ctx context.Context, e event.Event) error 
 		matchedHandlers = append(matchedHandlers, handlers...)
 	}
 
-	// 执行所有处理器
+	// 执行所有处理器（错误不中断后续处理器）
+	var lastErr error
 	for _, handler := range matchedHandlers {
 		if err := handler.Handle(ctx, e); err != nil {
-			return err
+			slog.Error("event handler failed", "event", e.EventName(), "err", err)
+			lastErr = err
+			// 继续执行后续处理器
 		}
 	}
 
-	return nil
+	return lastErr
 }
 
 // ============================================================================

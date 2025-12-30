@@ -44,3 +44,36 @@ func (h *HealthHandler) Check(c *gin.Context) {
 		response.ServiceUnavailable(c, string(report.Status))
 	}
 }
+
+// Live Kubernetes liveness probe
+//
+//	@Summary		存活检查
+//	@Description	Kubernetes liveness probe，检查应用是否存活
+//	@Tags			系统 (System)
+//	@Produce		json
+//	@Success		200	{object}	response.DataResponse[any]	"存活"
+//	@Router			/health/live [get]
+func (h *HealthHandler) Live(c *gin.Context) {
+	response.OK(c, "alive", nil)
+}
+
+// Ready Kubernetes readiness probe
+//
+//	@Summary		就绪检查
+//	@Description	Kubernetes readiness probe，检查应用是否就绪接受流量
+//	@Tags			系统 (System)
+//	@Produce		json
+//	@Success		200	{object}	response.DataResponse[any]			"就绪"
+//	@Failure		503	{object}	response.ErrorResponse				"未就绪"
+//	@Router			/health/ready [get]
+func (h *HealthHandler) Ready(c *gin.Context) {
+	ctx, cancel := context.WithTimeout(c.Request.Context(), 2*time.Second)
+	defer cancel()
+
+	report := h.checker.Check(ctx)
+	if report.Status == health.StatusUnhealthy {
+		response.ServiceUnavailable(c, "not ready")
+		return
+	}
+	response.OK(c, "ready", nil)
+}

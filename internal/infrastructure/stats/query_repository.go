@@ -17,7 +17,10 @@ func NewQueryRepository(db *gorm.DB) domain.QueryRepository {
 	return &queryRepository{db: db}
 }
 
-// GetSystemStats 获取系统统计信息
+// GetSystemStats 获取系统统计信息。
+//
+// TODO: 添加缓存支持，减少高频查询的数据库压力
+// 建议缓存策略：TTL 5-10 分钟，按需失效
 func (r *queryRepository) GetSystemStats(recentLogsLimit int) (*domain.SystemStats, error) {
 	s := &domain.SystemStats{}
 

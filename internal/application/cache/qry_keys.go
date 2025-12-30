@@ -3,8 +3,6 @@ package cache
 import (
 	"context"
 	"strconv"
-
-	"github.com/redis/go-redis/v9"
 )
 
 // ScanKeysQuery SCAN 查询参数
@@ -21,16 +19,12 @@ type ScanKeysQuery struct {
 
 // ScanKeysHandler 缓存 Key 扫描 Handler（类似 redis-cli SCAN）。
 type ScanKeysHandler struct {
-	client    *redis.Client
-	keyPrefix string
+	svc AdminCacheService
 }
 
 // NewScanKeysHandler 创建缓存 Key 扫描 Handler。
-func NewScanKeysHandler(client *redis.Client, keyPrefix string) *ScanKeysHandler {
-	return &ScanKeysHandler{
-		client:    client,
-		keyPrefix: keyPrefix,
-	}
+func NewScanKeysHandler(svc AdminCacheService) *ScanKeysHandler {
+	return &ScanKeysHandler{svc: svc}
 }
 
 // Handle 扫描缓存 Keys。
@@ -48,7 +42,8 @@ func (h *ScanKeysHandler) Handle(ctx context.Context, q ScanKeysQuery) (*ScanKey
 	}
 
 	// 构建完整 pattern
-	pattern := h.keyPrefix
+	keyPrefix := h.svc.KeyPrefix()
+	pattern := keyPrefix
 	if q.Pattern != "" {
 		pattern += q.Pattern
 	} else {
@@ -56,7 +51,7 @@ func (h *ScanKeysHandler) Handle(ctx context.Context, q ScanKeysQuery) (*ScanKey
 	}
 
 	// 执行 SCAN
-	keys, nextCursor, err := h.client.Scan(ctx, cursor, pattern, int64(limit)).Result()
+	keys, nextCursor, err := h.svc.ScanKeys(ctx, pattern, cursor, int64(limit))
 	if err != nil {
 		return nil, err
 	}
@@ -66,16 +61,10 @@ func (h *ScanKeysHandler) Handle(ctx context.Context, q ScanKeysQuery) (*ScanKey
 	for _, k := range keys {
 		dto := CacheKeyDTO{Key: k}
 
-		// 获取 TTL
-		ttl, err := h.client.TTL(ctx, k).Result()
-		if err == nil {
-			dto.TTL = int64(ttl.Seconds())
-		}
-
-		// 获取类型
-		keyType, err := h.client.Type(ctx, k).Result()
+		keyType, ttl, err := h.svc.GetKeyInfo(ctx, k)
 		if err == nil {
 			dto.Type = keyType
+			dto.TTL = ttl
 		}
 
 		keyDTOs = append(keyDTOs, dto)

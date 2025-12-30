@@ -513,6 +513,19 @@ definitions:
       user_id:
         type: integer
     type: object
+  response.DataResponse-any:
+    properties:
+      code:
+        description: HTTP 状态码
+        type: integer
+      data:
+        description: 响应数据
+      error:
+        description: 错误详情（仅失败时）
+      message:
+        description: 消息描述
+        type: string
+    type: object
   response.DataResponse-array_pat_ScopeInfoDTO:
     properties:
       code:
@@ -1838,6 +1851,8 @@ paths:
           description: 刷新令牌无效或已过期
           schema:
             $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
       summary: 刷新令牌
       tags:
       - Authentication
@@ -3759,6 +3774,36 @@ paths:
           schema:
             $ref: '#/definitions/response.DataResponse-github_com_lwmacct_251117-go-ddd-template_internal_application_health_HealthReport'
       summary: 健康检查
+      tags:
+      - 系统 (System)
+  /health/live:
+    get:
+      description: Kubernetes liveness probe，检查应用是否存活
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 存活
+          schema:
+            $ref: '#/definitions/response.DataResponse-any'
+      summary: 存活检查
+      tags:
+      - 系统 (System)
+  /health/ready:
+    get:
+      description: Kubernetes readiness probe，检查应用是否就绪接受流量
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 就绪
+          schema:
+            $ref: '#/definitions/response.DataResponse-any'
+        "503":
+          description: 未就绪
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: 就绪检查
       tags:
       - 系统 (System)
 securityDefinitions:

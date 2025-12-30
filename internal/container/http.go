@@ -1,16 +1,9 @@
 package container
 
 import (
-	"context"
-	"log/slog"
-	"net"
-	"net/http"
-	"time"
-
 	"github.com/gin-gonic/gin"
 	"github.com/redis/go-redis/v9"
 	"go.uber.org/fx"
-	"gorm.io/gorm"
 
 	adapthttp "github.com/lwmacct/251117-go-ddd-template/internal/adapters/http"
 	"github.com/lwmacct/251117-go-ddd-template/internal/adapters/http/handler"
@@ -43,22 +36,18 @@ type HandlersResult struct {
 // HTTPModule 提供 HTTP 处理器和路由。
 var HTTPModule = fx.Module("http",
 	fx.Provide(
-		newHealthChecker,
+		health.NewSystemChecker,
 		newAllHandlers,
 		newRouter,
 	),
 )
-
-func newHealthChecker(db *gorm.DB, redisClient *redis.Client) *health.SystemChecker {
-	return health.NewSystemChecker(db, redisClient)
-}
 
 // handlersParams 聚合创建 Handler 所需的依赖。
 type handlersParams struct {
 	fx.In
 
 	Config        *config.Config
-	RedisClient   *redis.Client
+	AdminCacheSvc cache.AdminCacheService
 	HealthChecker *health.SystemChecker
 	Auth          *AuthUseCases
 	User          *UserUseCases
@@ -73,8 +62,6 @@ type handlersParams struct {
 }
 
 func newAllHandlers(p handlersParams) HandlersResult {
-	keyPrefix := p.Config.Data.RedisKeyPrefix
-
 	return HandlersResult{
 		Health: handler.NewHealthHandler(p.HealthChecker),
 		Auth: handler.NewAuthHandler(
@@ -151,10 +138,10 @@ func newAllHandlers(p handlersParams) HandlersResult {
 			p.TwoFA.GetStatus,
 		),
 		Cache: handler.NewCacheHandler(
-			cache.NewInfoHandler(p.RedisClient, keyPrefix),
-			cache.NewScanKeysHandler(p.RedisClient, keyPrefix),
-			cache.NewGetKeyHandler(p.RedisClient, keyPrefix),
-			cache.NewDeleteHandler(p.RedisClient, keyPrefix),
+			cache.NewInfoHandler(p.AdminCacheSvc),
+			cache.NewScanKeysHandler(p.AdminCacheSvc),
+			cache.NewGetKeyHandler(p.AdminCacheSvc),
+			cache.NewDeleteHandler(p.AdminCacheSvc),
 		),
 		Operation: handler.NewOperationHandler(),
 	}
@@ -217,34 +204,4 @@ func newRouter(p routerParams) *gin.Engine {
 	}
 
 	return adapthttp.SetupRouterWithDeps(deps)
-}
-
-// StartHTTPServer 启动 HTTP 服务器并管理生命周期。
-func StartHTTPServer(lc fx.Lifecycle, cfg *config.Config, router *gin.Engine) {
-	srv := &http.Server{
-		Addr:              cfg.Server.Addr,
-		Handler:           router,
-		ReadHeaderTimeout: 10 * time.Second,
-	}
-
-	lc.Append(fx.Hook{
-		OnStart: func(ctx context.Context) error {
-			lc := &net.ListenConfig{}
-			ln, err := lc.Listen(ctx, "tcp", srv.Addr)
-			if err != nil {
-				return err
-			}
-			slog.Info("Starting HTTP server", "address", srv.Addr)
-			go func() {
-				if err := srv.Serve(ln); err != nil && err != http.ErrServerClosed {
-					slog.Error("Server error", "error", err)
-				}
-			}()
-			return nil
-		},
-		OnStop: func(ctx context.Context) error {
-			slog.Info("Stopping HTTP server")
-			return srv.Shutdown(ctx)
-		},
-	})
 }

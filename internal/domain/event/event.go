@@ -23,10 +23,10 @@ type Event interface {
 // BaseEvent 事件基础结构
 // 提供 Event 接口的通用实现
 type BaseEvent struct {
-	Name        string    `json:"name"`
-	Timestamp   time.Time `json:"timestamp"`
-	AggregateId string    `json:"aggregate_id"`
-	Aggregate   string    `json:"aggregate_type"`
+	Name        string
+	Timestamp   time.Time
+	AggregateId string
+	Aggregate   string
 }
 
 // NewBaseEvent 创建基础事件
