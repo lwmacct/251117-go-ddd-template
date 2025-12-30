@@ -47,7 +47,7 @@ export const AuthenticationApiAxiosParamCreator = function (configuration?: Conf
     return {
         /**
          * 生成图形验证码用于登录。支持开发模式（通过code和secret参数指定验证码值）
-         * @summary 获取图形验证码
+         * @summary 获取验证码
          * @param {string} [code] 开发模式：指定验证码值
          * @param {string} [secret] 开发模式：密钥
          * @param {*} [options] Override http request option.
@@ -87,7 +87,7 @@ export const AuthenticationApiAxiosParamCreator = function (configuration?: Conf
         },
         /**
          * 使用session_token和2FA验证码完成登录（适用于启用了2FA的账户）
-         * @summary 二次认证登录
+         * @summary 2FA 登录
          * @param {AuthLogin2FADTO} request 二次认证凭证
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -123,7 +123,7 @@ export const AuthenticationApiAxiosParamCreator = function (configuration?: Conf
         },
         /**
          * 使用手机号/用户名/邮箱和密码登录系统，需要提供图形验证码。如果启用了2FA，返回session_token用于后续2FA验证
-         * @summary 用户登录
+         * @summary 登录
          * @param {AuthLoginDTO} request 登录凭证
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -159,7 +159,7 @@ export const AuthenticationApiAxiosParamCreator = function (configuration?: Conf
         },
         /**
          * 使用refresh_token获取新的access_token和refresh_token，延长会话有效期
-         * @summary 刷新访问令牌
+         * @summary 刷新令牌
          * @param {AuthRefreshTokenDTO} request 刷新令牌
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -195,7 +195,7 @@ export const AuthenticationApiAxiosParamCreator = function (configuration?: Conf
         },
         /**
          * 创建新用户账号，注册成功后自动登录并返回访问令牌
-         * @summary 用户注册
+         * @summary 注册
          * @param {AuthRegisterDTO} request 注册信息
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -241,7 +241,7 @@ export const AuthenticationApiFp = function(configuration?: Configuration) {
     return {
         /**
          * 生成图形验证码用于登录。支持开发模式（通过code和secret参数指定验证码值）
-         * @summary 获取图形验证码
+         * @summary 获取验证码
          * @param {string} [code] 开发模式：指定验证码值
          * @param {string} [secret] 开发模式：密钥
          * @param {*} [options] Override http request option.
@@ -255,7 +255,7 @@ export const AuthenticationApiFp = function(configuration?: Configuration) {
         },
         /**
          * 使用session_token和2FA验证码完成登录（适用于启用了2FA的账户）
-         * @summary 二次认证登录
+         * @summary 2FA 登录
          * @param {AuthLogin2FADTO} request 二次认证凭证
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -268,7 +268,7 @@ export const AuthenticationApiFp = function(configuration?: Configuration) {
         },
         /**
          * 使用手机号/用户名/邮箱和密码登录系统，需要提供图形验证码。如果启用了2FA，返回session_token用于后续2FA验证
-         * @summary 用户登录
+         * @summary 登录
          * @param {AuthLoginDTO} request 登录凭证
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -281,7 +281,7 @@ export const AuthenticationApiFp = function(configuration?: Configuration) {
         },
         /**
          * 使用refresh_token获取新的access_token和refresh_token，延长会话有效期
-         * @summary 刷新访问令牌
+         * @summary 刷新令牌
          * @param {AuthRefreshTokenDTO} request 刷新令牌
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -294,7 +294,7 @@ export const AuthenticationApiFp = function(configuration?: Configuration) {
         },
         /**
          * 创建新用户账号，注册成功后自动登录并返回访问令牌
-         * @summary 用户注册
+         * @summary 注册
          * @param {AuthRegisterDTO} request 注册信息
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -317,7 +317,7 @@ export const AuthenticationApiFactory = function (configuration?: Configuration,
     return {
         /**
          * 生成图形验证码用于登录。支持开发模式（通过code和secret参数指定验证码值）
-         * @summary 获取图形验证码
+         * @summary 获取验证码
          * @param {string} [code] 开发模式：指定验证码值
          * @param {string} [secret] 开发模式：密钥
          * @param {*} [options] Override http request option.
@@ -328,7 +328,7 @@ export const AuthenticationApiFactory = function (configuration?: Configuration,
         },
         /**
          * 使用session_token和2FA验证码完成登录（适用于启用了2FA的账户）
-         * @summary 二次认证登录
+         * @summary 2FA 登录
          * @param {AuthLogin2FADTO} request 二次认证凭证
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -338,7 +338,7 @@ export const AuthenticationApiFactory = function (configuration?: Configuration,
         },
         /**
          * 使用手机号/用户名/邮箱和密码登录系统，需要提供图形验证码。如果启用了2FA，返回session_token用于后续2FA验证
-         * @summary 用户登录
+         * @summary 登录
          * @param {AuthLoginDTO} request 登录凭证
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -348,7 +348,7 @@ export const AuthenticationApiFactory = function (configuration?: Configuration,
         },
         /**
          * 使用refresh_token获取新的access_token和refresh_token，延长会话有效期
-         * @summary 刷新访问令牌
+         * @summary 刷新令牌
          * @param {AuthRefreshTokenDTO} request 刷新令牌
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -358,7 +358,7 @@ export const AuthenticationApiFactory = function (configuration?: Configuration,
         },
         /**
          * 创建新用户账号，注册成功后自动登录并返回访问令牌
-         * @summary 用户注册
+         * @summary 注册
          * @param {AuthRegisterDTO} request 注册信息
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -378,7 +378,7 @@ export const AuthenticationApiFactory = function (configuration?: Configuration,
 export class AuthenticationApi extends BaseAPI {
     /**
      * 生成图形验证码用于登录。支持开发模式（通过code和secret参数指定验证码值）
-     * @summary 获取图形验证码
+     * @summary 获取验证码
      * @param {string} [code] 开发模式：指定验证码值
      * @param {string} [secret] 开发模式：密钥
      * @param {*} [options] Override http request option.
@@ -391,7 +391,7 @@ export class AuthenticationApi extends BaseAPI {
 
     /**
      * 使用session_token和2FA验证码完成登录（适用于启用了2FA的账户）
-     * @summary 二次认证登录
+     * @summary 2FA 登录
      * @param {AuthLogin2FADTO} request 二次认证凭证
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -403,7 +403,7 @@ export class AuthenticationApi extends BaseAPI {
 
     /**
      * 使用手机号/用户名/邮箱和密码登录系统，需要提供图形验证码。如果启用了2FA，返回session_token用于后续2FA验证
-     * @summary 用户登录
+     * @summary 登录
      * @param {AuthLoginDTO} request 登录凭证
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -415,7 +415,7 @@ export class AuthenticationApi extends BaseAPI {
 
     /**
      * 使用refresh_token获取新的access_token和refresh_token，延长会话有效期
-     * @summary 刷新访问令牌
+     * @summary 刷新令牌
      * @param {AuthRefreshTokenDTO} request 刷新令牌
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -427,7 +427,7 @@ export class AuthenticationApi extends BaseAPI {
 
     /**
      * 创建新用户账号，注册成功后自动登录并返回访问令牌
-     * @summary 用户注册
+     * @summary 注册
      * @param {AuthRegisterDTO} request 注册信息
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}

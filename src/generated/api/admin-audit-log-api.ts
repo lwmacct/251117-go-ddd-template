@@ -37,7 +37,7 @@ export const AdminAuditLogApiAxiosParamCreator = function (configuration?: Confi
     return {
         /**
          * 获取所有审计操作的定义、分类和操作类型，供前端筛选器使用
-         * @summary 获取审计操作定义
+         * @summary 审计操作定义
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -70,7 +70,7 @@ export const AdminAuditLogApiAxiosParamCreator = function (configuration?: Confi
         },
         /**
          * 分页获取审计日志，支持按用户、操作、资源、状态、时间范围筛选
-         * @summary 获取审计日志列表
+         * @summary 审计日志列表
          * @param {string} [action] Action 操作类型过滤（语义化标识，如 setting.update）
          * @param {string} [endDate] EndDate 结束时间（RFC3339 格式）
          * @param {number} [limit] Limit 每页数量，默认 20，最大 1000
@@ -143,7 +143,7 @@ export const AdminAuditLogApiAxiosParamCreator = function (configuration?: Confi
         },
         /**
          * 根据日志ID获取审计日志详细信息
-         * @summary 获取审计日志详情
+         * @summary 审计日志详情
          * @param {number} id 日志ID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -190,7 +190,7 @@ export const AdminAuditLogApiFp = function(configuration?: Configuration) {
     return {
         /**
          * 获取所有审计操作的定义、分类和操作类型，供前端筛选器使用
-         * @summary 获取审计操作定义
+         * @summary 审计操作定义
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -202,7 +202,7 @@ export const AdminAuditLogApiFp = function(configuration?: Configuration) {
         },
         /**
          * 分页获取审计日志，支持按用户、操作、资源、状态、时间范围筛选
-         * @summary 获取审计日志列表
+         * @summary 审计日志列表
          * @param {string} [action] Action 操作类型过滤（语义化标识，如 setting.update）
          * @param {string} [endDate] EndDate 结束时间（RFC3339 格式）
          * @param {number} [limit] Limit 每页数量，默认 20，最大 1000
@@ -222,7 +222,7 @@ export const AdminAuditLogApiFp = function(configuration?: Configuration) {
         },
         /**
          * 根据日志ID获取审计日志详细信息
-         * @summary 获取审计日志详情
+         * @summary 审计日志详情
          * @param {number} id 日志ID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -245,7 +245,7 @@ export const AdminAuditLogApiFactory = function (configuration?: Configuration, 
     return {
         /**
          * 获取所有审计操作的定义、分类和操作类型，供前端筛选器使用
-         * @summary 获取审计操作定义
+         * @summary 审计操作定义
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -254,7 +254,7 @@ export const AdminAuditLogApiFactory = function (configuration?: Configuration, 
         },
         /**
          * 分页获取审计日志，支持按用户、操作、资源、状态、时间范围筛选
-         * @summary 获取审计日志列表
+         * @summary 审计日志列表
          * @param {string} [action] Action 操作类型过滤（语义化标识，如 setting.update）
          * @param {string} [endDate] EndDate 结束时间（RFC3339 格式）
          * @param {number} [limit] Limit 每页数量，默认 20，最大 1000
@@ -271,7 +271,7 @@ export const AdminAuditLogApiFactory = function (configuration?: Configuration, 
         },
         /**
          * 根据日志ID获取审计日志详细信息
-         * @summary 获取审计日志详情
+         * @summary 审计日志详情
          * @param {number} id 日志ID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -291,7 +291,7 @@ export const AdminAuditLogApiFactory = function (configuration?: Configuration, 
 export class AdminAuditLogApi extends BaseAPI {
     /**
      * 获取所有审计操作的定义、分类和操作类型，供前端筛选器使用
-     * @summary 获取审计操作定义
+     * @summary 审计操作定义
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof AdminAuditLogApi
@@ -302,7 +302,7 @@ export class AdminAuditLogApi extends BaseAPI {
 
     /**
      * 分页获取审计日志，支持按用户、操作、资源、状态、时间范围筛选
-     * @summary 获取审计日志列表
+     * @summary 审计日志列表
      * @param {string} [action] Action 操作类型过滤（语义化标识，如 setting.update）
      * @param {string} [endDate] EndDate 结束时间（RFC3339 格式）
      * @param {number} [limit] Limit 每页数量，默认 20，最大 1000
@@ -321,7 +321,7 @@ export class AdminAuditLogApi extends BaseAPI {
 
     /**
      * 根据日志ID获取审计日志详细信息
-     * @summary 获取审计日志详情
+     * @summary 审计日志详情
      * @param {number} id 日志ID
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}

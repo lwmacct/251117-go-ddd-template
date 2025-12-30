@@ -44,9 +44,9 @@ func NewPATHandler(
 
 // CreateToken creates a new Personal Access Token
 //
-// @Summary      创建个人访问令牌
+// @Summary      创建令牌
 // @Description  用户创建新的个人访问令牌(PAT)，用于API访问。令牌仅在创建时显示一次
-// @Tags         用户 - 个人访问令牌 (User - Personal Access Token)
+// @Tags         User - Personal Access Token
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
@@ -55,7 +55,6 @@ func NewPATHandler(
 // @Failure      400 {object} response.ErrorResponse "参数错误"
 // @Failure      401 {object} response.ErrorResponse "未授权"
 // @Router       /api/user/tokens [post]
-// @x-permission {"scope":"user:tokens:create"}
 func (h *PATHandler) CreateToken(c *gin.Context) {
 	var req pat.CreateDTO
 
@@ -103,9 +102,9 @@ func (h *PATHandler) CreateToken(c *gin.Context) {
 
 // ListTokens lists all tokens for the current user
 //
-// @Summary      获取个人访问令牌列表
+// @Summary      令牌列表
 // @Description  获取当前用户的所有个人访问令牌（不包含令牌值）
-// @Tags         用户 - 个人访问令牌 (User - Personal Access Token)
+// @Tags         User - Personal Access Token
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
@@ -113,7 +112,6 @@ func (h *PATHandler) CreateToken(c *gin.Context) {
 // @Failure      401 {object} response.ErrorResponse "未授权"
 // @Failure      500 {object} response.ErrorResponse "服务器内部错误"
 // @Router       /api/user/tokens [get]
-// @x-permission {"scope":"user:tokens:read"}
 func (h *PATHandler) ListTokens(c *gin.Context) {
 	userID, exists := c.Get("user_id")
 	if !exists {
@@ -142,9 +140,9 @@ func (h *PATHandler) ListTokens(c *gin.Context) {
 
 // DeleteToken deletes a specific token
 //
-// @Summary      删除个人访问令牌
+// @Summary      删除令牌
 // @Description  用户删除指定的个人访问令牌（不可恢复）
-// @Tags         用户 - 个人访问令牌 (User - Personal Access Token)
+// @Tags         User - Personal Access Token
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
@@ -154,7 +152,6 @@ func (h *PATHandler) ListTokens(c *gin.Context) {
 // @Failure      401 {object} response.ErrorResponse "未授权"
 // @Failure      404 {object} response.ErrorResponse "令牌不存在"
 // @Router       /api/user/tokens/{id} [delete]
-// @x-permission {"scope":"user:tokens:delete"}
 func (h *PATHandler) DeleteToken(c *gin.Context) {
 	userID, exists := c.Get("user_id")
 	if !exists {
@@ -189,9 +186,9 @@ func (h *PATHandler) DeleteToken(c *gin.Context) {
 
 // GetToken retrieves details of a specific token
 //
-// @Summary      获取个人访问令牌详情
+// @Summary      令牌详情
 // @Description  获取指定个人访问令牌的详细信息（不包含令牌值）
-// @Tags         用户 - 个人访问令牌 (User - Personal Access Token)
+// @Tags         User - Personal Access Token
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
@@ -201,7 +198,6 @@ func (h *PATHandler) DeleteToken(c *gin.Context) {
 // @Failure      401 {object} response.ErrorResponse "未授权"
 // @Failure      404 {object} response.ErrorResponse "令牌不存在"
 // @Router       /api/user/tokens/{id} [get]
-// @x-permission {"scope":"user:tokens:read"}
 func (h *PATHandler) GetToken(c *gin.Context) {
 	userID, exists := c.Get("user_id")
 	if !exists {
@@ -238,9 +234,9 @@ func (h *PATHandler) GetToken(c *gin.Context) {
 
 // DisableToken 暂停令牌
 //
-// @Summary      禁用个人访问令牌
+// @Summary      禁用令牌
 // @Description  暂停指定令牌的使用（可再次启用）
-// @Tags         用户 - 个人访问令牌 (User - Personal Access Token)
+// @Tags         User - Personal Access Token
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
@@ -249,7 +245,6 @@ func (h *PATHandler) GetToken(c *gin.Context) {
 // @Failure      400 {object} response.ErrorResponse "无效的令牌ID"
 // @Failure      401 {object} response.ErrorResponse "未授权"
 // @Router       /api/user/tokens/{id}/disable [patch]
-// @x-permission {"scope":"user:tokens:disable"}
 func (h *PATHandler) DisableToken(c *gin.Context) {
 	userID, exists := c.Get("user_id")
 	if !exists {
@@ -282,9 +277,9 @@ func (h *PATHandler) DisableToken(c *gin.Context) {
 
 // EnableToken 启用令牌
 //
-// @Summary      启用个人访问令牌
+// @Summary      启用令牌
 // @Description  重新启用已禁用的令牌
-// @Tags         用户 - 个人访问令牌 (User - Personal Access Token)
+// @Tags         User - Personal Access Token
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
@@ -293,7 +288,6 @@ func (h *PATHandler) DisableToken(c *gin.Context) {
 // @Failure      400 {object} response.ErrorResponse "无效的令牌ID"
 // @Failure      401 {object} response.ErrorResponse "未授权"
 // @Router       /api/user/tokens/{id}/enable [patch]
-// @x-permission {"scope":"user:tokens:enable"}
 func (h *PATHandler) EnableToken(c *gin.Context) {
 	userID, exists := c.Get("user_id")
 	if !exists {

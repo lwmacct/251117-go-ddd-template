@@ -47,10 +47,10 @@ func AuditOp(o Operation) AuditOperation {
 	return ""
 }
 
-// Label 返回操作的中文标签。
-func Label(o Operation) string {
+// Summary 返回操作的中文摘要（@Summary）。
+func Summary(o Operation) string {
 	if m, ok := operationRegistry.Get(o); ok {
-		return m.Label
+		return m.Summary
 	}
 	return ""
 }
@@ -63,10 +63,10 @@ func Description(o Operation) string {
 	return ""
 }
 
-// Group 返回操作的 Swagger 分组。
-func Group(o Operation) string {
+// Tags 返回操作的 Swagger 分组（@Tags）。
+func Tags(o Operation) string {
 	if m, ok := operationRegistry.Get(o); ok {
-		return m.Group
+		return m.Tags
 	}
 	return ""
 }

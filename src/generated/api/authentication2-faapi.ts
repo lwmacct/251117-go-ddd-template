@@ -41,7 +41,7 @@ export const Authentication2FAApiAxiosParamCreator = function (configuration?: C
     return {
         /**
          * 禁用当前用户的两步验证功能
-         * @summary 禁用两步验证
+         * @summary 禁用 2FA
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -74,7 +74,7 @@ export const Authentication2FAApiAxiosParamCreator = function (configuration?: C
         },
         /**
          * 为当前用户生成2FA密钥和二维码，用于配置身份验证器应用
-         * @summary 初始化两步验证
+         * @summary 设置 2FA
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -107,7 +107,7 @@ export const Authentication2FAApiAxiosParamCreator = function (configuration?: C
         },
         /**
          * 获取当前用户的2FA启用状态和剩余恢复代码数量
-         * @summary 获取两步验证状态
+         * @summary 2FA 状态
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -140,7 +140,7 @@ export const Authentication2FAApiAxiosParamCreator = function (configuration?: C
         },
         /**
          * 验证身份验证器应用生成的TOTP代码，成功后启用2FA并返回恢复代码
-         * @summary 验证并启用两步验证
+         * @summary 启用 2FA
          * @param {TwofaVerifyDTO} request TOTP验证码
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -189,7 +189,7 @@ export const Authentication2FAApiFp = function(configuration?: Configuration) {
     return {
         /**
          * 禁用当前用户的两步验证功能
-         * @summary 禁用两步验证
+         * @summary 禁用 2FA
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -201,7 +201,7 @@ export const Authentication2FAApiFp = function(configuration?: Configuration) {
         },
         /**
          * 为当前用户生成2FA密钥和二维码，用于配置身份验证器应用
-         * @summary 初始化两步验证
+         * @summary 设置 2FA
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -213,7 +213,7 @@ export const Authentication2FAApiFp = function(configuration?: Configuration) {
         },
         /**
          * 获取当前用户的2FA启用状态和剩余恢复代码数量
-         * @summary 获取两步验证状态
+         * @summary 2FA 状态
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -225,7 +225,7 @@ export const Authentication2FAApiFp = function(configuration?: Configuration) {
         },
         /**
          * 验证身份验证器应用生成的TOTP代码，成功后启用2FA并返回恢复代码
-         * @summary 验证并启用两步验证
+         * @summary 启用 2FA
          * @param {TwofaVerifyDTO} request TOTP验证码
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -248,7 +248,7 @@ export const Authentication2FAApiFactory = function (configuration?: Configurati
     return {
         /**
          * 禁用当前用户的两步验证功能
-         * @summary 禁用两步验证
+         * @summary 禁用 2FA
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -257,7 +257,7 @@ export const Authentication2FAApiFactory = function (configuration?: Configurati
         },
         /**
          * 为当前用户生成2FA密钥和二维码，用于配置身份验证器应用
-         * @summary 初始化两步验证
+         * @summary 设置 2FA
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -266,7 +266,7 @@ export const Authentication2FAApiFactory = function (configuration?: Configurati
         },
         /**
          * 获取当前用户的2FA启用状态和剩余恢复代码数量
-         * @summary 获取两步验证状态
+         * @summary 2FA 状态
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -275,7 +275,7 @@ export const Authentication2FAApiFactory = function (configuration?: Configurati
         },
         /**
          * 验证身份验证器应用生成的TOTP代码，成功后启用2FA并返回恢复代码
-         * @summary 验证并启用两步验证
+         * @summary 启用 2FA
          * @param {TwofaVerifyDTO} request TOTP验证码
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -295,7 +295,7 @@ export const Authentication2FAApiFactory = function (configuration?: Configurati
 export class Authentication2FAApi extends BaseAPI {
     /**
      * 禁用当前用户的两步验证功能
-     * @summary 禁用两步验证
+     * @summary 禁用 2FA
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof Authentication2FAApi
@@ -306,7 +306,7 @@ export class Authentication2FAApi extends BaseAPI {
 
     /**
      * 为当前用户生成2FA密钥和二维码，用于配置身份验证器应用
-     * @summary 初始化两步验证
+     * @summary 设置 2FA
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof Authentication2FAApi
@@ -317,7 +317,7 @@ export class Authentication2FAApi extends BaseAPI {
 
     /**
      * 获取当前用户的2FA启用状态和剩余恢复代码数量
-     * @summary 获取两步验证状态
+     * @summary 2FA 状态
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof Authentication2FAApi
@@ -328,7 +328,7 @@ export class Authentication2FAApi extends BaseAPI {
 
     /**
      * 验证身份验证器应用生成的TOTP代码，成功后启用2FA并返回恢复代码
-     * @summary 验证并启用两步验证
+     * @summary 启用 2FA
      * @param {TwofaVerifyDTO} request TOTP验证码
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}

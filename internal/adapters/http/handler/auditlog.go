@@ -73,9 +73,9 @@ func NewAuditLogHandler(
 
 // ListLogs lists audit logs with filtering
 //
-// @Summary      获取审计日志列表
+// @Summary      审计日志列表
 // @Description  分页获取审计日志，支持按用户、操作、资源、状态、时间范围筛选
-// @Tags         管理员 - 审计日志 (Admin - Audit Log)
+// @Tags         Admin - Audit Log
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
@@ -86,7 +86,6 @@ func NewAuditLogHandler(
 // @Failure      403 {object} response.ErrorResponse "权限不足"
 // @Failure      500 {object} response.ErrorResponse "服务器内部错误"
 // @Router       /api/system/auditlogs [get]
-// @x-permission {"scope":"admin:audit_logs:read"}
 func (h *AuditLogHandler) ListLogs(c *gin.Context) {
 	var q ListAuditLogsQuery
 	if err := c.ShouldBindQuery(&q); err != nil {
@@ -106,9 +105,9 @@ func (h *AuditLogHandler) ListLogs(c *gin.Context) {
 
 // GetLog gets an audit log by ID
 //
-// @Summary      获取审计日志详情
+// @Summary      审计日志详情
 // @Description  根据日志ID获取审计日志详细信息
-// @Tags         管理员 - 审计日志 (Admin - Audit Log)
+// @Tags         Admin - Audit Log
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
@@ -119,7 +118,6 @@ func (h *AuditLogHandler) ListLogs(c *gin.Context) {
 // @Failure      403 {object} response.ErrorResponse "权限不足"
 // @Failure      404 {object} response.ErrorResponse "日志不存在"
 // @Router       /api/system/auditlogs/{id} [get]
-// @x-permission {"scope":"admin:audit_logs:read"}
 func (h *AuditLogHandler) GetLog(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
@@ -141,9 +139,9 @@ func (h *AuditLogHandler) GetLog(c *gin.Context) {
 
 // GetActions returns audit action definitions
 //
-// @Summary      获取审计操作定义
+// @Summary      审计操作定义
 // @Description  获取所有审计操作的定义、分类和操作类型，供前端筛选器使用
-// @Tags         管理员 - 审计日志 (Admin - Audit Log)
+// @Tags         Admin - Audit Log
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
@@ -151,7 +149,6 @@ func (h *AuditLogHandler) GetLog(c *gin.Context) {
 // @Failure      401 {object} response.ErrorResponse "未授权"
 // @Failure      403 {object} response.ErrorResponse "权限不足"
 // @Router       /api/system/auditlogs/actions [get]
-// @x-permission {"scope":"admin:audit_logs:read"}
 func (h *AuditLogHandler) GetActions(c *gin.Context) {
 	resp := auditlog.ToAuditActionsResponseDTO()
 	response.OK(c, "success", resp)

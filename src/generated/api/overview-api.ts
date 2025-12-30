@@ -33,7 +33,7 @@ export const OverviewApiAxiosParamCreator = function (configuration?: Configurat
     return {
         /**
          * 获取用户、角色、权限、菜单等统计信息
-         * @summary 获取系统概览统计
+         * @summary 系统概览
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -76,7 +76,7 @@ export const OverviewApiFp = function(configuration?: Configuration) {
     return {
         /**
          * 获取用户、角色、权限、菜单等统计信息
-         * @summary 获取系统概览统计
+         * @summary 系统概览
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -98,7 +98,7 @@ export const OverviewApiFactory = function (configuration?: Configuration, baseP
     return {
         /**
          * 获取用户、角色、权限、菜单等统计信息
-         * @summary 获取系统概览统计
+         * @summary 系统概览
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -117,7 +117,7 @@ export const OverviewApiFactory = function (configuration?: Configuration, baseP
 export class OverviewApi extends BaseAPI {
     /**
      * 获取用户、角色、权限、菜单等统计信息
-     * @summary 获取系统概览统计
+     * @summary 系统概览
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof OverviewApi

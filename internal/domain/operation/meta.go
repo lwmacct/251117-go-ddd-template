@@ -90,10 +90,8 @@ type operationMeta struct {
 	AuditCategory  AuditCategory  // 审计分类
 	AuditOperation AuditOperation // 审计操作类型，如 create
 
-	// 显示信息
-	Label       string // 中文标签，如 创建用户
-	Description string // 英文描述，如 Create new user
-
-	// Swagger 分组
-	Group string // Swagger Tags，如 管理员 - 用户管理 (Admin - User)
+	// Swagger 注解字段
+	Tags        string // @Tags，如 系统管理 - 用户管理 (Sys - User)
+	Summary     string // @Summary，如 创建用户
+	Description string // @Description，如 Create new user（可选）
 }

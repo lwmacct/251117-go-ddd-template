@@ -31,9 +31,9 @@ func NewUserProfileHandler(
 
 // GetProfile gets the current user's profile
 //
-// @Summary      获取个人资料
+// @Summary      获取资料
 // @Description  获取当前登录用户的个人资料和角色信息
-// @Tags         用户 - 个人资料 (User - Profile)
+// @Tags         User - Profile
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
@@ -41,7 +41,6 @@ func NewUserProfileHandler(
 // @Failure      401 {object} response.ErrorResponse "未授权"
 // @Failure      404 {object} response.ErrorResponse "用户不存在"
 // @Router       /api/user/profile [get]
-// @x-permission {"scope":"user:profile:read"}
 func (h *UserProfileHandler) GetProfile(c *gin.Context) {
 	userID, exists := c.Get("user_id")
 	if !exists {
@@ -76,9 +75,9 @@ type UpdateProfileRequest struct {
 
 // UpdateProfile updates the current user's profile
 //
-// @Summary      更新个人资料
+// @Summary      更新资料
 // @Description  用户更新自己的姓名、头像和个人简介
-// @Tags         用户 - 个人资料 (User - Profile)
+// @Tags         User - Profile
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
@@ -88,7 +87,6 @@ type UpdateProfileRequest struct {
 // @Failure      401 {object} response.ErrorResponse "未授权"
 // @Failure      500 {object} response.ErrorResponse "服务器内部错误"
 // @Router       /api/user/profile [put]
-// @x-permission {"scope":"user:profile:update"}
 func (h *UserProfileHandler) UpdateProfile(c *gin.Context) {
 	userID, exists := c.Get("user_id")
 	if !exists {
@@ -135,7 +133,7 @@ func (h *UserProfileHandler) UpdateProfile(c *gin.Context) {
 //
 // @Summary      修改密码
 // @Description  用户修改自己的登录密码
-// @Tags         用户 - 个人资料 (User - Profile)
+// @Tags         User - Profile
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
@@ -144,7 +142,6 @@ func (h *UserProfileHandler) UpdateProfile(c *gin.Context) {
 // @Failure      400 {object} response.ErrorResponse "参数错误或旧密码不正确"
 // @Failure      401 {object} response.ErrorResponse "未授权"
 // @Router       /api/user/password [put]
-// @x-permission {"scope":"user:password:update"}
 func (h *UserProfileHandler) ChangePassword(c *gin.Context) {
 	userID, exists := c.Get("user_id")
 	if !exists {
@@ -178,9 +175,9 @@ func (h *UserProfileHandler) ChangePassword(c *gin.Context) {
 
 // DeleteAccount deletes the current user's account
 //
-// @Summary      删除账号
+// @Summary      注销账户
 // @Description  用户删除自己的账号（不可恢复）
-// @Tags         用户 - 个人资料 (User - Profile)
+// @Tags         User - Profile
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
@@ -188,7 +185,6 @@ func (h *UserProfileHandler) ChangePassword(c *gin.Context) {
 // @Failure      401 {object} response.ErrorResponse "未授权"
 // @Failure      500 {object} response.ErrorResponse "服务器内部错误"
 // @Router       /api/user/account [delete]
-// @x-permission {"scope":"user:profile:delete"}
 func (h *UserProfileHandler) DeleteAccount(c *gin.Context) {
 	userID, exists := c.Get("user_id")
 	if !exists {

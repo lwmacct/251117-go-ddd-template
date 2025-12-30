@@ -515,6 +515,30 @@ definitions:
       visible:
         type: boolean
     type: object
+  operation.OperationDefinition:
+    properties:
+      code:
+        description: 操作代码，如 sys:users:create
+        type: string
+      description:
+        description: 英文描述
+        type: string
+      group:
+        description: Swagger 分组
+        type: string
+      identifier:
+        description: 标识符，如 create
+        type: string
+      label:
+        description: 中文标签
+        type: string
+      scope:
+        description: Scope，如 sys
+        type: string
+      type:
+        description: 类型，如 users
+        type: string
+    type: object
   pat.CreateDTO:
     properties:
       description:
@@ -588,6 +612,22 @@ definitions:
         description: 响应数据
         items:
           $ref: '#/definitions/menu.MenuDTO'
+        type: array
+      error:
+        description: 错误详情（仅失败时）
+      message:
+        description: 消息描述
+        type: string
+    type: object
+  response.DataResponse-array_operation_OperationDefinition:
+    properties:
+      code:
+        description: HTTP 状态码
+        type: integer
+      data:
+        description: 响应数据
+        items:
+          $ref: '#/definitions/operation.OperationDefinition'
         type: array
       error:
         description: 错误详情（仅失败时）
@@ -1689,11 +1729,9 @@ paths:
             $ref: '#/definitions/response.ErrorResponse'
       security:
       - BearerAuth: []
-      summary: 禁用两步验证
+      summary: 禁用 2FA
       tags:
-      - 认证 - 两步验证 (Authentication - 2FA)
-      x-permission:
-        scope: auth:2fa:update
+      - Authentication - 2FA
   /api/auth/2fa/setup:
     post:
       consumes:
@@ -1716,11 +1754,9 @@ paths:
             $ref: '#/definitions/response.ErrorResponse'
       security:
       - BearerAuth: []
-      summary: 初始化两步验证
+      summary: 设置 2FA
       tags:
-      - 认证 - 两步验证 (Authentication - 2FA)
-      x-permission:
-        scope: auth:2fa:setup
+      - Authentication - 2FA
   /api/auth/2fa/status:
     get:
       consumes:
@@ -1743,11 +1779,9 @@ paths:
             $ref: '#/definitions/response.ErrorResponse'
       security:
       - BearerAuth: []
-      summary: 获取两步验证状态
+      summary: 2FA 状态
       tags:
-      - 认证 - 两步验证 (Authentication - 2FA)
-      x-permission:
-        scope: auth:2fa:read
+      - Authentication - 2FA
   /api/auth/2fa/verify:
     post:
       consumes:
@@ -1777,11 +1811,9 @@ paths:
             $ref: '#/definitions/response.ErrorResponse'
       security:
       - BearerAuth: []
-      summary: 验证并启用两步验证
+      summary: 启用 2FA
       tags:
-      - 认证 - 两步验证 (Authentication - 2FA)
-      x-permission:
-        scope: auth:2fa:update
+      - Authentication - 2FA
   /api/auth/captcha:
     get:
       consumes:
@@ -1807,9 +1839,9 @@ paths:
           description: 生成失败
           schema:
             $ref: '#/definitions/response.ErrorResponse'
-      summary: 获取图形验证码
+      summary: 获取验证码
       tags:
-      - 认证 (Authentication)
+      - Authentication
   /api/auth/login:
     post:
       consumes:
@@ -1833,9 +1865,9 @@ paths:
           description: 登录失败：凭证无效、验证码错误或账户被禁用
           schema:
             $ref: '#/definitions/response.ErrorResponse'
-      summary: 用户登录
+      summary: 登录
       tags:
-      - 认证 (Authentication)
+      - Authentication
   /api/auth/login/2fa:
     post:
       consumes:
@@ -1859,9 +1891,9 @@ paths:
           description: 验证失败：session_token无效或2FA验证码错误
           schema:
             $ref: '#/definitions/response.ErrorResponse'
-      summary: 二次认证登录
+      summary: 2FA 登录
       tags:
-      - 认证 (Authentication)
+      - Authentication
   /api/auth/refresh:
     post:
       consumes:
@@ -1885,9 +1917,9 @@ paths:
           description: 刷新令牌无效或已过期
           schema:
             $ref: '#/definitions/response.ErrorResponse'
-      summary: 刷新访问令牌
+      summary: 刷新令牌
       tags:
-      - 认证 (Authentication)
+      - Authentication
   /api/auth/register:
     post:
       consumes:
@@ -1911,9 +1943,9 @@ paths:
           description: 参数错误或用户名/邮箱已存在
           schema:
             $ref: '#/definitions/response.ErrorResponse'
-      summary: 用户注册
+      summary: 注册
       tags:
-      - 认证 (Authentication)
+      - Authentication
   /api/system/auditlogs:
     get:
       consumes:
@@ -1985,11 +2017,9 @@ paths:
             $ref: '#/definitions/response.ErrorResponse'
       security:
       - BearerAuth: []
-      summary: 获取审计日志列表
+      summary: 审计日志列表
       tags:
-      - 管理员 - 审计日志 (Admin - Audit Log)
-      x-permission:
-        scope: admin:audit_logs:read
+      - Admin - Audit Log
   /api/system/auditlogs/{id}:
     get:
       consumes:
@@ -2027,11 +2057,9 @@ paths:
             $ref: '#/definitions/response.ErrorResponse'
       security:
       - BearerAuth: []
-      summary: 获取审计日志详情
+      summary: 审计日志详情
       tags:
-      - 管理员 - 审计日志 (Admin - Audit Log)
-      x-permission:
-        scope: admin:audit_logs:read
+      - Admin - Audit Log
   /api/system/auditlogs/actions:
     get:
       consumes:
@@ -2054,11 +2082,9 @@ paths:
             $ref: '#/definitions/response.ErrorResponse'
       security:
       - BearerAuth: []
-      summary: 获取审计操作定义
+      summary: 审计操作定义
       tags:
-      - 管理员 - 审计日志 (Admin - Audit Log)
-      x-permission:
-        scope: admin:audit_logs:read
+      - Admin - Audit Log
   /api/system/cache/info:
     get:
       consumes:
@@ -2077,11 +2103,9 @@ paths:
             $ref: '#/definitions/response.ErrorResponse'
       security:
       - BearerAuth: []
-      summary: 获取缓存信息
+      summary: 缓存信息
       tags:
-      - 管理员 - 缓存管理 (Admin - Cache)
-      x-permission:
-        scope: admin:cache:read
+      - System
   /api/system/cache/key:
     delete:
       consumes:
@@ -2110,11 +2134,9 @@ paths:
             $ref: '#/definitions/response.ErrorResponse'
       security:
       - BearerAuth: []
-      summary: 删除缓存 Key
+      summary: 删除缓存键
       tags:
-      - 管理员 - 缓存管理 (Admin - Cache)
-      x-permission:
-        scope: admin:cache:delete
+      - System
     get:
       consumes:
       - application/json
@@ -2146,11 +2168,9 @@ paths:
             $ref: '#/definitions/response.ErrorResponse'
       security:
       - BearerAuth: []
-      summary: 获取缓存 Key 值
+      summary: 获取缓存值
       tags:
-      - 管理员 - 缓存管理 (Admin - Cache)
-      x-permission:
-        scope: admin:cache:read
+      - System
   /api/system/cache/keys:
     delete:
       consumes:
@@ -2179,11 +2199,9 @@ paths:
             $ref: '#/definitions/response.ErrorResponse'
       security:
       - BearerAuth: []
-      summary: 按 pattern 删除缓存
+      summary: 批量删除缓存
       tags:
-      - 管理员 - 缓存管理 (Admin - Cache)
-      x-permission:
-        scope: admin:cache:delete
+      - System
     get:
       consumes:
       - application/json
@@ -2220,11 +2238,9 @@ paths:
             $ref: '#/definitions/response.ErrorResponse'
       security:
       - BearerAuth: []
-      summary: 扫描缓存 Keys
+      summary: 扫描缓存键
       tags:
-      - 管理员 - 缓存管理 (Admin - Cache)
-      x-permission:
-        scope: admin:cache:read
+      - System
   /api/system/menus:
     get:
       consumes:
@@ -2251,11 +2267,9 @@ paths:
             $ref: '#/definitions/response.ErrorResponse'
       security:
       - BearerAuth: []
-      summary: 获取菜单列表
+      summary: 菜单列表
       tags:
-      - 管理员 - 菜单管理 (Admin - Menu Management)
-      x-permission:
-        scope: admin:menus:read
+      - Admin - Menu Management
     post:
       consumes:
       - application/json
@@ -2294,9 +2308,7 @@ paths:
       - BearerAuth: []
       summary: 创建菜单
       tags:
-      - 管理员 - 菜单管理 (Admin - Menu Management)
-      x-permission:
-        scope: admin:menus:create
+      - Admin - Menu Management
   /api/system/menus/{id}:
     delete:
       consumes:
@@ -2338,9 +2350,7 @@ paths:
       - BearerAuth: []
       summary: 删除菜单
       tags:
-      - 管理员 - 菜单管理 (Admin - Menu Management)
-      x-permission:
-        scope: admin:menus:delete
+      - Admin - Menu Management
     get:
       consumes:
       - application/json
@@ -2377,11 +2387,9 @@ paths:
             $ref: '#/definitions/response.ErrorResponse'
       security:
       - BearerAuth: []
-      summary: 获取菜单详情
+      summary: 菜单详情
       tags:
-      - 管理员 - 菜单管理 (Admin - Menu Management)
-      x-permission:
-        scope: admin:menus:read
+      - Admin - Menu Management
     put:
       consumes:
       - application/json
@@ -2428,11 +2436,9 @@ paths:
             $ref: '#/definitions/response.ErrorResponse'
       security:
       - BearerAuth: []
-      summary: 更新菜单信息
+      summary: 更新菜单
       tags:
-      - 管理员 - 菜单管理 (Admin - Menu Management)
-      x-permission:
-        scope: admin:menus:update
+      - Admin - Menu Management
   /api/system/menus/reorder:
     post:
       consumes:
@@ -2468,11 +2474,34 @@ paths:
             $ref: '#/definitions/response.ErrorResponse'
       security:
       - BearerAuth: []
-      summary: 批量更新菜单排序
+      summary: 重排菜单
       tags:
-      - 管理员 - 菜单管理 (Admin - Menu Management)
-      x-permission:
-        scope: admin:menus:update
+      - Admin - Menu Management
+  /api/system/operations:
+    get:
+      consumes:
+      - application/json
+      description: 返回所有可用的操作定义，供前端权限配置使用
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 操作列表
+          schema:
+            $ref: '#/definitions/response.DataResponse-array_operation_OperationDefinition'
+        "401":
+          description: 未认证
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: 权限不足
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 操作列表
+      tags:
+      - System
   /api/system/overview/stats:
     get:
       consumes:
@@ -2499,11 +2528,9 @@ paths:
             $ref: '#/definitions/response.ErrorResponse'
       security:
       - BearerAuth: []
-      summary: 获取系统概览统计
+      summary: 系统概览
       tags:
-      - 系统概览 (Overview)
-      x-permission:
-        scope: admin:overview:read
+      - Overview
   /api/system/roles:
     get:
       consumes:
@@ -2544,11 +2571,9 @@ paths:
             $ref: '#/definitions/response.ErrorResponse'
       security:
       - BearerAuth: []
-      summary: 获取角色列表
+      summary: 角色列表
       tags:
-      - 管理员 - 角色管理 (Admin - Role Management)
-      x-permission:
-        scope: admin:roles:read
+      - Admin - Role Management
     post:
       consumes:
       - application/json
@@ -2587,9 +2612,7 @@ paths:
       - BearerAuth: []
       summary: 创建角色
       tags:
-      - 管理员 - 角色管理 (Admin - Role Management)
-      x-permission:
-        scope: admin:roles:create
+      - Admin - Role Management
   /api/system/roles/{id}:
     delete:
       consumes:
@@ -2633,9 +2656,7 @@ paths:
       - BearerAuth: []
       summary: 删除角色
       tags:
-      - 管理员 - 角色管理 (Admin - Role Management)
-      x-permission:
-        scope: admin:roles:delete
+      - Admin - Role Management
     get:
       consumes:
       - application/json
@@ -2672,11 +2693,9 @@ paths:
             $ref: '#/definitions/response.ErrorResponse'
       security:
       - BearerAuth: []
-      summary: 获取角色详情
+      summary: 角色详情
       tags:
-      - 管理员 - 角色管理 (Admin - Role Management)
-      x-permission:
-        scope: admin:roles:read
+      - Admin - Role Management
     put:
       consumes:
       - application/json
@@ -2723,11 +2742,9 @@ paths:
             $ref: '#/definitions/response.ErrorResponse'
       security:
       - BearerAuth: []
-      summary: 更新角色信息
+      summary: 更新角色
       tags:
-      - 管理员 - 角色管理 (Admin - Role Management)
-      x-permission:
-        scope: admin:roles:update
+      - Admin - Role Management
   /api/system/roles/{id}/permissions:
     put:
       consumes:
@@ -2775,11 +2792,9 @@ paths:
             $ref: '#/definitions/response.ErrorResponse'
       security:
       - BearerAuth: []
-      summary: 设置角色权限
+      summary: 设置权限
       tags:
-      - 管理员 - 角色管理 (Admin - Role Management)
-      x-permission:
-        scope: admin:roles:update
+      - Admin - Role Management
   /api/system/settings:
     get:
       consumes:
@@ -2815,11 +2830,9 @@ paths:
             $ref: '#/definitions/response.ErrorResponse'
       security:
       - BearerAuth: []
-      summary: 获取系统配置
+      summary: 配置列表
       tags:
-      - 管理员 - 系统配置 (Admin - Settings)
-      x-permission:
-        scope: admin:settings:read
+      - Admin - Settings
     post:
       consumes:
       - application/json
@@ -2858,9 +2871,7 @@ paths:
       - BearerAuth: []
       summary: 创建配置
       tags:
-      - 管理员 - 系统配置 (Admin - Settings)
-      x-permission:
-        scope: admin:settings:create
+      - Admin - Settings
   /api/system/settings/{key}:
     delete:
       consumes:
@@ -2897,9 +2908,7 @@ paths:
       - BearerAuth: []
       summary: 删除配置
       tags:
-      - 管理员 - 系统配置 (Admin - Settings)
-      x-permission:
-        scope: admin:settings:delete
+      - Admin - Settings
     get:
       consumes:
       - application/json
@@ -2931,11 +2940,9 @@ paths:
             $ref: '#/definitions/response.ErrorResponse'
       security:
       - BearerAuth: []
-      summary: 获取单个配置
+      summary: 配置详情
       tags:
-      - 管理员 - 系统配置 (Admin - Settings)
-      x-permission:
-        scope: admin:settings:read
+      - Admin - Settings
     put:
       consumes:
       - application/json
@@ -2983,9 +2990,7 @@ paths:
       - BearerAuth: []
       summary: 更新配置
       tags:
-      - 管理员 - 系统配置 (Admin - Settings)
-      x-permission:
-        scope: admin:settings:update
+      - Admin - Settings
   /api/system/settings/batch:
     post:
       consumes:
@@ -3025,9 +3030,7 @@ paths:
       - BearerAuth: []
       summary: 批量更新配置
       tags:
-      - 管理员 - 系统配置 (Admin - Settings)
-      x-permission:
-        scope: admin:settings:update
+      - Admin - Settings
   /api/system/settings/categories:
     get:
       consumes:
@@ -3054,11 +3057,9 @@ paths:
             $ref: '#/definitions/response.ErrorResponse'
       security:
       - BearerAuth: []
-      summary: 获取配置分类列表
+      summary: 配置分类列表
       tags:
-      - 管理员 - 配置分类 (Admin - Setting Categories)
-      x-permission:
-        scope: admin:settings:read
+      - Admin - Setting Categories
     post:
       consumes:
       - application/json
@@ -3097,9 +3098,7 @@ paths:
       - BearerAuth: []
       summary: 创建配置分类
       tags:
-      - 管理员 - 配置分类 (Admin - Setting Categories)
-      x-permission:
-        scope: admin:settings:create
+      - Admin - Setting Categories
   /api/system/settings/categories/{id}:
     delete:
       consumes:
@@ -3140,9 +3139,7 @@ paths:
       - BearerAuth: []
       summary: 删除配置分类
       tags:
-      - 管理员 - 配置分类 (Admin - Setting Categories)
-      x-permission:
-        scope: admin:settings:delete
+      - Admin - Setting Categories
     get:
       consumes:
       - application/json
@@ -3174,11 +3171,9 @@ paths:
             $ref: '#/definitions/response.ErrorResponse'
       security:
       - BearerAuth: []
-      summary: 获取单个配置分类
+      summary: 配置分类详情
       tags:
-      - 管理员 - 配置分类 (Admin - Setting Categories)
-      x-permission:
-        scope: admin:settings:read
+      - Admin - Setting Categories
     put:
       consumes:
       - application/json
@@ -3226,9 +3221,7 @@ paths:
       - BearerAuth: []
       summary: 更新配置分类
       tags:
-      - 管理员 - 配置分类 (Admin - Setting Categories)
-      x-permission:
-        scope: admin:settings:update
+      - Admin - Setting Categories
   /api/system/users:
     get:
       consumes:
@@ -3273,11 +3266,9 @@ paths:
             $ref: '#/definitions/response.ErrorResponse'
       security:
       - BearerAuth: []
-      summary: 获取用户列表
+      summary: 用户列表
       tags:
-      - 管理员 - 用户管理 (Admin - User Management)
-      x-permission:
-        scope: admin:users:read
+      - Admin - User Management
     post:
       consumes:
       - application/json
@@ -3316,9 +3307,7 @@ paths:
       - BearerAuth: []
       summary: 创建用户
       tags:
-      - 管理员 - 用户管理 (Admin - User Management)
-      x-permission:
-        scope: admin:users:create
+      - Admin - User Management
   /api/system/users/{id}:
     delete:
       consumes:
@@ -3362,9 +3351,7 @@ paths:
       - BearerAuth: []
       summary: 删除用户
       tags:
-      - 管理员 - 用户管理 (Admin - User Management)
-      x-permission:
-        scope: admin:users:delete
+      - Admin - User Management
     get:
       consumes:
       - application/json
@@ -3401,11 +3388,9 @@ paths:
             $ref: '#/definitions/response.ErrorResponse'
       security:
       - BearerAuth: []
-      summary: 获取用户详情
+      summary: 用户详情
       tags:
-      - 管理员 - 用户管理 (Admin - User Management)
-      x-permission:
-        scope: admin:users:read
+      - Admin - User Management
     put:
       consumes:
       - application/json
@@ -3452,11 +3437,9 @@ paths:
             $ref: '#/definitions/response.ErrorResponse'
       security:
       - BearerAuth: []
-      summary: 更新用户信息
+      summary: 更新用户
       tags:
-      - 管理员 - 用户管理 (Admin - User Management)
-      x-permission:
-        scope: admin:users:update
+      - Admin - User Management
   /api/system/users/{id}/roles:
     put:
       consumes:
@@ -3504,11 +3487,9 @@ paths:
             $ref: '#/definitions/response.ErrorResponse'
       security:
       - BearerAuth: []
-      summary: 分配用户角色
+      summary: 分配角色
       tags:
-      - 管理员 - 用户管理 (Admin - User Management)
-      x-permission:
-        scope: admin:users:update
+      - Admin - User Management
   /api/system/users/batch:
     post:
       consumes:
@@ -3548,9 +3529,7 @@ paths:
       - BearerAuth: []
       summary: 批量创建用户
       tags:
-      - 管理员 - 用户管理 (Admin - User Management)
-      x-permission:
-        scope: admin:users:create
+      - Admin - User Management
   /api/user/account:
     delete:
       consumes:
@@ -3573,11 +3552,9 @@ paths:
             $ref: '#/definitions/response.ErrorResponse'
       security:
       - BearerAuth: []
-      summary: 删除账号
+      summary: 注销账户
       tags:
-      - 用户 - 个人资料 (User - Profile)
-      x-permission:
-        scope: user:profile:delete
+      - User - Profile
   /api/user/password:
     put:
       consumes:
@@ -3609,9 +3586,7 @@ paths:
       - BearerAuth: []
       summary: 修改密码
       tags:
-      - 用户 - 个人资料 (User - Profile)
-      x-permission:
-        scope: user:password:update
+      - User - Profile
   /api/user/profile:
     get:
       consumes:
@@ -3634,11 +3609,9 @@ paths:
             $ref: '#/definitions/response.ErrorResponse'
       security:
       - BearerAuth: []
-      summary: 获取个人资料
+      summary: 获取资料
       tags:
-      - 用户 - 个人资料 (User - Profile)
-      x-permission:
-        scope: user:profile:read
+      - User - Profile
     put:
       consumes:
       - application/json
@@ -3671,11 +3644,9 @@ paths:
             $ref: '#/definitions/response.ErrorResponse'
       security:
       - BearerAuth: []
-      summary: 更新个人资料
+      summary: 更新资料
       tags:
-      - 用户 - 个人资料 (User - Profile)
-      x-permission:
-        scope: user:profile:update
+      - User - Profile
   /api/user/settings:
     get:
       consumes:
@@ -3707,11 +3678,9 @@ paths:
             $ref: '#/definitions/response.ErrorResponse'
       security:
       - BearerAuth: []
-      summary: 获取用户配置
+      summary: 用户配置列表
       tags:
-      - 用户 - 个人配置 (User - Settings)
-      x-permission:
-        scope: user:settings:read
+      - User - Settings
   /api/user/settings/{key}:
     delete:
       consumes:
@@ -3740,9 +3709,7 @@ paths:
       - BearerAuth: []
       summary: 重置用户配置
       tags:
-      - 用户 - 个人配置 (User - Settings)
-      x-permission:
-        scope: user:settings:update
+      - User - Settings
     get:
       consumes:
       - application/json
@@ -3770,11 +3737,9 @@ paths:
             $ref: '#/definitions/response.ErrorResponse'
       security:
       - BearerAuth: []
-      summary: 获取单个用户配置
+      summary: 用户配置详情
       tags:
-      - 用户 - 个人配置 (User - Settings)
-      x-permission:
-        scope: user:settings:read
+      - User - Settings
     put:
       consumes:
       - application/json
@@ -3818,9 +3783,7 @@ paths:
       - BearerAuth: []
       summary: 设置用户配置
       tags:
-      - 用户 - 个人配置 (User - Settings)
-      x-permission:
-        scope: user:settings:update
+      - User - Settings
   /api/user/settings/batch:
     post:
       consumes:
@@ -3854,11 +3817,9 @@ paths:
             $ref: '#/definitions/response.ErrorResponse'
       security:
       - BearerAuth: []
-      summary: 批量设置用户配置
+      summary: 批量设置配置
       tags:
-      - 用户 - 个人配置 (User - Settings)
-      x-permission:
-        scope: user:settings:update
+      - User - Settings
   /api/user/settings/categories:
     get:
       consumes:
@@ -3881,11 +3842,9 @@ paths:
             $ref: '#/definitions/response.ErrorResponse'
       security:
       - BearerAuth: []
-      summary: 获取用户设置分类列表
+      summary: 配置分类列表
       tags:
-      - 用户 - 个人配置 (User - Settings)
-      x-permission:
-        scope: user:settings:read
+      - User - Settings
   /api/user/tokens:
     get:
       consumes:
@@ -3908,11 +3867,9 @@ paths:
             $ref: '#/definitions/response.ErrorResponse'
       security:
       - BearerAuth: []
-      summary: 获取个人访问令牌列表
+      summary: 令牌列表
       tags:
-      - 用户 - 个人访问令牌 (User - Personal Access Token)
-      x-permission:
-        scope: user:tokens:read
+      - User - Personal Access Token
     post:
       consumes:
       - application/json
@@ -3941,11 +3898,9 @@ paths:
             $ref: '#/definitions/response.ErrorResponse'
       security:
       - BearerAuth: []
-      summary: 创建个人访问令牌
+      summary: 创建令牌
       tags:
-      - 用户 - 个人访问令牌 (User - Personal Access Token)
-      x-permission:
-        scope: user:tokens:create
+      - User - Personal Access Token
   /api/user/tokens/{id}:
     delete:
       consumes:
@@ -3979,11 +3934,9 @@ paths:
             $ref: '#/definitions/response.ErrorResponse'
       security:
       - BearerAuth: []
-      summary: 删除个人访问令牌
+      summary: 删除令牌
       tags:
-      - 用户 - 个人访问令牌 (User - Personal Access Token)
-      x-permission:
-        scope: user:tokens:delete
+      - User - Personal Access Token
     get:
       consumes:
       - application/json
@@ -4016,11 +3969,9 @@ paths:
             $ref: '#/definitions/response.ErrorResponse'
       security:
       - BearerAuth: []
-      summary: 获取个人访问令牌详情
+      summary: 令牌详情
       tags:
-      - 用户 - 个人访问令牌 (User - Personal Access Token)
-      x-permission:
-        scope: user:tokens:read
+      - User - Personal Access Token
   /api/user/tokens/{id}/disable:
     patch:
       consumes:
@@ -4050,11 +4001,9 @@ paths:
             $ref: '#/definitions/response.ErrorResponse'
       security:
       - BearerAuth: []
-      summary: 禁用个人访问令牌
+      summary: 禁用令牌
       tags:
-      - 用户 - 个人访问令牌 (User - Personal Access Token)
-      x-permission:
-        scope: user:tokens:disable
+      - User - Personal Access Token
   /api/user/tokens/{id}/enable:
     patch:
       consumes:
@@ -4084,11 +4033,9 @@ paths:
             $ref: '#/definitions/response.ErrorResponse'
       security:
       - BearerAuth: []
-      summary: 启用个人访问令牌
+      summary: 启用令牌
       tags:
-      - 用户 - 个人访问令牌 (User - Personal Access Token)
-      x-permission:
-        scope: user:tokens:enable
+      - User - Personal Access Token
   /health:
     get:
       consumes:

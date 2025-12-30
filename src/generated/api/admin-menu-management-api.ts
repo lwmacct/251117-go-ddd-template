@@ -41,7 +41,7 @@ export const AdminMenuManagementApiAxiosParamCreator = function (configuration?:
     return {
         /**
          * 获取所有菜单的树形结构（包含父子关系）
-         * @summary 获取菜单列表
+         * @summary 菜单列表
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -111,7 +111,7 @@ export const AdminMenuManagementApiAxiosParamCreator = function (configuration?:
         },
         /**
          * 根据菜单ID获取菜单详细信息
-         * @summary 获取菜单详情
+         * @summary 菜单详情
          * @param {number} id 菜单ID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -148,7 +148,7 @@ export const AdminMenuManagementApiAxiosParamCreator = function (configuration?:
         },
         /**
          * 管理员更新菜单的标题、路径、图标等信息
-         * @summary 更新菜单信息
+         * @summary 更新菜单
          * @param {number} id 菜单ID
          * @param {MenuUpdateDTO} request 更新信息
          * @param {*} [options] Override http request option.
@@ -230,7 +230,7 @@ export const AdminMenuManagementApiAxiosParamCreator = function (configuration?:
         },
         /**
          * 管理员批量更新菜单的排序和父级关系
-         * @summary 批量更新菜单排序
+         * @summary 重排菜单
          * @param {MenuReorderDTO} request 菜单排序信息
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -279,7 +279,7 @@ export const AdminMenuManagementApiFp = function(configuration?: Configuration) 
     return {
         /**
          * 获取所有菜单的树形结构（包含父子关系）
-         * @summary 获取菜单列表
+         * @summary 菜单列表
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -304,7 +304,7 @@ export const AdminMenuManagementApiFp = function(configuration?: Configuration) 
         },
         /**
          * 根据菜单ID获取菜单详细信息
-         * @summary 获取菜单详情
+         * @summary 菜单详情
          * @param {number} id 菜单ID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -317,7 +317,7 @@ export const AdminMenuManagementApiFp = function(configuration?: Configuration) 
         },
         /**
          * 管理员更新菜单的标题、路径、图标等信息
-         * @summary 更新菜单信息
+         * @summary 更新菜单
          * @param {number} id 菜单ID
          * @param {MenuUpdateDTO} request 更新信息
          * @param {*} [options] Override http request option.
@@ -344,7 +344,7 @@ export const AdminMenuManagementApiFp = function(configuration?: Configuration) 
         },
         /**
          * 管理员批量更新菜单的排序和父级关系
-         * @summary 批量更新菜单排序
+         * @summary 重排菜单
          * @param {MenuReorderDTO} request 菜单排序信息
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -367,7 +367,7 @@ export const AdminMenuManagementApiFactory = function (configuration?: Configura
     return {
         /**
          * 获取所有菜单的树形结构（包含父子关系）
-         * @summary 获取菜单列表
+         * @summary 菜单列表
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -386,7 +386,7 @@ export const AdminMenuManagementApiFactory = function (configuration?: Configura
         },
         /**
          * 根据菜单ID获取菜单详细信息
-         * @summary 获取菜单详情
+         * @summary 菜单详情
          * @param {number} id 菜单ID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -396,7 +396,7 @@ export const AdminMenuManagementApiFactory = function (configuration?: Configura
         },
         /**
          * 管理员更新菜单的标题、路径、图标等信息
-         * @summary 更新菜单信息
+         * @summary 更新菜单
          * @param {number} id 菜单ID
          * @param {MenuUpdateDTO} request 更新信息
          * @param {*} [options] Override http request option.
@@ -417,7 +417,7 @@ export const AdminMenuManagementApiFactory = function (configuration?: Configura
         },
         /**
          * 管理员批量更新菜单的排序和父级关系
-         * @summary 批量更新菜单排序
+         * @summary 重排菜单
          * @param {MenuReorderDTO} request 菜单排序信息
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -437,7 +437,7 @@ export const AdminMenuManagementApiFactory = function (configuration?: Configura
 export class AdminMenuManagementApi extends BaseAPI {
     /**
      * 获取所有菜单的树形结构（包含父子关系）
-     * @summary 获取菜单列表
+     * @summary 菜单列表
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof AdminMenuManagementApi
@@ -460,7 +460,7 @@ export class AdminMenuManagementApi extends BaseAPI {
 
     /**
      * 根据菜单ID获取菜单详细信息
-     * @summary 获取菜单详情
+     * @summary 菜单详情
      * @param {number} id 菜单ID
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -472,7 +472,7 @@ export class AdminMenuManagementApi extends BaseAPI {
 
     /**
      * 管理员更新菜单的标题、路径、图标等信息
-     * @summary 更新菜单信息
+     * @summary 更新菜单
      * @param {number} id 菜单ID
      * @param {MenuUpdateDTO} request 更新信息
      * @param {*} [options] Override http request option.
@@ -497,7 +497,7 @@ export class AdminMenuManagementApi extends BaseAPI {
 
     /**
      * 管理员批量更新菜单的排序和父级关系
-     * @summary 批量更新菜单排序
+     * @summary 重排菜单
      * @param {MenuReorderDTO} request 菜单排序信息
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}

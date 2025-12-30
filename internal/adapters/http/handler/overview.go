@@ -20,9 +20,9 @@ func NewOverviewHandler(getStatsHandler *stats.GetStatsHandler) *OverviewHandler
 
 // GetStats 获取系统统计信息
 //
-// @Summary      获取系统概览统计
+// @Summary      系统概览
 // @Description  获取用户、角色、权限、菜单等统计信息
-// @Tags         系统概览 (Overview)
+// @Tags         Overview
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
@@ -31,7 +31,6 @@ func NewOverviewHandler(getStatsHandler *stats.GetStatsHandler) *OverviewHandler
 // @Failure      403 {object} response.ErrorResponse "权限不足"
 // @Failure      500 {object} response.ErrorResponse "服务器内部错误"
 // @Router       /api/system/overview/stats [get]
-// @x-permission {"scope":"admin:overview:read"}
 func (h *OverviewHandler) GetStats(c *gin.Context) {
 	result, err := h.getStatsHandler.Handle(c.Request.Context(), stats.GetStatsQuery{
 		RecentLogsLimit: 5,

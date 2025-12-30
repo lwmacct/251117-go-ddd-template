@@ -20,11 +20,11 @@ const ResourceAll = op.ResourceAll
 
 // HTTP 方法常量。
 const (
-	HttpGET    = op.GET
-	HttpPOST   = op.POST
-	HttpPUT    = op.PUT
-	HttpDELETE = op.DELETE
-	HttpPATCH  = op.PATCH
+	GET    = op.GET
+	POST   = op.POST
+	PUT    = op.PUT
+	DELETE = op.DELETE
+	PATCH  = op.PATCH
 )
 
 // ============================================================================

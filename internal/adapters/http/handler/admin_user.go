@@ -61,7 +61,7 @@ func NewAdminUserHandler(
 //
 // @Summary      创建用户
 // @Description  管理员创建新用户账号，可同时分配角色
-// @Tags         管理员 - 用户管理 (Admin - User Management)
+// @Tags         Admin - User Management
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
@@ -72,7 +72,6 @@ func NewAdminUserHandler(
 // @Failure      403 {object} response.ErrorResponse "权限不足"
 // @Failure      500 {object} response.ErrorResponse "服务器内部错误"
 // @Router       /api/system/users [post]
-// @x-permission {"scope":"admin:users:create"}
 func (h *AdminUserHandler) CreateUser(c *gin.Context) {
 	var dto user.CreateDTO
 	if err := c.ShouldBindJSON(&dto); err != nil {
@@ -100,9 +99,9 @@ func (h *AdminUserHandler) CreateUser(c *gin.Context) {
 
 // ListUsers lists all users with pagination (admin only)
 //
-// @Summary      获取用户列表
+// @Summary      用户列表
 // @Description  分页获取所有用户列表（包含角色信息）
-// @Tags         管理员 - 用户管理 (Admin - User Management)
+// @Tags         Admin - User Management
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
@@ -112,7 +111,6 @@ func (h *AdminUserHandler) CreateUser(c *gin.Context) {
 // @Failure      403 {object} response.ErrorResponse "权限不足"
 // @Failure      500 {object} response.ErrorResponse "服务器内部错误"
 // @Router       /api/system/users [get]
-// @x-permission {"scope":"admin:users:read"}
 func (h *AdminUserHandler) ListUsers(c *gin.Context) {
 	var q ListUsersQuery
 	if err := c.ShouldBindQuery(&q); err != nil {
@@ -132,9 +130,9 @@ func (h *AdminUserHandler) ListUsers(c *gin.Context) {
 
 // GetUser gets a user by ID (admin only)
 //
-// @Summary      获取用户详情
+// @Summary      用户详情
 // @Description  根据用户ID获取用户详细信息（包含角色信息）
-// @Tags         管理员 - 用户管理 (Admin - User Management)
+// @Tags         Admin - User Management
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
@@ -145,7 +143,6 @@ func (h *AdminUserHandler) ListUsers(c *gin.Context) {
 // @Failure      403 {object} response.ErrorResponse "权限不足"
 // @Failure      404 {object} response.ErrorResponse "用户不存在"
 // @Router       /api/system/users/{id} [get]
-// @x-permission {"scope":"admin:users:read"}
 func (h *AdminUserHandler) GetUser(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
@@ -167,9 +164,9 @@ func (h *AdminUserHandler) GetUser(c *gin.Context) {
 
 // UpdateUser updates a user (admin only)
 //
-// @Summary      更新用户信息
+// @Summary      更新用户
 // @Description  管理员更新用户的基本信息和状态
-// @Tags         管理员 - 用户管理 (Admin - User Management)
+// @Tags         Admin - User Management
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
@@ -182,7 +179,6 @@ func (h *AdminUserHandler) GetUser(c *gin.Context) {
 // @Failure      404 {object} response.ErrorResponse "用户不存在"
 // @Failure      500 {object} response.ErrorResponse "服务器内部错误"
 // @Router       /api/system/users/{id} [put]
-// @x-permission {"scope":"admin:users:update"}
 func (h *AdminUserHandler) UpdateUser(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
@@ -226,7 +222,7 @@ func (h *AdminUserHandler) UpdateUser(c *gin.Context) {
 //
 // @Summary      删除用户
 // @Description  管理员删除指定用户（物理删除或软删除）
-// @Tags         管理员 - 用户管理 (Admin - User Management)
+// @Tags         Admin - User Management
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
@@ -238,7 +234,6 @@ func (h *AdminUserHandler) UpdateUser(c *gin.Context) {
 // @Failure      404 {object} response.ErrorResponse "用户不存在"
 // @Failure      500 {object} response.ErrorResponse "服务器内部错误"
 // @Router       /api/system/users/{id} [delete]
-// @x-permission {"scope":"admin:users:delete"}
 func (h *AdminUserHandler) DeleteUser(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
@@ -258,9 +253,9 @@ func (h *AdminUserHandler) DeleteUser(c *gin.Context) {
 
 // AssignRoles assigns roles to a user (admin only)
 //
-// @Summary      分配用户角色
+// @Summary      分配角色
 // @Description  管理员为指定用户分配角色（会覆盖现有角色）
-// @Tags         管理员 - 用户管理 (Admin - User Management)
+// @Tags         Admin - User Management
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
@@ -273,7 +268,6 @@ func (h *AdminUserHandler) DeleteUser(c *gin.Context) {
 // @Failure      404 {object} response.ErrorResponse "用户不存在"
 // @Failure      500 {object} response.ErrorResponse "服务器内部错误"
 // @Router       /api/system/users/{id}/roles [put]
-// @x-permission {"scope":"admin:users:update"}
 func (h *AdminUserHandler) AssignRoles(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
@@ -312,7 +306,7 @@ func (h *AdminUserHandler) AssignRoles(c *gin.Context) {
 //
 // @Summary      批量创建用户
 // @Description  管理员从 CSV 等来源批量创建用户，支持部分失败（单个失败不影响其他用户）
-// @Tags         管理员 - 用户管理 (Admin - User Management)
+// @Tags         Admin - User Management
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
@@ -323,7 +317,6 @@ func (h *AdminUserHandler) AssignRoles(c *gin.Context) {
 // @Failure      403 {object} response.ErrorResponse "权限不足"
 // @Failure      500 {object} response.ErrorResponse "服务器内部错误"
 // @Router       /api/system/users/batch [post]
-// @x-permission {"scope":"admin:users:create"}
 func (h *AdminUserHandler) BatchCreateUsers(c *gin.Context) {
 	var dto user.BatchCreateDTO
 	if err := c.ShouldBindJSON(&dto); err != nil {

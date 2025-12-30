@@ -26,9 +26,9 @@ func NewCaptchaHandler(
 
 // GetCaptcha 获取验证码
 //
-// @Summary      获取图形验证码
+// @Summary      获取验证码
 // @Description  生成图形验证码用于登录。支持开发模式（通过code和secret参数指定验证码值）
-// @Tags         认证 (Authentication)
+// @Tags         Authentication
 // @Accept       json
 // @Produce      json
 // @Param        code query string false "开发模式：指定验证码值" example:"9999"

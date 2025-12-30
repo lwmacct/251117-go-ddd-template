@@ -66,9 +66,9 @@ func NewSettingHandler(
 
 // GetSettings 获取系统配置（层级结构）
 //
-// @Summary      获取系统配置
+// @Summary      配置列表
 // @Description  获取按 Category → Group → Settings 层级组织的配置数据，用于前端动态渲染设置页面。支持按分类过滤（懒加载）。
-// @Tags         管理员 - 系统配置 (Admin - Settings)
+// @Tags         Admin - Settings
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
@@ -79,7 +79,6 @@ func NewSettingHandler(
 // @Failure      404 {object} response.ErrorResponse "分类不存在"
 // @Failure      500 {object} response.ErrorResponse "服务器内部错误"
 // @Router       /api/system/settings [get]
-// @x-permission {"scope":"admin:settings:read"}
 func (h *SettingHandler) GetSettings(c *gin.Context) {
 	categoryKey := c.Query("category")
 
@@ -102,9 +101,9 @@ func (h *SettingHandler) GetSettings(c *gin.Context) {
 
 // GetSetting 获取单个配置
 //
-// @Summary      获取单个配置
+// @Summary      配置详情
 // @Description  根据配置键获取配置详情
-// @Tags         管理员 - 系统配置 (Admin - Settings)
+// @Tags         Admin - Settings
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
@@ -114,7 +113,6 @@ func (h *SettingHandler) GetSettings(c *gin.Context) {
 // @Failure      403 {object} response.ErrorResponse "权限不足"
 // @Failure      404 {object} response.ErrorResponse "配置不存在"
 // @Router       /api/system/settings/{key} [get]
-// @x-permission {"scope":"admin:settings:read"}
 func (h *SettingHandler) GetSetting(c *gin.Context) {
 	key := c.Param("key")
 
@@ -147,7 +145,7 @@ type CreateSettingRequest struct {
 //
 // @Summary      创建配置
 // @Description  管理员创建新的系统配置项
-// @Tags         管理员 - 系统配置 (Admin - Settings)
+// @Tags         Admin - Settings
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
@@ -158,7 +156,6 @@ type CreateSettingRequest struct {
 // @Failure      403 {object} response.ErrorResponse "权限不足"
 // @Failure      500 {object} response.ErrorResponse "服务器内部错误"
 // @Router       /api/system/settings [post]
-// @x-permission {"scope":"admin:settings:create"}
 func (h *SettingHandler) CreateSetting(c *gin.Context) {
 	var req CreateSettingRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -207,7 +204,7 @@ type UpdateSettingRequest struct {
 //
 // @Summary      更新配置
 // @Description  管理员更新指定配置项的值和标签
-// @Tags         管理员 - 系统配置 (Admin - Settings)
+// @Tags         Admin - Settings
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
@@ -220,7 +217,6 @@ type UpdateSettingRequest struct {
 // @Failure      404 {object} response.ErrorResponse "配置不存在"
 // @Failure      500 {object} response.ErrorResponse "服务器内部错误"
 // @Router       /api/system/settings/{key} [put]
-// @x-permission {"scope":"admin:settings:update"}
 func (h *SettingHandler) UpdateSetting(c *gin.Context) {
 	key := c.Param("key")
 
@@ -255,7 +251,7 @@ func (h *SettingHandler) UpdateSetting(c *gin.Context) {
 //
 // @Summary      删除配置
 // @Description  管理员删除指定的系统配置项
-// @Tags         管理员 - 系统配置 (Admin - Settings)
+// @Tags         Admin - Settings
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
@@ -266,7 +262,6 @@ func (h *SettingHandler) UpdateSetting(c *gin.Context) {
 // @Failure      404 {object} response.ErrorResponse "配置不存在"
 // @Failure      500 {object} response.ErrorResponse "服务器内部错误"
 // @Router       /api/system/settings/{key} [delete]
-// @x-permission {"scope":"admin:settings:delete"}
 func (h *SettingHandler) DeleteSetting(c *gin.Context) {
 	key := c.Param("key")
 
@@ -295,7 +290,7 @@ type BatchUpdateSettingsRequest struct {
 //
 // @Summary      批量更新配置
 // @Description  管理员批量更新多个系统配置项的值
-// @Tags         管理员 - 系统配置 (Admin - Settings)
+// @Tags         Admin - Settings
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
@@ -306,7 +301,6 @@ type BatchUpdateSettingsRequest struct {
 // @Failure      403 {object} response.ErrorResponse "权限不足"
 // @Failure      500 {object} response.ErrorResponse "服务器内部错误"
 // @Router       /api/system/settings/batch [post]
-// @x-permission {"scope":"admin:settings:update"}
 func (h *SettingHandler) BatchUpdateSettings(c *gin.Context) {
 	var req BatchUpdateSettingsRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -346,9 +340,9 @@ func (h *SettingHandler) BatchUpdateSettings(c *gin.Context) {
 
 // GetCategories 获取配置分类列表
 //
-// @Summary      获取配置分类列表
+// @Summary      配置分类列表
 // @Description  获取所有配置分类，按排序权重升序排列
-// @Tags         管理员 - 配置分类 (Admin - Setting Categories)
+// @Tags         Admin - Setting Categories
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
@@ -357,7 +351,6 @@ func (h *SettingHandler) BatchUpdateSettings(c *gin.Context) {
 // @Failure      403 {object} response.ErrorResponse "权限不足"
 // @Failure      500 {object} response.ErrorResponse "服务器内部错误"
 // @Router       /api/system/settings/categories [get]
-// @x-permission {"scope":"admin:settings:read"}
 func (h *SettingHandler) GetCategories(c *gin.Context) {
 	categories, err := h.listCategoriesHandler.Handle(c.Request.Context(), setting.ListCategoriesQuery{})
 	if err != nil {
@@ -370,9 +363,9 @@ func (h *SettingHandler) GetCategories(c *gin.Context) {
 
 // GetCategory 获取单个配置分类
 //
-// @Summary      获取单个配置分类
+// @Summary      配置分类详情
 // @Description  根据 ID 获取配置分类详情
-// @Tags         管理员 - 配置分类 (Admin - Setting Categories)
+// @Tags         Admin - Setting Categories
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
@@ -382,7 +375,6 @@ func (h *SettingHandler) GetCategories(c *gin.Context) {
 // @Failure      403 {object} response.ErrorResponse "权限不足"
 // @Failure      404 {object} response.ErrorResponse "分类不存在"
 // @Router       /api/system/settings/categories/{id} [get]
-// @x-permission {"scope":"admin:settings:read"}
 func (h *SettingHandler) GetCategory(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
@@ -413,7 +405,7 @@ type CreateCategoryRequest struct {
 //
 // @Summary      创建配置分类
 // @Description  管理员创建新的配置分类
-// @Tags         管理员 - 配置分类 (Admin - Setting Categories)
+// @Tags         Admin - Setting Categories
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
@@ -424,7 +416,6 @@ type CreateCategoryRequest struct {
 // @Failure      403 {object} response.ErrorResponse "权限不足"
 // @Failure      500 {object} response.ErrorResponse "服务器内部错误"
 // @Router       /api/system/settings/categories [post]
-// @x-permission {"scope":"admin:settings:create"}
 func (h *SettingHandler) CreateCategory(c *gin.Context) {
 	var req CreateCategoryRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -466,7 +457,7 @@ type UpdateCategoryRequest struct {
 //
 // @Summary      更新配置分类
 // @Description  管理员更新指定配置分类的信息（Key 不可修改）
-// @Tags         管理员 - 配置分类 (Admin - Setting Categories)
+// @Tags         Admin - Setting Categories
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
@@ -479,7 +470,6 @@ type UpdateCategoryRequest struct {
 // @Failure      404 {object} response.ErrorResponse "分类不存在"
 // @Failure      500 {object} response.ErrorResponse "服务器内部错误"
 // @Router       /api/system/settings/categories/{id} [put]
-// @x-permission {"scope":"admin:settings:update"}
 func (h *SettingHandler) UpdateCategory(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
@@ -511,7 +501,7 @@ func (h *SettingHandler) UpdateCategory(c *gin.Context) {
 //
 // @Summary      删除配置分类
 // @Description  管理员删除指定的配置分类（如有关联配置项则拒绝删除）
-// @Tags         管理员 - 配置分类 (Admin - Setting Categories)
+// @Tags         Admin - Setting Categories
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
@@ -523,7 +513,6 @@ func (h *SettingHandler) UpdateCategory(c *gin.Context) {
 // @Failure      404 {object} response.ErrorResponse "分类不存在"
 // @Failure      500 {object} response.ErrorResponse "服务器内部错误"
 // @Router       /api/system/settings/categories/{id} [delete]
-// @x-permission {"scope":"admin:settings:delete"}
 func (h *SettingHandler) DeleteCategory(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {

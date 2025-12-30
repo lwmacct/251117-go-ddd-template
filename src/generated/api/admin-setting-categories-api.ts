@@ -39,7 +39,7 @@ export const AdminSettingCategoriesApiAxiosParamCreator = function (configuratio
     return {
         /**
          * 获取所有配置分类，按排序权重升序排列
-         * @summary 获取配置分类列表
+         * @summary 配置分类列表
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -109,7 +109,7 @@ export const AdminSettingCategoriesApiAxiosParamCreator = function (configuratio
         },
         /**
          * 根据 ID 获取配置分类详情
-         * @summary 获取单个配置分类
+         * @summary 配置分类详情
          * @param {number} id 分类 ID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -238,7 +238,7 @@ export const AdminSettingCategoriesApiFp = function(configuration?: Configuratio
     return {
         /**
          * 获取所有配置分类，按排序权重升序排列
-         * @summary 获取配置分类列表
+         * @summary 配置分类列表
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -263,7 +263,7 @@ export const AdminSettingCategoriesApiFp = function(configuration?: Configuratio
         },
         /**
          * 根据 ID 获取配置分类详情
-         * @summary 获取单个配置分类
+         * @summary 配置分类详情
          * @param {number} id 分类 ID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -313,7 +313,7 @@ export const AdminSettingCategoriesApiFactory = function (configuration?: Config
     return {
         /**
          * 获取所有配置分类，按排序权重升序排列
-         * @summary 获取配置分类列表
+         * @summary 配置分类列表
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -332,7 +332,7 @@ export const AdminSettingCategoriesApiFactory = function (configuration?: Config
         },
         /**
          * 根据 ID 获取配置分类详情
-         * @summary 获取单个配置分类
+         * @summary 配置分类详情
          * @param {number} id 分类 ID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -373,7 +373,7 @@ export const AdminSettingCategoriesApiFactory = function (configuration?: Config
 export class AdminSettingCategoriesApi extends BaseAPI {
     /**
      * 获取所有配置分类，按排序权重升序排列
-     * @summary 获取配置分类列表
+     * @summary 配置分类列表
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof AdminSettingCategoriesApi
@@ -396,7 +396,7 @@ export class AdminSettingCategoriesApi extends BaseAPI {
 
     /**
      * 根据 ID 获取配置分类详情
-     * @summary 获取单个配置分类
+     * @summary 配置分类详情
      * @param {number} id 分类 ID
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}

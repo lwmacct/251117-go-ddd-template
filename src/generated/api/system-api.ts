@@ -22,13 +22,259 @@ import { DUMMY_BASE_URL, assertParamExists, setApiKeyToObject, setBasicAuthToObj
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS, type RequestArgs, BaseAPI, RequiredError, operationServerMap } from '../base';
 // @ts-ignore
+import type { ResponseDataResponseArrayOperationOperationDefinition } from '../models';
+// @ts-ignore
+import type { ResponseDataResponseCacheCacheInfoDTO } from '../models';
+// @ts-ignore
+import type { ResponseDataResponseCacheCacheValueDTO } from '../models';
+// @ts-ignore
+import type { ResponseDataResponseCacheDeleteResultDTO } from '../models';
+// @ts-ignore
+import type { ResponseDataResponseCacheScanKeysResultDTO } from '../models';
+// @ts-ignore
 import type { ResponseDataResponseGithubComLwmacct251117GoDddTemplateInternalApplicationHealthHealthReport } from '../models';
+// @ts-ignore
+import type { ResponseErrorResponse } from '../models';
 /**
  * SystemApi - axios parameter creator
  * @export
  */
 export const SystemApiAxiosParamCreator = function (configuration?: Configuration) {
     return {
+        /**
+         * 查看缓存状态信息（类似 redis-cli INFO）
+         * @summary 缓存信息
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiSystemCacheInfoGet: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/system/cache/info`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication BearerAuth required
+            await setApiKeyToObject(localVarHeaderParameter, "Authorization", configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 删除指定的单个 key（类似 redis-cli DEL）
+         * @summary 删除缓存键
+         * @param {string} key Key 完整的 key 名称（含前缀）
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiSystemCacheKeyDelete: async (key: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'key' is not null or undefined
+            assertParamExists('apiSystemCacheKeyDelete', 'key', key)
+            const localVarPath = `/api/system/cache/key`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication BearerAuth required
+            await setApiKeyToObject(localVarHeaderParameter, "Authorization", configuration)
+
+            if (key !== undefined) {
+                localVarQueryParameter['key'] = key;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 获取指定 key 的完整信息和值（类似 redis-cli GET/JSON.GET）
+         * @summary 获取缓存值
+         * @param {string} key Key 完整的 key 名称（含前缀）
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiSystemCacheKeyGet: async (key: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'key' is not null or undefined
+            assertParamExists('apiSystemCacheKeyGet', 'key', key)
+            const localVarPath = `/api/system/cache/key`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication BearerAuth required
+            await setApiKeyToObject(localVarHeaderParameter, "Authorization", configuration)
+
+            if (key !== undefined) {
+                localVarQueryParameter['key'] = key;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 批量删除匹配 pattern 的所有 keys
+         * @summary 批量删除缓存
+         * @param {string} pattern Pattern 匹配模式（不含应用前缀，如 \&quot;setting:*\&quot;）
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiSystemCacheKeysDelete: async (pattern: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'pattern' is not null or undefined
+            assertParamExists('apiSystemCacheKeysDelete', 'pattern', pattern)
+            const localVarPath = `/api/system/cache/keys`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication BearerAuth required
+            await setApiKeyToObject(localVarHeaderParameter, "Authorization", configuration)
+
+            if (pattern !== undefined) {
+                localVarQueryParameter['pattern'] = pattern;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 按 pattern 扫描缓存 keys（类似 redis-cli SCAN）
+         * @summary 扫描缓存键
+         * @param {string} [cursor] Cursor 游标（用于分页），首次查询传 \&quot;0\&quot; 或留空
+         * @param {number} [limit] Limit 每次返回的最大数量
+         * @param {string} [pattern] Pattern 匹配模式（不含应用前缀，如 \&quot;setting:*\&quot;）
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiSystemCacheKeysGet: async (cursor?: string, limit?: number, pattern?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/system/cache/keys`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication BearerAuth required
+            await setApiKeyToObject(localVarHeaderParameter, "Authorization", configuration)
+
+            if (cursor !== undefined) {
+                localVarQueryParameter['cursor'] = cursor;
+            }
+
+            if (limit !== undefined) {
+                localVarQueryParameter['limit'] = limit;
+            }
+
+            if (pattern !== undefined) {
+                localVarQueryParameter['pattern'] = pattern;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 返回所有可用的操作定义，供前端权限配置使用
+         * @summary 操作列表
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiSystemOperationsGet: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/system/operations`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication BearerAuth required
+            await setApiKeyToObject(localVarHeaderParameter, "Authorization", configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
         /**
          * 检查系统服务健康状态（数据库、Redis）
          * @summary 健康检查
@@ -70,6 +316,84 @@ export const SystemApiFp = function(configuration?: Configuration) {
     const localVarAxiosParamCreator = SystemApiAxiosParamCreator(configuration)
     return {
         /**
+         * 查看缓存状态信息（类似 redis-cli INFO）
+         * @summary 缓存信息
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async apiSystemCacheInfoGet(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseCacheCacheInfoDTO>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.apiSystemCacheInfoGet(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['SystemApi.apiSystemCacheInfoGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 删除指定的单个 key（类似 redis-cli DEL）
+         * @summary 删除缓存键
+         * @param {string} key Key 完整的 key 名称（含前缀）
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async apiSystemCacheKeyDelete(key: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseCacheDeleteResultDTO>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.apiSystemCacheKeyDelete(key, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['SystemApi.apiSystemCacheKeyDelete']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 获取指定 key 的完整信息和值（类似 redis-cli GET/JSON.GET）
+         * @summary 获取缓存值
+         * @param {string} key Key 完整的 key 名称（含前缀）
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async apiSystemCacheKeyGet(key: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseCacheCacheValueDTO>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.apiSystemCacheKeyGet(key, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['SystemApi.apiSystemCacheKeyGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 批量删除匹配 pattern 的所有 keys
+         * @summary 批量删除缓存
+         * @param {string} pattern Pattern 匹配模式（不含应用前缀，如 \&quot;setting:*\&quot;）
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async apiSystemCacheKeysDelete(pattern: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseCacheDeleteResultDTO>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.apiSystemCacheKeysDelete(pattern, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['SystemApi.apiSystemCacheKeysDelete']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 按 pattern 扫描缓存 keys（类似 redis-cli SCAN）
+         * @summary 扫描缓存键
+         * @param {string} [cursor] Cursor 游标（用于分页），首次查询传 \&quot;0\&quot; 或留空
+         * @param {number} [limit] Limit 每次返回的最大数量
+         * @param {string} [pattern] Pattern 匹配模式（不含应用前缀，如 \&quot;setting:*\&quot;）
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async apiSystemCacheKeysGet(cursor?: string, limit?: number, pattern?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseCacheScanKeysResultDTO>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.apiSystemCacheKeysGet(cursor, limit, pattern, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['SystemApi.apiSystemCacheKeysGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 返回所有可用的操作定义，供前端权限配置使用
+         * @summary 操作列表
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async apiSystemOperationsGet(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseArrayOperationOperationDefinition>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.apiSystemOperationsGet(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['SystemApi.apiSystemOperationsGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
          * 检查系统服务健康状态（数据库、Redis）
          * @summary 健康检查
          * @param {*} [options] Override http request option.
@@ -92,6 +416,66 @@ export const SystemApiFactory = function (configuration?: Configuration, basePat
     const localVarFp = SystemApiFp(configuration)
     return {
         /**
+         * 查看缓存状态信息（类似 redis-cli INFO）
+         * @summary 缓存信息
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiSystemCacheInfoGet(options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseCacheCacheInfoDTO> {
+            return localVarFp.apiSystemCacheInfoGet(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 删除指定的单个 key（类似 redis-cli DEL）
+         * @summary 删除缓存键
+         * @param {string} key Key 完整的 key 名称（含前缀）
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiSystemCacheKeyDelete(key: string, options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseCacheDeleteResultDTO> {
+            return localVarFp.apiSystemCacheKeyDelete(key, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 获取指定 key 的完整信息和值（类似 redis-cli GET/JSON.GET）
+         * @summary 获取缓存值
+         * @param {string} key Key 完整的 key 名称（含前缀）
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiSystemCacheKeyGet(key: string, options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseCacheCacheValueDTO> {
+            return localVarFp.apiSystemCacheKeyGet(key, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 批量删除匹配 pattern 的所有 keys
+         * @summary 批量删除缓存
+         * @param {string} pattern Pattern 匹配模式（不含应用前缀，如 \&quot;setting:*\&quot;）
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiSystemCacheKeysDelete(pattern: string, options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseCacheDeleteResultDTO> {
+            return localVarFp.apiSystemCacheKeysDelete(pattern, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 按 pattern 扫描缓存 keys（类似 redis-cli SCAN）
+         * @summary 扫描缓存键
+         * @param {string} [cursor] Cursor 游标（用于分页），首次查询传 \&quot;0\&quot; 或留空
+         * @param {number} [limit] Limit 每次返回的最大数量
+         * @param {string} [pattern] Pattern 匹配模式（不含应用前缀，如 \&quot;setting:*\&quot;）
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiSystemCacheKeysGet(cursor?: string, limit?: number, pattern?: string, options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseCacheScanKeysResultDTO> {
+            return localVarFp.apiSystemCacheKeysGet(cursor, limit, pattern, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 返回所有可用的操作定义，供前端权限配置使用
+         * @summary 操作列表
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiSystemOperationsGet(options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseArrayOperationOperationDefinition> {
+            return localVarFp.apiSystemOperationsGet(options).then((request) => request(axios, basePath));
+        },
+        /**
          * 检查系统服务健康状态（数据库、Redis）
          * @summary 健康检查
          * @param {*} [options] Override http request option.
@@ -110,6 +494,78 @@ export const SystemApiFactory = function (configuration?: Configuration, basePat
  * @extends {BaseAPI}
  */
 export class SystemApi extends BaseAPI {
+    /**
+     * 查看缓存状态信息（类似 redis-cli INFO）
+     * @summary 缓存信息
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof SystemApi
+     */
+    public apiSystemCacheInfoGet(options?: RawAxiosRequestConfig) {
+        return SystemApiFp(this.configuration).apiSystemCacheInfoGet(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 删除指定的单个 key（类似 redis-cli DEL）
+     * @summary 删除缓存键
+     * @param {string} key Key 完整的 key 名称（含前缀）
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof SystemApi
+     */
+    public apiSystemCacheKeyDelete(key: string, options?: RawAxiosRequestConfig) {
+        return SystemApiFp(this.configuration).apiSystemCacheKeyDelete(key, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 获取指定 key 的完整信息和值（类似 redis-cli GET/JSON.GET）
+     * @summary 获取缓存值
+     * @param {string} key Key 完整的 key 名称（含前缀）
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof SystemApi
+     */
+    public apiSystemCacheKeyGet(key: string, options?: RawAxiosRequestConfig) {
+        return SystemApiFp(this.configuration).apiSystemCacheKeyGet(key, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 批量删除匹配 pattern 的所有 keys
+     * @summary 批量删除缓存
+     * @param {string} pattern Pattern 匹配模式（不含应用前缀，如 \&quot;setting:*\&quot;）
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof SystemApi
+     */
+    public apiSystemCacheKeysDelete(pattern: string, options?: RawAxiosRequestConfig) {
+        return SystemApiFp(this.configuration).apiSystemCacheKeysDelete(pattern, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 按 pattern 扫描缓存 keys（类似 redis-cli SCAN）
+     * @summary 扫描缓存键
+     * @param {string} [cursor] Cursor 游标（用于分页），首次查询传 \&quot;0\&quot; 或留空
+     * @param {number} [limit] Limit 每次返回的最大数量
+     * @param {string} [pattern] Pattern 匹配模式（不含应用前缀，如 \&quot;setting:*\&quot;）
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof SystemApi
+     */
+    public apiSystemCacheKeysGet(cursor?: string, limit?: number, pattern?: string, options?: RawAxiosRequestConfig) {
+        return SystemApiFp(this.configuration).apiSystemCacheKeysGet(cursor, limit, pattern, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 返回所有可用的操作定义，供前端权限配置使用
+     * @summary 操作列表
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof SystemApi
+     */
+    public apiSystemOperationsGet(options?: RawAxiosRequestConfig) {
+        return SystemApiFp(this.configuration).apiSystemOperationsGet(options).then((request) => request(this.axios, this.basePath));
+    }
+
     /**
      * 检查系统服务健康状态（数据库、Redis）
      * @summary 健康检查

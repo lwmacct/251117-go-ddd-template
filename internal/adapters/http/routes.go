@@ -45,6 +45,9 @@ func (deps *RouterDependencies) AllRouteBindings() []RouteBinding {
 		{op.SysRolesDelete, deps.RoleHandler.DeleteRole},
 		{op.SysRolesSetPermissions, deps.RoleHandler.SetPermissions},
 
+		// ==================== Sys 域 - 操作列表 ====================
+		{op.SysOperationsList, deps.OperationHandler.ListOperations},
+
 		// ==================== Sys 域 - 审计日志 ====================
 		// 注意：actions 路由必须在 :id 路由之前
 		{op.SysAuditLogsActions, deps.AuditLogHandler.GetActions},

@@ -3,7 +3,6 @@
 .openapi-generator-ignore
 api.ts
 api/admin-audit-log-api.ts
-api/admin-cache-api.ts
 api/admin-menu-management-api.ts
 api/admin-role-management-api.ts
 api/admin-setting-categories-api.ts
@@ -58,10 +57,12 @@ models/menu-menu-dto.ts
 models/menu-reorder-dto.ts
 models/menu-reorder-dtomenus-inner.ts
 models/menu-update-dto.ts
+models/operation-operation-definition.ts
 models/pat-create-dto.ts
 models/pat-create-result-dto.ts
 models/pat-token-dto.ts
 models/response-data-response-array-menu-menu-dto.ts
+models/response-data-response-array-operation-operation-definition.ts
 models/response-data-response-array-pat-token-dto.ts
 models/response-data-response-array-setting-category-dto.ts
 models/response-data-response-array-setting-category-meta-dto.ts

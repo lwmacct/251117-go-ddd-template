@@ -38,6 +38,7 @@ type HandlersResult struct {
 	Overview    *handler.OverviewHandler
 	TwoFA       *handler.TwoFAHandler
 	Cache       *handler.CacheHandler
+	Operation   *handler.OperationHandler
 }
 
 // HTTPModule 提供 HTTP 处理器和路由。
@@ -165,6 +166,7 @@ func newAllHandlers(p handlersParams) HandlersResult {
 			cache.NewGetKeyHandler(p.RedisClient, keyPrefix),
 			cache.NewDeleteHandler(p.RedisClient, keyPrefix),
 		),
+		Operation: handler.NewOperationHandler(),
 	}
 }
 
@@ -198,6 +200,7 @@ type routerParams struct {
 	Overview    *handler.OverviewHandler
 	TwoFA       *handler.TwoFAHandler
 	Cache       *handler.CacheHandler
+	Operation   *handler.OperationHandler
 }
 
 func newRouter(p routerParams) *gin.Engine {
@@ -222,6 +225,7 @@ func newRouter(p routerParams) *gin.Engine {
 		OverviewHandler:        p.Overview,
 		TwoFAHandler:           p.TwoFA,
 		CacheHandler:           p.Cache,
+		OperationHandler:       p.Operation,
 	}
 
 	return adapthttp.SetupRouterWithDeps(deps)

@@ -34,13 +34,12 @@ func NewCacheHandler(
 
 // Info 获取缓存信息
 //
-// @Summary      获取缓存信息
+// @Summary      缓存信息
 // @Description  查看缓存状态信息（类似 redis-cli INFO）
-// @Tags         管理员 - 缓存管理 (Admin - Cache)
+// @Tags         System
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
-// @x-permission {"scope":"admin:cache:read"}
 // @Success      200 {object} response.DataResponse[cache.CacheInfoDTO] "成功"
 // @Failure      500 {object} response.ErrorResponse "服务器错误"
 // @Router       /api/system/cache/info [get]
@@ -68,13 +67,12 @@ type ScanKeysQuery struct {
 
 // ScanKeys 扫描缓存 Keys
 //
-// @Summary      扫描缓存 Keys
+// @Summary      扫描缓存键
 // @Description  按 pattern 扫描缓存 keys（类似 redis-cli SCAN）
-// @Tags         管理员 - 缓存管理 (Admin - Cache)
+// @Tags         System
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
-// @x-permission {"scope":"admin:cache:read"}
 // @Param        params query ScanKeysQuery false "查询参数"
 // @Success      200 {object} response.DataResponse[cache.ScanKeysResultDTO] "成功"
 // @Failure      400 {object} response.ErrorResponse "参数错误"
@@ -108,13 +106,12 @@ type GetKeyQuery struct {
 
 // GetKey 获取单个 Key 的值
 //
-// @Summary      获取缓存 Key 值
+// @Summary      获取缓存值
 // @Description  获取指定 key 的完整信息和值（类似 redis-cli GET/JSON.GET）
-// @Tags         管理员 - 缓存管理 (Admin - Cache)
+// @Tags         System
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
-// @x-permission {"scope":"admin:cache:read"}
 // @Param        params query GetKeyQuery true "查询参数"
 // @Success      200 {object} response.DataResponse[cache.CacheValueDTO] "成功"
 // @Failure      400 {object} response.ErrorResponse "参数错误"
@@ -149,13 +146,12 @@ type DeleteKeyQuery struct {
 
 // DeleteKey 删除单个 Key
 //
-// @Summary      删除缓存 Key
+// @Summary      删除缓存键
 // @Description  删除指定的单个 key（类似 redis-cli DEL）
-// @Tags         管理员 - 缓存管理 (Admin - Cache)
+// @Tags         System
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
-// @x-permission {"scope":"admin:cache:delete"}
 // @Param        params query DeleteKeyQuery true "查询参数"
 // @Success      200 {object} response.DataResponse[cache.DeleteResultDTO] "成功"
 // @Failure      400 {object} response.ErrorResponse "参数错误"
@@ -185,13 +181,12 @@ type DeleteByPatternQuery struct {
 
 // DeleteByPattern 按 pattern 批量删除 Keys
 //
-// @Summary      按 pattern 删除缓存
+// @Summary      批量删除缓存
 // @Description  批量删除匹配 pattern 的所有 keys
-// @Tags         管理员 - 缓存管理 (Admin - Cache)
+// @Tags         System
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
-// @x-permission {"scope":"admin:cache:delete"}
 // @Param        params query DeleteByPatternQuery true "查询参数"
 // @Success      200 {object} response.DataResponse[cache.DeleteResultDTO] "成功"
 // @Failure      400 {object} response.ErrorResponse "参数错误"

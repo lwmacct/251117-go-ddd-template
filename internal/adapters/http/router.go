@@ -100,6 +100,7 @@ type RouterDependencies struct {
 	OverviewHandler    *handler.OverviewHandler
 	TwoFAHandler       *handler.TwoFAHandler
 	CacheHandler       *handler.CacheHandler
+	OperationHandler   *handler.OperationHandler
 }
 
 // SetupRouterWithDeps 使用依赖对象配置路由（推荐方式）
@@ -164,15 +165,15 @@ func registerRoutes(r *gin.Engine, deps *RouterDependencies) {
 		middlewares = append(middlewares, b.Handler)
 
 		switch op.Method(b.Op) {
-		case op.HttpGET:
+		case op.GET:
 			r.GET(op.Path(b.Op), middlewares...)
-		case op.HttpPOST:
+		case op.POST:
 			r.POST(op.Path(b.Op), middlewares...)
-		case op.HttpPUT:
+		case op.PUT:
 			r.PUT(op.Path(b.Op), middlewares...)
-		case op.HttpDELETE:
+		case op.DELETE:
 			r.DELETE(op.Path(b.Op), middlewares...)
-		case op.HttpPATCH:
+		case op.PATCH:
 			r.PATCH(op.Path(b.Op), middlewares...)
 		default:
 			slog.Warn("unknown HTTP method", "operation", b.Op, "method", op.Method(b.Op))

@@ -49,13 +49,12 @@ func NewUserSettingHandler(
 
 // ListUserSettingCategories 获取用户可见的分类列表
 //
-// @Summary      获取用户设置分类列表
+// @Summary      配置分类列表
 // @Description  获取包含用户可配置项的分类列表（不含 settings 数据，用于懒加载场景）
-// @Tags         用户 - 个人配置 (User - Settings)
+// @Tags         User - Settings
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
-// @x-permission {"scope":"user:settings:read"}
 // @Success      200 {object} response.DataResponse[[]setting.CategoryMetaDTO] "分类列表"
 // @Failure      401 {object} response.ErrorResponse "未授权"
 // @Failure      500 {object} response.ErrorResponse "服务器内部错误"
@@ -79,13 +78,12 @@ func (h *UserSettingHandler) ListUserSettingCategories(c *gin.Context) {
 
 // GetUserSettings 获取用户配置（层级结构）
 //
-// @Summary      获取用户配置
+// @Summary      用户配置列表
 // @Description  获取按 Category → Group → Settings 层级组织的配置数据，包含用户自定义值。支持按分类过滤（懒加载）。
-// @Tags         用户 - 个人配置 (User - Settings)
+// @Tags         User - Settings
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
-// @x-permission {"scope":"user:settings:read"}
 // @Param        category query string false "分类 Key（如 profile），为空返回全量"
 // @Success      200 {object} response.DataResponse[[]setting.SettingsCategoryDTO] "配置列表（层级结构）"
 // @Failure      401 {object} response.ErrorResponse "未授权"
@@ -120,13 +118,12 @@ func (h *UserSettingHandler) GetUserSettings(c *gin.Context) {
 
 // GetUserSetting 获取单个用户配置
 //
-// @Summary      获取单个用户配置
+// @Summary      用户配置详情
 // @Description  根据配置键获取用户配置（合并系统默认值）
-// @Tags         用户 - 个人配置 (User - Settings)
+// @Tags         User - Settings
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
-// @x-permission {"scope":"user:settings:read"}
 // @Param        key path string true "配置键" example:"theme"
 // @Success      200 {object} response.DataResponse[setting.UserSettingDTO] "配置详情"
 // @Failure      401 {object} response.ErrorResponse "未授权"
@@ -160,11 +157,10 @@ type SetUserSettingRequest struct {
 //
 // @Summary      设置用户配置
 // @Description  用户设置自定义配置值
-// @Tags         用户 - 个人配置 (User - Settings)
+// @Tags         User - Settings
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
-// @x-permission {"scope":"user:settings:update"}
 // @Param        key path string true "配置键" example:"theme"
 // @Param        request body SetUserSettingRequest true "配置值"
 // @Success      200 {object} response.DataResponse[setting.UserSettingDTO] "设置成功"
@@ -207,11 +203,10 @@ func (h *UserSettingHandler) SetUserSetting(c *gin.Context) {
 //
 // @Summary      重置用户配置
 // @Description  删除用户自定义配置，恢复为系统默认值
-// @Tags         用户 - 个人配置 (User - Settings)
+// @Tags         User - Settings
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
-// @x-permission {"scope":"user:settings:update"}
 // @Param        key path string true "配置键" example:"theme"
 // @Success      204 "重置成功"
 // @Failure      401 {object} response.ErrorResponse "未授权"
@@ -246,13 +241,12 @@ type BatchSetUserSettingsRequest struct {
 
 // BatchSetUserSettings 批量设置用户配置
 //
-// @Summary      批量设置用户配置
+// @Summary      批量设置配置
 // @Description  用户批量设置多个自定义配置值
-// @Tags         用户 - 个人配置 (User - Settings)
+// @Tags         User - Settings
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
-// @x-permission {"scope":"user:settings:update"}
 // @Param        request body BatchSetUserSettingsRequest true "配置列表"
 // @Success      200 {object} response.MessageResponse "批量设置成功"
 // @Failure      400 {object} response.ErrorResponse "参数错误"

@@ -39,7 +39,7 @@ export const UserProfileApiAxiosParamCreator = function (configuration?: Configu
     return {
         /**
          * 用户删除自己的账号（不可恢复）
-         * @summary 删除账号
+         * @summary 注销账户
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -111,7 +111,7 @@ export const UserProfileApiAxiosParamCreator = function (configuration?: Configu
         },
         /**
          * 获取当前登录用户的个人资料和角色信息
-         * @summary 获取个人资料
+         * @summary 获取资料
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -144,7 +144,7 @@ export const UserProfileApiAxiosParamCreator = function (configuration?: Configu
         },
         /**
          * 用户更新自己的姓名、头像和个人简介
-         * @summary 更新个人资料
+         * @summary 更新资料
          * @param {HandlerUpdateProfileRequest} request 更新信息
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -193,7 +193,7 @@ export const UserProfileApiFp = function(configuration?: Configuration) {
     return {
         /**
          * 用户删除自己的账号（不可恢复）
-         * @summary 删除账号
+         * @summary 注销账户
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -218,7 +218,7 @@ export const UserProfileApiFp = function(configuration?: Configuration) {
         },
         /**
          * 获取当前登录用户的个人资料和角色信息
-         * @summary 获取个人资料
+         * @summary 获取资料
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -230,7 +230,7 @@ export const UserProfileApiFp = function(configuration?: Configuration) {
         },
         /**
          * 用户更新自己的姓名、头像和个人简介
-         * @summary 更新个人资料
+         * @summary 更新资料
          * @param {HandlerUpdateProfileRequest} request 更新信息
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -253,7 +253,7 @@ export const UserProfileApiFactory = function (configuration?: Configuration, ba
     return {
         /**
          * 用户删除自己的账号（不可恢复）
-         * @summary 删除账号
+         * @summary 注销账户
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -272,7 +272,7 @@ export const UserProfileApiFactory = function (configuration?: Configuration, ba
         },
         /**
          * 获取当前登录用户的个人资料和角色信息
-         * @summary 获取个人资料
+         * @summary 获取资料
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -281,7 +281,7 @@ export const UserProfileApiFactory = function (configuration?: Configuration, ba
         },
         /**
          * 用户更新自己的姓名、头像和个人简介
-         * @summary 更新个人资料
+         * @summary 更新资料
          * @param {HandlerUpdateProfileRequest} request 更新信息
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -301,7 +301,7 @@ export const UserProfileApiFactory = function (configuration?: Configuration, ba
 export class UserProfileApi extends BaseAPI {
     /**
      * 用户删除自己的账号（不可恢复）
-     * @summary 删除账号
+     * @summary 注销账户
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof UserProfileApi
@@ -324,7 +324,7 @@ export class UserProfileApi extends BaseAPI {
 
     /**
      * 获取当前登录用户的个人资料和角色信息
-     * @summary 获取个人资料
+     * @summary 获取资料
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof UserProfileApi
@@ -335,7 +335,7 @@ export class UserProfileApi extends BaseAPI {
 
     /**
      * 用户更新自己的姓名、头像和个人简介
-     * @summary 更新个人资料
+     * @summary 更新资料
      * @param {HandlerUpdateProfileRequest} request 更新信息
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}

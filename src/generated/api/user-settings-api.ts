@@ -43,7 +43,7 @@ export const UserSettingsApiAxiosParamCreator = function (configuration?: Config
     return {
         /**
          * 用户批量设置多个自定义配置值
-         * @summary 批量设置用户配置
+         * @summary 批量设置配置
          * @param {HandlerBatchSetUserSettingsRequest} request 配置列表
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -82,7 +82,7 @@ export const UserSettingsApiAxiosParamCreator = function (configuration?: Config
         },
         /**
          * 获取包含用户可配置项的分类列表（不含 settings 数据，用于懒加载场景）
-         * @summary 获取用户设置分类列表
+         * @summary 配置分类列表
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -115,7 +115,7 @@ export const UserSettingsApiAxiosParamCreator = function (configuration?: Config
         },
         /**
          * 获取按 Category → Group → Settings 层级组织的配置数据，包含用户自定义值。支持按分类过滤（懒加载）。
-         * @summary 获取用户配置
+         * @summary 用户配置列表
          * @param {string} [category] 分类 Key（如 profile），为空返回全量
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -190,7 +190,7 @@ export const UserSettingsApiAxiosParamCreator = function (configuration?: Config
         },
         /**
          * 根据配置键获取用户配置（合并系统默认值）
-         * @summary 获取单个用户配置
+         * @summary 用户配置详情
          * @param {string} key 配置键
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -280,7 +280,7 @@ export const UserSettingsApiFp = function(configuration?: Configuration) {
     return {
         /**
          * 用户批量设置多个自定义配置值
-         * @summary 批量设置用户配置
+         * @summary 批量设置配置
          * @param {HandlerBatchSetUserSettingsRequest} request 配置列表
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -293,7 +293,7 @@ export const UserSettingsApiFp = function(configuration?: Configuration) {
         },
         /**
          * 获取包含用户可配置项的分类列表（不含 settings 数据，用于懒加载场景）
-         * @summary 获取用户设置分类列表
+         * @summary 配置分类列表
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -305,7 +305,7 @@ export const UserSettingsApiFp = function(configuration?: Configuration) {
         },
         /**
          * 获取按 Category → Group → Settings 层级组织的配置数据，包含用户自定义值。支持按分类过滤（懒加载）。
-         * @summary 获取用户配置
+         * @summary 用户配置列表
          * @param {string} [category] 分类 Key（如 profile），为空返回全量
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -331,7 +331,7 @@ export const UserSettingsApiFp = function(configuration?: Configuration) {
         },
         /**
          * 根据配置键获取用户配置（合并系统默认值）
-         * @summary 获取单个用户配置
+         * @summary 用户配置详情
          * @param {string} key 配置键
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -368,7 +368,7 @@ export const UserSettingsApiFactory = function (configuration?: Configuration, b
     return {
         /**
          * 用户批量设置多个自定义配置值
-         * @summary 批量设置用户配置
+         * @summary 批量设置配置
          * @param {HandlerBatchSetUserSettingsRequest} request 配置列表
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -378,7 +378,7 @@ export const UserSettingsApiFactory = function (configuration?: Configuration, b
         },
         /**
          * 获取包含用户可配置项的分类列表（不含 settings 数据，用于懒加载场景）
-         * @summary 获取用户设置分类列表
+         * @summary 配置分类列表
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -387,7 +387,7 @@ export const UserSettingsApiFactory = function (configuration?: Configuration, b
         },
         /**
          * 获取按 Category → Group → Settings 层级组织的配置数据，包含用户自定义值。支持按分类过滤（懒加载）。
-         * @summary 获取用户配置
+         * @summary 用户配置列表
          * @param {string} [category] 分类 Key（如 profile），为空返回全量
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -407,7 +407,7 @@ export const UserSettingsApiFactory = function (configuration?: Configuration, b
         },
         /**
          * 根据配置键获取用户配置（合并系统默认值）
-         * @summary 获取单个用户配置
+         * @summary 用户配置详情
          * @param {string} key 配置键
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -438,7 +438,7 @@ export const UserSettingsApiFactory = function (configuration?: Configuration, b
 export class UserSettingsApi extends BaseAPI {
     /**
      * 用户批量设置多个自定义配置值
-     * @summary 批量设置用户配置
+     * @summary 批量设置配置
      * @param {HandlerBatchSetUserSettingsRequest} request 配置列表
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -450,7 +450,7 @@ export class UserSettingsApi extends BaseAPI {
 
     /**
      * 获取包含用户可配置项的分类列表（不含 settings 数据，用于懒加载场景）
-     * @summary 获取用户设置分类列表
+     * @summary 配置分类列表
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof UserSettingsApi
@@ -461,7 +461,7 @@ export class UserSettingsApi extends BaseAPI {
 
     /**
      * 获取按 Category → Group → Settings 层级组织的配置数据，包含用户自定义值。支持按分类过滤（懒加载）。
-     * @summary 获取用户配置
+     * @summary 用户配置列表
      * @param {string} [category] 分类 Key（如 profile），为空返回全量
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -485,7 +485,7 @@ export class UserSettingsApi extends BaseAPI {
 
     /**
      * 根据配置键获取用户配置（合并系统默认值）
-     * @summary 获取单个用户配置
+     * @summary 用户配置详情
      * @param {string} key 配置键
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}

@@ -41,7 +41,7 @@ export const UserPersonalAccessTokenApiAxiosParamCreator = function (configurati
     return {
         /**
          * 获取当前用户的所有个人访问令牌（不包含令牌值）
-         * @summary 获取个人访问令牌列表
+         * @summary 令牌列表
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -74,7 +74,7 @@ export const UserPersonalAccessTokenApiAxiosParamCreator = function (configurati
         },
         /**
          * 用户删除指定的个人访问令牌（不可恢复）
-         * @summary 删除个人访问令牌
+         * @summary 删除令牌
          * @param {number} id 令牌ID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -111,7 +111,7 @@ export const UserPersonalAccessTokenApiAxiosParamCreator = function (configurati
         },
         /**
          * 暂停指定令牌的使用（可再次启用）
-         * @summary 禁用个人访问令牌
+         * @summary 禁用令牌
          * @param {number} id 令牌ID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -148,7 +148,7 @@ export const UserPersonalAccessTokenApiAxiosParamCreator = function (configurati
         },
         /**
          * 重新启用已禁用的令牌
-         * @summary 启用个人访问令牌
+         * @summary 启用令牌
          * @param {number} id 令牌ID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -185,7 +185,7 @@ export const UserPersonalAccessTokenApiAxiosParamCreator = function (configurati
         },
         /**
          * 获取指定个人访问令牌的详细信息（不包含令牌值）
-         * @summary 获取个人访问令牌详情
+         * @summary 令牌详情
          * @param {number} id 令牌ID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -222,7 +222,7 @@ export const UserPersonalAccessTokenApiAxiosParamCreator = function (configurati
         },
         /**
          * 用户创建新的个人访问令牌(PAT)，用于API访问。令牌仅在创建时显示一次
-         * @summary 创建个人访问令牌
+         * @summary 创建令牌
          * @param {PatCreateDTO} request 令牌信息
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -271,7 +271,7 @@ export const UserPersonalAccessTokenApiFp = function(configuration?: Configurati
     return {
         /**
          * 获取当前用户的所有个人访问令牌（不包含令牌值）
-         * @summary 获取个人访问令牌列表
+         * @summary 令牌列表
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -283,7 +283,7 @@ export const UserPersonalAccessTokenApiFp = function(configuration?: Configurati
         },
         /**
          * 用户删除指定的个人访问令牌（不可恢复）
-         * @summary 删除个人访问令牌
+         * @summary 删除令牌
          * @param {number} id 令牌ID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -296,7 +296,7 @@ export const UserPersonalAccessTokenApiFp = function(configuration?: Configurati
         },
         /**
          * 暂停指定令牌的使用（可再次启用）
-         * @summary 禁用个人访问令牌
+         * @summary 禁用令牌
          * @param {number} id 令牌ID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -309,7 +309,7 @@ export const UserPersonalAccessTokenApiFp = function(configuration?: Configurati
         },
         /**
          * 重新启用已禁用的令牌
-         * @summary 启用个人访问令牌
+         * @summary 启用令牌
          * @param {number} id 令牌ID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -322,7 +322,7 @@ export const UserPersonalAccessTokenApiFp = function(configuration?: Configurati
         },
         /**
          * 获取指定个人访问令牌的详细信息（不包含令牌值）
-         * @summary 获取个人访问令牌详情
+         * @summary 令牌详情
          * @param {number} id 令牌ID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -335,7 +335,7 @@ export const UserPersonalAccessTokenApiFp = function(configuration?: Configurati
         },
         /**
          * 用户创建新的个人访问令牌(PAT)，用于API访问。令牌仅在创建时显示一次
-         * @summary 创建个人访问令牌
+         * @summary 创建令牌
          * @param {PatCreateDTO} request 令牌信息
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -358,7 +358,7 @@ export const UserPersonalAccessTokenApiFactory = function (configuration?: Confi
     return {
         /**
          * 获取当前用户的所有个人访问令牌（不包含令牌值）
-         * @summary 获取个人访问令牌列表
+         * @summary 令牌列表
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -367,7 +367,7 @@ export const UserPersonalAccessTokenApiFactory = function (configuration?: Confi
         },
         /**
          * 用户删除指定的个人访问令牌（不可恢复）
-         * @summary 删除个人访问令牌
+         * @summary 删除令牌
          * @param {number} id 令牌ID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -377,7 +377,7 @@ export const UserPersonalAccessTokenApiFactory = function (configuration?: Confi
         },
         /**
          * 暂停指定令牌的使用（可再次启用）
-         * @summary 禁用个人访问令牌
+         * @summary 禁用令牌
          * @param {number} id 令牌ID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -387,7 +387,7 @@ export const UserPersonalAccessTokenApiFactory = function (configuration?: Confi
         },
         /**
          * 重新启用已禁用的令牌
-         * @summary 启用个人访问令牌
+         * @summary 启用令牌
          * @param {number} id 令牌ID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -397,7 +397,7 @@ export const UserPersonalAccessTokenApiFactory = function (configuration?: Confi
         },
         /**
          * 获取指定个人访问令牌的详细信息（不包含令牌值）
-         * @summary 获取个人访问令牌详情
+         * @summary 令牌详情
          * @param {number} id 令牌ID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -407,7 +407,7 @@ export const UserPersonalAccessTokenApiFactory = function (configuration?: Confi
         },
         /**
          * 用户创建新的个人访问令牌(PAT)，用于API访问。令牌仅在创建时显示一次
-         * @summary 创建个人访问令牌
+         * @summary 创建令牌
          * @param {PatCreateDTO} request 令牌信息
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -427,7 +427,7 @@ export const UserPersonalAccessTokenApiFactory = function (configuration?: Confi
 export class UserPersonalAccessTokenApi extends BaseAPI {
     /**
      * 获取当前用户的所有个人访问令牌（不包含令牌值）
-     * @summary 获取个人访问令牌列表
+     * @summary 令牌列表
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof UserPersonalAccessTokenApi
@@ -438,7 +438,7 @@ export class UserPersonalAccessTokenApi extends BaseAPI {
 
     /**
      * 用户删除指定的个人访问令牌（不可恢复）
-     * @summary 删除个人访问令牌
+     * @summary 删除令牌
      * @param {number} id 令牌ID
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -450,7 +450,7 @@ export class UserPersonalAccessTokenApi extends BaseAPI {
 
     /**
      * 暂停指定令牌的使用（可再次启用）
-     * @summary 禁用个人访问令牌
+     * @summary 禁用令牌
      * @param {number} id 令牌ID
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -462,7 +462,7 @@ export class UserPersonalAccessTokenApi extends BaseAPI {
 
     /**
      * 重新启用已禁用的令牌
-     * @summary 启用个人访问令牌
+     * @summary 启用令牌
      * @param {number} id 令牌ID
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -474,7 +474,7 @@ export class UserPersonalAccessTokenApi extends BaseAPI {
 
     /**
      * 获取指定个人访问令牌的详细信息（不包含令牌值）
-     * @summary 获取个人访问令牌详情
+     * @summary 令牌详情
      * @param {number} id 令牌ID
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -486,7 +486,7 @@ export class UserPersonalAccessTokenApi extends BaseAPI {
 
     /**
      * 用户创建新的个人访问令牌(PAT)，用于API访问。令牌仅在创建时显示一次
-     * @summary 创建个人访问令牌
+     * @summary 创建令牌
      * @param {PatCreateDTO} request 令牌信息
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}

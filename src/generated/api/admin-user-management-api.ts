@@ -86,7 +86,7 @@ export const AdminUserManagementApiAxiosParamCreator = function (configuration?:
         },
         /**
          * 分页获取所有用户列表（包含角色信息）
-         * @summary 获取用户列表
+         * @summary 用户列表
          * @param {number} [limit] Limit 每页数量，默认 20，最大 1000
          * @param {number} [page] Page 页码，从 1 开始
          * @param {string} [search] Search 搜索关键词（用户名或邮箱）
@@ -171,7 +171,7 @@ export const AdminUserManagementApiAxiosParamCreator = function (configuration?:
         },
         /**
          * 根据用户ID获取用户详细信息（包含角色信息）
-         * @summary 获取用户详情
+         * @summary 用户详情
          * @param {number} id 用户ID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -208,7 +208,7 @@ export const AdminUserManagementApiAxiosParamCreator = function (configuration?:
         },
         /**
          * 管理员更新用户的基本信息和状态
-         * @summary 更新用户信息
+         * @summary 更新用户
          * @param {number} id 用户ID
          * @param {UserUpdateDTO} request 更新信息
          * @param {*} [options] Override http request option.
@@ -251,7 +251,7 @@ export const AdminUserManagementApiAxiosParamCreator = function (configuration?:
         },
         /**
          * 管理员为指定用户分配角色（会覆盖现有角色）
-         * @summary 分配用户角色
+         * @summary 分配角色
          * @param {number} id 用户ID
          * @param {UserAssignRolesDTO} request 角色ID列表
          * @param {*} [options] Override http request option.
@@ -356,7 +356,7 @@ export const AdminUserManagementApiFp = function(configuration?: Configuration) 
         },
         /**
          * 分页获取所有用户列表（包含角色信息）
-         * @summary 获取用户列表
+         * @summary 用户列表
          * @param {number} [limit] Limit 每页数量，默认 20，最大 1000
          * @param {number} [page] Page 页码，从 1 开始
          * @param {string} [search] Search 搜索关键词（用户名或邮箱）
@@ -384,7 +384,7 @@ export const AdminUserManagementApiFp = function(configuration?: Configuration) 
         },
         /**
          * 根据用户ID获取用户详细信息（包含角色信息）
-         * @summary 获取用户详情
+         * @summary 用户详情
          * @param {number} id 用户ID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -397,7 +397,7 @@ export const AdminUserManagementApiFp = function(configuration?: Configuration) 
         },
         /**
          * 管理员更新用户的基本信息和状态
-         * @summary 更新用户信息
+         * @summary 更新用户
          * @param {number} id 用户ID
          * @param {UserUpdateDTO} request 更新信息
          * @param {*} [options] Override http request option.
@@ -411,7 +411,7 @@ export const AdminUserManagementApiFp = function(configuration?: Configuration) 
         },
         /**
          * 管理员为指定用户分配角色（会覆盖现有角色）
-         * @summary 分配用户角色
+         * @summary 分配角色
          * @param {number} id 用户ID
          * @param {UserAssignRolesDTO} request 角色ID列表
          * @param {*} [options] Override http request option.
@@ -458,7 +458,7 @@ export const AdminUserManagementApiFactory = function (configuration?: Configura
         },
         /**
          * 分页获取所有用户列表（包含角色信息）
-         * @summary 获取用户列表
+         * @summary 用户列表
          * @param {number} [limit] Limit 每页数量，默认 20，最大 1000
          * @param {number} [page] Page 页码，从 1 开始
          * @param {string} [search] Search 搜索关键词（用户名或邮箱）
@@ -480,7 +480,7 @@ export const AdminUserManagementApiFactory = function (configuration?: Configura
         },
         /**
          * 根据用户ID获取用户详细信息（包含角色信息）
-         * @summary 获取用户详情
+         * @summary 用户详情
          * @param {number} id 用户ID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -490,7 +490,7 @@ export const AdminUserManagementApiFactory = function (configuration?: Configura
         },
         /**
          * 管理员更新用户的基本信息和状态
-         * @summary 更新用户信息
+         * @summary 更新用户
          * @param {number} id 用户ID
          * @param {UserUpdateDTO} request 更新信息
          * @param {*} [options] Override http request option.
@@ -501,7 +501,7 @@ export const AdminUserManagementApiFactory = function (configuration?: Configura
         },
         /**
          * 管理员为指定用户分配角色（会覆盖现有角色）
-         * @summary 分配用户角色
+         * @summary 分配角色
          * @param {number} id 用户ID
          * @param {UserAssignRolesDTO} request 角色ID列表
          * @param {*} [options] Override http request option.
@@ -544,7 +544,7 @@ export class AdminUserManagementApi extends BaseAPI {
 
     /**
      * 分页获取所有用户列表（包含角色信息）
-     * @summary 获取用户列表
+     * @summary 用户列表
      * @param {number} [limit] Limit 每页数量，默认 20，最大 1000
      * @param {number} [page] Page 页码，从 1 开始
      * @param {string} [search] Search 搜索关键词（用户名或邮箱）
@@ -570,7 +570,7 @@ export class AdminUserManagementApi extends BaseAPI {
 
     /**
      * 根据用户ID获取用户详细信息（包含角色信息）
-     * @summary 获取用户详情
+     * @summary 用户详情
      * @param {number} id 用户ID
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -582,7 +582,7 @@ export class AdminUserManagementApi extends BaseAPI {
 
     /**
      * 管理员更新用户的基本信息和状态
-     * @summary 更新用户信息
+     * @summary 更新用户
      * @param {number} id 用户ID
      * @param {UserUpdateDTO} request 更新信息
      * @param {*} [options] Override http request option.
@@ -595,7 +595,7 @@ export class AdminUserManagementApi extends BaseAPI {
 
     /**
      * 管理员为指定用户分配角色（会覆盖现有角色）
-     * @summary 分配用户角色
+     * @summary 分配角色
      * @param {number} id 用户ID
      * @param {UserAssignRolesDTO} request 角色ID列表
      * @param {*} [options] Override http request option.

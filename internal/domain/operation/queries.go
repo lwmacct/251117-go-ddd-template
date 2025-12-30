@@ -1,6 +1,115 @@
 package operation
 
 // ============================================================================
+// 常量名查找
+// ============================================================================
+
+// constNameRegistry 常量名到 Operation 的映射。
+// 用于从源代码解析的常量名反查 Operation。
+//
+//nolint:gochecknoglobals // 只读注册表
+var constNameRegistry = map[string]Operation{
+	// Public 域
+	"PublicAuthRegister": PublicAuthRegister,
+	"PublicAuthLogin":    PublicAuthLogin,
+	"PublicAuthLogin2FA": PublicAuthLogin2FA,
+	"PublicAuthRefresh":  PublicAuthRefresh,
+	"PublicAuthCaptcha":  PublicAuthCaptcha,
+
+	// Self 域 - 2FA
+	"Self2FASetup":   Self2FASetup,
+	"Self2FAVerify":  Self2FAVerify,
+	"Self2FADisable": Self2FADisable,
+	"Self2FAStatus":  Self2FAStatus,
+
+	// Sys 域 - 用户管理
+	"SysUsersCreate":      SysUsersCreate,
+	"SysUsersBatchCreate": SysUsersBatchCreate,
+	"SysUsersList":        SysUsersList,
+	"SysUsersGet":         SysUsersGet,
+	"SysUsersUpdate":      SysUsersUpdate,
+	"SysUsersDelete":      SysUsersDelete,
+	"SysUsersAssignRoles": SysUsersAssignRoles,
+
+	// Sys 域 - 角色管理
+	"SysRolesCreate":         SysRolesCreate,
+	"SysRolesList":           SysRolesList,
+	"SysRolesGet":            SysRolesGet,
+	"SysRolesUpdate":         SysRolesUpdate,
+	"SysRolesDelete":         SysRolesDelete,
+	"SysRolesSetPermissions": SysRolesSetPermissions,
+
+	// Sys 域 - 操作列表
+	"SysOperationsList": SysOperationsList,
+
+	// Sys 域 - 审计日志
+	"SysAuditLogsList":    SysAuditLogsList,
+	"SysAuditLogsGet":     SysAuditLogsGet,
+	"SysAuditLogsActions": SysAuditLogsActions,
+
+	// Sys 域 - 菜单管理
+	"SysMenusCreate":  SysMenusCreate,
+	"SysMenusList":    SysMenusList,
+	"SysMenusGet":     SysMenusGet,
+	"SysMenusUpdate":  SysMenusUpdate,
+	"SysMenusDelete":  SysMenusDelete,
+	"SysMenusReorder": SysMenusReorder,
+
+	// Sys 域 - 系统概览
+	"SysOverviewStats": SysOverviewStats,
+
+	// Sys 域 - 系统配置
+	"SysSettingsCreate":      SysSettingsCreate,
+	"SysSettingsList":        SysSettingsList,
+	"SysSettingsGet":         SysSettingsGet,
+	"SysSettingsUpdate":      SysSettingsUpdate,
+	"SysSettingsDelete":      SysSettingsDelete,
+	"SysSettingsBatchUpdate": SysSettingsBatchUpdate,
+
+	// Sys 域 - 配置分类
+	"SysSettingCategoriesList":   SysSettingCategoriesList,
+	"SysSettingCategoriesGet":    SysSettingCategoriesGet,
+	"SysSettingCategoriesCreate": SysSettingCategoriesCreate,
+	"SysSettingCategoriesUpdate": SysSettingCategoriesUpdate,
+	"SysSettingCategoriesDelete": SysSettingCategoriesDelete,
+
+	// Sys 域 - 缓存管理
+	"SysCacheInfo":          SysCacheInfo,
+	"SysCacheScanKeys":      SysCacheScanKeys,
+	"SysCacheGetKey":        SysCacheGetKey,
+	"SysCacheDeleteKey":     SysCacheDeleteKey,
+	"SysCacheDeletePattern": SysCacheDeletePattern,
+
+	// Self 域 - 个人资料
+	"SelfProfileGet":     SelfProfileGet,
+	"SelfProfileUpdate":  SelfProfileUpdate,
+	"SelfPasswordUpdate": SelfPasswordUpdate,
+	"SelfAccountDelete":  SelfAccountDelete,
+
+	// Self 域 - 访问令牌
+	"SelfTokensCreate":  SelfTokensCreate,
+	"SelfTokensList":    SelfTokensList,
+	"SelfTokensGet":     SelfTokensGet,
+	"SelfTokensDelete":  SelfTokensDelete,
+	"SelfTokensDisable": SelfTokensDisable,
+	"SelfTokensEnable":  SelfTokensEnable,
+
+	// Self 域 - 用户配置
+	"SelfSettingsCategoriesList": SelfSettingsCategoriesList,
+	"SelfSettingsList":           SelfSettingsList,
+	"SelfSettingsGet":            SelfSettingsGet,
+	"SelfSettingsSet":            SelfSettingsSet,
+	"SelfSettingsReset":          SelfSettingsReset,
+	"SelfSettingsBatchSet":       SelfSettingsBatchSet,
+}
+
+// ByConstName 通过常量名查找操作。
+// 如果未找到返回空 Operation。
+func ByConstName(name string) Operation {
+	return constNameRegistry[name]
+}
+
+// ============================================================================
 // 派生查询函数
 // ============================================================================
 
@@ -31,9 +140,9 @@ func AllOperationDefinitions() []OperationDefinition {
 			Scope:       op.Scope(),
 			Type:        op.Type(),
 			Identifier:  op.Identifier(),
-			Label:       meta.Label,
+			Label:       meta.Summary,
 			Description: meta.Description,
-			Group:       meta.Group,
+			Group:       meta.Tags,
 		})
 	}
 
@@ -63,7 +172,7 @@ func AllAuditActions() []AuditActionDefinition {
 			Action:      meta.AuditAction,
 			Operation:   meta.AuditOperation,
 			Category:    meta.AuditCategory,
-			Label:       meta.Label,
+			Label:       meta.Summary,
 			Description: meta.Description,
 			OperationID: string(op),
 		})

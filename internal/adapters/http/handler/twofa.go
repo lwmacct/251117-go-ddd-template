@@ -32,13 +32,12 @@ func NewTwoFAHandler(
 
 // Setup 设置 2FA（生成密钥和二维码）
 //
-// @Summary      初始化两步验证
+// @Summary      设置 2FA
 // @Description  为当前用户生成2FA密钥和二维码，用于配置身份验证器应用
-// @Tags         认证 - 两步验证 (Authentication - 2FA)
+// @Tags         Authentication - 2FA
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
-// @x-permission {"scope":"auth:2fa:setup"}
 // @Success      200 {object} response.DataResponse[twofa.SetupDTO] "2FA初始化成功"
 // @Failure      400 {object} response.ErrorResponse "设置失败"
 // @Failure      401 {object} response.ErrorResponse "未授权"
@@ -70,13 +69,12 @@ func (h *TwoFAHandler) Setup(c *gin.Context) {
 
 // VerifyAndEnable 验证 TOTP 代码并启用 2FA
 //
-// @Summary      验证并启用两步验证
+// @Summary      启用 2FA
 // @Description  验证身份验证器应用生成的TOTP代码，成功后启用2FA并返回恢复代码
-// @Tags         认证 - 两步验证 (Authentication - 2FA)
+// @Tags         Authentication - 2FA
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
-// @x-permission {"scope":"auth:2fa:update"}
 // @Param        request body twofa.VerifyDTO true "TOTP验证码"
 // @Success      200 {object} response.DataResponse[twofa.EnableDTO] "2FA启用成功"
 // @Failure      400 {object} response.ErrorResponse "验证码错误"
@@ -114,13 +112,12 @@ func (h *TwoFAHandler) VerifyAndEnable(c *gin.Context) {
 
 // Disable 禁用 2FA
 //
-// @Summary      禁用两步验证
+// @Summary      禁用 2FA
 // @Description  禁用当前用户的两步验证功能
-// @Tags         认证 - 两步验证 (Authentication - 2FA)
+// @Tags         Authentication - 2FA
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
-// @x-permission {"scope":"auth:2fa:update"}
 // @Success      200 {object} response.MessageResponse "2FA禁用成功"
 // @Failure      400 {object} response.ErrorResponse "禁用失败"
 // @Failure      401 {object} response.ErrorResponse "未授权"
@@ -145,13 +142,12 @@ func (h *TwoFAHandler) Disable(c *gin.Context) {
 
 // GetStatus 获取 2FA 状态
 //
-// @Summary      获取两步验证状态
+// @Summary      2FA 状态
 // @Description  获取当前用户的2FA启用状态和剩余恢复代码数量
-// @Tags         认证 - 两步验证 (Authentication - 2FA)
+// @Tags         Authentication - 2FA
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
-// @x-permission {"scope":"auth:2fa:read"}
 // @Success      200 {object} response.DataResponse[twofa.StatusDTO] "2FA状态"
 // @Failure      400 {object} response.ErrorResponse "获取失败"
 // @Failure      401 {object} response.ErrorResponse "未授权"

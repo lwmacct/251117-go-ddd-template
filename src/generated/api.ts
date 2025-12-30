@@ -15,7 +15,6 @@
 
 
 export * from './api/admin-audit-log-api';
-export * from './api/admin-cache-api';
 export * from './api/admin-menu-management-api';
 export * from './api/admin-role-management-api';
 export * from './api/admin-setting-categories-api';

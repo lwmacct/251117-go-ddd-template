@@ -39,9 +39,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "认证 - 两步验证 (Authentication - 2FA)"
+                    "Authentication - 2FA"
                 ],
-                "summary": "禁用两步验证",
+                "summary": "禁用 2FA",
                 "responses": {
                     "200": {
                         "description": "2FA禁用成功",
@@ -61,9 +61,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/response.ErrorResponse"
                         }
                     }
-                },
-                "x-permission": {
-                    "scope": "auth:2fa:update"
                 }
             }
         },
@@ -82,9 +79,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "认证 - 两步验证 (Authentication - 2FA)"
+                    "Authentication - 2FA"
                 ],
-                "summary": "初始化两步验证",
+                "summary": "设置 2FA",
                 "responses": {
                     "200": {
                         "description": "2FA初始化成功",
@@ -104,9 +101,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/response.ErrorResponse"
                         }
                     }
-                },
-                "x-permission": {
-                    "scope": "auth:2fa:setup"
                 }
             }
         },
@@ -125,9 +119,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "认证 - 两步验证 (Authentication - 2FA)"
+                    "Authentication - 2FA"
                 ],
-                "summary": "获取两步验证状态",
+                "summary": "2FA 状态",
                 "responses": {
                     "200": {
                         "description": "2FA状态",
@@ -147,9 +141,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/response.ErrorResponse"
                         }
                     }
-                },
-                "x-permission": {
-                    "scope": "auth:2fa:read"
                 }
             }
         },
@@ -168,9 +159,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "认证 - 两步验证 (Authentication - 2FA)"
+                    "Authentication - 2FA"
                 ],
-                "summary": "验证并启用两步验证",
+                "summary": "启用 2FA",
                 "parameters": [
                     {
                         "description": "TOTP验证码",
@@ -201,9 +192,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/response.ErrorResponse"
                         }
                     }
-                },
-                "x-permission": {
-                    "scope": "auth:2fa:update"
                 }
             }
         },
@@ -217,9 +205,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "认证 (Authentication)"
+                    "Authentication"
                 ],
-                "summary": "获取图形验证码",
+                "summary": "获取验证码",
                 "parameters": [
                     {
                         "type": "string",
@@ -260,9 +248,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "认证 (Authentication)"
+                    "Authentication"
                 ],
-                "summary": "用户登录",
+                "summary": "登录",
                 "parameters": [
                     {
                         "description": "登录凭证",
@@ -300,9 +288,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "认证 (Authentication)"
+                    "Authentication"
                 ],
-                "summary": "二次认证登录",
+                "summary": "2FA 登录",
                 "parameters": [
                     {
                         "description": "二次认证凭证",
@@ -340,9 +328,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "认证 (Authentication)"
+                    "Authentication"
                 ],
-                "summary": "刷新访问令牌",
+                "summary": "刷新令牌",
                 "parameters": [
                     {
                         "description": "刷新令牌",
@@ -380,9 +368,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "认证 (Authentication)"
+                    "Authentication"
                 ],
-                "summary": "用户注册",
+                "summary": "注册",
                 "parameters": [
                     {
                         "description": "注册信息",
@@ -425,9 +413,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "管理员 - 审计日志 (Admin - Audit Log)"
+                    "Admin - Audit Log"
                 ],
-                "summary": "获取审计日志列表",
+                "summary": "审计日志列表",
                 "parameters": [
                     {
                         "type": "string",
@@ -518,9 +506,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/response.ErrorResponse"
                         }
                     }
-                },
-                "x-permission": {
-                    "scope": "admin:audit_logs:read"
                 }
             }
         },
@@ -539,9 +524,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "管理员 - 审计日志 (Admin - Audit Log)"
+                    "Admin - Audit Log"
                 ],
-                "summary": "获取审计操作定义",
+                "summary": "审计操作定义",
                 "responses": {
                     "200": {
                         "description": "审计操作定义",
@@ -561,9 +546,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/response.ErrorResponse"
                         }
                     }
-                },
-                "x-permission": {
-                    "scope": "admin:audit_logs:read"
                 }
             }
         },
@@ -582,9 +564,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "管理员 - 审计日志 (Admin - Audit Log)"
+                    "Admin - Audit Log"
                 ],
-                "summary": "获取审计日志详情",
+                "summary": "审计日志详情",
                 "parameters": [
                     {
                         "minimum": 1,
@@ -626,9 +608,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/response.ErrorResponse"
                         }
                     }
-                },
-                "x-permission": {
-                    "scope": "admin:audit_logs:read"
                 }
             }
         },
@@ -647,9 +626,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "管理员 - 缓存管理 (Admin - Cache)"
+                    "System"
                 ],
-                "summary": "获取缓存信息",
+                "summary": "缓存信息",
                 "responses": {
                     "200": {
                         "description": "成功",
@@ -663,9 +642,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/response.ErrorResponse"
                         }
                     }
-                },
-                "x-permission": {
-                    "scope": "admin:cache:read"
                 }
             }
         },
@@ -684,9 +660,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "管理员 - 缓存管理 (Admin - Cache)"
+                    "System"
                 ],
-                "summary": "获取缓存 Key 值",
+                "summary": "获取缓存值",
                 "parameters": [
                     {
                         "type": "string",
@@ -721,9 +697,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/response.ErrorResponse"
                         }
                     }
-                },
-                "x-permission": {
-                    "scope": "admin:cache:read"
                 }
             },
             "delete": {
@@ -740,9 +713,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "管理员 - 缓存管理 (Admin - Cache)"
+                    "System"
                 ],
-                "summary": "删除缓存 Key",
+                "summary": "删除缓存键",
                 "parameters": [
                     {
                         "type": "string",
@@ -771,9 +744,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/response.ErrorResponse"
                         }
                     }
-                },
-                "x-permission": {
-                    "scope": "admin:cache:delete"
                 }
             }
         },
@@ -792,9 +762,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "管理员 - 缓存管理 (Admin - Cache)"
+                    "System"
                 ],
-                "summary": "扫描缓存 Keys",
+                "summary": "扫描缓存键",
                 "parameters": [
                     {
                         "type": "string",
@@ -836,9 +806,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/response.ErrorResponse"
                         }
                     }
-                },
-                "x-permission": {
-                    "scope": "admin:cache:read"
                 }
             },
             "delete": {
@@ -855,9 +822,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "管理员 - 缓存管理 (Admin - Cache)"
+                    "System"
                 ],
-                "summary": "按 pattern 删除缓存",
+                "summary": "批量删除缓存",
                 "parameters": [
                     {
                         "type": "string",
@@ -886,9 +853,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/response.ErrorResponse"
                         }
                     }
-                },
-                "x-permission": {
-                    "scope": "admin:cache:delete"
                 }
             }
         },
@@ -907,9 +871,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "管理员 - 菜单管理 (Admin - Menu Management)"
+                    "Admin - Menu Management"
                 ],
-                "summary": "获取菜单列表",
+                "summary": "菜单列表",
                 "responses": {
                     "200": {
                         "description": "菜单树",
@@ -935,9 +899,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/response.ErrorResponse"
                         }
                     }
-                },
-                "x-permission": {
-                    "scope": "admin:menus:read"
                 }
             },
             "post": {
@@ -954,7 +915,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "管理员 - 菜单管理 (Admin - Menu Management)"
+                    "Admin - Menu Management"
                 ],
                 "summary": "创建菜单",
                 "parameters": [
@@ -999,9 +960,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/response.ErrorResponse"
                         }
                     }
-                },
-                "x-permission": {
-                    "scope": "admin:menus:create"
                 }
             }
         },
@@ -1020,9 +978,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "管理员 - 菜单管理 (Admin - Menu Management)"
+                    "Admin - Menu Management"
                 ],
-                "summary": "批量更新菜单排序",
+                "summary": "重排菜单",
                 "parameters": [
                     {
                         "description": "菜单排序信息",
@@ -1062,9 +1020,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/response.ErrorResponse"
                         }
                     }
-                },
-                "x-permission": {
-                    "scope": "admin:menus:update"
                 }
             }
         },
@@ -1083,9 +1038,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "管理员 - 菜单管理 (Admin - Menu Management)"
+                    "Admin - Menu Management"
                 ],
-                "summary": "获取菜单详情",
+                "summary": "菜单详情",
                 "parameters": [
                     {
                         "minimum": 1,
@@ -1127,9 +1082,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/response.ErrorResponse"
                         }
                     }
-                },
-                "x-permission": {
-                    "scope": "admin:menus:read"
                 }
             },
             "put": {
@@ -1146,9 +1098,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "管理员 - 菜单管理 (Admin - Menu Management)"
+                    "Admin - Menu Management"
                 ],
-                "summary": "更新菜单信息",
+                "summary": "更新菜单",
                 "parameters": [
                     {
                         "minimum": 1,
@@ -1205,9 +1157,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/response.ErrorResponse"
                         }
                     }
-                },
-                "x-permission": {
-                    "scope": "admin:menus:update"
                 }
             },
             "delete": {
@@ -1224,7 +1173,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "管理员 - 菜单管理 (Admin - Menu Management)"
+                    "Admin - Menu Management"
                 ],
                 "summary": "删除菜单",
                 "parameters": [
@@ -1271,9 +1220,46 @@ const docTemplate = `{
                             "$ref": "#/definitions/response.ErrorResponse"
                         }
                     }
-                },
-                "x-permission": {
-                    "scope": "admin:menus:delete"
+                }
+            }
+        },
+        "/api/system/operations": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "返回所有可用的操作定义，供前端权限配置使用",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "System"
+                ],
+                "summary": "操作列表",
+                "responses": {
+                    "200": {
+                        "description": "操作列表",
+                        "schema": {
+                            "$ref": "#/definitions/response.DataResponse-array_operation_OperationDefinition"
+                        }
+                    },
+                    "401": {
+                        "description": "未认证",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "权限不足",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
                 }
             }
         },
@@ -1292,9 +1278,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "系统概览 (Overview)"
+                    "Overview"
                 ],
-                "summary": "获取系统概览统计",
+                "summary": "系统概览",
                 "responses": {
                     "200": {
                         "description": "统计信息",
@@ -1320,9 +1306,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/response.ErrorResponse"
                         }
                     }
-                },
-                "x-permission": {
-                    "scope": "admin:overview:read"
                 }
             }
         },
@@ -1341,9 +1324,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "管理员 - 角色管理 (Admin - Role Management)"
+                    "Admin - Role Management"
                 ],
-                "summary": "获取角色列表",
+                "summary": "角色列表",
                 "parameters": [
                     {
                         "maximum": 1000,
@@ -1388,9 +1371,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/response.ErrorResponse"
                         }
                     }
-                },
-                "x-permission": {
-                    "scope": "admin:roles:read"
                 }
             },
             "post": {
@@ -1407,7 +1387,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "管理员 - 角色管理 (Admin - Role Management)"
+                    "Admin - Role Management"
                 ],
                 "summary": "创建角色",
                 "parameters": [
@@ -1452,9 +1432,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/response.ErrorResponse"
                         }
                     }
-                },
-                "x-permission": {
-                    "scope": "admin:roles:create"
                 }
             }
         },
@@ -1473,9 +1450,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "管理员 - 角色管理 (Admin - Role Management)"
+                    "Admin - Role Management"
                 ],
-                "summary": "获取角色详情",
+                "summary": "角色详情",
                 "parameters": [
                     {
                         "minimum": 1,
@@ -1517,9 +1494,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/response.ErrorResponse"
                         }
                     }
-                },
-                "x-permission": {
-                    "scope": "admin:roles:read"
                 }
             },
             "put": {
@@ -1536,9 +1510,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "管理员 - 角色管理 (Admin - Role Management)"
+                    "Admin - Role Management"
                 ],
-                "summary": "更新角色信息",
+                "summary": "更新角色",
                 "parameters": [
                     {
                         "minimum": 1,
@@ -1595,9 +1569,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/response.ErrorResponse"
                         }
                     }
-                },
-                "x-permission": {
-                    "scope": "admin:roles:update"
                 }
             },
             "delete": {
@@ -1614,7 +1585,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "管理员 - 角色管理 (Admin - Role Management)"
+                    "Admin - Role Management"
                 ],
                 "summary": "删除角色",
                 "parameters": [
@@ -1664,9 +1635,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/response.ErrorResponse"
                         }
                     }
-                },
-                "x-permission": {
-                    "scope": "admin:roles:delete"
                 }
             }
         },
@@ -1685,9 +1653,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "管理员 - 角色管理 (Admin - Role Management)"
+                    "Admin - Role Management"
                 ],
-                "summary": "设置角色权限",
+                "summary": "设置权限",
                 "parameters": [
                     {
                         "minimum": 1,
@@ -1744,9 +1712,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/response.ErrorResponse"
                         }
                     }
-                },
-                "x-permission": {
-                    "scope": "admin:roles:update"
                 }
             }
         },
@@ -1765,9 +1730,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "管理员 - 系统配置 (Admin - Settings)"
+                    "Admin - Settings"
                 ],
-                "summary": "获取系统配置",
+                "summary": "配置列表",
                 "parameters": [
                     {
                         "type": "string",
@@ -1807,9 +1772,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/response.ErrorResponse"
                         }
                     }
-                },
-                "x-permission": {
-                    "scope": "admin:settings:read"
                 }
             },
             "post": {
@@ -1826,7 +1788,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "管理员 - 系统配置 (Admin - Settings)"
+                    "Admin - Settings"
                 ],
                 "summary": "创建配置",
                 "parameters": [
@@ -1871,9 +1833,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/response.ErrorResponse"
                         }
                     }
-                },
-                "x-permission": {
-                    "scope": "admin:settings:create"
                 }
             }
         },
@@ -1892,7 +1851,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "管理员 - 系统配置 (Admin - Settings)"
+                    "Admin - Settings"
                 ],
                 "summary": "批量更新配置",
                 "parameters": [
@@ -1937,9 +1896,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/response.ErrorResponse"
                         }
                     }
-                },
-                "x-permission": {
-                    "scope": "admin:settings:update"
                 }
             }
         },
@@ -1958,9 +1914,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "管理员 - 配置分类 (Admin - Setting Categories)"
+                    "Admin - Setting Categories"
                 ],
-                "summary": "获取配置分类列表",
+                "summary": "配置分类列表",
                 "responses": {
                     "200": {
                         "description": "分类列表",
@@ -1986,9 +1942,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/response.ErrorResponse"
                         }
                     }
-                },
-                "x-permission": {
-                    "scope": "admin:settings:read"
                 }
             },
             "post": {
@@ -2005,7 +1958,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "管理员 - 配置分类 (Admin - Setting Categories)"
+                    "Admin - Setting Categories"
                 ],
                 "summary": "创建配置分类",
                 "parameters": [
@@ -2050,9 +2003,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/response.ErrorResponse"
                         }
                     }
-                },
-                "x-permission": {
-                    "scope": "admin:settings:create"
                 }
             }
         },
@@ -2071,9 +2021,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "管理员 - 配置分类 (Admin - Setting Categories)"
+                    "Admin - Setting Categories"
                 ],
-                "summary": "获取单个配置分类",
+                "summary": "配置分类详情",
                 "parameters": [
                     {
                         "type": "integer",
@@ -2108,9 +2058,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/response.ErrorResponse"
                         }
                     }
-                },
-                "x-permission": {
-                    "scope": "admin:settings:read"
                 }
             },
             "put": {
@@ -2127,7 +2074,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "管理员 - 配置分类 (Admin - Setting Categories)"
+                    "Admin - Setting Categories"
                 ],
                 "summary": "更新配置分类",
                 "parameters": [
@@ -2185,9 +2132,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/response.ErrorResponse"
                         }
                     }
-                },
-                "x-permission": {
-                    "scope": "admin:settings:update"
                 }
             },
             "delete": {
@@ -2204,7 +2148,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "管理员 - 配置分类 (Admin - Setting Categories)"
+                    "Admin - Setting Categories"
                 ],
                 "summary": "删除配置分类",
                 "parameters": [
@@ -2250,9 +2194,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/response.ErrorResponse"
                         }
                     }
-                },
-                "x-permission": {
-                    "scope": "admin:settings:delete"
                 }
             }
         },
@@ -2271,9 +2212,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "管理员 - 系统配置 (Admin - Settings)"
+                    "Admin - Settings"
                 ],
-                "summary": "获取单个配置",
+                "summary": "配置详情",
                 "parameters": [
                     {
                         "type": "string",
@@ -2308,9 +2249,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/response.ErrorResponse"
                         }
                     }
-                },
-                "x-permission": {
-                    "scope": "admin:settings:read"
                 }
             },
             "put": {
@@ -2327,7 +2265,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "管理员 - 系统配置 (Admin - Settings)"
+                    "Admin - Settings"
                 ],
                 "summary": "更新配置",
                 "parameters": [
@@ -2385,9 +2323,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/response.ErrorResponse"
                         }
                     }
-                },
-                "x-permission": {
-                    "scope": "admin:settings:update"
                 }
             },
             "delete": {
@@ -2404,7 +2339,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "管理员 - 系统配置 (Admin - Settings)"
+                    "Admin - Settings"
                 ],
                 "summary": "删除配置",
                 "parameters": [
@@ -2444,9 +2379,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/response.ErrorResponse"
                         }
                     }
-                },
-                "x-permission": {
-                    "scope": "admin:settings:delete"
                 }
             }
         },
@@ -2465,9 +2397,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "管理员 - 用户管理 (Admin - User Management)"
+                    "Admin - User Management"
                 ],
-                "summary": "获取用户列表",
+                "summary": "用户列表",
                 "parameters": [
                     {
                         "maximum": 1000,
@@ -2518,9 +2450,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/response.ErrorResponse"
                         }
                     }
-                },
-                "x-permission": {
-                    "scope": "admin:users:read"
                 }
             },
             "post": {
@@ -2537,7 +2466,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "管理员 - 用户管理 (Admin - User Management)"
+                    "Admin - User Management"
                 ],
                 "summary": "创建用户",
                 "parameters": [
@@ -2582,9 +2511,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/response.ErrorResponse"
                         }
                     }
-                },
-                "x-permission": {
-                    "scope": "admin:users:create"
                 }
             }
         },
@@ -2603,7 +2529,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "管理员 - 用户管理 (Admin - User Management)"
+                    "Admin - User Management"
                 ],
                 "summary": "批量创建用户",
                 "parameters": [
@@ -2648,9 +2574,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/response.ErrorResponse"
                         }
                     }
-                },
-                "x-permission": {
-                    "scope": "admin:users:create"
                 }
             }
         },
@@ -2669,9 +2592,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "管理员 - 用户管理 (Admin - User Management)"
+                    "Admin - User Management"
                 ],
-                "summary": "获取用户详情",
+                "summary": "用户详情",
                 "parameters": [
                     {
                         "minimum": 1,
@@ -2713,9 +2636,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/response.ErrorResponse"
                         }
                     }
-                },
-                "x-permission": {
-                    "scope": "admin:users:read"
                 }
             },
             "put": {
@@ -2732,9 +2652,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "管理员 - 用户管理 (Admin - User Management)"
+                    "Admin - User Management"
                 ],
-                "summary": "更新用户信息",
+                "summary": "更新用户",
                 "parameters": [
                     {
                         "minimum": 1,
@@ -2791,9 +2711,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/response.ErrorResponse"
                         }
                     }
-                },
-                "x-permission": {
-                    "scope": "admin:users:update"
                 }
             },
             "delete": {
@@ -2810,7 +2727,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "管理员 - 用户管理 (Admin - User Management)"
+                    "Admin - User Management"
                 ],
                 "summary": "删除用户",
                 "parameters": [
@@ -2860,9 +2777,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/response.ErrorResponse"
                         }
                     }
-                },
-                "x-permission": {
-                    "scope": "admin:users:delete"
                 }
             }
         },
@@ -2881,9 +2795,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "管理员 - 用户管理 (Admin - User Management)"
+                    "Admin - User Management"
                 ],
-                "summary": "分配用户角色",
+                "summary": "分配角色",
                 "parameters": [
                     {
                         "minimum": 1,
@@ -2940,9 +2854,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/response.ErrorResponse"
                         }
                     }
-                },
-                "x-permission": {
-                    "scope": "admin:users:update"
                 }
             }
         },
@@ -2961,9 +2872,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "用户 - 个人资料 (User - Profile)"
+                    "User - Profile"
                 ],
-                "summary": "删除账号",
+                "summary": "注销账户",
                 "responses": {
                     "200": {
                         "description": "账号删除成功",
@@ -2983,9 +2894,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/response.ErrorResponse"
                         }
                     }
-                },
-                "x-permission": {
-                    "scope": "user:profile:delete"
                 }
             }
         },
@@ -3004,7 +2912,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "用户 - 个人资料 (User - Profile)"
+                    "User - Profile"
                 ],
                 "summary": "修改密码",
                 "parameters": [
@@ -3037,9 +2945,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/response.ErrorResponse"
                         }
                     }
-                },
-                "x-permission": {
-                    "scope": "user:password:update"
                 }
             }
         },
@@ -3058,9 +2963,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "用户 - 个人资料 (User - Profile)"
+                    "User - Profile"
                 ],
-                "summary": "获取个人资料",
+                "summary": "获取资料",
                 "responses": {
                     "200": {
                         "description": "个人资料",
@@ -3080,9 +2985,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/response.ErrorResponse"
                         }
                     }
-                },
-                "x-permission": {
-                    "scope": "user:profile:read"
                 }
             },
             "put": {
@@ -3099,9 +3001,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "用户 - 个人资料 (User - Profile)"
+                    "User - Profile"
                 ],
-                "summary": "更新个人资料",
+                "summary": "更新资料",
                 "parameters": [
                     {
                         "description": "更新信息",
@@ -3138,9 +3040,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/response.ErrorResponse"
                         }
                     }
-                },
-                "x-permission": {
-                    "scope": "user:profile:update"
                 }
             }
         },
@@ -3159,9 +3058,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "用户 - 个人配置 (User - Settings)"
+                    "User - Settings"
                 ],
-                "summary": "获取用户配置",
+                "summary": "用户配置列表",
                 "parameters": [
                     {
                         "type": "string",
@@ -3195,9 +3094,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/response.ErrorResponse"
                         }
                     }
-                },
-                "x-permission": {
-                    "scope": "user:settings:read"
                 }
             }
         },
@@ -3216,9 +3112,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "用户 - 个人配置 (User - Settings)"
+                    "User - Settings"
                 ],
-                "summary": "批量设置用户配置",
+                "summary": "批量设置配置",
                 "parameters": [
                     {
                         "description": "配置列表",
@@ -3255,9 +3151,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/response.ErrorResponse"
                         }
                     }
-                },
-                "x-permission": {
-                    "scope": "user:settings:update"
                 }
             }
         },
@@ -3276,9 +3169,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "用户 - 个人配置 (User - Settings)"
+                    "User - Settings"
                 ],
-                "summary": "获取用户设置分类列表",
+                "summary": "配置分类列表",
                 "responses": {
                     "200": {
                         "description": "分类列表",
@@ -3298,9 +3191,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/response.ErrorResponse"
                         }
                     }
-                },
-                "x-permission": {
-                    "scope": "user:settings:read"
                 }
             }
         },
@@ -3319,9 +3209,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "用户 - 个人配置 (User - Settings)"
+                    "User - Settings"
                 ],
-                "summary": "获取单个用户配置",
+                "summary": "用户配置详情",
                 "parameters": [
                     {
                         "type": "string",
@@ -3350,9 +3240,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/response.ErrorResponse"
                         }
                     }
-                },
-                "x-permission": {
-                    "scope": "user:settings:read"
                 }
             },
             "put": {
@@ -3369,7 +3256,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "用户 - 个人配置 (User - Settings)"
+                    "User - Settings"
                 ],
                 "summary": "设置用户配置",
                 "parameters": [
@@ -3421,9 +3308,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/response.ErrorResponse"
                         }
                     }
-                },
-                "x-permission": {
-                    "scope": "user:settings:update"
                 }
             },
             "delete": {
@@ -3440,7 +3324,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "用户 - 个人配置 (User - Settings)"
+                    "User - Settings"
                 ],
                 "summary": "重置用户配置",
                 "parameters": [
@@ -3468,9 +3352,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/response.ErrorResponse"
                         }
                     }
-                },
-                "x-permission": {
-                    "scope": "user:settings:update"
                 }
             }
         },
@@ -3489,9 +3370,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "用户 - 个人访问令牌 (User - Personal Access Token)"
+                    "User - Personal Access Token"
                 ],
-                "summary": "获取个人访问令牌列表",
+                "summary": "令牌列表",
                 "responses": {
                     "200": {
                         "description": "令牌列表",
@@ -3511,9 +3392,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/response.ErrorResponse"
                         }
                     }
-                },
-                "x-permission": {
-                    "scope": "user:tokens:read"
                 }
             },
             "post": {
@@ -3530,9 +3408,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "用户 - 个人访问令牌 (User - Personal Access Token)"
+                    "User - Personal Access Token"
                 ],
-                "summary": "创建个人访问令牌",
+                "summary": "创建令牌",
                 "parameters": [
                     {
                         "description": "令牌信息",
@@ -3563,9 +3441,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/response.ErrorResponse"
                         }
                     }
-                },
-                "x-permission": {
-                    "scope": "user:tokens:create"
                 }
             }
         },
@@ -3584,9 +3459,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "用户 - 个人访问令牌 (User - Personal Access Token)"
+                    "User - Personal Access Token"
                 ],
-                "summary": "获取个人访问令牌详情",
+                "summary": "令牌详情",
                 "parameters": [
                     {
                         "minimum": 1,
@@ -3622,9 +3497,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/response.ErrorResponse"
                         }
                     }
-                },
-                "x-permission": {
-                    "scope": "user:tokens:read"
                 }
             },
             "delete": {
@@ -3641,9 +3513,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "用户 - 个人访问令牌 (User - Personal Access Token)"
+                    "User - Personal Access Token"
                 ],
-                "summary": "删除个人访问令牌",
+                "summary": "删除令牌",
                 "parameters": [
                     {
                         "minimum": 1,
@@ -3679,9 +3551,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/response.ErrorResponse"
                         }
                     }
-                },
-                "x-permission": {
-                    "scope": "user:tokens:delete"
                 }
             }
         },
@@ -3700,9 +3569,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "用户 - 个人访问令牌 (User - Personal Access Token)"
+                    "User - Personal Access Token"
                 ],
-                "summary": "禁用个人访问令牌",
+                "summary": "禁用令牌",
                 "parameters": [
                     {
                         "minimum": 1,
@@ -3732,9 +3601,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/response.ErrorResponse"
                         }
                     }
-                },
-                "x-permission": {
-                    "scope": "user:tokens:disable"
                 }
             }
         },
@@ -3753,9 +3619,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "用户 - 个人访问令牌 (User - Personal Access Token)"
+                    "User - Personal Access Token"
                 ],
-                "summary": "启用个人访问令牌",
+                "summary": "启用令牌",
                 "parameters": [
                     {
                         "minimum": 1,
@@ -3785,9 +3651,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/response.ErrorResponse"
                         }
                     }
-                },
-                "x-permission": {
-                    "scope": "user:tokens:enable"
                 }
             }
         },
@@ -4559,6 +4422,39 @@ const docTemplate = `{
                 }
             }
         },
+        "operation.OperationDefinition": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "description": "操作代码，如 sys:users:create",
+                    "type": "string"
+                },
+                "description": {
+                    "description": "英文描述",
+                    "type": "string"
+                },
+                "group": {
+                    "description": "Swagger 分组",
+                    "type": "string"
+                },
+                "identifier": {
+                    "description": "标识符，如 create",
+                    "type": "string"
+                },
+                "label": {
+                    "description": "中文标签",
+                    "type": "string"
+                },
+                "scope": {
+                    "description": "Scope，如 sys",
+                    "type": "string"
+                },
+                "type": {
+                    "description": "类型，如 users",
+                    "type": "string"
+                }
+            }
+        },
         "pat.CreateDTO": {
             "type": "object",
             "required": [
@@ -4665,6 +4561,29 @@ const docTemplate = `{
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/menu.MenuDTO"
+                    }
+                },
+                "error": {
+                    "description": "错误详情（仅失败时）"
+                },
+                "message": {
+                    "description": "消息描述",
+                    "type": "string"
+                }
+            }
+        },
+        "response.DataResponse-array_operation_OperationDefinition": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "description": "HTTP 状态码",
+                    "type": "integer"
+                },
+                "data": {
+                    "description": "响应数据",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/operation.OperationDefinition"
                     }
                 },
                 "error": {

@@ -45,7 +45,7 @@ export const AdminRoleManagementApiAxiosParamCreator = function (configuration?:
     return {
         /**
          * 分页获取所有系统角色
-         * @summary 获取角色列表
+         * @summary 角色列表
          * @param {number} [limit] Limit 每页数量，默认 20，最大 1000
          * @param {number} [page] Page 页码，从 1 开始
          * @param {*} [options] Override http request option.
@@ -125,7 +125,7 @@ export const AdminRoleManagementApiAxiosParamCreator = function (configuration?:
         },
         /**
          * 根据角色ID获取角色详细信息（包含权限列表）
-         * @summary 获取角色详情
+         * @summary 角色详情
          * @param {number} id 角色ID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -162,7 +162,7 @@ export const AdminRoleManagementApiAxiosParamCreator = function (configuration?:
         },
         /**
          * 管理员为指定角色设置权限（会覆盖现有权限）。新 RBAC 模型使用 Operation + Resource Pattern。
-         * @summary 设置角色权限
+         * @summary 设置权限
          * @param {number} id 角色ID
          * @param {RoleSetPermissionsDTO} request 权限模式列表
          * @param {*} [options] Override http request option.
@@ -205,7 +205,7 @@ export const AdminRoleManagementApiAxiosParamCreator = function (configuration?:
         },
         /**
          * 管理员更新角色的显示名称和描述
-         * @summary 更新角色信息
+         * @summary 更新角色
          * @param {number} id 角色ID
          * @param {RoleUpdateDTO} request 更新信息
          * @param {*} [options] Override http request option.
@@ -297,7 +297,7 @@ export const AdminRoleManagementApiFp = function(configuration?: Configuration) 
     return {
         /**
          * 分页获取所有系统角色
-         * @summary 获取角色列表
+         * @summary 角色列表
          * @param {number} [limit] Limit 每页数量，默认 20，最大 1000
          * @param {number} [page] Page 页码，从 1 开始
          * @param {*} [options] Override http request option.
@@ -324,7 +324,7 @@ export const AdminRoleManagementApiFp = function(configuration?: Configuration) 
         },
         /**
          * 根据角色ID获取角色详细信息（包含权限列表）
-         * @summary 获取角色详情
+         * @summary 角色详情
          * @param {number} id 角色ID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -337,7 +337,7 @@ export const AdminRoleManagementApiFp = function(configuration?: Configuration) 
         },
         /**
          * 管理员为指定角色设置权限（会覆盖现有权限）。新 RBAC 模型使用 Operation + Resource Pattern。
-         * @summary 设置角色权限
+         * @summary 设置权限
          * @param {number} id 角色ID
          * @param {RoleSetPermissionsDTO} request 权限模式列表
          * @param {*} [options] Override http request option.
@@ -351,7 +351,7 @@ export const AdminRoleManagementApiFp = function(configuration?: Configuration) 
         },
         /**
          * 管理员更新角色的显示名称和描述
-         * @summary 更新角色信息
+         * @summary 更新角色
          * @param {number} id 角色ID
          * @param {RoleUpdateDTO} request 更新信息
          * @param {*} [options] Override http request option.
@@ -388,7 +388,7 @@ export const AdminRoleManagementApiFactory = function (configuration?: Configura
     return {
         /**
          * 分页获取所有系统角色
-         * @summary 获取角色列表
+         * @summary 角色列表
          * @param {number} [limit] Limit 每页数量，默认 20，最大 1000
          * @param {number} [page] Page 页码，从 1 开始
          * @param {*} [options] Override http request option.
@@ -409,7 +409,7 @@ export const AdminRoleManagementApiFactory = function (configuration?: Configura
         },
         /**
          * 根据角色ID获取角色详细信息（包含权限列表）
-         * @summary 获取角色详情
+         * @summary 角色详情
          * @param {number} id 角色ID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -419,7 +419,7 @@ export const AdminRoleManagementApiFactory = function (configuration?: Configura
         },
         /**
          * 管理员为指定角色设置权限（会覆盖现有权限）。新 RBAC 模型使用 Operation + Resource Pattern。
-         * @summary 设置角色权限
+         * @summary 设置权限
          * @param {number} id 角色ID
          * @param {RoleSetPermissionsDTO} request 权限模式列表
          * @param {*} [options] Override http request option.
@@ -430,7 +430,7 @@ export const AdminRoleManagementApiFactory = function (configuration?: Configura
         },
         /**
          * 管理员更新角色的显示名称和描述
-         * @summary 更新角色信息
+         * @summary 更新角色
          * @param {number} id 角色ID
          * @param {RoleUpdateDTO} request 更新信息
          * @param {*} [options] Override http request option.
@@ -461,7 +461,7 @@ export const AdminRoleManagementApiFactory = function (configuration?: Configura
 export class AdminRoleManagementApi extends BaseAPI {
     /**
      * 分页获取所有系统角色
-     * @summary 获取角色列表
+     * @summary 角色列表
      * @param {number} [limit] Limit 每页数量，默认 20，最大 1000
      * @param {number} [page] Page 页码，从 1 开始
      * @param {*} [options] Override http request option.
@@ -486,7 +486,7 @@ export class AdminRoleManagementApi extends BaseAPI {
 
     /**
      * 根据角色ID获取角色详细信息（包含权限列表）
-     * @summary 获取角色详情
+     * @summary 角色详情
      * @param {number} id 角色ID
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -498,7 +498,7 @@ export class AdminRoleManagementApi extends BaseAPI {
 
     /**
      * 管理员为指定角色设置权限（会覆盖现有权限）。新 RBAC 模型使用 Operation + Resource Pattern。
-     * @summary 设置角色权限
+     * @summary 设置权限
      * @param {number} id 角色ID
      * @param {RoleSetPermissionsDTO} request 权限模式列表
      * @param {*} [options] Override http request option.
@@ -511,7 +511,7 @@ export class AdminRoleManagementApi extends BaseAPI {
 
     /**
      * 管理员更新角色的显示名称和描述
-     * @summary 更新角色信息
+     * @summary 更新角色
      * @param {number} id 角色ID
      * @param {RoleUpdateDTO} request 更新信息
      * @param {*} [options] Override http request option.

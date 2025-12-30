@@ -82,7 +82,7 @@ export const AdminSettingsApiAxiosParamCreator = function (configuration?: Confi
         },
         /**
          * 获取按 Category → Group → Settings 层级组织的配置数据，用于前端动态渲染设置页面。支持按分类过滤（懒加载）。
-         * @summary 获取系统配置
+         * @summary 配置列表
          * @param {string} [category] 分类 Key（如 general），为空返回全量
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -157,7 +157,7 @@ export const AdminSettingsApiAxiosParamCreator = function (configuration?: Confi
         },
         /**
          * 根据配置键获取配置详情
-         * @summary 获取单个配置
+         * @summary 配置详情
          * @param {string} key 配置键
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -299,7 +299,7 @@ export const AdminSettingsApiFp = function(configuration?: Configuration) {
         },
         /**
          * 获取按 Category → Group → Settings 层级组织的配置数据，用于前端动态渲染设置页面。支持按分类过滤（懒加载）。
-         * @summary 获取系统配置
+         * @summary 配置列表
          * @param {string} [category] 分类 Key（如 general），为空返回全量
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -325,7 +325,7 @@ export const AdminSettingsApiFp = function(configuration?: Configuration) {
         },
         /**
          * 根据配置键获取配置详情
-         * @summary 获取单个配置
+         * @summary 配置详情
          * @param {string} key 配置键
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -385,7 +385,7 @@ export const AdminSettingsApiFactory = function (configuration?: Configuration, 
         },
         /**
          * 获取按 Category → Group → Settings 层级组织的配置数据，用于前端动态渲染设置页面。支持按分类过滤（懒加载）。
-         * @summary 获取系统配置
+         * @summary 配置列表
          * @param {string} [category] 分类 Key（如 general），为空返回全量
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -405,7 +405,7 @@ export const AdminSettingsApiFactory = function (configuration?: Configuration, 
         },
         /**
          * 根据配置键获取配置详情
-         * @summary 获取单个配置
+         * @summary 配置详情
          * @param {string} key 配置键
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -458,7 +458,7 @@ export class AdminSettingsApi extends BaseAPI {
 
     /**
      * 获取按 Category → Group → Settings 层级组织的配置数据，用于前端动态渲染设置页面。支持按分类过滤（懒加载）。
-     * @summary 获取系统配置
+     * @summary 配置列表
      * @param {string} [category] 分类 Key（如 general），为空返回全量
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -482,7 +482,7 @@ export class AdminSettingsApi extends BaseAPI {
 
     /**
      * 根据配置键获取配置详情
-     * @summary 获取单个配置
+     * @summary 配置详情
      * @param {string} key 配置键
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
