@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
 import { adminRoleApi, extractList, type RoleRoleDTO } from "@/api";
+import { useSnackbar } from "@/composables";
 
 /**
  * 角色选择器组件
@@ -21,16 +22,17 @@ interface Emits {
 const props = defineProps<Props>();
 const emit = defineEmits<Emits>();
 
+// 消息提示
+const { error } = useSnackbar();
+
 // 状态
 const loading = ref(false);
 const roles = ref<RoleRoleDTO[]>([]);
 const selectedRoleIds = ref<number[]>([]);
-const errorMessage = ref("");
 
 // 获取所有角色
 const fetchRoles = async () => {
   loading.value = true;
-  errorMessage.value = "";
 
   try {
     const response = await adminRoleApi.apiSystemRolesGet(100, 1);
@@ -39,9 +41,9 @@ const fetchRoles = async () => {
 
     // 初始化已选角色（过滤掉 undefined）
     selectedRoleIds.value = props.userRoles.map((role) => role.id).filter((id): id is number => id !== undefined);
-  } catch (error) {
-    errorMessage.value = (error as Error).message || "获取角色列表失败";
-    console.error("Failed to fetch roles:", error);
+  } catch (err) {
+    error((err as Error).message || "获取角色列表失败");
+    console.error("Failed to fetch roles:", err);
   } finally {
     loading.value = false;
   }
@@ -74,10 +76,6 @@ onMounted(() => {
       </v-card-title>
 
       <v-card-text>
-        <v-alert v-if="errorMessage" type="error" class="mb-4" closable @click:close="errorMessage = ''">
-          {{ errorMessage }}
-        </v-alert>
-
         <v-progress-linear v-if="loading" indeterminate color="primary" class="mb-4"></v-progress-linear>
 
         <v-list v-if="!loading && roles.length > 0">

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, watch, computed } from "vue";
+import { useSnackbar } from "@/composables";
 import type { RolePermissionDTO, RolePermissionInputDTO } from "@models";
 
 interface Props {
@@ -16,9 +17,11 @@ interface Emits {
 const props = defineProps<Props>();
 const emit = defineEmits<Emits>();
 
+// 消息提示
+const { error } = useSnackbar();
+
 // 编辑中的权限列表
 const editingPermissions = ref<RolePermissionInputDTO[]>([]);
-const errorMessage = ref("");
 
 // 预定义的 Operation 模式示例（URN 风格）
 const operationExamples = [
@@ -69,7 +72,7 @@ const closeDialog = () => {
 
 const handleSave = () => {
   if (!isValid.value) {
-    errorMessage.value = "所有权限必须填写 Operation 模式";
+    error("所有权限必须填写 Operation 模式");
     return;
   }
   emit("save", editingPermissions.value);
@@ -82,7 +85,6 @@ watch(
   (newVal) => {
     if (newVal) {
       initPermissions();
-      errorMessage.value = "";
     }
   },
   { immediate: true },
@@ -97,10 +99,6 @@ watch(
       </v-card-title>
 
       <v-card-text style="max-height: 500px">
-        <v-alert v-if="errorMessage" type="error" class="mb-4" closable @click:close="errorMessage = ''">
-          {{ errorMessage }}
-        </v-alert>
-
         <!-- 说明 -->
         <v-alert type="info" variant="tonal" class="mb-4">
           <div class="text-subtitle-2 mb-2">URN 风格 RBAC 说明</div>

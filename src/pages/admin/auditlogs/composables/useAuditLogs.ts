@@ -15,7 +15,7 @@ import {
   type AuditStatus,
 } from "@/api";
 import { exportToCSV, formatDateForExport, type CSVColumn } from "@/utils/export";
-import { useServerPagination } from "@/composables";
+import { useServerPagination, useSnackbar } from "@/composables";
 
 interface AuditLogQueryParams {
   page?: number;
@@ -33,8 +33,9 @@ export function useAuditLogs() {
   const logs = ref<AuditlogAuditLogDTO[]>([]);
   const selectedLog = ref<AuditlogAuditLogDTO | null>(null);
   const exporting = ref(false);
-  const errorMessage = ref("");
-  const successMessage = ref("");
+
+  // 消息提示
+  const { success, error } = useSnackbar();
 
   // 筛选选项（从 API 动态获取）
   const actionOptions = ref<AuditlogAuditActionDTO[]>([]);
@@ -79,7 +80,6 @@ export function useAuditLogs() {
    */
   const fetchLogs = async () => {
     loading.value = true;
-    errorMessage.value = "";
 
     try {
       const { limit, page } = getParams();
@@ -100,9 +100,9 @@ export function useAuditLogs() {
       const result = extractList<AuditlogAuditLogDTO>(response.data);
       logs.value = result.data;
       updateTotal(result.pagination.total, result.pagination.total_pages);
-    } catch (error) {
-      errorMessage.value = (error as Error).message || "获取审计日志失败";
-      console.error("Failed to fetch audit logs:", error);
+    } catch (err) {
+      error((err as Error).message || "获取审计日志失败");
+      console.error("Failed to fetch audit logs:", err);
     } finally {
       loading.value = false;
     }
@@ -113,14 +113,13 @@ export function useAuditLogs() {
    */
   const fetchLogDetail = async (id: number) => {
     loading.value = true;
-    errorMessage.value = "";
 
     try {
       const response = await adminAuditLogApi.apiSystemAuditlogsIdGet(id);
       selectedLog.value = extractData<AuditlogAuditLogDTO>(response.data) ?? null;
-    } catch (error) {
-      errorMessage.value = (error as Error).message || "获取日志详情失败";
-      console.error("Failed to fetch log detail:", error);
+    } catch (err) {
+      error((err as Error).message || "获取日志详情失败");
+      console.error("Failed to fetch log detail:", err);
     } finally {
       loading.value = false;
     }
@@ -155,20 +154,11 @@ export function useAuditLogs() {
   };
 
   /**
-   * 清除消息提示
-   */
-  const clearMessages = () => {
-    errorMessage.value = "";
-    successMessage.value = "";
-  };
-
-  /**
    * 导出审计日志为 CSV
    * 导出当前过滤条件下的数据（最多 1000 条）
    */
   const exportLogs = async () => {
     exporting.value = true;
-    errorMessage.value = "";
 
     try {
       // 参数按字母顺序：action, endDate, limit, page, resource, startDate, status, userId
@@ -188,7 +178,7 @@ export function useAuditLogs() {
       const result = extractList<AuditlogAuditLogDTO>(response.data);
 
       if (result.data.length === 0) {
-        errorMessage.value = "没有数据可导出";
+        error("没有数据可导出");
         return;
       }
 
@@ -212,10 +202,10 @@ export function useAuditLogs() {
       // 导出 CSV
       exportToCSV(result.data, columns, { filename });
 
-      successMessage.value = `成功导出 ${result.data.length} 条记录`;
-    } catch (error) {
-      errorMessage.value = (error as Error).message || "导出失败";
-      console.error("Failed to export audit logs:", error);
+      success(`成功导出 ${result.data.length} 条记录`);
+    } catch (err) {
+      error((err as Error).message || "导出失败");
+      console.error("Failed to export audit logs:", err);
     } finally {
       exporting.value = false;
     }
@@ -227,8 +217,6 @@ export function useAuditLogs() {
     selectedLog,
     loading,
     exporting,
-    errorMessage,
-    successMessage,
     filters,
     pagination,
 
@@ -243,7 +231,6 @@ export function useAuditLogs() {
     applyFilters,
     resetFilters,
     onTableOptionsUpdate,
-    clearMessages,
     exportLogs,
   };
 }

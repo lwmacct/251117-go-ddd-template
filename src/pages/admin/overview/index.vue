@@ -2,7 +2,7 @@
 import { onMounted, computed } from "vue";
 import { useOverview } from "./composables/useOverview";
 
-const { stats, loading, errorMessage, fetchStats } = useOverview();
+const { stats, loading, fetchStats } = useOverview();
 
 const totalUsers = computed(() => stats.value?.total_users || 0);
 
@@ -84,10 +84,6 @@ const formatDate = (dateString?: string) => {
   });
 };
 
-const clearError = () => {
-  errorMessage.value = "";
-};
-
 onMounted(() => {
   fetchStats();
 });
@@ -99,14 +95,6 @@ onMounted(() => {
       <v-col cols="12">
         <h1 class="text-h4 mb-2">系统概览</h1>
         <p class="text-body-2 text-medium-emphasis mb-6">查看系统整体运行状况和关键指标</p>
-      </v-col>
-    </v-row>
-
-    <v-row v-if="errorMessage">
-      <v-col cols="12">
-        <v-alert type="error" closable @click:close="clearError">
-          {{ errorMessage }}
-        </v-alert>
       </v-col>
     </v-row>
 

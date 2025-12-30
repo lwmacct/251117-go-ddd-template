@@ -14,8 +14,6 @@ const {
   logs,
   loading,
   exporting,
-  errorMessage,
-  successMessage,
   filters,
   pagination,
   actionOptions,
@@ -24,7 +22,6 @@ const {
   applyFilters,
   resetFilters,
   onTableOptionsUpdate,
-  clearMessages,
   exportLogs,
 } = useAuditLogs();
 
@@ -127,18 +124,6 @@ const getStatusText = (status?: string) => {
     <v-row>
       <v-col cols="12">
         <h1 class="text-h4 mb-6">审计日志</h1>
-      </v-col>
-    </v-row>
-
-    <!-- 消息提示 -->
-    <v-row v-if="errorMessage || successMessage">
-      <v-col cols="12">
-        <v-alert v-if="successMessage" type="success" closable class="mb-2" @click:close="clearMessages">
-          {{ successMessage }}
-        </v-alert>
-        <v-alert v-if="errorMessage" type="error" closable @click:close="clearMessages">
-          {{ errorMessage }}
-        </v-alert>
       </v-col>
     </v-row>
 

@@ -5,18 +5,7 @@ import TokenDialog from "./components/TokenDialog.vue";
 import TokenDisplay from "./components/TokenDisplay.vue";
 import type { PatCreateDTO } from "@models";
 
-const {
-  tokens,
-  loading,
-  errorMessage,
-  successMessage,
-  fetchTokens,
-  createToken,
-  deleteToken,
-  disableToken,
-  enableToken,
-  clearMessages,
-} = useTokens();
+const { tokens, loading, fetchTokens, createToken, deleteToken, disableToken, enableToken } = useTokens();
 
 const tokenDialog = ref(false);
 const tokenDisplayDialog = ref(false);
@@ -120,17 +109,6 @@ const isTokenExpired = (expiresAt?: string) => {
       <v-col cols="12">
         <h1 class="text-h4 mb-2">Personal Access Tokens</h1>
         <p class="text-body-2 text-medium-emphasis">Personal Access Tokens 可用于通过 API 访问系统资源</p>
-      </v-col>
-    </v-row>
-
-    <v-row v-if="errorMessage || successMessage">
-      <v-col cols="12">
-        <v-alert v-if="errorMessage" type="error" closable @click:close="clearMessages">
-          {{ errorMessage }}
-        </v-alert>
-        <v-alert v-if="successMessage" type="success" closable @click:close="clearMessages">
-          {{ successMessage }}
-        </v-alert>
       </v-col>
     </v-row>
 

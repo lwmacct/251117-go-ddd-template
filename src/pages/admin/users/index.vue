@@ -19,15 +19,12 @@ const {
   loading,
   searchQuery,
   pagination,
-  errorMessage,
-  successMessage,
   fetchUsers,
   createUser,
   updateUser,
   deleteUser,
   assignRoles,
   onTableOptionsUpdate,
-  clearMessages,
   exportUsers,
 } = useAdminUsers();
 
@@ -168,18 +165,6 @@ const getStatusText = (status?: string) => {
     <v-row>
       <v-col cols="12">
         <h1 class="text-h4 mb-6">用户管理</h1>
-      </v-col>
-    </v-row>
-
-    <!-- 消息提示 -->
-    <v-row v-if="errorMessage || successMessage">
-      <v-col cols="12">
-        <v-alert v-if="errorMessage" type="error" closable @click:close="clearMessages">
-          {{ errorMessage }}
-        </v-alert>
-        <v-alert v-if="successMessage" type="success" closable @click:close="clearMessages">
-          {{ successMessage }}
-        </v-alert>
       </v-col>
     </v-row>
 

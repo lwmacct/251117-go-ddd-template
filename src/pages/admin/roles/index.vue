@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { useRoles } from "./composables/useRoles";
-import { ITEMS_PER_PAGE_OPTIONS } from "@/composables";
+import { ITEMS_PER_PAGE_OPTIONS, useSnackbar } from "@/composables";
 import RoleDialog from "./components/RoleDialog.vue";
 import PermissionSelector from "./components/PermissionSelector.vue";
 import type { RoleRoleDTO, RoleCreateDTO, RoleUpdateDTO, RolePermissionInputDTO } from "@models";
@@ -12,16 +12,16 @@ const {
   loading,
   searchQuery,
   pagination,
-  errorMessage,
-  successMessage,
   createRole,
   updateRole,
   deleteRole,
   setPermissions,
   onTableOptionsUpdate,
-  clearMessages,
   exportRoles,
 } = useRoles();
+
+// 组件内消息提示（用于校验类错误）
+const { error } = useSnackbar();
 
 const roleDialog = ref(false);
 const permissionDialog = ref(false);
@@ -49,7 +49,7 @@ const openCreateDialog = () => {
 
 const openEditDialog = (role: RoleRoleDTO) => {
   if (role.is_system) {
-    errorMessage.value = "系统角色不能编辑";
+    error("系统角色不能编辑");
     return;
   }
   dialogMode.value = "edit";
@@ -64,7 +64,7 @@ const openPermissionSelector = (role: RoleRoleDTO) => {
 
 const openDeleteDialog = (role: RoleRoleDTO) => {
   if (role.is_system) {
-    errorMessage.value = "系统角色不能删除";
+    error("系统角色不能删除");
     return;
   }
   roleToDelete.value = role;
@@ -125,17 +125,6 @@ const formatPermissions = (role: RoleRoleDTO) => {
     <v-row>
       <v-col cols="12">
         <h1 class="text-h4 mb-6">角色管理</h1>
-      </v-col>
-    </v-row>
-
-    <v-row v-if="errorMessage || successMessage">
-      <v-col cols="12">
-        <v-alert v-if="errorMessage" type="error" closable @click:close="clearMessages">
-          {{ errorMessage }}
-        </v-alert>
-        <v-alert v-if="successMessage" type="success" closable @click:close="clearMessages">
-          {{ successMessage }}
-        </v-alert>
       </v-col>
     </v-row>
 

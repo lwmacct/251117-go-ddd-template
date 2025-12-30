@@ -2,6 +2,7 @@
 import { ref } from "vue";
 import { userProfileApi } from "@/api";
 import PasswordStrengthIndicator from "@/components/PasswordStrengthIndicator.vue";
+import { useSnackbar } from "@/composables";
 
 // 表单数据
 const oldPassword = ref("");
@@ -14,9 +15,8 @@ const showOldPassword = ref(false);
 const showNewPassword = ref(false);
 const showConfirmPassword = ref(false);
 
-// 消息
-const errorMessage = ref("");
-const successMessage = ref("");
+// 消息提示
+const { success, error } = useSnackbar();
 
 /**
  * 密码验证规则
@@ -40,43 +40,41 @@ const confirmPasswordRules = [
 async function handleSubmit() {
   // 验证表单
   if (!oldPassword.value) {
-    errorMessage.value = "请输入当前密码";
+    error("请输入当前密码");
     return;
   }
 
   if (!newPassword.value) {
-    errorMessage.value = "请输入新密码";
+    error("请输入新密码");
     return;
   }
 
   if (newPassword.value !== confirmPassword.value) {
-    errorMessage.value = "两次输入的密码不一致";
+    error("两次输入的密码不一致");
     return;
   }
 
   if (newPassword.value.length < 8) {
-    errorMessage.value = "新密码至少 8 个字符";
+    error("新密码至少 8 个字符");
     return;
   }
 
   try {
     loading.value = true;
-    errorMessage.value = "";
-    successMessage.value = "";
 
     await userProfileApi.apiUserPasswordPut({
       old_password: oldPassword.value,
       new_password: newPassword.value,
     });
 
-    successMessage.value = "密码修改成功！";
+    success("密码修改成功！");
 
     // 清空表单
     oldPassword.value = "";
     newPassword.value = "";
     confirmPassword.value = "";
-  } catch (error) {
-    errorMessage.value = (error as Error).message || "密码修改失败";
+  } catch (err) {
+    error((err as Error).message || "密码修改失败");
   } finally {
     loading.value = false;
   }
@@ -89,8 +87,6 @@ function resetForm() {
   oldPassword.value = "";
   newPassword.value = "";
   confirmPassword.value = "";
-  errorMessage.value = "";
-  successMessage.value = "";
 }
 </script>
 
@@ -157,15 +153,6 @@ function resetForm() {
         <v-btn variant="outlined" @click="resetForm"> 重置 </v-btn>
       </div>
     </v-form>
-
-    <!-- 成功/错误消息 -->
-    <v-alert v-if="successMessage" type="success" density="compact" class="mt-4" closable @click:close="successMessage = ''">
-      {{ successMessage }}
-    </v-alert>
-
-    <v-alert v-if="errorMessage" type="error" density="compact" class="mt-4" closable @click:close="errorMessage = ''">
-      {{ errorMessage }}
-    </v-alert>
   </div>
 </template>
 

@@ -4,22 +4,24 @@
 import { ref } from "vue";
 import { overviewApi, extractData } from "@/api";
 import type { StatsStatsDTO } from "@models";
+import { useSnackbar } from "@/composables";
 
 export function useOverview() {
   const stats = ref<StatsStatsDTO | null>(null);
   const loading = ref(false);
-  const errorMessage = ref("");
+
+  // 消息提示
+  const { error } = useSnackbar();
 
   const fetchStats = async () => {
     loading.value = true;
-    errorMessage.value = "";
 
     try {
       const response = await overviewApi.apiSystemOverviewStatsGet();
       stats.value = extractData<StatsStatsDTO>(response.data) ?? null;
-    } catch (error) {
-      errorMessage.value = (error as Error).message || "获取统计信息失败";
-      console.error("Failed to fetch stats:", error);
+    } catch (err) {
+      error((err as Error).message || "获取统计信息失败");
+      console.error("Failed to fetch stats:", err);
     } finally {
       loading.value = false;
     }
@@ -28,7 +30,6 @@ export function useOverview() {
   return {
     stats,
     loading,
-    errorMessage,
     fetchStats,
   };
 }

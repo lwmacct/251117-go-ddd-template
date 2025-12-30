@@ -13,8 +13,6 @@ const {
   verifyCode,
   recoveryCodes,
   setupStep,
-  errorMessage,
-  successMessage,
   fetchStatus,
   startSetup,
   verifyAndEnable,
@@ -95,15 +93,6 @@ onMounted(() => {
         </v-card>
       </v-col>
     </v-row>
-
-    <!-- 成功/错误消息 -->
-    <v-alert v-if="successMessage" type="success" density="compact" class="mb-4" closable @click:close="successMessage = ''">
-      {{ successMessage }}
-    </v-alert>
-
-    <v-alert v-if="errorMessage" type="error" density="compact" class="mb-4" closable @click:close="errorMessage = ''">
-      {{ errorMessage }}
-    </v-alert>
 
     <!-- 设置步骤：二维码与验证 -->
     <div v-if="setupStep === 'setup' || setupStep === 'verify'" class="mb-6">

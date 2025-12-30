@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, watch } from "vue";
 import { userProfileApi, type HandlerUpdateProfileRequest } from "@/api";
+import { useSnackbar } from "@/composables";
 import AvatarUploader from "@/components/AvatarUploader.vue";
 
 // Props - using any for flexible user object from API response
@@ -15,6 +16,9 @@ const emit = defineEmits<{
   "update:success": [];
 }>();
 
+// 消息提示
+const { success, error } = useSnackbar();
+
 // 表单数据
 const formData = ref<HandlerUpdateProfileRequest>({
   full_name: "",
@@ -25,8 +29,6 @@ const formData = ref<HandlerUpdateProfileRequest>({
 // 状态
 const loading = ref(false);
 const dialogVisible = ref(false);
-const errorMessage = ref("");
-const successMessage = ref("");
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function resetFormFromUser(user?: any) {
@@ -53,17 +55,16 @@ watch(
 async function handleSubmit() {
   try {
     loading.value = true;
-    errorMessage.value = "";
 
     await userProfileApi.apiUserProfilePut(formData.value);
 
-    successMessage.value = "个人资料更新成功！";
+    success("个人资料更新成功！");
     dialogVisible.value = false;
 
     // 通知父组件刷新数据
     emit("update:success");
-  } catch (error) {
-    errorMessage.value = (error as Error).message || "更新失败";
+  } catch (err) {
+    error((err as Error).message || "更新失败");
   } finally {
     loading.value = false;
   }
@@ -71,7 +72,6 @@ async function handleSubmit() {
 
 function openDialog() {
   resetFormFromUser();
-  successMessage.value = "";
   dialogVisible.value = true;
 }
 
@@ -82,7 +82,6 @@ function handleCloseDialog() {
 watch(dialogVisible, (isOpen, wasOpen) => {
   if (!isOpen && wasOpen) {
     resetFormFromUser();
-    errorMessage.value = "";
   }
 });
 </script>
@@ -125,10 +124,6 @@ watch(dialogVisible, (isOpen, wasOpen) => {
       <v-btn color="primary" prepend-icon="mdi-pencil" @click="openDialog"> 编辑资料 </v-btn>
     </div>
 
-    <v-alert v-if="successMessage" type="success" density="compact" class="mt-4" closable @click:close="successMessage = ''">
-      {{ successMessage }}
-    </v-alert>
-
     <v-dialog v-model="dialogVisible" max-width="600">
       <v-card>
         <v-card-title class="d-flex align-center">
@@ -136,9 +131,6 @@ watch(dialogVisible, (isOpen, wasOpen) => {
           编辑个人资料
         </v-card-title>
         <v-card-text>
-          <v-alert v-if="errorMessage" type="error" density="compact" class="mb-4" closable @click:close="errorMessage = ''">
-            {{ errorMessage }}
-          </v-alert>
           <v-form @submit.prevent="handleSubmit">
             <!-- 头像上传 -->
             <div class="d-flex justify-center mb-6">

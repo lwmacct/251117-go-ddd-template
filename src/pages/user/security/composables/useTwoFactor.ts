@@ -1,6 +1,7 @@
 import { ref } from "vue";
-import { useTimeoutFn, useClipboard } from "@vueuse/core";
+import { useClipboard } from "@vueuse/core";
 import { AuthAPI } from "@/api";
+import { useSnackbar } from "@/composables";
 
 /**
  * 2FA 管理 Composable
@@ -24,21 +25,11 @@ export function useTwoFactor() {
   const recoveryCodes = ref<string[]>([]);
   const setupStep = ref<"status" | "setup" | "verify" | "codes">("status");
 
-  // 消息状态
-  const errorMessage = ref("");
-  const successMessage = ref("");
+  // 消息提示
+  const { success, error } = useSnackbar();
 
   // 使用 VueUse useClipboard 管理剪贴板操作
   const { copy, isSupported: clipboardSupported } = useClipboard();
-
-  // 使用 useTimeoutFn 管理成功消息自动消失
-  const { start: startSuccessTimer } = useTimeoutFn(
-    () => {
-      successMessage.value = "";
-    },
-    2000,
-    { immediate: false },
-  );
 
   // ========== API 调用方法 ==========
 
@@ -48,7 +39,6 @@ export function useTwoFactor() {
   async function fetchStatus() {
     try {
       loading.value = true;
-      errorMessage.value = "";
       const response = await AuthAPI.get2FAStatus();
       if (response.code === 200 && response.data) {
         enabled.value = response.data.enabled;
@@ -56,9 +46,9 @@ export function useTwoFactor() {
       } else {
         throw new Error(response.message || "获取 2FA 状态失败");
       }
-    } catch (error) {
-      console.error("获取 2FA 状态失败:", error);
-      errorMessage.value = (error as Error).message || "获取 2FA 状态失败";
+    } catch (err) {
+      console.error("获取 2FA 状态失败:", err);
+      error((err as Error).message || "获取 2FA 状态失败");
     } finally {
       loading.value = false;
     }
@@ -70,8 +60,6 @@ export function useTwoFactor() {
   async function startSetup() {
     try {
       loading.value = true;
-      errorMessage.value = "";
-      successMessage.value = "";
       verifyCode.value = "";
       recoveryCodes.value = [];
       setupStep.value = "setup";
@@ -81,12 +69,12 @@ export function useTwoFactor() {
         qrcodeImage.value = response.data.qrcode_img;
         secret.value = response.data.secret;
         setupStep.value = "setup";
-        successMessage.value = response.message || "2FA 密钥已生成";
+        success(response.message || "2FA 密钥已生成");
       } else {
         throw new Error(response.message || "设置 2FA 失败");
       }
-    } catch (error) {
-      errorMessage.value = (error as Error).message || "设置 2FA 失败";
+    } catch (err) {
+      error((err as Error).message || "设置 2FA 失败");
     } finally {
       loading.value = false;
     }
@@ -97,27 +85,26 @@ export function useTwoFactor() {
    */
   async function verifyAndEnable() {
     if (verifyCode.value.length !== 6) {
-      errorMessage.value = "请输入 6 位验证码";
+      error("请输入 6 位验证码");
       return;
     }
 
     try {
       loading.value = true;
-      errorMessage.value = "";
 
       const response = await AuthAPI.enable2FA(verifyCode.value);
       if (response.code === 200 && response.data) {
         recoveryCodes.value = response.data.recovery_codes || [];
         setupStep.value = "codes";
-        successMessage.value = response.message || "2FA 已成功启用！";
+        success(response.message || "2FA 已成功启用！");
 
         // 更新状态
         await fetchStatus();
       } else {
         throw new Error(response.message || "验证失败");
       }
-    } catch (error) {
-      errorMessage.value = (error as Error).message || "验证失败";
+    } catch (err) {
+      error((err as Error).message || "验证失败");
     } finally {
       loading.value = false;
     }
@@ -129,11 +116,10 @@ export function useTwoFactor() {
   async function disable2FA() {
     try {
       loading.value = true;
-      errorMessage.value = "";
 
       const response = await AuthAPI.disable2FA();
       if (response.code === 200) {
-        successMessage.value = response.message || "2FA 已成功禁用";
+        success(response.message || "2FA 已成功禁用");
         showDisableDialog.value = false;
 
         // 更新状态
@@ -141,8 +127,8 @@ export function useTwoFactor() {
       } else {
         throw new Error(response.message || "禁用 2FA 失败");
       }
-    } catch (error) {
-      errorMessage.value = (error as Error).message || "禁用 2FA 失败";
+    } catch (err) {
+      error((err as Error).message || "禁用 2FA 失败");
     } finally {
       loading.value = false;
     }
@@ -159,7 +145,6 @@ export function useTwoFactor() {
     qrcodeImage.value = "";
     secret.value = "";
     recoveryCodes.value = [];
-    errorMessage.value = "";
   }
 
   /**
@@ -167,12 +152,11 @@ export function useTwoFactor() {
    */
   async function copyToClipboard(text: string) {
     if (!clipboardSupported.value) {
-      errorMessage.value = "浏览器不支持剪贴板操作";
+      error("浏览器不支持剪贴板操作");
       return;
     }
     await copy(text);
-    successMessage.value = "已复制到剪贴板";
-    startSuccessTimer();
+    success("已复制到剪贴板");
   }
 
   /**
@@ -201,8 +185,6 @@ export function useTwoFactor() {
     verifyCode,
     recoveryCodes,
     setupStep,
-    errorMessage,
-    successMessage,
 
     // 方法
     fetchStatus,

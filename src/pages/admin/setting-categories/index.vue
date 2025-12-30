@@ -4,17 +4,7 @@ import { useSettingCategories } from "./composables/useSettingCategories";
 import CategoryDialog from "./components/CategoryDialog.vue";
 import type { SettingCategoryDTO, HandlerCreateCategoryRequest, HandlerUpdateCategoryRequest } from "@models";
 
-const {
-  categories,
-  loading,
-  errorMessage,
-  successMessage,
-  fetchCategories,
-  createCategory,
-  updateCategory,
-  deleteCategory,
-  clearMessages,
-} = useSettingCategories();
+const { categories, loading, fetchCategories, createCategory, updateCategory, deleteCategory } = useSettingCategories();
 
 const categoryDialog = ref(false);
 const deleteDialog = ref(false);
@@ -101,17 +91,6 @@ const formatDate = (dateString?: string) => {
             返回系统设置
           </v-btn>
         </div>
-      </v-col>
-    </v-row>
-
-    <v-row v-if="errorMessage || successMessage">
-      <v-col cols="12">
-        <v-alert v-if="errorMessage" type="error" closable @click:close="clearMessages">
-          {{ errorMessage }}
-        </v-alert>
-        <v-alert v-if="successMessage" type="success" closable @click:close="clearMessages">
-          {{ successMessage }}
-        </v-alert>
       </v-col>
     </v-row>
 

@@ -3,6 +3,7 @@ import { ref } from "vue";
 import { useRouter } from "vue-router";
 import { userProfileApi } from "@/api";
 import { useAuthStore } from "@/stores/auth";
+import { useSnackbar } from "@/composables";
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -16,8 +17,8 @@ const loading = ref(false);
 const showPassword = ref(false);
 const showConfirmDialog = ref(false);
 
-// 消息
-const errorMessage = ref("");
+// 消息提示
+const { error } = useSnackbar();
 
 // 确认文本
 const CONFIRM_TEXT = "DELETE";
@@ -27,10 +28,9 @@ const CONFIRM_TEXT = "DELETE";
  */
 function openConfirmDialog() {
   if (!password.value) {
-    errorMessage.value = "请输入当前密码";
+    error("请输入当前密码");
     return;
   }
-  errorMessage.value = "";
   showConfirmDialog.value = true;
 }
 
@@ -47,13 +47,12 @@ function closeConfirmDialog() {
  */
 async function handleDelete() {
   if (confirmText.value !== CONFIRM_TEXT) {
-    errorMessage.value = `请输入 "${CONFIRM_TEXT}" 确认删除`;
+    error(`请输入 "${CONFIRM_TEXT}" 确认删除`);
     return;
   }
 
   try {
     loading.value = true;
-    errorMessage.value = "";
 
     // Note: 当前后端 API 不验证密码，仅通过 JWT token 验证身份
     await userProfileApi.apiUserAccountDelete();
@@ -62,8 +61,8 @@ async function handleDelete() {
     closeConfirmDialog();
     await authStore.logout();
     router.push("/auth/login");
-  } catch (error) {
-    errorMessage.value = (error as Error).message || "删除账户失败";
+  } catch (err) {
+    error((err as Error).message || "删除账户失败");
     closeConfirmDialog();
   } finally {
     loading.value = false;
@@ -76,7 +75,6 @@ async function handleDelete() {
 function resetForm() {
   password.value = "";
   confirmText.value = "";
-  errorMessage.value = "";
 }
 </script>
 
@@ -117,11 +115,6 @@ function resetForm() {
         <v-btn variant="outlined" @click="resetForm"> 重置 </v-btn>
       </div>
     </v-form>
-
-    <!-- 错误消息 -->
-    <v-alert v-if="errorMessage" type="error" density="compact" class="mt-4" closable @click:close="errorMessage = ''">
-      {{ errorMessage }}
-    </v-alert>
 
     <!-- 确认对话框 -->
     <v-dialog v-model="showConfirmDialog" max-width="500" persistent>

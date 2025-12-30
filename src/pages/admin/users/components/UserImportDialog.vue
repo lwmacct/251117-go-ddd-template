@@ -2,6 +2,7 @@
 import { ref, computed } from "vue";
 import { parseUserCSV, readFileAsText, generateUserCSVTemplate, type ParsedUser, type ParseError } from "@/utils/import";
 import { adminUserApi, type UserBatchCreateResultDTO, type UserBatchCreateErrorDTO } from "@/api";
+import { useSnackbar } from "@/composables";
 
 /**
  * 用户批量导入对话框
@@ -19,10 +20,12 @@ interface Emits {
 const _props = defineProps<Props>();
 const emit = defineEmits<Emits>();
 
+// 消息提示
+const { error } = useSnackbar();
+
 // 状态
 const step = ref<"upload" | "preview" | "result">("upload");
 const loading = ref(false);
-const errorMessage = ref("");
 
 // 文件上传
 const selectedFile = ref<File | null>(null);
@@ -70,7 +73,6 @@ const resetState = () => {
   totalRows.value = 0;
   validRows.value = 0;
   importResult.value = null;
-  errorMessage.value = "";
   loading.value = false;
 };
 
@@ -105,12 +107,11 @@ const handleDrop = async (event: DragEvent) => {
 // 处理文件
 const processFile = async (file: File) => {
   if (!file.name.endsWith(".csv")) {
-    errorMessage.value = "请选择 CSV 文件";
+    error("请选择 CSV 文件");
     return;
   }
 
   selectedFile.value = file;
-  errorMessage.value = "";
   loading.value = true;
 
   try {
@@ -123,8 +124,8 @@ const processFile = async (file: File) => {
     validRows.value = result.validRows;
 
     step.value = "preview";
-  } catch (error) {
-    errorMessage.value = (error as Error).message || "文件解析失败";
+  } catch (err) {
+    error((err as Error).message || "文件解析失败");
   } finally {
     loading.value = false;
   }
@@ -145,7 +146,6 @@ const downloadTemplate = () => {
 // 执行导入
 const handleImport = async () => {
   loading.value = true;
-  errorMessage.value = "";
 
   try {
     const users = parsedData.value.map((user) => ({
@@ -171,8 +171,8 @@ const handleImport = async () => {
 
     // 通知父组件
     emit("imported", { success: importResult.value.success, failed: importResult.value.failed });
-  } catch (error) {
-    errorMessage.value = (error as Error).message || "导入失败";
+  } catch (err) {
+    error((err as Error).message || "导入失败");
   } finally {
     loading.value = false;
   }
@@ -184,7 +184,6 @@ const backToUpload = () => {
   selectedFile.value = null;
   parsedData.value = [];
   parseErrors.value = [];
-  errorMessage.value = "";
 };
 </script>
 
@@ -214,11 +213,6 @@ const backToUpload = () => {
       </v-stepper>
 
       <v-card-text>
-        <!-- 错误提示 -->
-        <v-alert v-if="errorMessage" type="error" density="compact" class="mb-4" closable @click:close="errorMessage = ''">
-          {{ errorMessage }}
-        </v-alert>
-
         <!-- 步骤 1: 上传文件 -->
         <div v-if="step === 'upload'">
           <!-- 拖拽上传区域 -->

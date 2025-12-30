@@ -4,26 +4,27 @@
 import { ref } from "vue";
 import { adminSettingCategoriesApi } from "@/api";
 import type { SettingCategoryDTO, HandlerCreateCategoryRequest, HandlerUpdateCategoryRequest } from "@models";
+import { useSnackbar } from "@/composables";
 
 export function useSettingCategories() {
   const categories = ref<SettingCategoryDTO[]>([]);
   const loading = ref(false);
-  const errorMessage = ref("");
-  const successMessage = ref("");
+
+  // 消息提示
+  const { success, error } = useSnackbar();
 
   /**
    * 获取分类列表
    */
   const fetchCategories = async () => {
     loading.value = true;
-    errorMessage.value = "";
 
     try {
       const response = await adminSettingCategoriesApi.apiSystemSettingsCategoriesGet();
       categories.value = (response.data.data ?? []) as SettingCategoryDTO[];
-    } catch (error) {
-      errorMessage.value = (error as Error).message || "获取分类列表失败";
-      console.error("Failed to fetch categories:", error);
+    } catch (err) {
+      error((err as Error).message || "获取分类列表失败");
+      console.error("Failed to fetch categories:", err);
     } finally {
       loading.value = false;
     }
@@ -34,16 +35,14 @@ export function useSettingCategories() {
    */
   const createCategory = async (data: HandlerCreateCategoryRequest): Promise<boolean> => {
     loading.value = true;
-    errorMessage.value = "";
-    successMessage.value = "";
 
     try {
       await adminSettingCategoriesApi.apiSystemSettingsCategoriesPost(data);
-      successMessage.value = "分类创建成功";
+      success("分类创建成功");
       await fetchCategories();
       return true;
-    } catch (error) {
-      errorMessage.value = (error as Error).message || "创建分类失败";
+    } catch (err) {
+      error((err as Error).message || "创建分类失败");
       return false;
     } finally {
       loading.value = false;
@@ -55,16 +54,14 @@ export function useSettingCategories() {
    */
   const updateCategory = async (id: number, data: HandlerUpdateCategoryRequest): Promise<boolean> => {
     loading.value = true;
-    errorMessage.value = "";
-    successMessage.value = "";
 
     try {
       await adminSettingCategoriesApi.apiSystemSettingsCategoriesIdPut(id, data);
-      successMessage.value = "分类更新成功";
+      success("分类更新成功");
       await fetchCategories();
       return true;
-    } catch (error) {
-      errorMessage.value = (error as Error).message || "更新分类失败";
+    } catch (err) {
+      error((err as Error).message || "更新分类失败");
       return false;
     } finally {
       loading.value = false;
@@ -76,36 +73,26 @@ export function useSettingCategories() {
    */
   const deleteCategory = async (id: number): Promise<boolean> => {
     loading.value = true;
-    errorMessage.value = "";
-    successMessage.value = "";
 
     try {
       await adminSettingCategoriesApi.apiSystemSettingsCategoriesIdDelete(id);
-      successMessage.value = "分类删除成功";
+      success("分类删除成功");
       await fetchCategories();
       return true;
-    } catch (error) {
-      errorMessage.value = (error as Error).message || "删除分类失败";
+    } catch (err) {
+      error((err as Error).message || "删除分类失败");
       return false;
     } finally {
       loading.value = false;
     }
   };
 
-  const clearMessages = () => {
-    errorMessage.value = "";
-    successMessage.value = "";
-  };
-
   return {
     categories,
     loading,
-    errorMessage,
-    successMessage,
     fetchCategories,
     createCategory,
     updateCategory,
     deleteCategory,
-    clearMessages,
   };
 }

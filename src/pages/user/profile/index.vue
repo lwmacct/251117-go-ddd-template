@@ -1,13 +1,16 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
 import { userProfileApi, extractData, type UserUserWithRolesDTO } from "@/api";
+import { useSnackbar } from "@/composables";
 import BasicInfoForm from "./components/BasicInfoForm.vue";
+
+// 消息提示
+const { error } = useSnackbar();
 
 // 用户信息 - using any for flexible user object from API response
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const user = ref<any>(null);
 const loading = ref(false);
-const errorMessage = ref("");
 
 /**
  * 获取用户信息
@@ -15,12 +18,11 @@ const errorMessage = ref("");
 async function fetchUserInfo() {
   try {
     loading.value = true;
-    errorMessage.value = "";
     const response = await userProfileApi.apiUserProfileGet();
     user.value = extractData<UserUserWithRolesDTO>(response.data);
-  } catch (error) {
-    console.error("获取用户信息失败:", error);
-    errorMessage.value = (error as Error).message || "获取用户信息失败";
+  } catch (err) {
+    console.error("获取用户信息失败:", err);
+    error((err as Error).message || "获取用户信息失败");
   } finally {
     loading.value = false;
   }
@@ -54,15 +56,6 @@ onMounted(() => {
     <v-row v-if="loading">
       <v-col cols="12">
         <v-skeleton-loader type="card"></v-skeleton-loader>
-      </v-col>
-    </v-row>
-
-    <!-- 错误消息 -->
-    <v-row v-else-if="errorMessage">
-      <v-col cols="12">
-        <v-alert type="error" variant="tonal">
-          {{ errorMessage }}
-        </v-alert>
       </v-col>
     </v-row>
 

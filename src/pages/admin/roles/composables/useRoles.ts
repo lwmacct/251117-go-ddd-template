@@ -6,7 +6,7 @@ import { adminRoleApi, extractList, extractData } from "@/api";
 import type { RoleRoleDTO, RoleCreateDTO, RoleUpdateDTO, RolePermissionInputDTO } from "@models";
 import { exportToCSV, type CSVColumn } from "@/utils/export";
 import { refDebounced } from "@vueuse/core";
-import { useServerPagination } from "@/composables";
+import { useServerPagination, useSnackbar } from "@/composables";
 
 export function useRoles() {
   const roles = ref<RoleRoleDTO[]>([]);
@@ -24,12 +24,11 @@ export function useRoles() {
     getParams,
   } = useServerPagination();
 
-  const errorMessage = ref("");
-  const successMessage = ref("");
+  // 消息提示
+  const { success, error } = useSnackbar();
 
   const fetchRoles = async () => {
     loading.value = true;
-    errorMessage.value = "";
 
     try {
       const { limit, page } = getParams();
@@ -37,9 +36,9 @@ export function useRoles() {
       const result = extractList<RoleRoleDTO>(response.data);
       roles.value = result.data;
       updateTotal(result.pagination.total, result.pagination.total_pages);
-    } catch (error) {
-      errorMessage.value = (error as Error).message || "获取角色列表失败";
-      console.error("Failed to fetch roles:", error);
+    } catch (err) {
+      error((err as Error).message || "获取角色列表失败");
+      console.error("Failed to fetch roles:", err);
     } finally {
       loading.value = false;
     }
@@ -49,24 +48,22 @@ export function useRoles() {
     try {
       const response = await adminRoleApi.apiSystemRolesIdGet(id);
       return extractData<RoleRoleDTO>(response.data) ?? null;
-    } catch (error) {
-      errorMessage.value = (error as Error).message || "获取角色详情失败";
+    } catch (err) {
+      error((err as Error).message || "获取角色详情失败");
       return null;
     }
   };
 
   const createRole = async (data: RoleCreateDTO): Promise<boolean> => {
     loading.value = true;
-    errorMessage.value = "";
-    successMessage.value = "";
 
     try {
       await adminRoleApi.apiSystemRolesPost(data);
-      successMessage.value = "角色创建成功";
+      success("角色创建成功");
       await fetchRoles();
       return true;
-    } catch (error) {
-      errorMessage.value = (error as Error).message || "创建角色失败";
+    } catch (err) {
+      error((err as Error).message || "创建角色失败");
       return false;
     } finally {
       loading.value = false;
@@ -75,16 +72,14 @@ export function useRoles() {
 
   const updateRole = async (id: number, data: RoleUpdateDTO): Promise<boolean> => {
     loading.value = true;
-    errorMessage.value = "";
-    successMessage.value = "";
 
     try {
       await adminRoleApi.apiSystemRolesIdPut(id, data);
-      successMessage.value = "角色更新成功";
+      success("角色更新成功");
       await fetchRoles();
       return true;
-    } catch (error) {
-      errorMessage.value = (error as Error).message || "更新角色失败";
+    } catch (err) {
+      error((err as Error).message || "更新角色失败");
       return false;
     } finally {
       loading.value = false;
@@ -93,16 +88,14 @@ export function useRoles() {
 
   const deleteRole = async (id: number): Promise<boolean> => {
     loading.value = true;
-    errorMessage.value = "";
-    successMessage.value = "";
 
     try {
       await adminRoleApi.apiSystemRolesIdDelete(id);
-      successMessage.value = "角色删除成功";
+      success("角色删除成功");
       await fetchRoles();
       return true;
-    } catch (error) {
-      errorMessage.value = (error as Error).message || "删除角色失败";
+    } catch (err) {
+      error((err as Error).message || "删除角色失败");
       return false;
     } finally {
       loading.value = false;
@@ -111,16 +104,14 @@ export function useRoles() {
 
   const setPermissions = async (id: number, permissions: RolePermissionInputDTO[]): Promise<boolean> => {
     loading.value = true;
-    errorMessage.value = "";
-    successMessage.value = "";
 
     try {
       await adminRoleApi.apiSystemRolesIdPermissionsPut(id, { permissions });
-      successMessage.value = "权限设置成功";
+      success("权限设置成功");
       await fetchRoles();
       return true;
-    } catch (error) {
-      errorMessage.value = (error as Error).message || "设置权限失败";
+    } catch (err) {
+      error((err as Error).message || "设置权限失败");
       return false;
     } finally {
       loading.value = false;
@@ -139,17 +130,11 @@ export function useRoles() {
     baseOnTableOptionsUpdate(options, fetchRoles);
   };
 
-  const clearMessages = () => {
-    errorMessage.value = "";
-    successMessage.value = "";
-  };
-
   /**
    * 导出角色列表为 CSV
    */
   const exportRoles = async () => {
     loading.value = true;
-    errorMessage.value = "";
 
     try {
       // 获取所有角色（最多 1000 条）
@@ -157,7 +142,7 @@ export function useRoles() {
       const result = extractList<RoleRoleDTO>(response.data);
 
       if (result.data.length === 0) {
-        errorMessage.value = "没有可导出的数据";
+        error("没有可导出的数据");
         return;
       }
 
@@ -197,10 +182,10 @@ export function useRoles() {
 
       // 导出
       exportToCSV(result.data, columns, { filename, withBOM: true });
-      successMessage.value = `成功导出 ${result.data.length} 个角色`;
-    } catch (error) {
-      errorMessage.value = (error as Error).message || "导出失败";
-      console.error("Failed to export roles:", error);
+      success(`成功导出 ${result.data.length} 个角色`);
+    } catch (err) {
+      error((err as Error).message || "导出失败");
+      console.error("Failed to export roles:", err);
     } finally {
       loading.value = false;
     }
@@ -212,8 +197,6 @@ export function useRoles() {
     searchQuery,
     debouncedSearchQuery,
     pagination,
-    errorMessage,
-    successMessage,
     fetchRoles,
     fetchRole,
     createRole,
@@ -221,7 +204,6 @@ export function useRoles() {
     deleteRole,
     setPermissions,
     onTableOptionsUpdate,
-    clearMessages,
     exportRoles,
   };
 }

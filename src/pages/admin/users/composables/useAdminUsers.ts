@@ -6,7 +6,7 @@ import { adminUserApi, extractList, extractData } from "@/api";
 import type { UserUserWithRolesDTO, UserCreateDTO, UserUpdateDTO, UserAssignRolesDTO } from "@models";
 import { exportToCSV, type CSVColumn } from "@/utils/export";
 import { refDebounced } from "@vueuse/core";
-import { useServerPagination } from "@/composables";
+import { useServerPagination, useSnackbar } from "@/composables";
 
 export function useAdminUsers() {
   // 状态
@@ -25,16 +25,14 @@ export function useAdminUsers() {
     getParams,
   } = useServerPagination();
 
-  // 错误和成功消息
-  const errorMessage = ref("");
-  const successMessage = ref("");
+  // 消息提示
+  const { success, error } = useSnackbar();
 
   /**
    * 获取用户列表
    */
   const fetchUsers = async () => {
     loading.value = true;
-    errorMessage.value = "";
 
     try {
       const { limit, page } = getParams();
@@ -43,9 +41,9 @@ export function useAdminUsers() {
       const result = extractList<UserUserWithRolesDTO>(response.data);
       users.value = result.data;
       updateTotal(result.pagination.total, result.pagination.total_pages);
-    } catch (error) {
-      errorMessage.value = (error as Error).message || "获取用户列表失败";
-      console.error("Failed to fetch users:", error);
+    } catch (err) {
+      error((err as Error).message || "获取用户列表失败");
+      console.error("Failed to fetch users:", err);
     } finally {
       loading.value = false;
     }
@@ -58,9 +56,9 @@ export function useAdminUsers() {
     try {
       const response = await adminUserApi.apiSystemUsersIdGet(id);
       return extractData<UserUserWithRolesDTO>(response.data) ?? null;
-    } catch (error) {
-      errorMessage.value = (error as Error).message || "获取用户详情失败";
-      console.error("Failed to fetch user:", error);
+    } catch (err) {
+      error((err as Error).message || "获取用户详情失败");
+      console.error("Failed to fetch user:", err);
       return null;
     }
   };
@@ -70,17 +68,15 @@ export function useAdminUsers() {
    */
   const createUser = async (data: UserCreateDTO): Promise<boolean> => {
     loading.value = true;
-    errorMessage.value = "";
-    successMessage.value = "";
 
     try {
       await adminUserApi.apiSystemUsersPost(data);
-      successMessage.value = "用户创建成功";
+      success("用户创建成功");
       await fetchUsers(); // 刷新列表
       return true;
-    } catch (error) {
-      errorMessage.value = (error as Error).message || "创建用户失败";
-      console.error("Failed to create user:", error);
+    } catch (err) {
+      error((err as Error).message || "创建用户失败");
+      console.error("Failed to create user:", err);
       return false;
     } finally {
       loading.value = false;
@@ -92,17 +88,15 @@ export function useAdminUsers() {
    */
   const updateUser = async (id: number, data: UserUpdateDTO): Promise<boolean> => {
     loading.value = true;
-    errorMessage.value = "";
-    successMessage.value = "";
 
     try {
       await adminUserApi.apiSystemUsersIdPut(id, data);
-      successMessage.value = "用户更新成功";
+      success("用户更新成功");
       await fetchUsers(); // 刷新列表
       return true;
-    } catch (error) {
-      errorMessage.value = (error as Error).message || "更新用户失败";
-      console.error("Failed to update user:", error);
+    } catch (err) {
+      error((err as Error).message || "更新用户失败");
+      console.error("Failed to update user:", err);
       return false;
     } finally {
       loading.value = false;
@@ -114,17 +108,15 @@ export function useAdminUsers() {
    */
   const deleteUser = async (id: number): Promise<boolean> => {
     loading.value = true;
-    errorMessage.value = "";
-    successMessage.value = "";
 
     try {
       await adminUserApi.apiSystemUsersIdDelete(id);
-      successMessage.value = "用户删除成功";
+      success("用户删除成功");
       await fetchUsers(); // 刷新列表
       return true;
-    } catch (error) {
-      errorMessage.value = (error as Error).message || "删除用户失败";
-      console.error("Failed to delete user:", error);
+    } catch (err) {
+      error((err as Error).message || "删除用户失败");
+      console.error("Failed to delete user:", err);
       return false;
     } finally {
       loading.value = false;
@@ -136,18 +128,16 @@ export function useAdminUsers() {
    */
   const assignRoles = async (id: number, roleIds: number[]): Promise<boolean> => {
     loading.value = true;
-    errorMessage.value = "";
-    successMessage.value = "";
 
     try {
       const data: UserAssignRolesDTO = { role_ids: roleIds };
       await adminUserApi.apiSystemUsersIdRolesPut(id, data);
-      successMessage.value = "角色分配成功";
+      success("角色分配成功");
       await fetchUsers(); // 刷新列表
       return true;
-    } catch (error) {
-      errorMessage.value = (error as Error).message || "角色分配失败";
-      console.error("Failed to assign roles:", error);
+    } catch (err) {
+      error((err as Error).message || "角色分配失败");
+      console.error("Failed to assign roles:", err);
       return false;
     } finally {
       loading.value = false;
@@ -168,19 +158,10 @@ export function useAdminUsers() {
   };
 
   /**
-   * 清除消息
-   */
-  const clearMessages = () => {
-    errorMessage.value = "";
-    successMessage.value = "";
-  };
-
-  /**
    * 导出用户列表为 CSV
    */
   const exportUsers = async () => {
     loading.value = true;
-    errorMessage.value = "";
 
     try {
       // 获取所有用户（最多 1000 条）
@@ -189,7 +170,7 @@ export function useAdminUsers() {
       const result = extractList<UserUserWithRolesDTO>(response.data);
 
       if (result.data.length === 0) {
-        errorMessage.value = "没有可导出的数据";
+        error("没有可导出的数据");
         return;
       }
 
@@ -241,10 +222,10 @@ export function useAdminUsers() {
 
       // 导出
       exportToCSV(result.data, columns, { filename, withBOM: true });
-      successMessage.value = `成功导出 ${result.data.length} 条用户记录`;
-    } catch (error) {
-      errorMessage.value = (error as Error).message || "导出失败";
-      console.error("Failed to export users:", error);
+      success(`成功导出 ${result.data.length} 条用户记录`);
+    } catch (err) {
+      error((err as Error).message || "导出失败");
+      console.error("Failed to export users:", err);
     } finally {
       loading.value = false;
     }
@@ -257,8 +238,6 @@ export function useAdminUsers() {
     searchQuery,
     debouncedSearchQuery,
     pagination,
-    errorMessage,
-    successMessage,
 
     // 方法
     fetchUsers,
@@ -268,7 +247,6 @@ export function useAdminUsers() {
     deleteUser,
     assignRoles,
     onTableOptionsUpdate,
-    clearMessages,
     exportUsers,
   };
 }
