@@ -47,3 +47,7 @@ internal/application/{module}/
 | `mapper.go`   | func   | `To` 开头 + `DTO`/`DTOs` 结尾 | `ToUserDTO`, `ToUserDTOs` |
 
 > 规范由 `internal/precommit/application_test.go` 自动检查
+
+## 测试规范
+
+Application 层无需单元测试，用例验证由 `manualtest` 集成测试覆盖。

@@ -118,3 +118,7 @@ type QueryRepository interface {
 // 依赖倒置：本包仅定义接口，实现位于 infrastructure/persistence。
 package xxx
 ```
+
+## 测试规范
+
+实体方法和值对象应有单元测试，验证业务规则。
