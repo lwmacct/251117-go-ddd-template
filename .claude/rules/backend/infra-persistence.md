@@ -57,45 +57,36 @@ type cachedQueryRepository struct {
 func NewCachedQueryRepository(delegate, cache) domain.QueryRepository
 ```
 
-### Query 装饰策略
+### 策略
 
-| 场景     | 策略                         |
-| -------- | ---------------------------- |
-| 单条查询 | Cache-Aside + 版本化回写     |
-| 批量查询 | 缓存命中 → 未命中查库 → 回写 |
-| 列表查询 | 预热完成从缓存过滤，否则查库 |
+| 操作类型     | 策略        | 说明                           |
+| ------------ | ----------- | ------------------------------ |
+| 读 (Query)   | Cache-Aside | 先查缓存，未命中查库，同步回写 |
+| 写 (Command) | Invalidate  | 先写库，成功后失效缓存         |
 
-### Command 装饰策略
+### 关联缓存失效
 
-写操作后**失效缓存**（非更新）：
+当写操作影响多个缓存时，需级联失效（均使用**同步失效**）：
 
 ```go
-func (r *cachedRepo) Update(ctx, entity) error {
-    if err := r.delegate.Update(ctx, entity); err != nil {
+func (r *cachedRepo) Upsert(ctx, entity) error {
+    if err := r.delegate.Upsert(ctx, entity); err != nil {
         return err
     }
-    _ = r.cache.Delete(ctx, entity.Key)  // 同步失效
+    // 同步失效多个关联缓存
+    _ = r.effectiveCache.Delete(ctx, entity.Key)
+    _ = r.queryCache.DeleteByUser(ctx, entity.UserID)
+    _ = r.schemaCache.DeleteAll(ctx, entity.UserID)
     return nil
 }
 ```
 
-### 跨层失效
-
-当存在多层缓存时，写操作需级联失效：
-
-| 触发操作 | 本层缓存 | 派生层缓存   |
-| -------- | -------- | ------------ |
-| Update   | 同步删除 | 异步批量删除 |
-| Delete   | 同步删除 | 异步批量删除 |
-
-### 异步失效
-
-使用独立 context：
+**特例**：全局缓存批量失效可用异步（如 `DeleteAll`），避免阻塞请求：
 
 ```go
-go func() { //nolint:contextcheck
+go func() {
     ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
     defer cancel()
-    _ = r.derivedCache.DeleteByKey(ctx, key)
+    _ = r.globalCache.DeleteAll(ctx)
 }()
 ```
