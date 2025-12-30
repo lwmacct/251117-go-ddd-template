@@ -4,12 +4,33 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
+	"slices"
 
 	appauth "github.com/lwmacct/251117-go-ddd-template/internal/application/auth"
 	appuser "github.com/lwmacct/251117-go-ddd-template/internal/application/user"
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/role"
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/user"
 )
+
+// mergePermissions 合并权限列表（去重）。
+// 使用 OperationPattern + ResourcePattern 作为去重键。
+func mergePermissions(base, additional []role.Permission) []role.Permission {
+	seen := make(map[string]bool, len(base))
+	for _, p := range base {
+		seen[p.OperationPattern+"|"+p.ResourcePattern] = true
+	}
+
+	result := append([]role.Permission{}, base...)
+	for _, p := range additional {
+		key := p.OperationPattern + "|" + p.ResourcePattern
+		if !seen[key] {
+			seen[key] = true
+			result = append(result, p)
+		}
+	}
+
+	return result
+}
 
 // PermissionCacheService 权限缓存服务（Cache-Aside 模式）
 //
@@ -18,6 +39,10 @@ import (
 //   - InvalidateUsersWithRole: 按角色批量失效（需查询数据库获取用户列表）
 //
 // 新 RBAC 模型：返回 []role.Permission 支持 Operation + Resource Pattern 匹配。
+//
+// 隐性角色：
+// 所有已认证用户自动拥有 [role.DefaultUserRoleName] 角色及其权限，
+// 无需在数据库中显式分配。
 //
 // 性能优化：
 // 查询数据库时，会同时写入用户实体缓存（UserWithRolesCacheService），
@@ -28,6 +53,7 @@ type PermissionCacheService struct {
 	cache         appauth.PermissionCacheService
 	userCache     appuser.UserWithRolesCacheService
 	userQueryRepo user.QueryRepository
+	roleQueryRepo role.QueryRepository // 用于查询默认角色权限
 }
 
 // NewPermissionCacheService 创建权限缓存服务
@@ -35,11 +61,13 @@ func NewPermissionCacheService(
 	cacheService appauth.PermissionCacheService,
 	userCacheService appuser.UserWithRolesCacheService,
 	userQueryRepo user.QueryRepository,
+	roleQueryRepo role.QueryRepository,
 ) *PermissionCacheService {
 	return &PermissionCacheService{
 		cache:         cacheService,
 		userCache:     userCacheService,
 		userQueryRepo: userQueryRepo,
+		roleQueryRepo: roleQueryRepo,
 	}
 }
 
@@ -48,12 +76,14 @@ func NewPermissionCacheService(
 // 执行流程：
 //  1. 尝试从缓存读取
 //  2. 缓存未命中，查询数据库
-//  3. 同步写入权限缓存
-//  4. 同步写入用户实体缓存（供后续 Handler 通过 Repository 装饰器命中）
+//  3. root 用户：直接返回最高权限（硬编码）
+//  4. 普通用户：追加默认角色及其权限（隐性角色）
+//  5. 同步写入权限缓存
+//  6. 同步写入用户实体缓存（供后续 Handler 通过 Repository 装饰器命中）
 //
 // 返回 []role.Permission 支持 Operation + Resource Pattern 匹配。
 func (s *PermissionCacheService) GetUserPermissions(ctx context.Context, userID uint) ([]string, []role.Permission, error) {
-	// 1. 尝试从缓存读取
+	// 1. 尝试从缓存读取（缓存已包含默认角色权限）
 	roles, permissions, err := s.cache.GetUserPermissions(ctx, userID)
 	if err == nil && (roles != nil || permissions != nil) {
 		return roles, permissions, nil
@@ -65,10 +95,20 @@ func (s *PermissionCacheService) GetUserPermissions(ctx context.Context, userID 
 		return nil, nil, fmt.Errorf("failed to get user: %w", err)
 	}
 
-	roles = u.GetRoleNames()
-	permissions = u.GetPermissions()
+	// 3. root 用户：直接返回最高权限（硬编码，无需数据库角色）
+	if u.Username == user.RootUsername {
+		roles = []string{"root"}
+		permissions = []role.Permission{
+			{OperationPattern: "*:*:*", ResourcePattern: "*"},
+		}
+	} else {
+		// 4. 普通用户：从角色获取权限 + 追加默认角色
+		roles = u.GetRoleNames()
+		permissions = u.GetPermissions()
+		roles, permissions = s.appendDefaultRole(ctx, roles, permissions)
+	}
 
-	// 3. 同步写入权限缓存（Redis 写入 < 1ms，延迟可忽略）
+	// 5. 同步写入权限缓存（Redis 写入 < 1ms，延迟可忽略）
 	if err := s.cache.SetUserPermissions(ctx, userID, roles, permissions); err != nil {
 		slog.Warn("Failed to cache user permissions",
 			"user_id", userID,
@@ -76,7 +116,7 @@ func (s *PermissionCacheService) GetUserPermissions(ctx context.Context, userID 
 		)
 	}
 
-	// 4. 同步写入用户实体缓存（关键！供后续 Handler 通过 Repository 装饰器命中）
+	// 6. 同步写入用户实体缓存（关键！供后续 Handler 通过 Repository 装饰器命中）
 	if err := s.userCache.SetUserWithRoles(ctx, u); err != nil {
 		slog.Warn("Failed to cache user entity",
 			"user_id", userID,
@@ -142,4 +182,37 @@ func (s *PermissionCacheService) InvalidateAllUsers(ctx context.Context) error {
 
 	slog.Info("All users permissions cache invalidated")
 	return nil
+}
+
+// appendDefaultRole 追加默认用户角色及其权限。
+//
+// 所有已认证用户隐性拥有 [role.DefaultUserRoleName] 角色。
+// 如果用户已有该角色，不重复追加。
+func (s *PermissionCacheService) appendDefaultRole(
+	ctx context.Context,
+	roles []string,
+	permissions []role.Permission,
+) ([]string, []role.Permission) {
+	// 检查用户是否已有默认角色
+	if slices.Contains(roles, role.DefaultUserRoleName) {
+		return roles, permissions // 已有，无需追加
+	}
+
+	// 追加角色名
+	roles = append(roles, role.DefaultUserRoleName)
+
+	// 查询默认角色的权限
+	defaultRole, err := s.roleQueryRepo.FindByName(ctx, role.DefaultUserRoleName)
+	if err != nil {
+		slog.Warn("Failed to get default user role, skipping",
+			"role_name", role.DefaultUserRoleName,
+			"error", err,
+		)
+		return roles, permissions
+	}
+
+	// 合并权限（去重）
+	permissions = mergePermissions(permissions, defaultRole.Permissions)
+
+	return roles, permissions
 }

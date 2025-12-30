@@ -46,11 +46,13 @@ func newAuthPermissionCacheService(
 	permissionCache appauth.PermissionCacheService,
 	userWithRolesCache appuser.UserWithRolesCacheService,
 	userRepos persistence.UserRepositories,
+	roleRepos persistence.RoleRepositories,
 ) *infra_auth.PermissionCacheService {
 	return infra_auth.NewPermissionCacheService(
 		permissionCache,
 		userWithRolesCache,
 		userRepos.Query,
+		roleRepos.Query,
 	)
 }
 
