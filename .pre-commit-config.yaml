@@ -42,10 +42,9 @@ repos:
         args: ["--maxkb=512"]
 
   - repo: https://github.com/lwmacct/251211-pre-commit
-    rev: v1.0.0
+    rev: v1.0.2
     hooks:
       - id: prettier
       - id: mc-mdtoc
-      - id: build-docs
       - id: golangci-lint
       - id: config-sync
