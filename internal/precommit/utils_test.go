@@ -2,8 +2,10 @@ package precommit_test
 
 import (
 	"bufio"
+	"go/ast"
+	"go/parser"
+	"go/token"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"regexp"
 	"strings"
@@ -49,56 +51,67 @@ type handlerAnnotation struct {
 // Application Layer Helpers
 // ============================================================
 
-// parseStructs 解析 Go 文件中的结构体定义
+// parseStructs 使用 AST 解析 Go 文件中的结构体定义
 func parseStructs(t *testing.T, filePath string) []structInfo {
 	t.Helper()
 
-	file, err := os.Open(filePath) //nolint:gosec // 测试代码
+	fset := token.NewFileSet()
+	node, err := parser.ParseFile(fset, filePath, nil, 0)
 	if err != nil {
 		return nil
 	}
-	defer func() { _ = file.Close() }()
 
-	structRe := regexp.MustCompile(`^\s*type\s+([A-Za-z_][A-Za-z0-9_]*)\s+struct`)
 	var structs []structInfo
-	scanner := bufio.NewScanner(file)
-
-	for scanner.Scan() {
-		if matches := structRe.FindStringSubmatch(scanner.Text()); len(matches) == 2 {
-			structs = append(structs, structInfo{
-				File: filepath.Base(filePath),
-				Name: matches[1],
-			})
+	for _, decl := range node.Decls {
+		genDecl, ok := decl.(*ast.GenDecl)
+		if !ok || genDecl.Tok != token.TYPE {
+			continue
+		}
+		for _, spec := range genDecl.Specs {
+			typeSpec, ok := spec.(*ast.TypeSpec)
+			if !ok {
+				continue
+			}
+			if _, isStruct := typeSpec.Type.(*ast.StructType); isStruct {
+				structs = append(structs, structInfo{
+					File: filepath.Base(filePath),
+					Name: typeSpec.Name.Name,
+				})
+			}
 		}
 	}
-
 	return structs
 }
 
-// parseFuncs 解析 Go 文件中的函数定义（仅顶级导出函数，不含方法）
+// parseFuncs 使用 AST 解析 Go 文件中的顶级导出函数（不含方法）
 func parseFuncs(t *testing.T, filePath string) []funcInfo {
 	t.Helper()
 
-	file, err := os.Open(filePath) //nolint:gosec // 测试代码
+	fset := token.NewFileSet()
+	node, err := parser.ParseFile(fset, filePath, nil, 0)
 	if err != nil {
 		return nil
 	}
-	defer func() { _ = file.Close() }()
 
-	// 匹配顶级导出函数：func FuncName(
-	funcRe := regexp.MustCompile(`^func\s+([A-Z][A-Za-z0-9_]*)\s*\(`)
 	var funcs []funcInfo
-	scanner := bufio.NewScanner(file)
-
-	for scanner.Scan() {
-		if matches := funcRe.FindStringSubmatch(scanner.Text()); len(matches) == 2 {
-			funcs = append(funcs, funcInfo{
-				File: filepath.Base(filePath),
-				Name: matches[1],
-			})
+	for _, decl := range node.Decls {
+		funcDecl, ok := decl.(*ast.FuncDecl)
+		if !ok {
+			continue
 		}
+		// 跳过方法（有 receiver）
+		if funcDecl.Recv != nil {
+			continue
+		}
+		// 只收集导出函数
+		if !funcDecl.Name.IsExported() {
+			continue
+		}
+		funcs = append(funcs, funcInfo{
+			File: filepath.Base(filePath),
+			Name: funcDecl.Name.Name,
+		})
 	}
-
 	return funcs
 }
 
@@ -236,15 +249,13 @@ func parseHandlerAnnotations(t *testing.T) []handlerAnnotation {
 	return annotations
 }
 
-// loadDTOTypes 使用 go doc 加载 application 层所有 DTO 类型
+// loadDTOTypes 使用 AST 解析 application 层所有 DTO 类型
 func loadDTOTypes(t *testing.T) map[string]bool {
 	t.Helper()
 
 	dtoTypes := make(map[string]bool)
-	typeRe := regexp.MustCompile(`^type\s+(\w+DTO)\s+struct`)
-
-	// 获取 application 下的所有子包
 	appDir := "../application"
+
 	entries, err := os.ReadDir(appDir)
 	require.NoError(t, err, "failed to read application directory")
 
@@ -253,21 +264,35 @@ func loadDTOTypes(t *testing.T) map[string]bool {
 			continue
 		}
 		pkgName := entry.Name()
-		pkgPath := "./internal/application/" + pkgName + "/"
+		dtoFile := filepath.Join(appDir, pkgName, "dto.go")
 
-		// 使用 go doc 获取包的类型列表
-		cmd := exec.Command("go", "doc", pkgPath) //nolint:gosec,noctx // 测试代码，无需 context
-		cmd.Dir = "../.."                         // 从项目根目录执行（internal/precommit -> 项目根）
-		output, err := cmd.Output()
-		if err != nil {
-			continue // 跳过无法解析的包
+		// 跳过没有 dto.go 的包
+		if _, err := os.Stat(dtoFile); os.IsNotExist(err) {
+			continue
 		}
 
-		// 解析 go doc 输出中的 DTO 类型
-		for line := range strings.SplitSeq(string(output), "\n") {
-			if matches := typeRe.FindStringSubmatch(line); len(matches) == 2 {
-				fullName := pkgName + "." + matches[1]
-				dtoTypes[fullName] = true
+		fset := token.NewFileSet()
+		node, err := parser.ParseFile(fset, dtoFile, nil, 0)
+		if err != nil {
+			continue
+		}
+
+		for _, decl := range node.Decls {
+			genDecl, ok := decl.(*ast.GenDecl)
+			if !ok || genDecl.Tok != token.TYPE {
+				continue
+			}
+			for _, spec := range genDecl.Specs {
+				typeSpec, ok := spec.(*ast.TypeSpec)
+				if !ok {
+					continue
+				}
+				if _, isStruct := typeSpec.Type.(*ast.StructType); isStruct {
+					if strings.HasSuffix(typeSpec.Name.Name, "DTO") {
+						fullName := pkgName + "." + typeSpec.Name.Name
+						dtoTypes[fullName] = true
+					}
+				}
 			}
 		}
 	}
@@ -276,36 +301,25 @@ func loadDTOTypes(t *testing.T) map[string]bool {
 	return dtoTypes
 }
 
-// loadHandlerQueryTypes 加载 handler 目录中定义的 Query 结构体类型
+// loadHandlerQueryTypes 加载 handler 目录中定义的 Query 结构体类型（复用 parseStructs）
 func loadHandlerQueryTypes(t *testing.T) map[string]bool {
 	t.Helper()
 
 	handlerDir := "../adapters/http/handler"
 	queryTypes := make(map[string]bool)
-	// 匹配 type XXXQuery struct（不用行首锚点，因为是全文匹配）
-	typeRe := regexp.MustCompile(`type\s+(\w+Query)\s+struct`)
 
 	err := filepath.Walk(handlerDir, func(path string, info os.FileInfo, err error) error {
-		if err != nil {
+		if err != nil || info.IsDir() || !strings.HasSuffix(path, ".go") {
 			return err
-		}
-		if info.IsDir() || !strings.HasSuffix(path, ".go") {
-			return nil
 		}
 		if strings.HasSuffix(path, "_test.go") {
 			return nil
 		}
 
-		content, err := os.ReadFile(path) //nolint:gosec // 测试代码
-		if err != nil {
-			return nil //nolint:nilerr // 跳过无法读取的文件
-		}
-
-		for _, match := range typeRe.FindAllStringSubmatch(string(content), -1) {
-			if len(match) == 2 {
-				// 存储两种格式：带 handler. 前缀和不带前缀
-				queryTypes[match[1]] = true
-				queryTypes["handler."+match[1]] = true
+		for _, s := range parseStructs(t, path) {
+			if strings.HasSuffix(s.Name, "Query") {
+				queryTypes[s.Name] = true
+				queryTypes["handler."+s.Name] = true
 			}
 		}
 		return nil

@@ -2,6 +2,9 @@ package precommit_test
 
 import (
 	"fmt"
+	"go/ast"
+	"go/parser"
+	"go/token"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -65,6 +68,9 @@ type routeBinding struct {
 func parseRouteBindings(t *testing.T) []routeBinding {
 	t.Helper()
 
+	// 动态解析常量映射（替代手动维护的 constNameRegistry）
+	opMap := parseOperationConstants(t)
+
 	content, err := os.ReadFile("../adapters/http/routes.go")
 	require.NoError(t, err, "failed to read routes.go")
 
@@ -79,9 +85,9 @@ func parseRouteBindings(t *testing.T) []routeBinding {
 			handlerType := match[2]
 			funcName := match[3]
 
-			// 直接通过常量名查找操作
-			operation := permission.ByConstName(opName)
-			if operation == "" {
+			// 使用动态解析的映射查找 Operation
+			operation, ok := opMap[opName]
+			if !ok || operation == "" {
 				continue
 			}
 
@@ -332,4 +338,49 @@ func generateAnnotation(o permission.Operation, preserved preservedAnnot) []stri
 func ginToSwaggerPath(path string) string {
 	re := regexp.MustCompile(`:(\w+)`)
 	return re.ReplaceAllString(path, "{$1}")
+}
+
+// parseOperationConstants 解析 constants.go，返回常量名到 Operation 值的映射。
+// 通过 AST 解析源文件，自动获取所有 Operation 类型常量的名称和值。
+func parseOperationConstants(t *testing.T) map[string]permission.Operation {
+	t.Helper()
+
+	fset := token.NewFileSet()
+	node, err := parser.ParseFile(fset, "../domain/permission/constants.go", nil, 0)
+	require.NoError(t, err, "failed to parse constants.go")
+
+	result := make(map[string]permission.Operation)
+
+	for _, decl := range node.Decls {
+		genDecl, ok := decl.(*ast.GenDecl)
+		if !ok || genDecl.Tok != token.CONST {
+			continue
+		}
+
+		for _, spec := range genDecl.Specs {
+			valueSpec, ok := spec.(*ast.ValueSpec)
+			if !ok || len(valueSpec.Values) == 0 {
+				continue
+			}
+
+			// 检查类型是否为 Operation
+			ident, ok := valueSpec.Type.(*ast.Ident)
+			if !ok || ident.Name != "Operation" {
+				continue
+			}
+
+			for i, name := range valueSpec.Names {
+				if i >= len(valueSpec.Values) {
+					continue
+				}
+				if lit, ok := valueSpec.Values[i].(*ast.BasicLit); ok && lit.Kind == token.STRING {
+					// 去除引号
+					value := strings.Trim(lit.Value, `"`)
+					result[name.Name] = permission.Operation(value)
+				}
+			}
+		}
+	}
+
+	return result
 }
