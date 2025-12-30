@@ -2,6 +2,29 @@ package setting
 
 import "context"
 
+// ============================================================================
+// Command Repository
+// ============================================================================
+
+// CommandRepository 配置定义写操作接口。
+type CommandRepository interface {
+	// Create 创建配置定义
+	Create(ctx context.Context, setting *Setting) error
+
+	// Update 更新配置定义
+	Update(ctx context.Context, setting *Setting) error
+
+	// Delete 删除配置定义
+	Delete(ctx context.Context, key string) error
+
+	// BatchUpsert 批量插入或更新配置定义
+	BatchUpsert(ctx context.Context, settings []*Setting) error
+}
+
+// ============================================================================
+// Query Repository
+// ============================================================================
+
 // QueryRepository 配置定义读操作接口。
 type QueryRepository interface {
 	// FindByKey 根据 Key 查找配置定义
