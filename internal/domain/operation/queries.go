@@ -22,7 +22,7 @@ func AllOperationDefinitions() []OperationDefinition {
 
 	for op, meta := range operationRegistry {
 		// 跳过公开操作（通过 scope 判断）
-		if op.IsPublic() {
+		if IsPublic(op) {
 			continue
 		}
 
@@ -123,7 +123,7 @@ func AllAuditOperations() []OperationTypeOption {
 // 如果未找到返回空 Operation。
 func ByOperationID(id string) Operation {
 	op := Operation(id)
-	if op.Valid() {
+	if Valid(op) {
 		return op
 	}
 	return ""

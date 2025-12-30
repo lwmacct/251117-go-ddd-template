@@ -52,10 +52,11 @@
 // # 使用示例
 //
 //	op := operation.SysUsersCreate
-//	fmt.Println(op.Scope())      // "sys"
-//	fmt.Println(op.Type())       // "users"
-//	fmt.Println(op.Identifier()) // "create"
-//	fmt.Println(op.IsPublic())   // false
+//	fmt.Println(op.Scope())             // "sys"
+//	fmt.Println(op.Type())              // "users"
+//	fmt.Println(op.Identifier())        // "create"
+//	fmt.Println(operation.IsPublic(op)) // false
+//	fmt.Println(operation.Method(op))   // "POST"
 //
 // # 新增操作流程
 //

@@ -1,67 +1,5 @@
 package operation
 
-import "github.com/lwmacct/251117-go-ddd-template/pkg/urn"
-
-// Operation 统一操作标识符。
-// 格式：{scope}:{type}:{action}
-//
-// Scope 划分：
-//   - public: 公开域（无需认证）
-//   - sys:    系统管理域（需管理员权限）
-//   - self:   用户自服务域（当前用户权限）
-//
-// 示例：
-//   - public:auth:login    公开登录操作
-//   - sys:users:create     系统域用户创建操作
-//   - self:profile:update  用户更新自己资料
-//
-// 本类型基于 [urn.URN] 格式，但作为独立类型以支持元数据方法。
-type Operation string
-
-// URN 返回底层 URN 类型（用于匹配等操作）。
-func (o Operation) URN() urn.URN {
-	return urn.URN(o)
-}
-
-// Scope 返回操作的 scope。
-// "sys:users:create" → "sys"
-func (o Operation) Scope() string {
-	return o.URN().Scope()
-}
-
-// Type 返回操作的 type。
-// "sys:users:create" → "users"
-func (o Operation) Type() string {
-	return o.URN().Type()
-}
-
-// Identifier 返回操作的 identifier（action）。
-// "sys:users:create" → "create"
-func (o Operation) Identifier() string {
-	return o.URN().Identifier()
-}
-
-// Match 检查操作是否匹配指定模式。
-func (o Operation) Match(pattern string) bool {
-	return o.URN().Match(urn.URN(pattern))
-}
-
-// ============================================================================
-// HTTP 方法类型
-// ============================================================================
-
-// HTTPMethod HTTP 请求方法。
-type HTTPMethod string
-
-// HTTP 方法常量。
-const (
-	HttpGET    HTTPMethod = "GET"
-	HttpPOST   HTTPMethod = "POST"
-	HttpPUT    HTTPMethod = "PUT"
-	HttpDELETE HTTPMethod = "DELETE"
-	HttpPATCH  HTTPMethod = "PATCH"
-)
-
 // ============================================================================
 // 审计操作类型（粗粒度分类）
 // ============================================================================
@@ -76,6 +14,23 @@ const (
 	AuditOpAccess       AuditOperation = "access"
 	AuditOpAuthenticate AuditOperation = "authenticate"
 )
+
+//nolint:gochecknoglobals // 标签映射是只读配置
+var auditOperationLabels = map[AuditOperation]string{
+	AuditOpCreate:       "创建",
+	AuditOpUpdate:       "更新",
+	AuditOpDelete:       "删除",
+	AuditOpAccess:       "访问",
+	AuditOpAuthenticate: "认证",
+}
+
+// Label 返回审计操作的中文标签。
+func (o AuditOperation) Label() string {
+	if label, ok := auditOperationLabels[o]; ok {
+		return label
+	}
+	return string(o)
+}
 
 // ============================================================================
 // 审计分类
@@ -96,11 +51,32 @@ const (
 	AuditCatUserSetting AuditCategory = "user_setting"
 )
 
+//nolint:gochecknoglobals // 标签映射是只读配置
+var auditCategoryLabels = map[AuditCategory]string{
+	AuditCatAuth:        "认证",
+	AuditCatUser:        "用户",
+	AuditCatRole:        "角色",
+	AuditCatMenu:        "菜单",
+	AuditCatSetting:     "配置",
+	AuditCatCache:       "缓存",
+	AuditCatProfile:     "个人资料",
+	AuditCatToken:       "访问令牌",
+	AuditCatUserSetting: "用户配置",
+}
+
+// Label 返回审计分类的中文标签。
+func (c AuditCategory) Label() string {
+	if label, ok := auditCategoryLabels[c]; ok {
+		return label
+	}
+	return string(c)
+}
+
 // ============================================================================
 // 元数据结构
 // ============================================================================
 
-// operationMeta 操作元数据
+// operationMeta 操作元数据。
 //
 // URN-Centric RBAC: Operation code 本身即权限标识符，
 // 公开性通过 scope 判断（public: 前缀）。

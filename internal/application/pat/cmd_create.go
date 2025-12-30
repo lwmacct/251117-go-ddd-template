@@ -7,10 +7,10 @@ import (
 	"strings"
 
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/auth"
-	"github.com/lwmacct/251117-go-ddd-template/internal/domain/operation"
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/pat"
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/role"
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/user"
+	pkgop "github.com/lwmacct/251117-go-ddd-template/pkg/operation"
 )
 
 // InternalCreateTokenResult Handler 内部返回类型（包含领域实体）
@@ -150,8 +150,8 @@ func validatePermissions(requested, userPerms []string) error {
 		// 检查是否有任何用户权限能覆盖此请求
 		matched := false
 		for _, userPerm := range parsedUserPerms {
-			if operation.MatchOperation(userPerm.OperationPattern, reqOp) &&
-				operation.MatchResource(userPerm.ResourcePattern, reqRes) {
+			if pkgop.MatchOperation(userPerm.OperationPattern, reqOp) &&
+				pkgop.MatchResource(userPerm.ResourcePattern, reqRes) {
 				matched = true
 				break
 			}

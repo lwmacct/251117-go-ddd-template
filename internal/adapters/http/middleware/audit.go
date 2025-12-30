@@ -25,7 +25,7 @@ func AuditMiddleware(handler *auditlog.CreateHandler) gin.HandlerFunc {
 		)
 
 		// 未注册或无需审计的操作静默跳过
-		if !op.Valid() || !op.NeedsAudit() {
+		if !operation.Valid(op) || !operation.NeedsAudit(op) {
 			c.Next()
 			return
 		}
@@ -71,14 +71,14 @@ func AuditMiddleware(handler *auditlog.CreateHandler) gin.HandlerFunc {
 		}
 
 		// 从路径提取资源 ID
-		resourceID := extractResourceID(op.Path(), c.Request.URL.Path)
+		resourceID := extractResourceID(operation.Path(op), c.Request.URL.Path)
 
 		// 创建审计日志命令
 		cmd := auditlog.CreateCommand{
 			UserID:      uid,
 			Username:    uname,
-			Action:      op.AuditAction(),      // 语义化操作标识：setting.update
-			Resource:    string(op.AuditCat()), // 资源分类：setting
+			Action:      operation.AuditAction(op),      // 语义化操作标识：setting.update
+			Resource:    string(operation.AuditCat(op)), // 资源分类：setting
 			ResourceID:  resourceID,
 			IPAddress:   c.ClientIP(),
 			UserAgent:   c.Request.UserAgent(),

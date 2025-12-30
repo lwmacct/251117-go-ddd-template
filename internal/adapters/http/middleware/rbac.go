@@ -8,7 +8,7 @@ import (
 	"github.com/lwmacct/251117-go-ddd-template/internal/adapters/http/response"
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/operation"
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/role"
-	"github.com/lwmacct/251117-go-ddd-template/pkg/urn"
+	pkgop "github.com/lwmacct/251117-go-ddd-template/pkg/operation"
 )
 
 // RequireOperation 检查用户是否有执行指定 Operation 的权限。
@@ -278,7 +278,7 @@ func appendSelfResources(c *gin.Context, resources []string) []string {
 	}
 
 	// 创建 resolver 并解析 @me
-	resolver := urn.NewResolver(map[string]string{
+	resolver := pkgop.NewResolver(map[string]string{
 		"@me": strconv.FormatUint(uint64(uid), 10),
 	})
 	selfUserResource := resolver.ResolveString("self:user:@me")

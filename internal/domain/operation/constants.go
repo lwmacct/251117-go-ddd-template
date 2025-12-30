@@ -1,5 +1,42 @@
 package operation
 
+import op "github.com/lwmacct/251117-go-ddd-template/pkg/operation"
+
+// ============================================================================
+// 类型别名（来自 pkg/operation）
+// ============================================================================
+
+// Operation 是 [op.Operation] 的类型别名。
+type Operation = op.Operation
+
+// Resource 是 [op.Resource] 的类型别名。
+type Resource = op.Resource
+
+// HTTPMethod 是 [op.HTTPMethod] 的类型别名。
+type HTTPMethod = op.HTTPMethod
+
+// ResourceAll 表示所有资源。
+const ResourceAll = op.ResourceAll
+
+// HTTP 方法常量。
+const (
+	HttpGET    = op.GET
+	HttpPOST   = op.POST
+	HttpPUT    = op.PUT
+	HttpDELETE = op.DELETE
+	HttpPATCH  = op.PATCH
+)
+
+// ============================================================================
+// 匹配函数重导出（来自 pkg/operation）
+// ============================================================================
+
+// MatchOperation 检查操作是否匹配模式。
+var MatchOperation = op.MatchOperation
+
+// MatchResource 检查资源是否匹配模式。
+var MatchResource = op.MatchResource
+
 // ============================================================================
 // 操作常量
 // ============================================================================

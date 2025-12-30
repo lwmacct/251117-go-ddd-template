@@ -1,5 +1,7 @@
 package operation
 
+import op "github.com/lwmacct/251117-go-ddd-template/pkg/operation"
+
 // operationRegistry 操作注册表（单一数据源）
 //
 // URN-Centric RBAC:
@@ -8,7 +10,7 @@ package operation
 //   - 非公开操作默认需要权限检查
 //
 //nolint:gochecknoglobals // 注册表是只读全局配置
-var operationRegistry = map[Operation]operationMeta{
+var operationRegistry = op.Registry[operationMeta]{
 	// ==================== Public 域（公开） ====================
 	PublicAuthRegister: {
 		Method:         HttpPOST,

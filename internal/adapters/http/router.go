@@ -163,19 +163,19 @@ func registerRoutes(r *gin.Engine, deps *RouterDependencies) {
 		middlewares := buildMiddlewares(deps, b.Op)
 		middlewares = append(middlewares, b.Handler)
 
-		switch b.Op.Method() {
+		switch op.Method(b.Op) {
 		case op.HttpGET:
-			r.GET(b.Op.Path(), middlewares...)
+			r.GET(op.Path(b.Op), middlewares...)
 		case op.HttpPOST:
-			r.POST(b.Op.Path(), middlewares...)
+			r.POST(op.Path(b.Op), middlewares...)
 		case op.HttpPUT:
-			r.PUT(b.Op.Path(), middlewares...)
+			r.PUT(op.Path(b.Op), middlewares...)
 		case op.HttpDELETE:
-			r.DELETE(b.Op.Path(), middlewares...)
+			r.DELETE(op.Path(b.Op), middlewares...)
 		case op.HttpPATCH:
-			r.PATCH(b.Op.Path(), middlewares...)
+			r.PATCH(op.Path(b.Op), middlewares...)
 		default:
-			slog.Warn("unknown HTTP method", "operation", b.Op, "method", b.Op.Method())
+			slog.Warn("unknown HTTP method", "operation", b.Op, "method", op.Method(b.Op))
 		}
 	}
 }
@@ -192,14 +192,14 @@ func buildMiddlewares(deps *RouterDependencies, o op.Operation) []gin.HandlerFun
 	mws = append(mws, middleware.SetOperationID(o.String()))
 
 	// 3. Auth + Permission（非公开操作需要认证和权限检查）
-	if !o.IsPublic() {
+	if !op.IsPublic(o) {
 		mws = append(mws, middleware.Auth(deps.JWTManager, deps.PATService, deps.PermissionCacheService))
 		// 新 RBAC 模型：使用 Operation 本身作为权限标识符
 		mws = append(mws, middleware.RequireOperation(o))
 	}
 
 	// 4. Audit（需要审计的操作）
-	if o.NeedsAudit() {
+	if op.NeedsAudit(o) {
 		mws = append(mws, middleware.AuditMiddleware(deps.CreateLogHandler))
 	}
 

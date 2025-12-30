@@ -1,4 +1,4 @@
-package urn
+package operation
 
 import (
 	"testing"
@@ -99,8 +99,8 @@ func TestURN_Methods(t *testing.T) {
 	assert.True(t, URN("*:*:*").IsWildcard())
 }
 
-func TestNew(t *testing.T) {
-	u := New("sys", "users", "create")
+func TestNewURN(t *testing.T) {
+	u := NewURN("sys", "users", "create")
 	assert.Equal(t, URN("sys:users:create"), u)
 }
 

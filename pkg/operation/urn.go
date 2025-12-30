@@ -1,4 +1,4 @@
-package urn
+package operation
 
 import "strings"
 
@@ -18,6 +18,11 @@ type Parts struct {
 	ScopeParts []string // Scope hierarchy, e.g., ["sys", "admin"]
 	Type       string   // Type/module, e.g., "users" or "user"
 	Identifier string   // Identifier, e.g., "create" or "123" or "*"
+}
+
+// NewURN creates a URN from scope, type, and identifier.
+func NewURN(scope, typ, identifier string) URN {
+	return URN(scope + ":" + typ + ":" + identifier)
 }
 
 // Parse parses the URN into its components.
@@ -109,9 +114,4 @@ func (u URN) IsWildcard() bool {
 // String returns the string representation of the URN.
 func (u URN) String() string {
 	return string(u)
-}
-
-// New creates a URN from scope, type, and identifier.
-func New(scope, typ, identifier string) URN {
-	return URN(scope + ":" + typ + ":" + identifier)
 }
