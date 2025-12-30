@@ -48,6 +48,42 @@ type handlerAnnotation struct {
 }
 
 // ============================================================
+// Common Helpers
+// ============================================================
+
+// parseInterfaces 使用 AST 解析 Go 文件中的接口定义
+func parseInterfaces(t *testing.T, filePath string) []structInfo {
+	t.Helper()
+
+	fset := token.NewFileSet()
+	node, err := parser.ParseFile(fset, filePath, nil, 0)
+	if err != nil {
+		return nil
+	}
+
+	var interfaces []structInfo
+	for _, decl := range node.Decls {
+		genDecl, ok := decl.(*ast.GenDecl)
+		if !ok || genDecl.Tok != token.TYPE {
+			continue
+		}
+		for _, spec := range genDecl.Specs {
+			typeSpec, ok := spec.(*ast.TypeSpec)
+			if !ok {
+				continue
+			}
+			if _, isInterface := typeSpec.Type.(*ast.InterfaceType); isInterface {
+				interfaces = append(interfaces, structInfo{
+					File: filepath.Base(filePath),
+					Name: typeSpec.Name.Name,
+				})
+			}
+		}
+	}
+	return interfaces
+}
+
+// ============================================================
 // Application Layer Helpers
 // ============================================================
 
@@ -327,4 +363,37 @@ func loadHandlerQueryTypes(t *testing.T) map[string]bool {
 
 	require.NoError(t, err, "failed to walk handler directory")
 	return queryTypes
+}
+
+// ============================================================
+// Domain Layer Helpers
+// ============================================================
+
+// getDomainFiles 获取 domain 目录下的所有 Go 文件
+func getDomainFiles(t *testing.T) []string {
+	t.Helper()
+
+	domainDir := "../domain"
+	var files []string
+
+	err := filepath.Walk(domainDir, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		if info.IsDir() || !strings.HasSuffix(path, ".go") {
+			return nil
+		}
+		// 跳过测试文件
+		if strings.HasSuffix(path, "_test.go") {
+			return nil
+		}
+		files = append(files, path)
+		return nil
+	})
+
+	if err != nil {
+		t.Logf("warning: failed to walk domain directory: %v", err)
+	}
+
+	return files
 }
