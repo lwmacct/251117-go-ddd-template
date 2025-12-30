@@ -37,14 +37,15 @@ internal/application/{module}/
 
 ## 命名规范
 
-| 文件          | 类型   | 规则                          | 示例                      |
-| ------------- | ------ | ----------------------------- | ------------------------- |
-| `commands.go` | struct | 以 `Command` 结尾             | `CreateUserCommand`       |
-| `queries.go`  | struct | 以 `Query` 结尾               | `GetUserByIDQuery`        |
-| `cmd_*.go`    | struct | 以 `Handler` 结尾             | `CreateUserHandler`       |
-| `qry_*.go`    | struct | 以 `Handler` 结尾             | `GetUserHandler`          |
-| `dto.go`      | struct | 以 `DTO` 结尾                 | `UserDTO`, `UserListDTO`  |
-| `mapper.go`   | func   | `To` 开头 + `DTO`/`DTOs` 结尾 | `ToUserDTO`, `ToUserDTOs` |
+| 文件          | 类型      | 规则                          | 示例                      |
+| ------------- | --------- | ----------------------------- | ------------------------- |
+| `commands.go` | struct    | 以 `Command` 结尾             | `CreateUserCommand`       |
+| `queries.go`  | struct    | 以 `Query` 结尾               | `GetUserByIDQuery`        |
+| `cmd_*.go`    | struct    | 以 `Handler` 结尾             | `CreateUserHandler`       |
+| `qry_*.go`    | struct    | 以 `Handler` 结尾             | `GetUserHandler`          |
+| `dto.go`      | struct    | 以 `DTO` 结尾                 | `UserDTO`, `UserListDTO`  |
+| `mapper.go`   | func      | `To` 开头 + `DTO`/`DTOs` 结尾 | `ToUserDTO`, `ToUserDTOs` |
+| `cache.go`    | interface | 以 `CacheService` 结尾        | `UserCacheService`        |
 
 > 规范由 `internal/precommit/application_test.go` 自动检查
 
