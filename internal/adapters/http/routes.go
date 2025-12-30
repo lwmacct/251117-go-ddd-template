@@ -15,18 +15,18 @@ type RouteBinding struct {
 // 绑定顺序决定路由注册顺序，对于同路径前缀的路由需注意顺序
 func (deps *RouterDependencies) AllRouteBindings() []RouteBinding {
 	return []RouteBinding{
-		// ==================== Auth 域（公开） ====================
-		{op.AuthRegister, deps.AuthHandler.Register},
-		{op.AuthLogin, deps.AuthHandler.Login},
-		{op.AuthLogin2FA, deps.AuthHandler.Login2FA},
-		{op.AuthRefresh, deps.AuthHandler.RefreshToken},
-		{op.AuthCaptcha, deps.CaptchaHandler.GetCaptcha},
+		// ==================== Public 域（公开） ====================
+		{op.PublicAuthRegister, deps.AuthHandler.Register},
+		{op.PublicAuthLogin, deps.AuthHandler.Login},
+		{op.PublicAuthLogin2FA, deps.AuthHandler.Login2FA},
+		{op.PublicAuthRefresh, deps.AuthHandler.RefreshToken},
+		{op.PublicAuthCaptcha, deps.CaptchaHandler.GetCaptcha},
 
-		// ==================== Auth 域 - 2FA ====================
-		{op.Auth2FASetup, deps.TwoFAHandler.Setup},
-		{op.Auth2FAVerify, deps.TwoFAHandler.VerifyAndEnable},
-		{op.Auth2FADisable, deps.TwoFAHandler.Disable},
-		{op.Auth2FAStatus, deps.TwoFAHandler.GetStatus},
+		// ==================== Self 域 - 2FA ====================
+		{op.Self2FASetup, deps.TwoFAHandler.Setup},
+		{op.Self2FAVerify, deps.TwoFAHandler.VerifyAndEnable},
+		{op.Self2FADisable, deps.TwoFAHandler.Disable},
+		{op.Self2FAStatus, deps.TwoFAHandler.GetStatus},
 
 		// ==================== Sys 域 - 用户管理 ====================
 		{op.SysUsersCreate, deps.AdminUserHandler.CreateUser},
@@ -86,27 +86,27 @@ func (deps *RouterDependencies) AllRouteBindings() []RouteBinding {
 		{op.SysCacheDeleteKey, deps.CacheHandler.DeleteKey},
 		{op.SysCacheDeletePattern, deps.CacheHandler.DeleteByPattern},
 
-		// ==================== User 域 - 个人资料 ====================
-		{op.UserProfileGet, deps.UserProfileHandler.GetProfile},
-		{op.UserProfileUpdate, deps.UserProfileHandler.UpdateProfile},
-		{op.UserPasswordUpdate, deps.UserProfileHandler.ChangePassword},
-		{op.UserAccountDelete, deps.UserProfileHandler.DeleteAccount},
+		// ==================== Self 域 - 个人资料 ====================
+		{op.SelfProfileGet, deps.UserProfileHandler.GetProfile},
+		{op.SelfProfileUpdate, deps.UserProfileHandler.UpdateProfile},
+		{op.SelfPasswordUpdate, deps.UserProfileHandler.ChangePassword},
+		{op.SelfAccountDelete, deps.UserProfileHandler.DeleteAccount},
 
-		// ==================== User 域 - 访问令牌 ====================
-		{op.UserTokensCreate, deps.PATHandler.CreateToken},
-		{op.UserTokensList, deps.PATHandler.ListTokens},
-		{op.UserTokensGet, deps.PATHandler.GetToken},
-		{op.UserTokensDelete, deps.PATHandler.DeleteToken},
-		{op.UserTokensDisable, deps.PATHandler.DisableToken},
-		{op.UserTokensEnable, deps.PATHandler.EnableToken},
+		// ==================== Self 域 - 访问令牌 ====================
+		{op.SelfTokensCreate, deps.PATHandler.CreateToken},
+		{op.SelfTokensList, deps.PATHandler.ListTokens},
+		{op.SelfTokensGet, deps.PATHandler.GetToken},
+		{op.SelfTokensDelete, deps.PATHandler.DeleteToken},
+		{op.SelfTokensDisable, deps.PATHandler.DisableToken},
+		{op.SelfTokensEnable, deps.PATHandler.EnableToken},
 
-		// ==================== User 域 - 用户配置 ====================
+		// ==================== Self 域 - 用户配置 ====================
 		// 注意：categories 和 batch 路由必须在 :key 路由之前
-		{op.UserSettingsCategoriesList, deps.UserSettingHandler.ListUserSettingCategories},
-		{op.UserSettingsBatchSet, deps.UserSettingHandler.BatchSetUserSettings},
-		{op.UserSettingsList, deps.UserSettingHandler.GetUserSettings},
-		{op.UserSettingsGet, deps.UserSettingHandler.GetUserSetting},
-		{op.UserSettingsSet, deps.UserSettingHandler.SetUserSetting},
-		{op.UserSettingsReset, deps.UserSettingHandler.ResetUserSetting},
+		{op.SelfSettingsCategoriesList, deps.UserSettingHandler.ListUserSettingCategories},
+		{op.SelfSettingsBatchSet, deps.UserSettingHandler.BatchSetUserSettings},
+		{op.SelfSettingsList, deps.UserSettingHandler.GetUserSettings},
+		{op.SelfSettingsGet, deps.UserSettingHandler.GetUserSetting},
+		{op.SelfSettingsSet, deps.UserSettingHandler.SetUserSetting},
+		{op.SelfSettingsReset, deps.UserSettingHandler.ResetUserSetting},
 	}
 }
