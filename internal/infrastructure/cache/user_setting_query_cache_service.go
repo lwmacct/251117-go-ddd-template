@@ -18,36 +18,11 @@ const (
 	userSettingQueryKeyPrefix = "usersetting:user:"
 )
 
-// userSettingQueryCacheDTO 用于 Redis 缓存的 UserSetting 数据结构。
-type userSettingQueryCacheDTO struct {
-	ID         uint   `json:"id"`
-	UserID     uint   `json:"user_id"`
-	SettingKey string `json:"setting_key"`
-	Value      any    `json:"value"`
-}
-
-func toUserSettingQueryCacheDTO(s *setting.UserSetting) userSettingQueryCacheDTO {
-	return userSettingQueryCacheDTO{
-		ID:         s.ID,
-		UserID:     s.UserID,
-		SettingKey: s.SettingKey,
-		Value:      s.Value,
-	}
-}
-
-func (d userSettingQueryCacheDTO) toEntity() *setting.UserSetting {
-	return &setting.UserSetting{
-		ID:         d.ID,
-		UserID:     d.UserID,
-		SettingKey: d.SettingKey,
-		Value:      d.Value,
-	}
-}
-
 // userSettingQueryCacheService 用户设置查询缓存的 Redis 实现。
 //
 // 存储原始 UserSetting 记录，用于 Repository 层减少数据库查询。
 // 采用用户维度全量缓存策略：一次查询缓存用户所有自定义配置。
+// 直接序列化 Domain 实体（实体已有 json tags）。
 type userSettingQueryCacheService struct {
 	client    *redis.Client
 	keyPrefix string
@@ -74,7 +49,7 @@ func (s *userSettingQueryCacheService) GetByUser(ctx context.Context, userID uin
 
 	// JSON.GET $ 返回数组包装：[actual_data]
 	// actual_data 本身也是数组
-	var wrapper [][]userSettingQueryCacheDTO
+	var wrapper [][]*setting.UserSetting
 	if err := json.Unmarshal([]byte(data), &wrapper); err != nil {
 		// 缓存数据损坏，删除并返回未命中
 		_ = s.client.Del(ctx, key)
@@ -85,25 +60,20 @@ func (s *userSettingQueryCacheService) GetByUser(ctx context.Context, userID uin
 		return nil, nil //nolint:nilnil // empty wrapper
 	}
 
-	dtos := wrapper[0]
-	result := make(map[string]*setting.UserSetting, len(dtos))
-	for _, dto := range dtos {
-		result[dto.SettingKey] = dto.toEntity()
+	entities := wrapper[0]
+	result := make(map[string]*setting.UserSetting, len(entities))
+	for _, entity := range entities {
+		result[entity.SettingKey] = entity
 	}
 	return result, nil
 }
 
 // SetByUser 设置用户的所有自定义配置缓存（使用 RedisJSON）。
 func (s *userSettingQueryCacheService) SetByUser(ctx context.Context, userID uint, settings []*setting.UserSetting) error {
-	dtos := make([]userSettingQueryCacheDTO, 0, len(settings))
-	for _, us := range settings {
-		dtos = append(dtos, toUserSettingQueryCacheDTO(us))
-	}
-
-	// 使用 Pipeline 执行 JSON.SET + EXPIRE
+	// 使用 Pipeline 执行 JSON.SET + EXPIRE（直接序列化实体切片）
 	key := s.buildKey(userID)
 	pipe := s.client.Pipeline()
-	pipe.JSONSet(ctx, key, "$", dtos)
+	pipe.JSONSet(ctx, key, "$", settings)
 	pipe.Expire(ctx, key, userSettingQueryCacheTTL)
 
 	_, err := pipe.Exec(ctx)

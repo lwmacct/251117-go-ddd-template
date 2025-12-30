@@ -12,11 +12,11 @@ import "time"
 //   - 删除 UserSetting 记录即可恢复默认值
 //   - 通过 (UserID, SettingKey) 唯一约束保证每个用户每个配置只有一条记录
 type UserSetting struct {
-	ID         uint   // 唯一标识
-	UserID     uint   // 用户 ID，关联 users 表
-	SettingKey string // 配置键
-	Value      any    // 用户自定义值（JSONB 原生值）
+	ID         uint   `json:"id"`          // 唯一标识
+	UserID     uint   `json:"user_id"`     // 用户 ID，关联 users 表
+	SettingKey string `json:"setting_key"` // 配置键
+	Value      any    `json:"value"`       // 用户自定义值（JSONB 原生值）
 
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }

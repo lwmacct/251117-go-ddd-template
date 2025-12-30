@@ -175,6 +175,7 @@ func (s *settingsCacheService) DeleteUserCategories(ctx context.Context) error {
 // =========================================================================
 
 // GetAllCategories 获取所有 SettingCategory 实体缓存。
+// 直接序列化 Domain 实体（实体已有 json tags）。
 func (s *settingsCacheService) GetAllCategories(ctx context.Context) ([]*domainsetting.SettingCategory, error) {
 	key := s.buildCategoriesKey("all")
 
@@ -187,7 +188,7 @@ func (s *settingsCacheService) GetAllCategories(ctx context.Context) ([]*domains
 	}
 
 	// JSON.GET $ 返回数组包装：[[actual_array]]
-	var wrapper [][]settingCategoryCacheDTO
+	var wrapper [][]*domainsetting.SettingCategory
 	if err := json.Unmarshal([]byte(data), &wrapper); err != nil {
 		_ = s.client.Del(ctx, key)
 		slog.Warn("corrupted category cache, deleted", "key", key, "err", err)
@@ -198,15 +199,11 @@ func (s *settingsCacheService) GetAllCategories(ctx context.Context) ([]*domains
 		return nil, nil // empty wrapper treated as miss
 	}
 
-	result := make([]*domainsetting.SettingCategory, 0, len(wrapper[0]))
-	for _, dto := range wrapper[0] {
-		result = append(result, dto.toEntity())
-	}
-
-	return result, nil
+	return wrapper[0], nil
 }
 
 // SetAllCategories 设置所有 SettingCategory 实体缓存。
+// 直接序列化 Domain 实体（实体已有 json tags）。
 func (s *settingsCacheService) SetAllCategories(ctx context.Context, categories []*domainsetting.SettingCategory) error {
 	if len(categories) == 0 {
 		return nil
@@ -214,15 +211,9 @@ func (s *settingsCacheService) SetAllCategories(ctx context.Context, categories 
 
 	key := s.buildCategoriesKey("all")
 
-	// 构建 DTO 数组
-	dtos := make([]settingCategoryCacheDTO, 0, len(categories))
-	for _, c := range categories {
-		dtos = append(dtos, toSettingCategoryCacheDTO(c))
-	}
-
-	// 写入缓存
+	// 写入缓存（直接序列化实体切片）
 	pipe := s.client.Pipeline()
-	pipe.JSONSet(ctx, key, "$", dtos)
+	pipe.JSONSet(ctx, key, "$", categories)
 	pipe.Expire(ctx, key, settingsCacheTTL)
 
 	_, err := pipe.Exec(ctx)
@@ -242,39 +233,6 @@ func (s *settingsCacheService) DeleteAllCategories(ctx context.Context) error {
 // =========================================================================
 // 内部辅助方法
 // =========================================================================
-
-// settingCategoryCacheDTO 用于 Redis 缓存的 SettingCategory 数据结构。
-//
-// 将领域实体序列化为 JSON 存储，避免在领域层添加 JSON tags。
-type settingCategoryCacheDTO struct {
-	ID    uint   `json:"id"`
-	Key   string `json:"key"`
-	Label string `json:"label"`
-	Icon  string `json:"icon"`
-	Order int    `json:"order"`
-}
-
-// toSettingCategoryCacheDTO 将领域实体转换为缓存 DTO。
-func toSettingCategoryCacheDTO(c *domainsetting.SettingCategory) settingCategoryCacheDTO {
-	return settingCategoryCacheDTO{
-		ID:    c.ID,
-		Key:   c.Key,
-		Label: c.Label,
-		Icon:  c.Icon,
-		Order: c.Order,
-	}
-}
-
-// toEntity 将缓存 DTO 转换为领域实体。
-func (d settingCategoryCacheDTO) toEntity() *domainsetting.SettingCategory {
-	return &domainsetting.SettingCategory{
-		ID:    d.ID,
-		Key:   d.Key,
-		Label: d.Label,
-		Icon:  d.Icon,
-		Order: d.Order,
-	}
-}
 
 // buildUserKey 构建用户 Settings 缓存 key。
 func (s *settingsCacheService) buildUserKey(userID uint, categoryKey string) string {

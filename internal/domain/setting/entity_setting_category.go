@@ -15,14 +15,14 @@ import (
 //   - Label/Icon/Order 供前端渲染 Tab 导航
 //   - 前端无需硬编码任何 Category 信息
 type SettingCategory struct {
-	ID    uint   // 唯一标识
-	Key   string // 分类键，唯一约束（general, security, notification, backup）
-	Label string // 显示名称（如 "常规设置"）
-	Icon  string // Tab 图标（mdi-xxx 格式）
-	Order int    // 排序权重（小的在前）
+	ID    uint   `json:"id"`    // 唯一标识
+	Key   string `json:"key"`   // 分类键，唯一约束（general, security, notification, backup）
+	Label string `json:"label"` // 显示名称（如 "常规设置"）
+	Icon  string `json:"icon"`  // Tab 图标（mdi-xxx 格式）
+	Order int    `json:"order"` // 排序权重（小的在前）
 
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 // =============================================================================
