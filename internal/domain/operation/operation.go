@@ -1,18 +1,50 @@
 package operation
 
+import "github.com/lwmacct/251117-go-ddd-template/pkg/urn"
+
 // Operation 统一操作标识符。
-// 格式：{domain}:{module}.{action}
+// 格式：{scope}:{type}:{action}
 //
-// 域划分：
-//   - auth: 认证域（公开访问）
-//   - sys:  系统管理域（需管理员权限）
-//   - user: 用户自服务域（当前用户权限）
+// Scope 划分：
+//   - public: 公开域（无需认证）
+//   - sys:    系统管理域（需管理员权限）
+//   - self:   用户自服务域（当前用户权限）
 //
 // 示例：
-//   - auth:login         认证域登录操作
-//   - sys:users.create   系统域用户模块创建操作
-//   - user:profile.read  用户域个人资料读取操作
+//   - public:auth:login    公开登录操作
+//   - sys:users:create     系统域用户创建操作
+//   - self:profile:update  用户更新自己资料
+//
+// 本类型基于 [urn.URN] 格式，但作为独立类型以支持元数据方法。
 type Operation string
+
+// URN 返回底层 URN 类型（用于匹配等操作）。
+func (o Operation) URN() urn.URN {
+	return urn.URN(o)
+}
+
+// Scope 返回操作的 scope。
+// "sys:users:create" → "sys"
+func (o Operation) Scope() string {
+	return o.URN().Scope()
+}
+
+// Type 返回操作的 type。
+// "sys:users:create" → "users"
+func (o Operation) Type() string {
+	return o.URN().Type()
+}
+
+// Identifier 返回操作的 identifier（action）。
+// "sys:users:create" → "create"
+func (o Operation) Identifier() string {
+	return o.URN().Identifier()
+}
+
+// Match 检查操作是否匹配指定模式。
+func (o Operation) Match(pattern string) bool {
+	return o.URN().Match(urn.URN(pattern))
+}
 
 // ============================================================================
 // HTTP 方法类型
@@ -70,8 +102,8 @@ const (
 
 // operationMeta 操作元数据
 //
-// Operation-Centric RBAC: Operation code 本身即权限标识符，
-// 无需额外的 Permission 字段。权限检查直接使用 Operation code。
+// URN-Centric RBAC: Operation code 本身即权限标识符，
+// 公开性通过 scope 判断（public: 前缀）。
 type operationMeta struct {
 	// HTTP 路由
 	Method HTTPMethod // HTTP 方法
@@ -88,7 +120,4 @@ type operationMeta struct {
 
 	// Swagger 分组
 	Group string // Swagger Tags，如 管理员 - 用户管理 (Admin - User)
-
-	// 公开访问标记（默认需要权限检查）
-	Public bool // true=公开访问，无需权限检查
 }

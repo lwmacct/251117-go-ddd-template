@@ -6,14 +6,15 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/lwmacct/251117-go-ddd-template/internal/adapters/http/response"
-	op "github.com/lwmacct/251117-go-ddd-template/internal/domain/operation"
+	"github.com/lwmacct/251117-go-ddd-template/internal/domain/operation"
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/role"
+	"github.com/lwmacct/251117-go-ddd-template/pkg/urn"
 )
 
 // RequireOperation 检查用户是否有执行指定 Operation 的权限。
-// 新 RBAC 模型：权限为 Operation Pattern + Resource Pattern 组合。
-// 对于 user: 域的操作，自动检查 user/self 资源匹配。
-func RequireOperation(operation op.Operation) gin.HandlerFunc {
+// URN 风格 RBAC：权限为 Operation Pattern + Resource Pattern 组合。
+// 对于 self: 域的操作，自动检查 self:user:@me 资源匹配。
+func RequireOperation(op operation.Operation) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		permissions, exists := c.Get("permissions")
 		if !exists {
@@ -31,21 +32,21 @@ func RequireOperation(operation op.Operation) gin.HandlerFunc {
 
 		// 检查是否有匹配的权限
 		hasPermission := false
-		operationStr := string(operation)
+		operationStr := string(op)
 
 		// 确定要检查的资源
-		// 对于 user: 域的操作，检查 user/self 和 *
-		resourcesToCheck := []string{"*"}
-		if operation.Domain() == "user" {
-			resourcesToCheck = appendUserResources(c, resourcesToCheck)
+		// 对于 self: 域的操作，检查 self:user:@me 和 *:*:*
+		resourcesToCheck := []string{"*:*:*"}
+		if op.Scope() == "self" {
+			resourcesToCheck = appendSelfResources(c, resourcesToCheck)
 		}
 
 		for _, p := range permList {
 			// 匹配 Operation Pattern
-			if op.MatchOperation(p.OperationPattern, operationStr) {
+			if operation.MatchOperation(p.OperationPattern, operationStr) {
 				// 检查资源是否匹配任一候选资源
 				for _, res := range resourcesToCheck {
-					if op.MatchResource(p.ResourcePattern, res) {
+					if operation.MatchResource(p.ResourcePattern, res) {
 						hasPermission = true
 						break
 					}
@@ -67,8 +68,8 @@ func RequireOperation(operation op.Operation) gin.HandlerFunc {
 }
 
 // RequireOperationWithResource 检查用户是否有对指定资源执行指定 Operation 的权限。
-// 支持细粒度资源控制，如 user/123、role/*。
-func RequireOperationWithResource(operation op.Operation, resource op.Resource) gin.HandlerFunc {
+// 支持细粒度资源控制，如 sys:user:123、sys:role:*。
+func RequireOperationWithResource(op operation.Operation, resource operation.Resource) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		permissions, exists := c.Get("permissions")
 		if !exists {
@@ -85,11 +86,11 @@ func RequireOperationWithResource(operation op.Operation, resource op.Resource) 
 		}
 
 		hasPermission := false
-		operationStr := string(operation)
+		operationStr := string(op)
 		resourceStr := string(resource)
 		for _, p := range permList {
-			if op.MatchOperation(p.OperationPattern, operationStr) &&
-				op.MatchResource(p.ResourcePattern, resourceStr) {
+			if operation.MatchOperation(p.OperationPattern, operationStr) &&
+				operation.MatchResource(p.ResourcePattern, resourceStr) {
 				hasPermission = true
 				break
 			}
@@ -265,8 +266,8 @@ func isAdmin(c *gin.Context) bool {
 	return slices.Contains(rolesList, "admin")
 }
 
-// appendUserResources 为 user: 域操作添加 user/self 和 user/{id} 资源
-func appendUserResources(c *gin.Context, resources []string) []string {
+// appendSelfResources 为 self: 域操作添加 self:user:@me 资源（解析后）
+func appendSelfResources(c *gin.Context, resources []string) []string {
 	userID, exists := c.Get("user_id")
 	if !exists {
 		return resources
@@ -275,8 +276,15 @@ func appendUserResources(c *gin.Context, resources []string) []string {
 	if !ok {
 		return resources
 	}
+
+	// 创建 resolver 并解析 @me
+	resolver := urn.NewResolver(map[string]string{
+		"@me": strconv.FormatUint(uint64(uid), 10),
+	})
+	selfUserResource := resolver.ResolveString("self:user:@me")
+
 	return append(resources,
-		"user/self",
-		"user/"+strconv.FormatUint(uint64(uid), 10),
+		"self:user:@me",  // 原始模式（用于匹配 self:user:@me 模式的权限）
+		selfUserResource, // 解析后的具体资源（如 self:user:123）
 	)
 }

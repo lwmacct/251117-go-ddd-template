@@ -11,7 +11,7 @@ import (
 )
 
 // RBACSeeder seeds roles and admin user
-// 使用 Operation-Centric RBAC：角色直接关联 Operation 模式
+// 使用 URN-Centric RBAC：角色直接关联 Operation/Resource URN 模式
 type RBACSeeder struct{}
 
 // Seed implements Seeder interface
@@ -30,10 +30,10 @@ func (s *RBACSeeder) seedRoles(ctx context.Context, db *gorm.DB) error {
 	db = db.WithContext(ctx)
 
 	// 定义角色及其权限模式
-	// Operation-Centric RBAC: 使用 Operation 模式而非具体权限 ID
+	// URN-Centric RBAC: 使用 URN 格式 {scope}:{type}:{identifier}
 	type permissionConfig struct {
-		operationPattern string
-		resourcePattern  string
+		operationPattern string // URN 格式，如 sys:users:*, self:*:*
+		resourcePattern  string // URN 格式，如 *:*:*, self:user:@me
 	}
 
 	type roleConfig struct {
@@ -52,7 +52,7 @@ func (s *RBACSeeder) seedRoles(ctx context.Context, db *gorm.DB) error {
 			isSystem:    true,
 			permissions: []permissionConfig{
 				// 超级管理员：所有操作对所有资源
-				{operationPattern: "*", resourcePattern: "*"},
+				{operationPattern: "*:*:*", resourcePattern: "*:*:*"},
 			},
 		},
 		{
@@ -61,10 +61,10 @@ func (s *RBACSeeder) seedRoles(ctx context.Context, db *gorm.DB) error {
 			description: "标准用户权限",
 			isSystem:    true,
 			permissions: []permissionConfig{
-				// 用户自服务操作
-				{operationPattern: "user:*", resourcePattern: "user/self"},
-				// 2FA 操作
-				{operationPattern: "auth:2fa.*", resourcePattern: "*"},
+				// self 域所有操作（对自己的资源）
+				{operationPattern: "self:*:*", resourcePattern: "self:user:@me"},
+				// public 域操作（虽然公开但显式授权更清晰）
+				{operationPattern: "public:*:*", resourcePattern: "*:*:*"},
 			},
 		},
 	}
@@ -97,7 +97,7 @@ func (s *RBACSeeder) seedRoles(ctx context.Context, db *gorm.DB) error {
 			for i, p := range r.permissions {
 				resPattern := p.resourcePattern
 				if resPattern == "" {
-					resPattern = "*"
+					resPattern = "*:*:*"
 				}
 				perms[i] = persistence.RolePermissionModel{
 					RoleID:           role.ID,

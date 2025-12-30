@@ -6,10 +6,10 @@ package operation
 
 // OperationDefinition 操作定义，供前端权限配置使用。
 type OperationDefinition struct {
-	Code        string `json:"code"`        // 操作代码，如 sys:users.create
-	Domain      string `json:"domain"`      // 域，如 sys
-	Module      string `json:"module"`      // 模块，如 users
-	Action      string `json:"action"`      // 操作，如 create
+	Code        string `json:"code"`        // 操作代码，如 sys:users:create
+	Scope       string `json:"scope"`       // Scope，如 sys
+	Type        string `json:"type"`        // 类型，如 users
+	Identifier  string `json:"identifier"`  // 标识符，如 create
 	Label       string `json:"label"`       // 中文标签
 	Description string `json:"description"` // 英文描述
 	Group       string `json:"group"`       // Swagger 分组
@@ -21,16 +21,16 @@ func AllOperationDefinitions() []OperationDefinition {
 	ops := make([]OperationDefinition, 0, len(operationRegistry))
 
 	for op, meta := range operationRegistry {
-		// 跳过公开操作
-		if meta.Public {
+		// 跳过公开操作（通过 scope 判断）
+		if op.IsPublic() {
 			continue
 		}
 
 		ops = append(ops, OperationDefinition{
 			Code:        string(op),
-			Domain:      op.Domain(),
-			Module:      op.Module(),
-			Action:      op.Action(),
+			Scope:       op.Scope(),
+			Type:        op.Type(),
+			Identifier:  op.Identifier(),
 			Label:       meta.Label,
 			Description: meta.Description,
 			Group:       meta.Group,

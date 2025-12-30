@@ -11,18 +11,18 @@
   - [功能特性](#功能特性) `:43+8`
   - [架构设计](#架构设计) `:51+12`
   - [API 端点](#api-端点) `:63+12`
-- [RBAC 权限系统](#rbac-权限系统) `:75+45`
-  - [三段式格式](#三段式格式) `:79+14`
-  - [通配符匹配](#通配符匹配) `:93+6`
-  - [中间件](#中间件) `:99+10`
-  - [路由保护](#路由保护) `:109+4`
-  - [最佳实践](#最佳实践) `:113+7`
-- [Personal Access Token (PAT)](#personal-access-token-pat) `:120+38`
-  - [PAT vs JWT](#pat-vs-jwt) `:124+10`
-  - [Token 格式](#token-格式) `:134+9`
-  - [API 端点](#api-端点-1) `:143+8`
-  - [最佳实践](#最佳实践-1) `:151+7`
-- [安全配置](#安全配置) `:158+18`
+- [RBAC 权限系统](#rbac-权限系统) `:75+47`
+  - [URN 格式](#urn-格式) `:81+14`
+  - [通配符匹配](#通配符匹配) `:95+6`
+  - [中间件](#中间件) `:101+10`
+  - [路由保护](#路由保护) `:111+4`
+  - [最佳实践](#最佳实践) `:115+7`
+- [Personal Access Token (PAT)](#personal-access-token-pat) `:122+38`
+  - [PAT vs JWT](#pat-vs-jwt) `:126+10`
+  - [Token 格式](#token-格式) `:136+9`
+  - [API 端点](#api-端点-1) `:145+8`
+  - [最佳实践](#最佳实践-1) `:153+7`
+- [安全配置](#安全配置) `:160+18`
 
 <!--TOC-->
 
@@ -74,27 +74,29 @@ internal/
 
 ## RBAC 权限系统
 
-基于角色的访问控制 (Role-Based Access Control)。
+基于角色的访问控制 (Role-Based Access Control)，采用 URN 风格格式。
 
-### 三段式格式
+> 详细设计见 [URN 风格 RBAC](./rbac-urn.md)
+
+### URN 格式
 
 ```
-{resource}:{action}:{scope}
+{scope}:{type}:{identifier}
 ```
 
-| 段       | 说明     | 示例                                 |
-| -------- | -------- | ------------------------------------ |
-| resource | 资源类型 | `user`, `role`, `menu`               |
-| action   | 操作类型 | `create`, `read`, `update`, `delete` |
-| scope    | 作用范围 | `*` (全部), `own` (自己)             |
+| 段         | 说明     | 示例                         |
+| ---------- | -------- | ---------------------------- |
+| scope      | 作用域   | `sys`, `self`, `public`      |
+| type       | 模块类型 | `users`, `profile`, `tokens` |
+| identifier | 操作/ID  | `create`, `read`, `*`        |
 
-**示例**: `user:read:*` (读取所有用户), `user:update:own` (更新自己)
+**示例**: `sys:users:create` (系统级创建用户), `self:profile:update` (更新自己资料)
 
 ### 通配符匹配
 
 - `*:*:*` - 超级管理员权限
-- `user:*:*` - 用户模块全部权限
-- `*:read:*` - 所有模块读取权限
+- `sys:*:*` - 系统域全部权限
+- `sys:users:*` - 用户模块全部权限
 
 ### 中间件
 

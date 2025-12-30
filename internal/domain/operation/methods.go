@@ -1,7 +1,7 @@
 package operation
 
 // ============================================================================
-// Operation 方法
+// Operation 元数据方法
 // ============================================================================
 
 // String 返回操作标识符字符串
@@ -73,13 +73,10 @@ func (o Operation) Group() string {
 
 // IsPublic 报告操作是否公开（无需权限检查）
 //
-// Operation-Centric RBAC: 默认所有操作需要权限检查，
-// 只有显式标记 Public: true 的操作才是公开的。
+// URN-Centric RBAC: 通过 scope 判断是否公开。
+// scope 为 "public" 的操作无需权限检查。
 func (o Operation) IsPublic() bool {
-	if m, ok := operationRegistry[o]; ok {
-		return m.Public
-	}
-	return false
+	return o.Scope() == "public"
 }
 
 // NeedsAudit 报告操作是否需要审计

@@ -20,27 +20,28 @@ const emit = defineEmits<Emits>();
 const editingPermissions = ref<RolePermissionInputDTO[]>([]);
 const errorMessage = ref("");
 
-// 预定义的 Operation 模式示例
+// 预定义的 Operation 模式示例（URN 风格）
 const operationExamples = [
-  { pattern: "sys:users.*", desc: "用户管理所有操作" },
-  { pattern: "sys:roles.*", desc: "角色管理所有操作" },
-  { pattern: "sys:settings.*", desc: "设置管理所有操作" },
-  { pattern: "user:profile.*", desc: "个人资料所有操作" },
-  { pattern: "user:tokens.*", desc: "PAT 令牌所有操作" },
+  { pattern: "sys:users:*", desc: "用户管理所有操作" },
+  { pattern: "sys:roles:*", desc: "角色管理所有操作" },
+  { pattern: "sys:settings:*", desc: "设置管理所有操作" },
+  { pattern: "self:profile:*", desc: "个人资料所有操作" },
+  { pattern: "self:tokens:*", desc: "PAT 令牌所有操作" },
+  { pattern: "*:*:*", desc: "超级管理员（所有操作）" },
 ];
 
-// 预定义的 Resource 模式示例
+// 预定义的 Resource 模式示例（URN 风格）
 const resourceExamples = [
-  { pattern: "*", desc: "所有资源" },
-  { pattern: "user/self", desc: "仅限自身" },
-  { pattern: "user/*", desc: "所有用户" },
+  { pattern: "*:*:*", desc: "所有资源" },
+  { pattern: "self:user:@me", desc: "仅限自身" },
+  { pattern: "sys:user:*", desc: "所有系统用户" },
 ];
 
 // 初始化编辑数据
 const initPermissions = () => {
   editingPermissions.value = props.rolePermissions.map((p) => ({
     operation_pattern: p.operation_pattern ?? "",
-    resource_pattern: p.resource_pattern ?? "*",
+    resource_pattern: p.resource_pattern ?? "*:*:*",
   }));
 };
 
@@ -48,7 +49,7 @@ const initPermissions = () => {
 const addPermission = () => {
   editingPermissions.value.push({
     operation_pattern: "",
-    resource_pattern: "*",
+    resource_pattern: "*:*:*",
   });
 };
 
@@ -102,15 +103,17 @@ watch(
 
         <!-- 说明 -->
         <v-alert type="info" variant="tonal" class="mb-4">
-          <div class="text-subtitle-2 mb-2">新 RBAC 模型说明</div>
+          <div class="text-subtitle-2 mb-2">URN 风格 RBAC 说明</div>
           <div class="text-body-2">
             权限由 <strong>Operation 模式</strong> + <strong>Resource 模式</strong> 组成。
             <br />
-            • Operation 格式：<code>域:模块.动作</code>，如 <code>sys:users.create</code>
+            • URN 格式：<code>scope:type:identifier</code>
             <br />
-            • Resource 格式：<code>类型/ID</code>，如 <code>user/*</code> 或 <code>user/self</code>
+            • Operation 示例：<code>sys:users:create</code>、<code>self:profile:*</code>
             <br />
-            • 支持通配符：<code>*</code> 匹配所有
+            • Resource 示例：<code>*:*:*</code>（所有）、<code>self:user:@me</code>（自身）
+            <br />
+            • Scope 类型：<code>sys</code>（系统）、<code>self</code>（用户自身）、<code>public</code>（公开）
           </div>
         </v-alert>
 
@@ -120,7 +123,7 @@ watch(
             <v-text-field
               v-model="perm.operation_pattern"
               label="Operation 模式"
-              placeholder="如: sys:users.*"
+              placeholder="如: sys:users:*"
               density="compact"
               variant="outlined"
               style="flex: 2"
@@ -129,7 +132,7 @@ watch(
             <v-text-field
               v-model="perm.resource_pattern"
               label="Resource 模式"
-              placeholder="默认: *"
+              placeholder="默认: *:*:*"
               density="compact"
               variant="outlined"
               style="flex: 1"
@@ -152,7 +155,7 @@ watch(
                 @click="
                   editingPermissions.push({
                     operation_pattern: ex.pattern,
-                    resource_pattern: '*',
+                    resource_pattern: '*:*:*',
                   })
                 "
               >

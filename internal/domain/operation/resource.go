@@ -1,77 +1,70 @@
 package operation
 
-import "strings"
+import "github.com/lwmacct/251117-go-ddd-template/pkg/urn"
 
 // ============================================================================
 // Resource 资源标识符
 // ============================================================================
 
 // Resource 资源标识符。
-// 格式：{type}/{id} 或 {type}/*
+// 格式：{scope}:{type}:{id}
 //
 // 示例：
-//   - user/123     具体用户资源
-//   - user/*       所有用户资源
-//   - user/self    当前用户自身（特殊标记）
-//   - *            所有资源
+//   - sys:user:123      系统用户 123
+//   - self:user:@me     当前用户自身
+//   - org.acme:user:*   org.acme 组织所有用户
+//   - *:*:*             所有资源
+//
+// 特殊标识符：
+//   - * 通配符，匹配任意值
+//   - @me 当前用户 ID（运行时替换）
+//   - @org 当前组织 ID（运行时替换）
+//
+// 本类型基于 [urn.URN] 格式。
 type Resource string
 
 // 预定义资源常量。
 const (
-	ResourceAll  Resource = "*"    // 所有资源
-	ResourceSelf Resource = "self" // 当前用户自身（用于 ID 部分）
+	ResourceAll      Resource = "*:*:*"         // 所有资源
+	ResourceSelfUser Resource = "self:user:@me" // 当前用户自身
 )
 
 // NewResource 创建资源标识符。
-func NewResource(resourceType, id string) Resource {
-	if resourceType == "*" {
-		return ResourceAll
-	}
-	return Resource(resourceType + "/" + id)
+func NewResource(scope, resourceType, id string) Resource {
+	return Resource(urn.New(scope, resourceType, id))
 }
 
-// Type 返回资源类型。
-// "user/123" → "user"
-// "*" → "*"
+// URN 返回底层 URN 类型。
+func (r Resource) URN() urn.URN {
+	return urn.URN(r)
+}
+
+// Scope 返回资源的 scope。
+func (r Resource) Scope() string {
+	return r.URN().Scope()
+}
+
+// Type 返回资源的 type。
 func (r Resource) Type() string {
-	s := string(r)
-	if s == "*" {
-		return "*"
-	}
-	idx := strings.Index(s, "/")
-	if idx == -1 {
-		return s
-	}
-	return s[:idx]
+	return r.URN().Type()
 }
 
-// ID 返回资源 ID。
-// "user/123" → "123"
-// "user/*" → "*"
-// "*" → "*"
-func (r Resource) ID() string {
-	s := string(r)
-	if s == "*" {
-		return "*"
-	}
-	idx := strings.Index(s, "/")
-	if idx == -1 {
-		return "*"
-	}
-	return s[idx+1:]
+// Identifier 返回资源的 identifier（ID）。
+func (r Resource) Identifier() string {
+	return r.URN().Identifier()
 }
 
-// IsWildcard 报告资源是否为通配符（全局或类型通配）。
+// Match 检查资源是否匹配指定模式。
+func (r Resource) Match(pattern string) bool {
+	return r.URN().Match(urn.URN(pattern))
+}
+
+// IsWildcard 报告资源是否为通配符。
 func (r Resource) IsWildcard() bool {
-	return r == ResourceAll || r.ID() == "*"
+	return r.URN().IsWildcard()
 }
 
-// IsSelf 报告资源是否为 self 标记（当前用户自身）。
-func (r Resource) IsSelf() bool {
-	return r.ID() == string(ResourceSelf)
-}
-
-// String 返回资源标识符字符串。
+// String 返回资源字符串。
 func (r Resource) String() string {
 	return string(r)
 }

@@ -2,18 +2,17 @@ package operation
 
 // operationRegistry 操作注册表（单一数据源）
 //
-// Operation-Centric RBAC:
-//   - Operation code 本身即权限标识符
-//   - Public: true 标记公开操作（无需权限检查）
+// URN-Centric RBAC:
+//   - Operation code 本身即权限标识符（URN 格式）
+//   - scope 为 "public" 的操作无需权限检查
 //   - 非公开操作默认需要权限检查
 //
 //nolint:gochecknoglobals // 注册表是只读全局配置
 var operationRegistry = map[Operation]operationMeta{
-	// ==================== Auth 域（公开） ====================
-	AuthRegister: {
+	// ==================== Public 域（公开） ====================
+	PublicAuthRegister: {
 		Method:         HttpPOST,
 		Path:           "/api/auth/register",
-		Public:         true,
 		AuditAction:    "auth.register",
 		AuditCategory:  AuditCatAuth,
 		AuditOperation: AuditOpCreate,
@@ -21,10 +20,9 @@ var operationRegistry = map[Operation]operationMeta{
 		Description:    "User registration",
 		Group:          "认证 (Auth)",
 	},
-	AuthLogin: {
+	PublicAuthLogin: {
 		Method:         HttpPOST,
 		Path:           "/api/auth/login",
-		Public:         true,
 		AuditAction:    "auth.login",
 		AuditCategory:  AuditCatAuth,
 		AuditOperation: AuditOpAuthenticate,
@@ -32,10 +30,9 @@ var operationRegistry = map[Operation]operationMeta{
 		Description:    "User login",
 		Group:          "认证 (Auth)",
 	},
-	AuthLogin2FA: {
+	PublicAuthLogin2FA: {
 		Method:         HttpPOST,
 		Path:           "/api/auth/login/2fa",
-		Public:         true,
 		AuditAction:    "auth.login_2fa",
 		AuditCategory:  AuditCatAuth,
 		AuditOperation: AuditOpAuthenticate,
@@ -43,10 +40,9 @@ var operationRegistry = map[Operation]operationMeta{
 		Description:    "Two-factor authentication login",
 		Group:          "认证 (Auth)",
 	},
-	AuthRefresh: {
+	PublicAuthRefresh: {
 		Method:         HttpPOST,
 		Path:           "/api/auth/refresh",
-		Public:         true,
 		AuditAction:    "auth.refresh",
 		AuditCategory:  AuditCatAuth,
 		AuditOperation: AuditOpAuthenticate,
@@ -54,17 +50,16 @@ var operationRegistry = map[Operation]operationMeta{
 		Description:    "Refresh access token",
 		Group:          "认证 (Auth)",
 	},
-	AuthCaptcha: {
+	PublicAuthCaptcha: {
 		Method:      HttpGET,
 		Path:        "/api/auth/captcha",
-		Public:      true,
 		Label:       "获取验证码",
 		Description: "Get captcha image",
 		Group:       "认证 (Auth)",
 	},
 
-	// ==================== Auth 域 - 2FA（需认证） ====================
-	Auth2FASetup: {
+	// ==================== Self 域 - 2FA（需认证） ====================
+	Self2FASetup: {
 		Method:         HttpPOST,
 		Path:           "/api/auth/2fa/setup",
 		AuditAction:    "auth.2fa_setup",
@@ -74,7 +69,7 @@ var operationRegistry = map[Operation]operationMeta{
 		Description:    "Setup two-factor authentication",
 		Group:          "认证 - 2FA (Auth - 2FA)",
 	},
-	Auth2FAVerify: {
+	Self2FAVerify: {
 		Method:         HttpPOST,
 		Path:           "/api/auth/2fa/verify",
 		AuditAction:    "auth.2fa_enable",
@@ -84,7 +79,7 @@ var operationRegistry = map[Operation]operationMeta{
 		Description:    "Verify and enable 2FA",
 		Group:          "认证 - 2FA (Auth - 2FA)",
 	},
-	Auth2FADisable: {
+	Self2FADisable: {
 		Method:         HttpPOST,
 		Path:           "/api/auth/2fa/disable",
 		AuditAction:    "auth.2fa_disable",
@@ -94,7 +89,7 @@ var operationRegistry = map[Operation]operationMeta{
 		Description:    "Disable two-factor authentication",
 		Group:          "认证 - 2FA (Auth - 2FA)",
 	},
-	Auth2FAStatus: {
+	Self2FAStatus: {
 		Method:      HttpGET,
 		Path:        "/api/auth/2fa/status",
 		Label:       "2FA 状态",
@@ -466,15 +461,15 @@ var operationRegistry = map[Operation]operationMeta{
 		Group:          "系统管理 - 缓存管理 (Sys - Cache)",
 	},
 
-	// ==================== User 域 - 个人资料 ====================
-	UserProfileGet: {
+	// ==================== Self 域 - 个人资料 ====================
+	SelfProfileGet: {
 		Method:      HttpGET,
 		Path:        "/api/user/profile",
 		Label:       "获取资料",
 		Description: "Get current user profile",
 		Group:       "用户中心 - 个人资料 (User - Profile)",
 	},
-	UserProfileUpdate: {
+	SelfProfileUpdate: {
 		Method:         HttpPUT,
 		Path:           "/api/user/profile",
 		AuditAction:    "profile.update",
@@ -484,7 +479,7 @@ var operationRegistry = map[Operation]operationMeta{
 		Description:    "Update current user profile",
 		Group:          "用户中心 - 个人资料 (User - Profile)",
 	},
-	UserPasswordUpdate: {
+	SelfPasswordUpdate: {
 		Method:         HttpPUT,
 		Path:           "/api/user/password",
 		AuditAction:    "password.update",
@@ -494,7 +489,7 @@ var operationRegistry = map[Operation]operationMeta{
 		Description:    "Change password",
 		Group:          "用户中心 - 个人资料 (User - Profile)",
 	},
-	UserAccountDelete: {
+	SelfAccountDelete: {
 		Method:         HttpDELETE,
 		Path:           "/api/user/account",
 		AuditAction:    "account.delete",
@@ -505,8 +500,8 @@ var operationRegistry = map[Operation]operationMeta{
 		Group:          "用户中心 - 个人资料 (User - Profile)",
 	},
 
-	// ==================== User 域 - 访问令牌 ====================
-	UserTokensCreate: {
+	// ==================== Self 域 - 访问令牌 ====================
+	SelfTokensCreate: {
 		Method:         HttpPOST,
 		Path:           "/api/user/tokens",
 		AuditAction:    "token.create",
@@ -516,21 +511,21 @@ var operationRegistry = map[Operation]operationMeta{
 		Description:    "Create personal access token",
 		Group:          "用户中心 - 访问令牌 (User - Token)",
 	},
-	UserTokensList: {
+	SelfTokensList: {
 		Method:      HttpGET,
 		Path:        "/api/user/tokens",
 		Label:       "令牌列表",
 		Description: "List personal access tokens",
 		Group:       "用户中心 - 访问令牌 (User - Token)",
 	},
-	UserTokensGet: {
+	SelfTokensGet: {
 		Method:      HttpGET,
 		Path:        "/api/user/tokens/:id",
 		Label:       "令牌详情",
 		Description: "Get token by ID",
 		Group:       "用户中心 - 访问令牌 (User - Token)",
 	},
-	UserTokensDelete: {
+	SelfTokensDelete: {
 		Method:         HttpDELETE,
 		Path:           "/api/user/tokens/:id",
 		AuditAction:    "token.delete",
@@ -540,7 +535,7 @@ var operationRegistry = map[Operation]operationMeta{
 		Description:    "Delete token",
 		Group:          "用户中心 - 访问令牌 (User - Token)",
 	},
-	UserTokensDisable: {
+	SelfTokensDisable: {
 		Method:         HttpPATCH,
 		Path:           "/api/user/tokens/:id/disable",
 		AuditAction:    "token.disable",
@@ -550,7 +545,7 @@ var operationRegistry = map[Operation]operationMeta{
 		Description:    "Disable token",
 		Group:          "用户中心 - 访问令牌 (User - Token)",
 	},
-	UserTokensEnable: {
+	SelfTokensEnable: {
 		Method:         HttpPATCH,
 		Path:           "/api/user/tokens/:id/enable",
 		AuditAction:    "token.enable",
@@ -561,29 +556,29 @@ var operationRegistry = map[Operation]operationMeta{
 		Group:          "用户中心 - 访问令牌 (User - Token)",
 	},
 
-	// ==================== User 域 - 用户配置 ====================
-	UserSettingsCategoriesList: {
+	// ==================== Self 域 - 用户配置 ====================
+	SelfSettingsCategoriesList: {
 		Method:      HttpGET,
 		Path:        "/api/user/settings/categories",
 		Label:       "配置分类列表",
 		Description: "List user setting categories",
 		Group:       "用户中心 - 用户配置 (User - Setting)",
 	},
-	UserSettingsList: {
+	SelfSettingsList: {
 		Method:      HttpGET,
 		Path:        "/api/user/settings",
 		Label:       "用户配置列表",
 		Description: "Get all user settings",
 		Group:       "用户中心 - 用户配置 (User - Setting)",
 	},
-	UserSettingsGet: {
+	SelfSettingsGet: {
 		Method:      HttpGET,
 		Path:        "/api/user/settings/:key",
 		Label:       "用户配置详情",
 		Description: "Get user setting by key",
 		Group:       "用户中心 - 用户配置 (User - Setting)",
 	},
-	UserSettingsSet: {
+	SelfSettingsSet: {
 		Method:         HttpPUT,
 		Path:           "/api/user/settings/:key",
 		AuditAction:    "user_setting.set",
@@ -593,7 +588,7 @@ var operationRegistry = map[Operation]operationMeta{
 		Description:    "Set user setting",
 		Group:          "用户中心 - 用户配置 (User - Setting)",
 	},
-	UserSettingsReset: {
+	SelfSettingsReset: {
 		Method:         HttpDELETE,
 		Path:           "/api/user/settings/:key",
 		AuditAction:    "user_setting.reset",
@@ -603,7 +598,7 @@ var operationRegistry = map[Operation]operationMeta{
 		Description:    "Reset user setting to default",
 		Group:          "用户中心 - 用户配置 (User - Setting)",
 	},
-	UserSettingsBatchSet: {
+	SelfSettingsBatchSet: {
 		Method:         HttpPOST,
 		Path:           "/api/user/settings/batch",
 		AuditAction:    "user_setting.batch_set",
