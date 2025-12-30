@@ -22,13 +22,13 @@ import { DUMMY_BASE_URL, assertParamExists, setApiKeyToObject, setBasicAuthToObj
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS, type RequestArgs, BaseAPI, RequiredError, operationServerMap } from '../base';
 // @ts-ignore
-import type { ResponseDataResponseAuditlogAuditActionsResponseDTO } from '../models';
+import type { ResponseDataResponseAuditAuditActionsResponseDTO } from '../models';
 // @ts-ignore
-import type { ResponseDataResponseAuditlogAuditLogDTO } from '../models';
+import type { ResponseDataResponseAuditAuditLogDTO } from '../models';
 // @ts-ignore
 import type { ResponseErrorResponse } from '../models';
 // @ts-ignore
-import type { ResponsePagedResponseAuditlogAuditLogDTO } from '../models';
+import type { ResponsePagedResponseAuditAuditLogDTO } from '../models';
 /**
  * AdminAuditLogApi - axios parameter creator
  * @export
@@ -194,7 +194,7 @@ export const AdminAuditLogApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async apiSystemAuditlogsActionsGet(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseAuditlogAuditActionsResponseDTO>> {
+        async apiSystemAuditlogsActionsGet(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseAuditAuditActionsResponseDTO>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.apiSystemAuditlogsActionsGet(options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['AdminAuditLogApi.apiSystemAuditlogsActionsGet']?.[localVarOperationServerIndex]?.url;
@@ -214,7 +214,7 @@ export const AdminAuditLogApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async apiSystemAuditlogsGet(action?: string, endDate?: string, limit?: number, page?: number, resource?: string, startDate?: string, status?: ApiSystemAuditlogsGetStatusEnum, userId?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponsePagedResponseAuditlogAuditLogDTO>> {
+        async apiSystemAuditlogsGet(action?: string, endDate?: string, limit?: number, page?: number, resource?: string, startDate?: string, status?: ApiSystemAuditlogsGetStatusEnum, userId?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponsePagedResponseAuditAuditLogDTO>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.apiSystemAuditlogsGet(action, endDate, limit, page, resource, startDate, status, userId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['AdminAuditLogApi.apiSystemAuditlogsGet']?.[localVarOperationServerIndex]?.url;
@@ -227,7 +227,7 @@ export const AdminAuditLogApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async apiSystemAuditlogsIdGet(id: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseAuditlogAuditLogDTO>> {
+        async apiSystemAuditlogsIdGet(id: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseAuditAuditLogDTO>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.apiSystemAuditlogsIdGet(id, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['AdminAuditLogApi.apiSystemAuditlogsIdGet']?.[localVarOperationServerIndex]?.url;
@@ -249,7 +249,7 @@ export const AdminAuditLogApiFactory = function (configuration?: Configuration, 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiSystemAuditlogsActionsGet(options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseAuditlogAuditActionsResponseDTO> {
+        apiSystemAuditlogsActionsGet(options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseAuditAuditActionsResponseDTO> {
             return localVarFp.apiSystemAuditlogsActionsGet(options).then((request) => request(axios, basePath));
         },
         /**
@@ -266,7 +266,7 @@ export const AdminAuditLogApiFactory = function (configuration?: Configuration, 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiSystemAuditlogsGet(action?: string, endDate?: string, limit?: number, page?: number, resource?: string, startDate?: string, status?: ApiSystemAuditlogsGetStatusEnum, userId?: number, options?: RawAxiosRequestConfig): AxiosPromise<ResponsePagedResponseAuditlogAuditLogDTO> {
+        apiSystemAuditlogsGet(action?: string, endDate?: string, limit?: number, page?: number, resource?: string, startDate?: string, status?: ApiSystemAuditlogsGetStatusEnum, userId?: number, options?: RawAxiosRequestConfig): AxiosPromise<ResponsePagedResponseAuditAuditLogDTO> {
             return localVarFp.apiSystemAuditlogsGet(action, endDate, limit, page, resource, startDate, status, userId, options).then((request) => request(axios, basePath));
         },
         /**
@@ -276,7 +276,7 @@ export const AdminAuditLogApiFactory = function (configuration?: Configuration, 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiSystemAuditlogsIdGet(id: number, options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseAuditlogAuditLogDTO> {
+        apiSystemAuditlogsIdGet(id: number, options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseAuditAuditLogDTO> {
             return localVarFp.apiSystemAuditlogsIdGet(id, options).then((request) => request(axios, basePath));
         },
     };

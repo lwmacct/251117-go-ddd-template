@@ -478,7 +478,7 @@
                     "200": {
                         "description": "审计日志列表",
                         "schema": {
-                            "$ref": "#/definitions/response.PagedResponse-auditlog_AuditLogDTO"
+                            "$ref": "#/definitions/response.PagedResponse-audit_AuditLogDTO"
                         }
                     },
                     "400": {
@@ -530,7 +530,7 @@
                     "200": {
                         "description": "审计操作定义",
                         "schema": {
-                            "$ref": "#/definitions/response.DataResponse-auditlog_AuditActionsResponseDTO"
+                            "$ref": "#/definitions/response.DataResponse-audit_AuditActionsResponseDTO"
                         }
                     },
                     "401": {
@@ -580,7 +580,7 @@
                     "200": {
                         "description": "日志详情",
                         "schema": {
-                            "$ref": "#/definitions/response.DataResponse-auditlog_AuditLogDTO"
+                            "$ref": "#/definitions/response.DataResponse-audit_AuditLogDTO"
                         }
                     },
                     "400": {
@@ -3397,7 +3397,7 @@
         }
     },
     "definitions": {
-        "auditlog.AuditActionDTO": {
+        "audit.AuditActionDTO": {
             "type": "object",
             "properties": {
                 "action": {
@@ -3422,33 +3422,33 @@
                 }
             }
         },
-        "auditlog.AuditActionsResponseDTO": {
+        "audit.AuditActionsResponseDTO": {
             "type": "object",
             "properties": {
                 "actions": {
                     "description": "操作定义列表",
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/auditlog.AuditActionDTO"
+                        "$ref": "#/definitions/audit.AuditActionDTO"
                     }
                 },
                 "categories": {
                     "description": "分类选项",
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/auditlog.CategoryOptionDTO"
+                        "$ref": "#/definitions/audit.CategoryOptionDTO"
                     }
                 },
                 "operations": {
                     "description": "操作类型选项",
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/auditlog.OperationTypeDTO"
+                        "$ref": "#/definitions/audit.OperationTypeDTO"
                     }
                 }
             }
         },
-        "auditlog.AuditLogDTO": {
+        "audit.AuditLogDTO": {
             "type": "object",
             "properties": {
                 "action": {
@@ -3480,7 +3480,7 @@
                 }
             }
         },
-        "auditlog.CategoryOptionDTO": {
+        "audit.CategoryOptionDTO": {
             "type": "object",
             "properties": {
                 "label": {
@@ -3493,7 +3493,7 @@
                 }
             }
         },
-        "auditlog.OperationTypeDTO": {
+        "audit.OperationTypeDTO": {
             "type": "object",
             "properties": {
                 "label": {
@@ -4292,7 +4292,7 @@
                 }
             }
         },
-        "response.DataResponse-auditlog_AuditActionsResponseDTO": {
+        "response.DataResponse-audit_AuditActionsResponseDTO": {
             "type": "object",
             "properties": {
                 "code": {
@@ -4303,7 +4303,7 @@
                     "description": "响应数据",
                     "allOf": [
                         {
-                            "$ref": "#/definitions/auditlog.AuditActionsResponseDTO"
+                            "$ref": "#/definitions/audit.AuditActionsResponseDTO"
                         }
                     ]
                 },
@@ -4316,7 +4316,7 @@
                 }
             }
         },
-        "response.DataResponse-auditlog_AuditLogDTO": {
+        "response.DataResponse-audit_AuditLogDTO": {
             "type": "object",
             "properties": {
                 "code": {
@@ -4327,7 +4327,7 @@
                     "description": "响应数据",
                     "allOf": [
                         {
-                            "$ref": "#/definitions/auditlog.AuditLogDTO"
+                            "$ref": "#/definitions/audit.AuditLogDTO"
                         }
                     ]
                 },
@@ -4906,7 +4906,7 @@
                 }
             }
         },
-        "response.PagedResponse-auditlog_AuditLogDTO": {
+        "response.PagedResponse-audit_AuditLogDTO": {
             "type": "object",
             "properties": {
                 "code": {
@@ -4917,7 +4917,7 @@
                     "description": "数据列表",
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/auditlog.AuditLogDTO"
+                        "$ref": "#/definitions/audit.AuditLogDTO"
                     }
                 },
                 "message": {

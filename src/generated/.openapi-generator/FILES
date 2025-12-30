@@ -19,11 +19,11 @@ common.ts
 configuration.ts
 git_push.sh
 index.ts
-models/auditlog-audit-action-dto.ts
-models/auditlog-audit-actions-response-dto.ts
-models/auditlog-audit-log-dto.ts
-models/auditlog-category-option-dto.ts
-models/auditlog-operation-type-dto.ts
+models/audit-audit-action-dto.ts
+models/audit-audit-actions-response-dto.ts
+models/audit-audit-log-dto.ts
+models/audit-category-option-dto.ts
+models/audit-operation-type-dto.ts
 models/auth-login-dto.ts
 models/auth-login-response-dto.ts
 models/auth-login-role-dto.ts
@@ -63,8 +63,8 @@ models/response-data-response-array-routes-operation-definition.ts
 models/response-data-response-array-setting-category-dto.ts
 models/response-data-response-array-setting-category-meta-dto.ts
 models/response-data-response-array-setting-settings-category-dto.ts
-models/response-data-response-auditlog-audit-actions-response-dto.ts
-models/response-data-response-auditlog-audit-log-dto.ts
+models/response-data-response-audit-audit-actions-response-dto.ts
+models/response-data-response-audit-audit-log-dto.ts
 models/response-data-response-auth-login-response-dto.ts
 models/response-data-response-auth-register-result-dto.ts
 models/response-data-response-auth-token-dto.ts
@@ -90,7 +90,7 @@ models/response-data-response-user-user-with-roles-dto.ts
 models/response-error-detail.ts
 models/response-error-response.ts
 models/response-message-response.ts
-models/response-paged-response-auditlog-audit-log-dto.ts
+models/response-paged-response-audit-audit-log-dto.ts
 models/response-paged-response-role-role-dto.ts
 models/response-paged-response-user-user-with-roles-dto.ts
 models/response-pagination-meta.ts

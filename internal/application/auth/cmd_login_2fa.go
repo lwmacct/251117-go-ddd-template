@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/lwmacct/251117-go-ddd-template/internal/application/auditlog"
+	"github.com/lwmacct/251117-go-ddd-template/internal/application/audit"
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/auth"
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/twofa"
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/user"
@@ -18,7 +18,7 @@ type Login2FAHandler struct {
 	authService     auth.Service
 	loginSession    auth.SessionService
 	twofaService    twofa.Service
-	auditLogHandler *auditlog.CreateHandler
+	auditLogHandler *audit.CreateHandler
 }
 
 // NewLogin2FAHandler 创建二次认证登录命令处理器
@@ -27,7 +27,7 @@ func NewLogin2FAHandler(
 	authService auth.Service,
 	loginSession auth.SessionService,
 	twofaService twofa.Service,
-	auditLogHandler *auditlog.CreateHandler,
+	auditLogHandler *audit.CreateHandler,
 ) *Login2FAHandler {
 	return &Login2FAHandler{
 		userQueryRepo:   userQueryRepo,
@@ -119,7 +119,7 @@ func (h *Login2FAHandler) logLoginEvent(ctx context.Context, userID uint, userna
 		return
 	}
 	go func() {
-		_ = h.auditLogHandler.Handle(context.WithoutCancel(ctx), auditlog.CreateCommand{
+		_ = h.auditLogHandler.Handle(context.WithoutCancel(ctx), audit.CreateCommand{
 			UserID:     userID,
 			Username:   username,
 			Action:     "login",

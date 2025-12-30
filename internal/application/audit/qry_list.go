@@ -1,19 +1,19 @@
-package auditlog
+package audit
 
 import (
 	"context"
 	"fmt"
 
-	"github.com/lwmacct/251117-go-ddd-template/internal/domain/auditlog"
+	"github.com/lwmacct/251117-go-ddd-template/internal/domain/audit"
 )
 
 // ListHandler 获取审计日志列表查询处理器
 type ListHandler struct {
-	auditLogQueryRepo auditlog.QueryRepository
+	auditLogQueryRepo audit.QueryRepository
 }
 
 // NewListHandler 创建 ListHandler 实例
-func NewListHandler(auditLogQueryRepo auditlog.QueryRepository) *ListHandler {
+func NewListHandler(auditLogQueryRepo audit.QueryRepository) *ListHandler {
 	return &ListHandler{
 		auditLogQueryRepo: auditLogQueryRepo,
 	}
@@ -21,7 +21,7 @@ func NewListHandler(auditLogQueryRepo auditlog.QueryRepository) *ListHandler {
 
 // Handle 处理获取审计日志列表查询
 func (h *ListHandler) Handle(ctx context.Context, query ListQuery) (*ListLogsDTO, error) {
-	filter := auditlog.FilterOptions{
+	filter := audit.FilterOptions{
 		Page:      query.Page,
 		Limit:     query.Limit,
 		UserID:    query.UserID,

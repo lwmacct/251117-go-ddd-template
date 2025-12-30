@@ -1,4 +1,4 @@
-package auditlog
+package audit
 
 import "time"
 
@@ -38,17 +38,6 @@ const (
 	StatusSuccess = "success"
 	StatusFailed  = "failed"
 	StatusPending = "pending"
-)
-
-// 常见操作类型常量
-const (
-	ActionCreate = "create"
-	ActionUpdate = "update"
-	ActionDelete = "delete"
-	ActionLogin  = "login"
-	ActionLogout = "logout"
-	ActionExport = "export"
-	ActionImport = "import"
 )
 
 // IsSuccess 检查操作是否成功

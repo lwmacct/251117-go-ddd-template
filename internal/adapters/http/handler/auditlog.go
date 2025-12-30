@@ -6,7 +6,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/lwmacct/251117-go-ddd-template/internal/adapters/http/response"
-	"github.com/lwmacct/251117-go-ddd-template/internal/application/auditlog"
+	"github.com/lwmacct/251117-go-ddd-template/internal/application/audit"
 )
 
 // ListAuditLogsQuery 审计日志列表查询参数
@@ -28,8 +28,8 @@ type ListAuditLogsQuery struct {
 }
 
 // ToQuery 转换为 Application 层 Query 对象
-func (q *ListAuditLogsQuery) ToQuery() auditlog.ListQuery {
-	result := auditlog.ListQuery{
+func (q *ListAuditLogsQuery) ToQuery() audit.ListQuery {
+	result := audit.ListQuery{
 		Page:     q.GetPage(),
 		Limit:    q.GetLimit(),
 		UserID:   q.UserID,
@@ -56,14 +56,14 @@ func (q *ListAuditLogsQuery) ToQuery() auditlog.ListQuery {
 // AuditLogHandler handles audit log operations (DDD+CQRS Use Case Pattern)
 type AuditLogHandler struct {
 	// Query Handlers
-	listHandler *auditlog.ListHandler
-	getHandler  *auditlog.GetHandler
+	listHandler *audit.ListHandler
+	getHandler  *audit.GetHandler
 }
 
 // NewAuditLogHandler creates a new AuditLogHandler instance
 func NewAuditLogHandler(
-	listHandler *auditlog.ListHandler,
-	getHandler *auditlog.GetHandler,
+	listHandler *audit.ListHandler,
+	getHandler *audit.GetHandler,
 ) *AuditLogHandler {
 	return &AuditLogHandler{
 		listHandler: listHandler,
@@ -80,7 +80,7 @@ func NewAuditLogHandler(
 //	@Produce		json
 //	@Security		BearerAuth
 //	@Param			params	query		handler.ListAuditLogsQuery						false	"查询参数"
-//	@Success		200		{object}	response.PagedResponse[auditlog.AuditLogDTO]	"审计日志列表"
+//	@Success		200		{object}	response.PagedResponse[audit.AuditLogDTO]	"审计日志列表"
 //	@Failure		400		{object}	response.ErrorResponse							"参数错误"
 //	@Failure		401		{object}	response.ErrorResponse							"未授权"
 //	@Failure		403		{object}	response.ErrorResponse							"权限不足"
@@ -112,7 +112,7 @@ func (h *AuditLogHandler) ListLogs(c *gin.Context) {
 //	@Produce		json
 //	@Security		BearerAuth
 //	@Param			id	path		int											true	"日志ID"	minimum(1)
-//	@Success		200	{object}	response.DataResponse[auditlog.AuditLogDTO]	"日志详情"
+//	@Success		200	{object}	response.DataResponse[audit.AuditLogDTO]	"日志详情"
 //	@Failure		400	{object}	response.ErrorResponse						"无效的日志ID"
 //	@Failure		401	{object}	response.ErrorResponse						"未授权"
 //	@Failure		403	{object}	response.ErrorResponse						"权限不足"
@@ -125,7 +125,7 @@ func (h *AuditLogHandler) GetLog(c *gin.Context) {
 		return
 	}
 
-	log, err := h.getHandler.Handle(c.Request.Context(), auditlog.GetQuery{
+	log, err := h.getHandler.Handle(c.Request.Context(), audit.GetQuery{
 		LogID: uint(id),
 	})
 
@@ -145,11 +145,11 @@ func (h *AuditLogHandler) GetLog(c *gin.Context) {
 //	@Accept			json
 //	@Produce		json
 //	@Security		BearerAuth
-//	@Success		200	{object}	response.DataResponse[auditlog.AuditActionsResponseDTO]	"审计操作定义"
+//	@Success		200	{object}	response.DataResponse[audit.AuditActionsResponseDTO]	"审计操作定义"
 //	@Failure		401	{object}	response.ErrorResponse									"未授权"
 //	@Failure		403	{object}	response.ErrorResponse									"权限不足"
 //	@Router			/api/system/auditlogs/actions [get]
 func (h *AuditLogHandler) GetActions(c *gin.Context) {
-	resp := auditlog.ToAuditActionsResponseDTO()
+	resp := audit.ToAuditActionsResponseDTO()
 	response.OK(c, "success", resp)
 }

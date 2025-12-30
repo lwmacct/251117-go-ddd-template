@@ -8,10 +8,10 @@ import {
   adminAuditLogApi,
   extractList,
   extractData,
-  type AuditlogAuditLogDTO,
-  type AuditlogAuditActionDTO,
-  type AuditlogCategoryOptionDTO,
-  type AuditlogAuditActionsResponseDTO,
+  type AuditAuditLogDTO,
+  type AuditAuditActionDTO,
+  type AuditCategoryOptionDTO,
+  type AuditAuditActionsResponseDTO,
   type AuditStatus,
 } from "@/api";
 import { exportToCSV, formatDateForExport, type CSVColumn } from "@/utils/export";
@@ -30,16 +30,16 @@ interface AuditLogQueryParams {
 
 export function useAuditLogs() {
   // 状态管理
-  const logs = ref<AuditlogAuditLogDTO[]>([]);
-  const selectedLog = ref<AuditlogAuditLogDTO | null>(null);
+  const logs = ref<AuditAuditLogDTO[]>([]);
+  const selectedLog = ref<AuditAuditLogDTO | null>(null);
   const exporting = ref(false);
 
   // 消息提示
   const { success, error } = useSnackbar();
 
   // 筛选选项（从 API 动态获取）
-  const actionOptions = ref<AuditlogAuditActionDTO[]>([]);
-  const categoryOptions = ref<AuditlogCategoryOptionDTO[]>([]);
+  const actionOptions = ref<AuditAuditActionDTO[]>([]);
+  const categoryOptions = ref<AuditCategoryOptionDTO[]>([]);
 
   // 使用通用分页 composable
   const {
@@ -67,7 +67,7 @@ export function useAuditLogs() {
   const fetchFilterOptions = async () => {
     try {
       const response = await adminAuditLogApi.apiSystemAuditlogsActionsGet();
-      const result = extractData<AuditlogAuditActionsResponseDTO>(response.data);
+      const result = extractData<AuditAuditActionsResponseDTO>(response.data);
       actionOptions.value = result?.actions ?? [];
       categoryOptions.value = result?.categories ?? [];
     } catch (error) {
@@ -97,7 +97,7 @@ export function useAuditLogs() {
         (filters.status || undefined) as any,
         filters.user_id,
       );
-      const result = extractList<AuditlogAuditLogDTO>(response.data);
+      const result = extractList<AuditAuditLogDTO>(response.data);
       logs.value = result.data;
       updateTotal(result.pagination.total, result.pagination.total_pages);
     } catch (err) {
@@ -116,7 +116,7 @@ export function useAuditLogs() {
 
     try {
       const response = await adminAuditLogApi.apiSystemAuditlogsIdGet(id);
-      selectedLog.value = extractData<AuditlogAuditLogDTO>(response.data) ?? null;
+      selectedLog.value = extractData<AuditAuditLogDTO>(response.data) ?? null;
     } catch (err) {
       error((err as Error).message || "获取日志详情失败");
       console.error("Failed to fetch log detail:", err);
@@ -175,7 +175,7 @@ export function useAuditLogs() {
         (filters.status || undefined) as any,
         filters.user_id,
       );
-      const result = extractList<AuditlogAuditLogDTO>(response.data);
+      const result = extractList<AuditAuditLogDTO>(response.data);
 
       if (result.data.length === 0) {
         error("没有数据可导出");
@@ -183,7 +183,7 @@ export function useAuditLogs() {
       }
 
       // 定义 CSV 列
-      const columns: CSVColumn<AuditlogAuditLogDTO>[] = [
+      const columns: CSVColumn<AuditAuditLogDTO>[] = [
         { header: "ID", key: "id" },
         { header: "用户ID", key: "user_id" },
         { header: "操作类型", key: "action" },

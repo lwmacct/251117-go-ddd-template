@@ -3,6 +3,7 @@ package routes
 import (
 	"strings"
 
+	"github.com/lwmacct/251117-go-ddd-template/internal/domain/audit"
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/permission"
 )
 
@@ -48,12 +49,12 @@ func AllOperationDefinitions() []OperationDefinition {
 
 // AuditActionDefinition 审计操作定义，供前端动态选项使用。
 type AuditActionDefinition struct {
-	Action      string                    `json:"action"`       // 审计操作标识，如 user.create
-	Operation   permission.AuditOperation `json:"operation"`    // 操作类型，如 create
-	Category    permission.AuditCategory  `json:"category"`     // 分类，如 user
-	Label       string                    `json:"label"`        // 中文标签
-	Description string                    `json:"description"`  // 描述
-	OperationID string                    `json:"operation_id"` // API 操作标识
+	Action      string          `json:"action"`       // 审计操作标识，如 user.create
+	Operation   audit.Operation `json:"operation"`    // 操作类型，如 create
+	Category    audit.Category  `json:"category"`     // 分类，如 user
+	Label       string          `json:"label"`        // 中文标签
+	Description string          `json:"description"`  // 描述
+	OperationID string          `json:"operation_id"` // API 操作标识
 }
 
 // AllAuditActions 返回所有审计操作定义。
@@ -66,9 +67,9 @@ func AllAuditActions() []AuditActionDefinition {
 			continue
 		}
 		actions = append(actions, AuditActionDefinition{
-			Action:      op.DeriveAuditAction(),
-			Operation:   op.DeriveAuditOperation(),
-			Category:    op.DeriveAuditCategory(),
+			Action:      audit.DeriveAction(op.Type(), op.Identifier()),
+			Operation:   audit.DeriveOperation(op.Identifier()),
+			Category:    audit.DeriveCategory(op.Type()),
 			Label:       meta.Summary,
 			Description: meta.Description,
 			OperationID: string(op),
@@ -86,14 +87,14 @@ type CategoryOption struct {
 
 // AllAuditCategories 返回所有审计分类选项。
 func AllAuditCategories() []CategoryOption {
-	seen := make(map[permission.AuditCategory]bool)
+	seen := make(map[audit.Category]bool)
 	categories := make([]CategoryOption, 0, 16)
 
 	for op, meta := range Registry {
 		if !meta.Audit {
 			continue
 		}
-		cat := op.DeriveAuditCategory()
+		cat := audit.DeriveCategory(op.Type())
 		if seen[cat] {
 			continue
 		}
@@ -115,9 +116,9 @@ type OperationTypeOption struct {
 
 // AllAuditOperations 返回所有审计操作类型选项。
 func AllAuditOperations() []OperationTypeOption {
-	ops := []permission.AuditOperation{
-		permission.AuditOpCreate, permission.AuditOpUpdate, permission.AuditOpDelete,
-		permission.AuditOpAccess, permission.AuditOpAuthenticate,
+	ops := []audit.Operation{
+		audit.OpCreate, audit.OpUpdate, audit.OpDelete,
+		audit.OpAccess, audit.OpAuthenticate,
 	}
 	result := make([]OperationTypeOption, len(ops))
 	for i, op := range ops {

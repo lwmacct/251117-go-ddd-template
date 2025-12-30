@@ -30,4 +30,4 @@
 // 参见 [adapters/http/middleware.AuditMiddleware]。
 //
 // 依赖注入：所有 Handler 通过 [bootstrap.Container] 注册。
-package auditlog
+package audit

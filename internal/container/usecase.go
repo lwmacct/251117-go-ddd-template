@@ -3,7 +3,7 @@ package container
 import (
 	"go.uber.org/fx"
 
-	"github.com/lwmacct/251117-go-ddd-template/internal/application/auditlog"
+	"github.com/lwmacct/251117-go-ddd-template/internal/application/audit"
 	"github.com/lwmacct/251117-go-ddd-template/internal/application/auth"
 	app_captcha "github.com/lwmacct/251117-go-ddd-template/internal/application/captcha"
 	"github.com/lwmacct/251117-go-ddd-template/internal/application/pat"
@@ -88,9 +88,9 @@ type PATUseCases struct {
 }
 
 type AuditLogUseCases struct {
-	CreateLog *auditlog.CreateHandler
-	Get       *auditlog.GetHandler
-	List      *auditlog.ListHandler
+	CreateLog *audit.CreateHandler
+	Get       *audit.GetHandler
+	List      *audit.ListHandler
 }
 
 type StatsUseCases struct {
@@ -130,9 +130,9 @@ var UseCaseModule = fx.Module("usecase",
 
 func newAuditLogUseCases(repos persistence.AuditLogRepositories) *AuditLogUseCases {
 	return &AuditLogUseCases{
-		CreateLog: auditlog.NewCreateHandler(repos.Command),
-		Get:       auditlog.NewGetHandler(repos.Query),
-		List:      auditlog.NewListHandler(repos.Query),
+		CreateLog: audit.NewCreateHandler(repos.Command),
+		Get:       audit.NewGetHandler(repos.Query),
+		List:      audit.NewListHandler(repos.Query),
 	}
 }
 

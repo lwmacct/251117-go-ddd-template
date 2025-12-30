@@ -16,21 +16,22 @@
 //
 // # 审计信息派生
 //
-// 审计详情从 [permission.Operation] 自动派生，无需手动配置：
-//   - AuditCategory: 从 Operation.Type() 映射
-//   - AuditAction: 格式为 {category}.{identifier}
-//   - AuditOperation: 从 Operation.Identifier() 映射
+// 审计详情从 URN Operation 自动派生，无需手动配置：
+//   - Category: 从 Operation.Type() 映射（使用 [audit.DeriveCategory]）
+//   - Action: 格式为 {category}.{identifier}（使用 [audit.DeriveAction]）
+//   - Operation: 从 Identifier 映射（使用 [audit.DeriveOperation]）
 //
 // # 依赖关系
 //
-// 本包依赖 [permission] 包的领域类型：
-//   - [permission.Operation]: 操作标识符
-//   - [permission.AuditCategory]: 审计分类
-//   - [permission.AuditOperation]: 审计操作类型
+// 本包依赖领域层类型：
+//   - [permission.Operation]: URN 操作标识符
+//   - [audit.Category]: 审计分类
+//   - [audit.Operation]: 审计操作类型
 //
 // # 设计原则
 //
 // HTTP 配置属于适配器层，与领域概念分离：
-//   - 领域概念（Operation, Resource, 审计派生）→ domain/permission
+//   - 领域概念（Operation, Resource, Matcher）→ domain/permission
+//   - 审计派生（Category, Operation, Action）→ domain/audit
 //   - HTTP 配置（Method, Path, Swagger, Audit 开关）→ adapters/http/routes
 package routes

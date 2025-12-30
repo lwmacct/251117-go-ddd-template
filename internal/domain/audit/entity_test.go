@@ -1,4 +1,4 @@
-package auditlog
+package audit
 
 import (
 	"testing"
@@ -107,7 +107,7 @@ func TestAuditLog_MatchesFilter(t *testing.T) {
 
 	baseLog := &AuditLog{
 		UserID:    1,
-		Action:    ActionCreate,
+		Action:    "create",
 		Resource:  "user",
 		Status:    StatusSuccess,
 		CreatedAt: now,
@@ -135,12 +135,12 @@ func TestAuditLog_MatchesFilter(t *testing.T) {
 		},
 		{
 			name:   "matching action",
-			filter: FilterOptions{Action: ActionCreate},
+			filter: FilterOptions{Action: "create"},
 			want:   true,
 		},
 		{
 			name:   "non-matching action",
-			filter: FilterOptions{Action: ActionDelete},
+			filter: FilterOptions{Action: "delete"},
 			want:   false,
 		},
 		{

@@ -484,7 +484,7 @@ const docTemplate = `{
                     "200": {
                         "description": "审计日志列表",
                         "schema": {
-                            "$ref": "#/definitions/response.PagedResponse-auditlog_AuditLogDTO"
+                            "$ref": "#/definitions/response.PagedResponse-audit_AuditLogDTO"
                         }
                     },
                     "400": {
@@ -536,7 +536,7 @@ const docTemplate = `{
                     "200": {
                         "description": "审计操作定义",
                         "schema": {
-                            "$ref": "#/definitions/response.DataResponse-auditlog_AuditActionsResponseDTO"
+                            "$ref": "#/definitions/response.DataResponse-audit_AuditActionsResponseDTO"
                         }
                     },
                     "401": {
@@ -586,7 +586,7 @@ const docTemplate = `{
                     "200": {
                         "description": "日志详情",
                         "schema": {
-                            "$ref": "#/definitions/response.DataResponse-auditlog_AuditLogDTO"
+                            "$ref": "#/definitions/response.DataResponse-audit_AuditLogDTO"
                         }
                     },
                     "400": {
@@ -3403,7 +3403,7 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "auditlog.AuditActionDTO": {
+        "audit.AuditActionDTO": {
             "type": "object",
             "properties": {
                 "action": {
@@ -3428,33 +3428,33 @@ const docTemplate = `{
                 }
             }
         },
-        "auditlog.AuditActionsResponseDTO": {
+        "audit.AuditActionsResponseDTO": {
             "type": "object",
             "properties": {
                 "actions": {
                     "description": "操作定义列表",
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/auditlog.AuditActionDTO"
+                        "$ref": "#/definitions/audit.AuditActionDTO"
                     }
                 },
                 "categories": {
                     "description": "分类选项",
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/auditlog.CategoryOptionDTO"
+                        "$ref": "#/definitions/audit.CategoryOptionDTO"
                     }
                 },
                 "operations": {
                     "description": "操作类型选项",
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/auditlog.OperationTypeDTO"
+                        "$ref": "#/definitions/audit.OperationTypeDTO"
                     }
                 }
             }
         },
-        "auditlog.AuditLogDTO": {
+        "audit.AuditLogDTO": {
             "type": "object",
             "properties": {
                 "action": {
@@ -3486,7 +3486,7 @@ const docTemplate = `{
                 }
             }
         },
-        "auditlog.CategoryOptionDTO": {
+        "audit.CategoryOptionDTO": {
             "type": "object",
             "properties": {
                 "label": {
@@ -3499,7 +3499,7 @@ const docTemplate = `{
                 }
             }
         },
-        "auditlog.OperationTypeDTO": {
+        "audit.OperationTypeDTO": {
             "type": "object",
             "properties": {
                 "label": {
@@ -4298,7 +4298,7 @@ const docTemplate = `{
                 }
             }
         },
-        "response.DataResponse-auditlog_AuditActionsResponseDTO": {
+        "response.DataResponse-audit_AuditActionsResponseDTO": {
             "type": "object",
             "properties": {
                 "code": {
@@ -4309,7 +4309,7 @@ const docTemplate = `{
                     "description": "响应数据",
                     "allOf": [
                         {
-                            "$ref": "#/definitions/auditlog.AuditActionsResponseDTO"
+                            "$ref": "#/definitions/audit.AuditActionsResponseDTO"
                         }
                     ]
                 },
@@ -4322,7 +4322,7 @@ const docTemplate = `{
                 }
             }
         },
-        "response.DataResponse-auditlog_AuditLogDTO": {
+        "response.DataResponse-audit_AuditLogDTO": {
             "type": "object",
             "properties": {
                 "code": {
@@ -4333,7 +4333,7 @@ const docTemplate = `{
                     "description": "响应数据",
                     "allOf": [
                         {
-                            "$ref": "#/definitions/auditlog.AuditLogDTO"
+                            "$ref": "#/definitions/audit.AuditLogDTO"
                         }
                     ]
                 },
@@ -4912,7 +4912,7 @@ const docTemplate = `{
                 }
             }
         },
-        "response.PagedResponse-auditlog_AuditLogDTO": {
+        "response.PagedResponse-audit_AuditLogDTO": {
             "type": "object",
             "properties": {
                 "code": {
@@ -4923,7 +4923,7 @@ const docTemplate = `{
                     "description": "数据列表",
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/auditlog.AuditLogDTO"
+                        "$ref": "#/definitions/audit.AuditLogDTO"
                     }
                 },
                 "message": {

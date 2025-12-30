@@ -11,12 +11,12 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/lwmacct/251117-go-ddd-template/internal/adapters/http/routes"
-	"github.com/lwmacct/251117-go-ddd-template/internal/application/auditlog"
+	"github.com/lwmacct/251117-go-ddd-template/internal/application/audit"
 )
 
 // AuditMiddleware 创建审计日志中间件。
 // 基于 operation registry 决策是否记录审计日志，未注册或无需审计的操作静默跳过。
-func AuditMiddleware(handler *auditlog.CreateHandler) gin.HandlerFunc {
+func AuditMiddleware(handler *audit.CreateHandler) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// 通过 operation registry 查找操作
 		op := routes.ByMethodAndPath(
@@ -74,7 +74,7 @@ func AuditMiddleware(handler *auditlog.CreateHandler) gin.HandlerFunc {
 		resourceID := extractResourceID(routes.Path(op), c.Request.URL.Path)
 
 		// 创建审计日志命令
-		cmd := auditlog.CreateCommand{
+		cmd := audit.CreateCommand{
 			UserID:      uid,
 			Username:    uname,
 			Action:      routes.AuditAction(op),           // 语义化操作标识：setting.update

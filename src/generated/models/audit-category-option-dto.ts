@@ -17,19 +17,19 @@
 /**
  * 
  * @export
- * @interface AuditlogCategoryOptionDTO
+ * @interface AuditCategoryOptionDTO
  */
-export interface AuditlogCategoryOptionDTO {
+export interface AuditCategoryOptionDTO {
     /**
      * \"用户管理\"
      * @type {string}
-     * @memberof AuditlogCategoryOptionDTO
+     * @memberof AuditCategoryOptionDTO
      */
     'label'?: string;
     /**
      * \"user\"
      * @type {string}
-     * @memberof AuditlogCategoryOptionDTO
+     * @memberof AuditCategoryOptionDTO
      */
     'value'?: string;
 }

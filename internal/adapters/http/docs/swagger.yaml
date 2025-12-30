@@ -1,6 +1,6 @@
 basePath: /api
 definitions:
-  auditlog.AuditActionDTO:
+  audit.AuditActionDTO:
     properties:
       action:
         description: '"user.create"'
@@ -18,25 +18,25 @@ definitions:
         description: '"create"'
         type: string
     type: object
-  auditlog.AuditActionsResponseDTO:
+  audit.AuditActionsResponseDTO:
     properties:
       actions:
         description: 操作定义列表
         items:
-          $ref: '#/definitions/auditlog.AuditActionDTO'
+          $ref: '#/definitions/audit.AuditActionDTO'
         type: array
       categories:
         description: 分类选项
         items:
-          $ref: '#/definitions/auditlog.CategoryOptionDTO'
+          $ref: '#/definitions/audit.CategoryOptionDTO'
         type: array
       operations:
         description: 操作类型选项
         items:
-          $ref: '#/definitions/auditlog.OperationTypeDTO'
+          $ref: '#/definitions/audit.OperationTypeDTO'
         type: array
     type: object
-  auditlog.AuditLogDTO:
+  audit.AuditLogDTO:
     properties:
       action:
         type: string
@@ -57,7 +57,7 @@ definitions:
       user_id:
         type: integer
     type: object
-  auditlog.CategoryOptionDTO:
+  audit.CategoryOptionDTO:
     properties:
       label:
         description: '"用户管理"'
@@ -66,7 +66,7 @@ definitions:
         description: '"user"'
         type: string
     type: object
-  auditlog.OperationTypeDTO:
+  audit.OperationTypeDTO:
     properties:
       label:
         description: '"创建"'
@@ -622,14 +622,14 @@ definitions:
         description: 消息描述
         type: string
     type: object
-  response.DataResponse-auditlog_AuditActionsResponseDTO:
+  response.DataResponse-audit_AuditActionsResponseDTO:
     properties:
       code:
         description: HTTP 状态码
         type: integer
       data:
         allOf:
-        - $ref: '#/definitions/auditlog.AuditActionsResponseDTO'
+        - $ref: '#/definitions/audit.AuditActionsResponseDTO'
         description: 响应数据
       error:
         description: 错误详情（仅失败时）
@@ -637,14 +637,14 @@ definitions:
         description: 消息描述
         type: string
     type: object
-  response.DataResponse-auditlog_AuditLogDTO:
+  response.DataResponse-audit_AuditLogDTO:
     properties:
       code:
         description: HTTP 状态码
         type: integer
       data:
         allOf:
-        - $ref: '#/definitions/auditlog.AuditLogDTO'
+        - $ref: '#/definitions/audit.AuditLogDTO'
         description: 响应数据
       error:
         description: 错误详情（仅失败时）
@@ -1008,7 +1008,7 @@ definitions:
         description: 消息描述
         type: string
     type: object
-  response.PagedResponse-auditlog_AuditLogDTO:
+  response.PagedResponse-audit_AuditLogDTO:
     properties:
       code:
         description: HTTP 状态码
@@ -1016,7 +1016,7 @@ definitions:
       data:
         description: 数据列表
         items:
-          $ref: '#/definitions/auditlog.AuditLogDTO'
+          $ref: '#/definitions/audit.AuditLogDTO'
         type: array
       message:
         description: 消息描述
@@ -1934,7 +1934,7 @@ paths:
         "200":
           description: 审计日志列表
           schema:
-            $ref: '#/definitions/response.PagedResponse-auditlog_AuditLogDTO'
+            $ref: '#/definitions/response.PagedResponse-audit_AuditLogDTO'
         "400":
           description: 参数错误
           schema:
@@ -1974,7 +1974,7 @@ paths:
         "200":
           description: 日志详情
           schema:
-            $ref: '#/definitions/response.DataResponse-auditlog_AuditLogDTO'
+            $ref: '#/definitions/response.DataResponse-audit_AuditLogDTO'
         "400":
           description: 无效的日志ID
           schema:
@@ -2007,7 +2007,7 @@ paths:
         "200":
           description: 审计操作定义
           schema:
-            $ref: '#/definitions/response.DataResponse-auditlog_AuditActionsResponseDTO'
+            $ref: '#/definitions/response.DataResponse-audit_AuditActionsResponseDTO'
         "401":
           description: 未授权
           schema:

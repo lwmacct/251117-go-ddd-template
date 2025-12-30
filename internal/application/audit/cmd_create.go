@@ -1,18 +1,18 @@
-package auditlog
+package audit
 
 import (
 	"context"
 
-	"github.com/lwmacct/251117-go-ddd-template/internal/domain/auditlog"
+	"github.com/lwmacct/251117-go-ddd-template/internal/domain/audit"
 )
 
 // CreateHandler 创建审计日志命令处理器
 type CreateHandler struct {
-	auditLogCommandRepo auditlog.CommandRepository
+	auditLogCommandRepo audit.CommandRepository
 }
 
 // NewCreateHandler 创建处理器实例
-func NewCreateHandler(repo auditlog.CommandRepository) *CreateHandler {
+func NewCreateHandler(repo audit.CommandRepository) *CreateHandler {
 	return &CreateHandler{
 		auditLogCommandRepo: repo,
 	}
@@ -20,7 +20,7 @@ func NewCreateHandler(repo auditlog.CommandRepository) *CreateHandler {
 
 // Handle 处理创建审计日志命令
 func (h *CreateHandler) Handle(ctx context.Context, cmd CreateCommand) error {
-	log := &auditlog.AuditLog{
+	log := &audit.AuditLog{
 		UserID:      cmd.UserID,
 		Username:    cmd.Username,
 		Action:      cmd.Action,

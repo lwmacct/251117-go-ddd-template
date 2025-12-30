@@ -43,7 +43,7 @@ internal/
 ## 核心功能
 
 - JWT + PAT 双重认证
-- RBAC 三段式权限 (`resource:action:scope`)
+- URN 风格 RBAC 权限 (`scope:type:identifier`)
 - 审计日志
 - PostgreSQL + Redis
 

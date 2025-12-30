@@ -62,7 +62,7 @@ import (
 	"github.com/lwmacct/251117-go-ddd-template/internal/adapters/http/routes"
 
 	// 引入应用层包
-	"github.com/lwmacct/251117-go-ddd-template/internal/application/auditlog"
+	"github.com/lwmacct/251117-go-ddd-template/internal/application/audit"
 
 	// 引入领域层包
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/permission"
@@ -79,7 +79,7 @@ type RouterDependencies struct {
 	RedisClient *redis.Client
 
 	// Application Handlers (for middleware)
-	CreateLogHandler *auditlog.CreateHandler
+	CreateLogHandler *audit.CreateHandler
 
 	// Infrastructure Services
 	JWTManager             *auth.JWTManager

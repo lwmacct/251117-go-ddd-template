@@ -2,7 +2,7 @@
 import { ref, onMounted, computed } from "vue";
 import { useAuditLogs } from "./composables/useAuditLogs";
 import { ITEMS_PER_PAGE_OPTIONS } from "@/composables";
-import type { AuditlogAuditLogDTO } from "@models";
+import type { AuditAuditLogDTO } from "@models";
 
 /**
  * 审计日志管理页面
@@ -32,7 +32,7 @@ onMounted(() => {
 
 // 对话框状态
 const detailDialog = ref(false);
-const selectedLog = ref<AuditlogAuditLogDTO | null>(null);
+const selectedLog = ref<AuditAuditLogDTO | null>(null);
 
 // 表头配置
 const headers = [
@@ -77,7 +77,7 @@ const categoryLabelMap = computed(() => {
 });
 
 // 查看详情
-const viewDetail = (log: AuditlogAuditLogDTO) => {
+const viewDetail = (log: AuditAuditLogDTO) => {
   selectedLog.value = log;
   detailDialog.value = true;
 };

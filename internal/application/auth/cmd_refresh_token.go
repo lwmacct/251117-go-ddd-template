@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/lwmacct/251117-go-ddd-template/internal/application/auditlog"
+	"github.com/lwmacct/251117-go-ddd-template/internal/application/audit"
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/auth"
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/user"
 )
@@ -14,14 +14,14 @@ import (
 type RefreshTokenHandler struct {
 	userQueryRepo   user.QueryRepository
 	authService     auth.Service
-	auditLogHandler *auditlog.CreateHandler
+	auditLogHandler *audit.CreateHandler
 }
 
 // NewRefreshTokenHandler 创建刷新令牌命令处理器
 func NewRefreshTokenHandler(
 	userQueryRepo user.QueryRepository,
 	authService auth.Service,
-	auditLogHandler *auditlog.CreateHandler,
+	auditLogHandler *audit.CreateHandler,
 ) *RefreshTokenHandler {
 	return &RefreshTokenHandler{
 		userQueryRepo:   userQueryRepo,
@@ -97,7 +97,7 @@ func (h *RefreshTokenHandler) logRefreshEvent(ctx context.Context, userID uint, 
 		return
 	}
 	go func() {
-		_ = h.auditLogHandler.Handle(context.WithoutCancel(ctx), auditlog.CreateCommand{
+		_ = h.auditLogHandler.Handle(context.WithoutCancel(ctx), audit.CreateCommand{
 			UserID:     userID,
 			Username:   username,
 			Action:     "refresh_token",

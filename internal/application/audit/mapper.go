@@ -1,12 +1,12 @@
-package auditlog
+package audit
 
 import (
 	"github.com/lwmacct/251117-go-ddd-template/internal/adapters/http/routes"
-	"github.com/lwmacct/251117-go-ddd-template/internal/domain/auditlog"
+	"github.com/lwmacct/251117-go-ddd-template/internal/domain/audit"
 )
 
 // ToAuditLogDTO 将领域实体转换为 DTO
-func ToAuditLogDTO(log *auditlog.AuditLog) *AuditLogDTO {
+func ToAuditLogDTO(log *audit.AuditLog) *AuditLogDTO {
 	if log == nil {
 		return nil
 	}

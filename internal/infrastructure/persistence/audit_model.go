@@ -3,7 +3,7 @@ package persistence
 import (
 	"time"
 
-	"github.com/lwmacct/251117-go-ddd-template/internal/domain/auditlog"
+	"github.com/lwmacct/251117-go-ddd-template/internal/domain/audit"
 	"gorm.io/gorm"
 )
 
@@ -33,7 +33,7 @@ func (AuditLogModel) TableName() string {
 	return "audit_logs"
 }
 
-func newAuditLogModelFromEntity(entity *auditlog.AuditLog) *AuditLogModel {
+func newAuditLogModelFromEntity(entity *audit.AuditLog) *AuditLogModel {
 	if entity == nil {
 		return nil
 	}
@@ -60,11 +60,11 @@ func newAuditLogModelFromEntity(entity *auditlog.AuditLog) *AuditLogModel {
 }
 
 // ToEntity 将 GORM Model 转换为 Domain Entity（实现 Model[E] 接口）
-func (m *AuditLogModel) ToEntity() *auditlog.AuditLog {
+func (m *AuditLogModel) ToEntity() *audit.AuditLog {
 	if m == nil {
 		return nil
 	}
-	entity := &auditlog.AuditLog{
+	entity := &audit.AuditLog{
 		ID:          m.ID,
 		CreatedAt:   m.CreatedAt,
 		UpdatedAt:   m.UpdatedAt,

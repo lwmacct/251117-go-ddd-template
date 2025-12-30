@@ -17,19 +17,19 @@
 /**
  * 
  * @export
- * @interface AuditlogOperationTypeDTO
+ * @interface AuditOperationTypeDTO
  */
-export interface AuditlogOperationTypeDTO {
+export interface AuditOperationTypeDTO {
     /**
      * \"创建\"
      * @type {string}
-     * @memberof AuditlogOperationTypeDTO
+     * @memberof AuditOperationTypeDTO
      */
     'label'?: string;
     /**
      * \"create\"
      * @type {string}
-     * @memberof AuditlogOperationTypeDTO
+     * @memberof AuditOperationTypeDTO
      */
     'value'?: string;
 }

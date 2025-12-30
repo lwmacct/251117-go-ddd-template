@@ -1,6 +1,9 @@
 package routes
 
-import "github.com/lwmacct/251117-go-ddd-template/internal/domain/permission"
+import (
+	"github.com/lwmacct/251117-go-ddd-template/internal/domain/audit"
+	"github.com/lwmacct/251117-go-ddd-template/internal/domain/permission"
+)
 
 // ============================================================================
 // 元数据访问函数
@@ -49,23 +52,23 @@ func Description(o permission.Operation) string {
 // AuditAction 返回操作的审计操作标识（从 Operation 派生）。
 func AuditAction(o permission.Operation) string {
 	if m, ok := Registry[o]; ok && m.Audit {
-		return o.DeriveAuditAction()
+		return audit.DeriveAction(o.Type(), o.Identifier())
 	}
 	return ""
 }
 
 // AuditCategory 返回操作的审计分类（从 Operation 派生）。
-func AuditCategory(o permission.Operation) permission.AuditCategory {
+func AuditCategory(o permission.Operation) audit.Category {
 	if m, ok := Registry[o]; ok && m.Audit {
-		return o.DeriveAuditCategory()
+		return audit.DeriveCategory(o.Type())
 	}
 	return ""
 }
 
 // AuditOperation 返回操作的审计操作类型（从 Operation 派生）。
-func AuditOperation(o permission.Operation) permission.AuditOperation {
+func AuditOperation(o permission.Operation) audit.Operation {
 	if m, ok := Registry[o]; ok && m.Audit {
-		return o.DeriveAuditOperation()
+		return audit.DeriveOperation(o.Identifier())
 	}
 	return ""
 }

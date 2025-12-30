@@ -1,19 +1,19 @@
-package auditlog
+package audit
 
 import (
 	"context"
 	"errors"
 
-	"github.com/lwmacct/251117-go-ddd-template/internal/domain/auditlog"
+	"github.com/lwmacct/251117-go-ddd-template/internal/domain/audit"
 )
 
 // GetHandler 获取审计日志查询处理器
 type GetHandler struct {
-	auditLogQueryRepo auditlog.QueryRepository
+	auditLogQueryRepo audit.QueryRepository
 }
 
 // NewGetHandler 创建 GetHandler 实例
-func NewGetHandler(auditLogQueryRepo auditlog.QueryRepository) *GetHandler {
+func NewGetHandler(auditLogQueryRepo audit.QueryRepository) *GetHandler {
 	return &GetHandler{
 		auditLogQueryRepo: auditLogQueryRepo,
 	}

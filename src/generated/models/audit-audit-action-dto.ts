@@ -17,37 +17,37 @@
 /**
  * 
  * @export
- * @interface AuditlogAuditActionDTO
+ * @interface AuditAuditActionDTO
  */
-export interface AuditlogAuditActionDTO {
+export interface AuditAuditActionDTO {
     /**
      * \"user.create\"
      * @type {string}
-     * @memberof AuditlogAuditActionDTO
+     * @memberof AuditAuditActionDTO
      */
     'action'?: string;
     /**
      * \"user\"
      * @type {string}
-     * @memberof AuditlogAuditActionDTO
+     * @memberof AuditAuditActionDTO
      */
     'category'?: string;
     /**
      * \"Create new user\"
      * @type {string}
-     * @memberof AuditlogAuditActionDTO
+     * @memberof AuditAuditActionDTO
      */
     'description'?: string;
     /**
      * \"创建用户\"
      * @type {string}
-     * @memberof AuditlogAuditActionDTO
+     * @memberof AuditAuditActionDTO
      */
     'label'?: string;
     /**
      * \"create\"
      * @type {string}
-     * @memberof AuditlogAuditActionDTO
+     * @memberof AuditAuditActionDTO
      */
     'operation'?: string;
 }

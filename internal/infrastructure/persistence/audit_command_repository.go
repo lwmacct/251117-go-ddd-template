@@ -5,18 +5,18 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/lwmacct/251117-go-ddd-template/internal/domain/auditlog"
+	"github.com/lwmacct/251117-go-ddd-template/internal/domain/audit"
 	"gorm.io/gorm"
 )
 
 // auditLogCommandRepository 审计日志命令仓储的 GORM 实现
 // 嵌入 GenericCommandRepository 以复用 Create/Delete 操作
 type auditLogCommandRepository struct {
-	*GenericCommandRepository[auditlog.AuditLog, *AuditLogModel]
+	*GenericCommandRepository[audit.AuditLog, *AuditLogModel]
 }
 
 // NewAuditLogCommandRepository 创建审计日志命令仓储实例
-func NewAuditLogCommandRepository(db *gorm.DB) auditlog.CommandRepository {
+func NewAuditLogCommandRepository(db *gorm.DB) audit.CommandRepository {
 	return &auditLogCommandRepository{
 		GenericCommandRepository: NewGenericCommandRepository(
 			db, newAuditLogModelFromEntity,
@@ -38,7 +38,7 @@ func (r *auditLogCommandRepository) DeleteOlderThan(ctx context.Context, days in
 }
 
 // BatchCreate creates multiple audit log entries
-func (r *auditLogCommandRepository) BatchCreate(ctx context.Context, logs []*auditlog.AuditLog) error {
+func (r *auditLogCommandRepository) BatchCreate(ctx context.Context, logs []*audit.AuditLog) error {
 	if len(logs) == 0 {
 		return nil
 	}

@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/lwmacct/251117-go-ddd-template/internal/application/auditlog"
+	"github.com/lwmacct/251117-go-ddd-template/internal/application/audit"
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/auth"
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/captcha"
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/twofa"
@@ -19,7 +19,7 @@ type LoginHandler struct {
 	twofaQueryRepo     twofa.QueryRepository
 	authService        auth.Service
 	loginSession       auth.SessionService
-	auditLogHandler    *auditlog.CreateHandler
+	auditLogHandler    *audit.CreateHandler
 }
 
 // NewLoginHandler 创建登录命令处理器
@@ -29,7 +29,7 @@ func NewLoginHandler(
 	twofaQueryRepo twofa.QueryRepository,
 	authService auth.Service,
 	loginSession auth.SessionService,
-	auditLogHandler *auditlog.CreateHandler,
+	auditLogHandler *audit.CreateHandler,
 ) *LoginHandler {
 	return &LoginHandler{
 		userQueryRepo:      userQueryRepo,
@@ -148,7 +148,7 @@ func (h *LoginHandler) logLoginEvent(ctx context.Context, userID uint, username,
 		return
 	}
 	go func() {
-		_ = h.auditLogHandler.Handle(context.WithoutCancel(ctx), auditlog.CreateCommand{
+		_ = h.auditLogHandler.Handle(context.WithoutCancel(ctx), audit.CreateCommand{
 			UserID:     userID,
 			Username:   username,
 			Action:     "login",

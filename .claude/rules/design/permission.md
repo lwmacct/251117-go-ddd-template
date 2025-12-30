@@ -1,3 +1,9 @@
+---
+paths:
+  - "internal/domain/permission/**/*.go"
+  - "internal/adapters/http/middleware/rbac.go"
+---
+
 # URN 风格 RBAC 权限系统
 
 基于统一资源名称 (URN) 格式的细粒度权限控制系统。
@@ -58,15 +64,6 @@ sys.admin                       # 系统管理子域
 | `sys.*:*:*`      | `sys`、`sys.admin`、`sys.readonly`             |
 | `org.acme.*:*:*` | `org.acme`、`org.acme.team.dev`、`org.acme.qa` |
 
-### 匹配示例
-
-```go
-MatchOperation("*:*:*", "sys:users:create")            // true
-MatchOperation("sys:*:*", "sys:users:create")          // true
-MatchOperation("sys:users:*", "sys:users:create")      // true
-MatchOperation("sys.*:*:*", "sys.admin:config:update") // true - 子域通配
-```
-
 ## 运行时变量
 
 | 变量   | 说明             | 示例                              |
@@ -106,22 +103,6 @@ operation_pattern: self:*:*
 resource_pattern:  self:user:@me
 ```
 
-## 审计日志派生
-
-Operation 可自动派生审计信息：
-
-| Operation              | AuditAction      | AuditCategory |
-| ---------------------- | ---------------- | ------------- |
-| `sys:users:create`     | `user.create`    | `user`        |
-| `self:2fa:setup`       | `auth.setup`     | `auth`        |
-| `self:password:update` | `profile.update` | `profile`     |
-
-**特殊映射**（type → category）：
-
-- `2fa` → `auth`
-- `password` → `profile`
-- `account` → `profile`
-
 ## 代码实现
 
 ### 核心文件
@@ -133,41 +114,6 @@ Operation 可自动派生审计信息：
 | `internal/domain/permission/matcher.go`     | 匹配算法       |
 | `internal/domain/permission/resolver.go`    | 变量替换       |
 | `internal/domain/permission/constants.go`   | Operation 常量 |
-| `internal/domain/permission/audit.go`       | 审计类型和派生 |
 | `internal/adapters/http/middleware/rbac.go` | RBAC 中间件    |
 
-### Operation 常量
-
-```go
-// internal/domain/permission/constants.go
-
-// Public 域（公开接口）
-const (
-    PublicAuthLogin    Operation = "public:auth:login"
-    PublicAuthRegister Operation = "public:auth:register"
-)
-
-// Sys 域 - 用户管理
-const (
-    SysUsersCreate Operation = "sys:users:create"
-    SysUsersList   Operation = "sys:users:list"
-    SysUsersUpdate Operation = "sys:users:update"
-    SysUsersDelete Operation = "sys:users:delete"
-)
-
-// Self 域 - 用户自服务
-const (
-    SelfProfileGet    Operation = "self:profile:get"
-    SelfProfileUpdate Operation = "self:profile:update"
-    Self2FASetup      Operation = "self:2fa:setup"
-)
-```
-
-### 公开操作判断
-
-```go
-// scope 为 "public" 的操作无需认证
-func (o Operation) IsPublic() bool {
-    return o.Scope() == "public"
-}
-```
+> 审计派生逻辑已迁移到 `internal/domain/audit/` 包。

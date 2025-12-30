@@ -1,4 +1,4 @@
-package auditlog
+package audit
 
 // CreateCommand 创建审计日志命令
 type CreateCommand struct {

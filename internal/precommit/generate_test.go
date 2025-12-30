@@ -112,7 +112,7 @@ func parseRouteBindings(t *testing.T) []routeBinding {
 func handlerTypeToFile(handlerType string) string {
 	// 特殊映射（不遵循 snake_case 规范的文件）
 	exceptions := map[string]string{
-		"AuditLogHandler": "auditlog.go",
+		"AuditLogHandler": "audit.go",
 		"TwoFAHandler":    "twofa.go",
 	}
 	if file, ok := exceptions[handlerType]; ok {

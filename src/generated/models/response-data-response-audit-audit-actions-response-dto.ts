@@ -15,36 +15,36 @@
 
 // May contain unused imports in some cases
 // @ts-ignore
-import type { AuditlogAuditActionsResponseDTO } from './auditlog-audit-actions-response-dto';
+import type { AuditAuditActionsResponseDTO } from './audit-audit-actions-response-dto';
 
 /**
  * 
  * @export
- * @interface ResponseDataResponseAuditlogAuditActionsResponseDTO
+ * @interface ResponseDataResponseAuditAuditActionsResponseDTO
  */
-export interface ResponseDataResponseAuditlogAuditActionsResponseDTO {
+export interface ResponseDataResponseAuditAuditActionsResponseDTO {
     /**
      * HTTP 状态码
      * @type {number}
-     * @memberof ResponseDataResponseAuditlogAuditActionsResponseDTO
+     * @memberof ResponseDataResponseAuditAuditActionsResponseDTO
      */
     'code'?: number;
     /**
      * 响应数据
-     * @type {AuditlogAuditActionsResponseDTO}
-     * @memberof ResponseDataResponseAuditlogAuditActionsResponseDTO
+     * @type {AuditAuditActionsResponseDTO}
+     * @memberof ResponseDataResponseAuditAuditActionsResponseDTO
      */
-    'data'?: AuditlogAuditActionsResponseDTO;
+    'data'?: AuditAuditActionsResponseDTO;
     /**
      * 错误详情（仅失败时）
      * @type {object}
-     * @memberof ResponseDataResponseAuditlogAuditActionsResponseDTO
+     * @memberof ResponseDataResponseAuditAuditActionsResponseDTO
      */
     'error'?: object;
     /**
      * 消息描述
      * @type {string}
-     * @memberof ResponseDataResponseAuditlogAuditActionsResponseDTO
+     * @memberof ResponseDataResponseAuditAuditActionsResponseDTO
      */
     'message'?: string;
 }
