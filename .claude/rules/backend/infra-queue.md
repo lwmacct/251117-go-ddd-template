@@ -7,13 +7,14 @@ paths:
 
 基于 Redis 的异步任务队列（生产者-消费者模式）。
 
-## 文件命名
+## 目录结构
 
-| 文件类型 | 命名规范             |
-| -------- | -------------------- |
-| 包文档   | `doc.go`（**必需**） |
-| 队列实现 | `redis_queue.go`     |
-| 处理器   | `processor.go`       |
+```
+internal/infrastructure/queue/
+├── doc.go          # 包文档（必需）
+├── redis_queue.go  # 队列实现
+└── processor.go    # 处理器
+```
 
 ## 队列特性
 

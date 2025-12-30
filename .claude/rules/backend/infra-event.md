@@ -8,12 +8,20 @@ paths:
 
 事件驱动架构：事件总线（发布/订阅）+ 事件处理器。
 
-## 文件命名
+## 目录结构
 
-| 目录            | 命名规范        |
-| --------------- | --------------- |
-| `eventbus/`     | `{type}_bus.go` |
-| `eventhandler/` | `{功能}.go`     |
+```
+internal/infrastructure/
+├── eventbus/
+│   └── {type}_bus.go   # 事件总线实现
+└── eventhandler/
+    └── {feature}.go    # 事件处理器
+```
+
+**命名约定**:
+
+- `{type}` 为总线类型（如 `sync`、`async`）
+- `{feature}` 为功能名（如 `audit_log`、`notification`）
 
 ## EventBus 原则
 

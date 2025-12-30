@@ -7,14 +7,19 @@ paths:
 
 实现认证相关技术细节（JWT、密码哈希、会话管理）。
 
-## 文件命名
+## 目录结构
 
-| 文件类型     | 命名规范             |
-| ------------ | -------------------- |
-| 包文档       | `doc.go`（**必需**） |
-| 服务实现     | `{功能}_service.go`  |
-| JWT 处理     | `jwt.go`             |
-| Token 生成器 | `token_generator.go` |
+```
+internal/infrastructure/auth/
+├── doc.go               # 包文档（必需）
+├── {feature}_service.go # 服务实现
+├── jwt.go               # JWT 处理
+└── token_generator.go   # Token 生成器
+```
+
+**命名约定**:
+
+- `{feature}` 为功能名（如 `password`、`session`）
 
 ## 设计原则
 

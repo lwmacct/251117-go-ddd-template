@@ -7,13 +7,14 @@ paths:
 
 图形验证码生成和内存存储。
 
-## 文件命名
+## 目录结构
 
-| 文件类型 | 命名规范             |
-| -------- | -------------------- |
-| 包文档   | `doc.go`（**必需**） |
-| 服务实现 | `service.go`         |
-| 仓储实现 | `repository.go`      |
+```
+internal/infrastructure/captcha/
+├── doc.go        # 包文档（必需）
+├── service.go    # 服务实现
+└── repository.go # 仓储实现
+```
 
 ## 内存存储原则
 

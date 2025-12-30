@@ -30,12 +30,26 @@ Infrastructure Layer（Redis 实现）
 | 写入 | `JSON.SET key $ value` + `EXPIRE` | Pipeline 执行                     |
 | 读取 | `JSON.GET key $`                  | **返回数组包装**，需 `wrapper[0]` |
 
-## 文件命名
+## 目录结构
 
-| 位置              | 命名                              |
-| ----------------- | --------------------------------- |
-| Application 层    | `cache.go` 或 `cache_{entity}.go` |
-| Infrastructure 层 | `{module}_cache_service.go`       |
+**Application 层**（接口定义）：
+
+```
+internal/application/{module}/
+└── cache.go                    # 缓存接口（或 cache_{entity}.go）
+```
+
+**Infrastructure 层**（实现）：
+
+```
+internal/infrastructure/cache/
+└── {module}_cache_service.go   # Redis 缓存实现
+```
+
+**命名约定**:
+
+- `{module}` 为领域模块名（如 `user`、`setting`）
+- `{entity}` 用于多缓存场景（如 `cache_user.go`、`cache_role.go`）
 
 ## Key 命名
 

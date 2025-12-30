@@ -7,12 +7,13 @@ paths:
 
 跨域聚合查询（只读）。
 
-## 文件命名
+## 目录结构
 
-| 文件类型 | 命名规范              |
-| -------- | --------------------- |
-| 包文档   | `doc.go`（**必需**）  |
-| 查询仓储 | `query_repository.go` |
+```
+internal/infrastructure/stats/
+├── doc.go              # 包文档（必需）
+└── query_repository.go # 查询仓储
+```
 
 ## 设计原则
 

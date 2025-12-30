@@ -7,16 +7,24 @@ paths:
 
 实现 Domain 层 Repository 接口，处理数据库持久化（GORM）。
 
-## 文件命名
+## 目录结构
 
-| 文件类型   | 命名规范                             |
-| ---------- | ------------------------------------ |
-| 包文档     | `doc.go`（**必需**）                 |
-| Model      | `{模块}_model.go`                    |
-| 写仓储     | `{模块}_command_repository.go`       |
-| 读仓储     | `{模块}_query_repository.go`         |
-| 缓存装饰器 | `{模块}_cached_{type}_repository.go` |
-| 仓储聚合   | `{模块}_repositories.go`（可选）     |
+```
+internal/infrastructure/persistence/
+├── doc.go                                # 包文档（必需）
+├── generic_repository.go                 # 通用仓储基类
+├── {module}_model.go                     # 数据模型
+├── {module}_command_repository.go        # 写仓储实现
+├── {module}_query_repository.go          # 读仓储实现
+├── {module}_cached_{type}_repository.go  # 缓存装饰器（可选）
+└── {module}_repositories.go              # 仓储聚合（可选）
+```
+
+**命名约定**:
+
+- `{module}` 为领域模块名（如 `user`、`role`、`setting`）
+- `{type}` 为仓储类型：`query` 或 `command`
+- 复合模块用下划线连接（如 `user_setting`、`setting_category`）
 
 ## Model 规范
 

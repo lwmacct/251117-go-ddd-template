@@ -9,17 +9,20 @@ paths:
 
 DDD 架构核心，**不依赖任何外层**。
 
-## 文件命名
+## 目录结构
 
-| 文件类型   | 命名规范                |
-| ---------- | ----------------------- |
-| 实体       | `entity_{模块}.go`      |
-| 写仓储接口 | `command_repository.go` |
-| 读仓储接口 | `query_repository.go`   |
-| 错误定义   | `errors.go`             |
-| 包文档     | `doc.go`（**必须**）    |
+```
+internal/domain/{module}/
+├── entity_{module}.go       # 领域实体
+├── command_repository.go    # 写仓储接口
+├── query_repository.go      # 读仓储接口
+├── errors.go                # 错误定义
+└── doc.go                   # 包文档（必须）
+```
 
-多实体时次要实体加前缀：`{实体名}_command_repository.go`
+**命名约定**:
+
+- 多实体时次要实体加前缀：`{实体名}_command_repository.go`
 
 ## 禁止事项
 

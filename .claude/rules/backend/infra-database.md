@@ -13,14 +13,15 @@ paths:
 > [!TIP]
 > 环境已预装 PostgreSQL，可直接使用 `psql` 命令, 无需配置。
 
-## 文件命名
+## 目录结构
 
-| 文件类型   | 命名规范             |
-| ---------- | -------------------- |
-| 包文档     | `doc.go`（**必需**） |
-| 连接管理   | `connection.go`      |
-| 迁移执行器 | `migrator.go`        |
-| 种子执行器 | `seeder.go`          |
+```
+internal/infrastructure/database/
+├── doc.go        # 包文档（必需）
+├── connection.go # 连接管理
+├── migrator.go   # 迁移执行器
+└── seeder.go     # 种子执行器
+```
 
 ## 迁移原则
 

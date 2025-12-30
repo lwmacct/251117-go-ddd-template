@@ -9,14 +9,23 @@ paths:
 
 接口适配层，**仅做请求绑定和响应转换**，不包含业务逻辑。
 
-## 文件命名
+## 目录结构
 
-| 目录               | 命名规范      |
-| ------------------ | ------------- |
-| `http/handler/`    | `{模块}.go`   |
-| `http/middleware/` | `{功能}.go`   |
-| `http/response/`   | `response.go` |
-| `http/`            | `router.go`   |
+```
+internal/adapters/http/
+├── handler/
+│   └── {module}.go     # HTTP Handler
+├── middleware/
+│   └── {feature}.go    # 中间件
+├── response/
+│   └── response.go     # 响应工具
+└── router.go           # 路由定义
+```
+
+**命名约定**:
+
+- `{module}` 为领域模块名（如 `user`、`auth`）
+- `{feature}` 为功能名（如 `cors`、`logging`）
 
 ## 禁止事项
 
@@ -70,3 +79,27 @@ type ListQuery struct {
 
 func (q *ListQuery) ToQuery() app.ListQuery { ... }
 ```
+
+## Swagger 注解规范
+
+| 注解              | 规则                        | 示例                                            |
+| ----------------- | --------------------------- | ----------------------------------------------- |
+| `@Summary`        | 必填                        | `@Summary 创建用户`                             |
+| `@Tags`           | 必填，英文格式              | `@Tags Admin - User Management`                 |
+| `@Accept`         | 必须为 `json`               | `@Accept json`                                  |
+| `@Produce`        | 必须为 `json`               | `@Produce json`                                 |
+| `@Security`       | 非公开端点必须有            | `@Security BearerAuth`                          |
+| `@Router`         | 必须与 operation 匹配       | `@Router /api/admin/users [post]`               |
+| `@Success` DTO    | 必须在 application 层存在   | `@Success 200 {object} user.UserDTO`            |
+| `@Param` body DTO | 必须在 application 层存在   | `@Param request body auth.LoginDTO true "登录"` |
+| `@Param` query    | 类型必须在 handler 包中定义 | `@Param request query ListQuery true "查询"`    |
+
+> 规范由 `internal/precommit/annotation_test.go` 自动检查
+
+## 路由规范
+
+- 所有 API 路径必须以 `/api/` 开头
+- 每个 operation 必须有 `Method` 和 `Path`
+- 审计操作必须有 `Category`、`Operation`、`Label`
+
+> 规范由 `internal/precommit/router_test.go` 自动检查

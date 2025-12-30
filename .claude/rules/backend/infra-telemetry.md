@@ -7,12 +7,13 @@ paths:
 
 OpenTelemetry 分布式追踪（横切关注点）。
 
-## 文件命名
+## 目录结构
 
-| 文件类型 | 命名规范             |
-| -------- | -------------------- |
-| 包文档   | `doc.go`（**必需**） |
-| 初始化   | `otel.go`            |
+```
+internal/infrastructure/telemetry/
+├── doc.go   # 包文档（必需）
+└── otel.go  # 初始化
+```
 
 ## 设计原则
 

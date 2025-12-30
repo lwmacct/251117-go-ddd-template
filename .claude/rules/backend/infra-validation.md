@@ -7,12 +7,13 @@ paths:
 
 基于 JSON Logic 的动态规则验证。
 
-## 文件命名
+## 目录结构
 
-| 文件类型 | 命名规范                 |
-| -------- | ------------------------ |
-| 包文档   | `doc.go`（**必需**）     |
-| 验证器   | `jsonlogic_validator.go` |
+```
+internal/infrastructure/validation/
+├── doc.go                  # 包文档（必需）
+└── jsonlogic_validator.go  # 验证器
+```
 
 ## 规则格式
 
