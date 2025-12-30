@@ -25,7 +25,6 @@ var RepositoryModule = fx.Module("repository",
 		persistence.NewAuditLogRepositories,
 		persistence.NewRoleRepositories,
 		persistence.NewPATRepositories,
-		persistence.NewMenuRepositories,
 		persistence.NewTwoFARepositories,
 
 		// 带缓存装饰的仓储

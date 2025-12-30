@@ -13,7 +13,6 @@ import { extractErrorFromAxios } from "../errors";
 import { Configuration } from "@generated";
 import {
   AdminAuditLogApi,
-  AdminMenuManagementApi,
   AdminRoleManagementApi,
   AdminSettingCategoriesApi,
   AdminSettingsApi,
@@ -94,7 +93,6 @@ const configuration = new Configuration({
 
 // 导出配置好的 API 实例
 export const adminAuditLogApi = new AdminAuditLogApi(configuration, "", apiClient);
-export const adminMenuApi = new AdminMenuManagementApi(configuration, "", apiClient);
 export const adminRoleApi = new AdminRoleManagementApi(configuration, "", apiClient);
 export const adminSettingCategoriesApi = new AdminSettingCategoriesApi(configuration, "", apiClient);
 export const adminSettingsApi = new AdminSettingsApi(configuration, "", apiClient);

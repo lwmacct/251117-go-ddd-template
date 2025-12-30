@@ -61,7 +61,7 @@ export interface PatTokenDTO {
      * @type {Array<string>}
      * @memberof PatTokenDTO
      */
-    'permissions'?: Array<string>;
+    'scopes'?: Array<string>;
     /**
      * 
      * @type {string}

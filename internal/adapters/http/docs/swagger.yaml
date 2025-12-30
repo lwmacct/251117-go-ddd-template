@@ -429,92 +429,6 @@ definitions:
       ui_config:
         type: string
     type: object
-  menu.CreateDTO:
-    properties:
-      icon:
-        example: setting
-        maxLength: 100
-        type: string
-      order:
-        example: 1
-        type: integer
-      parent_id:
-        example: 0
-        type: integer
-      path:
-        example: /system
-        maxLength: 255
-        type: string
-      title:
-        example: 系统管理
-        maxLength: 100
-        minLength: 1
-        type: string
-      visible:
-        example: true
-        type: boolean
-    required:
-    - path
-    - title
-    type: object
-  menu.MenuDTO:
-    properties:
-      created_at:
-        type: string
-      icon:
-        type: string
-      id:
-        type: integer
-      order:
-        type: integer
-      parent_id:
-        type: integer
-      path:
-        type: string
-      title:
-        type: string
-      updated_at:
-        type: string
-      visible:
-        type: boolean
-    type: object
-  menu.ReorderDTO:
-    properties:
-      menus:
-        items:
-          properties:
-            id:
-              type: integer
-            order:
-              type: integer
-            parent_id:
-              type: integer
-          required:
-          - id
-          type: object
-        type: array
-    required:
-    - menus
-    type: object
-  menu.UpdateDTO:
-    properties:
-      icon:
-        maxLength: 100
-        type: string
-      order:
-        type: integer
-      parent_id:
-        type: integer
-      path:
-        maxLength: 255
-        type: string
-      title:
-        maxLength: 100
-        minLength: 1
-        type: string
-      visible:
-        type: boolean
-    type: object
   pat.CreateDTO:
     properties:
       description:
@@ -535,8 +449,8 @@ definitions:
         maxLength: 100
         minLength: 3
         type: string
-      permissions:
-        description: 可选，限制令牌权限范围（为空则默认用户全部权限）
+      scopes:
+        description: 权限范围（full, self, sys），默认 ["full"]
         items:
           type: string
         type: array
@@ -549,6 +463,15 @@ definitions:
         type: string
       token:
         $ref: '#/definitions/pat.TokenDTO'
+    type: object
+  pat.ScopeInfoDTO:
+    properties:
+      description:
+        type: string
+      display_name:
+        type: string
+      name:
+        type: string
     type: object
   pat.TokenDTO:
     properties:
@@ -566,7 +489,7 @@ definitions:
         type: string
       name:
         type: string
-      permissions:
+      scopes:
         items:
           type: string
         type: array
@@ -579,7 +502,7 @@ definitions:
       user_id:
         type: integer
     type: object
-  response.DataResponse-array_menu_MenuDTO:
+  response.DataResponse-array_pat_ScopeInfoDTO:
     properties:
       code:
         description: HTTP 状态码
@@ -587,7 +510,7 @@ definitions:
       data:
         description: 响应数据
         items:
-          $ref: '#/definitions/menu.MenuDTO'
+          $ref: '#/definitions/pat.ScopeInfoDTO'
         type: array
       error:
         description: 错误详情（仅失败时）
@@ -833,21 +756,6 @@ definitions:
       data:
         allOf:
         - $ref: '#/definitions/github_com_lwmacct_251117-go-ddd-template_internal_application_health.HealthReport'
-        description: 响应数据
-      error:
-        description: 错误详情（仅失败时）
-      message:
-        description: 消息描述
-        type: string
-    type: object
-  response.DataResponse-menu_MenuDTO:
-    properties:
-      code:
-        description: HTTP 状态码
-        type: integer
-      data:
-        allOf:
-        - $ref: '#/definitions/menu.MenuDTO'
         description: 响应数据
       error:
         description: 错误详情（仅失败时）
@@ -2241,242 +2149,6 @@ paths:
       summary: 扫描缓存键
       tags:
       - System
-  /api/system/menus:
-    get:
-      consumes:
-      - application/json
-      description: 获取所有菜单的树形结构（包含父子关系）
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 菜单树
-          schema:
-            $ref: '#/definitions/response.DataResponse-array_menu_MenuDTO'
-        "401":
-          description: 未授权
-          schema:
-            $ref: '#/definitions/response.ErrorResponse'
-        "403":
-          description: 权限不足
-          schema:
-            $ref: '#/definitions/response.ErrorResponse'
-        "500":
-          description: 服务器内部错误
-          schema:
-            $ref: '#/definitions/response.ErrorResponse'
-      security:
-      - BearerAuth: []
-      summary: 菜单列表
-      tags:
-      - Admin - Menu Management
-    post:
-      consumes:
-      - application/json
-      description: 管理员创建新的系统菜单项
-      parameters:
-      - description: 菜单信息
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/menu.CreateDTO'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: 菜单创建成功
-          schema:
-            $ref: '#/definitions/response.DataResponse-menu_MenuDTO'
-        "400":
-          description: 参数错误
-          schema:
-            $ref: '#/definitions/response.ErrorResponse'
-        "401":
-          description: 未授权
-          schema:
-            $ref: '#/definitions/response.ErrorResponse'
-        "403":
-          description: 权限不足
-          schema:
-            $ref: '#/definitions/response.ErrorResponse'
-        "500":
-          description: 服务器内部错误
-          schema:
-            $ref: '#/definitions/response.ErrorResponse'
-      security:
-      - BearerAuth: []
-      summary: 创建菜单
-      tags:
-      - Admin - Menu Management
-  /api/system/menus/{id}:
-    delete:
-      consumes:
-      - application/json
-      description: 管理员删除指定菜单（如果有子菜单，可能会失败）
-      parameters:
-      - description: 菜单ID
-        in: path
-        minimum: 1
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "204":
-          description: 菜单删除成功
-        "400":
-          description: 无效的菜单ID
-          schema:
-            $ref: '#/definitions/response.ErrorResponse'
-        "401":
-          description: 未授权
-          schema:
-            $ref: '#/definitions/response.ErrorResponse'
-        "403":
-          description: 权限不足
-          schema:
-            $ref: '#/definitions/response.ErrorResponse'
-        "404":
-          description: 菜单不存在
-          schema:
-            $ref: '#/definitions/response.ErrorResponse'
-        "500":
-          description: 服务器内部错误或菜单有子项
-          schema:
-            $ref: '#/definitions/response.ErrorResponse'
-      security:
-      - BearerAuth: []
-      summary: 删除菜单
-      tags:
-      - Admin - Menu Management
-    get:
-      consumes:
-      - application/json
-      description: 根据菜单ID获取菜单详细信息
-      parameters:
-      - description: 菜单ID
-        in: path
-        minimum: 1
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 菜单详情
-          schema:
-            $ref: '#/definitions/response.DataResponse-menu_MenuDTO'
-        "400":
-          description: 无效的菜单ID
-          schema:
-            $ref: '#/definitions/response.ErrorResponse'
-        "401":
-          description: 未授权
-          schema:
-            $ref: '#/definitions/response.ErrorResponse'
-        "403":
-          description: 权限不足
-          schema:
-            $ref: '#/definitions/response.ErrorResponse'
-        "404":
-          description: 菜单不存在
-          schema:
-            $ref: '#/definitions/response.ErrorResponse'
-      security:
-      - BearerAuth: []
-      summary: 菜单详情
-      tags:
-      - Admin - Menu Management
-    put:
-      consumes:
-      - application/json
-      description: 管理员更新菜单的标题、路径、图标等信息
-      parameters:
-      - description: 菜单ID
-        in: path
-        minimum: 1
-        name: id
-        required: true
-        type: integer
-      - description: 更新信息
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/menu.UpdateDTO'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 菜单更新成功
-          schema:
-            $ref: '#/definitions/response.DataResponse-menu_MenuDTO'
-        "400":
-          description: 无效的菜单ID或参数错误
-          schema:
-            $ref: '#/definitions/response.ErrorResponse'
-        "401":
-          description: 未授权
-          schema:
-            $ref: '#/definitions/response.ErrorResponse'
-        "403":
-          description: 权限不足
-          schema:
-            $ref: '#/definitions/response.ErrorResponse'
-        "404":
-          description: 菜单不存在
-          schema:
-            $ref: '#/definitions/response.ErrorResponse'
-        "500":
-          description: 服务器内部错误
-          schema:
-            $ref: '#/definitions/response.ErrorResponse'
-      security:
-      - BearerAuth: []
-      summary: 更新菜单
-      tags:
-      - Admin - Menu Management
-  /api/system/menus/reorder:
-    post:
-      consumes:
-      - application/json
-      description: 管理员批量更新菜单的排序和父级关系
-      parameters:
-      - description: 菜单排序信息
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/menu.ReorderDTO'
-      produces:
-      - application/json
-      responses:
-        "204":
-          description: 菜单排序更新成功
-        "400":
-          description: 参数错误
-          schema:
-            $ref: '#/definitions/response.ErrorResponse'
-        "401":
-          description: 未授权
-          schema:
-            $ref: '#/definitions/response.ErrorResponse'
-        "403":
-          description: 权限不足
-          schema:
-            $ref: '#/definitions/response.ErrorResponse'
-        "500":
-          description: 服务器内部错误
-          schema:
-            $ref: '#/definitions/response.ErrorResponse'
-      security:
-      - BearerAuth: []
-      summary: 重排菜单
-      tags:
-      - Admin - Menu Management
   /api/system/operations:
     get:
       consumes:
@@ -4034,6 +3706,27 @@ paths:
       security:
       - BearerAuth: []
       summary: 启用令牌
+      tags:
+      - User - Personal Access Token
+  /api/user/tokens/scopes:
+    get:
+      consumes:
+      - application/json
+      description: 获取创建 PAT 时可选的权限范围列表
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Scope 列表
+          schema:
+            $ref: '#/definitions/response.DataResponse-array_pat_ScopeInfoDTO'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Scope 列表
       tags:
       - User - Personal Access Token
   /health:

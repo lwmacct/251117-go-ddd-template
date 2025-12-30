@@ -17,8 +17,7 @@ type PersonalAccessToken struct {
 	Token       string `json:"-"`            // Token 哈希值（不返回）
 	TokenPrefix string `json:"token_prefix"` // Token 前缀（明文）
 
-	Permissions PermissionList `json:"permissions"`      // 权限列表（JSON）
-	Scopes      string         `json:"scopes,omitempty"` // 权限范围描述
+	Scopes StringList `json:"scopes"` // 权限范围（full, self, sys）
 
 	ExpiresAt  *time.Time `json:"expires_at,omitempty"`   // 过期时间（nil=永久）
 	LastUsedAt *time.Time `json:"last_used_at,omitempty"` // 最后使用时间
@@ -57,24 +56,14 @@ func (p *PersonalAccessToken) IsIPAllowed(ip string) bool {
 	return slices.Contains(p.IPWhitelist, ip)
 }
 
-// HasPermission 检查 Token 是否有指定权限
-func (p *PersonalAccessToken) HasPermission(scope string) bool {
-	return slices.Contains(p.Permissions, scope)
+// HasScope 检查 Token 是否包含指定 Scope。
+func (p *PersonalAccessToken) HasScope(scope string) bool {
+	return slices.Contains(p.Scopes, scope)
 }
 
-// HasAnyPermission 检查 Token 是否有任一指定权限
-func (p *PersonalAccessToken) HasAnyPermission(scopes ...string) bool {
-	return slices.ContainsFunc(scopes, p.HasPermission)
-}
-
-// HasAllPermissions 检查 Token 是否有所有指定权限
-func (p *PersonalAccessToken) HasAllPermissions(scopes ...string) bool {
-	for _, scope := range scopes {
-		if !p.HasPermission(scope) {
-			return false
-		}
-	}
-	return true
+// HasFullScope 检查 Token 是否具有完整权限。
+func (p *PersonalAccessToken) HasFullScope() bool {
+	return p.HasScope(string(ScopeFull))
 }
 
 // Disable 禁用 Token
@@ -97,11 +86,6 @@ func (p *PersonalAccessToken) IsDisabled() bool {
 	return p.Status == StatusDisabled
 }
 
-// GetPermissionCount 返回权限数量
-func (p *PersonalAccessToken) GetPermissionCount() int {
-	return len(p.Permissions)
-}
-
 // CanBeUsed 检查 Token 是否可以被使用（活跃且 IP 允许）
 func (p *PersonalAccessToken) CanBeUsed(ip string) bool {
 	return p.IsActive() && p.IsIPAllowed(ip)
@@ -113,7 +97,7 @@ func (p *PersonalAccessToken) ToListItem() *TokenListItem {
 		ID:          p.ID,
 		Name:        p.Name,
 		TokenPrefix: p.TokenPrefix,
-		Permissions: p.Permissions,
+		Scopes:      p.Scopes,
 		ExpiresAt:   p.ExpiresAt,
 		LastUsedAt:  p.LastUsedAt,
 		Status:      p.Status,
@@ -126,7 +110,7 @@ type TokenListItem struct {
 	ID          uint       `json:"id"`
 	Name        string     `json:"name"`
 	TokenPrefix string     `json:"token_prefix"` // 用于识别
-	Permissions []string   `json:"permissions"`
+	Scopes      []string   `json:"scopes"`
 	ExpiresAt   *time.Time `json:"expires_at,omitempty"`
 	LastUsedAt  *time.Time `json:"last_used_at,omitempty"`
 	Status      string     `json:"status"`

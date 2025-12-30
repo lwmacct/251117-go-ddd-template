@@ -3,7 +3,6 @@
 .openapi-generator-ignore
 api.ts
 api/admin-audit-log-api.ts
-api/admin-menu-management-api.ts
 api/admin-role-management-api.ts
 api/admin-setting-categories-api.ts
 api/admin-settings-api.ts
@@ -52,15 +51,11 @@ models/handler-update-category-request.ts
 models/handler-update-profile-request.ts
 models/handler-update-setting-request.ts
 models/index.ts
-models/menu-create-dto.ts
-models/menu-menu-dto.ts
-models/menu-reorder-dto.ts
-models/menu-reorder-dtomenus-inner.ts
-models/menu-update-dto.ts
 models/pat-create-dto.ts
 models/pat-create-result-dto.ts
+models/pat-scope-info-dto.ts
 models/pat-token-dto.ts
-models/response-data-response-array-menu-menu-dto.ts
+models/response-data-response-array-pat-scope-info-dto.ts
 models/response-data-response-array-pat-token-dto.ts
 models/response-data-response-array-routes-operation-definition.ts
 models/response-data-response-array-setting-category-dto.ts
@@ -77,7 +72,6 @@ models/response-data-response-cache-delete-result-dto.ts
 models/response-data-response-cache-scan-keys-result-dto.ts
 models/response-data-response-captcha-generate-result-dto.ts
 models/response-data-response-github-com-lwmacct251117-go-ddd-template-internal-application-health-health-report.ts
-models/response-data-response-menu-menu-dto.ts
 models/response-data-response-pat-create-result-dto.ts
 models/response-data-response-pat-token-dto.ts
 models/response-data-response-role-create-result-dto.ts

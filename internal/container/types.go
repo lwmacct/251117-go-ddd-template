@@ -26,7 +26,6 @@ func GetAllModels() []any {
 		&persistence.PersonalAccessTokenModel{},
 		&persistence.AuditLogModel{},
 		&persistence.TwoFAModel{},
-		&persistence.MenuModel{},
 		&persistence.SettingModel{},
 		&persistence.SettingCategoryModel{},
 		&persistence.UserSettingModel{},

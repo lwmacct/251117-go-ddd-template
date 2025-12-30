@@ -23,7 +23,6 @@ export * from "./helpers";
 export {
   apiClient,
   adminAuditLogApi,
-  adminMenuApi,
   adminRoleApi,
   adminSettingCategoriesApi,
   adminSettingsApi,

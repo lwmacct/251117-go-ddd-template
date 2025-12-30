@@ -61,16 +61,6 @@ const (
 	SysAuditLogsActions Operation = "sys:auditlogs:actions"
 )
 
-// Sys 域 - 菜单管理
-const (
-	SysMenusCreate  Operation = "sys:menus:create"
-	SysMenusList    Operation = "sys:menus:list"
-	SysMenusGet     Operation = "sys:menus:get"
-	SysMenusUpdate  Operation = "sys:menus:update"
-	SysMenusDelete  Operation = "sys:menus:delete"
-	SysMenusReorder Operation = "sys:menus:reorder"
-)
-
 // Sys 域 - 系统概览
 const (
 	SysOverviewStats Operation = "sys:overview:stats"
@@ -122,6 +112,7 @@ const (
 	SelfTokensDelete  Operation = "self:tokens:delete"
 	SelfTokensDisable Operation = "self:tokens:disable"
 	SelfTokensEnable  Operation = "self:tokens:enable"
+	SelfTokensScopes  Operation = "self:tokens:scopes"
 )
 
 // Self 域 - 用户配置
@@ -181,14 +172,6 @@ var constNameRegistry = map[string]Operation{
 	"SysAuditLogsGet":     SysAuditLogsGet,
 	"SysAuditLogsActions": SysAuditLogsActions,
 
-	// Sys 域 - 菜单管理
-	"SysMenusCreate":  SysMenusCreate,
-	"SysMenusList":    SysMenusList,
-	"SysMenusGet":     SysMenusGet,
-	"SysMenusUpdate":  SysMenusUpdate,
-	"SysMenusDelete":  SysMenusDelete,
-	"SysMenusReorder": SysMenusReorder,
-
 	// Sys 域 - 系统概览
 	"SysOverviewStats": SysOverviewStats,
 
@@ -227,6 +210,7 @@ var constNameRegistry = map[string]Operation{
 	"SelfTokensDelete":  SelfTokensDelete,
 	"SelfTokensDisable": SelfTokensDisable,
 	"SelfTokensEnable":  SelfTokensEnable,
+	"SelfTokensScopes":  SelfTokensScopes,
 
 	// Self 域 - 用户配置
 	"SelfSettingsCategoriesList": SelfSettingsCategoriesList,

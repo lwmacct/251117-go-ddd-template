@@ -30,7 +30,6 @@ type HandlersResult struct {
 	AdminUser   *handler.AdminUserHandler
 	UserProfile *handler.UserProfileHandler
 	Role        *handler.RoleHandler
-	Menu        *handler.MenuHandler
 	Setting     *handler.SettingHandler
 	UserSetting *handler.UserSettingHandler
 	PAT         *handler.PATHandler
@@ -64,7 +63,6 @@ type handlersParams struct {
 	Auth          *AuthUseCases
 	User          *UserUseCases
 	Role          *RoleUseCases
-	Menu          *MenuUseCases
 	Setting       *SettingUseCases
 	UserSetting   *UserSettingUseCases
 	PAT           *PATUseCases
@@ -108,14 +106,6 @@ func newAllHandlers(p handlersParams) HandlersResult {
 			p.Role.SetPermissions,
 			p.Role.Get,
 			p.Role.List,
-		),
-		Menu: handler.NewMenuHandler(
-			p.Menu.Create,
-			p.Menu.Update,
-			p.Menu.Delete,
-			p.Menu.Reorder,
-			p.Menu.Get,
-			p.Menu.List,
 		),
 		Setting: handler.NewSettingHandler(
 			p.Setting.Create,
@@ -192,7 +182,6 @@ type routerParams struct {
 	AdminUser   *handler.AdminUserHandler
 	UserProfile *handler.UserProfileHandler
 	Role        *handler.RoleHandler
-	Menu        *handler.MenuHandler
 	Setting     *handler.SettingHandler
 	UserSetting *handler.UserSettingHandler
 	PAT         *handler.PATHandler
@@ -215,7 +204,6 @@ func newRouter(p routerParams) *gin.Engine {
 		AuthHandler:            p.Auth,
 		CaptchaHandler:         p.Captcha,
 		RoleHandler:            p.Role,
-		MenuHandler:            p.Menu,
 		SettingHandler:         p.Setting,
 		UserSettingHandler:     p.UserSetting,
 		PATHandler:             p.PAT,

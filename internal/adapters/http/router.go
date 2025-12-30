@@ -7,7 +7,7 @@
 //
 // 路由结构：
 //   - /api/auth/*: 认证相关（登录、注册、刷新令牌）
-//   - /api/admin/*: 管理后台（用户、角色、权限、菜单管理）
+//   - /api/admin/*: 管理后台（用户、角色、权限管理）
 //   - /api/user/*: 用户中心（个人资料、PAT 管理）
 //   - /swagger/*: API 文档
 //   - /docs/*: VitePress 文档
@@ -91,7 +91,6 @@ type RouterDependencies struct {
 	AuthHandler        *handler.AuthHandler
 	CaptchaHandler     *handler.CaptchaHandler
 	RoleHandler        *handler.RoleHandler
-	MenuHandler        *handler.MenuHandler
 	SettingHandler     *handler.SettingHandler
 	UserSettingHandler *handler.UserSettingHandler
 	PATHandler         *handler.PATHandler

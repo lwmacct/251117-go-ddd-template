@@ -51,10 +51,10 @@ export interface PatCreateDTO {
      */
     'name': string;
     /**
-     * 可选，限制令牌权限范围（为空则默认用户全部权限）
+     * 权限范围（full, self, sys），默认 [\"full\"]
      * @type {Array<string>}
      * @memberof PatCreateDTO
      */
-    'permissions'?: Array<string>;
+    'scopes'?: Array<string>;
 }
 

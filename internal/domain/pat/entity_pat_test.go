@@ -5,6 +5,8 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
+
+	"github.com/lwmacct/251117-go-ddd-template/internal/domain/role"
 )
 
 // newTestPAT 创建测试用 PAT。
@@ -15,7 +17,7 @@ func newTestPAT(status string, expiresAt *time.Time) *PersonalAccessToken {
 		Name:        "Test Token",
 		Token:       "hashed_token_value",
 		TokenPrefix: "ghp_xxxx",
-		Permissions: PermissionList{"read", "write"},
+		Scopes:      StringList{string(ScopeFull)},
 		Status:      status,
 		ExpiresAt:   expiresAt,
 		CreatedAt:   time.Now(),
@@ -119,7 +121,7 @@ func TestPersonalAccessToken_ToListItem(t *testing.T) {
 		ID:          42,
 		Name:        "CI Token",
 		TokenPrefix: "ghp_1234",
-		Permissions: PermissionList{"repo:read", "repo:write"},
+		Scopes:      StringList{string(ScopeSelf), string(ScopeSys)},
 		ExpiresAt:   &expiresAt,
 		LastUsedAt:  &lastUsedAt,
 		Status:      "active",
@@ -131,7 +133,7 @@ func TestPersonalAccessToken_ToListItem(t *testing.T) {
 	assert.Equal(t, pat.ID, item.ID, "ID 应该相等")
 	assert.Equal(t, pat.Name, item.Name, "Name 应该相等")
 	assert.Equal(t, pat.TokenPrefix, item.TokenPrefix, "TokenPrefix 应该相等")
-	assert.Equal(t, []string(pat.Permissions), item.Permissions, "Permissions 应该相等")
+	assert.Equal(t, []string(pat.Scopes), item.Scopes, "Scopes 应该相等")
 	assert.Equal(t, pat.ExpiresAt, item.ExpiresAt, "ExpiresAt 应该相等")
 	assert.Equal(t, pat.LastUsedAt, item.LastUsedAt, "LastUsedAt 应该相等")
 	assert.Equal(t, pat.Status, item.Status, "Status 应该相等")
@@ -143,7 +145,7 @@ func TestPersonalAccessToken_ToListItem_NilFields(t *testing.T) {
 		ID:          1,
 		Name:        "Simple Token",
 		TokenPrefix: "ghp_xxxx",
-		Permissions: nil,
+		Scopes:      nil,
 		ExpiresAt:   nil,
 		LastUsedAt:  nil,
 		Status:      "active",
@@ -153,7 +155,7 @@ func TestPersonalAccessToken_ToListItem_NilFields(t *testing.T) {
 
 	assert.Nil(t, item.ExpiresAt, "ExpiresAt 应该为 nil")
 	assert.Nil(t, item.LastUsedAt, "LastUsedAt 应该为 nil")
-	assert.Nil(t, item.Permissions, "Permissions 应该为 nil")
+	assert.Nil(t, item.Scopes, "Scopes 应该为 nil")
 }
 
 func TestPersonalAccessToken_EdgeCases(t *testing.T) {
@@ -216,9 +218,9 @@ func TestPersonalAccessToken_IsIPAllowed(t *testing.T) {
 	}
 }
 
-func TestPersonalAccessToken_HasPermission(t *testing.T) {
+func TestPersonalAccessToken_HasScope(t *testing.T) {
 	pat := &PersonalAccessToken{
-		Permissions: PermissionList{"read", "write", "admin"},
+		Scopes: StringList{string(ScopeFull), string(ScopeSelf)},
 	}
 
 	tests := []struct {
@@ -226,61 +228,35 @@ func TestPersonalAccessToken_HasPermission(t *testing.T) {
 		scope string
 		want  bool
 	}{
-		{"存在的权限", "read", true},
-		{"存在的权限 2", "admin", true},
-		{"不存在的权限", "delete", false},
-		{"空权限", "", false},
+		{"存在的 Scope - full", string(ScopeFull), true},
+		{"存在的 Scope - self", string(ScopeSelf), true},
+		{"不存在的 Scope - sys", string(ScopeSys), false},
+		{"空 Scope", "", false},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			assert.Equal(t, tt.want, pat.HasPermission(tt.scope))
+			assert.Equal(t, tt.want, pat.HasScope(tt.scope))
 		})
 	}
 }
 
-func TestPersonalAccessToken_HasAnyPermission(t *testing.T) {
-	pat := &PersonalAccessToken{
-		Permissions: PermissionList{"read", "write"},
-	}
-
+func TestPersonalAccessToken_HasFullScope(t *testing.T) {
 	tests := []struct {
 		name   string
-		scopes []string
+		scopes StringList
 		want   bool
 	}{
-		{"有一个匹配", []string{"read", "delete"}, true},
-		{"全部匹配", []string{"read", "write"}, true},
-		{"无匹配", []string{"delete", "admin"}, false},
-		{"空数组", []string{}, false},
+		{"有 full scope", StringList{string(ScopeFull)}, true},
+		{"多个 scope 包含 full", StringList{string(ScopeSelf), string(ScopeFull)}, true},
+		{"没有 full scope", StringList{string(ScopeSelf), string(ScopeSys)}, false},
+		{"空 scopes", nil, false},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			assert.Equal(t, tt.want, pat.HasAnyPermission(tt.scopes...))
-		})
-	}
-}
-
-func TestPersonalAccessToken_HasAllPermissions(t *testing.T) {
-	pat := &PersonalAccessToken{
-		Permissions: PermissionList{"read", "write", "admin"},
-	}
-
-	tests := []struct {
-		name   string
-		scopes []string
-		want   bool
-	}{
-		{"全部存在", []string{"read", "write"}, true},
-		{"部分存在", []string{"read", "delete"}, false},
-		{"全部不存在", []string{"delete", "super"}, false},
-		{"空数组", []string{}, true},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			assert.Equal(t, tt.want, pat.HasAllPermissions(tt.scopes...))
+			pat := &PersonalAccessToken{Scopes: tt.scopes}
+			assert.Equal(t, tt.want, pat.HasFullScope())
 		})
 	}
 }
@@ -312,25 +288,6 @@ func TestPersonalAccessToken_DisableEnable(t *testing.T) {
 		assert.Equal(t, StatusExpired, pat.Status)
 		assert.False(t, pat.IsActive())
 	})
-}
-
-func TestPersonalAccessToken_GetPermissionCount(t *testing.T) {
-	tests := []struct {
-		name        string
-		permissions PermissionList
-		want        int
-	}{
-		{"有权限", PermissionList{"read", "write"}, 2},
-		{"空权限", PermissionList{}, 0},
-		{"nil 权限", nil, 0},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			pat := &PersonalAccessToken{Permissions: tt.permissions}
-			assert.Equal(t, tt.want, pat.GetPermissionCount())
-		})
-	}
 }
 
 func TestPersonalAccessToken_CanBeUsed(t *testing.T) {
@@ -380,4 +337,71 @@ func TestPersonalAccessToken_CanBeUsed(t *testing.T) {
 			assert.Equal(t, tt.want, pat.CanBeUsed(tt.ip))
 		})
 	}
+}
+
+// TestFilterByScopes_SuperAdminRestriction 验证超级权限在限制性 Scope 下被正确过滤。
+//
+// 安全要求：PAT 权限不得超过用户本身权限，且 Scope 限制必须生效。
+func TestFilterByScopes_SuperAdminRestriction(t *testing.T) {
+	superPerms := []role.Permission{
+		{OperationPattern: "*:*:*", ResourcePattern: "*:*:*"},
+	}
+
+	t.Run("full scope 应保留超级权限", func(t *testing.T) {
+		result := FilterByScopes([]string{"full"}, superPerms)
+		assert.Len(t, result, 1, "full scope 应返回全部权限")
+		assert.Equal(t, "*:*:*", result[0].OperationPattern)
+	})
+
+	t.Run("self scope 不应保留超级权限", func(t *testing.T) {
+		result := FilterByScopes([]string{"self"}, superPerms)
+		assert.Empty(t, result, "self scope 不应继承 *:*:* 超级权限")
+	})
+
+	t.Run("sys scope 不应保留超级权限", func(t *testing.T) {
+		result := FilterByScopes([]string{"sys"}, superPerms)
+		assert.Empty(t, result, "sys scope 不应继承 *:*:* 超级权限")
+	})
+
+	t.Run("self+sys scope 不应保留超级权限", func(t *testing.T) {
+		result := FilterByScopes([]string{"self", "sys"}, superPerms)
+		assert.Empty(t, result, "self+sys scope 不应继承 *:*:* 超级权限")
+	})
+}
+
+// TestFilterByScopes_MixedPermissions 验证混合权限的过滤逻辑。
+func TestFilterByScopes_MixedPermissions(t *testing.T) {
+	mixedPerms := []role.Permission{
+		{OperationPattern: "*:*:*", ResourcePattern: "*:*:*"},
+		{OperationPattern: "self:profile:read", ResourcePattern: "self:user:@me"},
+		{OperationPattern: "self:profile:update", ResourcePattern: "self:user:@me"},
+		{OperationPattern: "sys:users:list", ResourcePattern: "*:*:*"},
+		{OperationPattern: "sys:users:create", ResourcePattern: "*:*:*"},
+	}
+
+	t.Run("self scope 只保留 self 权限", func(t *testing.T) {
+		result := FilterByScopes([]string{"self"}, mixedPerms)
+		assert.Len(t, result, 2, "应只保留 2 个 self 权限")
+		for _, p := range result {
+			assert.Equal(t, "self:", p.OperationPattern[:5], "所有权限应以 self: 开头")
+		}
+	})
+
+	t.Run("sys scope 只保留 sys 权限", func(t *testing.T) {
+		result := FilterByScopes([]string{"sys"}, mixedPerms)
+		assert.Len(t, result, 2, "应只保留 2 个 sys 权限")
+		for _, p := range result {
+			assert.Equal(t, "sys:", p.OperationPattern[:4], "所有权限应以 sys: 开头")
+		}
+	})
+
+	t.Run("self+sys scope 取并集", func(t *testing.T) {
+		result := FilterByScopes([]string{"self", "sys"}, mixedPerms)
+		assert.Len(t, result, 4, "应保留 4 个权限（2 self + 2 sys）")
+	})
+
+	t.Run("full scope 返回全部", func(t *testing.T) {
+		result := FilterByScopes([]string{"full"}, mixedPerms)
+		assert.Len(t, result, 5, "full scope 应返回全部 5 个权限")
+	})
 }

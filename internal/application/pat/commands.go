@@ -8,7 +8,7 @@ import (
 type CreateCommand struct {
 	UserID      uint
 	Name        string
-	Permissions []string
+	Scopes      []string // 权限范围（full, self, sys）
 	ExpiresAt   *time.Time
 	IPWhitelist []string
 	Description string

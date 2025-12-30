@@ -7,7 +7,7 @@ import (
 // CreateDTO 创建令牌请求 DTO
 type CreateDTO struct {
 	Name        string   `json:"name" binding:"required,min=3,max=100"`
-	Permissions []string `json:"permissions,omitempty"`  // 可选，限制令牌权限范围（为空则默认用户全部权限）
+	Scopes      []string `json:"scopes"`                 // 权限范围（full, self, sys），默认 ["full"]
 	ExpiresAt   *string  `json:"expires_at,omitempty"`   // 可选，过期时间（RFC3339 或 yyyy-MM-ddTHH:mm）
 	ExpiresIn   *int     `json:"expires_in,omitempty"`   // 可选，以天为单位的有效期（兜底，前端未使用时可忽略）
 	IPWhitelist []string `json:"ip_whitelist,omitempty"` // 可选，IP 白名单
@@ -20,7 +20,7 @@ type TokenDTO struct {
 	UserID      uint       `json:"user_id"`
 	Name        string     `json:"name"`
 	TokenPrefix string     `json:"token_prefix"`
-	Permissions []string   `json:"permissions"`
+	Scopes      []string   `json:"scopes"`
 	IPWhitelist []string   `json:"ip_whitelist,omitempty"`
 	Status      string     `json:"status"`
 	ExpiresAt   *time.Time `json:"expires_at,omitempty"`
@@ -47,11 +47,18 @@ type TokenInfoDTO struct {
 	UserID      uint       `json:"user_id"`
 	Name        string     `json:"name"`
 	TokenPrefix string     `json:"token_prefix"`
-	Permissions []string   `json:"permissions"`
+	Scopes      []string   `json:"scopes"`
 	IPWhitelist []string   `json:"ip_whitelist,omitempty"`
 	Status      string     `json:"status"`
 	ExpiresAt   *time.Time `json:"expires_at,omitempty"`
 	LastUsedAt  *time.Time `json:"last_used_at,omitempty"`
 	CreatedAt   time.Time  `json:"created_at"`
 	UpdatedAt   time.Time  `json:"updated_at"`
+}
+
+// ScopeInfoDTO PAT Scope 元信息 DTO，供前端展示
+type ScopeInfoDTO struct {
+	Name        string `json:"name"`
+	DisplayName string `json:"display_name"`
+	Description string `json:"description"`
 }

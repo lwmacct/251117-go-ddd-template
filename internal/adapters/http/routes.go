@@ -54,15 +54,6 @@ func (deps *RouterDependencies) AllRouteBindings() []RouteBinding {
 		{permission.SysAuditLogsList, deps.AuditLogHandler.ListLogs},
 		{permission.SysAuditLogsGet, deps.AuditLogHandler.GetLog},
 
-		// ==================== Sys 域 - 菜单管理 ====================
-		// 注意：reorder 路由必须在 :id 路由之前
-		{permission.SysMenusReorder, deps.MenuHandler.Reorder},
-		{permission.SysMenusCreate, deps.MenuHandler.Create},
-		{permission.SysMenusList, deps.MenuHandler.List},
-		{permission.SysMenusGet, deps.MenuHandler.Get},
-		{permission.SysMenusUpdate, deps.MenuHandler.Update},
-		{permission.SysMenusDelete, deps.MenuHandler.Delete},
-
 		// ==================== Sys 域 - 系统概览 ====================
 		{permission.SysOverviewStats, deps.OverviewHandler.GetStats},
 
@@ -96,8 +87,10 @@ func (deps *RouterDependencies) AllRouteBindings() []RouteBinding {
 		{permission.SelfAccountDelete, deps.UserProfileHandler.DeleteAccount},
 
 		// ==================== Self 域 - 访问令牌 ====================
+		// 注意：scopes 必须在 :id 路由之前
 		{permission.SelfTokensCreate, deps.PATHandler.CreateToken},
 		{permission.SelfTokensList, deps.PATHandler.ListTokens},
+		{permission.SelfTokensScopes, deps.PATHandler.ListScopes},
 		{permission.SelfTokensGet, deps.PATHandler.GetToken},
 		{permission.SelfTokensDelete, deps.PATHandler.DeleteToken},
 		{permission.SelfTokensDisable, deps.PATHandler.DisableToken},

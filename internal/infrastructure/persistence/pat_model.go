@@ -21,8 +21,7 @@ type PersonalAccessTokenModel struct {
 	Token       string `gorm:"size:255;uniqueIndex;not null"`
 	TokenPrefix string `gorm:"size:20;not null;index"`
 
-	Permissions pat.PermissionList `gorm:"type:jsonb;not null"`
-	Scopes      string             `gorm:"type:text"`
+	Scopes pat.StringList `gorm:"type:jsonb;not null;default:'[\"full\"]'"` // 权限范围
 
 	ExpiresAt  *time.Time
 	LastUsedAt *time.Time
@@ -50,7 +49,6 @@ func newPATModelFromEntity(entity *pat.PersonalAccessToken) *PersonalAccessToken
 		Name:        entity.Name,
 		Token:       entity.Token,
 		TokenPrefix: entity.TokenPrefix,
-		Permissions: entity.Permissions,
 		Scopes:      entity.Scopes,
 		ExpiresAt:   entity.ExpiresAt,
 		LastUsedAt:  entity.LastUsedAt,
@@ -80,7 +78,6 @@ func (m *PersonalAccessTokenModel) ToEntity() *pat.PersonalAccessToken {
 		Name:        m.Name,
 		Token:       m.Token,
 		TokenPrefix: m.TokenPrefix,
-		Permissions: m.Permissions,
 		Scopes:      m.Scopes,
 		ExpiresAt:   m.ExpiresAt,
 		LastUsedAt:  m.LastUsedAt,

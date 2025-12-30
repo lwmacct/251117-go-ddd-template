@@ -9,7 +9,7 @@
  * 业务 DTO 直接从 @/api/generated/models 导入
  */
 
-import type { MenuMenuDTO, ResponsePaginationMeta, ResponseErrorDetail } from "@models";
+import type { ResponsePaginationMeta, ResponseErrorDetail } from "@models";
 
 // ============== 前端状态类型 ==============
 
@@ -36,13 +36,7 @@ export interface PaginationState {
 
 // ============== 扩展类型 ==============
 
-/**
- * 菜单类型（扩展 children 字段用于树形结构）
- * 后端返回平面数据，前端根据 parent_id 构建树
- */
-export interface Menu extends MenuMenuDTO {
-  children?: Menu[];
-}
+// (Menu 模块已移除，此处保留为扩展类型区域)
 
 // ============== 前端枚举类型 ==============
 

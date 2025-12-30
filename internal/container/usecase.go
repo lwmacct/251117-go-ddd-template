@@ -6,7 +6,6 @@ import (
 	"github.com/lwmacct/251117-go-ddd-template/internal/application/auditlog"
 	"github.com/lwmacct/251117-go-ddd-template/internal/application/auth"
 	app_captcha "github.com/lwmacct/251117-go-ddd-template/internal/application/captcha"
-	"github.com/lwmacct/251117-go-ddd-template/internal/application/menu"
 	"github.com/lwmacct/251117-go-ddd-template/internal/application/pat"
 	"github.com/lwmacct/251117-go-ddd-template/internal/application/role"
 	"github.com/lwmacct/251117-go-ddd-template/internal/application/setting"
@@ -51,15 +50,6 @@ type RoleUseCases struct {
 	SetPermissions *role.SetPermissionsHandler
 	Get            *role.GetHandler
 	List           *role.ListHandler
-}
-
-type MenuUseCases struct {
-	Create  *menu.CreateHandler
-	Update  *menu.UpdateHandler
-	Delete  *menu.DeleteHandler
-	Reorder *menu.ReorderHandler
-	Get     *menu.GetHandler
-	List    *menu.ListHandler
 }
 
 type SettingUseCases struct {
@@ -127,7 +117,6 @@ var UseCaseModule = fx.Module("usecase",
 		newAuthUseCases,
 		newUserUseCases,
 		newRoleUseCases,
-		newMenuUseCases,
 		newSettingUseCases,
 		newUserSettingUseCases,
 		newPATUseCases,
@@ -207,17 +196,6 @@ func newRoleUseCases(p roleUseCasesParams) *RoleUseCases {
 		SetPermissions: role.NewSetPermissionsHandler(p.RoleRepos.Command, p.RoleRepos.Query, p.EventBus),
 		Get:            role.NewGetHandler(p.RoleRepos.Query),
 		List:           role.NewListHandler(p.RoleRepos.Query),
-	}
-}
-
-func newMenuUseCases(repos persistence.MenuRepositories) *MenuUseCases {
-	return &MenuUseCases{
-		Create:  menu.NewCreateHandler(repos.Command, repos.Query),
-		Update:  menu.NewUpdateHandler(repos.Command, repos.Query),
-		Delete:  menu.NewDeleteHandler(repos.Command, repos.Query),
-		Reorder: menu.NewReorderHandler(repos.Command, repos.Query),
-		Get:     menu.NewGetHandler(repos.Query),
-		List:    menu.NewListHandler(repos.Query),
 	}
 }
 

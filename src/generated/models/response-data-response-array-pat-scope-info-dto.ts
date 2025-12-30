@@ -15,36 +15,36 @@
 
 // May contain unused imports in some cases
 // @ts-ignore
-import type { MenuMenuDTO } from './menu-menu-dto';
+import type { PatScopeInfoDTO } from './pat-scope-info-dto';
 
 /**
  * 
  * @export
- * @interface ResponseDataResponseArrayMenuMenuDTO
+ * @interface ResponseDataResponseArrayPatScopeInfoDTO
  */
-export interface ResponseDataResponseArrayMenuMenuDTO {
+export interface ResponseDataResponseArrayPatScopeInfoDTO {
     /**
      * HTTP 状态码
      * @type {number}
-     * @memberof ResponseDataResponseArrayMenuMenuDTO
+     * @memberof ResponseDataResponseArrayPatScopeInfoDTO
      */
     'code'?: number;
     /**
      * 响应数据
-     * @type {Array<MenuMenuDTO>}
-     * @memberof ResponseDataResponseArrayMenuMenuDTO
+     * @type {Array<PatScopeInfoDTO>}
+     * @memberof ResponseDataResponseArrayPatScopeInfoDTO
      */
-    'data'?: Array<MenuMenuDTO>;
+    'data'?: Array<PatScopeInfoDTO>;
     /**
      * 错误详情（仅失败时）
      * @type {object}
-     * @memberof ResponseDataResponseArrayMenuMenuDTO
+     * @memberof ResponseDataResponseArrayPatScopeInfoDTO
      */
     'error'?: object;
     /**
      * 消息描述
      * @type {string}
-     * @memberof ResponseDataResponseArrayMenuMenuDTO
+     * @memberof ResponseDataResponseArrayPatScopeInfoDTO
      */
     'message'?: string;
 }

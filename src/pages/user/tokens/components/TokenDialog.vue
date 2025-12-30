@@ -16,7 +16,7 @@ const emit = defineEmits<Emits>();
 
 const formData = ref<PatCreateDTO>({
   name: "",
-  permissions: [],
+  scopes: [],
   expires_at: undefined,
   ip_whitelist: [],
 });
@@ -43,7 +43,7 @@ watch(
 const resetForm = () => {
   formData.value = {
     name: "",
-    permissions: [],
+    scopes: [],
     expires_at: undefined,
     ip_whitelist: [],
   };
@@ -63,7 +63,7 @@ const handleSave = async () => {
 
   const data: PatCreateDTO = {
     name: formData.value.name,
-    permissions: formData.value.permissions?.length ? formData.value.permissions : undefined,
+    scopes: formData.value.scopes?.length ? formData.value.scopes : undefined,
     expires_at: expiresEnabled.value ? formData.value.expires_at : undefined,
     ip_whitelist:
       ipWhitelistEnabled.value && ipWhitelistText.value

@@ -2,20 +2,16 @@
  * Navbar 状态管理 Store
  *
  * 聚合导航相关的全局状态：
- * - 菜单项（从配置生成）
  * - 收藏夹（localStorage 存储）
  * - 访问历史（委托给 useAccessHistory，带 localStorage 持久化）
+ * - 抽屉状态
  *
- * 优化点（相对 SaaS 模板）：
- * - 职责单一：只管理共享状态，组件逻辑留给 composables
- * - 收藏夹简化为 localStorage，无后端依赖
- * - 访问历史委托给 composable，实现单一数据源
+ * 注意：菜单项现在由 useMenus composable 动态生成，基于角色过滤
  */
 
 import { defineStore } from "pinia";
 import { ref, computed } from "vue";
-import { adminMenuItems } from "@/config/menus/admin";
-import { userMenuItems } from "@/config/menus/user";
+import { useMenus } from "@/composables";
 import { useAccessHistory } from "@/views/AppBars/composables";
 import type { MenuItem } from "@/views/AppBars/types";
 
@@ -46,6 +42,10 @@ function saveFavorites(paths: string[]): void {
 }
 
 export const useNavbarStore = defineStore("navbar", () => {
+  // ==================== 动态菜单（基于角色） ====================
+
+  const { adminMenus, userMenus } = useMenus();
+
   // ==================== 访问历史（委托给 composable）====================
 
   // 使用 composable 管理访问历史（带 localStorage 持久化）
@@ -68,13 +68,13 @@ export const useNavbarStore = defineStore("navbar", () => {
   const accessHistory = historyManager.recentPages;
 
   /**
-   * 所有菜单项（合并管理员和用户菜单）
+   * 所有菜单项（合并管理员和用户菜单，基于角色动态过滤）
    */
   const allMenuItems = computed<MenuItem[]>(() => {
     const items: MenuItem[] = [];
 
-    // 转换管理员菜单
-    adminMenuItems.forEach((item, index) => {
+    // 转换管理员菜单（已经按角色过滤）
+    adminMenus.value.forEach((item, index) => {
       items.push({
         id: `admin-${index}`,
         title: item.title,
@@ -85,8 +85,8 @@ export const useNavbarStore = defineStore("navbar", () => {
       });
     });
 
-    // 转换用户菜单
-    userMenuItems.forEach((item, index) => {
+    // 转换用户菜单（已经按角色过滤）
+    userMenus.value.forEach((item, index) => {
       items.push({
         id: `user-${index}`,
         title: item.title,

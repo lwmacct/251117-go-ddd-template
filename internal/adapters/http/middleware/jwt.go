@@ -17,6 +17,10 @@
 // 权限缓存机制：
 // JWT/PAT 仅存储 user_id，权限信息从 PermissionCacheService
 // 实时查询，支持权限变更后立即生效。
+//
+// PAT Scope 过滤：
+// PAT 认证时，根据 PAT 的 Scopes 字段过滤用户权限。
+// 例如 Scope 为 ["self"] 时，只保留 self:* 前缀的权限。
 package middleware
 
 import (
@@ -26,6 +30,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/lwmacct/251117-go-ddd-template/internal/adapters/http/response"
+	"github.com/lwmacct/251117-go-ddd-template/internal/domain/pat"
 	"github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/auth"
 )
 
@@ -96,29 +101,36 @@ func authenticateWithJWT(ctx context.Context, c *gin.Context, jwtManager *auth.J
 }
 
 // authenticateWithPAT 使用 Personal Access Token 进行认证
-// 新架构：PAT 自动继承用户全部权限，从缓存实时查询
+// PAT 根据 Scopes 字段过滤用户权限：
+//   - full: 继承用户全部权限
+//   - self: 只保留 self:* 前缀的权限
+//   - sys: 只保留 sys:* 前缀的权限
 func authenticateWithPAT(ctx context.Context, c *gin.Context, patService *auth.PATService, permCacheService *auth.PermissionCacheService, tokenString string) error {
 	// 验证 PAT (包含 IP 白名单检查)
 	clientIP := c.ClientIP()
-	pat, err := patService.ValidateTokenWithIP(ctx, tokenString, clientIP)
+	patToken, err := patService.ValidateTokenWithIP(ctx, tokenString, clientIP)
 	if err != nil {
 		return err
 	}
 
-	// 从缓存查询用户权限（PAT 自动继承用户全部权限）
-	roles, permissions, err := permCacheService.GetUserPermissions(ctx, pat.UserID)
+	// 从缓存查询用户权限
+	roles, userPermissions, err := permCacheService.GetUserPermissions(ctx, patToken.UserID)
 	if err != nil {
 		return fmt.Errorf("failed to get user permissions: %w", err)
 	}
 
+	// 根据 PAT Scopes 过滤权限
+	effectivePermissions := pat.FilterByScopes(patToken.Scopes, userPermissions)
+
 	// 将用户信息存入上下文
-	c.Set("user_id", pat.UserID)
+	c.Set("user_id", patToken.UserID)
 	c.Set("username", "") // PAT 不存储 username，可从用户表查询
 	c.Set("email", "")
 	c.Set("roles", roles)
-	c.Set("permissions", permissions) // 从缓存查询的完整权限
+	c.Set("permissions", effectivePermissions) // 过滤后的权限
 	c.Set("auth_type", "pat")
-	c.Set("pat_id", pat.ID) // 额外存储 PAT ID，用于审计
+	c.Set("pat_id", patToken.ID)         // 用于审计
+	c.Set("pat_scopes", patToken.Scopes) // 用于审计
 
 	return nil
 }

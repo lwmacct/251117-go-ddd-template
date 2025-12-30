@@ -8,6 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/lwmacct/251117-go-ddd-template/internal/adapters/http/response"
 	"github.com/lwmacct/251117-go-ddd-template/internal/application/pat"
+	patdomain "github.com/lwmacct/251117-go-ddd-template/internal/domain/pat"
 )
 
 // PATHandler handles Personal Access Token operations (DDD+CQRS Use Case Pattern)
@@ -86,7 +87,7 @@ func (h *PATHandler) CreateToken(c *gin.Context) {
 	result, err := h.createHandler.Handle(c.Request.Context(), pat.CreateCommand{
 		UserID:      uid,
 		Name:        req.Name,
-		Permissions: req.Permissions,
+		Scopes:      req.Scopes,
 		ExpiresAt:   expiresAt,
 		IPWhitelist: req.IPWhitelist,
 		Description: req.Description,
@@ -316,6 +317,30 @@ func (h *PATHandler) EnableToken(c *gin.Context) {
 	}
 
 	response.OK(c, "token enabled successfully", nil)
+}
+
+// ListScopes returns available scopes for PAT creation
+//
+// @Summary      Scope 列表
+// @Description  获取创建 PAT 时可选的权限范围列表
+// @Tags         User - Personal Access Token
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Success      200 {object} response.DataResponse[[]pat.ScopeInfoDTO] "Scope 列表"
+// @Failure      401 {object} response.ErrorResponse "未授权"
+// @Router       /api/user/tokens/scopes [get]
+func (h *PATHandler) ListScopes(c *gin.Context) {
+	// 将 domain 类型映射到 DTO
+	scopes := make([]pat.ScopeInfoDTO, len(patdomain.AllScopes))
+	for i, s := range patdomain.AllScopes {
+		scopes[i] = pat.ScopeInfoDTO{
+			Name:        s.Name,
+			DisplayName: s.DisplayName,
+			Description: s.Description,
+		}
+	}
+	response.OK(c, "scopes retrieved successfully", scopes)
 }
 
 func parseTokenID(raw string) (uint, error) {

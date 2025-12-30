@@ -8,6 +8,12 @@ import { accessToken, refreshToken, clearAuthTokens } from "@/utils/auth";
 import type { AuthLoginDTO, UserUserWithRolesDTO } from "@models";
 import type { LoginResult } from "@/api";
 
+/**
+ * initAuth Promise 缓存，防止并发调用时重复请求
+ * 解决 main.ts 和 router guard 同时调用 initAuth 的竞态问题
+ */
+let initAuthPromise: Promise<void> | null = null;
+
 export const useAuthStore = defineStore("auth", () => {
   // 状态
   const currentUser = ref<UserUserWithRolesDTO | null>(null);
@@ -21,27 +27,39 @@ export const useAuthStore = defineStore("auth", () => {
   /**
    * 初始化认证状态
    * 检查 localStorage 中的 token，如果存在则获取用户信息
+   * 使用 Promise 缓存防止并发调用时重复请求
    */
   async function initAuth() {
+    // 如果正在初始化，返回现有 Promise（防重入）
+    if (initAuthPromise) {
+      return initAuthPromise;
+    }
+
     const token = accessToken.value;
     if (!token) {
       currentUser.value = null;
       return;
     }
 
-    try {
-      isLoading.value = true;
-      error.value = null;
-      const response = await userProfileApi.apiUserProfileGet();
-      currentUser.value = extractData<UserUserWithRolesDTO>(response.data) ?? null;
-    } catch (err) {
-      // token 无效，清除并重置状态
-      clearAuthTokens();
-      currentUser.value = null;
-      error.value = (err as Error).message || "Failed to initialize auth";
-    } finally {
-      isLoading.value = false;
-    }
+    // 创建并缓存 Promise
+    initAuthPromise = (async () => {
+      try {
+        isLoading.value = true;
+        error.value = null;
+        const response = await userProfileApi.apiUserProfileGet();
+        currentUser.value = extractData<UserUserWithRolesDTO>(response.data) ?? null;
+      } catch (err) {
+        // token 无效，清除并重置状态
+        clearAuthTokens();
+        currentUser.value = null;
+        error.value = (err as Error).message || "Failed to initialize auth";
+      } finally {
+        isLoading.value = false;
+        initAuthPromise = null; // 完成后清除缓存，允许后续调用
+      }
+    })();
+
+    return initAuthPromise;
   }
 
   /**

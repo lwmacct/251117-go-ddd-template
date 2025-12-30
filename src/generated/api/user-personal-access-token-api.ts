@@ -24,6 +24,8 @@ import { BASE_PATH, COLLECTION_FORMATS, type RequestArgs, BaseAPI, RequiredError
 // @ts-ignore
 import type { PatCreateDTO } from '../models';
 // @ts-ignore
+import type { ResponseDataResponseArrayPatScopeInfoDTO } from '../models';
+// @ts-ignore
 import type { ResponseDataResponseArrayPatTokenDTO } from '../models';
 // @ts-ignore
 import type { ResponseDataResponsePatCreateResultDTO } from '../models';
@@ -259,6 +261,39 @@ export const UserPersonalAccessTokenApiAxiosParamCreator = function (configurati
                 options: localVarRequestOptions,
             };
         },
+        /**
+         * 获取创建 PAT 时可选的权限范围列表
+         * @summary Scope 列表
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiUserTokensScopesGet: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/user/tokens/scopes`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication BearerAuth required
+            await setApiKeyToObject(localVarHeaderParameter, "Authorization", configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
     }
 };
 
@@ -346,6 +381,18 @@ export const UserPersonalAccessTokenApiFp = function(configuration?: Configurati
             const localVarOperationServerBasePath = operationServerMap['UserPersonalAccessTokenApi.apiUserTokensPost']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
+        /**
+         * 获取创建 PAT 时可选的权限范围列表
+         * @summary Scope 列表
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async apiUserTokensScopesGet(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseArrayPatScopeInfoDTO>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.apiUserTokensScopesGet(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['UserPersonalAccessTokenApi.apiUserTokensScopesGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
     }
 };
 
@@ -414,6 +461,15 @@ export const UserPersonalAccessTokenApiFactory = function (configuration?: Confi
          */
         apiUserTokensPost(request: PatCreateDTO, options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponsePatCreateResultDTO> {
             return localVarFp.apiUserTokensPost(request, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 获取创建 PAT 时可选的权限范围列表
+         * @summary Scope 列表
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiUserTokensScopesGet(options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseArrayPatScopeInfoDTO> {
+            return localVarFp.apiUserTokensScopesGet(options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -494,6 +550,17 @@ export class UserPersonalAccessTokenApi extends BaseAPI {
      */
     public apiUserTokensPost(request: PatCreateDTO, options?: RawAxiosRequestConfig) {
         return UserPersonalAccessTokenApiFp(this.configuration).apiUserTokensPost(request, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 获取创建 PAT 时可选的权限范围列表
+     * @summary Scope 列表
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof UserPersonalAccessTokenApi
+     */
+    public apiUserTokensScopesGet(options?: RawAxiosRequestConfig) {
+        return UserPersonalAccessTokenApiFp(this.configuration).apiUserTokensScopesGet(options).then((request) => request(this.axios, this.basePath));
     }
 }
 

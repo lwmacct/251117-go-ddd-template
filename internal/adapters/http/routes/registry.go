@@ -216,54 +216,6 @@ var Registry = map[permission.Operation]routeMeta{
 		Description: "获取审计操作定义",
 	},
 
-	// ==================== Sys 域 - 菜单管理 ====================
-	permission.SysMenusCreate: {
-		Method:      POST,
-		Path:        "/api/system/menus",
-		Tags:        "Admin - Menu Management",
-		Audit:       true,
-		Summary:     "创建菜单",
-		Description: "创建菜单",
-	},
-	permission.SysMenusList: {
-		Method:      GET,
-		Path:        "/api/system/menus",
-		Tags:        "Admin - Menu Management",
-		Summary:     "菜单列表",
-		Description: "获取菜单列表",
-	},
-	permission.SysMenusGet: {
-		Method:      GET,
-		Path:        "/api/system/menus/:id",
-		Tags:        "Admin - Menu Management",
-		Summary:     "菜单详情",
-		Description: "获取菜单详情",
-	},
-	permission.SysMenusUpdate: {
-		Method:      PUT,
-		Path:        "/api/system/menus/:id",
-		Tags:        "Admin - Menu Management",
-		Audit:       true,
-		Summary:     "更新菜单",
-		Description: "更新菜单",
-	},
-	permission.SysMenusDelete: {
-		Method:      DELETE,
-		Path:        "/api/system/menus/:id",
-		Tags:        "Admin - Menu Management",
-		Audit:       true,
-		Summary:     "删除菜单",
-		Description: "删除菜单",
-	},
-	permission.SysMenusReorder: {
-		Method:      POST,
-		Path:        "/api/system/menus/reorder",
-		Tags:        "Admin - Menu Management",
-		Audit:       true,
-		Summary:     "重排菜单",
-		Description: "重排菜单顺序",
-	},
-
 	// ==================== Sys 域 - 系统概览 ====================
 	permission.SysOverviewStats: {
 		Method:      GET,
@@ -479,6 +431,13 @@ var Registry = map[permission.Operation]routeMeta{
 		Audit:       true,
 		Summary:     "启用令牌",
 		Description: "启用令牌",
+	},
+	permission.SelfTokensScopes: {
+		Method:      GET,
+		Path:        "/api/user/tokens/scopes",
+		Tags:        "User - Personal Access Token",
+		Summary:     "Scope 列表",
+		Description: "获取创建 PAT 时可选的权限范围列表",
 	},
 
 	// ==================== Self 域 - 用户配置 ====================

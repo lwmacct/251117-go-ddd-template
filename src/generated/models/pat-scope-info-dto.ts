@@ -17,44 +17,26 @@
 /**
  * 
  * @export
- * @interface MenuUpdateDTO
+ * @interface PatScopeInfoDTO
  */
-export interface MenuUpdateDTO {
+export interface PatScopeInfoDTO {
     /**
      * 
      * @type {string}
-     * @memberof MenuUpdateDTO
+     * @memberof PatScopeInfoDTO
      */
-    'icon'?: string;
-    /**
-     * 
-     * @type {number}
-     * @memberof MenuUpdateDTO
-     */
-    'order'?: number;
-    /**
-     * 
-     * @type {number}
-     * @memberof MenuUpdateDTO
-     */
-    'parent_id'?: number;
+    'description'?: string;
     /**
      * 
      * @type {string}
-     * @memberof MenuUpdateDTO
+     * @memberof PatScopeInfoDTO
      */
-    'path'?: string;
+    'display_name'?: string;
     /**
      * 
      * @type {string}
-     * @memberof MenuUpdateDTO
+     * @memberof PatScopeInfoDTO
      */
-    'title'?: string;
-    /**
-     * 
-     * @type {boolean}
-     * @memberof MenuUpdateDTO
-     */
-    'visible'?: boolean;
+    'name'?: string;
 }
 

@@ -15,11 +15,17 @@ declare module "vue-router" {
     description?: string;
     /** 页面分类 */
     category?: string;
-    /** 排序优先级 */
-    priority?: number;
-    /** 是否在菜单中显示 */
-    showInMenu?: boolean;
     /** 是否需要认证 */
-    requireAuth?: boolean;
+    requiresAuth?: boolean;
+
+    // === 角色权限控制 ===
+    /** 允许访问的角色列表，空数组表示所有已登录用户可访问 */
+    roles?: string[];
+
+    // === 菜单配置 ===
+    /** 是否在菜单中显示 */
+    menuVisible?: boolean;
+    /** 菜单排序（数值越小越靠前） */
+    menuOrder?: number;
   }
 }
