@@ -22,7 +22,6 @@ func GetAllModels() []any {
 	return []any{
 		&persistence.UserModel{},
 		&persistence.RoleModel{},
-		&persistence.RolePermissionModel{},
 		&persistence.PersonalAccessTokenModel{},
 		&persistence.AuditLogModel{},
 		&persistence.TwoFAModel{},

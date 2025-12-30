@@ -1,9 +1,11 @@
 package persistence
 
 import (
+	"encoding/json"
 	"time"
 
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/role"
+	"gorm.io/datatypes"
 	"gorm.io/gorm"
 )
 
@@ -12,6 +14,9 @@ import (
 // ============================================================================
 
 // RoleModel 定义角色的 GORM 持久化模型
+//
+// Permissions 字段使用 JSONB 存储权限列表，替代原来的 role_permissions 关联表。
+// 结构示例：[{"operation_pattern":"sys:*:*","resource_pattern":"*"}]
 //
 //nolint:recvcheck // TableName uses value receiver per GORM convention
 type RoleModel struct {
@@ -23,11 +28,18 @@ type RoleModel struct {
 	DisplayName string         `gorm:"size:100;not null"`
 	Description string         `gorm:"size:255"`
 	IsSystem    bool           `gorm:"default:false;not null"`
+	Permissions datatypes.JSON `gorm:"type:jsonb;default:'[]';not null"`
 }
 
 // TableName 指定角色表名
 func (RoleModel) TableName() string {
 	return "roles"
+}
+
+// permissionJSON 用于 JSONB 序列化/反序列化的内部结构
+type permissionJSON struct {
+	OperationPattern string `json:"operation_pattern"`
+	ResourcePattern  string `json:"resource_pattern"`
 }
 
 func newRoleModelFromEntity(entity *role.Role) *RoleModel {
@@ -43,6 +55,7 @@ func newRoleModelFromEntity(entity *role.Role) *RoleModel {
 		DisplayName: entity.DisplayName,
 		Description: entity.Description,
 		IsSystem:    entity.IsSystem,
+		Permissions: marshalPermissions(entity.Permissions),
 	}
 
 	if entity.DeletedAt != nil {
@@ -52,7 +65,7 @@ func newRoleModelFromEntity(entity *role.Role) *RoleModel {
 	return model
 }
 
-// ToEntity 将 GORM Model 转换为 Domain Entity（不含权限）
+// ToEntity 将 GORM Model 转换为 Domain Entity（含权限）
 func (m *RoleModel) ToEntity() *role.Role {
 	if m == nil {
 		return nil
@@ -66,6 +79,7 @@ func (m *RoleModel) ToEntity() *role.Role {
 		DisplayName: m.DisplayName,
 		Description: m.Description,
 		IsSystem:    m.IsSystem,
+		Permissions: unmarshalPermissions(m.Permissions),
 	}
 
 	if m.DeletedAt.Valid {
@@ -73,17 +87,6 @@ func (m *RoleModel) ToEntity() *role.Role {
 		entity.DeletedAt = &t
 	}
 
-	return entity
-}
-
-// ToEntityWithPermissions 将 GORM Model 转换为 Domain Entity（含权限）
-func (m *RoleModel) ToEntityWithPermissions(permissions []RolePermissionModel) *role.Role {
-	entity := m.ToEntity()
-	if entity == nil {
-		return nil
-	}
-
-	entity.Permissions = mapRolePermissionModelsToEntities(permissions)
 	return entity
 }
 
@@ -102,65 +105,55 @@ func mapRoleModelsToEntities(models []RoleModel) []role.Role {
 }
 
 // ============================================================================
-// Role Permission Model（关联表）
+// Permission JSONB 序列化/反序列化
 // ============================================================================
 
-// RolePermissionModel 角色权限关联表
-// 存储 Operation + Resource 模式，支持通配符
-//
-//nolint:recvcheck // TableName uses value receiver per GORM convention
-type RolePermissionModel struct {
-	RoleID           uint   `gorm:"primaryKey"`
-	OperationPattern string `gorm:"primaryKey;size:100;not null"`
-	ResourcePattern  string `gorm:"primaryKey;size:100;not null;default:'*'"`
-	CreatedAt        time.Time
-}
-
-// TableName 指定关联表名
-func (RolePermissionModel) TableName() string {
-	return "role_permissions"
-}
-
-func newRolePermissionModelFromEntity(roleID uint, p role.Permission) RolePermissionModel {
-	resPattern := p.ResourcePattern
-	if resPattern == "" {
-		resPattern = "*"
+// marshalPermissions 将权限列表序列化为 JSONB
+func marshalPermissions(permissions []role.Permission) datatypes.JSON {
+	if len(permissions) == 0 {
+		return datatypes.JSON("[]")
 	}
-	return RolePermissionModel{
-		RoleID:           roleID,
-		OperationPattern: p.OperationPattern,
-		ResourcePattern:  resPattern,
-		CreatedAt:        time.Now(),
+
+	items := make([]permissionJSON, len(permissions))
+	for i, p := range permissions {
+		resPattern := p.ResourcePattern
+		if resPattern == "" {
+			resPattern = "*"
+		}
+		items[i] = permissionJSON{
+			OperationPattern: p.OperationPattern,
+			ResourcePattern:  resPattern,
+		}
 	}
+
+	data, err := json.Marshal(items)
+	if err != nil {
+		return datatypes.JSON("[]")
+	}
+	return data
 }
 
-func (m *RolePermissionModel) toEntity() role.Permission {
-	return role.Permission{
-		OperationPattern: m.OperationPattern,
-		ResourcePattern:  m.ResourcePattern,
-	}
-}
-
-func mapRolePermissionModelsToEntities(models []RolePermissionModel) []role.Permission {
-	if len(models) == 0 {
+// unmarshalPermissions 从 JSONB 反序列化权限列表
+func unmarshalPermissions(data datatypes.JSON) []role.Permission {
+	if len(data) == 0 {
 		return nil
 	}
 
-	permissions := make([]role.Permission, len(models))
-	for i := range models {
-		permissions[i] = models[i].toEntity()
+	var items []permissionJSON
+	if err := json.Unmarshal(data, &items); err != nil {
+		return nil
+	}
+
+	if len(items) == 0 {
+		return nil
+	}
+
+	permissions := make([]role.Permission, len(items))
+	for i, item := range items {
+		permissions[i] = role.Permission{
+			OperationPattern: item.OperationPattern,
+			ResourcePattern:  item.ResourcePattern,
+		}
 	}
 	return permissions
-}
-
-func mapPermissionEntitiesToRolePermissionModels(roleID uint, permissions []role.Permission) []RolePermissionModel {
-	if len(permissions) == 0 {
-		return nil
-	}
-
-	models := make([]RolePermissionModel, len(permissions))
-	for i, p := range permissions {
-		models[i] = newRolePermissionModelFromEntity(roleID, p)
-	}
-	return models
 }

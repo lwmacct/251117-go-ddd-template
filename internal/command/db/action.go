@@ -33,8 +33,6 @@ func getJoinTableIndexes() []database.JoinTableIndex {
 	return []database.JoinTableIndex{
 		{Table: "user_roles", Name: "idx_user_roles_user_id", Columns: "user_id"},
 		{Table: "user_roles", Name: "idx_user_roles_role_id", Columns: "role_id"},
-		// role_permissions 使用 (role_id, operation_pattern, resource_pattern) 复合主键
-		// PostgreSQL 会自动利用主键前缀进行 role_id 查询，无需额外索引
 	}
 }
 

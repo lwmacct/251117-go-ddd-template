@@ -197,8 +197,8 @@ func (r *userQueryRepository) GetUserIDsByRole(ctx context.Context, roleID uint)
 
 // userWithRolesRow 单次 JOIN 查询的结果行结构
 //
-// 由于是 LEFT JOIN，每个权限对应一行，用户和角色字段会重复。
-// 新 RBAC 模型：role_permissions 直接存储 operation_pattern 和 resource_pattern。
+// 由于是 LEFT JOIN，每个角色对应一行，用户字段会重复。
+// 权限存储在 roles.permissions JSONB 字段中，无需额外 JOIN。
 type userWithRolesRow struct {
 	// User 字段
 	UserID        uint       `gorm:"column:user_id"`
@@ -222,22 +222,18 @@ type userWithRolesRow struct {
 	RoleDescription *string    `gorm:"column:role_description"`
 	RoleIsSystem    *bool      `gorm:"column:role_is_system"`
 
-	// Permission 字段（Operation + Resource Pattern，可能为 NULL）
-	OperationPattern *string `gorm:"column:operation_pattern"`
-	ResourcePattern  *string `gorm:"column:resource_pattern"`
+	// Permission JSONB 字段（可能为 NULL）
+	RolePermissions []byte `gorm:"column:role_permissions"`
 }
 
 // getUserWithRolesByCondition 通过单次 JOIN 查询获取用户及其角色权限
 //
-// 将 User、Role、Permission 的查询合并为 1 次 JOIN 查询，
-// 显著减少网络往返次数，适用于高延迟远程数据库场景。
-//
-// 新 RBAC 模型直接从 role_permissions 表获取 operation_pattern 和 resource_pattern。
+// 将 User、Role 的查询合并为 1 次 JOIN 查询（3 表），
+// 权限从 roles.permissions JSONB 字段获取，无需 JOIN role_permissions 表。
 func (r *userQueryRepository) getUserWithRolesByCondition(ctx context.Context, condition string, args ...any) (*user.User, error) {
 	var rows []userWithRolesRow
 
-	// 单次 JOIN 查询获取所有数据
-	// 新模型：role_permissions 直接存储 pattern，不再关联 permissions 表
+	// 单次 JOIN 查询获取所有数据（3 表：users + user_roles + roles）
 	query := r.db.WithContext(ctx).
 		Table("users u").
 		Select(`
@@ -247,11 +243,10 @@ func (r *userQueryRepository) getUserWithRolesByCondition(ctx context.Context, c
 			r.id as role_id, r.created_at as role_created_at, r.updated_at as role_updated_at,
 			r.name as role_name, r.display_name as role_display_name,
 			r.description as role_description, r.is_system as role_is_system,
-			rp.operation_pattern, rp.resource_pattern
+			r.permissions as role_permissions
 		`).
 		Joins("LEFT JOIN user_roles ur ON u.id = ur.user_id").
 		Joins("LEFT JOIN roles r ON ur.role_id = r.id AND r.deleted_at IS NULL").
-		Joins("LEFT JOIN role_permissions rp ON r.id = rp.role_id").
 		Where("u.deleted_at IS NULL").
 		Where(condition, args...)
 
@@ -270,7 +265,7 @@ func (r *userQueryRepository) getUserWithRolesByCondition(ctx context.Context, c
 // buildUserFromRows 从 JOIN 查询结果构建 User 实体
 //
 // 将扁平化的行数据重建为 User → []Role → []Permission 的嵌套结构。
-// 使用 (OperationPattern, ResourcePattern) 组合作为权限去重键。
+// 权限从 JSONB 字段解析。
 func (r *userQueryRepository) buildUserFromRows(rows []userWithRolesRow) *user.User {
 	if len(rows) == 0 {
 		return nil
@@ -292,10 +287,8 @@ func (r *userQueryRepository) buildUserFromRows(rows []userWithRolesRow) *user.U
 		Status:    first.Status,
 	}
 
-	// 收集角色和权限（去重）
+	// 收集角色（去重）
 	roleMap := make(map[uint]*role.Role)
-	// 权限去重：role_id -> "operation_pattern|resource_pattern" -> exists
-	permsByRole := make(map[uint]map[string]bool)
 
 	for _, row := range rows {
 		// 跳过无角色的行
@@ -305,7 +298,7 @@ func (r *userQueryRepository) buildUserFromRows(rows []userWithRolesRow) *user.U
 
 		roleID := *row.RoleID
 
-		// 确保角色存在
+		// 确保角色存在（每个角色只处理一次）
 		if _, exists := roleMap[roleID]; !exists {
 			roleMap[roleID] = &role.Role{
 				ID:          roleID,
@@ -315,26 +308,7 @@ func (r *userQueryRepository) buildUserFromRows(rows []userWithRolesRow) *user.U
 				DisplayName: derefString(row.RoleDisplayName),
 				Description: derefString(row.RoleDescription),
 				IsSystem:    derefBool(row.RoleIsSystem),
-				Permissions: []role.Permission{},
-			}
-			permsByRole[roleID] = make(map[string]bool)
-		}
-
-		// 添加权限（去重：使用 operation_pattern|resource_pattern 作为键）
-		if row.OperationPattern != nil {
-			opPattern := *row.OperationPattern
-			resPattern := derefString(row.ResourcePattern)
-			if resPattern == "" {
-				resPattern = "*"
-			}
-			permKey := opPattern + "|" + resPattern
-
-			if !permsByRole[roleID][permKey] {
-				permsByRole[roleID][permKey] = true
-				roleMap[roleID].Permissions = append(roleMap[roleID].Permissions, role.Permission{
-					OperationPattern: opPattern,
-					ResourcePattern:  resPattern,
-				})
+				Permissions: unmarshalPermissions(row.RolePermissions),
 			}
 		}
 	}

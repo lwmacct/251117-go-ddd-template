@@ -27,6 +27,8 @@ func NewRoleCommandRepository(db *gorm.DB) role.CommandRepository {
 // Create、Update、Delete 方法由 GenericCommandRepository 提供
 
 // SetPermissions 设置角色权限 (替换现有权限)
+//
+// 使用 JSONB 字段存储，直接更新 permissions 列。
 func (r *roleCommandRepository) SetPermissions(ctx context.Context, roleID uint, permissions []role.Permission) error {
 	// 验证角色存在
 	var roleModel RoleModel
@@ -37,24 +39,10 @@ func (r *roleCommandRepository) SetPermissions(ctx context.Context, roleID uint,
 		return fmt.Errorf("failed to find role: %w", err)
 	}
 
-	// 使用事务处理
-	return r.DB().WithContext(ctx).Transaction(func(tx *gorm.DB) error {
-		// 删除现有权限
-		if err := tx.Where("role_id = ?", roleID).Delete(&RolePermissionModel{}).Error; err != nil {
-			return fmt.Errorf("failed to delete existing permissions: %w", err)
-		}
-
-		// 如果没有新权限，直接返回
-		if len(permissions) == 0 {
-			return nil
-		}
-
-		// 插入新权限
-		models := mapPermissionEntitiesToRolePermissionModels(roleID, permissions)
-		if err := tx.Create(&models).Error; err != nil {
-			return fmt.Errorf("failed to create permissions: %w", err)
-		}
-
-		return nil
-	})
+	// 直接更新 JSONB 字段
+	return r.DB().WithContext(ctx).
+		Model(&RoleModel{}).
+		Where("id = ?", roleID).
+		Update("permissions", marshalPermissions(permissions)).
+		Error
 }

@@ -19,7 +19,7 @@ func NewRoleQueryRepository(db *gorm.DB) role.QueryRepository {
 	return &roleQueryRepository{db: db}
 }
 
-// FindByID 根据 ID 查找角色（不含权限）
+// FindByID 根据 ID 查找角色（含权限，JSONB 字段自动加载）
 func (r *roleQueryRepository) FindByID(ctx context.Context, id uint) (*role.Role, error) {
 	var model RoleModel
 	err := r.db.WithContext(ctx).
@@ -33,7 +33,7 @@ func (r *roleQueryRepository) FindByID(ctx context.Context, id uint) (*role.Role
 	return model.ToEntity(), nil
 }
 
-// FindByName 根据名称查找角色（不含权限）
+// FindByName 根据名称查找角色（含权限，JSONB 字段自动加载）
 func (r *roleQueryRepository) FindByName(ctx context.Context, name string) (*role.Role, error) {
 	var model RoleModel
 	err := r.db.WithContext(ctx).
@@ -49,29 +49,16 @@ func (r *roleQueryRepository) FindByName(ctx context.Context, name string) (*rol
 }
 
 // FindByIDWithPermissions 根据 ID 查找角色（含权限）
+//
+// 由于权限已存储在 JSONB 字段中，此方法与 FindByID 等效。
+// 保留此方法是为了保持接口兼容性。
 func (r *roleQueryRepository) FindByIDWithPermissions(ctx context.Context, id uint) (*role.Role, error) {
-	var model RoleModel
-	err := r.db.WithContext(ctx).
-		First(&model, id).Error
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, nil //nolint:nilnil // returns nil for not found, valid pattern
-		}
-		return nil, fmt.Errorf("failed to find role: %w", err)
-	}
-
-	// 单独查询权限
-	var permissions []RolePermissionModel
-	if err := r.db.WithContext(ctx).
-		Where("role_id = ?", id).
-		Find(&permissions).Error; err != nil {
-		return nil, fmt.Errorf("failed to find role permissions: %w", err)
-	}
-
-	return model.ToEntityWithPermissions(permissions), nil
+	return r.FindByID(ctx, id)
 }
 
 // List 获取角色列表（分页，含权限）
+//
+// 权限存储在 JSONB 字段中，单次查询即可获取完整数据。
 func (r *roleQueryRepository) List(ctx context.Context, page, limit int) ([]role.Role, int64, error) {
 	var models []RoleModel
 	var total int64
@@ -91,64 +78,23 @@ func (r *roleQueryRepository) List(ctx context.Context, page, limit int) ([]role
 		return nil, 0, fmt.Errorf("failed to list roles: %w", err)
 	}
 
-	// 批量查询所有角色的权限
-	if len(models) == 0 {
-		return nil, total, nil
-	}
-
-	roleIDs := make([]uint, len(models))
-	for i, m := range models {
-		roleIDs[i] = m.ID
-	}
-
-	var allPermissions []RolePermissionModel
-	if err := r.db.WithContext(ctx).
-		Where("role_id IN ?", roleIDs).
-		Find(&allPermissions).Error; err != nil {
-		return nil, 0, fmt.Errorf("failed to find permissions: %w", err)
-	}
-
-	// 按 roleID 分组权限
-	permissionsByRole := make(map[uint][]RolePermissionModel)
-	for _, p := range allPermissions {
-		permissionsByRole[p.RoleID] = append(permissionsByRole[p.RoleID], p)
-	}
-
-	// 构建结果
-	roles := make([]role.Role, 0, len(models))
-	for i := range models {
-		entity := models[i].ToEntityWithPermissions(permissionsByRole[models[i].ID])
-		if entity != nil {
-			roles = append(roles, *entity)
-		}
-	}
-
-	return roles, total, nil
+	// 直接转换，权限已包含在 JSONB 字段中
+	return mapRoleModelsToEntities(models), total, nil
 }
 
 // GetPermissions 获取角色的所有权限
 func (r *roleQueryRepository) GetPermissions(ctx context.Context, roleID uint) ([]role.Permission, error) {
-	// 验证角色存在
-	var exists int64
+	var model RoleModel
 	if err := r.db.WithContext(ctx).
-		Model(&RoleModel{}).
-		Where("id = ?", roleID).
-		Count(&exists).Error; err != nil {
-		return nil, fmt.Errorf("failed to check role existence: %w", err)
-	}
-	if exists == 0 {
-		return nil, fmt.Errorf("role not found with id: %d", roleID)
-	}
-
-	// 查询权限
-	var permissions []RolePermissionModel
-	if err := r.db.WithContext(ctx).
-		Where("role_id = ?", roleID).
-		Find(&permissions).Error; err != nil {
+		Select("id", "permissions").
+		First(&model, roleID).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, fmt.Errorf("role not found with id: %d", roleID)
+		}
 		return nil, fmt.Errorf("failed to get role permissions: %w", err)
 	}
 
-	return mapRolePermissionModelsToEntities(permissions), nil
+	return unmarshalPermissions(model.Permissions), nil
 }
 
 // Exists 检查角色是否存在

@@ -2,6 +2,7 @@ package seeds
 
 import (
 	"context"
+	"encoding/json"
 	"log/slog"
 
 	"github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/persistence"
@@ -25,23 +26,24 @@ func (s *RBACSeeder) Seed(ctx context.Context, db *gorm.DB) error {
 	})
 }
 
+// permissionJSON 权限 JSONB 序列化结构
+type permissionJSON struct {
+	OperationPattern string `json:"operation_pattern"`
+	ResourcePattern  string `json:"resource_pattern"`
+}
+
 // seedRoles seeds initial roles with operation patterns
 func (s *RBACSeeder) seedRoles(ctx context.Context, db *gorm.DB) error {
 	db = db.WithContext(ctx)
 
 	// 定义角色及其权限模式
 	// URN-Centric RBAC: 使用 URN 格式 {scope}:{type}:{identifier}
-	type permissionConfig struct {
-		operationPattern string // URN 格式，如 sys:users:*, self:*:*
-		resourcePattern  string // URN 格式，如 *:*:*, self:user:@me
-	}
-
 	type roleConfig struct {
 		name        string
 		displayName string
 		description string
 		isSystem    bool
-		permissions []permissionConfig
+		permissions []permissionJSON
 	}
 
 	roles := []roleConfig{
@@ -50,9 +52,9 @@ func (s *RBACSeeder) seedRoles(ctx context.Context, db *gorm.DB) error {
 			displayName: "系统管理员",
 			description: "完整系统访问权限",
 			isSystem:    true,
-			permissions: []permissionConfig{
+			permissions: []permissionJSON{
 				// 超级管理员：所有操作对所有资源
-				{operationPattern: "*:*:*", resourcePattern: "*:*:*"},
+				{OperationPattern: "*:*:*", ResourcePattern: "*:*:*"},
 			},
 		},
 		{
@@ -60,53 +62,35 @@ func (s *RBACSeeder) seedRoles(ctx context.Context, db *gorm.DB) error {
 			displayName: "普通用户",
 			description: "标准用户权限",
 			isSystem:    true,
-			permissions: []permissionConfig{
+			permissions: []permissionJSON{
 				// self 域所有操作（对自己的资源）
-				{operationPattern: "self:*:*", resourcePattern: "self:user:@me"},
+				{OperationPattern: "self:*:*", ResourcePattern: "self:user:@me"},
 			},
 		},
 	}
 
 	// 创建角色并分配权限
 	for _, r := range roles {
+		// 序列化权限为 JSONB
+		permsData, err := json.Marshal(r.permissions)
+		if err != nil {
+			return err
+		}
+
 		role := persistence.RoleModel{
 			Name:        r.name,
 			DisplayName: r.displayName,
 			Description: r.description,
 			IsSystem:    r.isSystem,
+			Permissions: permsData,
 		}
 
-		// Upsert 角色
+		// Upsert 角色（包含权限 JSONB）
 		if err := db.Clauses(clause.OnConflict{
 			Columns:   []clause.Column{{Name: "name"}},
-			DoUpdates: clause.AssignmentColumns([]string{"display_name", "description"}),
+			DoUpdates: clause.AssignmentColumns([]string{"display_name", "description", "permissions"}),
 		}).Create(&role).Error; err != nil {
 			return err
-		}
-
-		// 删除现有权限（确保幂等）
-		if err := db.Where("role_id = ?", role.ID).Delete(&persistence.RolePermissionModel{}).Error; err != nil {
-			return err
-		}
-
-		// 插入新权限
-		if len(r.permissions) > 0 {
-			perms := make([]persistence.RolePermissionModel, len(r.permissions))
-			for i, p := range r.permissions {
-				resPattern := p.resourcePattern
-				if resPattern == "" {
-					resPattern = "*:*:*"
-				}
-				perms[i] = persistence.RolePermissionModel{
-					RoleID:           role.ID,
-					OperationPattern: p.operationPattern,
-					ResourcePattern:  resPattern,
-				}
-			}
-
-			if err := db.Create(&perms).Error; err != nil {
-				return err
-			}
 		}
 
 		slog.Info("Role ensured", "name", role.Name, "permissions", len(r.permissions))
