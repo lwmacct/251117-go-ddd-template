@@ -1,6 +1,50 @@
 package operation
 
-import op "github.com/lwmacct/251117-go-ddd-template/pkg/operation"
+// ============================================================================
+// Swagger 分组常量
+// ============================================================================
+
+//nolint:gochecknoglobals // 分组常量是只读配置
+var (
+	groupAuth         = "认证 (Auth)"
+	group2FA          = "认证 - 2FA (Auth - 2FA)"
+	groupSysUser      = "系统管理 - 用户管理 (Sys - User)"
+	groupSysRole      = "系统管理 - 角色管理 (Sys - Role)"
+	groupSysOperation = "系统管理 - 操作管理 (Sys - Operation)"
+	groupSysAuditLog  = "系统管理 - 审计日志 (Sys - Audit Log)"
+	groupSysMenu      = "系统管理 - 菜单管理 (Sys - Menu)"
+	groupSysOverview  = "系统管理 - 系统概览 (Sys - Overview)"
+	groupSysSetting   = "系统管理 - 系统配置 (Sys - Setting)"
+	groupSysCache     = "系统管理 - 缓存管理 (Sys - Cache)"
+	groupUserProfile  = "用户中心 - 个人资料 (User - Profile)"
+	groupUserToken    = "用户中心 - 访问令牌 (User - Token)" //nolint:gosec // 非凭据
+	groupUserSetting  = "用户中心 - 用户配置 (User - Setting)"
+)
+
+// ============================================================================
+// 预定义基类（路径前缀 + 分组 + 审计分类）
+// ============================================================================
+
+//nolint:gochecknoglobals // 基类配置是只读配置
+var (
+	baseAuth         = B().Path("/api/auth").Group(groupAuth).Cat(AuditCatAuth)
+	base2FA          = B().Path("/api/auth/2fa").Group(group2FA).Cat(AuditCatAuth)
+	baseSysUser      = B().Path("/api/system/users").Group(groupSysUser).Cat(AuditCatUser)
+	baseSysRole      = B().Path("/api/system/roles").Group(groupSysRole).Cat(AuditCatRole)
+	baseSysOperation = B().Path("/api/system/operations").Group(groupSysOperation)
+	baseSysAuditLog  = B().Path("/api/system/auditlogs").Group(groupSysAuditLog)
+	baseSysMenu      = B().Path("/api/system/menus").Group(groupSysMenu).Cat(AuditCatMenu)
+	baseSysOverview  = B().Path("/api/system/overview").Group(groupSysOverview)
+	baseSysSetting   = B().Path("/api/system/settings").Group(groupSysSetting).Cat(AuditCatSetting)
+	baseSysCache     = B().Path("/api/system/cache").Group(groupSysCache).Cat(AuditCatCache)
+	baseSelfProfile  = B().Path("/api/user").Group(groupUserProfile).Cat(AuditCatProfile)
+	baseSelfToken    = B().Path("/api/user/tokens").Group(groupUserToken).Cat(AuditCatToken)
+	baseSelfSetting  = B().Path("/api/user/settings").Group(groupUserSetting).Cat(AuditCatUserSetting)
+)
+
+// ============================================================================
+// 操作注册表
+// ============================================================================
 
 // operationRegistry 操作注册表（单一数据源）
 //
@@ -10,604 +54,279 @@ import op "github.com/lwmacct/251117-go-ddd-template/pkg/operation"
 //   - 非公开操作默认需要权限检查
 //
 //nolint:gochecknoglobals // 注册表是只读全局配置
-var operationRegistry = op.Registry[operationMeta]{
+var operationRegistry = Build(
 	// ==================== Public 域（公开） ====================
-	PublicAuthRegister: {
-		Method:         HttpPOST,
-		Path:           "/api/auth/register",
-		AuditAction:    "auth.register",
-		AuditCategory:  AuditCatAuth,
-		AuditOperation: AuditOpCreate,
-		Label:          "注册",
-		Description:    "User registration",
-		Group:          "认证 (Auth)",
-	},
-	PublicAuthLogin: {
-		Method:         HttpPOST,
-		Path:           "/api/auth/login",
-		AuditAction:    "auth.login",
-		AuditCategory:  AuditCatAuth,
-		AuditOperation: AuditOpAuthenticate,
-		Label:          "登录",
-		Description:    "User login",
-		Group:          "认证 (Auth)",
-	},
-	PublicAuthLogin2FA: {
-		Method:         HttpPOST,
-		Path:           "/api/auth/login/2fa",
-		AuditAction:    "auth.login_2fa",
-		AuditCategory:  AuditCatAuth,
-		AuditOperation: AuditOpAuthenticate,
-		Label:          "2FA 登录",
-		Description:    "Two-factor authentication login",
-		Group:          "认证 (Auth)",
-	},
-	PublicAuthRefresh: {
-		Method:         HttpPOST,
-		Path:           "/api/auth/refresh",
-		AuditAction:    "auth.refresh",
-		AuditCategory:  AuditCatAuth,
-		AuditOperation: AuditOpAuthenticate,
-		Label:          "刷新令牌",
-		Description:    "Refresh access token",
-		Group:          "认证 (Auth)",
-	},
-	PublicAuthCaptcha: {
-		Method:      HttpGET,
-		Path:        "/api/auth/captcha",
-		Label:       "获取验证码",
-		Description: "Get captcha image",
-		Group:       "认证 (Auth)",
-	},
+	D(PublicAuthRegister).Use(baseAuth).
+		Post("/register").Audit("auth.register", AuditOpCreate).
+		I18n("注册", "User registration"),
+
+	D(PublicAuthLogin).Use(baseAuth).
+		Post("/login").Audit("auth.login", AuditOpAuthenticate).
+		I18n("登录", "User login"),
+
+	D(PublicAuthLogin2FA).Use(baseAuth).
+		Post("/login/2fa").Audit("auth.login_2fa", AuditOpAuthenticate).
+		I18n("2FA 登录", "Two-factor authentication login"),
+
+	D(PublicAuthRefresh).Use(baseAuth).
+		Post("/refresh").Audit("auth.refresh", AuditOpAuthenticate).
+		I18n("刷新令牌", "Refresh access token"),
+
+	D(PublicAuthCaptcha).Use(baseAuth).
+		Get("/captcha").
+		I18n("获取验证码", "Get captcha image"),
 
 	// ==================== Self 域 - 2FA（需认证） ====================
-	Self2FASetup: {
-		Method:         HttpPOST,
-		Path:           "/api/auth/2fa/setup",
-		AuditAction:    "auth.2fa_setup",
-		AuditCategory:  AuditCatAuth,
-		AuditOperation: AuditOpUpdate,
-		Label:          "设置 2FA",
-		Description:    "Setup two-factor authentication",
-		Group:          "认证 - 2FA (Auth - 2FA)",
-	},
-	Self2FAVerify: {
-		Method:         HttpPOST,
-		Path:           "/api/auth/2fa/verify",
-		AuditAction:    "auth.2fa_enable",
-		AuditCategory:  AuditCatAuth,
-		AuditOperation: AuditOpUpdate,
-		Label:          "启用 2FA",
-		Description:    "Verify and enable 2FA",
-		Group:          "认证 - 2FA (Auth - 2FA)",
-	},
-	Self2FADisable: {
-		Method:         HttpPOST,
-		Path:           "/api/auth/2fa/disable",
-		AuditAction:    "auth.2fa_disable",
-		AuditCategory:  AuditCatAuth,
-		AuditOperation: AuditOpUpdate,
-		Label:          "禁用 2FA",
-		Description:    "Disable two-factor authentication",
-		Group:          "认证 - 2FA (Auth - 2FA)",
-	},
-	Self2FAStatus: {
-		Method:      HttpGET,
-		Path:        "/api/auth/2fa/status",
-		Label:       "2FA 状态",
-		Description: "Get 2FA status",
-		Group:       "认证 - 2FA (Auth - 2FA)",
-	},
+	D(Self2FASetup).Use(base2FA).
+		Post("/setup").Audit("auth.2fa_setup", AuditOpUpdate).
+		I18n("设置 2FA", "Setup two-factor authentication"),
+
+	D(Self2FAVerify).Use(base2FA).
+		Post("/verify").Audit("auth.2fa_enable", AuditOpUpdate).
+		I18n("启用 2FA", "Verify and enable 2FA"),
+
+	D(Self2FADisable).Use(base2FA).
+		Post("/disable").Audit("auth.2fa_disable", AuditOpUpdate).
+		I18n("禁用 2FA", "Disable two-factor authentication"),
+
+	D(Self2FAStatus).Use(base2FA).
+		Get("/status").
+		I18n("2FA 状态", "Get 2FA status"),
 
 	// ==================== Sys 域 - 用户管理 ====================
-	SysUsersCreate: {
-		Method:         HttpPOST,
-		Path:           "/api/system/users",
-		AuditAction:    "user.create",
-		AuditCategory:  AuditCatUser,
-		AuditOperation: AuditOpCreate,
-		Label:          "创建用户",
-		Description:    "Create new user",
-		Group:          "系统管理 - 用户管理 (Sys - User)",
-	},
-	SysUsersBatchCreate: {
-		Method:         HttpPOST,
-		Path:           "/api/system/users/batch",
-		AuditAction:    "user.batch_create",
-		AuditCategory:  AuditCatUser,
-		AuditOperation: AuditOpCreate,
-		Label:          "批量创建用户",
-		Description:    "Batch create users",
-		Group:          "系统管理 - 用户管理 (Sys - User)",
-	},
-	SysUsersList: {
-		Method:      HttpGET,
-		Path:        "/api/system/users",
-		Label:       "用户列表",
-		Description: "List users",
-		Group:       "系统管理 - 用户管理 (Sys - User)",
-	},
-	SysUsersGet: {
-		Method:      HttpGET,
-		Path:        "/api/system/users/:id",
-		Label:       "用户详情",
-		Description: "Get user by ID",
-		Group:       "系统管理 - 用户管理 (Sys - User)",
-	},
-	SysUsersUpdate: {
-		Method:         HttpPUT,
-		Path:           "/api/system/users/:id",
-		AuditAction:    "user.update",
-		AuditCategory:  AuditCatUser,
-		AuditOperation: AuditOpUpdate,
-		Label:          "更新用户",
-		Description:    "Update user",
-		Group:          "系统管理 - 用户管理 (Sys - User)",
-	},
-	SysUsersDelete: {
-		Method:         HttpDELETE,
-		Path:           "/api/system/users/:id",
-		AuditAction:    "user.delete",
-		AuditCategory:  AuditCatUser,
-		AuditOperation: AuditOpDelete,
-		Label:          "删除用户",
-		Description:    "Delete user",
-		Group:          "系统管理 - 用户管理 (Sys - User)",
-	},
-	SysUsersAssignRoles: {
-		Method:         HttpPUT,
-		Path:           "/api/system/users/:id/roles",
-		AuditAction:    "user.assign_roles",
-		AuditCategory:  AuditCatUser,
-		AuditOperation: AuditOpUpdate,
-		Label:          "分配角色",
-		Description:    "Assign roles to user",
-		Group:          "系统管理 - 用户管理 (Sys - User)",
-	},
+	D(SysUsersCreate).Use(baseSysUser).
+		Post("").AuditCreate().
+		I18n("创建用户", "Create new user"),
+
+	D(SysUsersBatchCreate).Use(baseSysUser).
+		Post("/batch").Audit("user.batch_create", AuditOpCreate).
+		I18n("批量创建用户", "Batch create users"),
+
+	D(SysUsersList).
+		Use(baseSysUser).
+		Get("").
+		I18n("用户列表", "List users"),
+
+	D(SysUsersGet).Use(baseSysUser).
+		Get("/:id").
+		I18n("用户详情", "Get user by ID"),
+
+	D(SysUsersUpdate).Use(baseSysUser).
+		Put("/:id").AuditUpdate().
+		I18n("更新用户", "Update user"),
+
+	D(SysUsersDelete).Use(baseSysUser).
+		Delete("/:id").AuditDelete().
+		I18n("删除用户", "Delete user"),
+
+	D(SysUsersAssignRoles).Use(baseSysUser).
+		Put("/:id/roles").Audit("user.assign_roles", AuditOpUpdate).
+		I18n("分配角色", "Assign roles to user"),
 
 	// ==================== Sys 域 - 角色管理 ====================
-	SysRolesCreate: {
-		Method:         HttpPOST,
-		Path:           "/api/system/roles",
-		AuditAction:    "role.create",
-		AuditCategory:  AuditCatRole,
-		AuditOperation: AuditOpCreate,
-		Label:          "创建角色",
-		Description:    "Create role",
-		Group:          "系统管理 - 角色管理 (Sys - Role)",
-	},
-	SysRolesList: {
-		Method:      HttpGET,
-		Path:        "/api/system/roles",
-		Label:       "角色列表",
-		Description: "List roles",
-		Group:       "系统管理 - 角色管理 (Sys - Role)",
-	},
-	SysRolesGet: {
-		Method:      HttpGET,
-		Path:        "/api/system/roles/:id",
-		Label:       "角色详情",
-		Description: "Get role by ID",
-		Group:       "系统管理 - 角色管理 (Sys - Role)",
-	},
-	SysRolesUpdate: {
-		Method:         HttpPUT,
-		Path:           "/api/system/roles/:id",
-		AuditAction:    "role.update",
-		AuditCategory:  AuditCatRole,
-		AuditOperation: AuditOpUpdate,
-		Label:          "更新角色",
-		Description:    "Update role",
-		Group:          "系统管理 - 角色管理 (Sys - Role)",
-	},
-	SysRolesDelete: {
-		Method:         HttpDELETE,
-		Path:           "/api/system/roles/:id",
-		AuditAction:    "role.delete",
-		AuditCategory:  AuditCatRole,
-		AuditOperation: AuditOpDelete,
-		Label:          "删除角色",
-		Description:    "Delete role",
-		Group:          "系统管理 - 角色管理 (Sys - Role)",
-	},
-	SysRolesSetPermissions: {
-		Method:         HttpPUT,
-		Path:           "/api/system/roles/:id/permissions",
-		AuditAction:    "role.set_permissions",
-		AuditCategory:  AuditCatRole,
-		AuditOperation: AuditOpUpdate,
-		Label:          "设置权限",
-		Description:    "Set role permissions",
-		Group:          "系统管理 - 角色管理 (Sys - Role)",
-	},
+	D(SysRolesCreate).Use(baseSysRole).
+		Post("").AuditCreate().
+		I18n("创建角色", "Create role"),
+
+	D(SysRolesList).Use(baseSysRole).
+		Get("").
+		I18n("角色列表", "List roles"),
+
+	D(SysRolesGet).Use(baseSysRole).
+		Get("/:id").
+		I18n("角色详情", "Get role by ID"),
+
+	D(SysRolesUpdate).Use(baseSysRole).
+		Put("/:id").AuditUpdate().
+		I18n("更新角色", "Update role"),
+
+	D(SysRolesDelete).Use(baseSysRole).
+		Delete("/:id").AuditDelete().
+		I18n("删除角色", "Delete role"),
+
+	D(SysRolesSetPermissions).Use(baseSysRole).
+		Put("/:id/permissions").Audit("role.set_permissions", AuditOpUpdate).
+		I18n("设置权限", "Set role permissions"),
 
 	// ==================== Sys 域 - 操作列表 ====================
-	SysOperationsList: {
-		Method:      HttpGET,
-		Path:        "/api/system/operations",
-		Label:       "操作列表",
-		Description: "List available operations",
-		Group:       "系统管理 - 操作管理 (Sys - Operation)",
-	},
+	D(SysOperationsList).Use(baseSysOperation).
+		Get("").
+		I18n("操作列表", "List available operations"),
 
 	// ==================== Sys 域 - 审计日志 ====================
-	SysAuditLogsList: {
-		Method:      HttpGET,
-		Path:        "/api/system/auditlogs",
-		Label:       "审计日志列表",
-		Description: "List audit logs",
-		Group:       "系统管理 - 审计日志 (Sys - Audit Log)",
-	},
-	SysAuditLogsGet: {
-		Method:      HttpGET,
-		Path:        "/api/system/auditlogs/:id",
-		Label:       "审计日志详情",
-		Description: "Get audit log by ID",
-		Group:       "系统管理 - 审计日志 (Sys - Audit Log)",
-	},
-	SysAuditLogsActions: {
-		Method:      HttpGET,
-		Path:        "/api/system/auditlogs/actions",
-		Label:       "审计操作定义",
-		Description: "Get audit action definitions",
-		Group:       "系统管理 - 审计日志 (Sys - Audit Log)",
-	},
+	D(SysAuditLogsList).Use(baseSysAuditLog).
+		Get("").
+		I18n("审计日志列表", "List audit logs"),
+
+	D(SysAuditLogsGet).Use(baseSysAuditLog).
+		Get("/:id").
+		I18n("审计日志详情", "Get audit log by ID"),
+
+	D(SysAuditLogsActions).Use(baseSysAuditLog).
+		Get("/actions").
+		I18n("审计操作定义", "Get audit action definitions"),
 
 	// ==================== Sys 域 - 菜单管理 ====================
-	SysMenusCreate: {
-		Method:         HttpPOST,
-		Path:           "/api/system/menus",
-		AuditAction:    "menu.create",
-		AuditCategory:  AuditCatMenu,
-		AuditOperation: AuditOpCreate,
-		Label:          "创建菜单",
-		Description:    "Create menu",
-		Group:          "系统管理 - 菜单管理 (Sys - Menu)",
-	},
-	SysMenusList: {
-		Method:      HttpGET,
-		Path:        "/api/system/menus",
-		Label:       "菜单列表",
-		Description: "List menus",
-		Group:       "系统管理 - 菜单管理 (Sys - Menu)",
-	},
-	SysMenusGet: {
-		Method:      HttpGET,
-		Path:        "/api/system/menus/:id",
-		Label:       "菜单详情",
-		Description: "Get menu by ID",
-		Group:       "系统管理 - 菜单管理 (Sys - Menu)",
-	},
-	SysMenusUpdate: {
-		Method:         HttpPUT,
-		Path:           "/api/system/menus/:id",
-		AuditAction:    "menu.update",
-		AuditCategory:  AuditCatMenu,
-		AuditOperation: AuditOpUpdate,
-		Label:          "更新菜单",
-		Description:    "Update menu",
-		Group:          "系统管理 - 菜单管理 (Sys - Menu)",
-	},
-	SysMenusDelete: {
-		Method:         HttpDELETE,
-		Path:           "/api/system/menus/:id",
-		AuditAction:    "menu.delete",
-		AuditCategory:  AuditCatMenu,
-		AuditOperation: AuditOpDelete,
-		Label:          "删除菜单",
-		Description:    "Delete menu",
-		Group:          "系统管理 - 菜单管理 (Sys - Menu)",
-	},
-	SysMenusReorder: {
-		Method:         HttpPOST,
-		Path:           "/api/system/menus/reorder",
-		AuditAction:    "menu.reorder",
-		AuditCategory:  AuditCatMenu,
-		AuditOperation: AuditOpUpdate,
-		Label:          "重排菜单",
-		Description:    "Reorder menus",
-		Group:          "系统管理 - 菜单管理 (Sys - Menu)",
-	},
+	D(SysMenusCreate).Use(baseSysMenu).
+		Post("").AuditCreate().
+		I18n("创建菜单", "Create menu"),
+
+	D(SysMenusList).Use(baseSysMenu).
+		Get("").
+		I18n("菜单列表", "List menus"),
+
+	D(SysMenusGet).Use(baseSysMenu).
+		Get("/:id").
+		I18n("菜单详情", "Get menu by ID"),
+
+	D(SysMenusUpdate).Use(baseSysMenu).
+		Put("/:id").AuditUpdate().
+		I18n("更新菜单", "Update menu"),
+
+	D(SysMenusDelete).Use(baseSysMenu).
+		Delete("/:id").AuditDelete().
+		I18n("删除菜单", "Delete menu"),
+
+	D(SysMenusReorder).Use(baseSysMenu).
+		Post("/reorder").Audit("menu.reorder", AuditOpUpdate).
+		I18n("重排菜单", "Reorder menus"),
 
 	// ==================== Sys 域 - 系统概览 ====================
-	SysOverviewStats: {
-		Method:      HttpGET,
-		Path:        "/api/system/overview/stats",
-		Label:       "系统概览",
-		Description: "Get system overview stats",
-		Group:       "系统管理 - 系统概览 (Sys - Overview)",
-	},
+	D(SysOverviewStats).Use(baseSysOverview).
+		Get("/stats").
+		I18n("系统概览", "Get system overview stats"),
 
 	// ==================== Sys 域 - 系统配置 ====================
-	SysSettingsCreate: {
-		Method:         HttpPOST,
-		Path:           "/api/system/settings",
-		AuditAction:    "setting.create",
-		AuditCategory:  AuditCatSetting,
-		AuditOperation: AuditOpCreate,
-		Label:          "创建配置",
-		Description:    "Create setting",
-		Group:          "系统管理 - 系统配置 (Sys - Setting)",
-	},
-	SysSettingsList: {
-		Method:      HttpGET,
-		Path:        "/api/system/settings",
-		Label:       "配置列表",
-		Description: "List settings",
-		Group:       "系统管理 - 系统配置 (Sys - Setting)",
-	},
-	SysSettingsGet: {
-		Method:      HttpGET,
-		Path:        "/api/system/settings/:key",
-		Label:       "配置详情",
-		Description: "Get setting by key",
-		Group:       "系统管理 - 系统配置 (Sys - Setting)",
-	},
-	SysSettingsUpdate: {
-		Method:         HttpPUT,
-		Path:           "/api/system/settings/:key",
-		AuditAction:    "setting.update",
-		AuditCategory:  AuditCatSetting,
-		AuditOperation: AuditOpUpdate,
-		Label:          "更新配置",
-		Description:    "Update setting",
-		Group:          "系统管理 - 系统配置 (Sys - Setting)",
-	},
-	SysSettingsDelete: {
-		Method:         HttpDELETE,
-		Path:           "/api/system/settings/:key",
-		AuditAction:    "setting.delete",
-		AuditCategory:  AuditCatSetting,
-		AuditOperation: AuditOpDelete,
-		Label:          "删除配置",
-		Description:    "Delete setting",
-		Group:          "系统管理 - 系统配置 (Sys - Setting)",
-	},
-	SysSettingsBatchUpdate: {
-		Method:         HttpPOST,
-		Path:           "/api/system/settings/batch",
-		AuditAction:    "setting.batch_update",
-		AuditCategory:  AuditCatSetting,
-		AuditOperation: AuditOpUpdate,
-		Label:          "批量更新配置",
-		Description:    "Batch update settings",
-		Group:          "系统管理 - 系统配置 (Sys - Setting)",
-	},
+	D(SysSettingsCreate).Use(baseSysSetting).
+		Post("").AuditCreate().
+		I18n("创建配置", "Create setting"),
+
+	D(SysSettingsList).Use(baseSysSetting).
+		Get("").
+		I18n("配置列表", "List settings"),
+
+	D(SysSettingsGet).Use(baseSysSetting).
+		Get("/:key").
+		I18n("配置详情", "Get setting by key"),
+
+	D(SysSettingsUpdate).Use(baseSysSetting).
+		Put("/:key").AuditUpdate().
+		I18n("更新配置", "Update setting"),
+
+	D(SysSettingsDelete).Use(baseSysSetting).
+		Delete("/:key").AuditDelete().
+		I18n("删除配置", "Delete setting"),
+
+	D(SysSettingsBatchUpdate).Use(baseSysSetting).
+		Post("/batch").Audit("setting.batch_update", AuditOpUpdate).
+		I18n("批量更新配置", "Batch update settings"),
 
 	// ==================== Sys 域 - 配置分类 ====================
-	SysSettingCategoriesList: {
-		Method:      HttpGET,
-		Path:        "/api/system/settings/categories",
-		Label:       "配置分类列表",
-		Description: "List setting categories",
-		Group:       "系统管理 - 系统配置 (Sys - Setting)",
-	},
-	SysSettingCategoriesGet: {
-		Method:      HttpGET,
-		Path:        "/api/system/settings/categories/:id",
-		Label:       "配置分类详情",
-		Description: "Get setting category by ID",
-		Group:       "系统管理 - 系统配置 (Sys - Setting)",
-	},
-	SysSettingCategoriesCreate: {
-		Method:         HttpPOST,
-		Path:           "/api/system/settings/categories",
-		AuditAction:    "setting_category.create",
-		AuditCategory:  AuditCatSetting,
-		AuditOperation: AuditOpCreate,
-		Label:          "创建配置分类",
-		Description:    "Create setting category",
-		Group:          "系统管理 - 系统配置 (Sys - Setting)",
-	},
-	SysSettingCategoriesUpdate: {
-		Method:         HttpPUT,
-		Path:           "/api/system/settings/categories/:id",
-		AuditAction:    "setting_category.update",
-		AuditCategory:  AuditCatSetting,
-		AuditOperation: AuditOpUpdate,
-		Label:          "更新配置分类",
-		Description:    "Update setting category",
-		Group:          "系统管理 - 系统配置 (Sys - Setting)",
-	},
-	SysSettingCategoriesDelete: {
-		Method:         HttpDELETE,
-		Path:           "/api/system/settings/categories/:id",
-		AuditAction:    "setting_category.delete",
-		AuditCategory:  AuditCatSetting,
-		AuditOperation: AuditOpDelete,
-		Label:          "删除配置分类",
-		Description:    "Delete setting category",
-		Group:          "系统管理 - 系统配置 (Sys - Setting)",
-	},
+	D(SysSettingCategoriesList).Use(baseSysSetting).
+		Get("/categories").
+		I18n("配置分类列表", "List setting categories"),
+
+	D(SysSettingCategoriesGet).Use(baseSysSetting).
+		Get("/categories/:id").
+		I18n("配置分类详情", "Get setting category by ID"),
+
+	D(SysSettingCategoriesCreate).Use(baseSysSetting).
+		Post("/categories").Audit("setting_category.create", AuditOpCreate).
+		I18n("创建配置分类", "Create setting category"),
+
+	D(SysSettingCategoriesUpdate).Use(baseSysSetting).
+		Put("/categories/:id").Audit("setting_category.update", AuditOpUpdate).
+		I18n("更新配置分类", "Update setting category"),
+
+	D(SysSettingCategoriesDelete).Use(baseSysSetting).
+		Delete("/categories/:id").Audit("setting_category.delete", AuditOpDelete).
+		I18n("删除配置分类", "Delete setting category"),
 
 	// ==================== Sys 域 - 缓存管理 ====================
-	SysCacheInfo: {
-		Method:      HttpGET,
-		Path:        "/api/system/cache/info",
-		Label:       "缓存信息",
-		Description: "Get cache info",
-		Group:       "系统管理 - 缓存管理 (Sys - Cache)",
-	},
-	SysCacheScanKeys: {
-		Method:      HttpGET,
-		Path:        "/api/system/cache/keys",
-		Label:       "扫描缓存键",
-		Description: "Scan cache keys",
-		Group:       "系统管理 - 缓存管理 (Sys - Cache)",
-	},
-	SysCacheGetKey: {
-		Method:      HttpGET,
-		Path:        "/api/system/cache/key",
-		Label:       "获取缓存值",
-		Description: "Get cache key value",
-		Group:       "系统管理 - 缓存管理 (Sys - Cache)",
-	},
-	SysCacheDeleteKey: {
-		Method:         HttpDELETE,
-		Path:           "/api/system/cache/key",
-		AuditAction:    "cache.delete",
-		AuditCategory:  AuditCatCache,
-		AuditOperation: AuditOpDelete,
-		Label:          "删除缓存键",
-		Description:    "Delete cache key",
-		Group:          "系统管理 - 缓存管理 (Sys - Cache)",
-	},
-	SysCacheDeletePattern: {
-		Method:         HttpDELETE,
-		Path:           "/api/system/cache/keys",
-		AuditAction:    "cache.delete_pattern",
-		AuditCategory:  AuditCatCache,
-		AuditOperation: AuditOpDelete,
-		Label:          "批量删除缓存",
-		Description:    "Delete cache keys by pattern",
-		Group:          "系统管理 - 缓存管理 (Sys - Cache)",
-	},
+	D(SysCacheInfo).Use(baseSysCache).
+		Get("/info").
+		I18n("缓存信息", "Get cache info"),
+
+	D(SysCacheScanKeys).Use(baseSysCache).
+		Get("/keys").
+		I18n("扫描缓存键", "Scan cache keys"),
+
+	D(SysCacheGetKey).Use(baseSysCache).
+		Get("/key").
+		I18n("获取缓存值", "Get cache key value"),
+
+	D(SysCacheDeleteKey).Use(baseSysCache).
+		Delete("/key").AuditDelete().
+		I18n("删除缓存键", "Delete cache key"),
+
+	D(SysCacheDeletePattern).Use(baseSysCache).
+		Delete("/keys").Audit("cache.delete_pattern", AuditOpDelete).
+		I18n("批量删除缓存", "Delete cache keys by pattern"),
 
 	// ==================== Self 域 - 个人资料 ====================
-	SelfProfileGet: {
-		Method:      HttpGET,
-		Path:        "/api/user/profile",
-		Label:       "获取资料",
-		Description: "Get current user profile",
-		Group:       "用户中心 - 个人资料 (User - Profile)",
-	},
-	SelfProfileUpdate: {
-		Method:         HttpPUT,
-		Path:           "/api/user/profile",
-		AuditAction:    "profile.update",
-		AuditCategory:  AuditCatProfile,
-		AuditOperation: AuditOpUpdate,
-		Label:          "更新资料",
-		Description:    "Update current user profile",
-		Group:          "用户中心 - 个人资料 (User - Profile)",
-	},
-	SelfPasswordUpdate: {
-		Method:         HttpPUT,
-		Path:           "/api/user/password",
-		AuditAction:    "password.update",
-		AuditCategory:  AuditCatProfile,
-		AuditOperation: AuditOpUpdate,
-		Label:          "修改密码",
-		Description:    "Change password",
-		Group:          "用户中心 - 个人资料 (User - Profile)",
-	},
-	SelfAccountDelete: {
-		Method:         HttpDELETE,
-		Path:           "/api/user/account",
-		AuditAction:    "account.delete",
-		AuditCategory:  AuditCatProfile,
-		AuditOperation: AuditOpDelete,
-		Label:          "注销账户",
-		Description:    "Delete own account",
-		Group:          "用户中心 - 个人资料 (User - Profile)",
-	},
+	D(SelfProfileGet).Use(baseSelfProfile).
+		Get("/profile").
+		I18n("获取资料", "Get current user profile"),
+
+	D(SelfProfileUpdate).Use(baseSelfProfile).
+		Put("/profile").AuditUpdate().
+		I18n("更新资料", "Update current user profile"),
+
+	D(SelfPasswordUpdate).Use(baseSelfProfile).
+		Put("/password").Audit("password.update", AuditOpUpdate).
+		I18n("修改密码", "Change password"),
+
+	D(SelfAccountDelete).Use(baseSelfProfile).
+		Delete("/account").Audit("account.delete", AuditOpDelete).
+		I18n("注销账户", "Delete own account"),
 
 	// ==================== Self 域 - 访问令牌 ====================
-	SelfTokensCreate: {
-		Method:         HttpPOST,
-		Path:           "/api/user/tokens",
-		AuditAction:    "token.create",
-		AuditCategory:  AuditCatToken,
-		AuditOperation: AuditOpCreate,
-		Label:          "创建令牌",
-		Description:    "Create personal access token",
-		Group:          "用户中心 - 访问令牌 (User - Token)",
-	},
-	SelfTokensList: {
-		Method:      HttpGET,
-		Path:        "/api/user/tokens",
-		Label:       "令牌列表",
-		Description: "List personal access tokens",
-		Group:       "用户中心 - 访问令牌 (User - Token)",
-	},
-	SelfTokensGet: {
-		Method:      HttpGET,
-		Path:        "/api/user/tokens/:id",
-		Label:       "令牌详情",
-		Description: "Get token by ID",
-		Group:       "用户中心 - 访问令牌 (User - Token)",
-	},
-	SelfTokensDelete: {
-		Method:         HttpDELETE,
-		Path:           "/api/user/tokens/:id",
-		AuditAction:    "token.delete",
-		AuditCategory:  AuditCatToken,
-		AuditOperation: AuditOpDelete,
-		Label:          "删除令牌",
-		Description:    "Delete token",
-		Group:          "用户中心 - 访问令牌 (User - Token)",
-	},
-	SelfTokensDisable: {
-		Method:         HttpPATCH,
-		Path:           "/api/user/tokens/:id/disable",
-		AuditAction:    "token.disable",
-		AuditCategory:  AuditCatToken,
-		AuditOperation: AuditOpUpdate,
-		Label:          "禁用令牌",
-		Description:    "Disable token",
-		Group:          "用户中心 - 访问令牌 (User - Token)",
-	},
-	SelfTokensEnable: {
-		Method:         HttpPATCH,
-		Path:           "/api/user/tokens/:id/enable",
-		AuditAction:    "token.enable",
-		AuditCategory:  AuditCatToken,
-		AuditOperation: AuditOpUpdate,
-		Label:          "启用令牌",
-		Description:    "Enable token",
-		Group:          "用户中心 - 访问令牌 (User - Token)",
-	},
+	D(SelfTokensCreate).Use(baseSelfToken).
+		Post("").AuditCreate().
+		I18n("创建令牌", "Create personal access token"),
+
+	D(SelfTokensList).Use(baseSelfToken).
+		Get("").
+		I18n("令牌列表", "List personal access tokens"),
+
+	D(SelfTokensGet).Use(baseSelfToken).
+		Get("/:id").
+		I18n("令牌详情", "Get token by ID"),
+
+	D(SelfTokensDelete).Use(baseSelfToken).
+		Delete("/:id").AuditDelete().
+		I18n("删除令牌", "Delete token"),
+
+	D(SelfTokensDisable).Use(baseSelfToken).
+		Patch("/:id/disable").Audit("token.disable", AuditOpUpdate).
+		I18n("禁用令牌", "Disable token"),
+
+	D(SelfTokensEnable).Use(baseSelfToken).
+		Patch("/:id/enable").Audit("token.enable", AuditOpUpdate).
+		I18n("启用令牌", "Enable token"),
 
 	// ==================== Self 域 - 用户配置 ====================
-	SelfSettingsCategoriesList: {
-		Method:      HttpGET,
-		Path:        "/api/user/settings/categories",
-		Label:       "配置分类列表",
-		Description: "List user setting categories",
-		Group:       "用户中心 - 用户配置 (User - Setting)",
-	},
-	SelfSettingsList: {
-		Method:      HttpGET,
-		Path:        "/api/user/settings",
-		Label:       "用户配置列表",
-		Description: "Get all user settings",
-		Group:       "用户中心 - 用户配置 (User - Setting)",
-	},
-	SelfSettingsGet: {
-		Method:      HttpGET,
-		Path:        "/api/user/settings/:key",
-		Label:       "用户配置详情",
-		Description: "Get user setting by key",
-		Group:       "用户中心 - 用户配置 (User - Setting)",
-	},
-	SelfSettingsSet: {
-		Method:         HttpPUT,
-		Path:           "/api/user/settings/:key",
-		AuditAction:    "user_setting.set",
-		AuditCategory:  AuditCatUserSetting,
-		AuditOperation: AuditOpUpdate,
-		Label:          "设置用户配置",
-		Description:    "Set user setting",
-		Group:          "用户中心 - 用户配置 (User - Setting)",
-	},
-	SelfSettingsReset: {
-		Method:         HttpDELETE,
-		Path:           "/api/user/settings/:key",
-		AuditAction:    "user_setting.reset",
-		AuditCategory:  AuditCatUserSetting,
-		AuditOperation: AuditOpUpdate,
-		Label:          "重置用户配置",
-		Description:    "Reset user setting to default",
-		Group:          "用户中心 - 用户配置 (User - Setting)",
-	},
-	SelfSettingsBatchSet: {
-		Method:         HttpPOST,
-		Path:           "/api/user/settings/batch",
-		AuditAction:    "user_setting.batch_set",
-		AuditCategory:  AuditCatUserSetting,
-		AuditOperation: AuditOpUpdate,
-		Label:          "批量设置配置",
-		Description:    "Batch set user settings",
-		Group:          "用户中心 - 用户配置 (User - Setting)",
-	},
-}
+	D(SelfSettingsCategoriesList).Use(baseSelfSetting).
+		Get("/categories").
+		I18n("配置分类列表", "List user setting categories"),
+
+	D(SelfSettingsList).Use(baseSelfSetting).
+		Get("").
+		I18n("用户配置列表", "Get all user settings"),
+
+	D(SelfSettingsGet).Use(baseSelfSetting).
+		Get("/:key").
+		I18n("用户配置详情", "Get user setting by key"),
+
+	D(SelfSettingsSet).Use(baseSelfSetting).
+		Put("/:key").Audit("user_setting.set", AuditOpUpdate).
+		I18n("设置用户配置", "Set user setting"),
+
+	D(SelfSettingsReset).Use(baseSelfSetting).
+		Delete("/:key").Audit("user_setting.reset", AuditOpUpdate).
+		I18n("重置用户配置", "Reset user setting to default"),
+
+	D(SelfSettingsBatchSet).Use(baseSelfSetting).
+		Post("/batch").Audit("user_setting.batch_set", AuditOpUpdate).
+		I18n("批量设置配置", "Batch set user settings"),
+)
