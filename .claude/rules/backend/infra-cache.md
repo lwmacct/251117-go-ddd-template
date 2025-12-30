@@ -61,3 +61,22 @@ redis-cli -u $REDIS_URL KEYS 'dev:*'
 ## 缓存回写
 
 使用 **Cache-Aside 同步回写**（延迟可忽略，避免竞态）。
+
+## 数据类型约束
+
+**禁止在 Infrastructure 层自定义缓存类型**，必须直接序列化 Application DTO 或 Domain 实体。
+
+```go
+// ❌ 禁止：自定义 CacheDTO
+type userCacheDTO struct {
+    ID       uint   `json:"id"`
+    Username string `json:"username"`
+}
+
+// ✅ 正确：直接序列化 Application DTO 或 Domain 实体
+func (s *service) Set(ctx context.Context, user *user.User) error {
+    return s.client.JSONSet(ctx, key, "$", user).Err()
+}
+```
+
+> Domain 实体需有 `json` tags（见 ddd-domain.md）。

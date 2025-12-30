@@ -7,17 +7,17 @@ paths:
 
 ## 数据类型约束
 
-**缓存接口仅使用 Application DTO**，禁止直接缓存 Domain 实体。
+**优先使用 Application DTO**，允许缓存 Domain 实体（需有 `json` tags）。
 
 ```go
-// ✅ 正确
-type UserCacheService interface {
-    Get(ctx context.Context, userID uint) (*UserWithRolesDTO, error)
+// ✅ 推荐：使用 Application DTO
+type SettingsCacheService interface {
+    GetUserSettings(ctx context.Context, userID uint) ([]SettingsCategoryDTO, error)
 }
 
-// ❌ 禁止
-type UserCacheService interface {
-    Get(ctx context.Context, userID uint) (*user.User, error)
+// ✅ 允许：缓存 Domain 实体（如 Repository 装饰器场景）
+type UserWithRolesCacheService interface {
+    GetUserWithRoles(ctx context.Context, userID uint) (*user.User, error)
 }
 ```
 

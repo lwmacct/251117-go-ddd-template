@@ -46,6 +46,12 @@ internal/domain/{module}/
 - ❌ import 外层代码
 - ❌ 数据库/Redis/HTTP 等技术实现
 
+## 允许事项
+
+- ✅ `json` tags（标准库，不引入外部依赖）
+
+> 若实体需被缓存，必须添加 `json` tags 以确保序列化行为可控。
+
 ## 实体规范
 
 ```go
