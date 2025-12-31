@@ -381,23 +381,37 @@ onMounted(fetchTeams);
 
               <!-- 操作列 -->
               <template #item.actions="{ item }">
-                <v-btn
-                  icon="mdi-account-group"
-                  size="x-small"
-                  variant="text"
-                  :color="activeTeamId === item.id ? 'primary' : 'default'"
-                  @click="selectTeam(item)"
-                >
-                  <v-tooltip activator="parent" text="查看成员" />
-                </v-btn>
+                <v-tooltip text="查看成员">
+                  <template #activator="{ props }">
+                    <v-btn
+                      icon="mdi-account-group"
+                      size="small"
+                      variant="text"
+                      :color="activeTeamId === item.id ? 'primary' : 'default'"
+                      v-bind="props"
+                      @click="selectTeam(item)"
+                    ></v-btn>
+                  </template>
+                </v-tooltip>
 
-                <v-btn icon="mdi-pencil" size="x-small" variant="text" @click="openEditDialog(item)">
-                  <v-tooltip activator="parent" text="编辑" />
-                </v-btn>
+                <v-tooltip text="编辑">
+                  <template #activator="{ props }">
+                    <v-btn icon="mdi-pencil" size="small" variant="text" v-bind="props" @click="openEditDialog(item)"></v-btn>
+                  </template>
+                </v-tooltip>
 
-                <v-btn icon="mdi-delete" size="x-small" variant="text" color="error" @click="deleteTeam(item)">
-                  <v-tooltip activator="parent" text="删除" />
-                </v-btn>
+                <v-tooltip text="删除">
+                  <template #activator="{ props }">
+                    <v-btn
+                      icon="mdi-delete"
+                      size="small"
+                      variant="text"
+                      color="error"
+                      v-bind="props"
+                      @click="deleteTeam(item)"
+                    ></v-btn>
+                  </template>
+                </v-tooltip>
               </template>
             </v-data-table-server>
           </v-card-text>
@@ -446,9 +460,18 @@ onMounted(fetchTeams);
 
               <!-- 操作列 -->
               <template #item.actions="{ item }">
-                <v-btn icon="mdi-minus" size="x-small" variant="text" color="error" @click="removeTeamMember(item)">
-                  <v-tooltip activator="parent" text="移除" />
-                </v-btn>
+                <v-tooltip text="移除">
+                  <template #activator="{ props }">
+                    <v-btn
+                      icon="mdi-minus"
+                      size="small"
+                      variant="text"
+                      color="error"
+                      v-bind="props"
+                      @click="removeTeamMember(item)"
+                    ></v-btn>
+                  </template>
+                </v-tooltip>
               </template>
             </v-data-table-server>
           </v-card-text>

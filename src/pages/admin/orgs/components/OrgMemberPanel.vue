@@ -267,13 +267,31 @@ onMounted(fetchMembers);
 
               <!-- 操作列 -->
               <template #item.actions="{ item }">
-                <v-btn icon="mdi-shield-account" size="x-small" variant="text" color="primary" @click="updateRole(item)">
-                  <v-tooltip activator="parent" text="更新角色" />
-                </v-btn>
+                <v-tooltip text="更新角色">
+                  <template #activator="{ props }">
+                    <v-btn
+                      icon="mdi-shield-account"
+                      size="small"
+                      variant="text"
+                      color="primary"
+                      v-bind="props"
+                      @click="updateRole(item)"
+                    ></v-btn>
+                  </template>
+                </v-tooltip>
 
-                <v-btn icon="mdi-minus" size="x-small" variant="text" color="error" @click="removeMember(item)">
-                  <v-tooltip activator="parent" text="移除" />
-                </v-btn>
+                <v-tooltip text="移除">
+                  <template #activator="{ props }">
+                    <v-btn
+                      icon="mdi-minus"
+                      size="small"
+                      variant="text"
+                      color="error"
+                      v-bind="props"
+                      @click="removeMember(item)"
+                    ></v-btn>
+                  </template>
+                </v-tooltip>
               </template>
             </v-data-table-server>
           </v-card-text>
