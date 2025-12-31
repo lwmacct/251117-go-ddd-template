@@ -1,4 +1,4 @@
-package usersetting_test
+package user_test
 
 import (
 	"testing"
@@ -65,7 +65,7 @@ func findTwoBooleanSettingsFromSchema(schema []setting.SettingsCategoryDTO) (*se
 //
 // 手动运行:
 //
-//	MANUAL=1 go test -v -run TestUserSettingsFlow ./internal/manualtest/usersetting/
+//	MANUAL=1 go test -v -run TestUserSettingsFlow ./internal/manualtest/user/
 func TestUserSettingsFlow(t *testing.T) {
 	c := manualtest.LoginAsAdmin(t)
 
@@ -172,7 +172,7 @@ func TestUserSettingsFlow(t *testing.T) {
 //
 // 手动运行:
 //
-//	MANUAL=1 go test -v -run TestGetUserSettings ./internal/manualtest/usersetting/
+//	MANUAL=1 go test -v -run TestGetUserSettings ./internal/manualtest/user/
 func TestGetUserSettings(t *testing.T) {
 	c := manualtest.LoginAsAdmin(t)
 
@@ -200,7 +200,7 @@ func TestGetUserSettings(t *testing.T) {
 //
 // 手动运行:
 //
-//	MANUAL=1 go test -v -run TestGetUserSetting ./internal/manualtest/usersetting/
+//	MANUAL=1 go test -v -run TestGetUserSetting ./internal/manualtest/user/
 func TestGetUserSetting(t *testing.T) {
 	c := manualtest.LoginAsAdmin(t)
 
@@ -242,7 +242,7 @@ func TestGetUserSetting(t *testing.T) {
 //
 // 手动运行:
 //
-//	MANUAL=1 go test -v -run TestGetUserSettingsByCategory ./internal/manualtest/usersetting/
+//	MANUAL=1 go test -v -run TestGetUserSettingsByCategory ./internal/manualtest/user/
 func TestGetUserSettingsByCategory(t *testing.T) {
 	c := manualtest.LoginAsAdmin(t)
 
@@ -277,7 +277,7 @@ func TestGetUserSettingsByCategory(t *testing.T) {
 //
 // 手动运行:
 //
-//	MANUAL=1 go test -v -run TestSetUserSetting ./internal/manualtest/usersetting/
+//	MANUAL=1 go test -v -run TestSetUserSetting ./internal/manualtest/user/
 func TestSetUserSetting(t *testing.T) {
 	c := manualtest.LoginAsAdmin(t)
 
@@ -324,7 +324,7 @@ func TestSetUserSetting(t *testing.T) {
 //
 // 手动运行:
 //
-//	MANUAL=1 go test -v -run TestResetUserSetting ./internal/manualtest/usersetting/
+//	MANUAL=1 go test -v -run TestResetUserSetting ./internal/manualtest/user/
 func TestResetUserSetting(t *testing.T) {
 	c := manualtest.LoginAsAdmin(t)
 
@@ -376,7 +376,7 @@ func TestResetUserSetting(t *testing.T) {
 //
 // 手动运行:
 //
-//	MANUAL=1 go test -v -run TestBatchSetUserSettings ./internal/manualtest/usersetting/
+//	MANUAL=1 go test -v -run TestBatchSetUserSettings ./internal/manualtest/user/
 func TestBatchSetUserSettings(t *testing.T) {
 	c := manualtest.LoginAsAdmin(t)
 
@@ -435,7 +435,7 @@ func TestBatchSetUserSettings(t *testing.T) {
 //
 // 手动运行:
 //
-//	MANUAL=1 go test -v -run TestUserSettingNotFound ./internal/manualtest/usersetting/
+//	MANUAL=1 go test -v -run TestUserSettingNotFound ./internal/manualtest/user/
 func TestUserSettingNotFound(t *testing.T) {
 	c := manualtest.LoginAsAdmin(t)
 
