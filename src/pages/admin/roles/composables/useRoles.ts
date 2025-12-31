@@ -32,7 +32,7 @@ export function useRoles() {
 
     try {
       const { limit, page } = getParams();
-      const response = await adminRoleApi.apiSystemRolesGet(limit, page);
+      const response = await adminRoleApi.apiAdminRolesGet(limit, page);
       const result = extractList<RoleRoleDTO>(response.data);
       roles.value = result.data;
       updateTotal(result.pagination.total, result.pagination.total_pages);
@@ -46,7 +46,7 @@ export function useRoles() {
 
   const fetchRole = async (id: number): Promise<RoleRoleDTO | null> => {
     try {
-      const response = await adminRoleApi.apiSystemRolesIdGet(id);
+      const response = await adminRoleApi.apiAdminRolesIdGet(id);
       return extractData<RoleRoleDTO>(response.data) ?? null;
     } catch (err) {
       error((err as Error).message || "获取角色详情失败");
@@ -58,7 +58,7 @@ export function useRoles() {
     loading.value = true;
 
     try {
-      await adminRoleApi.apiSystemRolesPost(data);
+      await adminRoleApi.apiAdminRolesPost(data);
       success("角色创建成功");
       await fetchRoles();
       return true;
@@ -74,7 +74,7 @@ export function useRoles() {
     loading.value = true;
 
     try {
-      await adminRoleApi.apiSystemRolesIdPut(id, data);
+      await adminRoleApi.apiAdminRolesIdPut(id, data);
       success("角色更新成功");
       await fetchRoles();
       return true;
@@ -90,7 +90,7 @@ export function useRoles() {
     loading.value = true;
 
     try {
-      await adminRoleApi.apiSystemRolesIdDelete(id);
+      await adminRoleApi.apiAdminRolesIdDelete(id);
       success("角色删除成功");
       await fetchRoles();
       return true;
@@ -106,7 +106,7 @@ export function useRoles() {
     loading.value = true;
 
     try {
-      await adminRoleApi.apiSystemRolesIdPermissionsPut(id, { permissions });
+      await adminRoleApi.apiAdminRolesIdPermissionsPut(id, { permissions });
       success("权限设置成功");
       await fetchRoles();
       return true;
@@ -138,7 +138,7 @@ export function useRoles() {
 
     try {
       // 获取所有角色（最多 1000 条）
-      const response = await adminRoleApi.apiSystemRolesGet(1000, 1);
+      const response = await adminRoleApi.apiAdminRolesGet(1000, 1);
       const result = extractList<RoleRoleDTO>(response.data);
 
       if (result.data.length === 0) {

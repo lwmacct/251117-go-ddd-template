@@ -37,7 +37,7 @@ export function useAdminOrgs() {
 
     try {
       const { limit, page } = getParams();
-      const response = await adminOrgApi.apiSystemOrgsGet(limit, page, statusFilter.value || undefined);
+      const response = await adminOrgApi.apiAdminOrgsGet(limit, page, statusFilter.value || undefined);
       const result = extractList<OrgOrgDTO>(response.data);
       orgs.value = result.data;
       updateTotal(result.pagination.total, result.pagination.total_pages);
@@ -54,7 +54,7 @@ export function useAdminOrgs() {
    */
   const fetchOrg = async (id: number): Promise<OrgOrgDTO | null> => {
     try {
-      const response = await adminOrgApi.apiSystemOrgsIdGet(id);
+      const response = await adminOrgApi.apiAdminOrgsIdGet(id);
       return extractData<OrgOrgDTO>(response.data) ?? null;
     } catch (err) {
       error((err as Error).message || "获取组织详情失败");
@@ -70,7 +70,7 @@ export function useAdminOrgs() {
     loading.value = true;
 
     try {
-      await adminOrgApi.apiSystemOrgsPost(data);
+      await adminOrgApi.apiAdminOrgsPost(data);
       success("组织创建成功");
       await fetchOrgs(); // 刷新列表
       return true;
@@ -90,7 +90,7 @@ export function useAdminOrgs() {
     loading.value = true;
 
     try {
-      await adminOrgApi.apiSystemOrgsIdPut(id, data);
+      await adminOrgApi.apiAdminOrgsIdPut(id, data);
       success("组织更新成功");
       await fetchOrgs(); // 刷新列表
       return true;
@@ -110,7 +110,7 @@ export function useAdminOrgs() {
     loading.value = true;
 
     try {
-      await adminOrgApi.apiSystemOrgsIdDelete(id);
+      await adminOrgApi.apiAdminOrgsIdDelete(id);
       success("组织删除成功");
       await fetchOrgs(); // 刷新列表
       return true;
@@ -149,7 +149,7 @@ export function useAdminOrgs() {
 
     try {
       // 获取所有组织（最多 1000 条）
-      const response = await adminOrgApi.apiSystemOrgsGet(1000, 1);
+      const response = await adminOrgApi.apiAdminOrgsGet(1000, 1);
       const result = extractList<OrgOrgDTO>(response.data);
 
       if (result.data.length === 0) {

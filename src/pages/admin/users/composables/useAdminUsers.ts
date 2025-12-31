@@ -37,7 +37,7 @@ export function useAdminUsers() {
     try {
       const { limit, page } = getParams();
       // 注意：API 参数顺序是 (limit, page, search)
-      const response = await adminUserApi.apiSystemUsersGet(limit, page, debouncedSearchQuery.value || undefined);
+      const response = await adminUserApi.apiAdminUsersGet(limit, page, debouncedSearchQuery.value || undefined);
       const result = extractList<UserUserWithRolesDTO>(response.data);
       users.value = result.data;
       updateTotal(result.pagination.total, result.pagination.total_pages);
@@ -54,7 +54,7 @@ export function useAdminUsers() {
    */
   const fetchUser = async (id: number): Promise<UserUserWithRolesDTO | null> => {
     try {
-      const response = await adminUserApi.apiSystemUsersIdGet(id);
+      const response = await adminUserApi.apiAdminUsersIdGet(id);
       return extractData<UserUserWithRolesDTO>(response.data) ?? null;
     } catch (err) {
       error((err as Error).message || "获取用户详情失败");
@@ -70,7 +70,7 @@ export function useAdminUsers() {
     loading.value = true;
 
     try {
-      await adminUserApi.apiSystemUsersPost(data);
+      await adminUserApi.apiAdminUsersPost(data);
       success("用户创建成功");
       await fetchUsers(); // 刷新列表
       return true;
@@ -90,7 +90,7 @@ export function useAdminUsers() {
     loading.value = true;
 
     try {
-      await adminUserApi.apiSystemUsersIdPut(id, data);
+      await adminUserApi.apiAdminUsersIdPut(id, data);
       success("用户更新成功");
       await fetchUsers(); // 刷新列表
       return true;
@@ -110,7 +110,7 @@ export function useAdminUsers() {
     loading.value = true;
 
     try {
-      await adminUserApi.apiSystemUsersIdDelete(id);
+      await adminUserApi.apiAdminUsersIdDelete(id);
       success("用户删除成功");
       await fetchUsers(); // 刷新列表
       return true;
@@ -131,7 +131,7 @@ export function useAdminUsers() {
 
     try {
       const data: UserAssignRolesDTO = { role_ids: roleIds };
-      await adminUserApi.apiSystemUsersIdRolesPut(id, data);
+      await adminUserApi.apiAdminUsersIdRolesPut(id, data);
       success("角色分配成功");
       await fetchUsers(); // 刷新列表
       return true;
@@ -166,7 +166,7 @@ export function useAdminUsers() {
     try {
       // 获取所有用户（最多 1000 条）
       // 注意：API 参数顺序是 (limit, page, search)
-      const response = await adminUserApi.apiSystemUsersGet(1000, 1, searchQuery.value || undefined);
+      const response = await adminUserApi.apiAdminUsersGet(1000, 1, searchQuery.value || undefined);
       const result = extractList<UserUserWithRolesDTO>(response.data);
 
       if (result.data.length === 0) {

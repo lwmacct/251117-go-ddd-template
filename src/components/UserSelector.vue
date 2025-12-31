@@ -30,7 +30,7 @@ const searchUsers = async () => {
 
   loading.value = true;
   try {
-    const response = await adminUserApi.apiSystemUsersGet(20, 1, search.value);
+    const response = await adminUserApi.apiAdminUsersGet(20, 1, search.value);
     const result = extractList<UserUserWithRolesDTO>(response.data);
     items.value = result.data;
   } catch (err) {

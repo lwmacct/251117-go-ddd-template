@@ -17,7 +17,7 @@ export function useOverview() {
     loading.value = true;
 
     try {
-      const response = await overviewApi.apiSystemOverviewStatsGet();
+      const response = await overviewApi.apiAdminOverviewStatsGet();
       stats.value = extractData<StatsStatsDTO>(response.data) ?? null;
     } catch (err) {
       error((err as Error).message || "获取统计信息失败");

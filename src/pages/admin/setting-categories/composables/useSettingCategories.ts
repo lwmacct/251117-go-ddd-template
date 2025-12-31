@@ -20,7 +20,7 @@ export function useSettingCategories() {
     loading.value = true;
 
     try {
-      const response = await adminSettingCategoriesApi.apiSystemSettingsCategoriesGet();
+      const response = await adminSettingCategoriesApi.apiAdminSettingsCategoriesGet();
       categories.value = (response.data.data ?? []) as SettingCategoryDTO[];
     } catch (err) {
       error((err as Error).message || "获取分类列表失败");
@@ -37,7 +37,7 @@ export function useSettingCategories() {
     loading.value = true;
 
     try {
-      await adminSettingCategoriesApi.apiSystemSettingsCategoriesPost(data);
+      await adminSettingCategoriesApi.apiAdminSettingsCategoriesPost(data);
       success("分类创建成功");
       await fetchCategories();
       return true;
@@ -56,7 +56,7 @@ export function useSettingCategories() {
     loading.value = true;
 
     try {
-      await adminSettingCategoriesApi.apiSystemSettingsCategoriesIdPut(id, data);
+      await adminSettingCategoriesApi.apiAdminSettingsCategoriesIdPut(id, data);
       success("分类更新成功");
       await fetchCategories();
       return true;
@@ -75,7 +75,7 @@ export function useSettingCategories() {
     loading.value = true;
 
     try {
-      await adminSettingCategoriesApi.apiSystemSettingsCategoriesIdDelete(id);
+      await adminSettingCategoriesApi.apiAdminSettingsCategoriesIdDelete(id);
       success("分类删除成功");
       await fetchCategories();
       return true;
