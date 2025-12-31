@@ -61,10 +61,11 @@ func OrgContext(memberQuery org.MemberQueryRepository) gin.HandlerFunc {
 
 // TeamContext 团队上下文中间件。
 // 必须在 OrgContext 之后使用。
-// 从路由参数提取 team_id，验证团队属于组织，验证用户是否为团队成员。
+// 从路由参数提取 team_id，验证团队属于组织。
+// 组织管理员（owner/admin）可以访问所有团队，普通成员必须是团队成员。
 // 验证通过后注入以下值到 Gin Context:
 //   - team_id: uint - 团队 ID
-//   - team_role: string - 用户在团队中的角色 (lead/member)
+//   - team_role: string - 用户在团队中的角色 (仅当是团队成员时)
 func TeamContext(
 	teamQuery org.TeamQueryRepository,
 	teamMemberQuery org.TeamMemberQueryRepository,
@@ -125,7 +126,21 @@ func TeamContext(
 			return
 		}
 
-		// 5. 验证用户是否是团队成员
+		// 5. 注入 team_id
+		c.Set("team_id", uint(teamID))
+
+		// 6. 组织管理员（owner/admin）可以访问所有团队，无需是团队成员
+		if isOrgAdmin(c, org.MemberRoleOwner, org.MemberRoleAdmin) {
+			// 组织管理员，尝试获取团队角色（可选）
+			member, lookupErr := teamMemberQuery.GetByTeamAndUser(c.Request.Context(), uint(teamID), uid)
+			if lookupErr == nil {
+				c.Set("team_role", string(member.Role))
+			}
+			c.Next()
+			return
+		}
+
+		// 7. 普通组织成员必须是团队成员
 		member, err := teamMemberQuery.GetByTeamAndUser(c.Request.Context(), uint(teamID), uid)
 		if err != nil {
 			response.Forbidden(c, "not a member of this team")
@@ -133,8 +148,7 @@ func TeamContext(
 			return
 		}
 
-		// 6. 注入团队上下文
-		c.Set("team_id", uint(teamID))
+		// 8. 注入团队角色
 		c.Set("team_role", string(member.Role))
 
 		c.Next()
@@ -255,4 +269,17 @@ func TeamContextOptional(
 
 		c.Next()
 	}
+}
+
+// isOrgAdmin 检查当前用户是否是组织管理员（owner 或 admin）。
+func isOrgAdmin(c *gin.Context, adminRole, ownerRole org.MemberRole) bool {
+	orgRole, hasOrgRole := c.Get("org_role")
+	if !hasOrgRole {
+		return false
+	}
+	role, ok := orgRole.(string)
+	if !ok {
+		return false
+	}
+	return role == string(adminRole) || role == string(ownerRole)
 }

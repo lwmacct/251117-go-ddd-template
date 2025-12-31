@@ -53,14 +53,14 @@ func TestTwoFAFlow(t *testing.T) {
 		RoleIDs:  []uint{2}, // user 角色 ID
 	}
 
-	createResp, err := manualtest.Post[user.UserWithRolesDTO](adminClient, "/api/system/users", createReq)
+	createResp, err := manualtest.Post[user.UserWithRolesDTO](adminClient, "/api/admin/users", createReq)
 	require.NoError(t, err, "创建测试用户失败")
 	testUserID := createResp.ID
 	t.Logf("  创建成功，用户 ID: %d", testUserID)
 
 	// 确保测试结束时清理资源
 	t.Cleanup(func() {
-		if delErr := adminClient.Delete(fmt.Sprintf("/api/system/users/%d", testUserID)); delErr != nil {
+		if delErr := adminClient.Delete(fmt.Sprintf("/api/admin/users/%d", testUserID)); delErr != nil {
 			t.Logf("清理测试用户失败: %v", delErr)
 		}
 	})
@@ -140,14 +140,14 @@ func TestSetup2FA(t *testing.T) {
 		RoleIDs:  []uint{2},
 	}
 
-	createResp, err := manualtest.Post[user.UserWithRolesDTO](adminClient, "/api/system/users", createReq)
+	createResp, err := manualtest.Post[user.UserWithRolesDTO](adminClient, "/api/admin/users", createReq)
 	require.NoError(t, err, "创建测试用户失败")
 	testUserID := createResp.ID
 	t.Logf("  创建成功，用户 ID: %d", testUserID)
 
 	// 确保测试结束时清理资源
 	t.Cleanup(func() {
-		if delErr := adminClient.Delete(fmt.Sprintf("/api/system/users/%d", testUserID)); delErr != nil {
+		if delErr := adminClient.Delete(fmt.Sprintf("/api/admin/users/%d", testUserID)); delErr != nil {
 			t.Logf("清理测试用户失败: %v", delErr)
 		}
 	})
@@ -218,14 +218,14 @@ func TestLogin2FA(t *testing.T) {
 		RoleIDs:  []uint{2}, // user 角色 ID
 	}
 
-	createResp, err := manualtest.Post[user.UserWithRolesDTO](adminClient, "/api/system/users", createReq)
+	createResp, err := manualtest.Post[user.UserWithRolesDTO](adminClient, "/api/admin/users", createReq)
 	require.NoError(t, err, "创建测试用户失败")
 	testUserID := createResp.ID
 	t.Logf("  创建成功，用户 ID: %d", testUserID)
 
 	// 确保测试结束时清理资源
 	t.Cleanup(func() {
-		_ = adminClient.Delete(fmt.Sprintf("/api/system/users/%d", testUserID))
+		_ = adminClient.Delete(fmt.Sprintf("/api/admin/users/%d", testUserID))
 	})
 
 	// 步骤 2: 测试用户登录并设置 2FA

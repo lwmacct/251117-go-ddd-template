@@ -20,7 +20,7 @@ func TestListAuditLogs(t *testing.T) {
 	c := manualtest.LoginAsAdmin(t)
 
 	t.Log("\n获取审计日志列表...")
-	logs, meta, err := manualtest.GetList[audit.AuditDTO](c, "/api/system/audit", map[string]string{
+	logs, meta, err := manualtest.GetList[audit.AuditDTO](c, "/api/admin/audit", map[string]string{
 		"page":  "1",
 		"limit": "10",
 	})
@@ -54,7 +54,7 @@ func TestGetAuditLogDetail(t *testing.T) {
 
 	// 先获取日志列表，取第一条的 ID
 	t.Log("\n步骤 1: 获取日志列表")
-	logs, _, err := manualtest.GetList[audit.AuditDTO](c, "/api/system/audit", map[string]string{
+	logs, _, err := manualtest.GetList[audit.AuditDTO](c, "/api/admin/audit", map[string]string{
 		"page":  "1",
 		"limit": "1",
 	})
@@ -70,7 +70,7 @@ func TestGetAuditLogDetail(t *testing.T) {
 
 	// 获取详情
 	t.Log("\n步骤 2: 获取日志详情")
-	detail, err := manualtest.Get[audit.AuditDTO](c, fmt.Sprintf("/api/system/audit/%d", logID), nil)
+	detail, err := manualtest.Get[audit.AuditDTO](c, fmt.Sprintf("/api/admin/audit/%d", logID), nil)
 	require.NoError(t, err, "获取审计日志详情失败")
 
 	// 验证详情数据
@@ -107,7 +107,7 @@ func TestAuditLogFilters(t *testing.T) {
 
 	// 测试按操作类型筛选
 	t.Log("\n测试 1: 按操作类型筛选 (login)")
-	loginLogs, meta, err := manualtest.GetList[audit.AuditDTO](c, "/api/system/audit", map[string]string{
+	loginLogs, meta, err := manualtest.GetList[audit.AuditDTO](c, "/api/admin/audit", map[string]string{
 		"action": "login",
 		"limit":  "5",
 	})
@@ -122,7 +122,7 @@ func TestAuditLogFilters(t *testing.T) {
 
 	// 测试按用户 ID 筛选
 	t.Log("\n测试 2: 按用户 ID 筛选 (user_id=1)")
-	userLogs, meta, err := manualtest.GetList[audit.AuditDTO](c, "/api/system/audit", map[string]string{
+	userLogs, meta, err := manualtest.GetList[audit.AuditDTO](c, "/api/admin/audit", map[string]string{
 		"user_id": "1",
 		"limit":   "5",
 	})
@@ -149,7 +149,7 @@ func TestAuditLogNotFound(t *testing.T) {
 	// 尝试获取不存在的审计日志 (使用一个极大的 ID)
 	t.Log("\n测试: 获取不存在的审计日志")
 	invalidID := uint(999999999)
-	_, err := manualtest.Get[audit.AuditDTO](c, fmt.Sprintf("/api/system/audit/%d", invalidID), nil)
+	_, err := manualtest.Get[audit.AuditDTO](c, fmt.Sprintf("/api/admin/audit/%d", invalidID), nil)
 	require.Error(t, err, "期望获取不存在的日志失败")
 	if err != nil {
 		t.Logf("  预期的错误: %v", err)

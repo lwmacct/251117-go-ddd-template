@@ -124,14 +124,14 @@ func TestChangePassword(t *testing.T) {
 		RoleIDs:  []uint{2}, // user 角色 ID
 	}
 
-	createResp, err := manualtest.Post[user.UserWithRolesDTO](adminClient, "/api/system/users", createReq)
+	createResp, err := manualtest.Post[user.UserWithRolesDTO](adminClient, "/api/admin/users", createReq)
 	require.NoError(t, err, "创建测试用户失败")
 	testUserID := createResp.ID
 	t.Logf("  创建成功，用户 ID: %d", testUserID)
 
 	// 注册清理函数
 	t.Cleanup(func() {
-		_ = adminClient.Delete(fmt.Sprintf("/api/system/users/%d", testUserID))
+		_ = adminClient.Delete(fmt.Sprintf("/api/admin/users/%d", testUserID))
 	})
 
 	// 用测试用户登录
@@ -193,14 +193,14 @@ func TestChangePasswordWrongOld(t *testing.T) {
 		RoleIDs:  []uint{2},
 	}
 
-	createResp, err := manualtest.Post[user.UserWithRolesDTO](adminClient, "/api/system/users", createReq)
+	createResp, err := manualtest.Post[user.UserWithRolesDTO](adminClient, "/api/admin/users", createReq)
 	require.NoError(t, err, "创建测试用户失败")
 	testUserID := createResp.ID
 	t.Logf("  创建成功，用户 ID: %d", testUserID)
 
 	// 注册清理函数
 	t.Cleanup(func() {
-		_ = adminClient.Delete(fmt.Sprintf("/api/system/users/%d", testUserID))
+		_ = adminClient.Delete(fmt.Sprintf("/api/admin/users/%d", testUserID))
 	})
 
 	t.Log("步骤 2: 测试用户登录")
@@ -242,7 +242,7 @@ func TestDeleteAccount(t *testing.T) {
 		RoleIDs:  []uint{2}, // user 角色 ID
 	}
 
-	createResp, err := manualtest.Post[user.UserWithRolesDTO](adminClient, "/api/system/users", createReq)
+	createResp, err := manualtest.Post[user.UserWithRolesDTO](adminClient, "/api/admin/users", createReq)
 	require.NoError(t, err, "创建测试用户失败")
 	t.Logf("  创建成功，用户 ID: %d", createResp.ID)
 

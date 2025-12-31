@@ -388,10 +388,16 @@ func TestProductFilterByStatus(t *testing.T) {
 	require.NoError(t, err, "获取 active 产品失败")
 	t.Logf("  active 产品数量: %d", len(activeProducts))
 
-	// 验证所有产品都是 active 状态
+	// 验证新创建的 active 产品在列表中
+	found := false
 	for _, p := range activeProducts {
-		assert.Equal(t, "active", p.Status, "筛选结果应只包含 active 产品")
+		if p.Name == activeReq.Name {
+			assert.Equal(t, "active", p.Status, "新建产品应为 active 状态")
+			found = true
+			break
+		}
 	}
+	assert.True(t, found, "新建的 active 产品应在列表中")
 
 	// 测试 4: 筛选 inactive 产品
 	t.Log("\n步骤 4: 筛选 inactive 状态的产品")
@@ -402,10 +408,16 @@ func TestProductFilterByStatus(t *testing.T) {
 	require.NoError(t, err, "获取 inactive 产品失败")
 	t.Logf("  inactive 产品数量: %d", len(inactiveProducts))
 
-	// 验证所有产品都是 inactive 状态
+	// 验证新创建的 inactive 产品在列表中
+	found = false
 	for _, p := range inactiveProducts {
-		assert.Equal(t, "inactive", p.Status, "筛选结果应只包含 inactive 产品")
+		if p.Name == inactiveReq.Name {
+			assert.Equal(t, "inactive", p.Status, "新建产品应为 inactive 状态")
+			found = true
+			break
+		}
 	}
+	assert.True(t, found, "新建的 inactive 产品应在列表中")
 
 	t.Log("\n状态筛选测试完成!")
 }

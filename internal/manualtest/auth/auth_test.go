@@ -142,7 +142,7 @@ func TestAuthFlow(t *testing.T) {
 	t.Log("步骤 3: 访问用户列表（验证 token）")
 	resp, err := c.R().
 		SetQueryParams(map[string]string{"page": "1", "limit": "1"}).
-		Get("/api/system/users")
+		Get("/api/admin/users")
 	require.NoError(t, err, "请求失败")
 	require.False(t, resp.IsError(), "预期状态码 200，实际 %d", resp.StatusCode())
 	t.Log("  Token 验证成功，可以访问受保护资源")
@@ -190,7 +190,7 @@ func TestRegister(t *testing.T) {
 	_, adminErr := adminClient.Login("admin", "admin123")
 	if adminErr == nil {
 		t.Cleanup(func() {
-			_ = adminClient.Delete(fmt.Sprintf("/api/system/users/%d", resp.UserID))
+			_ = adminClient.Delete(fmt.Sprintf("/api/admin/users/%d", resp.UserID))
 		})
 	}
 }
@@ -226,7 +226,7 @@ func TestRegisterDuplicate(t *testing.T) {
 	_, adminErr := adminClient.Login("admin", "admin123")
 	if adminErr == nil {
 		t.Cleanup(func() {
-			_ = adminClient.Delete(fmt.Sprintf("/api/system/users/%d", firstResp.UserID))
+			_ = adminClient.Delete(fmt.Sprintf("/api/admin/users/%d", firstResp.UserID))
 		})
 	}
 

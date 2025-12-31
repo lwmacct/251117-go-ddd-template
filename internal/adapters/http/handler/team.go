@@ -82,12 +82,20 @@ func (h *TeamHandler) Create(c *gin.Context) {
 		return
 	}
 
+	// 获取当前用户 ID，创建者自动成为团队负责人
+	userID, exists := c.Get("user_id")
+	if !exists {
+		response.Unauthorized(c, response.MsgAuthenticationRequired)
+		return
+	}
+
 	result, err := h.createHandler.Handle(c.Request.Context(), org.CreateTeamCommand{
 		OrgID:       uint(orgID),
 		Name:        req.Name,
 		DisplayName: req.DisplayName,
 		Description: req.Description,
 		Avatar:      req.Avatar,
+		LeadUserID:  userID.(uint),
 	})
 	if err != nil {
 		if errors.Is(err, orgDomain.ErrTeamAlreadyExists) {

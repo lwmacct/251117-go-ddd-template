@@ -656,6 +656,7 @@ var Registry = map[permission.Operation]routeMeta{
 	permission.OrgTasksList: {
 		Method:      GET,
 		Path:        "/api/org/:org_id/teams/:team_id/tasks",
+		ReadOnly:    true,
 		Tags:        "Organization - Team Task Management",
 		Summary:     "任务列表",
 		Description: "分页获取团队任务列表",
@@ -663,6 +664,7 @@ var Registry = map[permission.Operation]routeMeta{
 	permission.OrgTasksGet: {
 		Method:      GET,
 		Path:        "/api/org/:org_id/teams/:team_id/tasks/:id",
+		ReadOnly:    true,
 		Tags:        "Organization - Team Task Management",
 		Summary:     "任务详情",
 		Description: "获取任务详细信息",

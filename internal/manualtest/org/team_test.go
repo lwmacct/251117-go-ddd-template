@@ -158,7 +158,10 @@ func TestTeamListByOrg(t *testing.T) {
 
 	// 步骤 2: 获取组织下的所有团队
 	t.Log("\n步骤 2: 获取组织下的团队列表")
-	teams, _, err := manualtest.GetList[org.TeamDTO](c, teamBasePath(testOrgID), nil)
+	// 使用较大的 limit 确保能获取到刚创建的团队
+	teams, _, err := manualtest.GetList[org.TeamDTO](c, teamBasePath(testOrgID), map[string]string{
+		"limit": "100", // 设置足够大的 limit 以包含所有团队
+	})
 	require.NoError(t, err, "获取团队列表失败")
 	t.Logf("  团队数量: %d", len(teams))
 

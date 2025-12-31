@@ -76,11 +76,19 @@ func (h *OrgHandler) Create(c *gin.Context) {
 		return
 	}
 
+	// 获取当前用户 ID，创建者自动成为组织 owner
+	userID, exists := c.Get("user_id")
+	if !exists {
+		response.Unauthorized(c, response.MsgAuthenticationRequired)
+		return
+	}
+
 	result, err := h.createHandler.Handle(c.Request.Context(), org.CreateOrgCommand{
 		Name:        req.Name,
 		DisplayName: req.DisplayName,
 		Description: req.Description,
 		Avatar:      req.Avatar,
+		OwnerUserID: userID.(uint),
 	})
 	if err != nil {
 		response.InternalError(c, err.Error())

@@ -27,12 +27,12 @@ func TestOrgCRUD(t *testing.T) {
 		DisplayName: "测试组织",
 		Description: "这是一个测试组织",
 	}
-	createdOrg, err := manualtest.Post[org.OrgDTO](c, "/api/system/orgs", createReq)
+	createdOrg, err := manualtest.Post[org.OrgDTO](c, "/api/admin/orgs", createReq)
 	require.NoError(t, err, "创建组织失败")
 	orgID := createdOrg.ID
 	t.Cleanup(func() {
 		if orgID > 0 {
-			_ = c.Delete(fmt.Sprintf("/api/system/orgs/%d", orgID))
+			_ = c.Delete(fmt.Sprintf("/api/admin/orgs/%d", orgID))
 		}
 	})
 	t.Logf("  创建成功! 组织 ID: %d", orgID)
@@ -45,7 +45,7 @@ func TestOrgCRUD(t *testing.T) {
 
 	// 测试 2: 获取组织列表
 	t.Log("\n测试 2: 获取组织列表")
-	orgs, meta, err := manualtest.GetList[org.OrgDTO](c, "/api/system/orgs", map[string]string{
+	orgs, meta, err := manualtest.GetList[org.OrgDTO](c, "/api/admin/orgs", map[string]string{
 		"page":  "1",
 		"limit": "10",
 	})
@@ -61,7 +61,7 @@ func TestOrgCRUD(t *testing.T) {
 
 	// 测试 3: 获取组织详情
 	t.Log("\n测试 3: 获取组织详情")
-	orgDetail, err := manualtest.Get[org.OrgDTO](c, fmt.Sprintf("/api/system/orgs/%d", orgID), nil)
+	orgDetail, err := manualtest.Get[org.OrgDTO](c, fmt.Sprintf("/api/admin/orgs/%d", orgID), nil)
 	require.NoError(t, err, "获取组织详情失败")
 	t.Logf("  详情: %s - %s", orgDetail.Name, orgDetail.Description)
 	assert.Equal(t, orgID, orgDetail.ID, "组织 ID 不匹配")
@@ -74,7 +74,7 @@ func TestOrgCRUD(t *testing.T) {
 		DisplayName: &newDisplayName,
 		Description: &newDescription,
 	}
-	updatedOrg, err := manualtest.Put[org.OrgDTO](c, fmt.Sprintf("/api/system/orgs/%d", orgID), updateReq)
+	updatedOrg, err := manualtest.Put[org.OrgDTO](c, fmt.Sprintf("/api/admin/orgs/%d", orgID), updateReq)
 	require.NoError(t, err, "更新组织失败")
 	t.Logf("  更新成功! 显示名: %s", updatedOrg.DisplayName)
 
@@ -88,14 +88,14 @@ func TestOrgCRUD(t *testing.T) {
 	statusReq := org.UpdateOrgDTO{
 		Status: &suspendedStatus,
 	}
-	updatedOrg, err = manualtest.Put[org.OrgDTO](c, fmt.Sprintf("/api/system/orgs/%d", orgID), statusReq)
+	updatedOrg, err = manualtest.Put[org.OrgDTO](c, fmt.Sprintf("/api/admin/orgs/%d", orgID), statusReq)
 	require.NoError(t, err, "更新组织状态失败")
 	t.Logf("  状态更新为: %s", updatedOrg.Status)
 	assert.Equal(t, "suspended", updatedOrg.Status, "状态未更新")
 
 	// 测试 6: 删除组织
 	t.Log("\n测试 6: 删除组织")
-	err = c.Delete(fmt.Sprintf("/api/system/orgs/%d", orgID))
+	err = c.Delete(fmt.Sprintf("/api/admin/orgs/%d", orgID))
 	require.NoError(t, err, "删除组织失败")
 	t.Log("  删除成功!")
 
@@ -116,7 +116,7 @@ func TestOrgListPagination(t *testing.T) {
 	t.Log("测试组织列表分页...")
 
 	// 第一页
-	page1, meta1, err := manualtest.GetList[org.OrgDTO](c, "/api/system/orgs", map[string]string{
+	page1, meta1, err := manualtest.GetList[org.OrgDTO](c, "/api/admin/orgs", map[string]string{
 		"page":  "1",
 		"limit": "5",
 	})
@@ -131,7 +131,7 @@ func TestOrgListPagination(t *testing.T) {
 
 	// 如果有第二页，获取并验证
 	if meta1.TotalPages > 1 {
-		page2, meta2, err := manualtest.GetList[org.OrgDTO](c, "/api/system/orgs", map[string]string{
+		page2, meta2, err := manualtest.GetList[org.OrgDTO](c, "/api/admin/orgs", map[string]string{
 			"page":  "2",
 			"limit": "5",
 		})
@@ -166,12 +166,12 @@ func TestOrgStatusUpdate(t *testing.T) {
 		Name:        fmt.Sprintf("statusorg_%d", time.Now().UnixNano()),
 		DisplayName: "状态测试组织",
 	}
-	createdOrg, err := manualtest.Post[org.OrgDTO](c, "/api/system/orgs", createReq)
+	createdOrg, err := manualtest.Post[org.OrgDTO](c, "/api/admin/orgs", createReq)
 	require.NoError(t, err, "创建组织失败")
 	orgID := createdOrg.ID
 	t.Cleanup(func() {
 		if orgID > 0 {
-			_ = c.Delete(fmt.Sprintf("/api/system/orgs/%d", orgID))
+			_ = c.Delete(fmt.Sprintf("/api/admin/orgs/%d", orgID))
 		}
 	})
 	t.Logf("  创建成功! 初始状态: %s", createdOrg.Status)
@@ -183,7 +183,7 @@ func TestOrgStatusUpdate(t *testing.T) {
 	statusReq := org.UpdateOrgDTO{
 		Status: &suspendedStatus,
 	}
-	updatedOrg, err := manualtest.Put[org.OrgDTO](c, fmt.Sprintf("/api/system/orgs/%d", orgID), statusReq)
+	updatedOrg, err := manualtest.Put[org.OrgDTO](c, fmt.Sprintf("/api/admin/orgs/%d", orgID), statusReq)
 	require.NoError(t, err, "更新状态失败")
 	t.Logf("  状态更新为: %s", updatedOrg.Status)
 	assert.Equal(t, "suspended", updatedOrg.Status, "状态应为 suspended")
@@ -192,7 +192,7 @@ func TestOrgStatusUpdate(t *testing.T) {
 	t.Log("\n步骤 3: 恢复状态为 active")
 	activeStatus := "active"
 	statusReq.Status = &activeStatus
-	updatedOrg, err = manualtest.Put[org.OrgDTO](c, fmt.Sprintf("/api/system/orgs/%d", orgID), statusReq)
+	updatedOrg, err = manualtest.Put[org.OrgDTO](c, fmt.Sprintf("/api/admin/orgs/%d", orgID), statusReq)
 	require.NoError(t, err, "恢复状态失败")
 	t.Logf("  状态恢复为: %s", updatedOrg.Status)
 	assert.Equal(t, "active", updatedOrg.Status, "状态应为 active")
@@ -214,12 +214,12 @@ func TestOrgMemberCRUD(t *testing.T) {
 		Name:        fmt.Sprintf("membertest_%d", time.Now().UnixNano()),
 		DisplayName: "成员测试组织",
 	}
-	createdOrg, err := manualtest.Post[org.OrgDTO](c, "/api/system/orgs", createOrgReq)
+	createdOrg, err := manualtest.Post[org.OrgDTO](c, "/api/admin/orgs", createOrgReq)
 	require.NoError(t, err, "创建组织失败")
 	orgID := createdOrg.ID
 	t.Cleanup(func() {
 		if orgID > 0 {
-			_ = c.Delete(fmt.Sprintf("/api/system/orgs/%d", orgID))
+			_ = c.Delete(fmt.Sprintf("/api/admin/orgs/%d", orgID))
 		}
 	})
 	t.Logf("  组织创建成功! ID: %d", orgID)
@@ -329,12 +329,12 @@ func TestOrgMemberLastOwnerProtection(t *testing.T) {
 		Name:        fmt.Sprintf("ownerorg_%d", time.Now().UnixNano()),
 		DisplayName: "Owner 保护测试组织",
 	}
-	createdOrg, err := manualtest.Post[org.OrgDTO](c, "/api/system/orgs", createOrgReq)
+	createdOrg, err := manualtest.Post[org.OrgDTO](c, "/api/admin/orgs", createOrgReq)
 	require.NoError(t, err, "创建组织失败")
 	orgID := createdOrg.ID
 	t.Cleanup(func() {
 		if orgID > 0 {
-			_ = c.Delete(fmt.Sprintf("/api/system/orgs/%d", orgID))
+			_ = c.Delete(fmt.Sprintf("/api/admin/orgs/%d", orgID))
 		}
 	})
 	t.Logf("  组织创建成功! ID: %d", orgID)
@@ -410,12 +410,12 @@ func TestOrgWithInvalidData(t *testing.T) {
 		Name:        orgName,
 		DisplayName: "第一个组织",
 	}
-	firstOrg, err := manualtest.Post[org.OrgDTO](c, "/api/system/orgs", createReq)
+	firstOrg, err := manualtest.Post[org.OrgDTO](c, "/api/admin/orgs", createReq)
 	require.NoError(t, err, "创建第一个组织失败")
 	orgID := firstOrg.ID
 	t.Cleanup(func() {
 		if orgID > 0 {
-			_ = c.Delete(fmt.Sprintf("/api/system/orgs/%d", orgID))
+			_ = c.Delete(fmt.Sprintf("/api/admin/orgs/%d", orgID))
 		}
 	})
 
@@ -424,7 +424,7 @@ func TestOrgWithInvalidData(t *testing.T) {
 		Name:        orgName, // 相同名称
 		DisplayName: "第二个组织",
 	}
-	_, err = manualtest.Post[org.OrgDTO](c, "/api/system/orgs", duplicateReq)
+	_, err = manualtest.Post[org.OrgDTO](c, "/api/admin/orgs", duplicateReq)
 	require.Error(t, err, "创建同名组织应该失败")
 	t.Logf("  预期失败: %v", err)
 
@@ -434,7 +434,7 @@ func TestOrgWithInvalidData(t *testing.T) {
 		Name:        "x", // 太短
 		DisplayName: "无效参数组织",
 	}
-	_, err = manualtest.Post[org.OrgDTO](c, "/api/system/orgs", invalidReq)
+	_, err = manualtest.Post[org.OrgDTO](c, "/api/admin/orgs", invalidReq)
 	require.Error(t, err, "名称太短应该失败")
 	t.Logf("  预期失败: %v", err)
 

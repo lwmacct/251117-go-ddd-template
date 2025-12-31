@@ -22,7 +22,7 @@ func TestAdminUsersFlow(t *testing.T) {
 
 	// 测试 1: 获取用户列表
 	t.Log("\n测试 1: 获取用户列表")
-	users, meta, err := manualtest.GetList[user.UserDTO](c, "/api/system/users", map[string]string{
+	users, meta, err := manualtest.GetList[user.UserDTO](c, "/api/admin/users", map[string]string{
 		"page":  "1",
 		"limit": "10",
 	})
@@ -43,7 +43,7 @@ func TestAdminUsersFlow(t *testing.T) {
 
 	// 测试 3: 获取用户详情
 	t.Log("\n测试 3: 获取用户详情")
-	userDetail, err := manualtest.Get[user.UserDTO](c, fmt.Sprintf("/api/system/users/%d", testUser.ID), nil)
+	userDetail, err := manualtest.Get[user.UserDTO](c, fmt.Sprintf("/api/admin/users/%d", testUser.ID), nil)
 	require.NoError(t, err, "获取用户详情失败")
 	t.Logf("  用户名: %s, 邮箱: %s", userDetail.Username, userDetail.Email)
 
@@ -56,7 +56,7 @@ func TestAdminUsersFlow(t *testing.T) {
 	updateReq := user.UpdateDTO{
 		RealName: &newFullName,
 	}
-	updatedUser, err := manualtest.Put[user.UserDTO](c, fmt.Sprintf("/api/system/users/%d", testUser.ID), updateReq)
+	updatedUser, err := manualtest.Put[user.UserDTO](c, fmt.Sprintf("/api/admin/users/%d", testUser.ID), updateReq)
 	require.NoError(t, err, "更新用户失败")
 	t.Logf("  更新成功! 真实姓名: %s", updatedUser.RealName)
 
@@ -65,7 +65,7 @@ func TestAdminUsersFlow(t *testing.T) {
 
 	// 测试 5: 删除用户
 	t.Log("\n测试 5: 删除用户")
-	err = c.Delete(fmt.Sprintf("/api/system/users/%d", testUser.ID))
+	err = c.Delete(fmt.Sprintf("/api/admin/users/%d", testUser.ID))
 	require.NoError(t, err, "删除用户失败")
 	t.Log("  删除成功!")
 
@@ -84,7 +84,7 @@ func TestListUsers(t *testing.T) {
 	c := manualtest.LoginAsAdmin(t)
 
 	t.Log("获取用户列表...")
-	users, meta, err := manualtest.GetList[user.UserDTO](c, "/api/system/users", map[string]string{
+	users, meta, err := manualtest.GetList[user.UserDTO](c, "/api/admin/users", map[string]string{
 		"page":  "1",
 		"limit": "10",
 	})
@@ -120,7 +120,7 @@ func TestAssignRoles(t *testing.T) {
 	}
 	t.Logf("  分配角色 IDs: %v", assignReq.RoleIDs)
 
-	assignResp, err := manualtest.Put[user.UserWithRolesDTO](c, fmt.Sprintf("/api/system/users/%d/roles", testUser.ID), assignReq)
+	assignResp, err := manualtest.Put[user.UserWithRolesDTO](c, fmt.Sprintf("/api/admin/users/%d/roles", testUser.ID), assignReq)
 	require.NoError(t, err, "分配角色失败")
 
 	t.Logf("  分配成功! 用户现有角色数: %d", len(assignResp.Roles))
@@ -153,10 +153,10 @@ func TestBatchCreateUsers(t *testing.T) {
 	// 确保测试结束时清理资源
 	t.Cleanup(func() {
 		// 获取用户列表并删除测试用户
-		users, _, _ := manualtest.GetList[user.UserWithRolesDTO](c, "/api/system/users", nil)
+		users, _, _ := manualtest.GetList[user.UserWithRolesDTO](c, "/api/admin/users", nil)
 		for _, u := range users {
 			if u.Username == username1 || u.Username == username2 {
-				_ = c.Delete(fmt.Sprintf("/api/system/users/%d", u.ID))
+				_ = c.Delete(fmt.Sprintf("/api/admin/users/%d", u.ID))
 			}
 		}
 	})
@@ -190,7 +190,7 @@ func TestBatchCreateUsers(t *testing.T) {
 		},
 	}
 
-	result, err := manualtest.Post[user.BatchCreateResultDTO](c, "/api/system/users/batch", batchReq)
+	result, err := manualtest.Post[user.BatchCreateResultDTO](c, "/api/admin/users/batch", batchReq)
 	require.NoError(t, err, "批量创建请求失败")
 
 	t.Logf("\n批量创建结果:")
@@ -214,7 +214,7 @@ func TestBatchCreateUsers(t *testing.T) {
 
 	// 步骤 3: 验证用户已创建
 	t.Log("\n步骤 3: 验证用户已创建")
-	users, _, _ := manualtest.GetList[user.UserWithRolesDTO](c, "/api/system/users", nil)
+	users, _, _ := manualtest.GetList[user.UserWithRolesDTO](c, "/api/admin/users", nil)
 
 	// 使用 assert.Contains 验证用户名
 	usernames := manualtest.ExtractStrings(users, func(u user.UserWithRolesDTO) string { return u.Username })
@@ -236,7 +236,7 @@ func TestSystemUserProtection(t *testing.T) {
 
 	// 获取系统用户
 	t.Log("\n步骤 1: 获取系统用户")
-	users, _, err := manualtest.GetList[user.UserDTO](c, "/api/system/users", nil)
+	users, _, err := manualtest.GetList[user.UserDTO](c, "/api/admin/users", nil)
 	require.NoError(t, err, "获取用户列表失败")
 
 	var rootUser, adminUser *user.UserDTO
@@ -260,13 +260,13 @@ func TestSystemUserProtection(t *testing.T) {
 
 	// 测试 2: 尝试删除 root 用户（应失败）
 	t.Log("\n步骤 2: 尝试删除 root 用户（应失败）")
-	err = c.Delete(fmt.Sprintf("/api/system/users/%d", rootUser.ID))
+	err = c.Delete(fmt.Sprintf("/api/admin/users/%d", rootUser.ID))
 	require.Error(t, err, "删除 root 用户应该失败")
 	t.Logf("  预期失败: %v", err)
 
 	// 测试 3: 尝试删除 admin 用户（应失败）
 	t.Log("\n步骤 3: 尝试删除 admin 用户（应失败）")
-	err = c.Delete(fmt.Sprintf("/api/system/users/%d", adminUser.ID))
+	err = c.Delete(fmt.Sprintf("/api/admin/users/%d", adminUser.ID))
 	require.Error(t, err, "删除 admin 用户应该失败")
 	t.Logf("  预期失败: %v", err)
 
@@ -276,7 +276,7 @@ func TestSystemUserProtection(t *testing.T) {
 	updateReq := user.UpdateDTO{
 		Username: &newUsername,
 	}
-	_, err = manualtest.Put[user.UserDTO](c, fmt.Sprintf("/api/system/users/%d", rootUser.ID), updateReq)
+	_, err = manualtest.Put[user.UserDTO](c, fmt.Sprintf("/api/admin/users/%d", rootUser.ID), updateReq)
 	require.Error(t, err, "修改 root 用户名应该失败")
 	t.Logf("  预期失败: %v", err)
 
@@ -286,7 +286,7 @@ func TestSystemUserProtection(t *testing.T) {
 	statusReq := user.UpdateDTO{
 		Status: &inactiveStatus,
 	}
-	_, err = manualtest.Put[user.UserDTO](c, fmt.Sprintf("/api/system/users/%d", rootUser.ID), statusReq)
+	_, err = manualtest.Put[user.UserDTO](c, fmt.Sprintf("/api/admin/users/%d", rootUser.ID), statusReq)
 	require.Error(t, err, "修改 root 状态应该失败")
 	t.Logf("  预期失败: %v", err)
 
@@ -296,7 +296,7 @@ func TestSystemUserProtection(t *testing.T) {
 	emailReq := user.UpdateDTO{
 		Email: &newEmail,
 	}
-	updatedAdmin, err := manualtest.Put[user.UserDTO](c, fmt.Sprintf("/api/system/users/%d", adminUser.ID), emailReq)
+	updatedAdmin, err := manualtest.Put[user.UserDTO](c, fmt.Sprintf("/api/admin/users/%d", adminUser.ID), emailReq)
 	require.NoError(t, err, "修改 admin 邮箱应该成功")
 	t.Logf("  修改成功! 新邮箱: %s", updatedAdmin.Email)
 
@@ -305,7 +305,7 @@ func TestSystemUserProtection(t *testing.T) {
 	restoreReq := user.UpdateDTO{
 		Email: &originalEmail,
 	}
-	_, _ = manualtest.Put[user.UserDTO](c, fmt.Sprintf("/api/system/users/%d", adminUser.ID), restoreReq)
+	_, _ = manualtest.Put[user.UserDTO](c, fmt.Sprintf("/api/admin/users/%d", adminUser.ID), restoreReq)
 
 	t.Log("\n系统用户保护测试完成!")
 }
@@ -322,7 +322,7 @@ func TestRootRoleProtection(t *testing.T) {
 
 	// 获取 root 用户
 	t.Log("\n步骤 1: 获取 root 用户")
-	users, _, err := manualtest.GetList[user.UserDTO](c, "/api/system/users", nil)
+	users, _, err := manualtest.GetList[user.UserDTO](c, "/api/admin/users", nil)
 	require.NoError(t, err, "获取用户列表失败")
 
 	var rootUser *user.UserDTO
@@ -340,7 +340,7 @@ func TestRootRoleProtection(t *testing.T) {
 	assignReq := user.AssignRolesDTO{
 		RoleIDs: []uint{2}, // user 角色
 	}
-	_, err = manualtest.Put[user.UserWithRolesDTO](c, fmt.Sprintf("/api/system/users/%d/roles", rootUser.ID), assignReq)
+	_, err = manualtest.Put[user.UserWithRolesDTO](c, fmt.Sprintf("/api/admin/users/%d/roles", rootUser.ID), assignReq)
 	require.Error(t, err, "修改 root 用户角色应该失败")
 	t.Logf("  预期失败: %v", err)
 

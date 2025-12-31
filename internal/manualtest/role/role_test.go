@@ -21,7 +21,7 @@ func TestRolesFlow(t *testing.T) {
 
 	// 测试 1: 获取角色列表
 	t.Log("\n测试 1: 获取角色列表")
-	roles, meta, err := manualtest.GetList[role.RoleDTO](c, "/api/system/roles", map[string]string{
+	roles, meta, err := manualtest.GetList[role.RoleDTO](c, "/api/admin/roles", map[string]string{
 		"page":  "1",
 		"limit": "10",
 	})
@@ -44,7 +44,7 @@ func TestRolesFlow(t *testing.T) {
 
 	// 测试 3: 获取角色详情
 	t.Log("\n测试 3: 获取角色详情")
-	roleDetail, err := manualtest.Get[role.RoleDTO](c, fmt.Sprintf("/api/system/roles/%d", testRole.RoleID), nil)
+	roleDetail, err := manualtest.Get[role.RoleDTO](c, fmt.Sprintf("/api/admin/roles/%d", testRole.RoleID), nil)
 	require.NoError(t, err, "获取角色详情失败")
 	t.Logf("  角色名: %s, 显示名: %s", roleDetail.Name, roleDetail.DisplayName)
 	t.Logf("  描述: %s", roleDetail.Description)
@@ -61,7 +61,7 @@ func TestRolesFlow(t *testing.T) {
 		DisplayName: &newDisplayName,
 		Description: &newDescription,
 	}
-	updatedRole, err := manualtest.Put[role.RoleDTO](c, fmt.Sprintf("/api/system/roles/%d", testRole.RoleID), updateReq)
+	updatedRole, err := manualtest.Put[role.RoleDTO](c, fmt.Sprintf("/api/admin/roles/%d", testRole.RoleID), updateReq)
 	require.NoError(t, err, "更新角色失败")
 	t.Logf("  更新成功! 显示名: %s", updatedRole.DisplayName)
 
@@ -75,7 +75,7 @@ func TestRolesFlow(t *testing.T) {
 
 	// 测试 6: 删除角色
 	t.Log("\n测试 6: 删除角色")
-	err = c.Delete(fmt.Sprintf("/api/system/roles/%d", testRole.RoleID))
+	err = c.Delete(fmt.Sprintf("/api/admin/roles/%d", testRole.RoleID))
 	require.NoError(t, err, "删除角色失败")
 	t.Log("  删除成功!")
 
@@ -94,7 +94,7 @@ func TestListRoles(t *testing.T) {
 	c := manualtest.LoginAsAdmin(t)
 
 	t.Log("获取角色列表...")
-	roles, meta, err := manualtest.GetList[role.RoleDTO](c, "/api/system/roles", map[string]string{
+	roles, meta, err := manualtest.GetList[role.RoleDTO](c, "/api/admin/roles", map[string]string{
 		"page":  "1",
 		"limit": "10",
 	})
@@ -121,9 +121,9 @@ func testSetRolePermissions(t *testing.T, c *manualtest.Client, roleID uint) {
 
 	// 新 RBAC 模型：使用 Operation Pattern + Resource Pattern
 	permissions := []role.PermissionInputDTO{
-		{OperationPattern: "sys:users.read", ResourcePattern: "*"},
-		{OperationPattern: "sys:users.list", ResourcePattern: "*"},
-		{OperationPattern: "user:profile.*", ResourcePattern: "user/self"},
+		{OperationPattern: "admin:users:get", ResourcePattern: "*"},
+		{OperationPattern: "admin:users:list", ResourcePattern: "*"},
+		{OperationPattern: "self:profile:*", ResourcePattern: "*"},
 	}
 
 	setPermReq := role.SetPermissionsDTO{
@@ -133,13 +133,13 @@ func testSetRolePermissions(t *testing.T, c *manualtest.Client, roleID uint) {
 
 	resp, err := c.R().
 		SetBody(setPermReq).
-		Put(fmt.Sprintf("/api/system/roles/%d/permissions", roleID))
+		Put(fmt.Sprintf("/api/admin/roles/%d/permissions", roleID))
 	require.NoError(t, err, "设置权限请求失败")
 	require.False(t, resp.IsError(), "设置权限失败，状态码: %d", resp.StatusCode())
 	t.Log("  权限设置成功!")
 
 	// 验证权限已设置
-	roleWithPerms, err := manualtest.Get[role.RoleDTO](c, fmt.Sprintf("/api/system/roles/%d", roleID), nil)
+	roleWithPerms, err := manualtest.Get[role.RoleDTO](c, fmt.Sprintf("/api/admin/roles/%d", roleID), nil)
 	require.NoError(t, err, "获取角色详情失败")
 	t.Logf("  验证：角色现有 %d 个权限", len(roleWithPerms.Permissions))
 
@@ -164,7 +164,7 @@ func TestSystemRoleProtection(t *testing.T) {
 
 	// 获取系统角色
 	t.Log("\n步骤 1: 获取系统角色")
-	roles, _, err := manualtest.GetList[role.RoleDTO](c, "/api/system/roles", nil)
+	roles, _, err := manualtest.GetList[role.RoleDTO](c, "/api/admin/roles", nil)
 	require.NoError(t, err, "获取角色列表失败")
 
 	var adminRole, userRole *role.RoleDTO
@@ -188,13 +188,13 @@ func TestSystemRoleProtection(t *testing.T) {
 
 	// 测试 2: 尝试删除 admin 角色（应失败）
 	t.Log("\n步骤 2: 尝试删除 admin 角色（应失败）")
-	err = c.Delete(fmt.Sprintf("/api/system/roles/%d", adminRole.ID))
+	err = c.Delete(fmt.Sprintf("/api/admin/roles/%d", adminRole.ID))
 	require.Error(t, err, "删除 admin 角色应该失败")
 	t.Logf("  预期失败: %v", err)
 
 	// 测试 3: 尝试删除 user 角色（应失败）
 	t.Log("\n步骤 3: 尝试删除 user 角色（应失败）")
-	err = c.Delete(fmt.Sprintf("/api/system/roles/%d", userRole.ID))
+	err = c.Delete(fmt.Sprintf("/api/admin/roles/%d", userRole.ID))
 	require.Error(t, err, "删除 user 角色应该失败")
 	t.Logf("  预期失败: %v", err)
 

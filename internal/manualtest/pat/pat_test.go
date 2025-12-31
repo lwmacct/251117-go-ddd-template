@@ -276,10 +276,10 @@ func TestPATScopeEnforcement(t *testing.T) {
 	t.Log("\n步骤 3: 使用 self scope PAT 访问 sys 域 API")
 	t.Log("  预期: 403（*:*:* 被过滤，无 sys 域权限）")
 
-	// 访问 /api/system/users（sys:users:list）- 正确路径
-	resp, err = patClient.R().Get("/api/system/users")
+	// 访问 /api/admin/users（admin:users:list）- 正确路径
+	resp, err = patClient.R().Get("/api/admin/users")
 	require.NoError(t, err, "请求失败")
-	t.Logf("  GET /api/system/users -> 状态码: %d", resp.StatusCode())
+	t.Logf("  GET /api/admin/users -> 状态码: %d", resp.StatusCode())
 	assert.Equal(t, 403, resp.StatusCode(), "self scope PAT 不应能访问 sys 域（*:*:* 已被过滤）")
 
 	t.Log("\n===== PAT Scope 权限过滤测试完成 =====")
@@ -328,9 +328,9 @@ func TestPATFullScopeAccess(t *testing.T) {
 
 	// 测试 sys 域 API（正确路径）
 	t.Log("\n步骤 3: 使用 full scope PAT 访问 sys 域 API")
-	resp, err = patClient.R().Get("/api/system/users")
+	resp, err = patClient.R().Get("/api/admin/users")
 	require.NoError(t, err)
-	t.Logf("  GET /api/system/users -> 状态码: %d", resp.StatusCode())
+	t.Logf("  GET /api/admin/users -> 状态码: %d", resp.StatusCode())
 	assert.Equal(t, 200, resp.StatusCode(), "full scope 应能访问 sys 域")
 
 	t.Log("\n===== PAT Full Scope 测试完成 =====")
@@ -360,13 +360,13 @@ func TestPATScopeWithRegularUser(t *testing.T) {
 		Description: "用于测试 PAT Scope 过滤的角色",
 	}
 
-	createdRole, err := manualtest.Post[role.CreateResultDTO](adminClient, "/api/system/roles", createRoleReq)
+	createdRole, err := manualtest.Post[role.CreateResultDTO](adminClient, "/api/admin/roles", createRoleReq)
 	require.NoError(t, err, "创建测试角色失败")
 	t.Logf("  角色 ID: %d, 名称: %s", createdRole.RoleID, createdRole.Name)
 
 	// 注册角色清理
 	t.Cleanup(func() {
-		_ = adminClient.Delete(fmt.Sprintf("/api/system/roles/%d", createdRole.RoleID))
+		_ = adminClient.Delete(fmt.Sprintf("/api/admin/roles/%d", createdRole.RoleID))
 	})
 
 	// 步骤 2: 为角色设置权限（self 域 + sys 域）
@@ -377,17 +377,17 @@ func TestPATScopeWithRegularUser(t *testing.T) {
 		{OperationPattern: "self:profile:update", ResourcePattern: "*"},
 		{OperationPattern: "self:tokens:*", ResourcePattern: "*"}, // PAT 管理权限
 		// sys 域权限
-		{OperationPattern: "sys:users:list", ResourcePattern: "*"},
-		{OperationPattern: "sys:users:get", ResourcePattern: "*"},
+		{OperationPattern: "admin:users:list", ResourcePattern: "*"},
+		{OperationPattern: "admin:users:get", ResourcePattern: "*"},
 	}
 	setPermReq := role.SetPermissionsDTO{Permissions: permissions}
 
 	resp, err := adminClient.R().
 		SetBody(setPermReq).
-		Put(fmt.Sprintf("/api/system/roles/%d/permissions", createdRole.RoleID))
+		Put(fmt.Sprintf("/api/admin/roles/%d/permissions", createdRole.RoleID))
 	require.NoError(t, err, "设置角色权限请求失败")
 	require.False(t, resp.IsError(), "设置角色权限失败，状态码: %d", resp.StatusCode())
-	t.Logf("  设置了 %d 个权限: self:profile:*, self:tokens:*, sys:users:list/get", len(permissions))
+	t.Logf("  设置了 %d 个权限: self:profile:*, self:tokens:*, admin:users:list/get", len(permissions))
 
 	// 步骤 3: 创建测试用户并分配角色
 	t.Log("\n步骤 3: 创建测试用户并分配角色")
@@ -401,14 +401,14 @@ func TestPATScopeWithRegularUser(t *testing.T) {
 		RoleIDs:  []uint{createdRole.RoleID},
 	}
 
-	createdUser, err := manualtest.Post[user.UserWithRolesDTO](adminClient, "/api/system/users", createUserReq)
+	createdUser, err := manualtest.Post[user.UserWithRolesDTO](adminClient, "/api/admin/users", createUserReq)
 	require.NoError(t, err, "创建测试用户失败")
 	t.Logf("  用户 ID: %d, 用户名: %s", createdUser.ID, createdUser.Username)
 	t.Logf("  分配角色: %v", createdUser.Roles)
 
 	// 注册用户清理
 	t.Cleanup(func() {
-		_ = adminClient.Delete(fmt.Sprintf("/api/system/users/%d", createdUser.ID))
+		_ = adminClient.Delete(fmt.Sprintf("/api/admin/users/%d", createdUser.ID))
 	})
 
 	// 步骤 4: 使用测试用户登录
@@ -451,9 +451,9 @@ func TestPATScopeWithRegularUser(t *testing.T) {
 
 	// 6b. 测试 sys 域 API（应该被拒绝，因为 PAT scope 仅限 self）
 	t.Log("\n  6b. 访问 sys 域 API（期望: 403，因为 PAT scope 仅限 self）")
-	resp, err = patClient.R().Get("/api/system/users")
+	resp, err = patClient.R().Get("/api/admin/users")
 	require.NoError(t, err, "请求失败")
-	t.Logf("    GET /api/system/users -> 状态码: %d", resp.StatusCode())
+	t.Logf("    GET /api/admin/users -> 状态码: %d", resp.StatusCode())
 	assert.Equal(t, 403, resp.StatusCode(), "self scope PAT 不应能访问 sys 域")
 
 	// 步骤 7: 创建 full scope PAT 验证用户完整权限
@@ -483,23 +483,23 @@ func TestPATScopeWithRegularUser(t *testing.T) {
 	t.Logf("    GET /api/user/profile -> 状态码: %d", resp.StatusCode())
 	assert.Equal(t, 200, resp.StatusCode(), "full scope PAT 应能访问 self 域")
 
-	// 7b. full scope 应能访问 sys 域（用户有 sys:users:list 权限）
+	// 7b. full scope 应能访问 sys 域（用户有 admin:users:list 权限）
 	t.Log("\n  7b. Full scope PAT 访问 sys 域 API（期望: 200）")
-	resp, err = fullPatClient.R().Get("/api/system/users")
+	resp, err = fullPatClient.R().Get("/api/admin/users")
 	require.NoError(t, err, "请求失败")
-	t.Logf("    GET /api/system/users -> 状态码: %d", resp.StatusCode())
+	t.Logf("    GET /api/admin/users -> 状态码: %d", resp.StatusCode())
 	assert.Equal(t, 200, resp.StatusCode(), "full scope PAT 应能访问 sys 域")
 
-	// 7c. 验证 PAT 不能超过用户权限（用户没有 sys:users:create 权限）
+	// 7c. 验证 PAT 不能超过用户权限（用户没有 admin:users:create 权限）
 	t.Log("\n  7c. Full scope PAT 创建用户（期望: 403，用户无此权限）")
 	createAttempt := user.CreateDTO{
 		Username: "should_fail_user",
 		Email:    "shouldfail@test.local",
 		Password: "test123456",
 	}
-	resp, err = fullPatClient.R().SetBody(createAttempt).Post("/api/system/users")
+	resp, err = fullPatClient.R().SetBody(createAttempt).Post("/api/admin/users")
 	require.NoError(t, err, "请求失败")
-	t.Logf("    POST /api/system/users -> 状态码: %d", resp.StatusCode())
+	t.Logf("    POST /api/admin/users -> 状态码: %d", resp.StatusCode())
 	assert.Equal(t, 403, resp.StatusCode(), "PAT 不应能超过用户本身权限")
 
 	t.Log("\n===== 普通用户 PAT Scope 权限过滤测试完成 =====")
