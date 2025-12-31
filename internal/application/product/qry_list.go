@@ -26,14 +26,12 @@ type ListResult struct {
 
 // Handle 处理产品列表查询
 func (h *ListHandler) Handle(ctx context.Context, query ListProductsQuery) (*ListResult, error) {
-	// 获取总数
-	total, err := h.queryRepo.Count(ctx)
+	products, err := h.queryProducts(ctx, query.Status, query.Offset, query.Limit)
 	if err != nil {
 		return nil, err
 	}
 
-	// 获取列表
-	products, err := h.queryRepo.List(ctx, query.Offset, query.Limit)
+	total, err := h.countProducts(ctx, query.Status)
 	if err != nil {
 		return nil, err
 	}
@@ -42,4 +40,20 @@ func (h *ListHandler) Handle(ctx context.Context, query ListProductsQuery) (*Lis
 		Items: ToProductDTOs(products),
 		Total: total,
 	}, nil
+}
+
+// queryProducts 查询产品列表（按状态筛选或全部）
+func (h *ListHandler) queryProducts(ctx context.Context, status string, offset, limit int) ([]*product.Product, error) {
+	if status != "" {
+		return h.queryRepo.ListByStatus(ctx, status, offset, limit)
+	}
+	return h.queryRepo.List(ctx, offset, limit)
+}
+
+// countProducts 统计产品数量（按状态筛选或全部）
+func (h *ListHandler) countProducts(ctx context.Context, status string) (int64, error) {
+	if status != "" {
+		return h.queryRepo.CountByStatus(ctx, status)
+	}
+	return h.queryRepo.Count(ctx)
 }

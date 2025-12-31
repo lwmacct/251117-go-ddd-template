@@ -22,6 +22,10 @@ type QueryRepository interface {
 	List(ctx context.Context, offset, limit int) ([]*Product, error)
 	// Count 获取产品总数。
 	Count(ctx context.Context) (int64, error)
+	// ListByStatus 按状态分页获取产品列表。
+	ListByStatus(ctx context.Context, status string, offset, limit int) ([]*Product, error)
+	// CountByStatus 按状态统计产品数量。
+	CountByStatus(ctx context.Context, status string) (int64, error)
 	// ExistsByName 检查产品名称是否存在。
 	ExistsByName(ctx context.Context, name string) (bool, error)
 }

@@ -354,42 +354,53 @@ func newTwoFAUseCases(twofaSvc domain_twofa.Service) *TwoFAUseCases {
 type organizationUseCasesParams struct {
 	fx.In
 
-	OrgRepos        persistence.OrganizationRepositories
-	TeamRepos       persistence.TeamRepositories
-	MemberRepos     persistence.OrgMemberRepositories
-	TeamMemberRepos persistence.TeamMemberRepositories
+	OrgRepos persistence.OrganizationRepositories
 }
 
 func newOrganizationUseCases(p organizationUseCasesParams) *OrganizationUseCases {
 	return &OrganizationUseCases{
 		// Organization
-		Create: org.NewCreateHandler(p.OrgRepos.Command, p.OrgRepos.Query, p.MemberRepos.Command),
+		Create: org.NewCreateHandler(p.OrgRepos.Command, p.OrgRepos.Query, p.OrgRepos.MemberCommand),
 		Update: org.NewUpdateHandler(p.OrgRepos.Command, p.OrgRepos.Query),
-		Delete: org.NewDeleteHandler(p.OrgRepos.Command, p.OrgRepos.Query, p.MemberRepos.Query, p.TeamRepos.Query),
-		Get:    org.NewGetHandler(p.OrgRepos.Query),
-		List:   org.NewListHandler(p.OrgRepos.Query),
+		Delete: org.NewDeleteHandler(
+			p.OrgRepos.Command,
+			p.OrgRepos.Query,
+			p.OrgRepos.MemberQuery,
+			p.OrgRepos.MemberCommand,
+			p.OrgRepos.TeamQuery,
+			p.OrgRepos.TeamCommand,
+			p.OrgRepos.TeamMemberQuery,
+			p.OrgRepos.TeamMemberCommand,
+		),
+		Get:  org.NewGetHandler(p.OrgRepos.Query),
+		List: org.NewListHandler(p.OrgRepos.Query),
 
 		// Member
-		MemberAdd:        org.NewMemberAddHandler(p.MemberRepos.Command, p.MemberRepos.Query, p.OrgRepos.Query),
-		MemberRemove:     org.NewMemberRemoveHandler(p.MemberRepos.Command, p.MemberRepos.Query),
-		MemberUpdateRole: org.NewMemberUpdateRoleHandler(p.MemberRepos.Command, p.MemberRepos.Query),
-		MemberList:       org.NewMemberListHandler(p.MemberRepos.Query),
+		MemberAdd:        org.NewMemberAddHandler(p.OrgRepos.MemberCommand, p.OrgRepos.MemberQuery, p.OrgRepos.Query),
+		MemberRemove:     org.NewMemberRemoveHandler(p.OrgRepos.MemberCommand, p.OrgRepos.MemberQuery),
+		MemberUpdateRole: org.NewMemberUpdateRoleHandler(p.OrgRepos.MemberCommand, p.OrgRepos.MemberQuery),
+		MemberList:       org.NewMemberListHandler(p.OrgRepos.MemberQuery),
 
 		// Team
-		TeamCreate: org.NewTeamCreateHandler(p.TeamRepos.Command, p.TeamRepos.Query, p.OrgRepos.Query, p.TeamMemberRepos.Command),
-		TeamUpdate: org.NewTeamUpdateHandler(p.TeamRepos.Command, p.TeamRepos.Query),
-		TeamDelete: org.NewTeamDeleteHandler(p.TeamRepos.Command, p.TeamRepos.Query, p.TeamMemberRepos.Query),
-		TeamGet:    org.NewTeamGetHandler(p.TeamRepos.Query),
-		TeamList:   org.NewTeamListHandler(p.TeamRepos.Query),
+		TeamCreate: org.NewTeamCreateHandler(p.OrgRepos.TeamCommand, p.OrgRepos.TeamQuery, p.OrgRepos.Query, p.OrgRepos.TeamMemberCommand),
+		TeamUpdate: org.NewTeamUpdateHandler(p.OrgRepos.TeamCommand, p.OrgRepos.TeamQuery),
+		TeamDelete: org.NewTeamDeleteHandler(
+			p.OrgRepos.TeamCommand,
+			p.OrgRepos.TeamQuery,
+			p.OrgRepos.TeamMemberQuery,
+			p.OrgRepos.TeamMemberCommand,
+		),
+		TeamGet:  org.NewTeamGetHandler(p.OrgRepos.TeamQuery),
+		TeamList: org.NewTeamListHandler(p.OrgRepos.TeamQuery),
 
 		// Team Member
-		TeamMemberAdd:    org.NewTeamMemberAddHandler(p.TeamMemberRepos.Command, p.TeamMemberRepos.Query, p.TeamRepos.Query, p.MemberRepos.Query),
-		TeamMemberRemove: org.NewTeamMemberRemoveHandler(p.TeamMemberRepos.Command, p.TeamRepos.Query),
-		TeamMemberList:   org.NewTeamMemberListHandler(p.TeamMemberRepos.Query, p.TeamRepos.Query),
+		TeamMemberAdd:    org.NewTeamMemberAddHandler(p.OrgRepos.TeamMemberCommand, p.OrgRepos.TeamMemberQuery, p.OrgRepos.TeamQuery, p.OrgRepos.MemberQuery),
+		TeamMemberRemove: org.NewTeamMemberRemoveHandler(p.OrgRepos.TeamMemberCommand, p.OrgRepos.TeamQuery),
+		TeamMemberList:   org.NewTeamMemberListHandler(p.OrgRepos.TeamMemberQuery, p.OrgRepos.TeamQuery),
 
 		// User View
-		UserOrgs:  org.NewUserOrgsHandler(p.MemberRepos.Query, p.OrgRepos.Query),
-		UserTeams: org.NewUserTeamsHandler(p.TeamMemberRepos.Query, p.TeamRepos.Query, p.OrgRepos.Query),
+		UserOrgs:  org.NewUserOrgsHandler(p.OrgRepos.MemberQuery, p.OrgRepos.Query),
+		UserTeams: org.NewUserTeamsHandler(p.OrgRepos.TeamMemberQuery, p.OrgRepos.TeamQuery, p.OrgRepos.Query),
 	}
 }
 

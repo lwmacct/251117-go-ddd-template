@@ -66,3 +66,26 @@ func (r *productQueryRepository) ExistsByName(ctx context.Context, name string) 
 	}
 	return count > 0, nil
 }
+
+// ListByStatus 按状态分页获取产品列表
+func (r *productQueryRepository) ListByStatus(ctx context.Context, status string, offset, limit int) ([]*product.Product, error) {
+	var models []ProductModel
+	query := r.db.WithContext(ctx).Where("status = ?", status)
+	if err := query.
+		Order("id DESC").
+		Offset(offset).
+		Limit(limit).
+		Find(&models).Error; err != nil {
+		return nil, err
+	}
+	return mapProductModelsToEntities(models), nil
+}
+
+// CountByStatus 按状态统计产品数量
+func (r *productQueryRepository) CountByStatus(ctx context.Context, status string) (int64, error) {
+	var count int64
+	if err := r.db.WithContext(ctx).Model(&ProductModel{}).Where("status = ?", status).Count(&count).Error; err != nil {
+		return 0, err
+	}
+	return count, nil
+}

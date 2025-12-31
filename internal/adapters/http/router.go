@@ -42,9 +42,12 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"unicode"
 
 	// 引入第三方包
 	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
+	"github.com/go-playground/validator/v10"
 	"github.com/redis/go-redis/v9"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
 
@@ -132,6 +135,22 @@ func SetupRouterWithDeps(deps *RouterDependencies) *gin.Engine {
 	gin.DefaultErrorWriter = io.Discard
 
 	r := gin.New()
+
+	// 注册自定义验证器
+	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
+		// alphanumhyphen: 字母、数字、连字符、下划线
+		if err := v.RegisterValidation("alphanumhyphen", func(fl validator.FieldLevel) bool {
+			value := fl.Field().String()
+			for _, r := range value {
+				if !unicode.IsLetter(r) && !unicode.IsDigit(r) && r != '-' && r != '_' {
+					return false
+				}
+			}
+			return true
+		}); err != nil {
+			slog.Warn("failed to register alphanumhyphen validation", "err", err)
+		}
+	}
 
 	// 全局中间件
 	// OpenTelemetry 追踪中间件（如果启用）

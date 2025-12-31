@@ -9,4 +9,5 @@ type GetProductQuery struct {
 type ListProductsQuery struct {
 	Offset int
 	Limit  int
+	Status string // 可选：按状态筛选
 }
