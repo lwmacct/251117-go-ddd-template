@@ -4,35 +4,35 @@ import "errors"
 
 var (
 	// ErrTokenNotFound 令牌不存在
-	ErrTokenNotFound = errors.New("token not found")
+	ErrTokenNotFound = errors.New("令牌不存在")
 
 	// ErrTokenExpired 令牌已过期
-	ErrTokenExpired = errors.New("token has expired")
+	ErrTokenExpired = errors.New("令牌已过期")
 
 	// ErrTokenDisabled 令牌已禁用
-	ErrTokenDisabled = errors.New("token is disabled")
+	ErrTokenDisabled = errors.New("令牌已禁用")
 
 	// ErrTokenAlreadyDisabled 令牌已处于禁用状态
-	ErrTokenAlreadyDisabled = errors.New("token is already disabled")
+	ErrTokenAlreadyDisabled = errors.New("令牌已处于禁用状态")
 
 	// ErrTokenAlreadyEnabled 令牌已处于启用状态
-	ErrTokenAlreadyEnabled = errors.New("token is already enabled")
+	ErrTokenAlreadyEnabled = errors.New("令牌已处于启用状态")
 
 	// ErrInvalidTokenFormat 无效的令牌格式
-	ErrInvalidTokenFormat = errors.New("invalid token format")
+	ErrInvalidTokenFormat = errors.New("无效的令牌格式")
 
 	// ErrInvalidTokenPrefix 无效的令牌前缀
-	ErrInvalidTokenPrefix = errors.New("invalid token prefix")
+	ErrInvalidTokenPrefix = errors.New("无效的令牌前缀")
 
 	// ErrIPNotAllowed IP 不在白名单中
-	ErrIPNotAllowed = errors.New("IP address not allowed")
+	ErrIPNotAllowed = errors.New("IP 地址不在白名单中")
 
 	// ErrInsufficientPermissions 权限不足
-	ErrInsufficientPermissions = errors.New("insufficient permissions")
+	ErrInsufficientPermissions = errors.New("权限不足")
 
 	// ErrTokenNameExists 令牌名称已存在
-	ErrTokenNameExists = errors.New("token name already exists")
+	ErrTokenNameExists = errors.New("令牌名称已存在")
 
 	// ErrMaxTokensReached 已达到最大令牌数量
-	ErrMaxTokensReached = errors.New("maximum number of tokens reached")
+	ErrMaxTokensReached = errors.New("已达到最大令牌数量")
 )

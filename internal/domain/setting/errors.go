@@ -4,41 +4,41 @@ import "errors"
 
 var (
 	// ErrDefinitionNotFound 配置定义不存在
-	ErrDefinitionNotFound = errors.New("setting definition not found")
+	ErrDefinitionNotFound = errors.New("配置定义不存在")
 
 	// ErrDefinitionKeyExists 配置定义键已存在
-	ErrDefinitionKeyExists = errors.New("setting definition key already exists")
+	ErrDefinitionKeyExists = errors.New("配置定义键已存在")
 
 	// ErrUserSettingNotFound 用户配置不存在
-	ErrUserSettingNotFound = errors.New("user setting not found")
+	ErrUserSettingNotFound = errors.New("用户配置不存在")
 
 	// ErrInvalidValueType 无效的值类型
-	ErrInvalidValueType = errors.New("invalid value type")
+	ErrInvalidValueType = errors.New("无效的值类型")
 
 	// ErrInvalidInputType 无效的控件类型
-	ErrInvalidInputType = errors.New("invalid input type")
+	ErrInvalidInputType = errors.New("无效的控件类型")
 
 	// ErrInvalidValue 无效的配置值
-	ErrInvalidValue = errors.New("invalid setting value")
+	ErrInvalidValue = errors.New("无效的配置值")
 
 	// ErrCategoryNotFound 配置分类不存在
-	ErrCategoryNotFound = errors.New("category not found")
+	ErrCategoryNotFound = errors.New("配置分类不存在")
 
 	// ErrValidationFailed 验证失败
-	ErrValidationFailed = errors.New("validation failed")
+	ErrValidationFailed = errors.New("验证失败")
 
 	// ErrInvalidValidationRule 无效的验证规则
-	ErrInvalidValidationRule = errors.New("invalid validation rule")
+	ErrInvalidValidationRule = errors.New("无效的验证规则")
 
 	// ErrInvalidScope 无效的配置作用域
-	ErrInvalidScope = errors.New("invalid setting scope")
+	ErrInvalidScope = errors.New("无效的配置作用域")
 
 	// ErrCannotOverrideSystemSetting 系统设置不能被用户覆盖
-	ErrCannotOverrideSystemSetting = errors.New("cannot override system setting")
+	ErrCannotOverrideSystemSetting = errors.New("系统设置不能被用户覆盖")
 
 	// ErrInvalidKeyFormat 无效的配置键格式
-	ErrInvalidKeyFormat = errors.New("invalid setting key format")
+	ErrInvalidKeyFormat = errors.New("无效的配置键格式")
 
 	// ErrInvalidCategoryID 无效的分类 ID
-	ErrInvalidCategoryID = errors.New("invalid category ID")
+	ErrInvalidCategoryID = errors.New("无效的分类 ID")
 )

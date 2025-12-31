@@ -181,7 +181,7 @@ func GetDomainError(err error) DomainError {
 func NotFound(resource string) *NotFoundError {
 	return NewNotFoundError(
 		resource+".not_found",
-		resource+" not found",
+		resource+" 不存在",
 	)
 }
 
@@ -189,7 +189,7 @@ func NotFound(resource string) *NotFoundError {
 func AlreadyExists(resource string) *ConflictError {
 	return NewConflictError(
 		resource+".already_exists",
-		resource+" already exists",
+		resource+" 已存在",
 	)
 }
 
@@ -201,7 +201,7 @@ func InvalidInput(message string) *ValidationError {
 // Unauthorized 创建未认证错误（快捷方式）
 func Unauthorized(message string) *UnauthorizedError {
 	if message == "" {
-		message = "authentication required"
+		message = "需要认证"
 	}
 	return NewUnauthorizedError("auth.unauthorized", message)
 }
@@ -209,7 +209,7 @@ func Unauthorized(message string) *UnauthorizedError {
 // Forbidden 创建无权限错误（快捷方式）
 func Forbidden(message string) *ForbiddenError {
 	if message == "" {
-		message = "access forbidden"
+		message = "访问被禁止"
 	}
 	return NewForbiddenError("auth.forbidden", message)
 }
@@ -217,7 +217,7 @@ func Forbidden(message string) *ForbiddenError {
 // Internal 创建内部错误（快捷方式）
 func Internal(message string) *InternalError {
 	if message == "" {
-		message = "internal server error"
+		message = "内部服务器错误"
 	}
 	return NewInternalError("internal.error", message)
 }
