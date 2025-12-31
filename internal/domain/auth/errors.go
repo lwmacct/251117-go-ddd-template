@@ -23,10 +23,10 @@ var (
 	ErrPasswordMismatch = errors.New("密码不匹配")
 
 	// ErrInvalidToken Token 无效
-	ErrInvalidToken = errors.New("Token 无效")
+	ErrInvalidToken = errors.New("token 无效")
 
 	// ErrTokenExpired Token 已过期
-	ErrTokenExpired = errors.New("Token 已过期")
+	ErrTokenExpired = errors.New("token 已过期")
 
 	// ErrInvalidCaptcha 验证码无效
 	ErrInvalidCaptcha = errors.New("验证码无效")

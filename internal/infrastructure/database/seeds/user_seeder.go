@@ -3,12 +3,12 @@ package seeds
 
 import (
 	"context"
+	"errors"
 	"log/slog"
 
 	_persistence "github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/persistence"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
-	"gorm.io/gorm/clause"
 )
 
 // UserSeeder 用户种子数据
@@ -24,42 +24,100 @@ func (s *UserSeeder) Seed(ctx context.Context, db *gorm.DB) error {
 		return err
 	}
 
-	users := []_persistence.UserModel{
+	// 准备种子用户数据
+	userData := []struct {
+		Username  string
+		Email     string
+		RealName  string
+		Nickname  string
+		Phone     string
+		Signature string
+		Avatar    string
+		Bio       string
+		Type      string
+	}{
 		{
-			Username: "admin",
-			Email:    "admin@example.com",
-			Password: string(hashedPassword),
-			FullName: "System Administrator",
-			Avatar:   "https://api.dicebear.com/9.x/micah/svg?seed=admin",
-			Status:   "active",
+			Username:  "admin",
+			Email:     "admin@example.com",
+			RealName:  "System Administrator",
+			Nickname:  "Admin",
+			Phone:     "13800138000",
+			Signature: "Hello, I am the system administrator.",
+			Avatar:    "https://api.dicebear.com/9.x/micah/svg?seed=admin",
+			Bio:       "System administrator account",
+			Type:      "system",
 		},
 		{
-			Username: "testuser",
-			Email:    "test@example.com",
-			Password: string(hashedPassword),
-			FullName: "Test User",
-			Avatar:   "https://api.dicebear.com/9.x/micah/svg?seed=testuser",
-			Status:   "active",
+			Username:  "testuser",
+			Email:     "test@example.com",
+			RealName:  "Test User",
+			Nickname:  "Tester",
+			Phone:     "13800138001",
+			Signature: "Just testing",
+			Avatar:    "https://api.dicebear.com/9.x/micah/svg?seed=testuser",
+			Bio:       "Test user account",
+			Type:      "human",
 		},
 		{
-			Username: "demo",
-			Email:    "demo@example.com",
-			Password: string(hashedPassword),
-			FullName: "Demo User",
-			Avatar:   "https://api.dicebear.com/9.x/micah/svg?seed=demo",
-			Status:   "active",
+			Username:  "demo",
+			Email:     "demo@example.com",
+			RealName:  "Demo User",
+			Nickname:  "Demo",
+			Phone:     "13800138002",
+			Signature: "Welcome to the demo!",
+			Avatar:    "https://api.dicebear.com/9.x/micah/svg?seed=demo",
+			Bio:       "Demo user account",
+			Type:      "human",
 		},
 	}
 
-	result := db.Clauses(clause.OnConflict{
-		Columns:   []clause.Column{{Name: "username"}},
-		DoUpdates: clause.AssignmentColumns([]string{"email", "password", "full_name", "avatar", "bio", "status"}),
-	}).Create(&users)
-	if result.Error != nil {
-		return result.Error
+	// 转换为 UserModel（Email 和 Phone 使用指针）
+	users := make([]_persistence.UserModel, 0, len(userData))
+	for _, u := range userData {
+		var emailPtr *string
+		if u.Email != "" {
+			emailPtr = &u.Email
+		}
+		var phonePtr *string
+		if u.Phone != "" {
+			phonePtr = &u.Phone
+		}
+
+		users = append(users, _persistence.UserModel{
+			Username:  u.Username,
+			Email:     emailPtr,
+			Password:  string(hashedPassword),
+			RealName:  u.RealName,
+			Nickname:  u.Nickname,
+			Phone:     phonePtr,
+			Signature: u.Signature,
+			Avatar:    u.Avatar,
+			Bio:       u.Bio,
+			Status:    "active",
+			Type:      u.Type,
+		})
 	}
 
-	slog.Info("Seeded demo users", "attempted", len(users), "inserted", result.RowsAffected)
+	// 逐个创建或更新用户（不再使用 ON CONFLICT，因为 username 已无唯一约束）
+	insertedCount := 0
+	for _, userModel := range users {
+		var existing _persistence.UserModel
+		switch lookupErr := db.Where("username = ?", userModel.Username).First(&existing).Error; {
+		case errors.Is(lookupErr, gorm.ErrRecordNotFound):
+			// 用户不存在，创建新用户
+			if err := db.Create(&userModel).Error; err != nil {
+				return err
+			}
+			insertedCount++
+		case lookupErr == nil:
+			// 用户已存在，跳过
+			slog.Info("User already exists, skipping", "username", userModel.Username)
+		default:
+			return lookupErr
+		}
+	}
+
+	slog.Info("Seeded demo users", "attempted", len(users), "inserted", insertedCount)
 
 	return nil
 }

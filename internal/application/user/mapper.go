@@ -4,6 +4,14 @@ import (
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/user"
 )
 
+// stringPtrValue 将 *string 转换为 string，nil 返回空字符串
+func stringPtrValue(s *string) string {
+	if s == nil {
+		return ""
+	}
+	return *s
+}
+
 // ToUserDTO 将领域模型 User 转换为应用层 UserDTO
 func ToUserDTO(u *user.User) *UserDTO {
 	if u == nil {
@@ -13,13 +21,15 @@ func ToUserDTO(u *user.User) *UserDTO {
 	return &UserDTO{
 		ID:        u.ID,
 		Username:  u.Username,
-		Email:     u.Email,
-		FullName:  u.FullName,
+		Email:     stringPtrValue(u.Email),
+		RealName:  u.RealName,
+		Nickname:  u.Nickname,
+		Phone:     stringPtrValue(u.Phone),
+		Signature: u.Signature,
 		Avatar:    u.Avatar,
 		Bio:       u.Bio,
 		Status:    u.Status,
 		Type:      string(u.Type),
-		IsSystem:  u.IsSystem,
 		CreatedAt: u.CreatedAt,
 		UpdatedAt: u.UpdatedAt,
 	}
@@ -48,13 +58,15 @@ func ToUserWithRolesDTO(u *user.User) *UserWithRolesDTO {
 	return &UserWithRolesDTO{
 		ID:        u.ID,
 		Username:  u.Username,
-		Email:     u.Email,
-		FullName:  u.FullName,
+		Email:     stringPtrValue(u.Email),
+		RealName:  u.RealName,
+		Nickname:  u.Nickname,
+		Phone:     stringPtrValue(u.Phone),
+		Signature: u.Signature,
 		Avatar:    u.Avatar,
 		Bio:       u.Bio,
 		Status:    u.Status,
 		Type:      string(u.Type),
-		IsSystem:  u.IsSystem,
 		Roles:     roles,
 		CreatedAt: u.CreatedAt,
 		UpdatedAt: u.UpdatedAt,

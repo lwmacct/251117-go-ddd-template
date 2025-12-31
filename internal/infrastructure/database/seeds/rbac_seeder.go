@@ -3,6 +3,7 @@ package seeds
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"log/slog"
 
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/user"
@@ -126,8 +127,8 @@ func (s *RBACSeeder) seedAdminUser(ctx context.Context, db *gorm.DB) error {
 	type userConfig struct {
 		username string
 		email    string
-		fullName string
-		isSystem bool
+		realName string
+		userType string                 // "human" | "service" | "system"
 		role     *persistence.RoleModel // nil 表示不分配角色（root 用户硬编码权限）
 	}
 
@@ -136,59 +137,79 @@ func (s *RBACSeeder) seedAdminUser(ctx context.Context, db *gorm.DB) error {
 		{
 			username: user.RootUsername,
 			email:    "root@localhost",
-			fullName: "Root Administrator",
-			isSystem: true,
+			realName: "Root Administrator",
+			userType: "system",
 			role:     nil, // root 用户权限硬编码，不需要角色
 		},
 		{
 			username: user.AdminUsername,
 			email:    "admin@example.com",
-			fullName: "System Administrator",
-			isSystem: true,
+			realName: "System Administrator",
+			userType: "system",
 			role:     &adminRole,
 		},
 		// 普通用户（用于测试）
 		{
 			username: "human",
 			email:    "human@example.com",
-			fullName: "Human User",
-			isSystem: false,
+			realName: "Human User",
+			userType: "human",
 			role:     &userRole,
 		},
 	}
 
 	for _, cfg := range users {
+		// 准备 Email 和 Phone 指针
+		var emailPtr *string
+		if cfg.email != "" {
+			emailPtr = &cfg.email
+		}
+		phoneStr := "13800" + cfg.username[len(cfg.username)-3:]
+		var phonePtr *string
+		if phoneStr != "" {
+			phonePtr = &phoneStr
+		}
+
 		userModel := persistence.UserModel{
-			Username: cfg.username,
-			Email:    cfg.email,
-			Password: string(hashedPassword),
-			FullName: cfg.fullName,
-			Status:   "active",
-			Type:     string(user.UserTypeHuman),
-			IsSystem: cfg.isSystem,
+			Username:  cfg.username,
+			Email:     emailPtr,
+			Password:  string(hashedPassword),
+			RealName:  cfg.realName,
+			Nickname:  cfg.username, // 使用用户名作为昵称
+			Phone:     phonePtr,
+			Signature: "",
+			Status:    "active",
+			Type:      cfg.userType,
 		}
 
-		// Upsert 用户
-		result := db.Clauses(clause.OnConflict{
-			Columns:   []clause.Column{{Name: "username"}},
-			DoUpdates: clause.AssignmentColumns([]string{"is_system", "type"}), // 确保标记被更新
-		}).Create(&userModel)
-		if result.Error != nil {
-			return result.Error
-		}
-
-		// 用户已存在时，获取其 ID
-		if result.RowsAffected == 0 {
-			if err := db.Where("username = ?", cfg.username).First(&userModel).Error; err != nil {
+		// 检查用户是否已存在
+		isNewUser := false
+		switch lookupErr := db.Where("username = ?", cfg.username).First(&userModel).Error; {
+		case lookupErr == nil:
+			// 用户已存在，更新关键字段
+			updates := map[string]any{
+				"email":     userModel.Email,
+				"password":  userModel.Password,
+				"real_name": userModel.RealName,
+				"type":      userModel.Type,
+			}
+			if err := db.Model(&userModel).Updates(updates).Error; err != nil {
 				return err
 			}
-			slog.Info("User ensured", "username", userModel.Username, "is_system", userModel.IsSystem)
-		} else {
-			slog.Info("Created user", "username", userModel.Username, "is_system", cfg.isSystem)
+			slog.Info("User updated", "username", userModel.Username, "type", userModel.Type)
+		case errors.Is(lookupErr, gorm.ErrRecordNotFound):
+			// 用户不存在，创建新用户
+			isNewUser = true
+			if err := db.Create(&userModel).Error; err != nil {
+				return err
+			}
+			slog.Info("Created user", "username", userModel.Username, "type", cfg.userType)
+		default:
+			return lookupErr
 		}
 
 		// 系统用户提示修改默认密码
-		if result.RowsAffected > 0 && cfg.isSystem {
+		if isNewUser && cfg.userType == "system" {
 			slog.Warn("Default credentials", "username", cfg.username, "password", "admin123", "warning", "PLEASE CHANGE THIS PASSWORD IMMEDIATELY")
 		}
 

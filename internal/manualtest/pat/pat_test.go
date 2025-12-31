@@ -397,7 +397,7 @@ func TestPATScopeWithRegularUser(t *testing.T) {
 		Username: username,
 		Email:    username + "@test.local",
 		Password: password,
-		FullName: "PAT Scope 测试用户",
+		RealName: "PAT Scope 测试用户",
 		RoleIDs:  []uint{createdRole.RoleID},
 	}
 

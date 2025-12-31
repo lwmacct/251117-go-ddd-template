@@ -39,6 +39,7 @@ const roleOptions = [
 
 // 表头配置
 const headers = [
+  { title: "", key: "avatar", sortable: false, width: "60px" },
   { title: "ID", key: "id" },
   { title: "用户名", key: "username" },
   { title: "邮箱", key: "email" },
@@ -238,6 +239,14 @@ watch(
               no-data-text="暂无成员"
               @update:options="onTableOptionsUpdate"
             >
+              <!-- 头像列 -->
+              <template #item.avatar="{ item }">
+                <v-avatar size="32" color="surface-variant">
+                  <v-img v-if="item.avatar" :src="item.avatar" />
+                  <v-icon v-else icon="mdi-account" />
+                </v-avatar>
+              </template>
+
               <!-- ID 列 -->
               <template #item.id="{ item }">
                 <span class="text-body-2">{{ item.id }}</span>

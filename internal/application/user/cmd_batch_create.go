@@ -103,12 +103,25 @@ func (h *BatchCreateHandler) createSingleUser(ctx context.Context, item BatchIte
 	}
 
 	// 7. 创建用户实体
+	// 将字符串转换为指针类型（Email 和 Phone 在 Domain 层是 nullable）
+	var emailPtr *string
+	if item.Email != "" {
+		emailPtr = &item.Email
+	}
+	var phonePtr *string
+	if item.Phone != "" {
+		phonePtr = &item.Phone
+	}
+
 	newUser := &user.User{
-		Username: item.Username,
-		Email:    item.Email,
-		Password: hashedPassword,
-		FullName: item.FullName,
-		Status:   status,
+		Username:  item.Username,
+		Email:     emailPtr,
+		Password:  hashedPassword,
+		RealName:  item.RealName,
+		Nickname:  item.Nickname,
+		Phone:     phonePtr,
+		Signature: item.Signature,
+		Status:    status,
 	}
 
 	// 8. 保存用户

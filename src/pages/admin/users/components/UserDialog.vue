@@ -28,13 +28,13 @@ const formData = ref<{
   username: string;
   email: string;
   password: string;
-  full_name: string;
+  real_name: string;
   status: "active" | "inactive" | "banned";
 }>({
   username: "",
   email: "",
   password: "",
-  full_name: "",
+  real_name: "",
   status: "active",
 });
 
@@ -77,7 +77,7 @@ const resetForm = () => {
     username: "",
     email: "",
     password: "",
-    full_name: "",
+    real_name: "",
     status: "active",
   };
   form.value?.resetValidation();
@@ -91,7 +91,7 @@ watch(
       formData.value = {
         username: newUser.username ?? "",
         email: newUser.email ?? "",
-        full_name: newUser.full_name ?? "",
+        real_name: newUser.real_name ?? "",
         status: (newUser.status as "active" | "inactive" | "banned") ?? "active",
         password: "",
       };
@@ -118,14 +118,14 @@ const handleSave = async () => {
       username: formData.value.username,
       email: formData.value.email,
       password: formData.value.password!,
-      full_name: formData.value.full_name || undefined,
+      real_name: formData.value.real_name || undefined,
       status: formData.value.status as "active" | "inactive",
     };
     emit("save", createData);
   } else {
     const updateData: UserUpdateDTO = {
       email: formData.value.email,
-      full_name: formData.value.full_name || undefined,
+      real_name: formData.value.real_name || undefined,
       status: formData.value.status,
     };
     emit("save", updateData);
@@ -182,8 +182,8 @@ const handleSave = async () => {
           <PasswordStrengthIndicator v-if="mode === 'create'" :password="formData.password" :show-hints="false" class="mb-4" />
 
           <v-text-field
-            v-model="formData.full_name"
-            label="全名（可选）"
+            v-model="formData.real_name"
+            label="真实姓名（可选）"
             variant="outlined"
             density="comfortable"
             class="mb-2"

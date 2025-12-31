@@ -29,7 +29,7 @@ internal/manualtest/
 
 ```bash
 # 运行所有测试
-MANUAL=1 go test -v ./internal/manualtest/...
+MANUAL=1 go test -v ./internal/manualtest/... 2>&1 | grep -E "FAIL|PASS"
 
 # 串行执行（服务端压力大时）
 MANUAL=1 go test -v -p 1 ./internal/manualtest/...

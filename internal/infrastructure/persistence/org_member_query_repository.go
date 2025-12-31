@@ -133,7 +133,7 @@ func (r *orgMemberQueryRepository) ListByOrgWithUsers(ctx context.Context, orgID
 			org_members.joined_at,
 			u.username,
 			u.email,
-			u.full_name,
+			u.real_name,
 			u.avatar
 		`).
 		Joins("LEFT JOIN users u ON org_members.user_id = u.id AND u.deleted_at IS NULL").

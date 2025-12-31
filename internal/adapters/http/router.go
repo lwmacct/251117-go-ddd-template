@@ -150,6 +150,18 @@ func SetupRouterWithDeps(deps *RouterDependencies) *gin.Engine {
 		}); err != nil {
 			slog.Warn("failed to register alphanumhyphen validation", "err", err)
 		}
+		// loweralphanumhyphen: 小写字母、数字、连字符、下划线
+		if err := v.RegisterValidation("loweralphanumhyphen", func(fl validator.FieldLevel) bool {
+			value := fl.Field().String()
+			for _, r := range value {
+				if !unicode.IsLower(r) && !unicode.IsDigit(r) && r != '-' && r != '_' {
+					return false
+				}
+			}
+			return true
+		}); err != nil {
+			slog.Warn("failed to register loweralphanumhyphen validation", "err", err)
+		}
 	}
 
 	// 全局中间件
@@ -216,7 +228,7 @@ func registerRoutes(r *gin.Engine, deps *RouterDependencies) {
 }
 
 // buildMiddlewares 根据 Operation 自动构建中间件链
-// 中间件顺序：RequestID → OperationID → Auth → OrgContext → TeamContext → Permission → Audit
+// 中间件顺序：RequestID → OperationID → Auth → OrgContext → TeamContext/TeamContextOptional → Permission → Audit
 func buildMiddlewares(deps *RouterDependencies, o permission.Operation) []gin.HandlerFunc {
 	var mws []gin.HandlerFunc
 
@@ -235,9 +247,15 @@ func buildMiddlewares(deps *RouterDependencies, o permission.Operation) []gin.Ha
 			mws = append(mws, middleware.OrgContext(deps.OrgMemberQuery))
 		}
 
-		// 5. TeamContext（团队级操作，需验证用户是团队成员）
+		// 5. TeamContext/TeamContextOptional（团队级操作）
+		//    - ReadOnly 操作使用 TeamContextOptional（组织成员可访问）
+		//    - 非只读操作使用 TeamContext（需是团队成员）
 		if routes.NeedsTeamContext(o) {
-			mws = append(mws, middleware.TeamContext(deps.TeamQuery, deps.TeamMemberQuery))
+			if routes.IsReadOnly(o) {
+				mws = append(mws, middleware.TeamContextOptional(deps.TeamQuery, deps.TeamMemberQuery))
+			} else {
+				mws = append(mws, middleware.TeamContext(deps.TeamQuery, deps.TeamMemberQuery))
+			}
 		}
 
 		// 6. RBAC 权限检查：使用 Operation 本身作为权限标识符

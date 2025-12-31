@@ -31,13 +31,31 @@ export interface AuthRegisterDTO {
      * @type {string}
      * @memberof AuthRegisterDTO
      */
-    'full_name'?: string;
+    'nickname'?: string;
     /**
      * 
      * @type {string}
      * @memberof AuthRegisterDTO
      */
     'password': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof AuthRegisterDTO
+     */
+    'phone'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof AuthRegisterDTO
+     */
+    'real_name'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof AuthRegisterDTO
+     */
+    'signature'?: string;
     /**
      * 
      * @type {string}

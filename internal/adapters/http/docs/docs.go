@@ -5699,15 +5699,29 @@ const docTemplate = `{
                     "type": "string",
                     "example": "john@example.com"
                 },
-                "full_name": {
+                "nickname": {
                     "type": "string",
-                    "maxLength": 100,
-                    "example": "John Doe"
+                    "maxLength": 50,
+                    "example": "Johnny"
                 },
                 "password": {
                     "type": "string",
                     "minLength": 6,
                     "example": "password123"
+                },
+                "phone": {
+                    "type": "string",
+                    "example": "13800138000"
+                },
+                "real_name": {
+                    "type": "string",
+                    "maxLength": 100,
+                    "example": "John Doe"
+                },
+                "signature": {
+                    "type": "string",
+                    "maxLength": 255,
+                    "example": "Hello World"
                 },
                 "username": {
                     "type": "string",
@@ -6085,10 +6099,24 @@ const docTemplate = `{
                     "type": "string",
                     "example": "这是我的个人简介"
                 },
-                "full_name": {
+                "nickname": {
+                    "type": "string",
+                    "maxLength": 50,
+                    "example": "小三"
+                },
+                "phone": {
+                    "type": "string",
+                    "example": "13800138000"
+                },
+                "real_name": {
                     "type": "string",
                     "maxLength": 100,
                     "example": "张三"
+                },
+                "signature": {
+                    "type": "string",
+                    "maxLength": 255,
+                    "example": "Hello World"
                 }
             }
         },
@@ -8588,19 +8616,30 @@ const docTemplate = `{
                 "email": {
                     "type": "string"
                 },
-                "full_name": {
+                "nickname": {
                     "type": "string",
-                    "maxLength": 100
+                    "maxLength": 50
                 },
                 "password": {
                     "type": "string",
                     "minLength": 6
+                },
+                "phone": {
+                    "type": "string"
+                },
+                "real_name": {
+                    "type": "string",
+                    "maxLength": 100
                 },
                 "role_ids": {
                     "type": "array",
                     "items": {
                         "type": "integer"
                     }
+                },
+                "signature": {
+                    "type": "string",
+                    "maxLength": 255
                 },
                 "status": {
                     "type": "string",
@@ -8643,19 +8682,30 @@ const docTemplate = `{
                 "email": {
                     "type": "string"
                 },
-                "full_name": {
+                "nickname": {
                     "type": "string",
-                    "maxLength": 100
+                    "maxLength": 50
                 },
                 "password": {
                     "type": "string",
                     "minLength": 6
+                },
+                "phone": {
+                    "type": "string"
+                },
+                "real_name": {
+                    "type": "string",
+                    "maxLength": 100
                 },
                 "role_ids": {
                     "type": "array",
                     "items": {
                         "type": "integer"
                     }
+                },
+                "signature": {
+                    "type": "string",
+                    "maxLength": 255
                 },
                 "status": {
                     "type": "string",
@@ -8701,9 +8751,20 @@ const docTemplate = `{
                 "email": {
                     "type": "string"
                 },
-                "full_name": {
+                "nickname": {
+                    "type": "string",
+                    "maxLength": 50
+                },
+                "phone": {
+                    "type": "string"
+                },
+                "real_name": {
                     "type": "string",
                     "maxLength": 100
+                },
+                "signature": {
+                    "type": "string",
+                    "maxLength": 255
                 },
                 "status": {
                     "type": "string",
@@ -8735,14 +8796,17 @@ const docTemplate = `{
                 "email": {
                     "type": "string"
                 },
-                "full_name": {
-                    "type": "string"
-                },
                 "id": {
                     "type": "integer"
                 },
-                "is_system": {
-                    "type": "boolean"
+                "nickname": {
+                    "type": "string"
+                },
+                "phone": {
+                    "type": "string"
+                },
+                "real_name": {
+                    "type": "string"
                 },
                 "roles": {
                     "type": "array",
@@ -8750,10 +8814,14 @@ const docTemplate = `{
                         "$ref": "#/definitions/user.RoleDTO"
                     }
                 },
+                "signature": {
+                    "type": "string"
+                },
                 "status": {
                     "type": "string"
                 },
                 "type": {
+                    "description": "\"human\" | \"service\" | \"system\"",
                     "type": "string"
                 },
                 "updated_at": {

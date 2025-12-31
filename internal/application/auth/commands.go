@@ -20,10 +20,13 @@ type Login2FACommand struct {
 
 // RegisterCommand 注册命令
 type RegisterCommand struct {
-	Username string
-	Email    string
-	Password string
-	FullName string
+	Username  string
+	Email     string
+	Password  string
+	RealName  string
+	Nickname  string
+	Phone     string
+	Signature string
 }
 
 // RefreshTokenCommand 刷新令牌命令

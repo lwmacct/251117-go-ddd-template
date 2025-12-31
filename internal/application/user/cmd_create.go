@@ -65,12 +65,25 @@ func (h *CreateHandler) Handle(ctx context.Context, cmd CreateCommand) (*CreateR
 		status = *cmd.Status
 	}
 
+	// 将字符串转换为指针类型（Email 和 Phone 在 Domain 层是 nullable）
+	var emailPtr *string
+	if cmd.Email != "" {
+		emailPtr = &cmd.Email
+	}
+	var phonePtr *string
+	if cmd.Phone != "" {
+		phonePtr = &cmd.Phone
+	}
+
 	newUser := &user.User{
-		Username: cmd.Username,
-		Email:    cmd.Email,
-		Password: hashedPassword,
-		FullName: cmd.FullName,
-		Status:   status,
+		Username:  cmd.Username,
+		Email:     emailPtr,
+		Password:  hashedPassword,
+		RealName:  cmd.RealName,
+		Nickname:  cmd.Nickname,
+		Phone:     phonePtr,
+		Signature: cmd.Signature,
+		Status:    status,
 	}
 
 	// 6. 保存用户
@@ -88,6 +101,6 @@ func (h *CreateHandler) Handle(ctx context.Context, cmd CreateCommand) (*CreateR
 	return &CreateResultDTO{
 		UserID:   newUser.ID,
 		Username: newUser.Username,
-		Email:    newUser.Email,
+		Email:    stringPtrValue(newUser.Email),
 	}, nil
 }

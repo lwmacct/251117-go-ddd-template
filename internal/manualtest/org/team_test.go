@@ -46,7 +46,7 @@ func TestTeamCRUD(t *testing.T) {
 	// 测试 1: 创建团队
 	t.Log("\n测试 1: 创建团队")
 	createReq := org.CreateTeamDTO{
-		Name:        fmt.Sprintf("testteam_%d", time.Now().UnixNano()),
+		Name:        fmt.Sprintf("testteam%d", time.Now().UnixNano()),
 		DisplayName: "测试团队",
 		Description: "这是一个测试团队",
 	}

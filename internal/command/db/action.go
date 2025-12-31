@@ -15,6 +15,7 @@ import (
 	"github.com/lwmacct/251207-go-pkg-cfgm/pkg/cfgm"
 	"github.com/lwmacct/251207-go-pkg-version/pkg/version"
 	"github.com/urfave/cli/v3"
+	"gorm.io/gorm"
 )
 
 // getIndexMigrations 返回需要创建的索引配置
@@ -25,6 +26,37 @@ func getIndexMigrations() []database.IndexMigration {
 			Indexes: []string{"idx_settings_category_sort"},
 		},
 	}
+}
+
+// createPartialUniqueIndexes 创建部分唯一索引
+// 只对未删除的记录应用唯一约束，允许软删除后的标识符重用
+func createPartialUniqueIndexes(db *gorm.DB) error {
+	indexes := []struct {
+		name string
+		sql  string
+	}{
+		{
+			name: "idx_users_username_active",
+			sql:  "CREATE UNIQUE INDEX IF NOT EXISTS idx_users_username_active ON users(username) WHERE deleted_at IS NULL;",
+		},
+		{
+			name: "idx_users_email_active",
+			sql:  "CREATE UNIQUE INDEX IF NOT EXISTS idx_users_email_active ON users(email) WHERE deleted_at IS NULL AND email IS NOT NULL;",
+		},
+		{
+			name: "idx_users_phone_active",
+			sql:  "CREATE UNIQUE INDEX IF NOT EXISTS idx_users_phone_active ON users(phone) WHERE deleted_at IS NULL AND phone IS NOT NULL;",
+		},
+	}
+
+	for _, idx := range indexes {
+		if err := db.Exec(idx.sql).Error; err != nil {
+			return fmt.Errorf("failed to create %s: %w", idx.name, err)
+		}
+		slog.Info("Partial unique index created", "index", idx.name)
+	}
+
+	return nil
 }
 
 // getJoinTableIndexes 返回 many2many 关联表需要创建的索引
@@ -109,7 +141,14 @@ func actionMigrate(ctx context.Context, cmd *cli.Command) error {
 		return err
 	}
 
-	// 4. 清空 Redis 缓存
+	// 4. 创建部分唯一索引（允许软删除后的标识符重用）
+	slog.Info("Creating partial unique indexes...")
+	if err := createPartialUniqueIndexes(db); err != nil {
+		slog.Error("Failed to create partial unique indexes", "error", err)
+		return err
+	}
+
+	// 5. 清空 Redis 缓存
 	if err := flushRedisCache(ctx, cfg); err != nil {
 		return err
 	}
@@ -166,7 +205,14 @@ func actionReset(ctx context.Context, cmd *cli.Command) error {
 		return err
 	}
 
-	// 3. 填充种子数据（除非 --empty）
+	// 3. 创建部分唯一索引（允许软删除后的标识符重用）
+	slog.Info("Creating partial unique indexes...")
+	if err := createPartialUniqueIndexes(db); err != nil {
+		slog.Error("Failed to create partial unique indexes", "error", err)
+		return err
+	}
+
+	// 4. 填充种子数据（除非 --empty）
 	if !cmd.Bool("empty") {
 		slog.Info("Running database seeders...")
 		seederManager := database.NewSeederManager(db, seeds.DefaultSeeders())
@@ -177,7 +223,7 @@ func actionReset(ctx context.Context, cmd *cli.Command) error {
 		slog.Info("Seed data populated successfully")
 	}
 
-	// 4. 清空 Redis 缓存
+	// 5. 清空 Redis 缓存
 	if err := flushRedisCache(ctx, cfg); err != nil {
 		return err
 	}

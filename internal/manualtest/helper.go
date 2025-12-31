@@ -49,6 +49,24 @@ func LoginAsAdmin(t *testing.T) *Client {
 	return LoginAs(t, "admin", "admin123")
 }
 
+// LoginAsAdminForced 强制重新登录管理员账户（不使用缓存），返回已认证的客户端。
+// 用于需要最新权限的场景（如权限变更后的测试）。
+func LoginAsAdminForced(t *testing.T) *Client {
+	t.Helper()
+	return LoginAsForced(t, "admin", "admin123")
+}
+
+// LoginAsForced 强制重新登录（不使用缓存），返回已认证的客户端。
+func LoginAsForced(t *testing.T, account, password string) *Client {
+	t.Helper()
+	SkipIfNotManual(t)
+
+	// 清除缓存强制重新登录
+	cacheKey := account + ":" + password
+	sessionCache.Delete(cacheKey)
+	return LoginAs(t, account, password)
+}
+
 // LoginAs 使用指定账户登录，返回已认证的客户端。
 // 会复用缓存的 session 避免重复登录。
 // 登录失败会导致测试立即失败。

@@ -8,7 +8,7 @@ import "time"
 
 // CreateOrgDTO 创建组织 DTO
 type CreateOrgDTO struct {
-	Name        string `json:"name" binding:"required,min=2,max=50,alphanum"`
+	Name        string `json:"name" binding:"required,min=2,max=50,loweralphanumhyphen"`
 	DisplayName string `json:"display_name" binding:"required,min=2,max=100"`
 	Description string `json:"description" binding:"max=500"`
 	Avatar      string `json:"avatar" binding:"omitempty,max=255,url"`
@@ -48,7 +48,7 @@ type OrgWithStatsDTO struct {
 
 // CreateTeamDTO 创建团队 DTO
 type CreateTeamDTO struct {
-	Name        string `json:"name" binding:"required,min=2,max=50,alphanum"`
+	Name        string `json:"name" binding:"required,min=2,max=50,loweralphanumhyphen"`
 	DisplayName string `json:"display_name" binding:"required,min=2,max=100"`
 	Description string `json:"description" binding:"max=500"`
 }

@@ -101,6 +101,15 @@ func NeedsTeamContext(o permission.Operation) bool {
 	return containsParam(path, ":team_id")
 }
 
+// IsReadOnly 报告操作是否标记为只读。
+// 只读的团队操作使用 TeamContextOptional 而非 TeamContext。
+func IsReadOnly(o permission.Operation) bool {
+	if m, ok := Registry[o]; ok {
+		return m.ReadOnly
+	}
+	return false
+}
+
 // containsParam 检查路径是否包含指定的路由参数。
 func containsParam(path, param string) bool {
 	segments := splitPathSegments(path)

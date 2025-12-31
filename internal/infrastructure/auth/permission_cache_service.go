@@ -85,7 +85,8 @@ func NewPermissionCacheService(
 func (s *PermissionCacheService) GetUserPermissions(ctx context.Context, userID uint) ([]string, []role.Permission, error) {
 	// 1. 尝试从缓存读取（缓存已包含默认角色权限）
 	roles, permissions, err := s.cache.GetUserPermissions(ctx, userID)
-	if err == nil && (roles != nil || permissions != nil) {
+	// 注意：空切片不等于 nil，需要检查长度
+	if err == nil && len(roles) > 0 {
 		return roles, permissions, nil
 	}
 

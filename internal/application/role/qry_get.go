@@ -2,7 +2,6 @@ package role
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/role"
 )
@@ -24,10 +23,10 @@ func (h *GetHandler) Handle(ctx context.Context, query GetQuery) (*RoleDTO, erro
 	// 查询角色（包含权限）
 	roleEntity, err := h.roleQueryRepo.FindByIDWithPermissions(ctx, query.RoleID)
 	if err != nil {
-		return nil, fmt.Errorf("failed to find role: %w", err)
+		return nil, err // 直接返回 repository 错误（保留 domain 错误类型）
 	}
 	if roleEntity == nil {
-		return nil, fmt.Errorf("role not found with id: %d", query.RoleID)
+		return nil, role.ErrRoleNotFound // 返回 domain 错误
 	}
 
 	// 转换为 DTO

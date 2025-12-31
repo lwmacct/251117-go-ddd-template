@@ -61,12 +61,25 @@ func (h *RegisterHandler) Handle(ctx context.Context, cmd RegisterCommand) (*Reg
 	}
 
 	// 5. 创建用户
+	// 将字符串转换为指针类型（Email 和 Phone 在 Domain 层是 nullable）
+	var emailPtr *string
+	if cmd.Email != "" {
+		emailPtr = &cmd.Email
+	}
+	var phonePtr *string
+	if cmd.Phone != "" {
+		phonePtr = &cmd.Phone
+	}
+
 	newUser := &user.User{
-		Username: cmd.Username,
-		Email:    cmd.Email,
-		Password: hashedPassword,
-		FullName: cmd.FullName,
-		Status:   "active",
+		Username:  cmd.Username,
+		Email:     emailPtr,
+		Password:  hashedPassword,
+		RealName:  cmd.RealName,
+		Nickname:  cmd.Nickname,
+		Phone:     phonePtr,
+		Signature: cmd.Signature,
+		Status:    "active",
 	}
 
 	if err = h.userCommandRepo.Create(ctx, newUser); err != nil {
@@ -87,10 +100,18 @@ func (h *RegisterHandler) Handle(ctx context.Context, cmd RegisterCommand) (*Reg
 	return &RegisterResultDTO{
 		UserID:       newUser.ID,
 		Username:     newUser.Username,
-		Email:        newUser.Email,
+		Email:        stringPtrValueAuth(newUser.Email),
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
 		TokenType:    "Bearer",
 		ExpiresIn:    int(time.Until(expiresAt).Seconds()),
 	}, nil
+}
+
+// stringPtrValueAuth 将 *string 转换为 string，nil 返回空字符串
+func stringPtrValueAuth(s *string) string {
+	if s == nil {
+		return ""
+	}
+	return *s
 }

@@ -54,14 +54,14 @@ func TestAdminUsersFlow(t *testing.T) {
 	t.Log("\n测试 4: 更新用户")
 	newFullName := "测试用户（已更新）"
 	updateReq := user.UpdateDTO{
-		FullName: &newFullName,
+		RealName: &newFullName,
 	}
 	updatedUser, err := manualtest.Put[user.UserDTO](c, fmt.Sprintf("/api/system/users/%d", testUser.ID), updateReq)
 	require.NoError(t, err, "更新用户失败")
-	t.Logf("  更新成功! 全名: %s", updatedUser.FullName)
+	t.Logf("  更新成功! 真实姓名: %s", updatedUser.RealName)
 
 	// 验证更新后的字段
-	assert.Equal(t, newFullName, updatedUser.FullName, "全名未更新")
+	assert.Equal(t, newFullName, updatedUser.RealName, "真实姓名未更新")
 
 	// 测试 5: 删除用户
 	t.Log("\n测试 5: 删除用户")
@@ -173,19 +173,19 @@ func TestBatchCreateUsers(t *testing.T) {
 				Username: username1,
 				Email:    username1 + "@example.com",
 				Password: "test123456",
-				FullName: "批量用户1",
+				RealName: "批量用户1",
 			},
 			{
 				Username: username2,
 				Email:    username2 + "@example.com",
 				Password: "test123456",
-				FullName: "批量用户2",
+				RealName: "批量用户2",
 			},
 			{
 				Username: username1, // 重复用户名
 				Email:    "dup_" + username1 + "@example.com",
 				Password: "test123456",
-				FullName: "重复用户",
+				RealName: "重复用户",
 			},
 		},
 	}
@@ -251,13 +251,12 @@ func TestSystemUserProtection(t *testing.T) {
 	require.NotNil(t, rootUser, "未找到 root 用户")
 	require.NotNil(t, adminUser, "未找到 admin 用户")
 
-	t.Logf("  root 用户: ID=%d, Type=%s, IsSystem=%v", rootUser.ID, rootUser.Type, rootUser.IsSystem)
-	t.Logf("  admin 用户: ID=%d, Type=%s, IsSystem=%v", adminUser.ID, adminUser.Type, adminUser.IsSystem)
+	t.Logf("  root 用户: ID=%d, Type=%s", rootUser.ID, rootUser.Type)
+	t.Logf("  admin 用户: ID=%d, Type=%s", adminUser.ID, adminUser.Type)
 
 	// 验证系统用户标记
-	assert.True(t, rootUser.IsSystem, "root 应为系统用户")
-	assert.True(t, adminUser.IsSystem, "admin 应为系统用户")
-	assert.Equal(t, "human", rootUser.Type, "root 应为 human 类型")
+	assert.Equal(t, "system", rootUser.Type, "root 应为 system 类型")
+	assert.Equal(t, "system", adminUser.Type, "admin 应为 system 类型")
 
 	// 测试 2: 尝试删除 root 用户（应失败）
 	t.Log("\n步骤 2: 尝试删除 root 用户（应失败）")

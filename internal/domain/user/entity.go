@@ -15,21 +15,23 @@ type User struct {
 	UpdatedAt time.Time  `json:"updated_at"`
 	DeletedAt *time.Time `json:"deleted_at,omitempty"`
 
+	// Extra 扩展数据（JSONB 存储），留空备用
+	Extra map[string]any `json:"extra,omitempty"`
+
 	Username string `json:"username"`
-	Email    string `json:"email"`
-	Password string `json:"-"` // 敏感字段，不序列化
-	FullName string `json:"full_name"`
+	Email    *string `json:"email,omitempty"`    // nullable，用于登录/注册
+	Password string `json:"-"`                    // 敏感字段，不序列化
+	RealName string `json:"real_name"`            // 真实姓名
+	Nickname string `json:"nickname"`             // 昵称
+	Phone    *string `json:"phone,omitempty"`    // nullable，用于登录/注册
+	Signature string `json:"signature"` // 个性签名
 	Avatar   string `json:"avatar"`
-	Bio      string `json:"bio"`
+	Bio      string `json:"bio"`       // 个人简介
 	Status   string `json:"status"`
 
-	// Type 用户类型：human（人类用户）或 service（服务账户）。
-	// 服务账户无密码，仅通过 PAT 认证。
+	// Type 用户类型：human（人类用户）、service（服务账户）、system（系统用户）。
+	// 系统用户（Type=system）不可删除，部分字段不可修改。
 	Type UserType `json:"type"`
-
-	// IsSystem 系统预置用户标记。
-	// 系统用户（如 root、admin）不可删除，部分字段不可修改。
-	IsSystem bool `json:"is_system"`
 
 	// RBAC: Many-to-Many relationship with roles
 	Roles []role.Role `json:"roles"`
@@ -155,14 +157,21 @@ func (u *User) ClearRoles() {
 }
 
 // UpdateProfile 更新用户资料（领域行为）
-func (u *User) UpdateProfile(fullName, avatar, bio string) {
-	if fullName != "" {
-		u.FullName = fullName
+func (u *User) UpdateProfile(realName, nickname, phone, signature, avatar, bio string) {
+	if realName != "" {
+		u.RealName = realName
 	}
+	if nickname != "" {
+		u.Nickname = nickname
+	}
+	if phone != "" {
+		u.Phone = &phone
+	}
+	u.Signature = signature // Signature 可以为空
 	if avatar != "" {
 		u.Avatar = avatar
 	}
-	u.Bio = bio // Bio can be empty
+	u.Bio = bio // Bio 可以为空
 }
 
 // ============================================================================
@@ -182,7 +191,12 @@ func (u *User) IsServiceAccount() bool {
 // IsSystemUser 报告用户是否为系统预置用户。
 // 系统用户不可删除，部分字段不可修改。
 func (u *User) IsSystemUser() bool {
-	return u.IsSystem
+	return u.Type == UserTypeSystem
+}
+
+// IsSystem 报告用户是否为系统用户（IsSystemUser 的别名）
+func (u *User) IsSystem() bool {
+	return u.Type == UserTypeSystem
 }
 
 // IsRoot 报告用户是否为 root 超级管理员。
@@ -197,13 +211,13 @@ func (u *User) IsRoot() bool {
 // CanBeDeleted 报告用户是否可以被删除。
 // 系统用户不可删除。
 func (u *User) CanBeDeleted() bool {
-	return !u.IsSystem
+	return !u.IsSystem()
 }
 
 // CanModifyUsername 报告用户名是否可以被修改。
 // 系统用户的用户名不可修改。
 func (u *User) CanModifyUsername() bool {
-	return !u.IsSystem
+	return !u.IsSystem()
 }
 
 // CanModifyStatus 报告用户状态是否可以被修改。

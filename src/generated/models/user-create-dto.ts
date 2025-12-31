@@ -31,7 +31,7 @@ export interface UserCreateDTO {
      * @type {string}
      * @memberof UserCreateDTO
      */
-    'full_name'?: string;
+    'nickname'?: string;
     /**
      * 
      * @type {string}
@@ -40,10 +40,28 @@ export interface UserCreateDTO {
     'password': string;
     /**
      * 
+     * @type {string}
+     * @memberof UserCreateDTO
+     */
+    'phone'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof UserCreateDTO
+     */
+    'real_name'?: string;
+    /**
+     * 
      * @type {Array<number>}
      * @memberof UserCreateDTO
      */
     'role_ids'?: Array<number>;
+    /**
+     * 
+     * @type {string}
+     * @memberof UserCreateDTO
+     */
+    'signature'?: string;
     /**
      * 
      * @type {string}

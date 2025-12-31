@@ -21,7 +21,7 @@ const { success, error } = useSnackbar();
 
 // 表单数据
 const formData = ref<HandlerUpdateProfileRequest>({
-  full_name: "",
+  real_name: "",
   avatar: "",
   bio: "",
 });
@@ -34,7 +34,7 @@ const dialogVisible = ref(false);
 function resetFormFromUser(user?: any) {
   const source = user ?? props.user;
   formData.value = {
-    full_name: source?.full_name || "",
+    real_name: source?.real_name || "",
     avatar: source?.avatar || "",
     bio: source?.bio || "",
   };
@@ -95,7 +95,7 @@ watch(dialogVisible, (isOpen, wasOpen) => {
         <v-icon v-else size="48" color="grey">mdi-account-circle</v-icon>
       </v-avatar>
       <div>
-        <div class="text-h6">{{ user.full_name || user.username }}</div>
+        <div class="text-h6">{{ user.real_name || user.username }}</div>
         <div class="text-body-2 text-medium-emphasis">{{ user.bio || "这个人很懒，什么都没写" }}</div>
       </div>
     </div>
@@ -108,7 +108,7 @@ watch(dialogVisible, (isOpen, wasOpen) => {
           <v-icon>mdi-account-box</v-icon>
         </template>
         <v-list-item-title>姓名</v-list-item-title>
-        <v-list-item-subtitle>{{ user.full_name || "未设置" }}</v-list-item-subtitle>
+        <v-list-item-subtitle>{{ user.real_name || "未设置" }}</v-list-item-subtitle>
       </v-list-item>
 
       <v-list-item>
@@ -138,10 +138,10 @@ watch(dialogVisible, (isOpen, wasOpen) => {
             </div>
 
             <v-text-field
-              v-model="formData.full_name"
-              label="姓名"
+              v-model="formData.real_name"
+              label="真实姓名"
               variant="outlined"
-              placeholder="请输入您的姓名"
+              placeholder="请输入您的真实姓名"
               class="mb-4"
             />
 

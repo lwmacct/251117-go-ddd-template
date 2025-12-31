@@ -199,13 +199,16 @@ func (h *AdminUserHandler) UpdateUser(c *gin.Context) {
 	}
 
 	_, err = h.updateUserHandler.Handle(c.Request.Context(), user.UpdateCommand{
-		UserID:   uint(id),
-		Username: dto.Username,
-		Email:    dto.Email,
-		FullName: dto.FullName,
-		Avatar:   dto.Avatar,
-		Bio:      dto.Bio,
-		Status:   dto.Status,
+		UserID:    uint(id),
+		Username:  dto.Username,
+		Email:     dto.Email,
+		RealName:  dto.RealName,
+		Nickname:  dto.Nickname,
+		Phone:     dto.Phone,
+		Signature: dto.Signature,
+		Avatar:    dto.Avatar,
+		Bio:       dto.Bio,
+		Status:    dto.Status,
 	})
 	if err != nil {
 		response.InternalError(c, err.Error())

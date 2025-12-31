@@ -172,7 +172,7 @@ func TestRegister(t *testing.T) {
 		Username: testUsername,
 		Email:    testEmail,
 		Password: "password123",
-		FullName: "注册测试用户",
+		RealName: "注册测试用户",
 	}
 
 	resp, err := manualtest.Post[auth.RegisterResultDTO](c, "/api/auth/register", registerReq)
@@ -214,7 +214,7 @@ func TestRegisterDuplicate(t *testing.T) {
 		Username: testUsername,
 		Email:    testEmail,
 		Password: "password123",
-		FullName: "重复测试用户",
+		RealName: "重复测试用户",
 	}
 
 	firstResp, err := manualtest.Post[auth.RegisterResultDTO](c, "/api/auth/register", registerReq)
@@ -235,7 +235,7 @@ func TestRegisterDuplicate(t *testing.T) {
 		Username: testUsername, // 相同用户名
 		Email:    "another@example.com",
 		Password: "password456",
-		FullName: "重复测试用户2",
+		RealName: "重复测试用户2",
 	}
 
 	_, err = manualtest.Post[auth.RegisterResultDTO](c, "/api/auth/register", duplicateReq)

@@ -588,6 +588,7 @@ var Registry = map[permission.Operation]routeMeta{
 	permission.OrgTeamsList: {
 		Method:      GET,
 		Path:        "/api/org/:org_id/teams",
+		ReadOnly:    true,
 		Tags:        "Organization - Team Management",
 		Summary:     "团队列表",
 		Description: "分页获取组织内的团队列表",
@@ -595,6 +596,7 @@ var Registry = map[permission.Operation]routeMeta{
 	permission.OrgTeamsGet: {
 		Method:      GET,
 		Path:        "/api/org/:org_id/teams/:team_id",
+		ReadOnly:    true,
 		Tags:        "Organization - Team Management",
 		Summary:     "团队详情",
 		Description: "获取团队详情",
@@ -620,6 +622,7 @@ var Registry = map[permission.Operation]routeMeta{
 	permission.OrgTeamMembersList: {
 		Method:      GET,
 		Path:        "/api/org/:org_id/teams/:team_id/members",
+		ReadOnly:    true,
 		Tags:        "Organization - Team Member Management",
 		Summary:     "团队成员列表",
 		Description: "分页获取团队成员列表",

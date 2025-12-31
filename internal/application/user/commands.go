@@ -2,12 +2,15 @@ package user
 
 // CreateCommand 创建用户命令
 type CreateCommand struct {
-	Username string
-	Email    string
-	Password string
-	FullName string
-	Status   *string // 可选：初始状态，默认 "active"
-	RoleIDs  []uint  // 可选：创建时分配角色
+	Username  string
+	Email     string
+	Password  string
+	RealName  string
+	Nickname  string
+	Phone     string
+	Signature string
+	Status    *string // 可选：初始状态，默认 "active"
+	RoleIDs   []uint  // 可选：创建时分配角色
 }
 
 // UpdateCommand 更新用户命令
@@ -15,7 +18,10 @@ type UpdateCommand struct {
 	UserID   uint
 	Username *string
 	Email    *string
-	FullName *string
+	RealName *string
+	Nickname *string
+	Phone    *string
+	Signature *string
 	Avatar   *string
 	Bio      *string
 	Status   *string

@@ -24,10 +24,13 @@ type Login2FADTO struct {
 
 // RegisterDTO 注册请求
 type RegisterDTO struct {
-	Username string `json:"username" binding:"required,min=3,max=50" example:"john_doe"`
-	Email    string `json:"email" binding:"required,email" example:"john@example.com"`
-	Password string `json:"password" binding:"required,min=6" example:"password123"`
-	FullName string `json:"full_name" binding:"max=100" example:"John Doe"`
+	Username  string `json:"username" binding:"required,min=3,max=50" example:"john_doe"`
+	Email     string `json:"email" binding:"required,email" example:"john@example.com"`
+	Password  string `json:"password" binding:"required,min=6" example:"password123"`
+	RealName  string `json:"real_name" binding:"max=100" example:"John Doe"`
+	Nickname  string `json:"nickname" binding:"max=50" example:"Johnny"`
+	Phone     string `json:"phone" binding:"omitempty,len=11" example:"13800138000"`
+	Signature string `json:"signature" binding:"max=255" example:"Hello World"`
 }
 
 // RefreshTokenDTO 刷新令牌请求

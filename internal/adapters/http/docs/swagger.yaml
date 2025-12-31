@@ -151,13 +151,24 @@ definitions:
       email:
         example: john@example.com
         type: string
-      full_name:
-        example: John Doe
-        maxLength: 100
+      nickname:
+        example: Johnny
+        maxLength: 50
         type: string
       password:
         example: password123
         minLength: 6
+        type: string
+      phone:
+        example: "13800138000"
+        type: string
+      real_name:
+        example: John Doe
+        maxLength: 100
+        type: string
+      signature:
+        example: Hello World
+        maxLength: 255
         type: string
       username:
         example: john_doe
@@ -424,9 +435,20 @@ definitions:
       bio:
         example: 这是我的个人简介
         type: string
-      full_name:
+      nickname:
+        example: 小三
+        maxLength: 50
+        type: string
+      phone:
+        example: "13800138000"
+        type: string
+      real_name:
         example: 张三
         maxLength: 100
+        type: string
+      signature:
+        example: Hello World
+        maxLength: 255
         type: string
     type: object
   handler.UpdateSettingRequest:
@@ -2075,16 +2097,24 @@ definitions:
     properties:
       email:
         type: string
-      full_name:
-        maxLength: 100
+      nickname:
+        maxLength: 50
         type: string
       password:
         minLength: 6
+        type: string
+      phone:
+        type: string
+      real_name:
+        maxLength: 100
         type: string
       role_ids:
         items:
           type: integer
         type: array
+      signature:
+        maxLength: 255
+        type: string
       status:
         enum:
         - active
@@ -2114,16 +2144,24 @@ definitions:
     properties:
       email:
         type: string
-      full_name:
-        maxLength: 100
+      nickname:
+        maxLength: 50
         type: string
       password:
         minLength: 6
+        type: string
+      phone:
+        type: string
+      real_name:
+        maxLength: 100
         type: string
       role_ids:
         items:
           type: integer
         type: array
+      signature:
+        maxLength: 255
+        type: string
       status:
         enum:
         - active
@@ -2158,8 +2196,16 @@ definitions:
         type: string
       email:
         type: string
-      full_name:
+      nickname:
+        maxLength: 50
+        type: string
+      phone:
+        type: string
+      real_name:
         maxLength: 100
+        type: string
+      signature:
+        maxLength: 255
         type: string
       status:
         enum:
@@ -2182,19 +2228,24 @@ definitions:
         type: string
       email:
         type: string
-      full_name:
-        type: string
       id:
         type: integer
-      is_system:
-        type: boolean
+      nickname:
+        type: string
+      phone:
+        type: string
+      real_name:
+        type: string
       roles:
         items:
           $ref: '#/definitions/user.RoleDTO'
         type: array
+      signature:
+        type: string
       status:
         type: string
       type:
+        description: '"human" | "service" | "system"'
         type: string
       updated_at:
         type: string

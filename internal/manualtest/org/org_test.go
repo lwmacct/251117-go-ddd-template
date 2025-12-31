@@ -23,7 +23,7 @@ func TestOrgCRUD(t *testing.T) {
 	// 测试 1: 创建组织
 	t.Log("\n测试 1: 创建组织")
 	createReq := org.CreateOrgDTO{
-		Name:        fmt.Sprintf("testorg_%d", time.Now().UnixNano()),
+		Name:        fmt.Sprintf("testorg%d", time.Now().UnixNano()),
 		DisplayName: "测试组织",
 		Description: "这是一个测试组织",
 	}

@@ -37,6 +37,24 @@ export interface HandlerUpdateProfileRequest {
      * @type {string}
      * @memberof HandlerUpdateProfileRequest
      */
-    'full_name'?: string;
+    'nickname'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof HandlerUpdateProfileRequest
+     */
+    'phone'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof HandlerUpdateProfileRequest
+     */
+    'real_name'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof HandlerUpdateProfileRequest
+     */
+    'signature'?: string;
 }
 

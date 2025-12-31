@@ -120,12 +120,12 @@ func (r *userQueryRepository) GetRoles(ctx context.Context, userID uint) ([]uint
 	return roleIDs, nil
 }
 
-// Search 搜索用户（支持用户名、邮箱、全名模糊匹配）
+// Search 搜索用户（支持用户名、邮箱、真实姓名、昵称、手机号模糊匹配）
 func (r *userQueryRepository) Search(ctx context.Context, keyword string, offset, limit int) ([]*user.User, error) {
 	var models []UserModel
 	query := r.db.WithContext(ctx).
-		Where("username LIKE ? OR email LIKE ? OR full_name LIKE ?",
-			"%"+keyword+"%", "%"+keyword+"%", "%"+keyword+"%").
+		Where("username LIKE ? OR email LIKE ? OR real_name LIKE ? OR nickname LIKE ? OR phone LIKE ?",
+			"%"+keyword+"%", "%"+keyword+"%", "%"+keyword+"%", "%"+keyword+"%", "%"+keyword+"%").
 		Offset(offset).
 		Limit(limit)
 
@@ -141,8 +141,8 @@ func (r *userQueryRepository) CountBySearch(ctx context.Context, keyword string)
 	var count int64
 	if err := r.db.WithContext(ctx).
 		Model(&UserModel{}).
-		Where("username LIKE ? OR email LIKE ? OR full_name LIKE ?",
-			"%"+keyword+"%", "%"+keyword+"%", "%"+keyword+"%").
+		Where("username LIKE ? OR email LIKE ? OR real_name LIKE ? OR nickname LIKE ? OR phone LIKE ?",
+			"%"+keyword+"%", "%"+keyword+"%", "%"+keyword+"%", "%"+keyword+"%", "%"+keyword+"%").
 		Count(&count).Error; err != nil {
 		return 0, fmt.Errorf("failed to count search results: %w", err)
 	}
@@ -206,14 +206,16 @@ type userWithRolesRow struct {
 	UserUpdatedAt time.Time  `gorm:"column:user_updated_at"`
 	UserDeletedAt *time.Time `gorm:"column:user_deleted_at"`
 	Username      string     `gorm:"column:username"`
-	Email         string     `gorm:"column:email"`
+	Email         *string    `gorm:"column:email"` // nullable，对应数据库列
 	Password      string     `gorm:"column:password"`
-	FullName      string     `gorm:"column:full_name"`
+	RealName      string     `gorm:"column:real_name"`
+	Nickname      string     `gorm:"column:nickname"`
+	Phone         *string    `gorm:"column:phone"` // nullable，对应数据库列
+	Signature     string     `gorm:"column:signature"`
 	Avatar        string     `gorm:"column:avatar"`
 	Bio           string     `gorm:"column:bio"`
 	Status        string     `gorm:"column:status"`
 	Type          string     `gorm:"column:type"`
-	IsSystem      bool       `gorm:"column:is_system"`
 
 	// Role 字段（可能为 NULL）
 	RoleID          *uint      `gorm:"column:role_id"`
@@ -241,7 +243,7 @@ func (r *userQueryRepository) getUserWithRolesByCondition(ctx context.Context, c
 		Select(`
 			u.id as user_id, u.created_at as user_created_at, u.updated_at as user_updated_at,
 			u.deleted_at as user_deleted_at, u.username, u.email, u.password,
-			u.full_name, u.avatar, u.bio, u.status, u.type, u.is_system,
+			u.real_name, u.nickname, u.phone, u.signature, u.avatar, u.bio, u.status, u.type,
 			r.id as role_id, r.created_at as role_created_at, r.updated_at as role_updated_at,
 			r.name as role_name, r.display_name as role_display_name,
 			r.description as role_description, r.is_system as role_is_system,
@@ -283,12 +285,14 @@ func (r *userQueryRepository) buildUserFromRows(rows []userWithRolesRow) *user.U
 		Username:  first.Username,
 		Email:     first.Email,
 		Password:  first.Password,
-		FullName:  first.FullName,
+		RealName:  first.RealName,
+		Nickname:  first.Nickname,
+		Phone:     first.Phone,
+		Signature: first.Signature,
 		Avatar:    first.Avatar,
 		Bio:       first.Bio,
 		Status:    first.Status,
 		Type:      user.UserType(first.Type),
-		IsSystem:  first.IsSystem,
 	}
 
 	// 收集角色（去重）

@@ -18,10 +18,15 @@ const (
 	// 无密码，仅通过 PAT (Personal Access Token) 认证。
 	// 用于 CI/CD、API 集成、自动化脚本等场景。
 	UserTypeService UserType = "service"
+
+	// UserTypeSystem 系统用户。
+	// 系统预置用户（如 root、admin），不可删除。
+	// 用于系统初始化和管理。
+	UserTypeSystem UserType = "system"
 )
 
 // ValidUserTypes 有效的用户类型列表。
-var ValidUserTypes = []UserType{UserTypeHuman, UserTypeService}
+var ValidUserTypes = []UserType{UserTypeHuman, UserTypeService, UserTypeSystem}
 
 // IsValidUserType 检查用户类型是否有效。
 func IsValidUserType(t UserType) bool {

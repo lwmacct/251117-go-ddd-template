@@ -31,7 +31,7 @@ export interface UserBatchItemDTO {
      * @type {string}
      * @memberof UserBatchItemDTO
      */
-    'full_name'?: string;
+    'nickname'?: string;
     /**
      * 
      * @type {string}
@@ -40,10 +40,28 @@ export interface UserBatchItemDTO {
     'password': string;
     /**
      * 
+     * @type {string}
+     * @memberof UserBatchItemDTO
+     */
+    'phone'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof UserBatchItemDTO
+     */
+    'real_name'?: string;
+    /**
+     * 
      * @type {Array<number>}
      * @memberof UserBatchItemDTO
      */
     'role_ids'?: Array<number>;
+    /**
+     * 
+     * @type {string}
+     * @memberof UserBatchItemDTO
+     */
+    'signature'?: string;
     /**
      * 
      * @type {string}

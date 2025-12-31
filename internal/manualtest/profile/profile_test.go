@@ -34,7 +34,7 @@ func TestGetProfile(t *testing.T) {
 	t.Logf("  ID: %d", profile.ID)
 	t.Logf("  用户名: %s", profile.Username)
 	t.Logf("  邮箱: %s", profile.Email)
-	t.Logf("  全名: %s", profile.FullName)
+	t.Logf("  真实姓名: %s", profile.RealName)
 	t.Logf("  状态: %s", profile.Status)
 	t.Logf("  角色数量: %d", len(profile.Roles))
 }
@@ -50,27 +50,27 @@ func TestUpdateProfile(t *testing.T) {
 	t.Log("步骤 1: 获取当前资料")
 	originalProfile, err := manualtest.Get[user.UserWithRolesDTO](c, "/api/user/profile", nil)
 	require.NoError(t, err, "获取原始资料失败")
-	t.Logf("  当前全名: %s", originalProfile.FullName)
+	t.Logf("  当前真实姓名: %s", originalProfile.RealName)
 
 	// 注册清理函数，确保即使测试失败也能恢复原始资料
 	t.Cleanup(func() {
 		restoreReq := user.UpdateDTO{
-			FullName: &originalProfile.FullName,
+			RealName: &originalProfile.RealName,
 		}
 		_, _ = manualtest.Put[user.UserWithRolesDTO](c, "/api/user/profile", restoreReq)
 	})
 
 	t.Log("步骤 2: 更新资料")
-	newFullName := fmt.Sprintf("测试更新_%d", time.Now().Unix())
+	newRealName := fmt.Sprintf("测试更新_%d", time.Now().Unix())
 	updateReq := user.UpdateDTO{
-		FullName: &newFullName,
+		RealName: &newRealName,
 	}
 
 	updateResp, err := manualtest.Put[user.UserWithRolesDTO](c, "/api/user/profile", updateReq)
 	require.NoError(t, err, "更新资料失败")
-	t.Logf("  更新后全名: %s", updateResp.FullName)
+	t.Logf("  更新后真实姓名: %s", updateResp.RealName)
 
-	require.Equal(t, newFullName, updateResp.FullName, "全名未更新")
+	require.Equal(t, newRealName, updateResp.RealName, "真实姓名未更新")
 
 	t.Log("更新资料测试完成!")
 }
@@ -86,7 +86,7 @@ func TestUpdateProfileInvalid(t *testing.T) {
 	t.Log("尝试使用无效数据更新资料（如空全名）")
 	emptyFullName := ""
 	updateReq := user.UpdateDTO{
-		FullName: &emptyFullName,
+		RealName: &emptyFullName,
 	}
 
 	resp, err := c.R().
@@ -120,7 +120,7 @@ func TestChangePassword(t *testing.T) {
 		Username: testUsername,
 		Email:    testUsername + "@example.com",
 		Password: originalPassword,
-		FullName: "密码测试用户",
+		RealName: "密码测试用户",
 		RoleIDs:  []uint{2}, // user 角色 ID
 	}
 
@@ -189,7 +189,7 @@ func TestChangePasswordWrongOld(t *testing.T) {
 		Username: testUsername,
 		Email:    testUsername + "@example.com",
 		Password: testPassword,
-		FullName: "错误旧密码测试用户",
+		RealName: "错误旧密码测试用户",
 		RoleIDs:  []uint{2},
 	}
 
@@ -238,7 +238,7 @@ func TestDeleteAccount(t *testing.T) {
 		Username: testUsername,
 		Email:    testUsername + "@example.com",
 		Password: testPassword,
-		FullName: "删除账户测试用户",
+		RealName: "删除账户测试用户",
 		RoleIDs:  []uint{2}, // user 角色 ID
 	}
 

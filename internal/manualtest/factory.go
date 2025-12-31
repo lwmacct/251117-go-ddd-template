@@ -19,10 +19,13 @@ func CreateTestUser(t *testing.T, c *Client, prefix string) *user.UserWithRolesD
 
 	username := fmt.Sprintf("%s_%d", prefix, time.Now().UnixNano())
 	req := user.CreateDTO{
-		Username: username,
-		Email:    username + "@test.local",
-		Password: "test123456",
-		FullName: "测试用户",
+		Username:  username,
+		Email:     username + "@test.local",
+		Password:  "test123456",
+		RealName:  "测试用户",
+		Nickname:  "测试",
+		Phone:     "13800138000",
+		Signature: "这是我的个性签名",
 	}
 
 	resp, err := Post[user.UserWithRolesDTO](c, "/api/system/users", req)
@@ -70,10 +73,13 @@ func CreateTestUserWithCleanupControl(t *testing.T, c *Client, prefix string) (*
 
 	username := fmt.Sprintf("%s_%d", prefix, time.Now().UnixNano())
 	req := user.CreateDTO{
-		Username: username,
-		Email:    username + "@test.local",
-		Password: "test123456",
-		FullName: "测试用户",
+		Username:  username,
+		Email:     username + "@test.local",
+		Password:  "test123456",
+		RealName:  "测试用户",
+		Nickname:  "测试",
+		Phone:     "13800138000",
+		Signature: "这是我的个性签名",
 	}
 
 	result, err := Post[user.UserWithRolesDTO](c, "/api/system/users", req)

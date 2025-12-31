@@ -75,9 +75,12 @@ func (h *UserProfileHandler) GetProfile(c *gin.Context) {
 
 // UpdateProfileRequest 更新个人资料请求
 type UpdateProfileRequest struct {
-	FullName *string `json:"full_name" binding:"omitempty,max=100" example:"张三"`
-	Avatar   *string `json:"avatar" binding:"omitempty,max=255" example:"https://example.com/avatar.jpg"`
-	Bio      *string `json:"bio" example:"这是我的个人简介"`
+	RealName  *string `json:"real_name" binding:"omitempty,max=100" example:"张三"`
+	Nickname  *string `json:"nickname" binding:"omitempty,max=50" example:"小三"`
+	Phone     *string `json:"phone" binding:"omitempty,len=11" example:"13800138000"`
+	Signature *string `json:"signature" binding:"omitempty,max=255" example:"Hello World"`
+	Avatar    *string `json:"avatar" binding:"omitempty,max=255" example:"https://example.com/avatar.jpg"`
+	Bio       *string `json:"bio" example:"这是我的个人简介"`
 }
 
 // UpdateProfile updates the current user's profile
@@ -116,7 +119,10 @@ func (h *UserProfileHandler) UpdateProfile(c *gin.Context) {
 
 	if _, err := h.updateUserHandler.Handle(c.Request.Context(), user.UpdateCommand{
 		UserID:   uid,
-		FullName: req.FullName,
+		RealName: req.RealName,
+		Nickname: req.Nickname,
+		Phone:    req.Phone,
+		Signature: req.Signature,
 		Avatar:   req.Avatar,
 		Bio:      req.Bio,
 	}); err != nil {

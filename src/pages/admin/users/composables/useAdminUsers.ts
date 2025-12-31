@@ -179,7 +179,7 @@ export function useAdminUsers() {
         { header: "ID", key: "id" },
         { header: "用户名", key: "username" },
         { header: "邮箱", key: "email" },
-        { header: "姓名", key: "full_name" },
+        { header: "真实姓名", key: "real_name" },
         {
           header: "状态",
           key: (item) => (item.status === "active" ? "启用" : item.status === "inactive" ? "禁用" : "封禁"),

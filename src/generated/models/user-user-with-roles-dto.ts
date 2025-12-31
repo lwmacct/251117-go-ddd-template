@@ -49,22 +49,28 @@ export interface UserUserWithRolesDTO {
     'email'?: string;
     /**
      * 
-     * @type {string}
-     * @memberof UserUserWithRolesDTO
-     */
-    'full_name'?: string;
-    /**
-     * 
      * @type {number}
      * @memberof UserUserWithRolesDTO
      */
     'id'?: number;
     /**
      * 
-     * @type {boolean}
+     * @type {string}
      * @memberof UserUserWithRolesDTO
      */
-    'is_system'?: boolean;
+    'nickname'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof UserUserWithRolesDTO
+     */
+    'phone'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof UserUserWithRolesDTO
+     */
+    'real_name'?: string;
     /**
      * 
      * @type {Array<UserRoleDTO>}
@@ -76,9 +82,15 @@ export interface UserUserWithRolesDTO {
      * @type {string}
      * @memberof UserUserWithRolesDTO
      */
-    'status'?: string;
+    'signature'?: string;
     /**
      * 
+     * @type {string}
+     * @memberof UserUserWithRolesDTO
+     */
+    'status'?: string;
+    /**
+     * \"human\" | \"service\" | \"system\"
      * @type {string}
      * @memberof UserUserWithRolesDTO
      */

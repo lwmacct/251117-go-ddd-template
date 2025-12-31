@@ -49,7 +49,7 @@ func TestTwoFAFlow(t *testing.T) {
 		Username: testUsername,
 		Email:    testUsername + "@example.com",
 		Password: testPassword,
-		FullName: "2FA 测试用户",
+		RealName: "2FA 测试用户",
 		RoleIDs:  []uint{2}, // user 角色 ID
 	}
 
@@ -136,7 +136,7 @@ func TestSetup2FA(t *testing.T) {
 		Username: testUsername,
 		Email:    testUsername + "@example.com",
 		Password: "password123",
-		FullName: "2FA Setup 测试用户",
+		RealName: "2FA Setup 测试用户",
 		RoleIDs:  []uint{2},
 	}
 
@@ -214,7 +214,7 @@ func TestLogin2FA(t *testing.T) {
 		Username: testUsername,
 		Email:    testUsername + "@example.com",
 		Password: testPassword,
-		FullName: "2FA Login 测试用户",
+		RealName: "2FA Login 测试用户",
 		RoleIDs:  []uint{2}, // user 角色 ID
 	}
 

@@ -43,7 +43,25 @@ export interface UserUpdateDTO {
      * @type {string}
      * @memberof UserUpdateDTO
      */
-    'full_name'?: string;
+    'nickname'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof UserUpdateDTO
+     */
+    'phone'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof UserUpdateDTO
+     */
+    'real_name'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof UserUpdateDTO
+     */
+    'signature'?: string;
     /**
      * 
      * @type {string}

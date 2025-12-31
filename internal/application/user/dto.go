@@ -4,22 +4,28 @@ import "time"
 
 // CreateDTO 创建用户 DTO
 type CreateDTO struct {
-	Username string  `json:"username" binding:"required,min=3,max=50"`
-	Email    string  `json:"email" binding:"required,email"`
-	Password string  `json:"password" binding:"required,min=6"`
-	FullName string  `json:"full_name" binding:"max=100"`
-	Status   *string `json:"status" binding:"omitempty,oneof=active inactive"`
-	RoleIDs  []uint  `json:"role_ids" binding:"omitempty,dive,gt=0"`
+	Username  string  `json:"username" binding:"required,min=3,max=50"`
+	Email     string  `json:"email" binding:"required,email"`
+	Password  string  `json:"password" binding:"required,min=6"`
+	RealName  string  `json:"real_name" binding:"max=100"`
+	Nickname  string  `json:"nickname" binding:"max=50"`
+	Phone     string  `json:"phone" binding:"omitempty,len=11"`
+	Signature string  `json:"signature" binding:"max=255"`
+	Status    *string `json:"status" binding:"omitempty,oneof=active inactive"`
+	RoleIDs   []uint  `json:"role_ids" binding:"omitempty,dive,gt=0"`
 }
 
 // UpdateDTO 更新用户 DTO
 type UpdateDTO struct {
-	Username *string `json:"username" binding:"omitempty,min=3,max=50"`
-	Email    *string `json:"email" binding:"omitempty,email"`
-	FullName *string `json:"full_name" binding:"omitempty,max=100"`
-	Avatar   *string `json:"avatar" binding:"omitempty,max=255"`
-	Bio      *string `json:"bio"`
-	Status   *string `json:"status" binding:"omitempty,oneof=active inactive banned"`
+	Username  *string `json:"username" binding:"omitempty,min=3,max=50"`
+	Email     *string `json:"email" binding:"omitempty,email"`
+	RealName  *string `json:"real_name" binding:"omitempty,max=100"`
+	Nickname  *string `json:"nickname" binding:"omitempty,max=50"`
+	Phone     *string `json:"phone" binding:"omitempty,len=11"`
+	Signature *string `json:"signature" binding:"omitempty,max=255"`
+	Avatar    *string `json:"avatar" binding:"omitempty,max=255"`
+	Bio       *string `json:"bio"`
+	Status    *string `json:"status" binding:"omitempty,oneof=active inactive banned"`
 }
 
 // ChangePasswordDTO 修改密码 DTO
@@ -38,12 +44,14 @@ type UserDTO struct {
 	ID        uint      `json:"id"`
 	Username  string    `json:"username"`
 	Email     string    `json:"email"`
-	FullName  string    `json:"full_name"`
+	RealName  string    `json:"real_name"`
+	Nickname  string    `json:"nickname"`
+	Phone     string    `json:"phone"`
+	Signature string    `json:"signature"`
 	Avatar    string    `json:"avatar"`
 	Bio       string    `json:"bio"`
 	Status    string    `json:"status"`
-	Type      string    `json:"type"`
-	IsSystem  bool      `json:"is_system"`
+	Type      string    `json:"type"` // "human" | "service" | "system"
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
@@ -53,12 +61,14 @@ type UserWithRolesDTO struct {
 	ID        uint      `json:"id"`
 	Username  string    `json:"username"`
 	Email     string    `json:"email"`
-	FullName  string    `json:"full_name"`
+	RealName  string    `json:"real_name"`
+	Nickname  string    `json:"nickname"`
+	Phone     string    `json:"phone"`
+	Signature string    `json:"signature"`
 	Avatar    string    `json:"avatar"`
 	Bio       string    `json:"bio"`
 	Status    string    `json:"status"`
-	Type      string    `json:"type"`
-	IsSystem  bool      `json:"is_system"`
+	Type      string    `json:"type"` // "human" | "service" | "system"
 	Roles     []RoleDTO `json:"roles"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
@@ -85,12 +95,15 @@ type BatchCreateDTO struct {
 
 // BatchItemDTO 批量创建中的单个用户 DTO
 type BatchItemDTO struct {
-	Username string `json:"username" binding:"required,min=3,max=50"`
-	Email    string `json:"email" binding:"required,email"`
-	Password string `json:"password" binding:"required,min=6"`
-	FullName string `json:"full_name" binding:"max=100"`
-	Status   string `json:"status" binding:"omitempty,oneof=active inactive"`
-	RoleIDs  []uint `json:"role_ids" binding:"omitempty,dive,gt=0"`
+	Username  string `json:"username" binding:"required,min=3,max=50"`
+	Email     string `json:"email" binding:"required,email"`
+	Password  string `json:"password" binding:"required,min=6"`
+	RealName  string `json:"real_name" binding:"max=100"`
+	Nickname  string `json:"nickname" binding:"max=50"`
+	Phone     string `json:"phone" binding:"omitempty,len=11"`
+	Signature string `json:"signature" binding:"max=255"`
+	Status    string `json:"status" binding:"omitempty,oneof=active inactive"`
+	RoleIDs   []uint `json:"role_ids" binding:"omitempty,dive,gt=0"`
 }
 
 // BatchCreateResultDTO 批量创建用户响应 DTO

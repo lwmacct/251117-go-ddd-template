@@ -56,8 +56,8 @@ watch(search, () => {
  * 格式化用户显示
  */
 const displayName = (user: UserUserWithRolesDTO) => {
-  if (user.full_name) {
-    return `${user.full_name} (@${user.username})`;
+  if (user.real_name) {
+    return `${user.real_name} (@${user.username})`;
   }
   return `@${user.username}`;
 };
@@ -84,7 +84,7 @@ const displayName = (user: UserUserWithRolesDTO) => {
       <v-chip v-bind="chipProps" :text="item.raw.username" />
     </template>
     <template #item="{ props: itemProps, item }">
-      <v-list-item v-bind="itemProps" :title="item.raw.username" :subtitle="item.raw.email || item.raw.full_name">
+      <v-list-item v-bind="itemProps" :title="item.raw.username" :subtitle="item.raw.email || item.raw.real_name">
         <template #prepend>
           <v-avatar color="primary" size="32">
             <span>{{ item.raw.username?.[0]?.toUpperCase() || "?" }}</span>

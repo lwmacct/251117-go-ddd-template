@@ -37,13 +37,15 @@ func (h *GetHandler) Handle(ctx context.Context, query GetQuery) (*UserWithRoles
 	response := &UserWithRolesDTO{
 		ID:        u.ID,
 		Username:  u.Username,
-		Email:     u.Email,
-		FullName:  u.FullName,
+		Email:     stringPtrValue(u.Email),
+		RealName:  u.RealName,
+		Nickname:  u.Nickname,
+		Phone:     stringPtrValue(u.Phone),
+		Signature: u.Signature,
 		Avatar:    u.Avatar,
 		Bio:       u.Bio,
 		Status:    u.Status,
 		Type:      string(u.Type),
-		IsSystem:  u.IsSystem,
 		CreatedAt: u.CreatedAt,
 		UpdatedAt: u.UpdatedAt,
 	}

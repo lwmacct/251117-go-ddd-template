@@ -18,6 +18,9 @@ type routeMeta struct {
 	Method HTTPMethod // HTTP 方法
 	Path   string     // 路由路径（Gin 格式），如 /api/admin/users/:id
 
+	// 中间件配置
+	ReadOnly bool // 只读操作（对于团队操作，使用 TeamContextOptional 而非 TeamContext）
+
 	// 审计配置
 	Audit bool // 是否启用审计（审计详情从 Operation 派生）
 
