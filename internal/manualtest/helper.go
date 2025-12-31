@@ -6,12 +6,9 @@ import (
 	"testing"
 	"time"
 
+	"github.com/lwmacct/251117-go-ddd-template/internal/config"
+	"github.com/lwmacct/251207-go-pkg-cfgm/pkg/cfgm"
 	"github.com/stretchr/testify/require"
-)
-
-const (
-	DefaultBaseURL   = "http://localhost:40012"
-	DefaultDevSecret = "dev-secret-change-me"
 )
 
 // cachedSession 缓存的登录会话。
@@ -34,15 +31,15 @@ func SkipIfNotManual(t *testing.T) {
 
 // NewClient 创建测试客户端，从环境变量读取配置。
 func NewClient() *Client {
-	baseURL := os.Getenv("API_BASE_URL")
-	if baseURL == "" {
-		baseURL = DefaultBaseURL
+	cfg, err := cfgm.Load(
+		config.DefaultConfig(),
+		cfgm.WithCallerSkip(2),
+	)
+	if err != nil {
+		panic("加载配置失败: " + err.Error())
 	}
-	devSecret := os.Getenv("DEV_SECRET")
-	if devSecret == "" {
-		devSecret = DefaultDevSecret
-	}
-	return newClient(baseURL, devSecret)
+
+	return newClient(cfg.GetBaseUrl(false), cfg.Auth.DevSecret)
 }
 
 // LoginAsAdmin 登录管理员账户，返回已认证的客户端。

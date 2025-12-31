@@ -52,6 +52,14 @@ type Config struct {
 	Telemetry Telemetry `koanf:"telemetry" desc:"OpenTelemetry 追踪配置"`
 }
 
+// GetBaseUrl
+func (c *Config) GetBaseUrl(https bool) string {
+	if https {
+		return "https://" + c.Server.Addr
+	}
+	return "http://" + c.Server.Addr
+}
+
 // DefaultConfig 返回默认配置
 // 注意：internal/command/command.go 中的 Defaults 变量引用此函数以实现单一配置来源。
 func DefaultConfig() Config {
