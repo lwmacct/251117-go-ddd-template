@@ -6,6 +6,9 @@ var (
 	// ErrAuditLogNotFound 审计日志不存在
 	ErrAuditLogNotFound = errors.New("audit log not found")
 
+	// ErrInvalidLogID 无效的日志 ID
+	ErrInvalidLogID = errors.New("invalid log ID")
+
 	// ErrInvalidFilter 无效的过滤条件
 	ErrInvalidFilter = errors.New("invalid filter")
 

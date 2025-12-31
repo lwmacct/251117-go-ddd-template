@@ -8,6 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/lwmacct/251117-go-ddd-template/internal/adapters/http/response"
 	"github.com/lwmacct/251117-go-ddd-template/internal/application/pat"
+	authDomain "github.com/lwmacct/251117-go-ddd-template/internal/domain/auth"
 	patDomain "github.com/lwmacct/251117-go-ddd-template/internal/domain/pat"
 )
 
@@ -67,13 +68,13 @@ func (h *PATHandler) CreateToken(c *gin.Context) {
 	// Get user ID from context (set by Auth middleware)
 	userID, exists := c.Get("user_id")
 	if !exists {
-		response.Unauthorized(c, "unauthorized: user ID not found")
+		response.Unauthorized(c, authDomain.ErrUserIDNotFound.Error())
 		return
 	}
 
 	uid, ok := userID.(uint)
 	if !ok {
-		response.Unauthorized(c, "unauthorized: invalid user ID type")
+		response.Unauthorized(c, authDomain.ErrInvalidUserIDType.Error())
 		return
 	}
 
@@ -98,7 +99,7 @@ func (h *PATHandler) CreateToken(c *gin.Context) {
 		return
 	}
 
-	response.Created(c, "token created successfully", pat.ToCreateResultDTO(result.Token, result.PlainToken))
+	response.Created(c, response.MsgCreated, pat.ToCreateResultDTO(result.Token, result.PlainToken))
 }
 
 // ListTokens lists all tokens for the current user
@@ -116,13 +117,13 @@ func (h *PATHandler) CreateToken(c *gin.Context) {
 func (h *PATHandler) ListTokens(c *gin.Context) {
 	userID, exists := c.Get("user_id")
 	if !exists {
-		response.Unauthorized(c, "unauthorized: user ID not found")
+		response.Unauthorized(c, authDomain.ErrUserIDNotFound.Error())
 		return
 	}
 
 	uid, ok := userID.(uint)
 	if !ok {
-		response.Unauthorized(c, "unauthorized: invalid user ID type")
+		response.Unauthorized(c, authDomain.ErrInvalidUserIDType.Error())
 		return
 	}
 
@@ -136,7 +137,7 @@ func (h *PATHandler) ListTokens(c *gin.Context) {
 		return
 	}
 
-	response.OK(c, "tokens retrieved successfully", tokens)
+	response.OK(c, response.MsgSuccess, tokens)
 }
 
 // DeleteToken deletes a specific token
@@ -156,13 +157,13 @@ func (h *PATHandler) ListTokens(c *gin.Context) {
 func (h *PATHandler) DeleteToken(c *gin.Context) {
 	userID, exists := c.Get("user_id")
 	if !exists {
-		response.Unauthorized(c, "unauthorized: user ID not found")
+		response.Unauthorized(c, authDomain.ErrUserIDNotFound.Error())
 		return
 	}
 
 	uid, ok := userID.(uint)
 	if !ok {
-		response.Unauthorized(c, "unauthorized: invalid user ID type")
+		response.Unauthorized(c, authDomain.ErrInvalidUserIDType.Error())
 		return
 	}
 
@@ -182,7 +183,7 @@ func (h *PATHandler) DeleteToken(c *gin.Context) {
 		return
 	}
 
-	response.OK(c, "token deleted successfully", nil)
+	response.OK(c, response.MsgDeleted, nil)
 }
 
 // GetToken retrieves details of a specific token
@@ -202,13 +203,13 @@ func (h *PATHandler) DeleteToken(c *gin.Context) {
 func (h *PATHandler) GetToken(c *gin.Context) {
 	userID, exists := c.Get("user_id")
 	if !exists {
-		response.Unauthorized(c, "unauthorized: user ID not found")
+		response.Unauthorized(c, authDomain.ErrUserIDNotFound.Error())
 		return
 	}
 
 	uid, ok := userID.(uint)
 	if !ok {
-		response.Unauthorized(c, "unauthorized: invalid user ID type")
+		response.Unauthorized(c, authDomain.ErrInvalidUserIDType.Error())
 		return
 	}
 
@@ -226,11 +227,15 @@ func (h *PATHandler) GetToken(c *gin.Context) {
 	})
 
 	if err != nil {
-		response.NotFound(c, "token")
+		if errors.Is(err, patDomain.ErrTokenNotFound) {
+			response.NotFoundMessage(c, err.Error())
+			return
+		}
+		response.BadRequest(c, err.Error())
 		return
 	}
 
-	response.OK(c, "token retrieved successfully", token)
+	response.OK(c, response.MsgSuccess, token)
 }
 
 // DisableToken 暂停令牌
@@ -249,13 +254,13 @@ func (h *PATHandler) GetToken(c *gin.Context) {
 func (h *PATHandler) DisableToken(c *gin.Context) {
 	userID, exists := c.Get("user_id")
 	if !exists {
-		response.Unauthorized(c, "unauthorized: user ID not found")
+		response.Unauthorized(c, authDomain.ErrUserIDNotFound.Error())
 		return
 	}
 
 	uid, ok := userID.(uint)
 	if !ok {
-		response.Unauthorized(c, "unauthorized: invalid user ID type")
+		response.Unauthorized(c, authDomain.ErrInvalidUserIDType.Error())
 		return
 	}
 
@@ -273,7 +278,7 @@ func (h *PATHandler) DisableToken(c *gin.Context) {
 		return
 	}
 
-	response.OK(c, "token disabled successfully", nil)
+	response.OK(c, response.MsgSuccess, nil)
 }
 
 // EnableToken 启用令牌
@@ -292,13 +297,13 @@ func (h *PATHandler) DisableToken(c *gin.Context) {
 func (h *PATHandler) EnableToken(c *gin.Context) {
 	userID, exists := c.Get("user_id")
 	if !exists {
-		response.Unauthorized(c, "unauthorized: user ID not found")
+		response.Unauthorized(c, authDomain.ErrUserIDNotFound.Error())
 		return
 	}
 
 	uid, ok := userID.(uint)
 	if !ok {
-		response.Unauthorized(c, "unauthorized: invalid user ID type")
+		response.Unauthorized(c, authDomain.ErrInvalidUserIDType.Error())
 		return
 	}
 
@@ -316,7 +321,7 @@ func (h *PATHandler) EnableToken(c *gin.Context) {
 		return
 	}
 
-	response.OK(c, "token enabled successfully", nil)
+	response.OK(c, response.MsgSuccess, nil)
 }
 
 // ListScopes returns available scopes for PAT creation
@@ -340,7 +345,7 @@ func (h *PATHandler) ListScopes(c *gin.Context) {
 			Description: s.Description,
 		}
 	}
-	response.OK(c, "scopes retrieved successfully", scopes)
+	response.OK(c, response.MsgSuccess, scopes)
 }
 
 func parseTokenID(raw string) (uint, error) {

@@ -7,6 +7,7 @@ import (
 
 	"github.com/lwmacct/251117-go-ddd-template/internal/adapters/http/response"
 	"github.com/lwmacct/251117-go-ddd-template/internal/application/cache"
+	cacheDomain "github.com/lwmacct/251117-go-ddd-template/internal/domain/cache"
 )
 
 // CacheHandler 缓存管理 HTTP 处理器（Redis 风格 API）
@@ -50,7 +51,7 @@ func (h *CacheHandler) Info(c *gin.Context) {
 		return
 	}
 
-	response.OK(c, "success", info)
+	response.OK(c, response.MsgSuccess, info)
 }
 
 // ScanKeysQuery SCAN 查询参数
@@ -95,7 +96,7 @@ func (h *CacheHandler) ScanKeys(c *gin.Context) {
 		return
 	}
 
-	response.OK(c, "success", result)
+	response.OK(c, response.MsgSuccess, result)
 }
 
 // GetKeyQuery 获取单个 Key 的查询参数
@@ -127,15 +128,15 @@ func (h *CacheHandler) GetKey(c *gin.Context) {
 
 	result, err := h.getKeyHandler.Handle(c.Request.Context(), q.Key)
 	if err != nil {
-		if errors.Is(err, cache.ErrKeyNotFound) {
-			response.NotFound(c, "key")
+		if errors.Is(err, cacheDomain.ErrKeyNotFound) {
+			response.NotFoundMessage(c, err.Error())
 			return
 		}
 		response.InternalError(c, err.Error())
 		return
 	}
 
-	response.OK(c, "success", result)
+	response.OK(c, response.MsgSuccess, result)
 }
 
 // DeleteKeyQuery 删除单个 Key 的查询参数
@@ -170,7 +171,7 @@ func (h *CacheHandler) DeleteKey(c *gin.Context) {
 		return
 	}
 
-	response.OK(c, "key deleted", result)
+	response.OK(c, response.MsgSuccess, result)
 }
 
 // DeleteByPatternQuery 按 pattern 删除的查询参数
@@ -205,5 +206,5 @@ func (h *CacheHandler) DeleteByPattern(c *gin.Context) {
 		return
 	}
 
-	response.OK(c, "keys deleted", result)
+	response.OK(c, response.MsgSuccess, result)
 }

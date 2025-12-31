@@ -89,14 +89,14 @@ func (h *SettingHandler) GetSettings(c *gin.Context) {
 	if err != nil {
 		// 检查是否为分类不存在错误
 		if categoryKey != "" && err.Error() == "category not found: "+categoryKey {
-			response.NotFound(c, "category")
+			response.NotFoundMessage(c, err.Error())
 			return
 		}
 		response.InternalError(c, err.Error())
 		return
 	}
 
-	response.OK(c, "success", schema)
+	response.OK(c, response.MsgSuccess, schema)
 }
 
 // GetSetting 获取单个配置
@@ -122,11 +122,11 @@ func (h *SettingHandler) GetSetting(c *gin.Context) {
 	})
 
 	if err != nil {
-		response.NotFound(c, "setting")
+		response.NotFoundMessage(c, err.Error())
 		return
 	}
 
-	response.OK(c, "success", setting)
+	response.OK(c, response.MsgSuccess, setting)
 }
 
 // CreateSettingRequest 创建配置请求
@@ -189,7 +189,7 @@ func (h *SettingHandler) CreateSetting(c *gin.Context) {
 		return
 	}
 
-	response.Created(c, "setting created successfully", settingDTO)
+	response.Created(c, response.MsgCreated, settingDTO)
 }
 
 // UpdateSettingRequest 更新配置请求
@@ -244,7 +244,7 @@ func (h *SettingHandler) UpdateSetting(c *gin.Context) {
 		return
 	}
 
-	response.OK(c, "setting updated successfully", settingDTO)
+	response.OK(c, response.MsgUpdated, settingDTO)
 }
 
 // DeleteSetting 删除配置
@@ -331,7 +331,7 @@ func (h *SettingHandler) BatchUpdateSettings(c *gin.Context) {
 		return
 	}
 
-	response.OK(c, "批量更新成功", nil)
+	response.OK(c, response.MsgSuccess, nil)
 }
 
 // =============================================================================
@@ -358,7 +358,7 @@ func (h *SettingHandler) GetCategories(c *gin.Context) {
 		return
 	}
 
-	response.OK(c, "success", categories)
+	response.OK(c, response.MsgSuccess, categories)
 }
 
 // GetCategory 获取单个配置分类
@@ -378,7 +378,7 @@ func (h *SettingHandler) GetCategories(c *gin.Context) {
 func (h *SettingHandler) GetCategory(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
-		response.BadRequest(c, "invalid category id")
+		response.BadRequest(c, settingDomain.ErrInvalidCategoryID.Error())
 		return
 	}
 
@@ -386,11 +386,15 @@ func (h *SettingHandler) GetCategory(c *gin.Context) {
 		ID: uint(id),
 	})
 	if err != nil {
-		response.NotFound(c, "category")
+		if errors.Is(err, settingDomain.ErrCategoryNotFound) {
+			response.NotFoundMessage(c, err.Error())
+			return
+		}
+		response.InternalError(c, err.Error())
 		return
 	}
 
-	response.OK(c, "success", category)
+	response.OK(c, response.MsgSuccess, category)
 }
 
 // CreateCategoryRequest 创建配置分类请求
@@ -443,7 +447,7 @@ func (h *SettingHandler) CreateCategory(c *gin.Context) {
 		return
 	}
 
-	response.Created(c, "category created successfully", category)
+	response.Created(c, response.MsgCreated, category)
 }
 
 // UpdateCategoryRequest 更新配置分类请求
@@ -473,7 +477,7 @@ type UpdateCategoryRequest struct {
 func (h *SettingHandler) UpdateCategory(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
-		response.BadRequest(c, "invalid category id")
+		response.BadRequest(c, settingDomain.ErrInvalidCategoryID.Error())
 		return
 	}
 
@@ -494,7 +498,7 @@ func (h *SettingHandler) UpdateCategory(c *gin.Context) {
 		return
 	}
 
-	response.OK(c, "category updated successfully", category)
+	response.OK(c, response.MsgUpdated, category)
 }
 
 // DeleteCategory 删除配置分类
@@ -516,7 +520,7 @@ func (h *SettingHandler) UpdateCategory(c *gin.Context) {
 func (h *SettingHandler) DeleteCategory(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
-		response.BadRequest(c, "invalid category id")
+		response.BadRequest(c, settingDomain.ErrInvalidCategoryID.Error())
 		return
 	}
 

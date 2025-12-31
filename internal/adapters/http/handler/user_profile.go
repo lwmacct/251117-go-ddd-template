@@ -1,9 +1,12 @@
 package handler
 
 import (
+	"errors"
+
 	"github.com/gin-gonic/gin"
 	"github.com/lwmacct/251117-go-ddd-template/internal/adapters/http/response"
 	"github.com/lwmacct/251117-go-ddd-template/internal/application/user"
+	userDomain "github.com/lwmacct/251117-go-ddd-template/internal/domain/user"
 )
 
 // UserProfileHandler handles user profile operations
@@ -44,7 +47,7 @@ func NewUserProfileHandler(
 func (h *UserProfileHandler) GetProfile(c *gin.Context) {
 	userID, exists := c.Get("user_id")
 	if !exists {
-		response.Unauthorized(c, "unauthorized")
+		response.Unauthorized(c, "")
 		return
 	}
 
@@ -59,11 +62,15 @@ func (h *UserProfileHandler) GetProfile(c *gin.Context) {
 		WithRoles: true,
 	})
 	if err != nil {
-		response.NotFound(c, "user")
+		if errors.Is(err, userDomain.ErrUserNotFound) {
+			response.NotFoundMessage(c, err.Error())
+			return
+		}
+		response.InternalError(c, err.Error())
 		return
 	}
 
-	response.OK(c, "success", u)
+	response.OK(c, response.MsgSuccess, u)
 }
 
 // UpdateProfileRequest 更新个人资料请求
@@ -90,7 +97,7 @@ type UpdateProfileRequest struct {
 func (h *UserProfileHandler) UpdateProfile(c *gin.Context) {
 	userID, exists := c.Get("user_id")
 	if !exists {
-		response.Unauthorized(c, "unauthorized")
+		response.Unauthorized(c, "")
 		return
 	}
 
@@ -126,7 +133,7 @@ func (h *UserProfileHandler) UpdateProfile(c *gin.Context) {
 		return
 	}
 
-	response.OK(c, "profile updated successfully", updatedUser)
+	response.OK(c, response.MsgSuccess, updatedUser)
 }
 
 // ChangePassword changes the current user's password
@@ -145,7 +152,7 @@ func (h *UserProfileHandler) UpdateProfile(c *gin.Context) {
 func (h *UserProfileHandler) ChangePassword(c *gin.Context) {
 	userID, exists := c.Get("user_id")
 	if !exists {
-		response.Unauthorized(c, "unauthorized")
+		response.Unauthorized(c, "")
 		return
 	}
 
@@ -170,7 +177,7 @@ func (h *UserProfileHandler) ChangePassword(c *gin.Context) {
 		return
 	}
 
-	response.OK(c, "password changed successfully", nil)
+	response.OK(c, response.MsgSuccess, nil)
 }
 
 // DeleteAccount deletes the current user's account
@@ -188,7 +195,7 @@ func (h *UserProfileHandler) ChangePassword(c *gin.Context) {
 func (h *UserProfileHandler) DeleteAccount(c *gin.Context) {
 	userID, exists := c.Get("user_id")
 	if !exists {
-		response.Unauthorized(c, "unauthorized")
+		response.Unauthorized(c, "")
 		return
 	}
 
@@ -205,5 +212,5 @@ func (h *UserProfileHandler) DeleteAccount(c *gin.Context) {
 		return
 	}
 
-	response.OK(c, "account deleted successfully", nil)
+	response.OK(c, response.MsgDeleted, nil)
 }

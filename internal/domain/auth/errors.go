@@ -42,4 +42,16 @@ var (
 
 	// ErrSessionExpired Session 已过期
 	ErrSessionExpired = errors.New("session has expired")
+
+	// ErrUserNotAuthenticated 用户未认证
+	ErrUserNotAuthenticated = errors.New("user not authenticated")
+
+	// ErrUserIDNotFound 用户 ID 未找到
+	ErrUserIDNotFound = errors.New("user ID not found")
+
+	// ErrInvalidUserIDType 无效的用户 ID 类型
+	ErrInvalidUserIDType = errors.New("invalid user ID type")
+
+	// ErrInvalidUserContext 无效的用户上下文
+	ErrInvalidUserContext = errors.New("invalid user context")
 )

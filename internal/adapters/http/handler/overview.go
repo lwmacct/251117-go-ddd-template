@@ -40,5 +40,5 @@ func (h *OverviewHandler) GetStats(c *gin.Context) {
 		return
 	}
 
-	response.OK(c, "success", result)
+	response.OK(c, response.MsgSuccess, result)
 }

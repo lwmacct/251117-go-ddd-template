@@ -21,6 +21,9 @@ var (
 
 	// ErrOrgHasTeams 组织还有团队，不能删除
 	ErrOrgHasTeams = errors.New("organization has teams, cannot delete")
+
+	// ErrInvalidOrgID 无效的组织 ID
+	ErrInvalidOrgID = errors.New("invalid organization ID")
 )
 
 // 团队相关错误
@@ -39,6 +42,9 @@ var (
 
 	// ErrTeamNotInOrg 团队不属于该组织
 	ErrTeamNotInOrg = errors.New("team does not belong to organization")
+
+	// ErrInvalidTeamID 无效的团队 ID
+	ErrInvalidTeamID = errors.New("invalid team ID")
 )
 
 // 成员相关错误
@@ -72,6 +78,12 @@ var (
 
 	// ErrMustBeOrgMemberFirst 必须先是组织成员才能加入团队
 	ErrMustBeOrgMemberFirst = errors.New("user must be organization member first")
+
+	// ErrTeamMemberAlreadyExists 团队成员已存在
+	ErrTeamMemberAlreadyExists = errors.New("user is already a team member")
+
+	// ErrTeamMemberNotFound 团队成员不存在
+	ErrTeamMemberNotFound = errors.New("team member not found")
 )
 
 // 权限相关错误

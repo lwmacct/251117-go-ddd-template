@@ -74,14 +74,14 @@ func (h *ProductHandler) Create(c *gin.Context) {
 	result, err := h.createHandler.Handle(c.Request.Context(), product.CreateProductCommand(req))
 	if err != nil {
 		if errors.Is(err, productDomain.ErrProductNameExists) {
-			response.Conflict(c, "产品名称已存在")
+			response.Conflict(c, err.Error())
 			return
 		}
 		response.InternalError(c, err.Error())
 		return
 	}
 
-	response.Created(c, "产品创建成功", result)
+	response.Created(c, response.MsgCreated, result)
 }
 
 // List 产品列表
@@ -112,7 +112,7 @@ func (h *ProductHandler) List(c *gin.Context) {
 	}
 
 	meta := response.NewPaginationMeta(int(result.Total), query.GetPage(), query.GetLimit())
-	response.List(c, "获取成功", result.Items, meta)
+	response.List(c, response.MsgSuccess, result.Items, meta)
 }
 
 // Get 产品详情
@@ -142,14 +142,14 @@ func (h *ProductHandler) Get(c *gin.Context) {
 	})
 	if err != nil {
 		if errors.Is(err, productDomain.ErrProductNotFound) {
-			response.NotFound(c, "产品不存在")
+			response.NotFoundMessage(c, err.Error())
 			return
 		}
 		response.InternalError(c, err.Error())
 		return
 	}
 
-	response.OK(c, "获取成功", result)
+	response.OK(c, response.MsgSuccess, result)
 }
 
 // Update 更新产品
@@ -192,18 +192,18 @@ func (h *ProductHandler) Update(c *gin.Context) {
 	})
 	if err != nil {
 		if errors.Is(err, productDomain.ErrProductNotFound) {
-			response.NotFound(c, "产品不存在")
+			response.NotFoundMessage(c, err.Error())
 			return
 		}
 		if errors.Is(err, productDomain.ErrProductNameExists) {
-			response.Conflict(c, "产品名称已存在")
+			response.Conflict(c, err.Error())
 			return
 		}
 		response.InternalError(c, err.Error())
 		return
 	}
 
-	response.OK(c, "更新成功", result)
+	response.OK(c, response.MsgUpdated, result)
 }
 
 // Delete 删除产品
@@ -232,12 +232,12 @@ func (h *ProductHandler) Delete(c *gin.Context) {
 		ID: uint(id),
 	}); err != nil {
 		if errors.Is(err, productDomain.ErrProductNotFound) {
-			response.NotFound(c, "产品不存在")
+			response.NotFoundMessage(c, err.Error())
 			return
 		}
 		response.InternalError(c, err.Error())
 		return
 	}
 
-	response.OK(c, "删除成功", nil)
+	response.OK(c, response.MsgDeleted, nil)
 }

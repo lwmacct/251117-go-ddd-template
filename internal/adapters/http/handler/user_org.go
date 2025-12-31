@@ -6,6 +6,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/lwmacct/251117-go-ddd-template/internal/adapters/http/response"
 	"github.com/lwmacct/251117-go-ddd-template/internal/application/org"
+	authDomain "github.com/lwmacct/251117-go-ddd-template/internal/domain/auth"
+	orgDomain "github.com/lwmacct/251117-go-ddd-template/internal/domain/org"
 )
 
 // UserOrgHandler 用户视角的组织/团队 Handler
@@ -40,7 +42,7 @@ func NewUserOrgHandler(
 func (h *UserOrgHandler) ListMyOrganizations(c *gin.Context) {
 	userIDVal, exists := c.Get("user_id")
 	if !exists {
-		response.Unauthorized(c, "user not authenticated")
+		response.Unauthorized(c, authDomain.ErrUserNotAuthenticated.Error())
 		return
 	}
 	userID, ok := userIDVal.(uint)
@@ -57,7 +59,7 @@ func (h *UserOrgHandler) ListMyOrganizations(c *gin.Context) {
 		return
 	}
 
-	response.OK(c, "success", result)
+	response.OK(c, response.MsgSuccess, result)
 }
 
 // ListUserTeamsQuery 用户团队列表查询参数
@@ -81,7 +83,7 @@ type ListUserTeamsQuery struct {
 func (h *UserOrgHandler) ListMyTeams(c *gin.Context) {
 	userIDVal, exists := c.Get("user_id")
 	if !exists {
-		response.Unauthorized(c, "user not authenticated")
+		response.Unauthorized(c, authDomain.ErrUserNotAuthenticated.Error())
 		return
 	}
 	userID, ok := userIDVal.(uint)
@@ -95,7 +97,7 @@ func (h *UserOrgHandler) ListMyTeams(c *gin.Context) {
 	if orgIDStr := c.Query("org_id"); orgIDStr != "" {
 		id, err := strconv.ParseUint(orgIDStr, 10, 32)
 		if err != nil {
-			response.BadRequest(c, "invalid org_id")
+			response.BadRequest(c, orgDomain.ErrInvalidOrgID.Error())
 			return
 		}
 		orgID = uint(id)
@@ -110,5 +112,5 @@ func (h *UserOrgHandler) ListMyTeams(c *gin.Context) {
 		return
 	}
 
-	response.OK(c, "success", result)
+	response.OK(c, response.MsgSuccess, result)
 }

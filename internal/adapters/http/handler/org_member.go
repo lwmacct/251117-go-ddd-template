@@ -8,6 +8,7 @@ import (
 	"github.com/lwmacct/251117-go-ddd-template/internal/adapters/http/response"
 	"github.com/lwmacct/251117-go-ddd-template/internal/application/org"
 	orgDomain "github.com/lwmacct/251117-go-ddd-template/internal/domain/org"
+	userDomain "github.com/lwmacct/251117-go-ddd-template/internal/domain/user"
 )
 
 // ListMembersQuery 成员列表查询参数
@@ -68,7 +69,7 @@ func NewOrgMemberHandler(
 func (h *OrgMemberHandler) List(c *gin.Context) {
 	orgID, err := strconv.ParseUint(c.Param("org_id"), 10, 32)
 	if err != nil {
-		response.BadRequest(c, "invalid organization ID")
+		response.BadRequest(c, orgDomain.ErrInvalidOrgID.Error())
 		return
 	}
 
@@ -85,7 +86,7 @@ func (h *OrgMemberHandler) List(c *gin.Context) {
 	}
 
 	meta := response.NewPaginationMeta(int(result.Total), q.GetPage(), q.GetLimit())
-	response.List(c, "success", result.Items, meta)
+	response.List(c, response.MsgSuccess, result.Items, meta)
 }
 
 // Add 添加组织成员
@@ -107,7 +108,7 @@ func (h *OrgMemberHandler) List(c *gin.Context) {
 func (h *OrgMemberHandler) Add(c *gin.Context) {
 	orgID, err := strconv.ParseUint(c.Param("org_id"), 10, 32)
 	if err != nil {
-		response.BadRequest(c, "invalid organization ID")
+		response.BadRequest(c, orgDomain.ErrInvalidOrgID.Error())
 		return
 	}
 
@@ -127,7 +128,7 @@ func (h *OrgMemberHandler) Add(c *gin.Context) {
 		return
 	}
 
-	response.Created(c, "member added successfully", result)
+	response.Created(c, response.MsgCreated, result)
 }
 
 // Remove 移除组织成员
@@ -150,13 +151,13 @@ func (h *OrgMemberHandler) Add(c *gin.Context) {
 func (h *OrgMemberHandler) Remove(c *gin.Context) {
 	orgID, err := strconv.ParseUint(c.Param("org_id"), 10, 32)
 	if err != nil {
-		response.BadRequest(c, "invalid organization ID")
+		response.BadRequest(c, orgDomain.ErrInvalidOrgID.Error())
 		return
 	}
 
 	userID, err := strconv.ParseUint(c.Param("user_id"), 10, 32)
 	if err != nil {
-		response.BadRequest(c, "invalid user ID")
+		response.BadRequest(c, userDomain.ErrInvalidUserID.Error())
 		return
 	}
 
@@ -165,18 +166,18 @@ func (h *OrgMemberHandler) Remove(c *gin.Context) {
 		UserID: uint(userID),
 	}); err != nil {
 		if errors.Is(err, orgDomain.ErrCannotRemoveLastOwner) {
-			response.BadRequest(c, "cannot remove the last owner")
+			response.BadRequest(c, err.Error())
 			return
 		}
 		if errors.Is(err, orgDomain.ErrMemberNotFound) {
-			response.NotFound(c, "member")
+			response.NotFoundMessage(c, err.Error())
 			return
 		}
 		response.InternalError(c, err.Error())
 		return
 	}
 
-	response.OK(c, "member removed successfully", nil)
+	response.OK(c, response.MsgSuccess, nil)
 }
 
 // UpdateRole 更新成员角色
@@ -200,13 +201,13 @@ func (h *OrgMemberHandler) Remove(c *gin.Context) {
 func (h *OrgMemberHandler) UpdateRole(c *gin.Context) {
 	orgID, err := strconv.ParseUint(c.Param("org_id"), 10, 32)
 	if err != nil {
-		response.BadRequest(c, "invalid organization ID")
+		response.BadRequest(c, orgDomain.ErrInvalidOrgID.Error())
 		return
 	}
 
 	userID, err := strconv.ParseUint(c.Param("user_id"), 10, 32)
 	if err != nil {
-		response.BadRequest(c, "invalid user ID")
+		response.BadRequest(c, userDomain.ErrInvalidUserID.Error())
 		return
 	}
 
@@ -222,16 +223,16 @@ func (h *OrgMemberHandler) UpdateRole(c *gin.Context) {
 		Role:   req.Role,
 	}); err != nil {
 		if errors.Is(err, orgDomain.ErrCannotDemoteLastOwner) {
-			response.BadRequest(c, "cannot demote the last owner")
+			response.BadRequest(c, err.Error())
 			return
 		}
 		if errors.Is(err, orgDomain.ErrMemberNotFound) {
-			response.NotFound(c, "member")
+			response.NotFoundMessage(c, err.Error())
 			return
 		}
 		response.InternalError(c, err.Error())
 		return
 	}
 
-	response.OK(c, "member role updated successfully", nil)
+	response.OK(c, response.MsgSuccess, nil)
 }

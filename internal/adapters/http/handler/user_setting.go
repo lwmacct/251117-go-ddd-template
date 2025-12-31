@@ -73,7 +73,7 @@ func (h *UserSettingHandler) ListUserSettingCategories(c *gin.Context) {
 		return
 	}
 
-	response.OK(c, "success", categories)
+	response.OK(c, response.MsgSuccess, categories)
 }
 
 // GetUserSettings 获取用户配置（层级结构）
@@ -106,14 +106,14 @@ func (h *UserSettingHandler) GetUserSettings(c *gin.Context) {
 	if err != nil {
 		// 检查是否为分类不存在错误
 		if categoryKey != "" && err.Error() == "category not found: "+categoryKey {
-			response.NotFound(c, "category")
+			response.NotFoundMessage(c, err.Error())
 			return
 		}
 		response.InternalError(c, err.Error())
 		return
 	}
 
-	response.OK(c, "success", schema)
+	response.OK(c, response.MsgSuccess, schema)
 }
 
 // GetUserSetting 获取单个用户配置
@@ -141,11 +141,11 @@ func (h *UserSettingHandler) GetUserSetting(c *gin.Context) {
 		Key:    key,
 	})
 	if err != nil {
-		response.NotFound(c, "setting")
+		response.NotFoundMessage(c, err.Error())
 		return
 	}
 
-	response.OK(c, "success", settingDTO)
+	response.OK(c, response.MsgSuccess, settingDTO)
 }
 
 // SetUserSettingRequest 设置用户配置请求
@@ -196,7 +196,7 @@ func (h *UserSettingHandler) SetUserSetting(c *gin.Context) {
 		return
 	}
 
-	response.OK(c, "设置成功", settingDTO)
+	response.OK(c, response.MsgUpdated, settingDTO)
 }
 
 // ResetUserSetting 重置用户配置
@@ -287,5 +287,5 @@ func (h *UserSettingHandler) BatchSetUserSettings(c *gin.Context) {
 		return
 	}
 
-	response.OK(c, "批量设置成功", nil)
+	response.OK(c, response.MsgSuccess, nil)
 }

@@ -6,7 +6,7 @@
 //
 //	{
 //	  "code": 200,
-//	  "message": "success",
+//	  "message": "操作成功",
 //	  "data": { ... }
 //	}
 //
@@ -14,7 +14,7 @@
 //
 //	{
 //	  "code": 400,
-//	  "message": "error message",
+//	  "message": "验证失败",
 //	  "error": { ... }
 //	}
 //
@@ -22,17 +22,17 @@
 //
 //	{
 //	  "code": 200,
-//	  "message": "success",
+//	  "message": "操作成功",
 //	  "data": [...],
 //	  "meta": { "total": 100, "page": 1, "per_page": 10 }
 //	}
 //
 // 使用示例：
 //
-//	response.OK(c, "success", user)
-//	response.Created(c, "created", nil)
-//	response.BadRequest(c, "invalid input")
-//	response.List(c, "success", users, response.NewPaginationMeta(total, page, limit))
+//	response.OK(c, response.MsgSuccess, user)
+//	response.Created(c, response.MsgCreated, nil)
+//	response.BadRequest(c, "无效输入")
+//	response.List(c, response.MsgSuccess, users, response.NewPaginationMeta(total, page, limit))
 package response
 
 import (
@@ -188,13 +188,13 @@ func BadRequest(c *gin.Context, message string, details ...any) {
 
 // ValidationError 400 验证错误
 func ValidationError(c *gin.Context, details any) {
-	Failure(c, http.StatusBadRequest, "Validation failed", details)
+	Failure(c, http.StatusBadRequest, MsgValidationFailed, details)
 }
 
 // Unauthorized 401 未认证
 func Unauthorized(c *gin.Context, message string) {
 	if message == "" {
-		message = "Authentication required"
+		message = MsgAuthenticationRequired
 	}
 	Failure(c, http.StatusUnauthorized, message)
 }
@@ -202,16 +202,25 @@ func Unauthorized(c *gin.Context, message string) {
 // Forbidden 403 无权限
 func Forbidden(c *gin.Context, message string) {
 	if message == "" {
-		message = "Access forbidden"
+		message = MsgAccessForbidden
 	}
 	Failure(c, http.StatusForbidden, message)
 }
 
 // NotFound 404 资源不存在
 func NotFound(c *gin.Context, resource string) {
-	message := "Resource not found"
+	message := MsgResourceNotFound
 	if resource != "" {
 		message = resource + " not found"
+	}
+	Failure(c, http.StatusNotFound, message)
+}
+
+// NotFoundMessage 404 资源不存在（自定义消息）
+// 用于传递完整的错误消息（如来自 Domain 层的 err.Error()）
+func NotFoundMessage(c *gin.Context, message string) {
+	if message == "" {
+		message = MsgResourceNotFound
 	}
 	Failure(c, http.StatusNotFound, message)
 }
@@ -219,25 +228,25 @@ func NotFound(c *gin.Context, resource string) {
 // Conflict 409 资源冲突
 func Conflict(c *gin.Context, message string) {
 	if message == "" {
-		message = "Resource conflict"
+		message = MsgResourceConflict
 	}
 	Failure(c, http.StatusConflict, message)
 }
 
 // TooManyRequests 429 请求过多
 func TooManyRequests(c *gin.Context) {
-	Failure(c, http.StatusTooManyRequests, "Rate limit exceeded")
+	Failure(c, http.StatusTooManyRequests, MsgRateLimitExceeded)
 }
 
 // InternalError 500 服务器错误
 func InternalError(c *gin.Context, details ...any) {
-	Failure(c, http.StatusInternalServerError, "Internal server error", details...)
+	Failure(c, http.StatusInternalServerError, MsgInternalError, details...)
 }
 
 // ServiceUnavailable 503 服务不可用
 func ServiceUnavailable(c *gin.Context, message string) {
 	if message == "" {
-		message = "Service temporarily unavailable"
+		message = MsgServiceUnavailable
 	}
 	Failure(c, http.StatusServiceUnavailable, message)
 }

@@ -83,11 +83,11 @@ func (h *RoleHandler) CreateRole(c *gin.Context) {
 
 	if err != nil {
 		if errors.Is(err, roleDomain.ErrRoleNameExists) {
-			response.Conflict(c, "role name already exists")
+			response.Conflict(c, err.Error())
 			return
 		}
 		if errors.Is(err, roleDomain.ErrInvalidRoleName) {
-			response.BadRequest(c, "invalid role name")
+			response.BadRequest(c, err.Error())
 			return
 		}
 		response.InternalError(c, err.Error())
@@ -100,7 +100,7 @@ func (h *RoleHandler) CreateRole(c *gin.Context) {
 		Name:        result.Name,
 		DisplayName: result.DisplayName,
 	}
-	response.Created(c, "role created successfully", resp)
+	response.Created(c, response.MsgCreated, resp)
 }
 
 // ListRoles lists all roles
@@ -131,7 +131,7 @@ func (h *RoleHandler) ListRoles(c *gin.Context) {
 	}
 
 	meta := response.NewPaginationMeta(int(result.Total), q.GetPage(), q.GetLimit())
-	response.List(c, "success", result.Roles, meta)
+	response.List(c, response.MsgSuccess, result.Roles, meta)
 }
 
 // GetRole gets a role by ID
@@ -152,7 +152,7 @@ func (h *RoleHandler) ListRoles(c *gin.Context) {
 func (h *RoleHandler) GetRole(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
-		response.BadRequest(c, "invalid role ID")
+		response.BadRequest(c, roleDomain.ErrInvalidRoleID.Error())
 		return
 	}
 
@@ -162,11 +162,15 @@ func (h *RoleHandler) GetRole(c *gin.Context) {
 	})
 
 	if err != nil {
-		response.NotFound(c, "role")
+		if errors.Is(err, roleDomain.ErrRoleNotFound) {
+			response.NotFoundMessage(c, err.Error())
+			return
+		}
+		response.InternalError(c, err.Error())
 		return
 	}
 
-	response.OK(c, "success", result)
+	response.OK(c, response.MsgSuccess, result)
 }
 
 // UpdateRole updates a role
@@ -189,7 +193,7 @@ func (h *RoleHandler) GetRole(c *gin.Context) {
 func (h *RoleHandler) UpdateRole(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
-		response.BadRequest(c, "invalid role ID")
+		response.BadRequest(c, roleDomain.ErrInvalidRoleID.Error())
 		return
 	}
 
@@ -209,18 +213,18 @@ func (h *RoleHandler) UpdateRole(c *gin.Context) {
 
 	if err != nil {
 		if errors.Is(err, roleDomain.ErrRoleNotFound) {
-			response.NotFound(c, "role")
+			response.NotFoundMessage(c, err.Error())
 			return
 		}
 		if errors.Is(err, roleDomain.ErrCannotModifySystemRole) {
-			response.BadRequest(c, "cannot modify system role")
+			response.BadRequest(c, err.Error())
 			return
 		}
 		response.InternalError(c, err.Error())
 		return
 	}
 
-	response.OK(c, "role updated successfully", result)
+	response.OK(c, response.MsgUpdated, result)
 }
 
 // DeleteRole deletes a role
@@ -242,7 +246,7 @@ func (h *RoleHandler) UpdateRole(c *gin.Context) {
 func (h *RoleHandler) DeleteRole(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
-		response.BadRequest(c, "invalid role ID")
+		response.BadRequest(c, roleDomain.ErrInvalidRoleID.Error())
 		return
 	}
 
@@ -253,22 +257,22 @@ func (h *RoleHandler) DeleteRole(c *gin.Context) {
 
 	if err != nil {
 		if errors.Is(err, roleDomain.ErrRoleNotFound) {
-			response.NotFound(c, "role")
+			response.NotFoundMessage(c, err.Error())
 			return
 		}
 		if errors.Is(err, roleDomain.ErrCannotDeleteSystemRole) {
-			response.BadRequest(c, "cannot delete system role")
+			response.BadRequest(c, err.Error())
 			return
 		}
 		if errors.Is(err, roleDomain.ErrRoleHasUsers) {
-			response.BadRequest(c, "role has associated users")
+			response.BadRequest(c, err.Error())
 			return
 		}
 		response.InternalError(c, err.Error())
 		return
 	}
 
-	response.OK(c, "role deleted successfully", nil)
+	response.OK(c, response.MsgDeleted, nil)
 }
 
 // SetPermissions sets permissions for a role
@@ -291,7 +295,7 @@ func (h *RoleHandler) DeleteRole(c *gin.Context) {
 func (h *RoleHandler) SetPermissions(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
-		response.BadRequest(c, "invalid role ID")
+		response.BadRequest(c, roleDomain.ErrInvalidRoleID.Error())
 		return
 	}
 
@@ -322,11 +326,15 @@ func (h *RoleHandler) SetPermissions(c *gin.Context) {
 	})
 
 	if err != nil {
+		if errors.Is(err, roleDomain.ErrRoleNotFound) {
+			response.NotFoundMessage(c, err.Error())
+			return
+		}
 		response.InternalError(c, err.Error())
 		return
 	}
 
-	response.OK(c, "permissions set successfully", nil)
+	response.OK(c, response.MsgSuccess, nil)
 }
 
 // ListPermissions 已移除

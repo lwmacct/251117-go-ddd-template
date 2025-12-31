@@ -1,11 +1,13 @@
 package handler
 
 import (
+	"errors"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/lwmacct/251117-go-ddd-template/internal/adapters/http/response"
 	"github.com/lwmacct/251117-go-ddd-template/internal/application/user"
+	userDomain "github.com/lwmacct/251117-go-ddd-template/internal/domain/user"
 )
 
 // ListUsersQuery 用户列表查询参数
@@ -94,7 +96,7 @@ func (h *AdminUserHandler) CreateUser(c *gin.Context) {
 		return
 	}
 
-	response.Created(c, "user created successfully", createdUser)
+	response.Created(c, response.MsgCreated, createdUser)
 }
 
 // ListUsers lists all users with pagination (admin only)
@@ -125,7 +127,7 @@ func (h *AdminUserHandler) ListUsers(c *gin.Context) {
 	}
 
 	meta := response.NewPaginationMeta(int(result.Total), q.GetPage(), q.GetLimit())
-	response.List(c, "success", result.Users, meta)
+	response.List(c, response.MsgSuccess, result.Users, meta)
 }
 
 // GetUser gets a user by ID (admin only)
@@ -146,7 +148,7 @@ func (h *AdminUserHandler) ListUsers(c *gin.Context) {
 func (h *AdminUserHandler) GetUser(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
-		response.BadRequest(c, "invalid user ID")
+		response.BadRequest(c, userDomain.ErrInvalidUserID.Error())
 		return
 	}
 
@@ -155,11 +157,15 @@ func (h *AdminUserHandler) GetUser(c *gin.Context) {
 		WithRoles: true,
 	})
 	if err != nil {
-		response.NotFound(c, "user")
+		if errors.Is(err, userDomain.ErrUserNotFound) {
+			response.NotFoundMessage(c, err.Error())
+			return
+		}
+		response.InternalError(c, err.Error())
 		return
 	}
 
-	response.OK(c, "success", userResp)
+	response.OK(c, response.MsgSuccess, userResp)
 }
 
 // UpdateUser updates a user (admin only)
@@ -182,7 +188,7 @@ func (h *AdminUserHandler) GetUser(c *gin.Context) {
 func (h *AdminUserHandler) UpdateUser(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
-		response.BadRequest(c, "invalid user ID")
+		response.BadRequest(c, userDomain.ErrInvalidUserID.Error())
 		return
 	}
 
@@ -215,7 +221,7 @@ func (h *AdminUserHandler) UpdateUser(c *gin.Context) {
 		return
 	}
 
-	response.OK(c, "user updated successfully", updatedUser)
+	response.OK(c, response.MsgUpdated, updatedUser)
 }
 
 // DeleteUser deletes a user (admin only)
@@ -237,7 +243,7 @@ func (h *AdminUserHandler) UpdateUser(c *gin.Context) {
 func (h *AdminUserHandler) DeleteUser(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
-		response.BadRequest(c, "invalid user ID")
+		response.BadRequest(c, userDomain.ErrInvalidUserID.Error())
 		return
 	}
 
@@ -248,7 +254,7 @@ func (h *AdminUserHandler) DeleteUser(c *gin.Context) {
 		return
 	}
 
-	response.OK(c, "user deleted successfully", nil)
+	response.OK(c, response.MsgDeleted, nil)
 }
 
 // AssignRoles assigns roles to a user (admin only)
@@ -271,7 +277,7 @@ func (h *AdminUserHandler) DeleteUser(c *gin.Context) {
 func (h *AdminUserHandler) AssignRoles(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
-		response.BadRequest(c, "invalid user ID")
+		response.BadRequest(c, userDomain.ErrInvalidUserID.Error())
 		return
 	}
 
@@ -299,7 +305,7 @@ func (h *AdminUserHandler) AssignRoles(c *gin.Context) {
 		return
 	}
 
-	response.OK(c, "roles assigned successfully", updatedUser)
+	response.OK(c, response.MsgSuccess, updatedUser)
 }
 
 // BatchCreateUsers creates multiple users at once (admin only)
@@ -345,5 +351,5 @@ func (h *AdminUserHandler) BatchCreateUsers(c *gin.Context) {
 	}
 	copy(resp.Errors, result.Errors)
 
-	response.OK(c, "batch import completed", resp)
+	response.OK(c, response.MsgSuccess, resp)
 }

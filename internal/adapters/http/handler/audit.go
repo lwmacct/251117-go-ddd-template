@@ -1,12 +1,14 @@
 package handler
 
 import (
+	"errors"
 	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/lwmacct/251117-go-ddd-template/internal/adapters/http/response"
 	"github.com/lwmacct/251117-go-ddd-template/internal/application/audit"
+	auditDomain "github.com/lwmacct/251117-go-ddd-template/internal/domain/audit"
 )
 
 // ListAuditQuery 审计日志列表查询参数
@@ -100,7 +102,7 @@ func (h *AuditHandler) ListLogs(c *gin.Context) {
 	}
 
 	meta := response.NewPaginationMeta(int(result.Total), q.GetPage(), q.GetLimit())
-	response.List(c, "success", result.Logs, meta)
+	response.List(c, response.MsgSuccess, result.Logs, meta)
 }
 
 // GetLog gets an audit log by ID
@@ -121,7 +123,7 @@ func (h *AuditHandler) ListLogs(c *gin.Context) {
 func (h *AuditHandler) GetLog(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
-		response.BadRequest(c, "invalid log ID")
+		response.BadRequest(c, auditDomain.ErrInvalidLogID.Error())
 		return
 	}
 
@@ -130,11 +132,15 @@ func (h *AuditHandler) GetLog(c *gin.Context) {
 	})
 
 	if err != nil {
-		response.NotFound(c, "audit log")
+		if errors.Is(err, auditDomain.ErrAuditLogNotFound) {
+			response.NotFoundMessage(c, err.Error())
+			return
+		}
+		response.InternalError(c, err.Error())
 		return
 	}
 
-	response.OK(c, "success", log)
+	response.OK(c, response.MsgSuccess, log)
 }
 
 // GetActions returns audit action definitions
@@ -151,5 +157,5 @@ func (h *AuditHandler) GetLog(c *gin.Context) {
 //	@Router			/api/system/audit/actions [get]
 func (h *AuditHandler) GetActions(c *gin.Context) {
 	resp := audit.ToAuditActionsResponseDTO()
-	response.OK(c, "success", resp)
+	response.OK(c, response.MsgSuccess, resp)
 }

@@ -8,6 +8,7 @@ import (
 	"github.com/lwmacct/251117-go-ddd-template/internal/adapters/http/response"
 	"github.com/lwmacct/251117-go-ddd-template/internal/application/org"
 	orgDomain "github.com/lwmacct/251117-go-ddd-template/internal/domain/org"
+	userDomain "github.com/lwmacct/251117-go-ddd-template/internal/domain/user"
 )
 
 // ListTeamMembersQuery 团队成员列表查询参数
@@ -68,13 +69,13 @@ func NewTeamMemberHandler(
 func (h *TeamMemberHandler) List(c *gin.Context) {
 	orgID, err := strconv.ParseUint(c.Param("org_id"), 10, 32)
 	if err != nil {
-		response.BadRequest(c, "invalid organization ID")
+		response.BadRequest(c, orgDomain.ErrInvalidOrgID.Error())
 		return
 	}
 
 	teamID, err := strconv.ParseUint(c.Param("team_id"), 10, 32)
 	if err != nil {
-		response.BadRequest(c, "invalid team ID")
+		response.BadRequest(c, orgDomain.ErrInvalidTeamID.Error())
 		return
 	}
 
@@ -91,7 +92,7 @@ func (h *TeamMemberHandler) List(c *gin.Context) {
 	}
 
 	meta := response.NewPaginationMeta(int(result.Total), q.GetPage(), q.GetLimit())
-	response.List(c, "success", result.Items, meta)
+	response.List(c, response.MsgSuccess, result.Items, meta)
 }
 
 // Add 添加团队成员
@@ -116,13 +117,13 @@ func (h *TeamMemberHandler) List(c *gin.Context) {
 func (h *TeamMemberHandler) Add(c *gin.Context) {
 	orgID, err := strconv.ParseUint(c.Param("org_id"), 10, 32)
 	if err != nil {
-		response.BadRequest(c, "invalid organization ID")
+		response.BadRequest(c, orgDomain.ErrInvalidOrgID.Error())
 		return
 	}
 
 	teamID, err := strconv.ParseUint(c.Param("team_id"), 10, 32)
 	if err != nil {
-		response.BadRequest(c, "invalid team ID")
+		response.BadRequest(c, orgDomain.ErrInvalidTeamID.Error())
 		return
 	}
 
@@ -140,26 +141,26 @@ func (h *TeamMemberHandler) Add(c *gin.Context) {
 	})
 	if err != nil {
 		if errors.Is(err, orgDomain.ErrNotOrgMember) {
-			response.BadRequest(c, "user is not a member of this organization")
+			response.BadRequest(c, err.Error())
 			return
 		}
 		if errors.Is(err, orgDomain.ErrMustBeOrgMemberFirst) {
-			response.BadRequest(c, "user must be organization member first")
+			response.BadRequest(c, err.Error())
 			return
 		}
-		if errors.Is(err, orgDomain.ErrMemberAlreadyExists) {
-			response.Conflict(c, "user is already a team member")
+		if errors.Is(err, orgDomain.ErrTeamMemberAlreadyExists) {
+			response.Conflict(c, err.Error())
 			return
 		}
 		if errors.Is(err, orgDomain.ErrInvalidTeamMemberRole) {
-			response.BadRequest(c, "invalid team member role")
+			response.BadRequest(c, err.Error())
 			return
 		}
 		response.InternalError(c, err.Error())
 		return
 	}
 
-	response.Created(c, "team member added successfully", result)
+	response.Created(c, response.MsgCreated, result)
 }
 
 // Remove 移除团队成员
@@ -183,19 +184,19 @@ func (h *TeamMemberHandler) Add(c *gin.Context) {
 func (h *TeamMemberHandler) Remove(c *gin.Context) {
 	orgID, err := strconv.ParseUint(c.Param("org_id"), 10, 32)
 	if err != nil {
-		response.BadRequest(c, "invalid organization ID")
+		response.BadRequest(c, orgDomain.ErrInvalidOrgID.Error())
 		return
 	}
 
 	teamID, err := strconv.ParseUint(c.Param("team_id"), 10, 32)
 	if err != nil {
-		response.BadRequest(c, "invalid team ID")
+		response.BadRequest(c, orgDomain.ErrInvalidTeamID.Error())
 		return
 	}
 
 	userID, err := strconv.ParseUint(c.Param("user_id"), 10, 32)
 	if err != nil {
-		response.BadRequest(c, "invalid user ID")
+		response.BadRequest(c, userDomain.ErrInvalidUserID.Error())
 		return
 	}
 
@@ -204,13 +205,17 @@ func (h *TeamMemberHandler) Remove(c *gin.Context) {
 		TeamID: uint(teamID),
 		UserID: uint(userID),
 	}); err != nil {
+		if errors.Is(err, orgDomain.ErrTeamMemberNotFound) {
+			response.NotFoundMessage(c, err.Error())
+			return
+		}
 		if errors.Is(err, orgDomain.ErrNotTeamMember) {
-			response.NotFound(c, "team member")
+			response.NotFoundMessage(c, err.Error())
 			return
 		}
 		response.InternalError(c, err.Error())
 		return
 	}
 
-	response.OK(c, "team member removed successfully", nil)
+	response.OK(c, response.MsgSuccess, nil)
 }

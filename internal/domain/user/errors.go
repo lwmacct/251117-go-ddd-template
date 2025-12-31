@@ -61,3 +61,9 @@ var (
 	// ErrServiceAccountPasswordLogin 服务账户不能密码登录
 	ErrServiceAccountPasswordLogin = errors.New("service account cannot login with password")
 )
+
+// 通用输入验证错误
+var (
+	// ErrInvalidUserID 无效的用户 ID
+	ErrInvalidUserID = errors.New("invalid user ID")
+)

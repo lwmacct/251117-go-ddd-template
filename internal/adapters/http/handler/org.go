@@ -1,11 +1,13 @@
 package handler
 
 import (
+	"errors"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/lwmacct/251117-go-ddd-template/internal/adapters/http/response"
 	"github.com/lwmacct/251117-go-ddd-template/internal/application/org"
+	orgDomain "github.com/lwmacct/251117-go-ddd-template/internal/domain/org"
 )
 
 // ListOrgsQuery 组织列表查询参数
@@ -85,7 +87,7 @@ func (h *OrgHandler) Create(c *gin.Context) {
 		return
 	}
 
-	response.Created(c, "organization created successfully", result)
+	response.Created(c, response.MsgCreated, result)
 }
 
 // List 获取组织列表
@@ -116,7 +118,7 @@ func (h *OrgHandler) List(c *gin.Context) {
 	}
 
 	meta := response.NewPaginationMeta(int(result.Total), q.GetPage(), q.GetLimit())
-	response.List(c, "success", result.Items, meta)
+	response.List(c, response.MsgSuccess, result.Items, meta)
 }
 
 // Get 获取组织详情
@@ -137,7 +139,7 @@ func (h *OrgHandler) List(c *gin.Context) {
 func (h *OrgHandler) Get(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
-		response.BadRequest(c, "invalid organization ID")
+		response.BadRequest(c, orgDomain.ErrInvalidOrgID.Error())
 		return
 	}
 
@@ -145,11 +147,15 @@ func (h *OrgHandler) Get(c *gin.Context) {
 		OrgID: uint(id),
 	})
 	if err != nil {
-		response.NotFound(c, "organization")
+		if errors.Is(err, orgDomain.ErrOrgNotFound) {
+			response.NotFoundMessage(c, err.Error())
+			return
+		}
+		response.InternalError(c, err.Error())
 		return
 	}
 
-	response.OK(c, "success", result)
+	response.OK(c, response.MsgSuccess, result)
 }
 
 // Update 更新组织
@@ -172,7 +178,7 @@ func (h *OrgHandler) Get(c *gin.Context) {
 func (h *OrgHandler) Update(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
-		response.BadRequest(c, "invalid organization ID")
+		response.BadRequest(c, orgDomain.ErrInvalidOrgID.Error())
 		return
 	}
 
@@ -194,7 +200,7 @@ func (h *OrgHandler) Update(c *gin.Context) {
 		return
 	}
 
-	response.OK(c, "organization updated successfully", result)
+	response.OK(c, response.MsgUpdated, result)
 }
 
 // Delete 删除组织
@@ -216,7 +222,7 @@ func (h *OrgHandler) Update(c *gin.Context) {
 func (h *OrgHandler) Delete(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
-		response.BadRequest(c, "invalid organization ID")
+		response.BadRequest(c, orgDomain.ErrInvalidOrgID.Error())
 		return
 	}
 
@@ -227,5 +233,5 @@ func (h *OrgHandler) Delete(c *gin.Context) {
 		return
 	}
 
-	response.OK(c, "organization deleted successfully", nil)
+	response.OK(c, response.MsgDeleted, nil)
 }

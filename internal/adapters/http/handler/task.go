@@ -92,7 +92,7 @@ func (h *TaskHandler) Create(c *gin.Context) {
 		return
 	}
 
-	response.Created(c, "任务创建成功", result)
+	response.Created(c, response.MsgCreated, result)
 }
 
 // List 任务列表
@@ -128,7 +128,7 @@ func (h *TaskHandler) List(c *gin.Context) {
 	}
 
 	meta := response.NewPaginationMeta(int(result.Total), query.GetPage(), query.GetLimit())
-	response.List(c, "获取成功", result.Items, meta)
+	response.List(c, response.MsgSuccess, result.Items, meta)
 }
 
 // Get 任务详情
@@ -165,14 +165,14 @@ func (h *TaskHandler) Get(c *gin.Context) {
 	})
 	if err != nil {
 		if errors.Is(err, taskDomain.ErrTaskNotFound) {
-			response.NotFound(c, "任务不存在")
+			response.NotFoundMessage(c, err.Error())
 			return
 		}
 		response.InternalError(c, err.Error())
 		return
 	}
 
-	response.OK(c, "获取成功", result)
+	response.OK(c, response.MsgSuccess, result)
 }
 
 // Update 更新任务
@@ -221,18 +221,18 @@ func (h *TaskHandler) Update(c *gin.Context) {
 	})
 	if err != nil {
 		if errors.Is(err, taskDomain.ErrTaskNotFound) {
-			response.NotFound(c, "任务不存在")
+			response.NotFoundMessage(c, err.Error())
 			return
 		}
 		if errors.Is(err, taskDomain.ErrInvalidStatusTransition) {
-			response.BadRequest(c, "无效的状态转换")
+			response.BadRequest(c, err.Error())
 			return
 		}
 		response.InternalError(c, err.Error())
 		return
 	}
 
-	response.OK(c, "更新成功", result)
+	response.OK(c, response.MsgUpdated, result)
 }
 
 // Delete 删除任务
@@ -268,12 +268,12 @@ func (h *TaskHandler) Delete(c *gin.Context) {
 		ID:     uint(id),
 	}); err != nil {
 		if errors.Is(err, taskDomain.ErrTaskNotFound) {
-			response.NotFound(c, "任务不存在")
+			response.NotFoundMessage(c, err.Error())
 			return
 		}
 		response.InternalError(c, err.Error())
 		return
 	}
 
-	response.OK(c, "删除成功", nil)
+	response.OK(c, response.MsgDeleted, nil)
 }

@@ -5,6 +5,7 @@ import (
 
 	"github.com/lwmacct/251117-go-ddd-template/internal/adapters/http/response"
 	"github.com/lwmacct/251117-go-ddd-template/internal/application/twofa"
+	authDomain "github.com/lwmacct/251117-go-ddd-template/internal/domain/auth"
 )
 
 // TwoFAHandler 2FA 处理器
@@ -64,7 +65,7 @@ func (h *TwoFAHandler) Setup(c *gin.Context) {
 		QRCodeURL: result.QRCodeURL,
 		QRCodeImg: result.QRCodeImg,
 	}
-	response.OK(c, "2FA setup initiated", resp)
+	response.OK(c, response.MsgSuccess, resp)
 }
 
 // VerifyAndEnable 验证 TOTP 代码并启用 2FA
@@ -107,7 +108,7 @@ func (h *TwoFAHandler) VerifyAndEnable(c *gin.Context) {
 		RecoveryCodes: result.RecoveryCodes,
 		Message:       "Please save these recovery codes in a safe place. You won't be able to see them again.",
 	}
-	response.OK(c, "2FA enabled successfully", resp)
+	response.OK(c, response.MsgSuccess, resp)
 }
 
 // Disable 禁用 2FA
@@ -137,7 +138,7 @@ func (h *TwoFAHandler) Disable(c *gin.Context) {
 		return
 	}
 
-	response.OK(c, "2FA disabled successfully", nil)
+	response.OK(c, response.MsgSuccess, nil)
 }
 
 // GetStatus 获取 2FA 状态
@@ -172,20 +173,20 @@ func (h *TwoFAHandler) GetStatus(c *gin.Context) {
 		Enabled:            result.Enabled,
 		RecoveryCodesCount: result.RecoveryCodesCount,
 	}
-	response.OK(c, "success", resp)
+	response.OK(c, response.MsgSuccess, resp)
 }
 
 // getUserID 从上下文获取用户ID，并输出统一未认证响应
 func getUserID(c *gin.Context) (uint, bool) {
 	userID, exists := c.Get("user_id")
 	if !exists {
-		response.Unauthorized(c, "Authentication required")
+		response.Unauthorized(c, "")
 		return 0, false
 	}
 
 	id, ok := userID.(uint)
 	if !ok {
-		response.Unauthorized(c, "Invalid user context")
+		response.Unauthorized(c, authDomain.ErrInvalidUserContext.Error())
 		return 0, false
 	}
 

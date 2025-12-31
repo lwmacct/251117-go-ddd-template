@@ -38,4 +38,7 @@ var (
 
 	// ErrInvalidKeyFormat 无效的配置键格式
 	ErrInvalidKeyFormat = errors.New("invalid setting key format")
+
+	// ErrInvalidCategoryID 无效的分类 ID
+	ErrInvalidCategoryID = errors.New("invalid category ID")
 )

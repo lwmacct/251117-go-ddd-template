@@ -19,6 +19,9 @@ var (
 	// ErrInvalidRoleName 无效的角色名称
 	ErrInvalidRoleName = errors.New("invalid role name")
 
+	// ErrInvalidRoleID 无效的角色 ID
+	ErrInvalidRoleID = errors.New("invalid role ID")
+
 	// ErrRoleHasUsers 角色下有关联用户
 	ErrRoleHasUsers = errors.New("role has associated users")
 )

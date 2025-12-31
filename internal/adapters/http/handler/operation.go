@@ -29,5 +29,5 @@ func NewOperationHandler() *OperationHandler {
 //	@Router			/api/system/operations [get]
 func (h *OperationHandler) ListOperations(c *gin.Context) {
 	ops := routes.AllOperationDefinitions()
-	response.OK(c, "operations retrieved successfully", ops)
+	response.OK(c, response.MsgSuccess, ops)
 }

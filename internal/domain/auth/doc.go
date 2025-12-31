@@ -5,6 +5,7 @@
 //   - [PasswordPolicy]: 密码策略值对象
 //   - [TokenClaims]: JWT Token 声明结构
 //   - 认证相关错误（见 errors.go）
+//   - 认证相关常量（见 constants.go）
 //
 // 认证模式：
 // 系统支持两种认证方式，由 [Service] 接口统一管理：

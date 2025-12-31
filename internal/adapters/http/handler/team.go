@@ -72,7 +72,7 @@ func NewTeamHandler(
 func (h *TeamHandler) Create(c *gin.Context) {
 	orgID, err := strconv.ParseUint(c.Param("org_id"), 10, 32)
 	if err != nil {
-		response.BadRequest(c, "invalid organization ID")
+		response.BadRequest(c, orgDomain.ErrInvalidOrgID.Error())
 		return
 	}
 
@@ -90,18 +90,18 @@ func (h *TeamHandler) Create(c *gin.Context) {
 	})
 	if err != nil {
 		if errors.Is(err, orgDomain.ErrTeamAlreadyExists) {
-			response.Conflict(c, "team identifier already exists")
+			response.Conflict(c, err.Error())
 			return
 		}
 		if errors.Is(err, orgDomain.ErrTeamNameAlreadyExists) {
-			response.Conflict(c, "team name already exists")
+			response.Conflict(c, err.Error())
 			return
 		}
 		response.InternalError(c, err.Error())
 		return
 	}
 
-	response.Created(c, "team created successfully", result)
+	response.Created(c, response.MsgCreated, result)
 }
 
 // List 获取团队列表
@@ -122,7 +122,7 @@ func (h *TeamHandler) Create(c *gin.Context) {
 func (h *TeamHandler) List(c *gin.Context) {
 	orgID, err := strconv.ParseUint(c.Param("org_id"), 10, 32)
 	if err != nil {
-		response.BadRequest(c, "invalid organization ID")
+		response.BadRequest(c, orgDomain.ErrInvalidOrgID.Error())
 		return
 	}
 
@@ -139,7 +139,7 @@ func (h *TeamHandler) List(c *gin.Context) {
 	}
 
 	meta := response.NewPaginationMeta(int(result.Total), q.GetPage(), q.GetLimit())
-	response.List(c, "success", result.Items, meta)
+	response.List(c, response.MsgSuccess, result.Items, meta)
 }
 
 // Get 获取团队详情
@@ -161,13 +161,13 @@ func (h *TeamHandler) List(c *gin.Context) {
 func (h *TeamHandler) Get(c *gin.Context) {
 	orgID, err := strconv.ParseUint(c.Param("org_id"), 10, 32)
 	if err != nil {
-		response.BadRequest(c, "invalid organization ID")
+		response.BadRequest(c, orgDomain.ErrInvalidOrgID.Error())
 		return
 	}
 
 	teamID, err := strconv.ParseUint(c.Param("team_id"), 10, 32)
 	if err != nil {
-		response.BadRequest(c, "invalid team ID")
+		response.BadRequest(c, orgDomain.ErrInvalidTeamID.Error())
 		return
 	}
 
@@ -176,11 +176,15 @@ func (h *TeamHandler) Get(c *gin.Context) {
 		TeamID: uint(teamID),
 	})
 	if err != nil {
-		response.NotFound(c, "team")
+		if errors.Is(err, orgDomain.ErrTeamNotFound) {
+			response.NotFoundMessage(c, err.Error())
+			return
+		}
+		response.InternalError(c, err.Error())
 		return
 	}
 
-	response.OK(c, "success", result)
+	response.OK(c, response.MsgSuccess, result)
 }
 
 // Update 更新团队
@@ -206,13 +210,13 @@ func (h *TeamHandler) Get(c *gin.Context) {
 func (h *TeamHandler) Update(c *gin.Context) {
 	orgID, err := strconv.ParseUint(c.Param("org_id"), 10, 32)
 	if err != nil {
-		response.BadRequest(c, "invalid organization ID")
+		response.BadRequest(c, orgDomain.ErrInvalidOrgID.Error())
 		return
 	}
 
 	teamID, err := strconv.ParseUint(c.Param("team_id"), 10, 32)
 	if err != nil {
-		response.BadRequest(c, "invalid team ID")
+		response.BadRequest(c, orgDomain.ErrInvalidTeamID.Error())
 		return
 	}
 
@@ -230,14 +234,14 @@ func (h *TeamHandler) Update(c *gin.Context) {
 	})
 	if err != nil {
 		if errors.Is(err, orgDomain.ErrTeamNotFound) {
-			response.NotFound(c, "team")
+			response.NotFoundMessage(c, err.Error())
 			return
 		}
 		response.InternalError(c, err.Error())
 		return
 	}
 
-	response.OK(c, "team updated successfully", result)
+	response.OK(c, response.MsgUpdated, result)
 }
 
 // Delete 删除团队
@@ -260,13 +264,13 @@ func (h *TeamHandler) Update(c *gin.Context) {
 func (h *TeamHandler) Delete(c *gin.Context) {
 	orgID, err := strconv.ParseUint(c.Param("org_id"), 10, 32)
 	if err != nil {
-		response.BadRequest(c, "invalid organization ID")
+		response.BadRequest(c, orgDomain.ErrInvalidOrgID.Error())
 		return
 	}
 
 	teamID, err := strconv.ParseUint(c.Param("team_id"), 10, 32)
 	if err != nil {
-		response.BadRequest(c, "invalid team ID")
+		response.BadRequest(c, orgDomain.ErrInvalidTeamID.Error())
 		return
 	}
 
@@ -275,16 +279,16 @@ func (h *TeamHandler) Delete(c *gin.Context) {
 		TeamID: uint(teamID),
 	}); err != nil {
 		if errors.Is(err, orgDomain.ErrTeamHasMembers) {
-			response.BadRequest(c, "team has members, cannot delete")
+			response.BadRequest(c, err.Error())
 			return
 		}
 		if errors.Is(err, orgDomain.ErrTeamNotFound) {
-			response.NotFound(c, "team")
+			response.NotFoundMessage(c, err.Error())
 			return
 		}
 		response.InternalError(c, err.Error())
 		return
 	}
 
-	response.OK(c, "team deleted successfully", nil)
+	response.OK(c, response.MsgDeleted, nil)
 }
