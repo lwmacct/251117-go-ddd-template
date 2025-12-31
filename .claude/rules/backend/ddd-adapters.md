@@ -7,7 +7,7 @@ paths:
 
 ## 核心原则
 
-接口适配层，**仅做请求绑定和响应转换**，不包含业务逻辑。
+- 接口适配层，**仅做请求绑定和响应转换**，不包含业务逻辑。
 
 ## 目录结构
 
@@ -32,8 +32,7 @@ internal/adapters/http/
 - ❌ 在 Handler 中编排业务逻辑
 - ❌ 直接调用 Repository
 - ❌ 直接依赖 Infrastructure 实现
-
-## Handler 结构
+- ❌ 自定义错误常量（必须使用 Domain 层定义）
 
 ```go
 type XxxHandler struct {

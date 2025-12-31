@@ -11,6 +11,11 @@ paths:
 Adapters → Application → Domain ← Infrastructure
 ```
 
+**关键约束**：Domain 层不能 import 外层代码（保持纯粹）
+**允许**：Adapters 可以导入 Domain 层的错误常量、实体类型等公共契约
+
+> **说明**：箭头表示依赖方向。Adapters → Domain 是允许的，只要 Domain 不反向依赖即可。
+
 ## 核心原则
 
 1. **依赖倒置** - Domain 定义接口，Infrastructure 实现

@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/lwmacct/251117-go-ddd-template/internal/adapters/http/response"
 	"github.com/lwmacct/251117-go-ddd-template/internal/application/product"
-	domainproduct "github.com/lwmacct/251117-go-ddd-template/internal/domain/product"
+	productDomain "github.com/lwmacct/251117-go-ddd-template/internal/domain/product"
 )
 
 // ListProductsQuery 产品列表查询参数
@@ -73,7 +73,7 @@ func (h *ProductHandler) Create(c *gin.Context) {
 
 	result, err := h.createHandler.Handle(c.Request.Context(), product.CreateProductCommand(req))
 	if err != nil {
-		if errors.Is(err, domainproduct.ErrProductNameExists) {
+		if errors.Is(err, productDomain.ErrProductNameExists) {
 			response.Conflict(c, "产品名称已存在")
 			return
 		}
@@ -141,7 +141,7 @@ func (h *ProductHandler) Get(c *gin.Context) {
 		ID: uint(id),
 	})
 	if err != nil {
-		if errors.Is(err, domainproduct.ErrProductNotFound) {
+		if errors.Is(err, productDomain.ErrProductNotFound) {
 			response.NotFound(c, "产品不存在")
 			return
 		}
@@ -191,11 +191,11 @@ func (h *ProductHandler) Update(c *gin.Context) {
 		Status:      req.Status,
 	})
 	if err != nil {
-		if errors.Is(err, domainproduct.ErrProductNotFound) {
+		if errors.Is(err, productDomain.ErrProductNotFound) {
 			response.NotFound(c, "产品不存在")
 			return
 		}
-		if errors.Is(err, domainproduct.ErrProductNameExists) {
+		if errors.Is(err, productDomain.ErrProductNameExists) {
 			response.Conflict(c, "产品名称已存在")
 			return
 		}
@@ -231,7 +231,7 @@ func (h *ProductHandler) Delete(c *gin.Context) {
 	if err := h.deleteHandler.Handle(c.Request.Context(), product.DeleteProductCommand{
 		ID: uint(id),
 	}); err != nil {
-		if errors.Is(err, domainproduct.ErrProductNotFound) {
+		if errors.Is(err, productDomain.ErrProductNotFound) {
 			response.NotFound(c, "产品不存在")
 			return
 		}

@@ -68,5 +68,29 @@ export const userRoutes: RouteRecordRaw = {
         menuOrder: 4,
       },
     },
+    {
+      path: "orgs",
+      name: "UserOrgs",
+      component: () => import("@/pages/user/orgs/index.vue"),
+      meta: {
+        title: "我的组织",
+        icon: "mdi-office-building",
+        roles: [], // 所有已登录用户可访问
+        menuVisible: true,
+        menuOrder: 5,
+      },
+    },
+    {
+      path: "teams",
+      name: "UserTeams",
+      component: () => import("@/pages/user/teams/index.vue"),
+      meta: {
+        title: "我的团队",
+        icon: "mdi-account-group",
+        roles: [], // 所有已登录用户可访问
+        menuVisible: true,
+        menuOrder: 6,
+      },
+    },
   ],
 };

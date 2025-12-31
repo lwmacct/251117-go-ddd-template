@@ -1,12 +1,13 @@
 package handler
 
 import (
+	"errors"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/lwmacct/251117-go-ddd-template/internal/adapters/http/response"
 	"github.com/lwmacct/251117-go-ddd-template/internal/application/role"
-	domainrole "github.com/lwmacct/251117-go-ddd-template/internal/domain/role"
+	roleDomain "github.com/lwmacct/251117-go-ddd-template/internal/domain/role"
 )
 
 // ListRolesQuery 角色列表查询参数
@@ -81,6 +82,14 @@ func (h *RoleHandler) CreateRole(c *gin.Context) {
 	result, err := h.createRoleHandler.Handle(c.Request.Context(), role.CreateCommand(req))
 
 	if err != nil {
+		if errors.Is(err, roleDomain.ErrRoleNameExists) {
+			response.Conflict(c, "role name already exists")
+			return
+		}
+		if errors.Is(err, roleDomain.ErrInvalidRoleName) {
+			response.BadRequest(c, "invalid role name")
+			return
+		}
 		response.InternalError(c, err.Error())
 		return
 	}
@@ -199,6 +208,14 @@ func (h *RoleHandler) UpdateRole(c *gin.Context) {
 	})
 
 	if err != nil {
+		if errors.Is(err, roleDomain.ErrRoleNotFound) {
+			response.NotFound(c, "role")
+			return
+		}
+		if errors.Is(err, roleDomain.ErrCannotModifySystemRole) {
+			response.BadRequest(c, "cannot modify system role")
+			return
+		}
 		response.InternalError(c, err.Error())
 		return
 	}
@@ -235,6 +252,18 @@ func (h *RoleHandler) DeleteRole(c *gin.Context) {
 	})
 
 	if err != nil {
+		if errors.Is(err, roleDomain.ErrRoleNotFound) {
+			response.NotFound(c, "role")
+			return
+		}
+		if errors.Is(err, roleDomain.ErrCannotDeleteSystemRole) {
+			response.BadRequest(c, "cannot delete system role")
+			return
+		}
+		if errors.Is(err, roleDomain.ErrRoleHasUsers) {
+			response.BadRequest(c, "role has associated users")
+			return
+		}
 		response.InternalError(c, err.Error())
 		return
 	}
@@ -274,13 +303,13 @@ func (h *RoleHandler) SetPermissions(c *gin.Context) {
 	}
 
 	// 转换 DTO 到 Domain Permission
-	permissions := make([]domainrole.Permission, len(req.Permissions))
+	permissions := make([]roleDomain.Permission, len(req.Permissions))
 	for i, p := range req.Permissions {
 		resPattern := p.ResourcePattern
 		if resPattern == "" {
 			resPattern = "*"
 		}
-		permissions[i] = domainrole.Permission{
+		permissions[i] = roleDomain.Permission{
 			OperationPattern: p.OperationPattern,
 			ResourcePattern:  resPattern,
 		}

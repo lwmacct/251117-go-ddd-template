@@ -1,11 +1,13 @@
 package handler
 
 import (
+	"errors"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/lwmacct/251117-go-ddd-template/internal/adapters/http/response"
 	"github.com/lwmacct/251117-go-ddd-template/internal/application/org"
+	orgDomain "github.com/lwmacct/251117-go-ddd-template/internal/domain/org"
 )
 
 // ListMembersQuery 成员列表查询参数
@@ -162,6 +164,14 @@ func (h *OrgMemberHandler) Remove(c *gin.Context) {
 		OrgID:  uint(orgID),
 		UserID: uint(userID),
 	}); err != nil {
+		if errors.Is(err, orgDomain.ErrCannotRemoveLastOwner) {
+			response.BadRequest(c, "cannot remove the last owner")
+			return
+		}
+		if errors.Is(err, orgDomain.ErrMemberNotFound) {
+			response.NotFound(c, "member")
+			return
+		}
 		response.InternalError(c, err.Error())
 		return
 	}
@@ -211,6 +221,14 @@ func (h *OrgMemberHandler) UpdateRole(c *gin.Context) {
 		UserID: uint(userID),
 		Role:   req.Role,
 	}); err != nil {
+		if errors.Is(err, orgDomain.ErrCannotDemoteLastOwner) {
+			response.BadRequest(c, "cannot demote the last owner")
+			return
+		}
+		if errors.Is(err, orgDomain.ErrMemberNotFound) {
+			response.NotFound(c, "member")
+			return
+		}
 		response.InternalError(c, err.Error())
 		return
 	}

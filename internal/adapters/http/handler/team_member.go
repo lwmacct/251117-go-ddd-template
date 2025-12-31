@@ -1,11 +1,13 @@
 package handler
 
 import (
+	"errors"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/lwmacct/251117-go-ddd-template/internal/adapters/http/response"
 	"github.com/lwmacct/251117-go-ddd-template/internal/application/org"
+	orgDomain "github.com/lwmacct/251117-go-ddd-template/internal/domain/org"
 )
 
 // ListTeamMembersQuery 团队成员列表查询参数
@@ -137,6 +139,22 @@ func (h *TeamMemberHandler) Add(c *gin.Context) {
 		Role:   req.Role,
 	})
 	if err != nil {
+		if errors.Is(err, orgDomain.ErrNotOrgMember) {
+			response.BadRequest(c, "user is not a member of this organization")
+			return
+		}
+		if errors.Is(err, orgDomain.ErrMustBeOrgMemberFirst) {
+			response.BadRequest(c, "user must be organization member first")
+			return
+		}
+		if errors.Is(err, orgDomain.ErrMemberAlreadyExists) {
+			response.Conflict(c, "user is already a team member")
+			return
+		}
+		if errors.Is(err, orgDomain.ErrInvalidTeamMemberRole) {
+			response.BadRequest(c, "invalid team member role")
+			return
+		}
 		response.InternalError(c, err.Error())
 		return
 	}
@@ -186,6 +204,10 @@ func (h *TeamMemberHandler) Remove(c *gin.Context) {
 		TeamID: uint(teamID),
 		UserID: uint(userID),
 	}); err != nil {
+		if errors.Is(err, orgDomain.ErrNotTeamMember) {
+			response.NotFound(c, "team member")
+			return
+		}
 		response.InternalError(c, err.Error())
 		return
 	}

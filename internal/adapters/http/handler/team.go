@@ -1,11 +1,13 @@
 package handler
 
 import (
+	"errors"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/lwmacct/251117-go-ddd-template/internal/adapters/http/response"
 	"github.com/lwmacct/251117-go-ddd-template/internal/application/org"
+	orgDomain "github.com/lwmacct/251117-go-ddd-template/internal/domain/org"
 )
 
 // ListTeamsQuery 团队列表查询参数
@@ -87,6 +89,14 @@ func (h *TeamHandler) Create(c *gin.Context) {
 		Description: req.Description,
 	})
 	if err != nil {
+		if errors.Is(err, orgDomain.ErrTeamAlreadyExists) {
+			response.Conflict(c, "team identifier already exists")
+			return
+		}
+		if errors.Is(err, orgDomain.ErrTeamNameAlreadyExists) {
+			response.Conflict(c, "team name already exists")
+			return
+		}
 		response.InternalError(c, err.Error())
 		return
 	}
@@ -219,6 +229,10 @@ func (h *TeamHandler) Update(c *gin.Context) {
 		Description: req.Description,
 	})
 	if err != nil {
+		if errors.Is(err, orgDomain.ErrTeamNotFound) {
+			response.NotFound(c, "team")
+			return
+		}
 		response.InternalError(c, err.Error())
 		return
 	}
@@ -260,6 +274,14 @@ func (h *TeamHandler) Delete(c *gin.Context) {
 		OrgID:  uint(orgID),
 		TeamID: uint(teamID),
 	}); err != nil {
+		if errors.Is(err, orgDomain.ErrTeamHasMembers) {
+			response.BadRequest(c, "team has members, cannot delete")
+			return
+		}
+		if errors.Is(err, orgDomain.ErrTeamNotFound) {
+			response.NotFound(c, "team")
+			return
+		}
 		response.InternalError(c, err.Error())
 		return
 	}

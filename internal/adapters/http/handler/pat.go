@@ -8,7 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/lwmacct/251117-go-ddd-template/internal/adapters/http/response"
 	"github.com/lwmacct/251117-go-ddd-template/internal/application/pat"
-	patdomain "github.com/lwmacct/251117-go-ddd-template/internal/domain/pat"
+	patDomain "github.com/lwmacct/251117-go-ddd-template/internal/domain/pat"
 )
 
 // PATHandler handles Personal Access Token operations (DDD+CQRS Use Case Pattern)
@@ -332,8 +332,8 @@ func (h *PATHandler) EnableToken(c *gin.Context) {
 //	@Router			/api/user/tokens/scopes [get]
 func (h *PATHandler) ListScopes(c *gin.Context) {
 	// 将 domain 类型映射到 DTO
-	scopes := make([]pat.ScopeInfoDTO, len(patdomain.AllScopes))
-	for i, s := range patdomain.AllScopes {
+	scopes := make([]pat.ScopeInfoDTO, len(patDomain.AllScopes))
+	for i, s := range patDomain.AllScopes {
 		scopes[i] = pat.ScopeInfoDTO{
 			Name:        s.Name,
 			DisplayName: s.DisplayName,

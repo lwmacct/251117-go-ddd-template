@@ -13,14 +13,20 @@ import { extractErrorFromAxios } from "../errors";
 import { Configuration } from "@generated";
 import {
   AdminAuditLogApi,
+  AdminOrganizationManagementApi,
+  AdminProductManagementApi,
   AdminRoleManagementApi,
   AdminSettingCategoriesApi,
   AdminSettingsApi,
   AdminUserManagementApi,
   AuthenticationApi,
   Authentication2FAApi,
+  OrganizationMemberManagementApi,
+  OrganizationTeamManagementApi,
+  OrganizationTeamMemberManagementApi,
   OverviewApi,
   SystemApi,
+  UserOrganizationApi,
   UserPersonalAccessTokenApi,
   UserProfileApi,
   UserSettingsApi,
@@ -98,14 +104,20 @@ const configuration = new Configuration({
 
 // 导出配置好的 API 实例
 export const adminAuditLogApi = new AdminAuditLogApi(configuration, "", apiClient);
+export const adminOrgApi = new AdminOrganizationManagementApi(configuration, "", apiClient);
+export const adminProductApi = new AdminProductManagementApi(configuration, "", apiClient);
 export const adminRoleApi = new AdminRoleManagementApi(configuration, "", apiClient);
 export const adminSettingCategoriesApi = new AdminSettingCategoriesApi(configuration, "", apiClient);
 export const adminSettingsApi = new AdminSettingsApi(configuration, "", apiClient);
 export const adminUserApi = new AdminUserManagementApi(configuration, "", apiClient);
 export const authApi = new AuthenticationApi(configuration, "", apiClient);
 export const auth2faApi = new Authentication2FAApi(configuration, "", apiClient);
+export const orgMemberApi = new OrganizationMemberManagementApi(configuration, "", apiClient);
+export const orgTeamApi = new OrganizationTeamManagementApi(configuration, "", apiClient);
+export const orgTeamMemberApi = new OrganizationTeamMemberManagementApi(configuration, "", apiClient);
 export const overviewApi = new OverviewApi(configuration, "", apiClient);
 export const systemApi = new SystemApi(configuration, "", apiClient);
+export const userOrgApi = new UserOrganizationApi(configuration, "", apiClient);
 export const userSettingsApi = new UserSettingsApi(configuration, "", apiClient);
 export const userTokensApi = new UserPersonalAccessTokenApi(configuration, "", apiClient);
 export const userProfileApi = new UserProfileApi(configuration, "", apiClient);

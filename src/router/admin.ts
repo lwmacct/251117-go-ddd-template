@@ -93,5 +93,29 @@ export const adminRoutes: RouteRecordRaw = {
         menuOrder: 6,
       },
     },
+    {
+      path: "orgs",
+      name: "AdminOrgs",
+      component: () => import("@/pages/admin/orgs/index.vue"),
+      meta: {
+        title: "组织管理",
+        icon: "mdi-office-building",
+        roles: ["admin"],
+        menuVisible: true,
+        menuOrder: 7,
+      },
+    },
+    {
+      path: "products",
+      name: "AdminProducts",
+      component: () => import("@/pages/admin/products/index.vue"),
+      meta: {
+        title: "产品管理",
+        icon: "mdi-package-variant",
+        roles: ["admin"],
+        menuVisible: true,
+        menuOrder: 8,
+      },
+    },
   ],
 };

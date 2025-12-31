@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/lwmacct/251117-go-ddd-template/internal/adapters/http/response"
 	"github.com/lwmacct/251117-go-ddd-template/internal/application/task"
-	domaintask "github.com/lwmacct/251117-go-ddd-template/internal/domain/task"
+	taskDomain "github.com/lwmacct/251117-go-ddd-template/internal/domain/task"
 )
 
 // ListTasksQuery 任务列表查询参数
@@ -164,7 +164,7 @@ func (h *TaskHandler) Get(c *gin.Context) {
 		ID:     uint(id),
 	})
 	if err != nil {
-		if errors.Is(err, domaintask.ErrTaskNotFound) {
+		if errors.Is(err, taskDomain.ErrTaskNotFound) {
 			response.NotFound(c, "任务不存在")
 			return
 		}
@@ -220,11 +220,11 @@ func (h *TaskHandler) Update(c *gin.Context) {
 		AssigneeID:  req.AssigneeID,
 	})
 	if err != nil {
-		if errors.Is(err, domaintask.ErrTaskNotFound) {
+		if errors.Is(err, taskDomain.ErrTaskNotFound) {
 			response.NotFound(c, "任务不存在")
 			return
 		}
-		if errors.Is(err, domaintask.ErrInvalidStatusTransition) {
+		if errors.Is(err, taskDomain.ErrInvalidStatusTransition) {
 			response.BadRequest(c, "无效的状态转换")
 			return
 		}
@@ -267,7 +267,7 @@ func (h *TaskHandler) Delete(c *gin.Context) {
 		TeamID: teamID,
 		ID:     uint(id),
 	}); err != nil {
-		if errors.Is(err, domaintask.ErrTaskNotFound) {
+		if errors.Is(err, taskDomain.ErrTaskNotFound) {
 			response.NotFound(c, "任务不存在")
 			return
 		}
