@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/org"
 	"gorm.io/gorm"
@@ -101,4 +102,75 @@ func (r *orgMemberQueryRepository) CountOwners(ctx context.Context, orgID uint) 
 		return 0, fmt.Errorf("failed to count org owners: %w", err)
 	}
 	return count, nil
+}
+
+// memberWithUserRow 包含成员和用户信息的查询结果行
+type memberWithUserRow struct {
+	// OrgMember 字段
+	ID       uint
+	OrgID    uint
+	UserID   uint
+	Role     string
+	JoinedAt time.Time
+	// User 字段
+	Username string
+	Email    string
+	FullName string
+	Avatar   string
+}
+
+// ListByOrgWithUsers 获取组织成员列表（包含用户信息）
+func (r *orgMemberQueryRepository) ListByOrgWithUsers(ctx context.Context, orgID uint, offset, limit int) ([]*org.MemberWithUser, error) {
+	var rows []memberWithUserRow
+
+	err := r.db.WithContext(ctx).
+		Table("org_members").
+		Select(`
+			org_members.id,
+			org_members.org_id,
+			org_members.user_id,
+			org_members.role,
+			org_members.joined_at,
+			u.username,
+			u.email,
+			u.full_name,
+			u.avatar
+		`).
+		Joins("LEFT JOIN users u ON org_members.user_id = u.id AND u.deleted_at IS NULL").
+		Where("org_members.org_id = ?", orgID).
+		Order("org_members.created_at ASC").
+		Offset(offset).Limit(limit).
+		Scan(&rows).Error
+	if err != nil {
+		return nil, fmt.Errorf("failed to list org members with users: %w", err)
+	}
+
+	return mapRowsToMemberWithUser(rows), nil
+}
+
+// mapRowsToMemberWithUser 将查询结果行映射为 MemberWithUser 值对象
+func mapRowsToMemberWithUser(rows []memberWithUserRow) []*org.MemberWithUser {
+	if len(rows) == 0 {
+		return []*org.MemberWithUser{}
+	}
+
+	result := make([]*org.MemberWithUser, 0, len(rows))
+	for _, row := range rows {
+		result = append(result, &org.MemberWithUser{
+			Member: org.Member{
+				ID:        row.ID,
+				OrgID:     row.OrgID,
+				UserID:    row.UserID,
+				Role:      org.MemberRole(row.Role),
+				JoinedAt:  row.JoinedAt,
+				CreatedAt: time.Time{}, // 查询结果不包含时间戳
+				UpdatedAt: time.Time{},
+			},
+			Username: row.Username,
+			Email:    row.Email,
+			FullName: row.FullName,
+			Avatar:   row.Avatar,
+		})
+	}
+	return result
 }

@@ -103,6 +103,39 @@ func ToMemberDTOs(members []*org.Member) []*MemberDTO {
 	return dtos
 }
 
+// ToMemberWithUserDTO 将 MemberWithUser 值对象转换为 DTO（包含用户信息）
+func ToMemberWithUserDTO(mwu *org.MemberWithUser) *MemberDTO {
+	if mwu == nil {
+		return nil
+	}
+	return &MemberDTO{
+		ID:       mwu.ID,
+		OrgID:    mwu.OrgID,
+		UserID:   mwu.UserID,
+		Role:     string(mwu.Role),
+		JoinedAt: mwu.JoinedAt,
+		// 用户信息
+		Username: mwu.Username,
+		Email:    mwu.Email,
+		FullName: mwu.FullName,
+		Avatar:   mwu.Avatar,
+	}
+}
+
+// ToMemberWithUserDTOs 将 MemberWithUser 值对象列表转换为 DTO 列表
+func ToMemberWithUserDTOs(mwuList []*org.MemberWithUser) []*MemberDTO {
+	if len(mwuList) == 0 {
+		return []*MemberDTO{}
+	}
+	dtos := make([]*MemberDTO, 0, len(mwuList))
+	for _, mwu := range mwuList {
+		if dto := ToMemberWithUserDTO(mwu); dto != nil {
+			dtos = append(dtos, dto)
+		}
+	}
+	return dtos
+}
+
 // ============================================================================
 // Team Member Mappers
 // ============================================================================

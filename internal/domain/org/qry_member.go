@@ -24,4 +24,8 @@ type MemberQueryRepository interface {
 
 	// CountOwners 统计组织所有者数量
 	CountOwners(ctx context.Context, orgID uint) (int64, error)
+
+	// ListByOrgWithUsers 获取组织成员列表（包含用户信息）
+	// 用于成员列表展示，一次 JOIN 查询获取完整数据
+	ListByOrgWithUsers(ctx context.Context, orgID uint, offset, limit int) ([]*MemberWithUser, error)
 }

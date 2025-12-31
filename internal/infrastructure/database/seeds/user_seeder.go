@@ -29,7 +29,8 @@ func (s *UserSeeder) Seed(ctx context.Context, db *gorm.DB) error {
 			Username: "admin",
 			Email:    "admin@example.com",
 			Password: string(hashedPassword),
-			FullName: "Admin User",
+			FullName: "System Administrator",
+			Avatar:   "https://api.dicebear.com/9.x/micah/svg?seed=admin",
 			Status:   "active",
 		},
 		{
@@ -37,6 +38,7 @@ func (s *UserSeeder) Seed(ctx context.Context, db *gorm.DB) error {
 			Email:    "test@example.com",
 			Password: string(hashedPassword),
 			FullName: "Test User",
+			Avatar:   "https://api.dicebear.com/9.x/micah/svg?seed=testuser",
 			Status:   "active",
 		},
 		{
@@ -44,12 +46,14 @@ func (s *UserSeeder) Seed(ctx context.Context, db *gorm.DB) error {
 			Email:    "demo@example.com",
 			Password: string(hashedPassword),
 			FullName: "Demo User",
+			Avatar:   "https://api.dicebear.com/9.x/micah/svg?seed=demo",
 			Status:   "active",
 		},
 	}
 
 	result := db.Clauses(clause.OnConflict{
-		DoNothing: true,
+		Columns:   []clause.Column{{Name: "username"}},
+		DoUpdates: clause.AssignmentColumns([]string{"email", "password", "full_name", "avatar", "bio", "status"}),
 	}).Create(&users)
 	if result.Error != nil {
 		return result.Error

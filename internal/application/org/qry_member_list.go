@@ -25,7 +25,7 @@ type MemberListResult struct {
 
 // Handle 处理成员列表查询
 func (h *MemberListHandler) Handle(ctx context.Context, query ListMembersQuery) (*MemberListResult, error) {
-	members, err := h.memberQuery.ListByOrg(ctx, query.OrgID, query.Offset, query.Limit)
+	members, err := h.memberQuery.ListByOrgWithUsers(ctx, query.OrgID, query.Offset, query.Limit)
 	if err != nil {
 		return nil, fmt.Errorf("failed to list members: %w", err)
 	}
@@ -36,7 +36,7 @@ func (h *MemberListHandler) Handle(ctx context.Context, query ListMembersQuery) 
 	}
 
 	return &MemberListResult{
-		Items: ToMemberDTOs(members),
+		Items: ToMemberWithUserDTOs(members),
 		Total: total,
 	}, nil
 }

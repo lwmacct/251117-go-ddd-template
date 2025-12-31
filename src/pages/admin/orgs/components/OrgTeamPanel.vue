@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, watch } from "vue";
+import { ref, watch } from "vue";
 import { orgTeamApi, orgTeamMemberApi, extractList } from "@/api";
 import type { OrgTeamDTO, OrgCreateTeamDTO, OrgUpdateTeamDTO, OrgTeamMemberDTO, OrgAddTeamMemberDTO } from "@models";
 import { useServerPagination, useSnackbar } from "@/composables";
@@ -325,17 +325,20 @@ const getRoleText = (role?: string) => {
   return texts[role ?? ""] || (role ?? "-");
 };
 
-// 监听 orgId 变化
+// 监听 orgId 变化，重置分页并重新加载
+// 注意：首次加载由 v-data-table-server 的 @update:options 触发
 watch(
   () => props.orgId,
   () => {
+    if (!props.orgId) return;
+    // 重置状态
     activeTeamId.value = null;
     teamMembers.value = [];
+    // 重置到第一页
+    pagination.page = 1;
     fetchTeams();
   },
 );
-
-onMounted(fetchTeams);
 </script>
 
 <template>

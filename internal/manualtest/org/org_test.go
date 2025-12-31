@@ -269,6 +269,19 @@ func TestOrgMemberCRUD(t *testing.T) {
 	userIDs := manualtest.ExtractIDs(members, func(m org.MemberDTO) uint { return m.UserID })
 	assert.Contains(t, userIDs, testUser.ID, "成员列表应包含新添加的用户")
 
+	// 验证成员包含用户信息
+	var testMember *org.MemberDTO
+	for i := range members {
+		if members[i].UserID == testUser.ID {
+			testMember = &members[i]
+			break
+		}
+	}
+	require.NotNil(t, testMember, "应找到测试用户")
+	assert.NotEmpty(t, testMember.Username, "成员应包含用户名")
+	assert.NotEmpty(t, testMember.Email, "成员应包含邮箱")
+	t.Logf("  用户名: %s, 邮箱: %s", testMember.Username, testMember.Email)
+
 	// 步骤 5: 更新成员角色
 	t.Log("\n步骤 5: 更新成员角色")
 	newRole := "member"
