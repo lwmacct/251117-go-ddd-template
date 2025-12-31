@@ -51,12 +51,14 @@ type CreateTeamDTO struct {
 	Name        string `json:"name" binding:"required,min=2,max=50,loweralphanumhyphen"`
 	DisplayName string `json:"display_name" binding:"required,min=2,max=100"`
 	Description string `json:"description" binding:"max=500"`
+	Avatar      string `json:"avatar" binding:"omitempty,max=255,url"`
 }
 
 // UpdateTeamDTO 更新团队 DTO
 type UpdateTeamDTO struct {
 	DisplayName *string `json:"display_name" binding:"omitempty,min=2,max=100"`
 	Description *string `json:"description" binding:"omitempty,max=500"`
+	Avatar      *string `json:"avatar" binding:"omitempty,max=255"`
 }
 
 // TeamDTO 团队响应 DTO
@@ -66,6 +68,7 @@ type TeamDTO struct {
 	Name        string    `json:"name"`
 	DisplayName string    `json:"display_name"`
 	Description string    `json:"description"`
+	Avatar      string    `json:"avatar"`
 	CreatedAt   time.Time `json:"created_at"`
 	UpdatedAt   time.Time `json:"updated_at"`
 }

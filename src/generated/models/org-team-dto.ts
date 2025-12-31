@@ -25,6 +25,12 @@ export interface OrgTeamDTO {
      * @type {string}
      * @memberof OrgTeamDTO
      */
+    'avatar'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof OrgTeamDTO
+     */
     'created_at'?: string;
     /**
      * 

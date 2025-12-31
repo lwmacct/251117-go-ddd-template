@@ -51,8 +51,8 @@ export const AdminRoleManagementApiAxiosParamCreator = function (configuration?:
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiSystemRolesGet: async (limit?: number, page?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            const localVarPath = `/api/system/roles`;
+        apiAdminRolesGet: async (limit?: number, page?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/admin/roles`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -93,10 +93,10 @@ export const AdminRoleManagementApiAxiosParamCreator = function (configuration?:
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiSystemRolesIdDelete: async (id: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        apiAdminRolesIdDelete: async (id: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'id' is not null or undefined
-            assertParamExists('apiSystemRolesIdDelete', 'id', id)
-            const localVarPath = `/api/system/roles/{id}`
+            assertParamExists('apiAdminRolesIdDelete', 'id', id)
+            const localVarPath = `/api/admin/roles/{id}`
                 .replace(`{${"id"}}`, encodeURIComponent(String(id)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -130,10 +130,10 @@ export const AdminRoleManagementApiAxiosParamCreator = function (configuration?:
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiSystemRolesIdGet: async (id: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        apiAdminRolesIdGet: async (id: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'id' is not null or undefined
-            assertParamExists('apiSystemRolesIdGet', 'id', id)
-            const localVarPath = `/api/system/roles/{id}`
+            assertParamExists('apiAdminRolesIdGet', 'id', id)
+            const localVarPath = `/api/admin/roles/{id}`
                 .replace(`{${"id"}}`, encodeURIComponent(String(id)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -168,12 +168,12 @@ export const AdminRoleManagementApiAxiosParamCreator = function (configuration?:
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiSystemRolesIdPermissionsPut: async (id: number, request: RoleSetPermissionsDTO, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        apiAdminRolesIdPermissionsPut: async (id: number, request: RoleSetPermissionsDTO, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'id' is not null or undefined
-            assertParamExists('apiSystemRolesIdPermissionsPut', 'id', id)
+            assertParamExists('apiAdminRolesIdPermissionsPut', 'id', id)
             // verify required parameter 'request' is not null or undefined
-            assertParamExists('apiSystemRolesIdPermissionsPut', 'request', request)
-            const localVarPath = `/api/system/roles/{id}/permissions`
+            assertParamExists('apiAdminRolesIdPermissionsPut', 'request', request)
+            const localVarPath = `/api/admin/roles/{id}/permissions`
                 .replace(`{${"id"}}`, encodeURIComponent(String(id)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -211,12 +211,12 @@ export const AdminRoleManagementApiAxiosParamCreator = function (configuration?:
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiSystemRolesIdPut: async (id: number, request: RoleUpdateDTO, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        apiAdminRolesIdPut: async (id: number, request: RoleUpdateDTO, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'id' is not null or undefined
-            assertParamExists('apiSystemRolesIdPut', 'id', id)
+            assertParamExists('apiAdminRolesIdPut', 'id', id)
             // verify required parameter 'request' is not null or undefined
-            assertParamExists('apiSystemRolesIdPut', 'request', request)
-            const localVarPath = `/api/system/roles/{id}`
+            assertParamExists('apiAdminRolesIdPut', 'request', request)
+            const localVarPath = `/api/admin/roles/{id}`
                 .replace(`{${"id"}}`, encodeURIComponent(String(id)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -253,10 +253,10 @@ export const AdminRoleManagementApiAxiosParamCreator = function (configuration?:
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiSystemRolesPost: async (request: RoleCreateDTO, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        apiAdminRolesPost: async (request: RoleCreateDTO, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'request' is not null or undefined
-            assertParamExists('apiSystemRolesPost', 'request', request)
-            const localVarPath = `/api/system/roles`;
+            assertParamExists('apiAdminRolesPost', 'request', request)
+            const localVarPath = `/api/admin/roles`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -303,10 +303,10 @@ export const AdminRoleManagementApiFp = function(configuration?: Configuration) 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async apiSystemRolesGet(limit?: number, page?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponsePagedResponseRoleRoleDTO>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.apiSystemRolesGet(limit, page, options);
+        async apiAdminRolesGet(limit?: number, page?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponsePagedResponseRoleRoleDTO>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.apiAdminRolesGet(limit, page, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['AdminRoleManagementApi.apiSystemRolesGet']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['AdminRoleManagementApi.apiAdminRolesGet']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -316,10 +316,10 @@ export const AdminRoleManagementApiFp = function(configuration?: Configuration) 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async apiSystemRolesIdDelete(id: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseMessageResponse>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.apiSystemRolesIdDelete(id, options);
+        async apiAdminRolesIdDelete(id: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseMessageResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.apiAdminRolesIdDelete(id, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['AdminRoleManagementApi.apiSystemRolesIdDelete']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['AdminRoleManagementApi.apiAdminRolesIdDelete']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -329,10 +329,10 @@ export const AdminRoleManagementApiFp = function(configuration?: Configuration) 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async apiSystemRolesIdGet(id: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseRoleRoleDTO>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.apiSystemRolesIdGet(id, options);
+        async apiAdminRolesIdGet(id: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseRoleRoleDTO>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.apiAdminRolesIdGet(id, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['AdminRoleManagementApi.apiSystemRolesIdGet']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['AdminRoleManagementApi.apiAdminRolesIdGet']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -343,10 +343,10 @@ export const AdminRoleManagementApiFp = function(configuration?: Configuration) 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async apiSystemRolesIdPermissionsPut(id: number, request: RoleSetPermissionsDTO, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseMessageResponse>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.apiSystemRolesIdPermissionsPut(id, request, options);
+        async apiAdminRolesIdPermissionsPut(id: number, request: RoleSetPermissionsDTO, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseMessageResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.apiAdminRolesIdPermissionsPut(id, request, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['AdminRoleManagementApi.apiSystemRolesIdPermissionsPut']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['AdminRoleManagementApi.apiAdminRolesIdPermissionsPut']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -357,10 +357,10 @@ export const AdminRoleManagementApiFp = function(configuration?: Configuration) 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async apiSystemRolesIdPut(id: number, request: RoleUpdateDTO, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseRoleRoleDTO>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.apiSystemRolesIdPut(id, request, options);
+        async apiAdminRolesIdPut(id: number, request: RoleUpdateDTO, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseRoleRoleDTO>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.apiAdminRolesIdPut(id, request, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['AdminRoleManagementApi.apiSystemRolesIdPut']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['AdminRoleManagementApi.apiAdminRolesIdPut']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -370,10 +370,10 @@ export const AdminRoleManagementApiFp = function(configuration?: Configuration) 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async apiSystemRolesPost(request: RoleCreateDTO, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseRoleCreateResultDTO>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.apiSystemRolesPost(request, options);
+        async apiAdminRolesPost(request: RoleCreateDTO, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseRoleCreateResultDTO>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.apiAdminRolesPost(request, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['AdminRoleManagementApi.apiSystemRolesPost']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['AdminRoleManagementApi.apiAdminRolesPost']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
     }
@@ -394,8 +394,8 @@ export const AdminRoleManagementApiFactory = function (configuration?: Configura
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiSystemRolesGet(limit?: number, page?: number, options?: RawAxiosRequestConfig): AxiosPromise<ResponsePagedResponseRoleRoleDTO> {
-            return localVarFp.apiSystemRolesGet(limit, page, options).then((request) => request(axios, basePath));
+        apiAdminRolesGet(limit?: number, page?: number, options?: RawAxiosRequestConfig): AxiosPromise<ResponsePagedResponseRoleRoleDTO> {
+            return localVarFp.apiAdminRolesGet(limit, page, options).then((request) => request(axios, basePath));
         },
         /**
          * 管理员删除指定角色（如果角色被用户使用，可能会失败）
@@ -404,8 +404,8 @@ export const AdminRoleManagementApiFactory = function (configuration?: Configura
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiSystemRolesIdDelete(id: number, options?: RawAxiosRequestConfig): AxiosPromise<ResponseMessageResponse> {
-            return localVarFp.apiSystemRolesIdDelete(id, options).then((request) => request(axios, basePath));
+        apiAdminRolesIdDelete(id: number, options?: RawAxiosRequestConfig): AxiosPromise<ResponseMessageResponse> {
+            return localVarFp.apiAdminRolesIdDelete(id, options).then((request) => request(axios, basePath));
         },
         /**
          * 根据角色ID获取角色详细信息（包含权限列表）
@@ -414,8 +414,8 @@ export const AdminRoleManagementApiFactory = function (configuration?: Configura
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiSystemRolesIdGet(id: number, options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseRoleRoleDTO> {
-            return localVarFp.apiSystemRolesIdGet(id, options).then((request) => request(axios, basePath));
+        apiAdminRolesIdGet(id: number, options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseRoleRoleDTO> {
+            return localVarFp.apiAdminRolesIdGet(id, options).then((request) => request(axios, basePath));
         },
         /**
          * 管理员为指定角色设置权限（会覆盖现有权限）。新 RBAC 模型使用 Operation + Resource Pattern。
@@ -425,8 +425,8 @@ export const AdminRoleManagementApiFactory = function (configuration?: Configura
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiSystemRolesIdPermissionsPut(id: number, request: RoleSetPermissionsDTO, options?: RawAxiosRequestConfig): AxiosPromise<ResponseMessageResponse> {
-            return localVarFp.apiSystemRolesIdPermissionsPut(id, request, options).then((request) => request(axios, basePath));
+        apiAdminRolesIdPermissionsPut(id: number, request: RoleSetPermissionsDTO, options?: RawAxiosRequestConfig): AxiosPromise<ResponseMessageResponse> {
+            return localVarFp.apiAdminRolesIdPermissionsPut(id, request, options).then((request) => request(axios, basePath));
         },
         /**
          * 管理员更新角色的显示名称和描述
@@ -436,8 +436,8 @@ export const AdminRoleManagementApiFactory = function (configuration?: Configura
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiSystemRolesIdPut(id: number, request: RoleUpdateDTO, options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseRoleRoleDTO> {
-            return localVarFp.apiSystemRolesIdPut(id, request, options).then((request) => request(axios, basePath));
+        apiAdminRolesIdPut(id: number, request: RoleUpdateDTO, options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseRoleRoleDTO> {
+            return localVarFp.apiAdminRolesIdPut(id, request, options).then((request) => request(axios, basePath));
         },
         /**
          * 管理员创建新的系统角色
@@ -446,8 +446,8 @@ export const AdminRoleManagementApiFactory = function (configuration?: Configura
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiSystemRolesPost(request: RoleCreateDTO, options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseRoleCreateResultDTO> {
-            return localVarFp.apiSystemRolesPost(request, options).then((request) => request(axios, basePath));
+        apiAdminRolesPost(request: RoleCreateDTO, options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseRoleCreateResultDTO> {
+            return localVarFp.apiAdminRolesPost(request, options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -468,8 +468,8 @@ export class AdminRoleManagementApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof AdminRoleManagementApi
      */
-    public apiSystemRolesGet(limit?: number, page?: number, options?: RawAxiosRequestConfig) {
-        return AdminRoleManagementApiFp(this.configuration).apiSystemRolesGet(limit, page, options).then((request) => request(this.axios, this.basePath));
+    public apiAdminRolesGet(limit?: number, page?: number, options?: RawAxiosRequestConfig) {
+        return AdminRoleManagementApiFp(this.configuration).apiAdminRolesGet(limit, page, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -480,8 +480,8 @@ export class AdminRoleManagementApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof AdminRoleManagementApi
      */
-    public apiSystemRolesIdDelete(id: number, options?: RawAxiosRequestConfig) {
-        return AdminRoleManagementApiFp(this.configuration).apiSystemRolesIdDelete(id, options).then((request) => request(this.axios, this.basePath));
+    public apiAdminRolesIdDelete(id: number, options?: RawAxiosRequestConfig) {
+        return AdminRoleManagementApiFp(this.configuration).apiAdminRolesIdDelete(id, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -492,8 +492,8 @@ export class AdminRoleManagementApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof AdminRoleManagementApi
      */
-    public apiSystemRolesIdGet(id: number, options?: RawAxiosRequestConfig) {
-        return AdminRoleManagementApiFp(this.configuration).apiSystemRolesIdGet(id, options).then((request) => request(this.axios, this.basePath));
+    public apiAdminRolesIdGet(id: number, options?: RawAxiosRequestConfig) {
+        return AdminRoleManagementApiFp(this.configuration).apiAdminRolesIdGet(id, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -505,8 +505,8 @@ export class AdminRoleManagementApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof AdminRoleManagementApi
      */
-    public apiSystemRolesIdPermissionsPut(id: number, request: RoleSetPermissionsDTO, options?: RawAxiosRequestConfig) {
-        return AdminRoleManagementApiFp(this.configuration).apiSystemRolesIdPermissionsPut(id, request, options).then((request) => request(this.axios, this.basePath));
+    public apiAdminRolesIdPermissionsPut(id: number, request: RoleSetPermissionsDTO, options?: RawAxiosRequestConfig) {
+        return AdminRoleManagementApiFp(this.configuration).apiAdminRolesIdPermissionsPut(id, request, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -518,8 +518,8 @@ export class AdminRoleManagementApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof AdminRoleManagementApi
      */
-    public apiSystemRolesIdPut(id: number, request: RoleUpdateDTO, options?: RawAxiosRequestConfig) {
-        return AdminRoleManagementApiFp(this.configuration).apiSystemRolesIdPut(id, request, options).then((request) => request(this.axios, this.basePath));
+    public apiAdminRolesIdPut(id: number, request: RoleUpdateDTO, options?: RawAxiosRequestConfig) {
+        return AdminRoleManagementApiFp(this.configuration).apiAdminRolesIdPut(id, request, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -530,8 +530,8 @@ export class AdminRoleManagementApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof AdminRoleManagementApi
      */
-    public apiSystemRolesPost(request: RoleCreateDTO, options?: RawAxiosRequestConfig) {
-        return AdminRoleManagementApiFp(this.configuration).apiSystemRolesPost(request, options).then((request) => request(this.axios, this.basePath));
+    public apiAdminRolesPost(request: RoleCreateDTO, options?: RawAxiosRequestConfig) {
+        return AdminRoleManagementApiFp(this.configuration).apiAdminRolesPost(request, options).then((request) => request(this.axios, this.basePath));
     }
 }
 

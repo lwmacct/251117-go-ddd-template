@@ -22,6 +22,7 @@ func (s *OrganizationSeeder) Seed(ctx context.Context, db *gorm.DB) error {
 			Name:        "acme",
 			DisplayName: "Acme Corporation",
 			Description: "示例组织",
+			Avatar:      "https://api.dicebear.com/9.x/identicon/svg?seed=acme",
 			Status:      "active",
 		}
 		if err := tx.Clauses(clause.OnConflict{

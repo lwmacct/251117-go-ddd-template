@@ -87,7 +87,7 @@ func NewAuditHandler(
 //	@Failure		401		{object}	response.ErrorResponse							"未授权"
 //	@Failure		403		{object}	response.ErrorResponse							"权限不足"
 //	@Failure		500		{object}	response.ErrorResponse							"服务器内部错误"
-//	@Router			/api/system/audit [get]
+//	@Router			/api/admin/audit [get]
 func (h *AuditHandler) ListLogs(c *gin.Context) {
 	var q ListAuditQuery
 	if err := c.ShouldBindQuery(&q); err != nil {
@@ -119,7 +119,7 @@ func (h *AuditHandler) ListLogs(c *gin.Context) {
 //	@Failure		401	{object}	response.ErrorResponse					"未授权"
 //	@Failure		403	{object}	response.ErrorResponse					"权限不足"
 //	@Failure		404	{object}	response.ErrorResponse					"日志不存在"
-//	@Router			/api/system/audit/{id} [get]
+//	@Router			/api/admin/audit/{id} [get]
 func (h *AuditHandler) GetLog(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
@@ -154,7 +154,7 @@ func (h *AuditHandler) GetLog(c *gin.Context) {
 //	@Success		200	{object}	response.DataResponse[audit.AuditActionsResponseDTO]	"审计操作定义"
 //	@Failure		401	{object}	response.ErrorResponse									"未授权"
 //	@Failure		403	{object}	response.ErrorResponse									"权限不足"
-//	@Router			/api/system/audit/actions [get]
+//	@Router			/api/admin/audit/actions [get]
 func (h *AuditHandler) GetActions(c *gin.Context) {
 	resp := audit.ToAuditActionsResponseDTO()
 	response.OK(c, response.MsgSuccess, resp)

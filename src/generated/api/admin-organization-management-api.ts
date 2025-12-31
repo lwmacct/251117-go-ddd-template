@@ -44,12 +44,12 @@ export const AdminOrganizationManagementApiAxiosParamCreator = function (configu
          * @summary 组织列表
          * @param {number} [limit] Limit 每页数量，默认 20，最大 1000
          * @param {number} [page] Page 页码，从 1 开始
-         * @param {ApiSystemOrgsGetStatusEnum} [status] 
+         * @param {ApiAdminOrgsGetStatusEnum} [status] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiSystemOrgsGet: async (limit?: number, page?: number, status?: ApiSystemOrgsGetStatusEnum, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            const localVarPath = `/api/system/orgs`;
+        apiAdminOrgsGet: async (limit?: number, page?: number, status?: ApiAdminOrgsGetStatusEnum, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/admin/orgs`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -94,10 +94,10 @@ export const AdminOrganizationManagementApiAxiosParamCreator = function (configu
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiSystemOrgsIdDelete: async (id: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        apiAdminOrgsIdDelete: async (id: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'id' is not null or undefined
-            assertParamExists('apiSystemOrgsIdDelete', 'id', id)
-            const localVarPath = `/api/system/orgs/{id}`
+            assertParamExists('apiAdminOrgsIdDelete', 'id', id)
+            const localVarPath = `/api/admin/orgs/{id}`
                 .replace(`{${"id"}}`, encodeURIComponent(String(id)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -131,10 +131,10 @@ export const AdminOrganizationManagementApiAxiosParamCreator = function (configu
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiSystemOrgsIdGet: async (id: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        apiAdminOrgsIdGet: async (id: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'id' is not null or undefined
-            assertParamExists('apiSystemOrgsIdGet', 'id', id)
-            const localVarPath = `/api/system/orgs/{id}`
+            assertParamExists('apiAdminOrgsIdGet', 'id', id)
+            const localVarPath = `/api/admin/orgs/{id}`
                 .replace(`{${"id"}}`, encodeURIComponent(String(id)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -169,12 +169,12 @@ export const AdminOrganizationManagementApiAxiosParamCreator = function (configu
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiSystemOrgsIdPut: async (id: number, request: OrgUpdateOrgDTO, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        apiAdminOrgsIdPut: async (id: number, request: OrgUpdateOrgDTO, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'id' is not null or undefined
-            assertParamExists('apiSystemOrgsIdPut', 'id', id)
+            assertParamExists('apiAdminOrgsIdPut', 'id', id)
             // verify required parameter 'request' is not null or undefined
-            assertParamExists('apiSystemOrgsIdPut', 'request', request)
-            const localVarPath = `/api/system/orgs/{id}`
+            assertParamExists('apiAdminOrgsIdPut', 'request', request)
+            const localVarPath = `/api/admin/orgs/{id}`
                 .replace(`{${"id"}}`, encodeURIComponent(String(id)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -211,10 +211,10 @@ export const AdminOrganizationManagementApiAxiosParamCreator = function (configu
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiSystemOrgsPost: async (request: OrgCreateOrgDTO, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        apiAdminOrgsPost: async (request: OrgCreateOrgDTO, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'request' is not null or undefined
-            assertParamExists('apiSystemOrgsPost', 'request', request)
-            const localVarPath = `/api/system/orgs`;
+            assertParamExists('apiAdminOrgsPost', 'request', request)
+            const localVarPath = `/api/admin/orgs`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -258,14 +258,14 @@ export const AdminOrganizationManagementApiFp = function(configuration?: Configu
          * @summary 组织列表
          * @param {number} [limit] Limit 每页数量，默认 20，最大 1000
          * @param {number} [page] Page 页码，从 1 开始
-         * @param {ApiSystemOrgsGetStatusEnum} [status] 
+         * @param {ApiAdminOrgsGetStatusEnum} [status] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async apiSystemOrgsGet(limit?: number, page?: number, status?: ApiSystemOrgsGetStatusEnum, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponsePagedResponseOrgOrgDTO>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.apiSystemOrgsGet(limit, page, status, options);
+        async apiAdminOrgsGet(limit?: number, page?: number, status?: ApiAdminOrgsGetStatusEnum, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponsePagedResponseOrgOrgDTO>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.apiAdminOrgsGet(limit, page, status, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['AdminOrganizationManagementApi.apiSystemOrgsGet']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['AdminOrganizationManagementApi.apiAdminOrgsGet']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -275,10 +275,10 @@ export const AdminOrganizationManagementApiFp = function(configuration?: Configu
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async apiSystemOrgsIdDelete(id: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseMessageResponse>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.apiSystemOrgsIdDelete(id, options);
+        async apiAdminOrgsIdDelete(id: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseMessageResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.apiAdminOrgsIdDelete(id, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['AdminOrganizationManagementApi.apiSystemOrgsIdDelete']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['AdminOrganizationManagementApi.apiAdminOrgsIdDelete']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -288,10 +288,10 @@ export const AdminOrganizationManagementApiFp = function(configuration?: Configu
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async apiSystemOrgsIdGet(id: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseOrgOrgDTO>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.apiSystemOrgsIdGet(id, options);
+        async apiAdminOrgsIdGet(id: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseOrgOrgDTO>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.apiAdminOrgsIdGet(id, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['AdminOrganizationManagementApi.apiSystemOrgsIdGet']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['AdminOrganizationManagementApi.apiAdminOrgsIdGet']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -302,10 +302,10 @@ export const AdminOrganizationManagementApiFp = function(configuration?: Configu
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async apiSystemOrgsIdPut(id: number, request: OrgUpdateOrgDTO, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseOrgOrgDTO>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.apiSystemOrgsIdPut(id, request, options);
+        async apiAdminOrgsIdPut(id: number, request: OrgUpdateOrgDTO, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseOrgOrgDTO>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.apiAdminOrgsIdPut(id, request, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['AdminOrganizationManagementApi.apiSystemOrgsIdPut']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['AdminOrganizationManagementApi.apiAdminOrgsIdPut']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -315,10 +315,10 @@ export const AdminOrganizationManagementApiFp = function(configuration?: Configu
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async apiSystemOrgsPost(request: OrgCreateOrgDTO, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseOrgOrgDTO>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.apiSystemOrgsPost(request, options);
+        async apiAdminOrgsPost(request: OrgCreateOrgDTO, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseOrgOrgDTO>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.apiAdminOrgsPost(request, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['AdminOrganizationManagementApi.apiSystemOrgsPost']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['AdminOrganizationManagementApi.apiAdminOrgsPost']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
     }
@@ -336,12 +336,12 @@ export const AdminOrganizationManagementApiFactory = function (configuration?: C
          * @summary 组织列表
          * @param {number} [limit] Limit 每页数量，默认 20，最大 1000
          * @param {number} [page] Page 页码，从 1 开始
-         * @param {ApiSystemOrgsGetStatusEnum} [status] 
+         * @param {ApiAdminOrgsGetStatusEnum} [status] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiSystemOrgsGet(limit?: number, page?: number, status?: ApiSystemOrgsGetStatusEnum, options?: RawAxiosRequestConfig): AxiosPromise<ResponsePagedResponseOrgOrgDTO> {
-            return localVarFp.apiSystemOrgsGet(limit, page, status, options).then((request) => request(axios, basePath));
+        apiAdminOrgsGet(limit?: number, page?: number, status?: ApiAdminOrgsGetStatusEnum, options?: RawAxiosRequestConfig): AxiosPromise<ResponsePagedResponseOrgOrgDTO> {
+            return localVarFp.apiAdminOrgsGet(limit, page, status, options).then((request) => request(axios, basePath));
         },
         /**
          * 软删除组织
@@ -350,8 +350,8 @@ export const AdminOrganizationManagementApiFactory = function (configuration?: C
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiSystemOrgsIdDelete(id: number, options?: RawAxiosRequestConfig): AxiosPromise<ResponseMessageResponse> {
-            return localVarFp.apiSystemOrgsIdDelete(id, options).then((request) => request(axios, basePath));
+        apiAdminOrgsIdDelete(id: number, options?: RawAxiosRequestConfig): AxiosPromise<ResponseMessageResponse> {
+            return localVarFp.apiAdminOrgsIdDelete(id, options).then((request) => request(axios, basePath));
         },
         /**
          * 根据 ID 获取组织详情
@@ -360,8 +360,8 @@ export const AdminOrganizationManagementApiFactory = function (configuration?: C
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiSystemOrgsIdGet(id: number, options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseOrgOrgDTO> {
-            return localVarFp.apiSystemOrgsIdGet(id, options).then((request) => request(axios, basePath));
+        apiAdminOrgsIdGet(id: number, options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseOrgOrgDTO> {
+            return localVarFp.apiAdminOrgsIdGet(id, options).then((request) => request(axios, basePath));
         },
         /**
          * 更新组织信息
@@ -371,8 +371,8 @@ export const AdminOrganizationManagementApiFactory = function (configuration?: C
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiSystemOrgsIdPut(id: number, request: OrgUpdateOrgDTO, options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseOrgOrgDTO> {
-            return localVarFp.apiSystemOrgsIdPut(id, request, options).then((request) => request(axios, basePath));
+        apiAdminOrgsIdPut(id: number, request: OrgUpdateOrgDTO, options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseOrgOrgDTO> {
+            return localVarFp.apiAdminOrgsIdPut(id, request, options).then((request) => request(axios, basePath));
         },
         /**
          * 系统管理员创建新组织
@@ -381,8 +381,8 @@ export const AdminOrganizationManagementApiFactory = function (configuration?: C
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiSystemOrgsPost(request: OrgCreateOrgDTO, options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseOrgOrgDTO> {
-            return localVarFp.apiSystemOrgsPost(request, options).then((request) => request(axios, basePath));
+        apiAdminOrgsPost(request: OrgCreateOrgDTO, options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseOrgOrgDTO> {
+            return localVarFp.apiAdminOrgsPost(request, options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -399,13 +399,13 @@ export class AdminOrganizationManagementApi extends BaseAPI {
      * @summary 组织列表
      * @param {number} [limit] Limit 每页数量，默认 20，最大 1000
      * @param {number} [page] Page 页码，从 1 开始
-     * @param {ApiSystemOrgsGetStatusEnum} [status] 
+     * @param {ApiAdminOrgsGetStatusEnum} [status] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof AdminOrganizationManagementApi
      */
-    public apiSystemOrgsGet(limit?: number, page?: number, status?: ApiSystemOrgsGetStatusEnum, options?: RawAxiosRequestConfig) {
-        return AdminOrganizationManagementApiFp(this.configuration).apiSystemOrgsGet(limit, page, status, options).then((request) => request(this.axios, this.basePath));
+    public apiAdminOrgsGet(limit?: number, page?: number, status?: ApiAdminOrgsGetStatusEnum, options?: RawAxiosRequestConfig) {
+        return AdminOrganizationManagementApiFp(this.configuration).apiAdminOrgsGet(limit, page, status, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -416,8 +416,8 @@ export class AdminOrganizationManagementApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof AdminOrganizationManagementApi
      */
-    public apiSystemOrgsIdDelete(id: number, options?: RawAxiosRequestConfig) {
-        return AdminOrganizationManagementApiFp(this.configuration).apiSystemOrgsIdDelete(id, options).then((request) => request(this.axios, this.basePath));
+    public apiAdminOrgsIdDelete(id: number, options?: RawAxiosRequestConfig) {
+        return AdminOrganizationManagementApiFp(this.configuration).apiAdminOrgsIdDelete(id, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -428,8 +428,8 @@ export class AdminOrganizationManagementApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof AdminOrganizationManagementApi
      */
-    public apiSystemOrgsIdGet(id: number, options?: RawAxiosRequestConfig) {
-        return AdminOrganizationManagementApiFp(this.configuration).apiSystemOrgsIdGet(id, options).then((request) => request(this.axios, this.basePath));
+    public apiAdminOrgsIdGet(id: number, options?: RawAxiosRequestConfig) {
+        return AdminOrganizationManagementApiFp(this.configuration).apiAdminOrgsIdGet(id, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -441,8 +441,8 @@ export class AdminOrganizationManagementApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof AdminOrganizationManagementApi
      */
-    public apiSystemOrgsIdPut(id: number, request: OrgUpdateOrgDTO, options?: RawAxiosRequestConfig) {
-        return AdminOrganizationManagementApiFp(this.configuration).apiSystemOrgsIdPut(id, request, options).then((request) => request(this.axios, this.basePath));
+    public apiAdminOrgsIdPut(id: number, request: OrgUpdateOrgDTO, options?: RawAxiosRequestConfig) {
+        return AdminOrganizationManagementApiFp(this.configuration).apiAdminOrgsIdPut(id, request, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -453,16 +453,16 @@ export class AdminOrganizationManagementApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof AdminOrganizationManagementApi
      */
-    public apiSystemOrgsPost(request: OrgCreateOrgDTO, options?: RawAxiosRequestConfig) {
-        return AdminOrganizationManagementApiFp(this.configuration).apiSystemOrgsPost(request, options).then((request) => request(this.axios, this.basePath));
+    public apiAdminOrgsPost(request: OrgCreateOrgDTO, options?: RawAxiosRequestConfig) {
+        return AdminOrganizationManagementApiFp(this.configuration).apiAdminOrgsPost(request, options).then((request) => request(this.axios, this.basePath));
     }
 }
 
 /**
  * @export
  */
-export const ApiSystemOrgsGetStatusEnum = {
+export const ApiAdminOrgsGetStatusEnum = {
     Active: 'active',
     Inactive: 'inactive'
 } as const;
-export type ApiSystemOrgsGetStatusEnum = typeof ApiSystemOrgsGetStatusEnum[keyof typeof ApiSystemOrgsGetStatusEnum];
+export type ApiAdminOrgsGetStatusEnum = typeof ApiAdminOrgsGetStatusEnum[keyof typeof ApiAdminOrgsGetStatusEnum];

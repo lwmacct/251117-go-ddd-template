@@ -48,10 +48,10 @@ export const AdminSettingsApiAxiosParamCreator = function (configuration?: Confi
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiSystemSettingsBatchPost: async (request: HandlerBatchUpdateSettingsRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        apiAdminSettingsBatchPost: async (request: HandlerBatchUpdateSettingsRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'request' is not null or undefined
-            assertParamExists('apiSystemSettingsBatchPost', 'request', request)
-            const localVarPath = `/api/system/settings/batch`;
+            assertParamExists('apiAdminSettingsBatchPost', 'request', request)
+            const localVarPath = `/api/admin/settings/batch`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -87,8 +87,8 @@ export const AdminSettingsApiAxiosParamCreator = function (configuration?: Confi
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiSystemSettingsGet: async (category?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            const localVarPath = `/api/system/settings`;
+        apiAdminSettingsGet: async (category?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/admin/settings`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -125,10 +125,10 @@ export const AdminSettingsApiAxiosParamCreator = function (configuration?: Confi
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiSystemSettingsKeyDelete: async (key: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        apiAdminSettingsKeyDelete: async (key: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'key' is not null or undefined
-            assertParamExists('apiSystemSettingsKeyDelete', 'key', key)
-            const localVarPath = `/api/system/settings/{key}`
+            assertParamExists('apiAdminSettingsKeyDelete', 'key', key)
+            const localVarPath = `/api/admin/settings/{key}`
                 .replace(`{${"key"}}`, encodeURIComponent(String(key)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -162,10 +162,10 @@ export const AdminSettingsApiAxiosParamCreator = function (configuration?: Confi
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiSystemSettingsKeyGet: async (key: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        apiAdminSettingsKeyGet: async (key: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'key' is not null or undefined
-            assertParamExists('apiSystemSettingsKeyGet', 'key', key)
-            const localVarPath = `/api/system/settings/{key}`
+            assertParamExists('apiAdminSettingsKeyGet', 'key', key)
+            const localVarPath = `/api/admin/settings/{key}`
                 .replace(`{${"key"}}`, encodeURIComponent(String(key)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -200,12 +200,12 @@ export const AdminSettingsApiAxiosParamCreator = function (configuration?: Confi
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiSystemSettingsKeyPut: async (key: string, request: HandlerUpdateSettingRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        apiAdminSettingsKeyPut: async (key: string, request: HandlerUpdateSettingRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'key' is not null or undefined
-            assertParamExists('apiSystemSettingsKeyPut', 'key', key)
+            assertParamExists('apiAdminSettingsKeyPut', 'key', key)
             // verify required parameter 'request' is not null or undefined
-            assertParamExists('apiSystemSettingsKeyPut', 'request', request)
-            const localVarPath = `/api/system/settings/{key}`
+            assertParamExists('apiAdminSettingsKeyPut', 'request', request)
+            const localVarPath = `/api/admin/settings/{key}`
                 .replace(`{${"key"}}`, encodeURIComponent(String(key)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -242,10 +242,10 @@ export const AdminSettingsApiAxiosParamCreator = function (configuration?: Confi
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiSystemSettingsPost: async (request: HandlerCreateSettingRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        apiAdminSettingsPost: async (request: HandlerCreateSettingRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'request' is not null or undefined
-            assertParamExists('apiSystemSettingsPost', 'request', request)
-            const localVarPath = `/api/system/settings`;
+            assertParamExists('apiAdminSettingsPost', 'request', request)
+            const localVarPath = `/api/admin/settings`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -291,10 +291,10 @@ export const AdminSettingsApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async apiSystemSettingsBatchPost(request: HandlerBatchUpdateSettingsRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseMessageResponse>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.apiSystemSettingsBatchPost(request, options);
+        async apiAdminSettingsBatchPost(request: HandlerBatchUpdateSettingsRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseMessageResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.apiAdminSettingsBatchPost(request, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['AdminSettingsApi.apiSystemSettingsBatchPost']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['AdminSettingsApi.apiAdminSettingsBatchPost']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -304,10 +304,10 @@ export const AdminSettingsApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async apiSystemSettingsGet(category?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseArraySettingSettingsCategoryDTO>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.apiSystemSettingsGet(category, options);
+        async apiAdminSettingsGet(category?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseArraySettingSettingsCategoryDTO>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.apiAdminSettingsGet(category, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['AdminSettingsApi.apiSystemSettingsGet']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['AdminSettingsApi.apiAdminSettingsGet']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -317,10 +317,10 @@ export const AdminSettingsApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async apiSystemSettingsKeyDelete(key: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.apiSystemSettingsKeyDelete(key, options);
+        async apiAdminSettingsKeyDelete(key: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.apiAdminSettingsKeyDelete(key, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['AdminSettingsApi.apiSystemSettingsKeyDelete']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['AdminSettingsApi.apiAdminSettingsKeyDelete']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -330,10 +330,10 @@ export const AdminSettingsApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async apiSystemSettingsKeyGet(key: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseSettingSettingDTO>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.apiSystemSettingsKeyGet(key, options);
+        async apiAdminSettingsKeyGet(key: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseSettingSettingDTO>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.apiAdminSettingsKeyGet(key, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['AdminSettingsApi.apiSystemSettingsKeyGet']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['AdminSettingsApi.apiAdminSettingsKeyGet']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -344,10 +344,10 @@ export const AdminSettingsApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async apiSystemSettingsKeyPut(key: string, request: HandlerUpdateSettingRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseSettingSettingDTO>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.apiSystemSettingsKeyPut(key, request, options);
+        async apiAdminSettingsKeyPut(key: string, request: HandlerUpdateSettingRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseSettingSettingDTO>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.apiAdminSettingsKeyPut(key, request, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['AdminSettingsApi.apiSystemSettingsKeyPut']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['AdminSettingsApi.apiAdminSettingsKeyPut']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -357,10 +357,10 @@ export const AdminSettingsApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async apiSystemSettingsPost(request: HandlerCreateSettingRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseSettingSettingDTO>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.apiSystemSettingsPost(request, options);
+        async apiAdminSettingsPost(request: HandlerCreateSettingRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseSettingSettingDTO>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.apiAdminSettingsPost(request, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['AdminSettingsApi.apiSystemSettingsPost']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['AdminSettingsApi.apiAdminSettingsPost']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
     }
@@ -380,8 +380,8 @@ export const AdminSettingsApiFactory = function (configuration?: Configuration, 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiSystemSettingsBatchPost(request: HandlerBatchUpdateSettingsRequest, options?: RawAxiosRequestConfig): AxiosPromise<ResponseMessageResponse> {
-            return localVarFp.apiSystemSettingsBatchPost(request, options).then((request) => request(axios, basePath));
+        apiAdminSettingsBatchPost(request: HandlerBatchUpdateSettingsRequest, options?: RawAxiosRequestConfig): AxiosPromise<ResponseMessageResponse> {
+            return localVarFp.apiAdminSettingsBatchPost(request, options).then((request) => request(axios, basePath));
         },
         /**
          * 获取按 Category → Group → Settings 层级组织的配置数据，用于前端动态渲染设置页面。支持按分类过滤（懒加载）。
@@ -390,8 +390,8 @@ export const AdminSettingsApiFactory = function (configuration?: Configuration, 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiSystemSettingsGet(category?: string, options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseArraySettingSettingsCategoryDTO> {
-            return localVarFp.apiSystemSettingsGet(category, options).then((request) => request(axios, basePath));
+        apiAdminSettingsGet(category?: string, options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseArraySettingSettingsCategoryDTO> {
+            return localVarFp.apiAdminSettingsGet(category, options).then((request) => request(axios, basePath));
         },
         /**
          * 管理员删除指定的系统配置项
@@ -400,8 +400,8 @@ export const AdminSettingsApiFactory = function (configuration?: Configuration, 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiSystemSettingsKeyDelete(key: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
-            return localVarFp.apiSystemSettingsKeyDelete(key, options).then((request) => request(axios, basePath));
+        apiAdminSettingsKeyDelete(key: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.apiAdminSettingsKeyDelete(key, options).then((request) => request(axios, basePath));
         },
         /**
          * 根据配置键获取配置详情
@@ -410,8 +410,8 @@ export const AdminSettingsApiFactory = function (configuration?: Configuration, 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiSystemSettingsKeyGet(key: string, options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseSettingSettingDTO> {
-            return localVarFp.apiSystemSettingsKeyGet(key, options).then((request) => request(axios, basePath));
+        apiAdminSettingsKeyGet(key: string, options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseSettingSettingDTO> {
+            return localVarFp.apiAdminSettingsKeyGet(key, options).then((request) => request(axios, basePath));
         },
         /**
          * 管理员更新指定配置项的值和标签
@@ -421,8 +421,8 @@ export const AdminSettingsApiFactory = function (configuration?: Configuration, 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiSystemSettingsKeyPut(key: string, request: HandlerUpdateSettingRequest, options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseSettingSettingDTO> {
-            return localVarFp.apiSystemSettingsKeyPut(key, request, options).then((request) => request(axios, basePath));
+        apiAdminSettingsKeyPut(key: string, request: HandlerUpdateSettingRequest, options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseSettingSettingDTO> {
+            return localVarFp.apiAdminSettingsKeyPut(key, request, options).then((request) => request(axios, basePath));
         },
         /**
          * 管理员创建新的系统配置项
@@ -431,8 +431,8 @@ export const AdminSettingsApiFactory = function (configuration?: Configuration, 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiSystemSettingsPost(request: HandlerCreateSettingRequest, options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseSettingSettingDTO> {
-            return localVarFp.apiSystemSettingsPost(request, options).then((request) => request(axios, basePath));
+        apiAdminSettingsPost(request: HandlerCreateSettingRequest, options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseSettingSettingDTO> {
+            return localVarFp.apiAdminSettingsPost(request, options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -452,8 +452,8 @@ export class AdminSettingsApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof AdminSettingsApi
      */
-    public apiSystemSettingsBatchPost(request: HandlerBatchUpdateSettingsRequest, options?: RawAxiosRequestConfig) {
-        return AdminSettingsApiFp(this.configuration).apiSystemSettingsBatchPost(request, options).then((request) => request(this.axios, this.basePath));
+    public apiAdminSettingsBatchPost(request: HandlerBatchUpdateSettingsRequest, options?: RawAxiosRequestConfig) {
+        return AdminSettingsApiFp(this.configuration).apiAdminSettingsBatchPost(request, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -464,8 +464,8 @@ export class AdminSettingsApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof AdminSettingsApi
      */
-    public apiSystemSettingsGet(category?: string, options?: RawAxiosRequestConfig) {
-        return AdminSettingsApiFp(this.configuration).apiSystemSettingsGet(category, options).then((request) => request(this.axios, this.basePath));
+    public apiAdminSettingsGet(category?: string, options?: RawAxiosRequestConfig) {
+        return AdminSettingsApiFp(this.configuration).apiAdminSettingsGet(category, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -476,8 +476,8 @@ export class AdminSettingsApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof AdminSettingsApi
      */
-    public apiSystemSettingsKeyDelete(key: string, options?: RawAxiosRequestConfig) {
-        return AdminSettingsApiFp(this.configuration).apiSystemSettingsKeyDelete(key, options).then((request) => request(this.axios, this.basePath));
+    public apiAdminSettingsKeyDelete(key: string, options?: RawAxiosRequestConfig) {
+        return AdminSettingsApiFp(this.configuration).apiAdminSettingsKeyDelete(key, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -488,8 +488,8 @@ export class AdminSettingsApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof AdminSettingsApi
      */
-    public apiSystemSettingsKeyGet(key: string, options?: RawAxiosRequestConfig) {
-        return AdminSettingsApiFp(this.configuration).apiSystemSettingsKeyGet(key, options).then((request) => request(this.axios, this.basePath));
+    public apiAdminSettingsKeyGet(key: string, options?: RawAxiosRequestConfig) {
+        return AdminSettingsApiFp(this.configuration).apiAdminSettingsKeyGet(key, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -501,8 +501,8 @@ export class AdminSettingsApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof AdminSettingsApi
      */
-    public apiSystemSettingsKeyPut(key: string, request: HandlerUpdateSettingRequest, options?: RawAxiosRequestConfig) {
-        return AdminSettingsApiFp(this.configuration).apiSystemSettingsKeyPut(key, request, options).then((request) => request(this.axios, this.basePath));
+    public apiAdminSettingsKeyPut(key: string, request: HandlerUpdateSettingRequest, options?: RawAxiosRequestConfig) {
+        return AdminSettingsApiFp(this.configuration).apiAdminSettingsKeyPut(key, request, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -513,8 +513,8 @@ export class AdminSettingsApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof AdminSettingsApi
      */
-    public apiSystemSettingsPost(request: HandlerCreateSettingRequest, options?: RawAxiosRequestConfig) {
-        return AdminSettingsApiFp(this.configuration).apiSystemSettingsPost(request, options).then((request) => request(this.axios, this.basePath));
+    public apiAdminSettingsPost(request: HandlerCreateSettingRequest, options?: RawAxiosRequestConfig) {
+        return AdminSettingsApiFp(this.configuration).apiAdminSettingsPost(request, options).then((request) => request(this.axios, this.basePath));
     }
 }
 

@@ -69,7 +69,7 @@ func NewRoleHandler(
 //	@Failure		401		{object}	response.ErrorResponse						"未授权"
 //	@Failure		403		{object}	response.ErrorResponse						"权限不足"
 //	@Failure		500		{object}	response.ErrorResponse						"服务器内部错误"
-//	@Router			/api/system/roles [post]
+//	@Router			/api/admin/roles [post]
 func (h *RoleHandler) CreateRole(c *gin.Context) {
 	var req role.CreateDTO
 
@@ -116,7 +116,7 @@ func (h *RoleHandler) CreateRole(c *gin.Context) {
 //	@Failure		401		{object}	response.ErrorResponse					"未授权"
 //	@Failure		403		{object}	response.ErrorResponse					"权限不足"
 //	@Failure		500		{object}	response.ErrorResponse					"服务器内部错误"
-//	@Router			/api/system/roles [get]
+//	@Router			/api/admin/roles [get]
 func (h *RoleHandler) ListRoles(c *gin.Context) {
 	var q ListRolesQuery
 	if err := c.ShouldBindQuery(&q); err != nil {
@@ -148,7 +148,7 @@ func (h *RoleHandler) ListRoles(c *gin.Context) {
 //	@Failure		401	{object}	response.ErrorResponse				"未授权"
 //	@Failure		403	{object}	response.ErrorResponse				"权限不足"
 //	@Failure		404	{object}	response.ErrorResponse				"角色不存在"
-//	@Router			/api/system/roles/{id} [get]
+//	@Router			/api/admin/roles/{id} [get]
 func (h *RoleHandler) GetRole(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
@@ -189,7 +189,7 @@ func (h *RoleHandler) GetRole(c *gin.Context) {
 //	@Failure		403		{object}	response.ErrorResponse				"权限不足"
 //	@Failure		404		{object}	response.ErrorResponse				"角色不存在"
 //	@Failure		500		{object}	response.ErrorResponse				"服务器内部错误"
-//	@Router			/api/system/roles/{id} [put]
+//	@Router			/api/admin/roles/{id} [put]
 func (h *RoleHandler) UpdateRole(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
@@ -242,7 +242,7 @@ func (h *RoleHandler) UpdateRole(c *gin.Context) {
 //	@Failure		403	{object}	response.ErrorResponse		"权限不足"
 //	@Failure		404	{object}	response.ErrorResponse		"角色不存在"
 //	@Failure		500	{object}	response.ErrorResponse		"服务器内部错误或角色被使用中"
-//	@Router			/api/system/roles/{id} [delete]
+//	@Router			/api/admin/roles/{id} [delete]
 func (h *RoleHandler) DeleteRole(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
@@ -291,7 +291,7 @@ func (h *RoleHandler) DeleteRole(c *gin.Context) {
 //	@Failure		403		{object}	response.ErrorResponse		"权限不足"
 //	@Failure		404		{object}	response.ErrorResponse		"角色不存在"
 //	@Failure		500		{object}	response.ErrorResponse		"服务器内部错误"
-//	@Router			/api/system/roles/{id}/permissions [put]
+//	@Router			/api/admin/roles/{id}/permissions [put]
 func (h *RoleHandler) SetPermissions(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {

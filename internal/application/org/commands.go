@@ -37,6 +37,7 @@ type CreateTeamCommand struct {
 	Name        string
 	DisplayName string
 	Description string
+	Avatar      string
 	LeadUserID  uint // 可选：指定团队负责人
 }
 
@@ -46,6 +47,7 @@ type UpdateTeamCommand struct {
 	TeamID      uint
 	DisplayName *string
 	Description *string
+	Avatar      *string
 }
 
 // DeleteTeamCommand 删除团队命令

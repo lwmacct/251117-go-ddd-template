@@ -44,6 +44,9 @@ func (h *TeamUpdateHandler) Handle(ctx context.Context, cmd UpdateTeamCommand) (
 	if cmd.Description != nil {
 		team.Description = *cmd.Description
 	}
+	if cmd.Avatar != nil {
+		team.Avatar = *cmd.Avatar
+	}
 
 	// 4. 保存更新
 	if err := h.teamCommand.Update(ctx, team); err != nil {

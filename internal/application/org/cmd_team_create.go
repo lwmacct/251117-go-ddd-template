@@ -57,6 +57,7 @@ func (h *TeamCreateHandler) Handle(ctx context.Context, cmd CreateTeamCommand) (
 		Name:        cmd.Name,
 		DisplayName: cmd.DisplayName,
 		Description: cmd.Description,
+		Avatar:      cmd.Avatar,
 	}
 
 	// 4. 保存团队

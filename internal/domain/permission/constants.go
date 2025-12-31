@@ -8,7 +8,7 @@ package permission
 //
 // Scope 划分：
 //   - public: 公开域（无需认证）
-//   - sys:    系统管理域（需管理员权限）
+//   - admin:  系统管理域（需管理员权限）
 //   - self:   用户自服务域（当前用户权限）
 
 // Public 域（公开接口）
@@ -28,70 +28,70 @@ const (
 	Self2FAStatus  Operation = "self:2fa:status"
 )
 
-// Sys 域 - 用户管理
+// Admin 域 - 用户管理
 const (
-	SysUsersCreate      Operation = "sys:users:create"
-	SysUsersBatchCreate Operation = "sys:users:batch-create"
-	SysUsersList        Operation = "sys:users:list"
-	SysUsersGet         Operation = "sys:users:get"
-	SysUsersUpdate      Operation = "sys:users:update"
-	SysUsersDelete      Operation = "sys:users:delete"
-	SysUsersAssignRoles Operation = "sys:users:assign-roles"
+	AdminUsersCreate      Operation = "admin:users:create"
+	AdminUsersBatchCreate Operation = "admin:users:batch-create"
+	AdminUsersList        Operation = "admin:users:list"
+	AdminUsersGet         Operation = "admin:users:get"
+	AdminUsersUpdate      Operation = "admin:users:update"
+	AdminUsersDelete      Operation = "admin:users:delete"
+	AdminUsersAssignRoles Operation = "admin:users:assign-roles"
 )
 
-// Sys 域 - 角色管理
+// Admin 域 - 角色管理
 const (
-	SysRolesCreate         Operation = "sys:roles:create"
-	SysRolesList           Operation = "sys:roles:list"
-	SysRolesGet            Operation = "sys:roles:get"
-	SysRolesUpdate         Operation = "sys:roles:update"
-	SysRolesDelete         Operation = "sys:roles:delete"
-	SysRolesSetPermissions Operation = "sys:roles:set-permissions"
+	AdminRolesCreate         Operation = "admin:roles:create"
+	AdminRolesList           Operation = "admin:roles:list"
+	AdminRolesGet            Operation = "admin:roles:get"
+	AdminRolesUpdate         Operation = "admin:roles:update"
+	AdminRolesDelete         Operation = "admin:roles:delete"
+	AdminRolesSetPermissions Operation = "admin:roles:set-permissions"
 )
 
-// Sys 域 - 操作列表（供前端权限配置使用）
+// Admin 域 - 操作列表（供前端权限配置使用）
 const (
-	SysOperationsList Operation = "sys:operations:list"
+	AdminOperationsList Operation = "admin:operations:list"
 )
 
-// Sys 域 - 审计日志
+// Admin 域 - 审计日志
 const (
-	SysAuditList    Operation = "sys:audit:list"
-	SysAuditGet     Operation = "sys:audit:get"
-	SysAuditActions Operation = "sys:audit:actions"
+	AdminAuditList    Operation = "admin:audit:list"
+	AdminAuditGet     Operation = "admin:audit:get"
+	AdminAuditActions Operation = "admin:audit:actions"
 )
 
-// Sys 域 - 系统概览
+// Admin 域 - 系统概览
 const (
-	SysOverviewStats Operation = "sys:overview:stats"
+	AdminOverviewStats Operation = "admin:overview:stats"
 )
 
-// Sys 域 - 系统配置
+// Admin 域 - 系统配置
 const (
-	SysSettingsCreate      Operation = "sys:settings:create"
-	SysSettingsList        Operation = "sys:settings:list"
-	SysSettingsGet         Operation = "sys:settings:get"
-	SysSettingsUpdate      Operation = "sys:settings:update"
-	SysSettingsDelete      Operation = "sys:settings:delete"
-	SysSettingsBatchUpdate Operation = "sys:settings:batch-update"
+	AdminSettingsCreate      Operation = "admin:settings:create"
+	AdminSettingsList        Operation = "admin:settings:list"
+	AdminSettingsGet         Operation = "admin:settings:get"
+	AdminSettingsUpdate      Operation = "admin:settings:update"
+	AdminSettingsDelete      Operation = "admin:settings:delete"
+	AdminSettingsBatchUpdate Operation = "admin:settings:batch-update"
 )
 
-// Sys 域 - 配置分类
+// Admin 域 - 配置分类
 const (
-	SysSettingCategoriesList   Operation = "sys:settings-categories:list"
-	SysSettingCategoriesGet    Operation = "sys:settings-categories:get"
-	SysSettingCategoriesCreate Operation = "sys:settings-categories:create"
-	SysSettingCategoriesUpdate Operation = "sys:settings-categories:update"
-	SysSettingCategoriesDelete Operation = "sys:settings-categories:delete"
+	AdminSettingCategoriesList   Operation = "admin:settings-categories:list"
+	AdminSettingCategoriesGet    Operation = "admin:settings-categories:get"
+	AdminSettingCategoriesCreate Operation = "admin:settings-categories:create"
+	AdminSettingCategoriesUpdate Operation = "admin:settings-categories:update"
+	AdminSettingCategoriesDelete Operation = "admin:settings-categories:delete"
 )
 
-// Sys 域 - 缓存管理
+// Admin 域 - 缓存管理
 const (
-	SysCacheInfo          Operation = "sys:cache:info"
-	SysCacheScanKeys      Operation = "sys:cache:scan-keys"
-	SysCacheGetKey        Operation = "sys:cache:get-key"
-	SysCacheDeleteKey     Operation = "sys:cache:delete-key"
-	SysCacheDeletePattern Operation = "sys:cache:delete-pattern"
+	AdminCacheInfo          Operation = "admin:cache:info"
+	AdminCacheScanKeys      Operation = "admin:cache:scan-keys"
+	AdminCacheGetKey        Operation = "admin:cache:get-key"
+	AdminCacheDeleteKey     Operation = "admin:cache:delete-key"
+	AdminCacheDeletePattern Operation = "admin:cache:delete-pattern"
 )
 
 // Self 域 - 个人资料
@@ -131,13 +131,13 @@ const (
 	SelfTeamsList Operation = "self:teams:list"
 )
 
-// Sys 域 - 组织管理
+// Admin 域 - 组织管理
 const (
-	SysOrgsCreate Operation = "sys:orgs:create"
-	SysOrgsList   Operation = "sys:orgs:list"
-	SysOrgsGet    Operation = "sys:orgs:get"
-	SysOrgsUpdate Operation = "sys:orgs:update"
-	SysOrgsDelete Operation = "sys:orgs:delete"
+	AdminOrgsCreate Operation = "admin:orgs:create"
+	AdminOrgsList   Operation = "admin:orgs:list"
+	AdminOrgsGet    Operation = "admin:orgs:get"
+	AdminOrgsUpdate Operation = "admin:orgs:update"
+	AdminOrgsDelete Operation = "admin:orgs:delete"
 )
 
 // Org 域 - 组织成员管理
@@ -173,11 +173,11 @@ const (
 	OrgTasksDelete Operation = "org:tasks:delete"
 )
 
-// Sys 域 - 产品管理
+// Admin 域 - 产品管理
 const (
-	SysProductsCreate Operation = "sys:products:create"
-	SysProductsList   Operation = "sys:products:list"
-	SysProductsGet    Operation = "sys:products:get"
-	SysProductsUpdate Operation = "sys:products:update"
-	SysProductsDelete Operation = "sys:products:delete"
+	AdminProductsCreate Operation = "admin:products:create"
+	AdminProductsList   Operation = "admin:products:list"
+	AdminProductsGet    Operation = "admin:products:get"
+	AdminProductsUpdate Operation = "admin:products:update"
+	AdminProductsDelete Operation = "admin:products:delete"
 )

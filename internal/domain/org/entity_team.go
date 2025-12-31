@@ -22,6 +22,9 @@ type Team struct {
 	// Description 团队描述
 	Description string `json:"description"`
 
+	// Avatar 团队头像 URL
+	Avatar string `json:"avatar"`
+
 	// 聚合关系（仅查询时按需加载）
 	Members []TeamMember `json:"members,omitempty"`
 }

@@ -52,10 +52,10 @@ export const AdminUserManagementApiAxiosParamCreator = function (configuration?:
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiSystemUsersBatchPost: async (request: UserBatchCreateDTO, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        apiAdminUsersBatchPost: async (request: UserBatchCreateDTO, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'request' is not null or undefined
-            assertParamExists('apiSystemUsersBatchPost', 'request', request)
-            const localVarPath = `/api/system/users/batch`;
+            assertParamExists('apiAdminUsersBatchPost', 'request', request)
+            const localVarPath = `/api/admin/users/batch`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -93,8 +93,8 @@ export const AdminUserManagementApiAxiosParamCreator = function (configuration?:
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiSystemUsersGet: async (limit?: number, page?: number, search?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            const localVarPath = `/api/system/users`;
+        apiAdminUsersGet: async (limit?: number, page?: number, search?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/admin/users`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -139,10 +139,10 @@ export const AdminUserManagementApiAxiosParamCreator = function (configuration?:
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiSystemUsersIdDelete: async (id: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        apiAdminUsersIdDelete: async (id: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'id' is not null or undefined
-            assertParamExists('apiSystemUsersIdDelete', 'id', id)
-            const localVarPath = `/api/system/users/{id}`
+            assertParamExists('apiAdminUsersIdDelete', 'id', id)
+            const localVarPath = `/api/admin/users/{id}`
                 .replace(`{${"id"}}`, encodeURIComponent(String(id)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -176,10 +176,10 @@ export const AdminUserManagementApiAxiosParamCreator = function (configuration?:
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiSystemUsersIdGet: async (id: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        apiAdminUsersIdGet: async (id: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'id' is not null or undefined
-            assertParamExists('apiSystemUsersIdGet', 'id', id)
-            const localVarPath = `/api/system/users/{id}`
+            assertParamExists('apiAdminUsersIdGet', 'id', id)
+            const localVarPath = `/api/admin/users/{id}`
                 .replace(`{${"id"}}`, encodeURIComponent(String(id)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -214,12 +214,12 @@ export const AdminUserManagementApiAxiosParamCreator = function (configuration?:
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiSystemUsersIdPut: async (id: number, request: UserUpdateDTO, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        apiAdminUsersIdPut: async (id: number, request: UserUpdateDTO, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'id' is not null or undefined
-            assertParamExists('apiSystemUsersIdPut', 'id', id)
+            assertParamExists('apiAdminUsersIdPut', 'id', id)
             // verify required parameter 'request' is not null or undefined
-            assertParamExists('apiSystemUsersIdPut', 'request', request)
-            const localVarPath = `/api/system/users/{id}`
+            assertParamExists('apiAdminUsersIdPut', 'request', request)
+            const localVarPath = `/api/admin/users/{id}`
                 .replace(`{${"id"}}`, encodeURIComponent(String(id)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -257,12 +257,12 @@ export const AdminUserManagementApiAxiosParamCreator = function (configuration?:
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiSystemUsersIdRolesPut: async (id: number, request: UserAssignRolesDTO, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        apiAdminUsersIdRolesPut: async (id: number, request: UserAssignRolesDTO, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'id' is not null or undefined
-            assertParamExists('apiSystemUsersIdRolesPut', 'id', id)
+            assertParamExists('apiAdminUsersIdRolesPut', 'id', id)
             // verify required parameter 'request' is not null or undefined
-            assertParamExists('apiSystemUsersIdRolesPut', 'request', request)
-            const localVarPath = `/api/system/users/{id}/roles`
+            assertParamExists('apiAdminUsersIdRolesPut', 'request', request)
+            const localVarPath = `/api/admin/users/{id}/roles`
                 .replace(`{${"id"}}`, encodeURIComponent(String(id)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -299,10 +299,10 @@ export const AdminUserManagementApiAxiosParamCreator = function (configuration?:
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiSystemUsersPost: async (request: UserCreateDTO, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        apiAdminUsersPost: async (request: UserCreateDTO, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'request' is not null or undefined
-            assertParamExists('apiSystemUsersPost', 'request', request)
-            const localVarPath = `/api/system/users`;
+            assertParamExists('apiAdminUsersPost', 'request', request)
+            const localVarPath = `/api/admin/users`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -348,10 +348,10 @@ export const AdminUserManagementApiFp = function(configuration?: Configuration) 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async apiSystemUsersBatchPost(request: UserBatchCreateDTO, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseUserBatchCreateResultDTO>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.apiSystemUsersBatchPost(request, options);
+        async apiAdminUsersBatchPost(request: UserBatchCreateDTO, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseUserBatchCreateResultDTO>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.apiAdminUsersBatchPost(request, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['AdminUserManagementApi.apiSystemUsersBatchPost']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['AdminUserManagementApi.apiAdminUsersBatchPost']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -363,10 +363,10 @@ export const AdminUserManagementApiFp = function(configuration?: Configuration) 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async apiSystemUsersGet(limit?: number, page?: number, search?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponsePagedResponseUserUserWithRolesDTO>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.apiSystemUsersGet(limit, page, search, options);
+        async apiAdminUsersGet(limit?: number, page?: number, search?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponsePagedResponseUserUserWithRolesDTO>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.apiAdminUsersGet(limit, page, search, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['AdminUserManagementApi.apiSystemUsersGet']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['AdminUserManagementApi.apiAdminUsersGet']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -376,10 +376,10 @@ export const AdminUserManagementApiFp = function(configuration?: Configuration) 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async apiSystemUsersIdDelete(id: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseMessageResponse>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.apiSystemUsersIdDelete(id, options);
+        async apiAdminUsersIdDelete(id: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseMessageResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.apiAdminUsersIdDelete(id, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['AdminUserManagementApi.apiSystemUsersIdDelete']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['AdminUserManagementApi.apiAdminUsersIdDelete']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -389,10 +389,10 @@ export const AdminUserManagementApiFp = function(configuration?: Configuration) 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async apiSystemUsersIdGet(id: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseUserUserWithRolesDTO>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.apiSystemUsersIdGet(id, options);
+        async apiAdminUsersIdGet(id: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseUserUserWithRolesDTO>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.apiAdminUsersIdGet(id, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['AdminUserManagementApi.apiSystemUsersIdGet']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['AdminUserManagementApi.apiAdminUsersIdGet']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -403,10 +403,10 @@ export const AdminUserManagementApiFp = function(configuration?: Configuration) 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async apiSystemUsersIdPut(id: number, request: UserUpdateDTO, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseUserUserWithRolesDTO>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.apiSystemUsersIdPut(id, request, options);
+        async apiAdminUsersIdPut(id: number, request: UserUpdateDTO, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseUserUserWithRolesDTO>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.apiAdminUsersIdPut(id, request, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['AdminUserManagementApi.apiSystemUsersIdPut']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['AdminUserManagementApi.apiAdminUsersIdPut']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -417,10 +417,10 @@ export const AdminUserManagementApiFp = function(configuration?: Configuration) 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async apiSystemUsersIdRolesPut(id: number, request: UserAssignRolesDTO, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseUserUserWithRolesDTO>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.apiSystemUsersIdRolesPut(id, request, options);
+        async apiAdminUsersIdRolesPut(id: number, request: UserAssignRolesDTO, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseUserUserWithRolesDTO>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.apiAdminUsersIdRolesPut(id, request, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['AdminUserManagementApi.apiSystemUsersIdRolesPut']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['AdminUserManagementApi.apiAdminUsersIdRolesPut']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -430,10 +430,10 @@ export const AdminUserManagementApiFp = function(configuration?: Configuration) 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async apiSystemUsersPost(request: UserCreateDTO, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseUserUserWithRolesDTO>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.apiSystemUsersPost(request, options);
+        async apiAdminUsersPost(request: UserCreateDTO, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseUserUserWithRolesDTO>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.apiAdminUsersPost(request, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['AdminUserManagementApi.apiSystemUsersPost']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['AdminUserManagementApi.apiAdminUsersPost']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
     }
@@ -453,8 +453,8 @@ export const AdminUserManagementApiFactory = function (configuration?: Configura
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiSystemUsersBatchPost(request: UserBatchCreateDTO, options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseUserBatchCreateResultDTO> {
-            return localVarFp.apiSystemUsersBatchPost(request, options).then((request) => request(axios, basePath));
+        apiAdminUsersBatchPost(request: UserBatchCreateDTO, options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseUserBatchCreateResultDTO> {
+            return localVarFp.apiAdminUsersBatchPost(request, options).then((request) => request(axios, basePath));
         },
         /**
          * 分页获取所有用户列表（包含角色信息）
@@ -465,8 +465,8 @@ export const AdminUserManagementApiFactory = function (configuration?: Configura
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiSystemUsersGet(limit?: number, page?: number, search?: string, options?: RawAxiosRequestConfig): AxiosPromise<ResponsePagedResponseUserUserWithRolesDTO> {
-            return localVarFp.apiSystemUsersGet(limit, page, search, options).then((request) => request(axios, basePath));
+        apiAdminUsersGet(limit?: number, page?: number, search?: string, options?: RawAxiosRequestConfig): AxiosPromise<ResponsePagedResponseUserUserWithRolesDTO> {
+            return localVarFp.apiAdminUsersGet(limit, page, search, options).then((request) => request(axios, basePath));
         },
         /**
          * 管理员删除指定用户（物理删除或软删除）
@@ -475,8 +475,8 @@ export const AdminUserManagementApiFactory = function (configuration?: Configura
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiSystemUsersIdDelete(id: number, options?: RawAxiosRequestConfig): AxiosPromise<ResponseMessageResponse> {
-            return localVarFp.apiSystemUsersIdDelete(id, options).then((request) => request(axios, basePath));
+        apiAdminUsersIdDelete(id: number, options?: RawAxiosRequestConfig): AxiosPromise<ResponseMessageResponse> {
+            return localVarFp.apiAdminUsersIdDelete(id, options).then((request) => request(axios, basePath));
         },
         /**
          * 根据用户ID获取用户详细信息（包含角色信息）
@@ -485,8 +485,8 @@ export const AdminUserManagementApiFactory = function (configuration?: Configura
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiSystemUsersIdGet(id: number, options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseUserUserWithRolesDTO> {
-            return localVarFp.apiSystemUsersIdGet(id, options).then((request) => request(axios, basePath));
+        apiAdminUsersIdGet(id: number, options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseUserUserWithRolesDTO> {
+            return localVarFp.apiAdminUsersIdGet(id, options).then((request) => request(axios, basePath));
         },
         /**
          * 管理员更新用户的基本信息和状态
@@ -496,8 +496,8 @@ export const AdminUserManagementApiFactory = function (configuration?: Configura
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiSystemUsersIdPut(id: number, request: UserUpdateDTO, options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseUserUserWithRolesDTO> {
-            return localVarFp.apiSystemUsersIdPut(id, request, options).then((request) => request(axios, basePath));
+        apiAdminUsersIdPut(id: number, request: UserUpdateDTO, options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseUserUserWithRolesDTO> {
+            return localVarFp.apiAdminUsersIdPut(id, request, options).then((request) => request(axios, basePath));
         },
         /**
          * 管理员为指定用户分配角色（会覆盖现有角色）
@@ -507,8 +507,8 @@ export const AdminUserManagementApiFactory = function (configuration?: Configura
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiSystemUsersIdRolesPut(id: number, request: UserAssignRolesDTO, options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseUserUserWithRolesDTO> {
-            return localVarFp.apiSystemUsersIdRolesPut(id, request, options).then((request) => request(axios, basePath));
+        apiAdminUsersIdRolesPut(id: number, request: UserAssignRolesDTO, options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseUserUserWithRolesDTO> {
+            return localVarFp.apiAdminUsersIdRolesPut(id, request, options).then((request) => request(axios, basePath));
         },
         /**
          * 管理员创建新用户账号，可同时分配角色
@@ -517,8 +517,8 @@ export const AdminUserManagementApiFactory = function (configuration?: Configura
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiSystemUsersPost(request: UserCreateDTO, options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseUserUserWithRolesDTO> {
-            return localVarFp.apiSystemUsersPost(request, options).then((request) => request(axios, basePath));
+        apiAdminUsersPost(request: UserCreateDTO, options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseUserUserWithRolesDTO> {
+            return localVarFp.apiAdminUsersPost(request, options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -538,8 +538,8 @@ export class AdminUserManagementApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof AdminUserManagementApi
      */
-    public apiSystemUsersBatchPost(request: UserBatchCreateDTO, options?: RawAxiosRequestConfig) {
-        return AdminUserManagementApiFp(this.configuration).apiSystemUsersBatchPost(request, options).then((request) => request(this.axios, this.basePath));
+    public apiAdminUsersBatchPost(request: UserBatchCreateDTO, options?: RawAxiosRequestConfig) {
+        return AdminUserManagementApiFp(this.configuration).apiAdminUsersBatchPost(request, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -552,8 +552,8 @@ export class AdminUserManagementApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof AdminUserManagementApi
      */
-    public apiSystemUsersGet(limit?: number, page?: number, search?: string, options?: RawAxiosRequestConfig) {
-        return AdminUserManagementApiFp(this.configuration).apiSystemUsersGet(limit, page, search, options).then((request) => request(this.axios, this.basePath));
+    public apiAdminUsersGet(limit?: number, page?: number, search?: string, options?: RawAxiosRequestConfig) {
+        return AdminUserManagementApiFp(this.configuration).apiAdminUsersGet(limit, page, search, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -564,8 +564,8 @@ export class AdminUserManagementApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof AdminUserManagementApi
      */
-    public apiSystemUsersIdDelete(id: number, options?: RawAxiosRequestConfig) {
-        return AdminUserManagementApiFp(this.configuration).apiSystemUsersIdDelete(id, options).then((request) => request(this.axios, this.basePath));
+    public apiAdminUsersIdDelete(id: number, options?: RawAxiosRequestConfig) {
+        return AdminUserManagementApiFp(this.configuration).apiAdminUsersIdDelete(id, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -576,8 +576,8 @@ export class AdminUserManagementApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof AdminUserManagementApi
      */
-    public apiSystemUsersIdGet(id: number, options?: RawAxiosRequestConfig) {
-        return AdminUserManagementApiFp(this.configuration).apiSystemUsersIdGet(id, options).then((request) => request(this.axios, this.basePath));
+    public apiAdminUsersIdGet(id: number, options?: RawAxiosRequestConfig) {
+        return AdminUserManagementApiFp(this.configuration).apiAdminUsersIdGet(id, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -589,8 +589,8 @@ export class AdminUserManagementApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof AdminUserManagementApi
      */
-    public apiSystemUsersIdPut(id: number, request: UserUpdateDTO, options?: RawAxiosRequestConfig) {
-        return AdminUserManagementApiFp(this.configuration).apiSystemUsersIdPut(id, request, options).then((request) => request(this.axios, this.basePath));
+    public apiAdminUsersIdPut(id: number, request: UserUpdateDTO, options?: RawAxiosRequestConfig) {
+        return AdminUserManagementApiFp(this.configuration).apiAdminUsersIdPut(id, request, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -602,8 +602,8 @@ export class AdminUserManagementApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof AdminUserManagementApi
      */
-    public apiSystemUsersIdRolesPut(id: number, request: UserAssignRolesDTO, options?: RawAxiosRequestConfig) {
-        return AdminUserManagementApiFp(this.configuration).apiSystemUsersIdRolesPut(id, request, options).then((request) => request(this.axios, this.basePath));
+    public apiAdminUsersIdRolesPut(id: number, request: UserAssignRolesDTO, options?: RawAxiosRequestConfig) {
+        return AdminUserManagementApiFp(this.configuration).apiAdminUsersIdRolesPut(id, request, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -614,8 +614,8 @@ export class AdminUserManagementApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof AdminUserManagementApi
      */
-    public apiSystemUsersPost(request: UserCreateDTO, options?: RawAxiosRequestConfig) {
-        return AdminUserManagementApiFp(this.configuration).apiSystemUsersPost(request, options).then((request) => request(this.axios, this.basePath));
+    public apiAdminUsersPost(request: UserCreateDTO, options?: RawAxiosRequestConfig) {
+        return AdminUserManagementApiFp(this.configuration).apiAdminUsersPost(request, options).then((request) => request(this.axios, this.basePath));
     }
 }
 

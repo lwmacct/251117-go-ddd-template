@@ -43,8 +43,8 @@ export const AdminSettingCategoriesApiAxiosParamCreator = function (configuratio
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiSystemSettingsCategoriesGet: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            const localVarPath = `/api/system/settings/categories`;
+        apiAdminSettingsCategoriesGet: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/admin/settings/categories`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -77,10 +77,10 @@ export const AdminSettingCategoriesApiAxiosParamCreator = function (configuratio
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiSystemSettingsCategoriesIdDelete: async (id: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        apiAdminSettingsCategoriesIdDelete: async (id: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'id' is not null or undefined
-            assertParamExists('apiSystemSettingsCategoriesIdDelete', 'id', id)
-            const localVarPath = `/api/system/settings/categories/{id}`
+            assertParamExists('apiAdminSettingsCategoriesIdDelete', 'id', id)
+            const localVarPath = `/api/admin/settings/categories/{id}`
                 .replace(`{${"id"}}`, encodeURIComponent(String(id)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -114,10 +114,10 @@ export const AdminSettingCategoriesApiAxiosParamCreator = function (configuratio
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiSystemSettingsCategoriesIdGet: async (id: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        apiAdminSettingsCategoriesIdGet: async (id: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'id' is not null or undefined
-            assertParamExists('apiSystemSettingsCategoriesIdGet', 'id', id)
-            const localVarPath = `/api/system/settings/categories/{id}`
+            assertParamExists('apiAdminSettingsCategoriesIdGet', 'id', id)
+            const localVarPath = `/api/admin/settings/categories/{id}`
                 .replace(`{${"id"}}`, encodeURIComponent(String(id)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -152,12 +152,12 @@ export const AdminSettingCategoriesApiAxiosParamCreator = function (configuratio
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiSystemSettingsCategoriesIdPut: async (id: number, request: HandlerUpdateCategoryRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        apiAdminSettingsCategoriesIdPut: async (id: number, request: HandlerUpdateCategoryRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'id' is not null or undefined
-            assertParamExists('apiSystemSettingsCategoriesIdPut', 'id', id)
+            assertParamExists('apiAdminSettingsCategoriesIdPut', 'id', id)
             // verify required parameter 'request' is not null or undefined
-            assertParamExists('apiSystemSettingsCategoriesIdPut', 'request', request)
-            const localVarPath = `/api/system/settings/categories/{id}`
+            assertParamExists('apiAdminSettingsCategoriesIdPut', 'request', request)
+            const localVarPath = `/api/admin/settings/categories/{id}`
                 .replace(`{${"id"}}`, encodeURIComponent(String(id)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -194,10 +194,10 @@ export const AdminSettingCategoriesApiAxiosParamCreator = function (configuratio
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiSystemSettingsCategoriesPost: async (request: HandlerCreateCategoryRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        apiAdminSettingsCategoriesPost: async (request: HandlerCreateCategoryRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'request' is not null or undefined
-            assertParamExists('apiSystemSettingsCategoriesPost', 'request', request)
-            const localVarPath = `/api/system/settings/categories`;
+            assertParamExists('apiAdminSettingsCategoriesPost', 'request', request)
+            const localVarPath = `/api/admin/settings/categories`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -242,10 +242,10 @@ export const AdminSettingCategoriesApiFp = function(configuration?: Configuratio
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async apiSystemSettingsCategoriesGet(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseArraySettingCategoryDTO>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.apiSystemSettingsCategoriesGet(options);
+        async apiAdminSettingsCategoriesGet(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseArraySettingCategoryDTO>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.apiAdminSettingsCategoriesGet(options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['AdminSettingCategoriesApi.apiSystemSettingsCategoriesGet']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['AdminSettingCategoriesApi.apiAdminSettingsCategoriesGet']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -255,10 +255,10 @@ export const AdminSettingCategoriesApiFp = function(configuration?: Configuratio
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async apiSystemSettingsCategoriesIdDelete(id: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.apiSystemSettingsCategoriesIdDelete(id, options);
+        async apiAdminSettingsCategoriesIdDelete(id: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.apiAdminSettingsCategoriesIdDelete(id, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['AdminSettingCategoriesApi.apiSystemSettingsCategoriesIdDelete']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['AdminSettingCategoriesApi.apiAdminSettingsCategoriesIdDelete']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -268,10 +268,10 @@ export const AdminSettingCategoriesApiFp = function(configuration?: Configuratio
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async apiSystemSettingsCategoriesIdGet(id: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseSettingCategoryDTO>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.apiSystemSettingsCategoriesIdGet(id, options);
+        async apiAdminSettingsCategoriesIdGet(id: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseSettingCategoryDTO>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.apiAdminSettingsCategoriesIdGet(id, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['AdminSettingCategoriesApi.apiSystemSettingsCategoriesIdGet']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['AdminSettingCategoriesApi.apiAdminSettingsCategoriesIdGet']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -282,10 +282,10 @@ export const AdminSettingCategoriesApiFp = function(configuration?: Configuratio
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async apiSystemSettingsCategoriesIdPut(id: number, request: HandlerUpdateCategoryRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseSettingCategoryDTO>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.apiSystemSettingsCategoriesIdPut(id, request, options);
+        async apiAdminSettingsCategoriesIdPut(id: number, request: HandlerUpdateCategoryRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseSettingCategoryDTO>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.apiAdminSettingsCategoriesIdPut(id, request, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['AdminSettingCategoriesApi.apiSystemSettingsCategoriesIdPut']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['AdminSettingCategoriesApi.apiAdminSettingsCategoriesIdPut']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -295,10 +295,10 @@ export const AdminSettingCategoriesApiFp = function(configuration?: Configuratio
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async apiSystemSettingsCategoriesPost(request: HandlerCreateCategoryRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseSettingCategoryDTO>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.apiSystemSettingsCategoriesPost(request, options);
+        async apiAdminSettingsCategoriesPost(request: HandlerCreateCategoryRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseSettingCategoryDTO>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.apiAdminSettingsCategoriesPost(request, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['AdminSettingCategoriesApi.apiSystemSettingsCategoriesPost']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['AdminSettingCategoriesApi.apiAdminSettingsCategoriesPost']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
     }
@@ -317,8 +317,8 @@ export const AdminSettingCategoriesApiFactory = function (configuration?: Config
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiSystemSettingsCategoriesGet(options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseArraySettingCategoryDTO> {
-            return localVarFp.apiSystemSettingsCategoriesGet(options).then((request) => request(axios, basePath));
+        apiAdminSettingsCategoriesGet(options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseArraySettingCategoryDTO> {
+            return localVarFp.apiAdminSettingsCategoriesGet(options).then((request) => request(axios, basePath));
         },
         /**
          * 管理员删除指定的配置分类（如有关联配置项则拒绝删除）
@@ -327,8 +327,8 @@ export const AdminSettingCategoriesApiFactory = function (configuration?: Config
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiSystemSettingsCategoriesIdDelete(id: number, options?: RawAxiosRequestConfig): AxiosPromise<void> {
-            return localVarFp.apiSystemSettingsCategoriesIdDelete(id, options).then((request) => request(axios, basePath));
+        apiAdminSettingsCategoriesIdDelete(id: number, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.apiAdminSettingsCategoriesIdDelete(id, options).then((request) => request(axios, basePath));
         },
         /**
          * 根据 ID 获取配置分类详情
@@ -337,8 +337,8 @@ export const AdminSettingCategoriesApiFactory = function (configuration?: Config
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiSystemSettingsCategoriesIdGet(id: number, options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseSettingCategoryDTO> {
-            return localVarFp.apiSystemSettingsCategoriesIdGet(id, options).then((request) => request(axios, basePath));
+        apiAdminSettingsCategoriesIdGet(id: number, options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseSettingCategoryDTO> {
+            return localVarFp.apiAdminSettingsCategoriesIdGet(id, options).then((request) => request(axios, basePath));
         },
         /**
          * 管理员更新指定配置分类的信息（Key 不可修改）
@@ -348,8 +348,8 @@ export const AdminSettingCategoriesApiFactory = function (configuration?: Config
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiSystemSettingsCategoriesIdPut(id: number, request: HandlerUpdateCategoryRequest, options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseSettingCategoryDTO> {
-            return localVarFp.apiSystemSettingsCategoriesIdPut(id, request, options).then((request) => request(axios, basePath));
+        apiAdminSettingsCategoriesIdPut(id: number, request: HandlerUpdateCategoryRequest, options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseSettingCategoryDTO> {
+            return localVarFp.apiAdminSettingsCategoriesIdPut(id, request, options).then((request) => request(axios, basePath));
         },
         /**
          * 管理员创建新的配置分类
@@ -358,8 +358,8 @@ export const AdminSettingCategoriesApiFactory = function (configuration?: Config
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiSystemSettingsCategoriesPost(request: HandlerCreateCategoryRequest, options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseSettingCategoryDTO> {
-            return localVarFp.apiSystemSettingsCategoriesPost(request, options).then((request) => request(axios, basePath));
+        apiAdminSettingsCategoriesPost(request: HandlerCreateCategoryRequest, options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseSettingCategoryDTO> {
+            return localVarFp.apiAdminSettingsCategoriesPost(request, options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -378,8 +378,8 @@ export class AdminSettingCategoriesApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof AdminSettingCategoriesApi
      */
-    public apiSystemSettingsCategoriesGet(options?: RawAxiosRequestConfig) {
-        return AdminSettingCategoriesApiFp(this.configuration).apiSystemSettingsCategoriesGet(options).then((request) => request(this.axios, this.basePath));
+    public apiAdminSettingsCategoriesGet(options?: RawAxiosRequestConfig) {
+        return AdminSettingCategoriesApiFp(this.configuration).apiAdminSettingsCategoriesGet(options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -390,8 +390,8 @@ export class AdminSettingCategoriesApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof AdminSettingCategoriesApi
      */
-    public apiSystemSettingsCategoriesIdDelete(id: number, options?: RawAxiosRequestConfig) {
-        return AdminSettingCategoriesApiFp(this.configuration).apiSystemSettingsCategoriesIdDelete(id, options).then((request) => request(this.axios, this.basePath));
+    public apiAdminSettingsCategoriesIdDelete(id: number, options?: RawAxiosRequestConfig) {
+        return AdminSettingCategoriesApiFp(this.configuration).apiAdminSettingsCategoriesIdDelete(id, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -402,8 +402,8 @@ export class AdminSettingCategoriesApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof AdminSettingCategoriesApi
      */
-    public apiSystemSettingsCategoriesIdGet(id: number, options?: RawAxiosRequestConfig) {
-        return AdminSettingCategoriesApiFp(this.configuration).apiSystemSettingsCategoriesIdGet(id, options).then((request) => request(this.axios, this.basePath));
+    public apiAdminSettingsCategoriesIdGet(id: number, options?: RawAxiosRequestConfig) {
+        return AdminSettingCategoriesApiFp(this.configuration).apiAdminSettingsCategoriesIdGet(id, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -415,8 +415,8 @@ export class AdminSettingCategoriesApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof AdminSettingCategoriesApi
      */
-    public apiSystemSettingsCategoriesIdPut(id: number, request: HandlerUpdateCategoryRequest, options?: RawAxiosRequestConfig) {
-        return AdminSettingCategoriesApiFp(this.configuration).apiSystemSettingsCategoriesIdPut(id, request, options).then((request) => request(this.axios, this.basePath));
+    public apiAdminSettingsCategoriesIdPut(id: number, request: HandlerUpdateCategoryRequest, options?: RawAxiosRequestConfig) {
+        return AdminSettingCategoriesApiFp(this.configuration).apiAdminSettingsCategoriesIdPut(id, request, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -427,8 +427,8 @@ export class AdminSettingCategoriesApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof AdminSettingCategoriesApi
      */
-    public apiSystemSettingsCategoriesPost(request: HandlerCreateCategoryRequest, options?: RawAxiosRequestConfig) {
-        return AdminSettingCategoriesApiFp(this.configuration).apiSystemSettingsCategoriesPost(request, options).then((request) => request(this.axios, this.basePath));
+    public apiAdminSettingsCategoriesPost(request: HandlerCreateCategoryRequest, options?: RawAxiosRequestConfig) {
+        return AdminSettingCategoriesApiFp(this.configuration).apiAdminSettingsCategoriesPost(request, options).then((request) => request(this.axios, this.basePath));
     }
 }
 

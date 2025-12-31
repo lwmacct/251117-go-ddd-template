@@ -52,6 +52,7 @@ func ToTeamDTO(team *org.Team) *TeamDTO {
 		Name:        team.Name,
 		DisplayName: team.DisplayName,
 		Description: team.Description,
+		Avatar:      team.Avatar,
 		CreatedAt:   team.CreatedAt,
 		UpdatedAt:   team.UpdatedAt,
 	}

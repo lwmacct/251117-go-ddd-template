@@ -68,7 +68,7 @@ func NewOrgHandler(
 //	@Failure		401		{object}	response.ErrorResponse						"未授权"
 //	@Failure		403		{object}	response.ErrorResponse						"权限不足"
 //	@Failure		500		{object}	response.ErrorResponse						"服务器内部错误"
-//	@Router			/api/system/orgs [post]
+//	@Router			/api/admin/orgs [post]
 func (h *OrgHandler) Create(c *gin.Context) {
 	var req org.CreateOrgDTO
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -103,7 +103,7 @@ func (h *OrgHandler) Create(c *gin.Context) {
 //	@Failure		401		{object}	response.ErrorResponse							"未授权"
 //	@Failure		403		{object}	response.ErrorResponse							"权限不足"
 //	@Failure		500		{object}	response.ErrorResponse							"服务器内部错误"
-//	@Router			/api/system/orgs [get]
+//	@Router			/api/admin/orgs [get]
 func (h *OrgHandler) List(c *gin.Context) {
 	var q ListOrgsQuery
 	if err := c.ShouldBindQuery(&q); err != nil {
@@ -135,7 +135,7 @@ func (h *OrgHandler) List(c *gin.Context) {
 //	@Failure		401	{object}	response.ErrorResponse						"未授权"
 //	@Failure		403	{object}	response.ErrorResponse						"权限不足"
 //	@Failure		404	{object}	response.ErrorResponse						"组织不存在"
-//	@Router			/api/system/orgs/{id} [get]
+//	@Router			/api/admin/orgs/{id} [get]
 func (h *OrgHandler) Get(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
@@ -174,7 +174,7 @@ func (h *OrgHandler) Get(c *gin.Context) {
 //	@Failure		403		{object}	response.ErrorResponse						"权限不足"
 //	@Failure		404		{object}	response.ErrorResponse						"组织不存在"
 //	@Failure		500		{object}	response.ErrorResponse						"服务器内部错误"
-//	@Router			/api/system/orgs/{id} [put]
+//	@Router			/api/admin/orgs/{id} [put]
 func (h *OrgHandler) Update(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
@@ -218,7 +218,7 @@ func (h *OrgHandler) Update(c *gin.Context) {
 //	@Failure		403	{object}	response.ErrorResponse		"权限不足"
 //	@Failure		404	{object}	response.ErrorResponse		"组织不存在"
 //	@Failure		500	{object}	response.ErrorResponse		"服务器内部错误"
-//	@Router			/api/system/orgs/{id} [delete]
+//	@Router			/api/admin/orgs/{id} [delete]
 func (h *OrgHandler) Delete(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {

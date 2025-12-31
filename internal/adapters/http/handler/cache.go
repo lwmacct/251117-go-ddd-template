@@ -43,7 +43,7 @@ func NewCacheHandler(
 //	@Security		BearerAuth
 //	@Success		200	{object}	response.DataResponse[cache.CacheInfoDTO]	"成功"
 //	@Failure		500	{object}	response.ErrorResponse						"服务器错误"
-//	@Router			/api/system/cache/info [get]
+//	@Router			/api/admin/cache/info [get]
 func (h *CacheHandler) Info(c *gin.Context) {
 	info, err := h.infoHandler.Handle(c.Request.Context())
 	if err != nil {
@@ -78,7 +78,7 @@ type ScanKeysQuery struct {
 //	@Success		200		{object}	response.DataResponse[cache.ScanKeysResultDTO]	"成功"
 //	@Failure		400		{object}	response.ErrorResponse							"参数错误"
 //	@Failure		500		{object}	response.ErrorResponse							"服务器错误"
-//	@Router			/api/system/cache/keys [get]
+//	@Router			/api/admin/cache/keys [get]
 func (h *CacheHandler) ScanKeys(c *gin.Context) {
 	var q ScanKeysQuery
 	if err := c.ShouldBindQuery(&q); err != nil {
@@ -118,7 +118,7 @@ type GetKeyQuery struct {
 //	@Failure		400		{object}	response.ErrorResponse						"参数错误"
 //	@Failure		404		{object}	response.ErrorResponse						"Key 不存在"
 //	@Failure		500		{object}	response.ErrorResponse						"服务器错误"
-//	@Router			/api/system/cache/key [get]
+//	@Router			/api/admin/cache/key [get]
 func (h *CacheHandler) GetKey(c *gin.Context) {
 	var q GetKeyQuery
 	if err := c.ShouldBindQuery(&q); err != nil {
@@ -157,7 +157,7 @@ type DeleteKeyQuery struct {
 //	@Success		200		{object}	response.DataResponse[cache.DeleteResultDTO]	"成功"
 //	@Failure		400		{object}	response.ErrorResponse							"参数错误"
 //	@Failure		500		{object}	response.ErrorResponse							"服务器错误"
-//	@Router			/api/system/cache/key [delete]
+//	@Router			/api/admin/cache/key [delete]
 func (h *CacheHandler) DeleteKey(c *gin.Context) {
 	var q DeleteKeyQuery
 	if err := c.ShouldBindQuery(&q); err != nil {
@@ -192,7 +192,7 @@ type DeleteByPatternQuery struct {
 //	@Success		200		{object}	response.DataResponse[cache.DeleteResultDTO]	"成功"
 //	@Failure		400		{object}	response.ErrorResponse							"参数错误"
 //	@Failure		500		{object}	response.ErrorResponse							"服务器错误"
-//	@Router			/api/system/cache/keys [delete]
+//	@Router			/api/admin/cache/keys [delete]
 func (h *CacheHandler) DeleteByPattern(c *gin.Context) {
 	var q DeleteByPatternQuery
 	if err := c.ShouldBindQuery(&q); err != nil {

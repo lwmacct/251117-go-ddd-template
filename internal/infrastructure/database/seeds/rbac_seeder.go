@@ -128,6 +128,7 @@ func (s *RBACSeeder) seedAdminUser(ctx context.Context, db *gorm.DB) error {
 		username string
 		email    string
 		realName string
+		avatar   string
 		userType string                 // "human" | "service" | "system"
 		role     *persistence.RoleModel // nil 表示不分配角色（root 用户硬编码权限）
 	}
@@ -138,6 +139,7 @@ func (s *RBACSeeder) seedAdminUser(ctx context.Context, db *gorm.DB) error {
 			username: user.RootUsername,
 			email:    "root@localhost",
 			realName: "Root Administrator",
+			avatar:   "https://api.dicebear.com/9.x/micah/svg?seed=root",
 			userType: "system",
 			role:     nil, // root 用户权限硬编码，不需要角色
 		},
@@ -145,6 +147,7 @@ func (s *RBACSeeder) seedAdminUser(ctx context.Context, db *gorm.DB) error {
 			username: user.AdminUsername,
 			email:    "admin@example.com",
 			realName: "System Administrator",
+			avatar:   "https://api.dicebear.com/9.x/micah/svg?seed=admin-rbac",
 			userType: "system",
 			role:     &adminRole,
 		},
@@ -153,6 +156,7 @@ func (s *RBACSeeder) seedAdminUser(ctx context.Context, db *gorm.DB) error {
 			username: "human",
 			email:    "human@example.com",
 			realName: "Human User",
+			avatar:   "https://api.dicebear.com/9.x/micah/svg?seed=human",
 			userType: "human",
 			role:     &userRole,
 		},
@@ -178,6 +182,7 @@ func (s *RBACSeeder) seedAdminUser(ctx context.Context, db *gorm.DB) error {
 			Nickname:  cfg.username, // 使用用户名作为昵称
 			Phone:     phonePtr,
 			Signature: "",
+			Avatar:    cfg.avatar,
 			Status:    "active",
 			Type:      cfg.userType,
 		}
@@ -191,6 +196,7 @@ func (s *RBACSeeder) seedAdminUser(ctx context.Context, db *gorm.DB) error {
 				"email":     userModel.Email,
 				"password":  userModel.Password,
 				"real_name": userModel.RealName,
+				"avatar":    cfg.avatar,
 				"type":      userModel.Type,
 			}
 			if err := db.Model(&userModel).Updates(updates).Error; err != nil {

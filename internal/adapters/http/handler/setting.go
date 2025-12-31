@@ -78,7 +78,7 @@ func NewSettingHandler(
 //	@Failure		403			{object}	response.ErrorResponse									"权限不足"
 //	@Failure		404			{object}	response.ErrorResponse									"分类不存在"
 //	@Failure		500			{object}	response.ErrorResponse									"服务器内部错误"
-//	@Router			/api/system/settings [get]
+//	@Router			/api/admin/settings [get]
 func (h *SettingHandler) GetSettings(c *gin.Context) {
 	categoryKey := c.Query("category")
 
@@ -112,7 +112,7 @@ func (h *SettingHandler) GetSettings(c *gin.Context) {
 //	@Failure		401	{object}	response.ErrorResponse						"未授权"
 //	@Failure		403	{object}	response.ErrorResponse						"权限不足"
 //	@Failure		404	{object}	response.ErrorResponse						"配置不存在"
-//	@Router			/api/system/settings/{key} [get]
+//	@Router			/api/admin/settings/{key} [get]
 func (h *SettingHandler) GetSetting(c *gin.Context) {
 	key := c.Param("key")
 
@@ -155,7 +155,7 @@ type CreateSettingRequest struct {
 //	@Failure		401		{object}	response.ErrorResponse						"未授权"
 //	@Failure		403		{object}	response.ErrorResponse						"权限不足"
 //	@Failure		500		{object}	response.ErrorResponse						"服务器内部错误"
-//	@Router			/api/system/settings [post]
+//	@Router			/api/admin/settings [post]
 func (h *SettingHandler) CreateSetting(c *gin.Context) {
 	var req CreateSettingRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -216,7 +216,7 @@ type UpdateSettingRequest struct {
 //	@Failure		403		{object}	response.ErrorResponse						"权限不足"
 //	@Failure		404		{object}	response.ErrorResponse						"配置不存在"
 //	@Failure		500		{object}	response.ErrorResponse						"服务器内部错误"
-//	@Router			/api/system/settings/{key} [put]
+//	@Router			/api/admin/settings/{key} [put]
 func (h *SettingHandler) UpdateSetting(c *gin.Context) {
 	key := c.Param("key")
 
@@ -261,7 +261,7 @@ func (h *SettingHandler) UpdateSetting(c *gin.Context) {
 //	@Failure		403	{object}	response.ErrorResponse	"权限不足"
 //	@Failure		404	{object}	response.ErrorResponse	"配置不存在"
 //	@Failure		500	{object}	response.ErrorResponse	"服务器内部错误"
-//	@Router			/api/system/settings/{key} [delete]
+//	@Router			/api/admin/settings/{key} [delete]
 func (h *SettingHandler) DeleteSetting(c *gin.Context) {
 	key := c.Param("key")
 
@@ -300,7 +300,7 @@ type BatchUpdateSettingsRequest struct {
 //	@Failure		401		{object}	response.ErrorResponse		"未授权"
 //	@Failure		403		{object}	response.ErrorResponse		"权限不足"
 //	@Failure		500		{object}	response.ErrorResponse		"服务器内部错误"
-//	@Router			/api/system/settings/batch [post]
+//	@Router			/api/admin/settings/batch [post]
 func (h *SettingHandler) BatchUpdateSettings(c *gin.Context) {
 	var req BatchUpdateSettingsRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -350,7 +350,7 @@ func (h *SettingHandler) BatchUpdateSettings(c *gin.Context) {
 //	@Failure		401	{object}	response.ErrorResponse							"未授权"
 //	@Failure		403	{object}	response.ErrorResponse							"权限不足"
 //	@Failure		500	{object}	response.ErrorResponse							"服务器内部错误"
-//	@Router			/api/system/settings/categories [get]
+//	@Router			/api/admin/settings/categories [get]
 func (h *SettingHandler) GetCategories(c *gin.Context) {
 	categories, err := h.listCategoriesHandler.Handle(c.Request.Context(), setting.ListCategoriesQuery{})
 	if err != nil {
@@ -374,7 +374,7 @@ func (h *SettingHandler) GetCategories(c *gin.Context) {
 //	@Failure		401	{object}	response.ErrorResponse						"未授权"
 //	@Failure		403	{object}	response.ErrorResponse						"权限不足"
 //	@Failure		404	{object}	response.ErrorResponse						"分类不存在"
-//	@Router			/api/system/settings/categories/{id} [get]
+//	@Router			/api/admin/settings/categories/{id} [get]
 func (h *SettingHandler) GetCategory(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
@@ -419,7 +419,7 @@ type CreateCategoryRequest struct {
 //	@Failure		401		{object}	response.ErrorResponse						"未授权"
 //	@Failure		403		{object}	response.ErrorResponse						"权限不足"
 //	@Failure		500		{object}	response.ErrorResponse						"服务器内部错误"
-//	@Router			/api/system/settings/categories [post]
+//	@Router			/api/admin/settings/categories [post]
 func (h *SettingHandler) CreateCategory(c *gin.Context) {
 	var req CreateCategoryRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -473,7 +473,7 @@ type UpdateCategoryRequest struct {
 //	@Failure		403		{object}	response.ErrorResponse						"权限不足"
 //	@Failure		404		{object}	response.ErrorResponse						"分类不存在"
 //	@Failure		500		{object}	response.ErrorResponse						"服务器内部错误"
-//	@Router			/api/system/settings/categories/{id} [put]
+//	@Router			/api/admin/settings/categories/{id} [put]
 func (h *SettingHandler) UpdateCategory(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
@@ -516,7 +516,7 @@ func (h *SettingHandler) UpdateCategory(c *gin.Context) {
 //	@Failure		403	{object}	response.ErrorResponse	"权限不足"
 //	@Failure		404	{object}	response.ErrorResponse	"分类不存在"
 //	@Failure		500	{object}	response.ErrorResponse	"服务器内部错误"
-//	@Router			/api/system/settings/categories/{id} [delete]
+//	@Router			/api/admin/settings/categories/{id} [delete]
 func (h *SettingHandler) DeleteCategory(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {

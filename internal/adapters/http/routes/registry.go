@@ -81,55 +81,55 @@ var Registry = map[permission.Operation]routeMeta{
 	},
 
 	// ==================== Sys 域 - 用户管理 ====================
-	permission.SysUsersCreate: {
+	permission.AdminUsersCreate: {
 		Method:      POST,
-		Path:        "/api/system/users",
+		Path:        "/api/admin/users",
 		Tags:        "Admin - User Management",
 		Audit:       true,
 		Summary:     "创建用户",
 		Description: "创建新用户",
 	},
-	permission.SysUsersBatchCreate: {
+	permission.AdminUsersBatchCreate: {
 		Method:      POST,
-		Path:        "/api/system/users/batch",
+		Path:        "/api/admin/users/batch",
 		Tags:        "Admin - User Management",
 		Audit:       true,
 		Summary:     "批量创建用户",
 		Description: "批量创建用户",
 	},
-	permission.SysUsersList: {
+	permission.AdminUsersList: {
 		Method:      GET,
-		Path:        "/api/system/users",
+		Path:        "/api/admin/users",
 		Tags:        "Admin - User Management",
 		Summary:     "用户列表",
 		Description: "获取用户列表",
 	},
-	permission.SysUsersGet: {
+	permission.AdminUsersGet: {
 		Method:      GET,
-		Path:        "/api/system/users/:id",
+		Path:        "/api/admin/users/:id",
 		Tags:        "Admin - User Management",
 		Summary:     "用户详情",
 		Description: "获取用户详情",
 	},
-	permission.SysUsersUpdate: {
+	permission.AdminUsersUpdate: {
 		Method:      PUT,
-		Path:        "/api/system/users/:id",
+		Path:        "/api/admin/users/:id",
 		Tags:        "Admin - User Management",
 		Audit:       true,
 		Summary:     "更新用户",
 		Description: "更新用户信息",
 	},
-	permission.SysUsersDelete: {
+	permission.AdminUsersDelete: {
 		Method:      DELETE,
-		Path:        "/api/system/users/:id",
+		Path:        "/api/admin/users/:id",
 		Tags:        "Admin - User Management",
 		Audit:       true,
 		Summary:     "删除用户",
 		Description: "删除用户",
 	},
-	permission.SysUsersAssignRoles: {
+	permission.AdminUsersAssignRoles: {
 		Method:      PUT,
-		Path:        "/api/system/users/:id/roles",
+		Path:        "/api/admin/users/:id/roles",
 		Tags:        "Admin - User Management",
 		Audit:       true,
 		Summary:     "分配角色",
@@ -137,47 +137,47 @@ var Registry = map[permission.Operation]routeMeta{
 	},
 
 	// ==================== Sys 域 - 角色管理 ====================
-	permission.SysRolesCreate: {
+	permission.AdminRolesCreate: {
 		Method:      POST,
-		Path:        "/api/system/roles",
+		Path:        "/api/admin/roles",
 		Tags:        "Admin - Role Management",
 		Audit:       true,
 		Summary:     "创建角色",
 		Description: "创建角色",
 	},
-	permission.SysRolesList: {
+	permission.AdminRolesList: {
 		Method:      GET,
-		Path:        "/api/system/roles",
+		Path:        "/api/admin/roles",
 		Tags:        "Admin - Role Management",
 		Summary:     "角色列表",
 		Description: "获取角色列表",
 	},
-	permission.SysRolesGet: {
+	permission.AdminRolesGet: {
 		Method:      GET,
-		Path:        "/api/system/roles/:id",
+		Path:        "/api/admin/roles/:id",
 		Tags:        "Admin - Role Management",
 		Summary:     "角色详情",
 		Description: "获取角色详情",
 	},
-	permission.SysRolesUpdate: {
+	permission.AdminRolesUpdate: {
 		Method:      PUT,
-		Path:        "/api/system/roles/:id",
+		Path:        "/api/admin/roles/:id",
 		Tags:        "Admin - Role Management",
 		Audit:       true,
 		Summary:     "更新角色",
 		Description: "更新角色",
 	},
-	permission.SysRolesDelete: {
+	permission.AdminRolesDelete: {
 		Method:      DELETE,
-		Path:        "/api/system/roles/:id",
+		Path:        "/api/admin/roles/:id",
 		Tags:        "Admin - Role Management",
 		Audit:       true,
 		Summary:     "删除角色",
 		Description: "删除角色",
 	},
-	permission.SysRolesSetPermissions: {
+	permission.AdminRolesSetPermissions: {
 		Method:      PUT,
-		Path:        "/api/system/roles/:id/permissions",
+		Path:        "/api/admin/roles/:id/permissions",
 		Tags:        "Admin - Role Management",
 		Audit:       true,
 		Summary:     "设置权限",
@@ -185,88 +185,88 @@ var Registry = map[permission.Operation]routeMeta{
 	},
 
 	// ==================== Sys 域 - 操作列表 ====================
-	permission.SysOperationsList: {
+	permission.AdminOperationsList: {
 		Method:      GET,
-		Path:        "/api/system/operations",
+		Path:        "/api/admin/operations",
 		Tags:        "System",
 		Summary:     "操作列表",
 		Description: "获取可用操作列表",
 	},
 
 	// ==================== Sys 域 - 审计日志 ====================
-	permission.SysAuditList: {
+	permission.AdminAuditList: {
 		Method:      GET,
-		Path:        "/api/system/audit",
+		Path:        "/api/admin/audit",
 		Tags:        "Admin - Audit Log",
 		Summary:     "审计日志列表",
 		Description: "获取审计日志列表",
 	},
-	permission.SysAuditGet: {
+	permission.AdminAuditGet: {
 		Method:      GET,
-		Path:        "/api/system/audit/:id",
+		Path:        "/api/admin/audit/:id",
 		Tags:        "Admin - Audit Log",
 		Summary:     "审计日志详情",
 		Description: "获取审计日志详情",
 	},
-	permission.SysAuditActions: {
+	permission.AdminAuditActions: {
 		Method:      GET,
-		Path:        "/api/system/audit/actions",
+		Path:        "/api/admin/audit/actions",
 		Tags:        "Admin - Audit Log",
 		Summary:     "审计操作定义",
 		Description: "获取审计操作定义",
 	},
 
 	// ==================== Sys 域 - 系统概览 ====================
-	permission.SysOverviewStats: {
+	permission.AdminOverviewStats: {
 		Method:      GET,
-		Path:        "/api/system/overview/stats",
+		Path:        "/api/admin/overview/stats",
 		Tags:        "Overview",
 		Summary:     "系统概览",
 		Description: "获取系统概览统计",
 	},
 
 	// ==================== Sys 域 - 系统配置 ====================
-	permission.SysSettingsCreate: {
+	permission.AdminSettingsCreate: {
 		Method:      POST,
-		Path:        "/api/system/settings",
+		Path:        "/api/admin/settings",
 		Tags:        "Admin - Settings",
 		Audit:       true,
 		Summary:     "创建配置",
 		Description: "创建配置项",
 	},
-	permission.SysSettingsList: {
+	permission.AdminSettingsList: {
 		Method:      GET,
-		Path:        "/api/system/settings",
+		Path:        "/api/admin/settings",
 		Tags:        "Admin - Settings",
 		Summary:     "配置列表",
 		Description: "获取配置列表",
 	},
-	permission.SysSettingsGet: {
+	permission.AdminSettingsGet: {
 		Method:      GET,
-		Path:        "/api/system/settings/:key",
+		Path:        "/api/admin/settings/:key",
 		Tags:        "Admin - Settings",
 		Summary:     "配置详情",
 		Description: "获取配置详情",
 	},
-	permission.SysSettingsUpdate: {
+	permission.AdminSettingsUpdate: {
 		Method:      PUT,
-		Path:        "/api/system/settings/:key",
+		Path:        "/api/admin/settings/:key",
 		Tags:        "Admin - Settings",
 		Audit:       true,
 		Summary:     "更新配置",
 		Description: "更新配置",
 	},
-	permission.SysSettingsDelete: {
+	permission.AdminSettingsDelete: {
 		Method:      DELETE,
-		Path:        "/api/system/settings/:key",
+		Path:        "/api/admin/settings/:key",
 		Tags:        "Admin - Settings",
 		Audit:       true,
 		Summary:     "删除配置",
 		Description: "删除配置",
 	},
-	permission.SysSettingsBatchUpdate: {
+	permission.AdminSettingsBatchUpdate: {
 		Method:      POST,
-		Path:        "/api/system/settings/batch",
+		Path:        "/api/admin/settings/batch",
 		Tags:        "Admin - Settings",
 		Audit:       true,
 		Summary:     "批量更新配置",
@@ -274,39 +274,39 @@ var Registry = map[permission.Operation]routeMeta{
 	},
 
 	// ==================== Sys 域 - 配置分类 ====================
-	permission.SysSettingCategoriesList: {
+	permission.AdminSettingCategoriesList: {
 		Method:      GET,
-		Path:        "/api/system/settings/categories",
+		Path:        "/api/admin/settings/categories",
 		Tags:        "Admin - Setting Categories",
 		Summary:     "配置分类列表",
 		Description: "获取配置分类列表",
 	},
-	permission.SysSettingCategoriesGet: {
+	permission.AdminSettingCategoriesGet: {
 		Method:      GET,
-		Path:        "/api/system/settings/categories/:id",
+		Path:        "/api/admin/settings/categories/:id",
 		Tags:        "Admin - Setting Categories",
 		Summary:     "配置分类详情",
 		Description: "获取配置分类详情",
 	},
-	permission.SysSettingCategoriesCreate: {
+	permission.AdminSettingCategoriesCreate: {
 		Method:      POST,
-		Path:        "/api/system/settings/categories",
+		Path:        "/api/admin/settings/categories",
 		Tags:        "Admin - Setting Categories",
 		Audit:       true,
 		Summary:     "创建配置分类",
 		Description: "创建配置分类",
 	},
-	permission.SysSettingCategoriesUpdate: {
+	permission.AdminSettingCategoriesUpdate: {
 		Method:      PUT,
-		Path:        "/api/system/settings/categories/:id",
+		Path:        "/api/admin/settings/categories/:id",
 		Tags:        "Admin - Setting Categories",
 		Audit:       true,
 		Summary:     "更新配置分类",
 		Description: "更新配置分类",
 	},
-	permission.SysSettingCategoriesDelete: {
+	permission.AdminSettingCategoriesDelete: {
 		Method:      DELETE,
-		Path:        "/api/system/settings/categories/:id",
+		Path:        "/api/admin/settings/categories/:id",
 		Tags:        "Admin - Setting Categories",
 		Audit:       true,
 		Summary:     "删除配置分类",
@@ -314,38 +314,38 @@ var Registry = map[permission.Operation]routeMeta{
 	},
 
 	// ==================== Sys 域 - 缓存管理 ====================
-	permission.SysCacheInfo: {
+	permission.AdminCacheInfo: {
 		Method:      GET,
-		Path:        "/api/system/cache/info",
+		Path:        "/api/admin/cache/info",
 		Tags:        "System",
 		Summary:     "缓存信息",
 		Description: "获取缓存信息",
 	},
-	permission.SysCacheScanKeys: {
+	permission.AdminCacheScanKeys: {
 		Method:      GET,
-		Path:        "/api/system/cache/keys",
+		Path:        "/api/admin/cache/keys",
 		Tags:        "System",
 		Summary:     "扫描缓存键",
 		Description: "扫描缓存键",
 	},
-	permission.SysCacheGetKey: {
+	permission.AdminCacheGetKey: {
 		Method:      GET,
-		Path:        "/api/system/cache/key",
+		Path:        "/api/admin/cache/key",
 		Tags:        "System",
 		Summary:     "获取缓存值",
 		Description: "获取缓存键值",
 	},
-	permission.SysCacheDeleteKey: {
+	permission.AdminCacheDeleteKey: {
 		Method:      DELETE,
-		Path:        "/api/system/cache/key",
+		Path:        "/api/admin/cache/key",
 		Tags:        "System",
 		Audit:       true,
 		Summary:     "删除缓存键",
 		Description: "删除缓存键",
 	},
-	permission.SysCacheDeletePattern: {
+	permission.AdminCacheDeletePattern: {
 		Method:      DELETE,
-		Path:        "/api/system/cache/keys",
+		Path:        "/api/admin/cache/keys",
 		Tags:        "System",
 		Audit:       true,
 		Summary:     "批量删除缓存",
@@ -503,40 +503,40 @@ var Registry = map[permission.Operation]routeMeta{
 		Description: "获取当前用户加入的所有团队",
 	},
 
-	// ==================== Sys 域 - 组织管理 ====================
-	permission.SysOrgsCreate: {
+	// ==================== Admin 域 - 组织管理 ====================
+	permission.AdminOrgsCreate: {
 		Method:      POST,
-		Path:        "/api/system/orgs",
+		Path:        "/api/admin/orgs",
 		Tags:        "Admin - Organization Management",
 		Audit:       true,
 		Summary:     "创建组织",
 		Description: "系统管理员创建新组织",
 	},
-	permission.SysOrgsList: {
+	permission.AdminOrgsList: {
 		Method:      GET,
-		Path:        "/api/system/orgs",
+		Path:        "/api/admin/orgs",
 		Tags:        "Admin - Organization Management",
 		Summary:     "组织列表",
 		Description: "分页获取所有组织",
 	},
-	permission.SysOrgsGet: {
+	permission.AdminOrgsGet: {
 		Method:      GET,
-		Path:        "/api/system/orgs/:id",
+		Path:        "/api/admin/orgs/:id",
 		Tags:        "Admin - Organization Management",
 		Summary:     "组织详情",
 		Description: "根据 ID 获取组织详情",
 	},
-	permission.SysOrgsUpdate: {
+	permission.AdminOrgsUpdate: {
 		Method:      PUT,
-		Path:        "/api/system/orgs/:id",
+		Path:        "/api/admin/orgs/:id",
 		Tags:        "Admin - Organization Management",
 		Audit:       true,
 		Summary:     "更新组织",
 		Description: "更新组织信息",
 	},
-	permission.SysOrgsDelete: {
+	permission.AdminOrgsDelete: {
 		Method:      DELETE,
-		Path:        "/api/system/orgs/:id",
+		Path:        "/api/admin/orgs/:id",
 		Tags:        "Admin - Organization Management",
 		Audit:       true,
 		Summary:     "删除组织",
@@ -685,7 +685,7 @@ var Registry = map[permission.Operation]routeMeta{
 	},
 
 	// ==================== Sys 域 - 产品管理 ====================
-	permission.SysProductsCreate: {
+	permission.AdminProductsCreate: {
 		Method:      POST,
 		Path:        "/api/admin/products",
 		Tags:        "Admin - Product Management",
@@ -693,21 +693,21 @@ var Registry = map[permission.Operation]routeMeta{
 		Summary:     "创建产品",
 		Description: "创建可订阅的产品",
 	},
-	permission.SysProductsList: {
+	permission.AdminProductsList: {
 		Method:      GET,
 		Path:        "/api/admin/products",
 		Tags:        "Admin - Product Management",
 		Summary:     "产品列表",
 		Description: "分页获取产品列表",
 	},
-	permission.SysProductsGet: {
+	permission.AdminProductsGet: {
 		Method:      GET,
 		Path:        "/api/admin/products/:id",
 		Tags:        "Admin - Product Management",
 		Summary:     "产品详情",
 		Description: "获取产品详细信息",
 	},
-	permission.SysProductsUpdate: {
+	permission.AdminProductsUpdate: {
 		Method:      PUT,
 		Path:        "/api/admin/products/:id",
 		Tags:        "Admin - Product Management",
@@ -715,7 +715,7 @@ var Registry = map[permission.Operation]routeMeta{
 		Summary:     "更新产品",
 		Description: "更新产品信息",
 	},
-	permission.SysProductsDelete: {
+	permission.AdminProductsDelete: {
 		Method:      DELETE,
 		Path:        "/api/admin/products/:id",
 		Tags:        "Admin - Product Management",

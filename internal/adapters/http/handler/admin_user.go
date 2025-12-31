@@ -73,7 +73,7 @@ func NewAdminUserHandler(
 //	@Failure		401		{object}	response.ErrorResponse							"未授权"
 //	@Failure		403		{object}	response.ErrorResponse							"权限不足"
 //	@Failure		500		{object}	response.ErrorResponse							"服务器内部错误"
-//	@Router			/api/system/users [post]
+//	@Router			/api/admin/users [post]
 func (h *AdminUserHandler) CreateUser(c *gin.Context) {
 	var dto user.CreateDTO
 	if err := c.ShouldBindJSON(&dto); err != nil {
@@ -112,7 +112,7 @@ func (h *AdminUserHandler) CreateUser(c *gin.Context) {
 //	@Failure		401		{object}	response.ErrorResponse							"未授权"
 //	@Failure		403		{object}	response.ErrorResponse							"权限不足"
 //	@Failure		500		{object}	response.ErrorResponse							"服务器内部错误"
-//	@Router			/api/system/users [get]
+//	@Router			/api/admin/users [get]
 func (h *AdminUserHandler) ListUsers(c *gin.Context) {
 	var q ListUsersQuery
 	if err := c.ShouldBindQuery(&q); err != nil {
@@ -144,7 +144,7 @@ func (h *AdminUserHandler) ListUsers(c *gin.Context) {
 //	@Failure		401	{object}	response.ErrorResponse							"未授权"
 //	@Failure		403	{object}	response.ErrorResponse							"权限不足"
 //	@Failure		404	{object}	response.ErrorResponse							"用户不存在"
-//	@Router			/api/system/users/{id} [get]
+//	@Router			/api/admin/users/{id} [get]
 func (h *AdminUserHandler) GetUser(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
@@ -184,7 +184,7 @@ func (h *AdminUserHandler) GetUser(c *gin.Context) {
 //	@Failure		403		{object}	response.ErrorResponse							"权限不足"
 //	@Failure		404		{object}	response.ErrorResponse							"用户不存在"
 //	@Failure		500		{object}	response.ErrorResponse							"服务器内部错误"
-//	@Router			/api/system/users/{id} [put]
+//	@Router			/api/admin/users/{id} [put]
 func (h *AdminUserHandler) UpdateUser(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
@@ -242,7 +242,7 @@ func (h *AdminUserHandler) UpdateUser(c *gin.Context) {
 //	@Failure		403	{object}	response.ErrorResponse		"权限不足"
 //	@Failure		404	{object}	response.ErrorResponse		"用户不存在"
 //	@Failure		500	{object}	response.ErrorResponse		"服务器内部错误"
-//	@Router			/api/system/users/{id} [delete]
+//	@Router			/api/admin/users/{id} [delete]
 func (h *AdminUserHandler) DeleteUser(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
@@ -276,7 +276,7 @@ func (h *AdminUserHandler) DeleteUser(c *gin.Context) {
 //	@Failure		403		{object}	response.ErrorResponse							"权限不足"
 //	@Failure		404		{object}	response.ErrorResponse							"用户不存在"
 //	@Failure		500		{object}	response.ErrorResponse							"服务器内部错误"
-//	@Router			/api/system/users/{id}/roles [put]
+//	@Router			/api/admin/users/{id}/roles [put]
 func (h *AdminUserHandler) AssignRoles(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
@@ -325,7 +325,7 @@ func (h *AdminUserHandler) AssignRoles(c *gin.Context) {
 //	@Failure		401		{object}	response.ErrorResponse								"未授权"
 //	@Failure		403		{object}	response.ErrorResponse								"权限不足"
 //	@Failure		500		{object}	response.ErrorResponse								"服务器内部错误"
-//	@Router			/api/system/users/batch [post]
+//	@Router			/api/admin/users/batch [post]
 func (h *AdminUserHandler) BatchCreateUsers(c *gin.Context) {
 	var dto user.BatchCreateDTO
 	if err := c.ShouldBindJSON(&dto); err != nil {

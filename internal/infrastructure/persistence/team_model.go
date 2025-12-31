@@ -16,6 +16,7 @@ type TeamModel struct {
 	Name        string `gorm:"size:50;not null;index:idx_team_org_name,unique,priority:2"`
 	DisplayName string `gorm:"size:100;not null"`
 	Description string `gorm:"type:text"`
+	Avatar      string `gorm:"size:255"`
 
 	CreatedAt time.Time
 	UpdatedAt time.Time
@@ -46,6 +47,7 @@ func newTeamModelFromEntity(entity *org.Team) *TeamModel {
 		Name:        entity.Name,
 		DisplayName: entity.DisplayName,
 		Description: entity.Description,
+		Avatar:      entity.Avatar,
 		CreatedAt:   entity.CreatedAt,
 		UpdatedAt:   entity.UpdatedAt,
 	}
@@ -69,6 +71,7 @@ func (m *TeamModel) ToEntity() *org.Team {
 		Name:        m.Name,
 		DisplayName: m.DisplayName,
 		Description: m.Description,
+		Avatar:      m.Avatar,
 		CreatedAt:   m.CreatedAt,
 		UpdatedAt:   m.UpdatedAt,
 		Members:     mapTeamMemberModelsToEntities(m.Members),

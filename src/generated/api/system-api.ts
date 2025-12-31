@@ -49,8 +49,8 @@ export const SystemApiAxiosParamCreator = function (configuration?: Configuratio
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiSystemCacheInfoGet: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            const localVarPath = `/api/system/cache/info`;
+        apiAdminCacheInfoGet: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/admin/cache/info`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -83,10 +83,10 @@ export const SystemApiAxiosParamCreator = function (configuration?: Configuratio
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiSystemCacheKeyDelete: async (key: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        apiAdminCacheKeyDelete: async (key: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'key' is not null or undefined
-            assertParamExists('apiSystemCacheKeyDelete', 'key', key)
-            const localVarPath = `/api/system/cache/key`;
+            assertParamExists('apiAdminCacheKeyDelete', 'key', key)
+            const localVarPath = `/api/admin/cache/key`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -123,10 +123,10 @@ export const SystemApiAxiosParamCreator = function (configuration?: Configuratio
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiSystemCacheKeyGet: async (key: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        apiAdminCacheKeyGet: async (key: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'key' is not null or undefined
-            assertParamExists('apiSystemCacheKeyGet', 'key', key)
-            const localVarPath = `/api/system/cache/key`;
+            assertParamExists('apiAdminCacheKeyGet', 'key', key)
+            const localVarPath = `/api/admin/cache/key`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -163,10 +163,10 @@ export const SystemApiAxiosParamCreator = function (configuration?: Configuratio
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiSystemCacheKeysDelete: async (pattern: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        apiAdminCacheKeysDelete: async (pattern: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'pattern' is not null or undefined
-            assertParamExists('apiSystemCacheKeysDelete', 'pattern', pattern)
-            const localVarPath = `/api/system/cache/keys`;
+            assertParamExists('apiAdminCacheKeysDelete', 'pattern', pattern)
+            const localVarPath = `/api/admin/cache/keys`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -205,8 +205,8 @@ export const SystemApiAxiosParamCreator = function (configuration?: Configuratio
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiSystemCacheKeysGet: async (cursor?: string, limit?: number, pattern?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            const localVarPath = `/api/system/cache/keys`;
+        apiAdminCacheKeysGet: async (cursor?: string, limit?: number, pattern?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/admin/cache/keys`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -250,8 +250,8 @@ export const SystemApiAxiosParamCreator = function (configuration?: Configuratio
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiSystemOperationsGet: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            const localVarPath = `/api/system/operations`;
+        apiAdminOperationsGet: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/admin/operations`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -383,10 +383,10 @@ export const SystemApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async apiSystemCacheInfoGet(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseCacheCacheInfoDTO>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.apiSystemCacheInfoGet(options);
+        async apiAdminCacheInfoGet(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseCacheCacheInfoDTO>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.apiAdminCacheInfoGet(options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['SystemApi.apiSystemCacheInfoGet']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['SystemApi.apiAdminCacheInfoGet']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -396,10 +396,10 @@ export const SystemApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async apiSystemCacheKeyDelete(key: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseCacheDeleteResultDTO>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.apiSystemCacheKeyDelete(key, options);
+        async apiAdminCacheKeyDelete(key: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseCacheDeleteResultDTO>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.apiAdminCacheKeyDelete(key, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['SystemApi.apiSystemCacheKeyDelete']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['SystemApi.apiAdminCacheKeyDelete']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -409,10 +409,10 @@ export const SystemApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async apiSystemCacheKeyGet(key: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseCacheCacheValueDTO>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.apiSystemCacheKeyGet(key, options);
+        async apiAdminCacheKeyGet(key: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseCacheCacheValueDTO>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.apiAdminCacheKeyGet(key, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['SystemApi.apiSystemCacheKeyGet']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['SystemApi.apiAdminCacheKeyGet']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -422,10 +422,10 @@ export const SystemApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async apiSystemCacheKeysDelete(pattern: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseCacheDeleteResultDTO>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.apiSystemCacheKeysDelete(pattern, options);
+        async apiAdminCacheKeysDelete(pattern: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseCacheDeleteResultDTO>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.apiAdminCacheKeysDelete(pattern, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['SystemApi.apiSystemCacheKeysDelete']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['SystemApi.apiAdminCacheKeysDelete']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -437,10 +437,10 @@ export const SystemApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async apiSystemCacheKeysGet(cursor?: string, limit?: number, pattern?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseCacheScanKeysResultDTO>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.apiSystemCacheKeysGet(cursor, limit, pattern, options);
+        async apiAdminCacheKeysGet(cursor?: string, limit?: number, pattern?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseCacheScanKeysResultDTO>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.apiAdminCacheKeysGet(cursor, limit, pattern, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['SystemApi.apiSystemCacheKeysGet']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['SystemApi.apiAdminCacheKeysGet']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -449,10 +449,10 @@ export const SystemApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async apiSystemOperationsGet(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseArrayRoutesOperationDefinition>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.apiSystemOperationsGet(options);
+        async apiAdminOperationsGet(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseArrayRoutesOperationDefinition>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.apiAdminOperationsGet(options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['SystemApi.apiSystemOperationsGet']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['SystemApi.apiAdminOperationsGet']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -507,8 +507,8 @@ export const SystemApiFactory = function (configuration?: Configuration, basePat
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiSystemCacheInfoGet(options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseCacheCacheInfoDTO> {
-            return localVarFp.apiSystemCacheInfoGet(options).then((request) => request(axios, basePath));
+        apiAdminCacheInfoGet(options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseCacheCacheInfoDTO> {
+            return localVarFp.apiAdminCacheInfoGet(options).then((request) => request(axios, basePath));
         },
         /**
          * 删除指定的单个 key（类似 redis-cli DEL）
@@ -517,8 +517,8 @@ export const SystemApiFactory = function (configuration?: Configuration, basePat
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiSystemCacheKeyDelete(key: string, options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseCacheDeleteResultDTO> {
-            return localVarFp.apiSystemCacheKeyDelete(key, options).then((request) => request(axios, basePath));
+        apiAdminCacheKeyDelete(key: string, options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseCacheDeleteResultDTO> {
+            return localVarFp.apiAdminCacheKeyDelete(key, options).then((request) => request(axios, basePath));
         },
         /**
          * 获取指定 key 的完整信息和值（类似 redis-cli GET/JSON.GET）
@@ -527,8 +527,8 @@ export const SystemApiFactory = function (configuration?: Configuration, basePat
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiSystemCacheKeyGet(key: string, options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseCacheCacheValueDTO> {
-            return localVarFp.apiSystemCacheKeyGet(key, options).then((request) => request(axios, basePath));
+        apiAdminCacheKeyGet(key: string, options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseCacheCacheValueDTO> {
+            return localVarFp.apiAdminCacheKeyGet(key, options).then((request) => request(axios, basePath));
         },
         /**
          * 批量删除匹配 pattern 的所有 keys
@@ -537,8 +537,8 @@ export const SystemApiFactory = function (configuration?: Configuration, basePat
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiSystemCacheKeysDelete(pattern: string, options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseCacheDeleteResultDTO> {
-            return localVarFp.apiSystemCacheKeysDelete(pattern, options).then((request) => request(axios, basePath));
+        apiAdminCacheKeysDelete(pattern: string, options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseCacheDeleteResultDTO> {
+            return localVarFp.apiAdminCacheKeysDelete(pattern, options).then((request) => request(axios, basePath));
         },
         /**
          * 按 pattern 扫描缓存 keys（类似 redis-cli SCAN）
@@ -549,8 +549,8 @@ export const SystemApiFactory = function (configuration?: Configuration, basePat
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiSystemCacheKeysGet(cursor?: string, limit?: number, pattern?: string, options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseCacheScanKeysResultDTO> {
-            return localVarFp.apiSystemCacheKeysGet(cursor, limit, pattern, options).then((request) => request(axios, basePath));
+        apiAdminCacheKeysGet(cursor?: string, limit?: number, pattern?: string, options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseCacheScanKeysResultDTO> {
+            return localVarFp.apiAdminCacheKeysGet(cursor, limit, pattern, options).then((request) => request(axios, basePath));
         },
         /**
          * 返回所有可用的操作定义，供前端权限配置使用
@@ -558,8 +558,8 @@ export const SystemApiFactory = function (configuration?: Configuration, basePat
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiSystemOperationsGet(options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseArrayRoutesOperationDefinition> {
-            return localVarFp.apiSystemOperationsGet(options).then((request) => request(axios, basePath));
+        apiAdminOperationsGet(options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseArrayRoutesOperationDefinition> {
+            return localVarFp.apiAdminOperationsGet(options).then((request) => request(axios, basePath));
         },
         /**
          * 检查系统服务健康状态（数据库、Redis）
@@ -605,8 +605,8 @@ export class SystemApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof SystemApi
      */
-    public apiSystemCacheInfoGet(options?: RawAxiosRequestConfig) {
-        return SystemApiFp(this.configuration).apiSystemCacheInfoGet(options).then((request) => request(this.axios, this.basePath));
+    public apiAdminCacheInfoGet(options?: RawAxiosRequestConfig) {
+        return SystemApiFp(this.configuration).apiAdminCacheInfoGet(options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -617,8 +617,8 @@ export class SystemApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof SystemApi
      */
-    public apiSystemCacheKeyDelete(key: string, options?: RawAxiosRequestConfig) {
-        return SystemApiFp(this.configuration).apiSystemCacheKeyDelete(key, options).then((request) => request(this.axios, this.basePath));
+    public apiAdminCacheKeyDelete(key: string, options?: RawAxiosRequestConfig) {
+        return SystemApiFp(this.configuration).apiAdminCacheKeyDelete(key, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -629,8 +629,8 @@ export class SystemApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof SystemApi
      */
-    public apiSystemCacheKeyGet(key: string, options?: RawAxiosRequestConfig) {
-        return SystemApiFp(this.configuration).apiSystemCacheKeyGet(key, options).then((request) => request(this.axios, this.basePath));
+    public apiAdminCacheKeyGet(key: string, options?: RawAxiosRequestConfig) {
+        return SystemApiFp(this.configuration).apiAdminCacheKeyGet(key, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -641,8 +641,8 @@ export class SystemApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof SystemApi
      */
-    public apiSystemCacheKeysDelete(pattern: string, options?: RawAxiosRequestConfig) {
-        return SystemApiFp(this.configuration).apiSystemCacheKeysDelete(pattern, options).then((request) => request(this.axios, this.basePath));
+    public apiAdminCacheKeysDelete(pattern: string, options?: RawAxiosRequestConfig) {
+        return SystemApiFp(this.configuration).apiAdminCacheKeysDelete(pattern, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -655,8 +655,8 @@ export class SystemApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof SystemApi
      */
-    public apiSystemCacheKeysGet(cursor?: string, limit?: number, pattern?: string, options?: RawAxiosRequestConfig) {
-        return SystemApiFp(this.configuration).apiSystemCacheKeysGet(cursor, limit, pattern, options).then((request) => request(this.axios, this.basePath));
+    public apiAdminCacheKeysGet(cursor?: string, limit?: number, pattern?: string, options?: RawAxiosRequestConfig) {
+        return SystemApiFp(this.configuration).apiAdminCacheKeysGet(cursor, limit, pattern, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -666,8 +666,8 @@ export class SystemApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof SystemApi
      */
-    public apiSystemOperationsGet(options?: RawAxiosRequestConfig) {
-        return SystemApiFp(this.configuration).apiSystemOperationsGet(options).then((request) => request(this.axios, this.basePath));
+    public apiAdminOperationsGet(options?: RawAxiosRequestConfig) {
+        return SystemApiFp(this.configuration).apiAdminOperationsGet(options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

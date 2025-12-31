@@ -28,57 +28,57 @@ func (deps *RouterDependencies) AllRouteBindings() []RouteBinding {
 		{permission.Self2FADisable, deps.TwoFAHandler.Disable},
 		{permission.Self2FAStatus, deps.TwoFAHandler.GetStatus},
 
-		// ==================== Sys 域 - 用户管理 ====================
-		{permission.SysUsersCreate, deps.AdminUserHandler.CreateUser},
-		{permission.SysUsersBatchCreate, deps.AdminUserHandler.BatchCreateUsers},
-		{permission.SysUsersList, deps.AdminUserHandler.ListUsers},
-		{permission.SysUsersGet, deps.AdminUserHandler.GetUser},
-		{permission.SysUsersUpdate, deps.AdminUserHandler.UpdateUser},
-		{permission.SysUsersDelete, deps.AdminUserHandler.DeleteUser},
-		{permission.SysUsersAssignRoles, deps.AdminUserHandler.AssignRoles},
+		// ==================== Admin 域 - 用户管理 ====================
+		{permission.AdminUsersCreate, deps.AdminUserHandler.CreateUser},
+		{permission.AdminUsersBatchCreate, deps.AdminUserHandler.BatchCreateUsers},
+		{permission.AdminUsersList, deps.AdminUserHandler.ListUsers},
+		{permission.AdminUsersGet, deps.AdminUserHandler.GetUser},
+		{permission.AdminUsersUpdate, deps.AdminUserHandler.UpdateUser},
+		{permission.AdminUsersDelete, deps.AdminUserHandler.DeleteUser},
+		{permission.AdminUsersAssignRoles, deps.AdminUserHandler.AssignRoles},
 
-		// ==================== Sys 域 - 角色管理 ====================
-		{permission.SysRolesCreate, deps.RoleHandler.CreateRole},
-		{permission.SysRolesList, deps.RoleHandler.ListRoles},
-		{permission.SysRolesGet, deps.RoleHandler.GetRole},
-		{permission.SysRolesUpdate, deps.RoleHandler.UpdateRole},
-		{permission.SysRolesDelete, deps.RoleHandler.DeleteRole},
-		{permission.SysRolesSetPermissions, deps.RoleHandler.SetPermissions},
+		// ==================== Admin 域 - 角色管理 ====================
+		{permission.AdminRolesCreate, deps.RoleHandler.CreateRole},
+		{permission.AdminRolesList, deps.RoleHandler.ListRoles},
+		{permission.AdminRolesGet, deps.RoleHandler.GetRole},
+		{permission.AdminRolesUpdate, deps.RoleHandler.UpdateRole},
+		{permission.AdminRolesDelete, deps.RoleHandler.DeleteRole},
+		{permission.AdminRolesSetPermissions, deps.RoleHandler.SetPermissions},
 
-		// ==================== Sys 域 - 操作列表 ====================
-		{permission.SysOperationsList, deps.OperationHandler.ListOperations},
+		// ==================== Admin 域 - 操作列表 ====================
+		{permission.AdminOperationsList, deps.OperationHandler.ListOperations},
 
-		// ==================== Sys 域 - 审计日志 ====================
+		// ==================== Admin 域 - 审计日志 ====================
 		// 注意：actions 路由必须在 :id 路由之前
-		{permission.SysAuditActions, deps.AuditHandler.GetActions},
-		{permission.SysAuditList, deps.AuditHandler.ListLogs},
-		{permission.SysAuditGet, deps.AuditHandler.GetLog},
+		{permission.AdminAuditActions, deps.AuditHandler.GetActions},
+		{permission.AdminAuditList, deps.AuditHandler.ListLogs},
+		{permission.AdminAuditGet, deps.AuditHandler.GetLog},
 
-		// ==================== Sys 域 - 系统概览 ====================
-		{permission.SysOverviewStats, deps.OverviewHandler.GetStats},
+		// ==================== Admin 域 - 系统概览 ====================
+		{permission.AdminOverviewStats, deps.OverviewHandler.GetStats},
 
-		// ==================== Sys 域 - 配置分类（必须在 :key 之前） ====================
-		{permission.SysSettingCategoriesList, deps.SettingHandler.GetCategories},
-		{permission.SysSettingCategoriesGet, deps.SettingHandler.GetCategory},
-		{permission.SysSettingCategoriesCreate, deps.SettingHandler.CreateCategory},
-		{permission.SysSettingCategoriesUpdate, deps.SettingHandler.UpdateCategory},
-		{permission.SysSettingCategoriesDelete, deps.SettingHandler.DeleteCategory},
+		// ==================== Admin 域 - 配置分类（必须在 :key 之前） ====================
+		{permission.AdminSettingCategoriesList, deps.SettingHandler.GetCategories},
+		{permission.AdminSettingCategoriesGet, deps.SettingHandler.GetCategory},
+		{permission.AdminSettingCategoriesCreate, deps.SettingHandler.CreateCategory},
+		{permission.AdminSettingCategoriesUpdate, deps.SettingHandler.UpdateCategory},
+		{permission.AdminSettingCategoriesDelete, deps.SettingHandler.DeleteCategory},
 
-		// ==================== Sys 域 - 系统配置 ====================
+		// ==================== Admin 域 - 系统配置 ====================
 		// 注意：batch 路由必须在 :key 路由之前
-		{permission.SysSettingsBatchUpdate, deps.SettingHandler.BatchUpdateSettings},
-		{permission.SysSettingsCreate, deps.SettingHandler.CreateSetting},
-		{permission.SysSettingsList, deps.SettingHandler.GetSettings},
-		{permission.SysSettingsGet, deps.SettingHandler.GetSetting},
-		{permission.SysSettingsUpdate, deps.SettingHandler.UpdateSetting},
-		{permission.SysSettingsDelete, deps.SettingHandler.DeleteSetting},
+		{permission.AdminSettingsBatchUpdate, deps.SettingHandler.BatchUpdateSettings},
+		{permission.AdminSettingsCreate, deps.SettingHandler.CreateSetting},
+		{permission.AdminSettingsList, deps.SettingHandler.GetSettings},
+		{permission.AdminSettingsGet, deps.SettingHandler.GetSetting},
+		{permission.AdminSettingsUpdate, deps.SettingHandler.UpdateSetting},
+		{permission.AdminSettingsDelete, deps.SettingHandler.DeleteSetting},
 
-		// ==================== Sys 域 - 缓存管理 ====================
-		{permission.SysCacheInfo, deps.CacheHandler.Info},
-		{permission.SysCacheScanKeys, deps.CacheHandler.ScanKeys},
-		{permission.SysCacheGetKey, deps.CacheHandler.GetKey},
-		{permission.SysCacheDeleteKey, deps.CacheHandler.DeleteKey},
-		{permission.SysCacheDeletePattern, deps.CacheHandler.DeleteByPattern},
+		// ==================== Admin 域 - 缓存管理 ====================
+		{permission.AdminCacheInfo, deps.CacheHandler.Info},
+		{permission.AdminCacheScanKeys, deps.CacheHandler.ScanKeys},
+		{permission.AdminCacheGetKey, deps.CacheHandler.GetKey},
+		{permission.AdminCacheDeleteKey, deps.CacheHandler.DeleteKey},
+		{permission.AdminCacheDeletePattern, deps.CacheHandler.DeleteByPattern},
 
 		// ==================== Self 域 - 个人资料 ====================
 		{permission.SelfProfileGet, deps.UserProfileHandler.GetProfile},
@@ -109,12 +109,12 @@ func (deps *RouterDependencies) AllRouteBindings() []RouteBinding {
 		{permission.SelfOrgsList, deps.UserOrgHandler.ListMyOrganizations},
 		{permission.SelfTeamsList, deps.UserOrgHandler.ListMyTeams},
 
-		// ==================== Sys 域 - 组织管理 ====================
-		{permission.SysOrgsCreate, deps.OrgHandler.Create},
-		{permission.SysOrgsList, deps.OrgHandler.List},
-		{permission.SysOrgsGet, deps.OrgHandler.Get},
-		{permission.SysOrgsUpdate, deps.OrgHandler.Update},
-		{permission.SysOrgsDelete, deps.OrgHandler.Delete},
+		// ==================== Admin 域 - 组织管理 ====================
+		{permission.AdminOrgsCreate, deps.OrgHandler.Create},
+		{permission.AdminOrgsList, deps.OrgHandler.List},
+		{permission.AdminOrgsGet, deps.OrgHandler.Get},
+		{permission.AdminOrgsUpdate, deps.OrgHandler.Update},
+		{permission.AdminOrgsDelete, deps.OrgHandler.Delete},
 
 		// ==================== Org 域 - 组织成员管理 ====================
 		{permission.OrgMembersList, deps.OrgMemberHandler.List},
@@ -141,11 +141,11 @@ func (deps *RouterDependencies) AllRouteBindings() []RouteBinding {
 		{permission.OrgTasksUpdate, deps.TaskHandler.Update},
 		{permission.OrgTasksDelete, deps.TaskHandler.Delete},
 
-		// ==================== Sys 域 - 产品管理 ====================
-		{permission.SysProductsCreate, deps.ProductHandler.Create},
-		{permission.SysProductsList, deps.ProductHandler.List},
-		{permission.SysProductsGet, deps.ProductHandler.Get},
-		{permission.SysProductsUpdate, deps.ProductHandler.Update},
-		{permission.SysProductsDelete, deps.ProductHandler.Delete},
+		// ==================== Admin 域 - 产品管理 ====================
+		{permission.AdminProductsCreate, deps.ProductHandler.Create},
+		{permission.AdminProductsList, deps.ProductHandler.List},
+		{permission.AdminProductsGet, deps.ProductHandler.Get},
+		{permission.AdminProductsUpdate, deps.ProductHandler.Update},
+		{permission.AdminProductsDelete, deps.ProductHandler.Delete},
 	}
 }

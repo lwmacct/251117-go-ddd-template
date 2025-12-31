@@ -87,6 +87,7 @@ func (h *TeamHandler) Create(c *gin.Context) {
 		Name:        req.Name,
 		DisplayName: req.DisplayName,
 		Description: req.Description,
+		Avatar:      req.Avatar,
 	})
 	if err != nil {
 		if errors.Is(err, orgDomain.ErrTeamAlreadyExists) {
@@ -231,6 +232,7 @@ func (h *TeamHandler) Update(c *gin.Context) {
 		TeamID:      uint(teamID),
 		DisplayName: req.DisplayName,
 		Description: req.Description,
+		Avatar:      req.Avatar,
 	})
 	if err != nil {
 		if errors.Is(err, orgDomain.ErrTeamNotFound) {
