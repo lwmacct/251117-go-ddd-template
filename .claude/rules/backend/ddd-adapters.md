@@ -27,57 +27,20 @@ internal/adapters/http/
 - `{module}` 为领域模块名（如 `user`、`auth`）
 - `{feature}` 为功能名（如 `cors`、`logging`）
 
-## 禁止事项
-
-- ❌ 在 Handler 中编排业务逻辑
-- ❌ 直接调用 Repository
-- ❌ 直接依赖 Infrastructure 实现
-- ❌ 自定义错误常量（必须使用 Domain 层定义）
-
-```go
-type XxxHandler struct {
-    createHandler *app.CreateHandler
-    getHandler    *app.GetHandler
-}
-
-func (h *XxxHandler) Create(c *gin.Context) {
-    // 1. 请求绑定
-    var req CreateDTO
-    if err := c.ShouldBindJSON(&req); err != nil { ... }
-
-    // 2. 调用 Application Handler
-    result, err := h.createHandler.Handle(ctx, Command{...})
-
-    // 3. 响应转换
-    response.Created(c, "success", result)
-}
-```
-
 ## 响应规范
 
 必须使用 `response/` 包：
 
 ```go
 // ✅ 正确
-response.OK(c, "success", data)
-response.List(c, "success", items, meta)
+response.OK(c, response.MsgSuccess, data)
+response.List(c, response.MsgSuccess, items, meta)
 
 // ❌ 禁止
 c.JSON(200, gin.H{...})
 ```
 
-## Query 参数
-
-内联定义在 Handler 文件中：
-
-```go
-type ListQuery struct {
-    response.PaginationDTO
-    Status string `form:"status"`
-}
-
-func (q *ListQuery) ToQuery() app.ListQuery { ... }
-```
+> 详见 [Handler 规范](ddd-adapters-handler.md)
 
 ## Swagger 注解规范
 

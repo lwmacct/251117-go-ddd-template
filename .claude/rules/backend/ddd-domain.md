@@ -19,6 +19,7 @@ internal/domain/{module}/
 ├── cmd_{entity}.go          # 写仓储接口（多实体时）
 ├── qry_{entity}.go          # 读仓储接口（多实体时）
 ├── errors.go                # 错误定义
+├── constants.go             # 常量定义（可选）
 ├── value_objects.go         # 值对象（可选）
 └── doc.go                   # 包文档（必须）
 ```
@@ -36,6 +37,8 @@ internal/domain/{module}/
 | `cmd_*.go`         | interface | `{Entity}CommandRepository`      | `SettingCategoryCommandRepository` |
 | `qry_*.go`         | interface | `{Entity}QueryRepository`        | `UserSettingQueryRepository`       |
 | `entity_*.go`      | struct    | 实体名（首字母大写）             | `User`, `Setting`                  |
+| `errors.go`        | var       | `Err` + 描述                     | `ErrUserNotFound`                  |
+| `constants.go`     | const     | `Msg` + 描述                     | `MsgTwoFARequired`                 |
 | `value_objects.go` | struct    | 值对象名                         | `Scope`, `InputType`               |
 
 > 规范由 `internal/precommit/domain_test.go` 自动检查
