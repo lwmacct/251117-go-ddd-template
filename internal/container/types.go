@@ -29,9 +29,9 @@ func GetAllModels() []any {
 		&persistence.SettingCategoryModel{},
 		&persistence.UserSettingModel{},
 		// 组织和团队
-		&persistence.OrganizationModel{},
+		&persistence.OrgModel{},
 		&persistence.TeamModel{},
-		&persistence.OrganizationMemberModel{},
+		&persistence.OrgMemberModel{},
 		&persistence.TeamMemberModel{},
 	}
 }

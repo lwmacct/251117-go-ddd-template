@@ -5,7 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/lwmacct/251117-go-ddd-template/internal/adapters/http/response"
-	"github.com/lwmacct/251117-go-ddd-template/internal/domain/organization"
+	"github.com/lwmacct/251117-go-ddd-template/internal/domain/org"
 )
 
 // OrgContext 组织上下文中间件。
@@ -13,7 +13,7 @@ import (
 // 验证通过后注入以下值到 Gin Context:
 //   - org_id: uint - 组织 ID
 //   - org_role: string - 用户在组织中的角色 (owner/admin/member)
-func OrgContext(memberQuery organization.MemberQueryRepository) gin.HandlerFunc {
+func OrgContext(memberQuery org.MemberQueryRepository) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// 1. 获取当前用户 ID
 		userID, exists := c.Get("user_id")
@@ -66,8 +66,8 @@ func OrgContext(memberQuery organization.MemberQueryRepository) gin.HandlerFunc 
 //   - team_id: uint - 团队 ID
 //   - team_role: string - 用户在团队中的角色 (lead/member)
 func TeamContext(
-	teamQuery organization.TeamQueryRepository,
-	teamMemberQuery organization.TeamMemberQueryRepository,
+	teamQuery org.TeamQueryRepository,
+	teamMemberQuery org.TeamMemberQueryRepository,
 ) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// 1. 获取组织上下文（必须先通过 OrgContext）
@@ -144,7 +144,7 @@ func TeamContext(
 // OrgContextOptional 可选的组织上下文中间件。
 // 与 OrgContext 类似，但不要求用户必须是组织成员。
 // 仅验证组织存在性，适用于需要组织 ID 但不限制成员的场景。
-func OrgContextOptional(orgQuery organization.QueryRepository) gin.HandlerFunc {
+func OrgContextOptional(orgQuery org.QueryRepository) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// 1. 解析路由参数中的 org_id
 		orgIDStr := c.Param("org_id")

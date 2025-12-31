@@ -446,7 +446,7 @@
                     "200": {
                         "description": "成员列表",
                         "schema": {
-                            "$ref": "#/definitions/response.PagedResponse-organization_MemberDTO"
+                            "$ref": "#/definitions/response.PagedResponse-org_MemberDTO"
                         }
                     },
                     "401": {
@@ -501,7 +501,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/organization.AddMemberDTO"
+                            "$ref": "#/definitions/org.AddMemberDTO"
                         }
                     }
                 ],
@@ -509,7 +509,7 @@
                     "201": {
                         "description": "成员添加成功",
                         "schema": {
-                            "$ref": "#/definitions/response.DataResponse-organization_MemberDTO"
+                            "$ref": "#/definitions/response.DataResponse-org_MemberDTO"
                         }
                     },
                     "400": {
@@ -656,7 +656,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/organization.UpdateMemberRoleDTO"
+                            "$ref": "#/definitions/org.UpdateMemberRoleDTO"
                         }
                     }
                 ],
@@ -664,7 +664,7 @@
                     "200": {
                         "description": "角色更新成功",
                         "schema": {
-                            "$ref": "#/definitions/response.DataResponse-organization_MemberDTO"
+                            "$ref": "#/definitions/response.DataResponse-org_MemberDTO"
                         }
                     },
                     "400": {
@@ -749,7 +749,7 @@
                     "200": {
                         "description": "团队列表",
                         "schema": {
-                            "$ref": "#/definitions/response.PagedResponse-organization_TeamDTO"
+                            "$ref": "#/definitions/response.PagedResponse-org_TeamDTO"
                         }
                     },
                     "401": {
@@ -804,7 +804,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/organization.CreateTeamDTO"
+                            "$ref": "#/definitions/org.CreateTeamDTO"
                         }
                     }
                 ],
@@ -812,7 +812,7 @@
                     "201": {
                         "description": "团队创建成功",
                         "schema": {
-                            "$ref": "#/definitions/response.DataResponse-organization_TeamDTO"
+                            "$ref": "#/definitions/response.DataResponse-org_TeamDTO"
                         }
                     },
                     "400": {
@@ -882,7 +882,7 @@
                     "200": {
                         "description": "团队详情",
                         "schema": {
-                            "$ref": "#/definitions/response.DataResponse-organization_TeamDTO"
+                            "$ref": "#/definitions/response.DataResponse-org_TeamDTO"
                         }
                     },
                     "400": {
@@ -951,7 +951,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/organization.UpdateTeamDTO"
+                            "$ref": "#/definitions/org.UpdateTeamDTO"
                         }
                     }
                 ],
@@ -959,7 +959,7 @@
                     "200": {
                         "description": "团队更新成功",
                         "schema": {
-                            "$ref": "#/definitions/response.DataResponse-organization_TeamDTO"
+                            "$ref": "#/definitions/response.DataResponse-org_TeamDTO"
                         }
                     },
                     "400": {
@@ -1126,7 +1126,7 @@
                     "200": {
                         "description": "成员列表",
                         "schema": {
-                            "$ref": "#/definitions/response.PagedResponse-organization_TeamMemberDTO"
+                            "$ref": "#/definitions/response.PagedResponse-org_TeamMemberDTO"
                         }
                     },
                     "400": {
@@ -1195,7 +1195,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/organization.AddTeamMemberDTO"
+                            "$ref": "#/definitions/org.AddTeamMemberDTO"
                         }
                     }
                 ],
@@ -1203,7 +1203,7 @@
                     "201": {
                         "description": "成员添加成功",
                         "schema": {
-                            "$ref": "#/definitions/response.DataResponse-organization_TeamMemberDTO"
+                            "$ref": "#/definitions/response.DataResponse-org_TeamMemberDTO"
                         }
                     },
                     "400": {
@@ -1815,7 +1815,7 @@
                 }
             }
         },
-        "/api/system/organizations": {
+        "/api/system/orgs": {
             "get": {
                 "security": [
                     {
@@ -1865,7 +1865,7 @@
                     "200": {
                         "description": "组织列表",
                         "schema": {
-                            "$ref": "#/definitions/response.PagedResponse-organization_OrgDTO"
+                            "$ref": "#/definitions/response.PagedResponse-org_OrgDTO"
                         }
                     },
                     "401": {
@@ -1912,7 +1912,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/organization.CreateOrgDTO"
+                            "$ref": "#/definitions/org.CreateOrgDTO"
                         }
                     }
                 ],
@@ -1920,7 +1920,7 @@
                     "201": {
                         "description": "组织创建成功",
                         "schema": {
-                            "$ref": "#/definitions/response.DataResponse-organization_OrgDTO"
+                            "$ref": "#/definitions/response.DataResponse-org_OrgDTO"
                         }
                     },
                     "400": {
@@ -1950,7 +1950,7 @@
                 }
             }
         },
-        "/api/system/organizations/{id}": {
+        "/api/system/orgs/{id}": {
             "get": {
                 "security": [
                     {
@@ -1982,7 +1982,7 @@
                     "200": {
                         "description": "组织详情",
                         "schema": {
-                            "$ref": "#/definitions/response.DataResponse-organization_OrgDTO"
+                            "$ref": "#/definitions/response.DataResponse-org_OrgDTO"
                         }
                     },
                     "400": {
@@ -2043,7 +2043,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/organization.UpdateOrgDTO"
+                            "$ref": "#/definitions/org.UpdateOrgDTO"
                         }
                     }
                 ],
@@ -2051,7 +2051,7 @@
                     "200": {
                         "description": "组织更新成功",
                         "schema": {
-                            "$ref": "#/definitions/response.DataResponse-organization_OrgDTO"
+                            "$ref": "#/definitions/response.DataResponse-org_OrgDTO"
                         }
                     },
                     "400": {
@@ -3787,7 +3787,7 @@
                 }
             }
         },
-        "/api/user/organizations": {
+        "/api/user/orgs": {
             "get": {
                 "security": [
                     {
@@ -3809,7 +3809,7 @@
                     "200": {
                         "description": "组织列表",
                         "schema": {
-                            "$ref": "#/definitions/response.DataResponse-array_organization_UserOrgDTO"
+                            "$ref": "#/definitions/response.DataResponse-array_org_UserOrgDTO"
                         }
                     },
                     "401": {
@@ -4315,7 +4315,7 @@
                     "200": {
                         "description": "团队列表",
                         "schema": {
-                            "$ref": "#/definitions/response.DataResponse-array_organization_UserTeamDTO"
+                            "$ref": "#/definitions/response.DataResponse-array_org_UserTeamDTO"
                         }
                     },
                     "401": {
@@ -5373,7 +5373,7 @@
                 }
             }
         },
-        "organization.AddMemberDTO": {
+        "org.AddMemberDTO": {
             "type": "object",
             "required": [
                 "role",
@@ -5393,7 +5393,7 @@
                 }
             }
         },
-        "organization.AddTeamMemberDTO": {
+        "org.AddTeamMemberDTO": {
             "type": "object",
             "required": [
                 "role",
@@ -5412,7 +5412,7 @@
                 }
             }
         },
-        "organization.CreateOrgDTO": {
+        "org.CreateOrgDTO": {
             "type": "object",
             "required": [
                 "display_name",
@@ -5439,7 +5439,7 @@
                 }
             }
         },
-        "organization.CreateTeamDTO": {
+        "org.CreateTeamDTO": {
             "type": "object",
             "required": [
                 "display_name",
@@ -5462,7 +5462,7 @@
                 }
             }
         },
-        "organization.MemberDTO": {
+        "org.MemberDTO": {
             "type": "object",
             "properties": {
                 "avatar": {
@@ -5480,7 +5480,7 @@
                 "joined_at": {
                     "type": "string"
                 },
-                "organization_id": {
+                "org_id": {
                     "type": "integer"
                 },
                 "role": {
@@ -5495,7 +5495,7 @@
                 }
             }
         },
-        "organization.OrgDTO": {
+        "org.OrgDTO": {
             "type": "object",
             "properties": {
                 "avatar": {
@@ -5524,7 +5524,7 @@
                 }
             }
         },
-        "organization.TeamDTO": {
+        "org.TeamDTO": {
             "type": "object",
             "properties": {
                 "created_at": {
@@ -5542,7 +5542,7 @@
                 "name": {
                     "type": "string"
                 },
-                "organization_id": {
+                "org_id": {
                     "type": "integer"
                 },
                 "updated_at": {
@@ -5550,7 +5550,7 @@
                 }
             }
         },
-        "organization.TeamMemberDTO": {
+        "org.TeamMemberDTO": {
             "type": "object",
             "properties": {
                 "avatar": {
@@ -5583,7 +5583,7 @@
                 }
             }
         },
-        "organization.UpdateMemberRoleDTO": {
+        "org.UpdateMemberRoleDTO": {
             "type": "object",
             "required": [
                 "role"
@@ -5599,7 +5599,7 @@
                 }
             }
         },
-        "organization.UpdateOrgDTO": {
+        "org.UpdateOrgDTO": {
             "type": "object",
             "properties": {
                 "avatar": {
@@ -5624,7 +5624,7 @@
                 }
             }
         },
-        "organization.UpdateTeamDTO": {
+        "org.UpdateTeamDTO": {
             "type": "object",
             "properties": {
                 "description": {
@@ -5638,7 +5638,7 @@
                 }
             }
         },
-        "organization.UserOrgDTO": {
+        "org.UserOrgDTO": {
             "type": "object",
             "properties": {
                 "avatar": {
@@ -5675,7 +5675,7 @@
                 }
             }
         },
-        "organization.UserTeamDTO": {
+        "org.UserTeamDTO": {
             "type": "object",
             "properties": {
                 "created_at": {
@@ -5697,12 +5697,12 @@
                 "name": {
                     "type": "string"
                 },
+                "org_id": {
+                    "type": "integer"
+                },
                 "org_name": {
                     "description": "所属组织名称",
                     "type": "string"
-                },
-                "organization_id": {
-                    "type": "integer"
                 },
                 "role": {
                     "description": "用户在该团队中的角色",
@@ -5840,7 +5840,7 @@
                 }
             }
         },
-        "response.DataResponse-array_organization_UserOrgDTO": {
+        "response.DataResponse-array_org_UserOrgDTO": {
             "type": "object",
             "properties": {
                 "code": {
@@ -5851,7 +5851,7 @@
                     "description": "响应数据",
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/organization.UserOrgDTO"
+                        "$ref": "#/definitions/org.UserOrgDTO"
                     }
                 },
                 "error": {
@@ -5863,7 +5863,7 @@
                 }
             }
         },
-        "response.DataResponse-array_organization_UserTeamDTO": {
+        "response.DataResponse-array_org_UserTeamDTO": {
             "type": "object",
             "properties": {
                 "code": {
@@ -5874,7 +5874,7 @@
                     "description": "响应数据",
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/organization.UserTeamDTO"
+                        "$ref": "#/definitions/org.UserTeamDTO"
                     }
                 },
                 "error": {
@@ -6288,7 +6288,7 @@
                 }
             }
         },
-        "response.DataResponse-organization_MemberDTO": {
+        "response.DataResponse-org_MemberDTO": {
             "type": "object",
             "properties": {
                 "code": {
@@ -6299,7 +6299,7 @@
                     "description": "响应数据",
                     "allOf": [
                         {
-                            "$ref": "#/definitions/organization.MemberDTO"
+                            "$ref": "#/definitions/org.MemberDTO"
                         }
                     ]
                 },
@@ -6312,7 +6312,7 @@
                 }
             }
         },
-        "response.DataResponse-organization_OrgDTO": {
+        "response.DataResponse-org_OrgDTO": {
             "type": "object",
             "properties": {
                 "code": {
@@ -6323,7 +6323,7 @@
                     "description": "响应数据",
                     "allOf": [
                         {
-                            "$ref": "#/definitions/organization.OrgDTO"
+                            "$ref": "#/definitions/org.OrgDTO"
                         }
                     ]
                 },
@@ -6336,7 +6336,7 @@
                 }
             }
         },
-        "response.DataResponse-organization_TeamDTO": {
+        "response.DataResponse-org_TeamDTO": {
             "type": "object",
             "properties": {
                 "code": {
@@ -6347,7 +6347,7 @@
                     "description": "响应数据",
                     "allOf": [
                         {
-                            "$ref": "#/definitions/organization.TeamDTO"
+                            "$ref": "#/definitions/org.TeamDTO"
                         }
                     ]
                 },
@@ -6360,7 +6360,7 @@
                 }
             }
         },
-        "response.DataResponse-organization_TeamMemberDTO": {
+        "response.DataResponse-org_TeamMemberDTO": {
             "type": "object",
             "properties": {
                 "code": {
@@ -6371,7 +6371,7 @@
                     "description": "响应数据",
                     "allOf": [
                         {
-                            "$ref": "#/definitions/organization.TeamMemberDTO"
+                            "$ref": "#/definitions/org.TeamMemberDTO"
                         }
                     ]
                 },
@@ -6762,7 +6762,7 @@
                 }
             }
         },
-        "response.PagedResponse-organization_MemberDTO": {
+        "response.PagedResponse-org_MemberDTO": {
             "type": "object",
             "properties": {
                 "code": {
@@ -6773,7 +6773,7 @@
                     "description": "数据列表",
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/organization.MemberDTO"
+                        "$ref": "#/definitions/org.MemberDTO"
                     }
                 },
                 "message": {
@@ -6790,7 +6790,7 @@
                 }
             }
         },
-        "response.PagedResponse-organization_OrgDTO": {
+        "response.PagedResponse-org_OrgDTO": {
             "type": "object",
             "properties": {
                 "code": {
@@ -6801,7 +6801,7 @@
                     "description": "数据列表",
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/organization.OrgDTO"
+                        "$ref": "#/definitions/org.OrgDTO"
                     }
                 },
                 "message": {
@@ -6818,7 +6818,7 @@
                 }
             }
         },
-        "response.PagedResponse-organization_TeamDTO": {
+        "response.PagedResponse-org_TeamDTO": {
             "type": "object",
             "properties": {
                 "code": {
@@ -6829,7 +6829,7 @@
                     "description": "数据列表",
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/organization.TeamDTO"
+                        "$ref": "#/definitions/org.TeamDTO"
                     }
                 },
                 "message": {
@@ -6846,7 +6846,7 @@
                 }
             }
         },
-        "response.PagedResponse-organization_TeamMemberDTO": {
+        "response.PagedResponse-org_TeamMemberDTO": {
             "type": "object",
             "properties": {
                 "code": {
@@ -6857,7 +6857,7 @@
                     "description": "数据列表",
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/organization.TeamMemberDTO"
+                        "$ref": "#/definitions/org.TeamMemberDTO"
                     }
                 },
                 "message": {

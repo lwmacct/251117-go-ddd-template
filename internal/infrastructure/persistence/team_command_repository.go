@@ -1,17 +1,17 @@
 package persistence
 
 import (
-	"github.com/lwmacct/251117-go-ddd-template/internal/domain/organization"
+	"github.com/lwmacct/251117-go-ddd-template/internal/domain/org"
 	"gorm.io/gorm"
 )
 
 // teamCommandRepository 团队命令仓储的 GORM 实现
 type teamCommandRepository struct {
-	*GenericCommandRepository[organization.Team, *TeamModel]
+	*GenericCommandRepository[org.Team, *TeamModel]
 }
 
 // NewTeamCommandRepository 创建团队命令仓储实例
-func NewTeamCommandRepository(db *gorm.DB) organization.TeamCommandRepository {
+func NewTeamCommandRepository(db *gorm.DB) org.TeamCommandRepository {
 	return &teamCommandRepository{
 		GenericCommandRepository: NewGenericCommandRepository(
 			db, newTeamModelFromEntity,

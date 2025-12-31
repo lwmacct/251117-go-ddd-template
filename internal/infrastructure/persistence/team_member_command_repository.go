@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/lwmacct/251117-go-ddd-template/internal/domain/organization"
+	"github.com/lwmacct/251117-go-ddd-template/internal/domain/org"
 	"gorm.io/gorm"
 )
 
@@ -15,12 +15,12 @@ type teamMemberCommandRepository struct {
 }
 
 // NewTeamMemberCommandRepository 创建团队成员命令仓储实例
-func NewTeamMemberCommandRepository(db *gorm.DB) organization.TeamMemberCommandRepository {
+func NewTeamMemberCommandRepository(db *gorm.DB) org.TeamMemberCommandRepository {
 	return &teamMemberCommandRepository{db: db}
 }
 
 // Add 添加成员到团队
-func (r *teamMemberCommandRepository) Add(ctx context.Context, member *organization.TeamMember) error {
+func (r *teamMemberCommandRepository) Add(ctx context.Context, member *org.TeamMember) error {
 	model := newTeamMemberModelFromEntity(member)
 	if model.JoinedAt.IsZero() {
 		model.JoinedAt = time.Now()
@@ -48,14 +48,14 @@ func (r *teamMemberCommandRepository) Remove(ctx context.Context, teamID, userID
 	}
 
 	if result.RowsAffected == 0 {
-		return organization.ErrNotTeamMember
+		return org.ErrNotTeamMember
 	}
 
 	return nil
 }
 
 // UpdateRole 更新团队成员角色
-func (r *teamMemberCommandRepository) UpdateRole(ctx context.Context, teamID, userID uint, role organization.TeamMemberRole) error {
+func (r *teamMemberCommandRepository) UpdateRole(ctx context.Context, teamID, userID uint, role org.TeamMemberRole) error {
 	result := r.db.WithContext(ctx).Model(&TeamMemberModel{}).
 		Where("team_id = ? AND user_id = ?", teamID, userID).
 		Update("role", string(role))
@@ -65,7 +65,7 @@ func (r *teamMemberCommandRepository) UpdateRole(ctx context.Context, teamID, us
 	}
 
 	if result.RowsAffected == 0 {
-		return organization.ErrNotTeamMember
+		return org.ErrNotTeamMember
 	}
 
 	return nil

@@ -5,7 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/lwmacct/251117-go-ddd-template/internal/adapters/http/response"
-	"github.com/lwmacct/251117-go-ddd-template/internal/application/organization"
+	"github.com/lwmacct/251117-go-ddd-template/internal/application/org"
 )
 
 // ListTeamMembersQuery 团队成员列表查询参数
@@ -14,8 +14,8 @@ type ListTeamMembersQuery struct {
 }
 
 // ToQuery 转换为 Application 层 Query 对象
-func (q *ListTeamMembersQuery) ToQuery(orgID, teamID uint) organization.ListTeamMembersQuery {
-	return organization.ListTeamMembersQuery{
+func (q *ListTeamMembersQuery) ToQuery(orgID, teamID uint) org.ListTeamMembersQuery {
+	return org.ListTeamMembersQuery{
 		OrgID:  orgID,
 		TeamID: teamID,
 		Offset: q.GetOffset(),
@@ -26,18 +26,18 @@ func (q *ListTeamMembersQuery) ToQuery(orgID, teamID uint) organization.ListTeam
 // TeamMemberHandler 团队成员管理 Handler
 type TeamMemberHandler struct {
 	// Command Handlers
-	addMemberHandler    *organization.TeamMemberAddHandler
-	removeMemberHandler *organization.TeamMemberRemoveHandler
+	addMemberHandler    *org.TeamMemberAddHandler
+	removeMemberHandler *org.TeamMemberRemoveHandler
 
 	// Query Handlers
-	listMembersHandler *organization.TeamMemberListHandler
+	listMembersHandler *org.TeamMemberListHandler
 }
 
 // NewTeamMemberHandler 创建团队成员管理 Handler
 func NewTeamMemberHandler(
-	addMemberHandler *organization.TeamMemberAddHandler,
-	removeMemberHandler *organization.TeamMemberRemoveHandler,
-	listMembersHandler *organization.TeamMemberListHandler,
+	addMemberHandler *org.TeamMemberAddHandler,
+	removeMemberHandler *org.TeamMemberRemoveHandler,
+	listMembersHandler *org.TeamMemberListHandler,
 ) *TeamMemberHandler {
 	return &TeamMemberHandler{
 		addMemberHandler:    addMemberHandler,
@@ -57,7 +57,7 @@ func NewTeamMemberHandler(
 //	@Param			org_id	path		int														true	"组织ID"	minimum(1)
 //	@Param			team_id	path		int														true	"团队ID"	minimum(1)
 //	@Param			params	query		handler.ListTeamMembersQuery							false	"查询参数"
-//	@Success		200		{object}	response.PagedResponse[organization.TeamMemberDTO]		"成员列表"
+//	@Success		200		{object}	response.PagedResponse[org.TeamMemberDTO]		"成员列表"
 //	@Failure		400		{object}	response.ErrorResponse									"无效的ID"
 //	@Failure		401		{object}	response.ErrorResponse									"未授权"
 //	@Failure		403		{object}	response.ErrorResponse									"权限不足"
@@ -102,8 +102,8 @@ func (h *TeamMemberHandler) List(c *gin.Context) {
 //	@Security		BearerAuth
 //	@Param			org_id	path		int													true	"组织ID"	minimum(1)
 //	@Param			team_id	path		int													true	"团队ID"	minimum(1)
-//	@Param			request	body		organization.AddTeamMemberDTO						true	"成员信息"
-//	@Success		201		{object}	response.DataResponse[organization.TeamMemberDTO]	"成员添加成功"
+//	@Param			request	body		org.AddTeamMemberDTO						true	"成员信息"
+//	@Success		201		{object}	response.DataResponse[org.TeamMemberDTO]	"成员添加成功"
 //	@Failure		400		{object}	response.ErrorResponse								"参数错误、成员已存在或用户非组织成员"
 //	@Failure		401		{object}	response.ErrorResponse								"未授权"
 //	@Failure		403		{object}	response.ErrorResponse								"权限不足"
@@ -124,13 +124,13 @@ func (h *TeamMemberHandler) Add(c *gin.Context) {
 		return
 	}
 
-	var req organization.AddTeamMemberDTO
+	var req org.AddTeamMemberDTO
 	if bindErr := c.ShouldBindJSON(&req); bindErr != nil {
 		response.ValidationError(c, bindErr.Error())
 		return
 	}
 
-	result, err := h.addMemberHandler.Handle(c.Request.Context(), organization.AddTeamMemberCommand{
+	result, err := h.addMemberHandler.Handle(c.Request.Context(), org.AddTeamMemberCommand{
 		OrgID:  uint(orgID),
 		TeamID: uint(teamID),
 		UserID: req.UserID,
@@ -181,7 +181,7 @@ func (h *TeamMemberHandler) Remove(c *gin.Context) {
 		return
 	}
 
-	if err = h.removeMemberHandler.Handle(c.Request.Context(), organization.RemoveTeamMemberCommand{
+	if err = h.removeMemberHandler.Handle(c.Request.Context(), org.RemoveTeamMemberCommand{
 		OrgID:  uint(orgID),
 		TeamID: uint(teamID),
 		UserID: uint(userID),

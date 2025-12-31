@@ -3,7 +3,7 @@ package persistence
 import (
 	"time"
 
-	"github.com/lwmacct/251117-go-ddd-template/internal/domain/organization"
+	"github.com/lwmacct/251117-go-ddd-template/internal/domain/org"
 )
 
 // TeamMemberModel 定义团队成员的 GORM 持久化模型
@@ -24,7 +24,7 @@ func (TeamMemberModel) TableName() string {
 	return "team_members"
 }
 
-func newTeamMemberModelFromEntity(entity *organization.TeamMember) *TeamMemberModel {
+func newTeamMemberModelFromEntity(entity *org.TeamMember) *TeamMemberModel {
 	if entity == nil {
 		return nil
 	}
@@ -40,27 +40,27 @@ func newTeamMemberModelFromEntity(entity *organization.TeamMember) *TeamMemberMo
 }
 
 // ToEntity 将 GORM Model 转换为 Domain Entity
-func (m *TeamMemberModel) ToEntity() *organization.TeamMember {
+func (m *TeamMemberModel) ToEntity() *org.TeamMember {
 	if m == nil {
 		return nil
 	}
 
-	return &organization.TeamMember{
+	return &org.TeamMember{
 		ID:        m.ID,
 		TeamID:    m.TeamID,
 		UserID:    m.UserID,
-		Role:      organization.TeamMemberRole(m.Role),
+		Role:      org.TeamMemberRole(m.Role),
 		JoinedAt:  m.JoinedAt,
 		CreatedAt: m.CreatedAt,
 	}
 }
 
-func mapTeamMemberModelsToEntities(models []TeamMemberModel) []organization.TeamMember {
+func mapTeamMemberModelsToEntities(models []TeamMemberModel) []org.TeamMember {
 	if len(models) == 0 {
 		return nil
 	}
 
-	members := make([]organization.TeamMember, 0, len(models))
+	members := make([]org.TeamMember, 0, len(models))
 	for i := range models {
 		if entity := models[i].ToEntity(); entity != nil {
 			members = append(members, *entity)
@@ -69,12 +69,12 @@ func mapTeamMemberModelsToEntities(models []TeamMemberModel) []organization.Team
 	return members
 }
 
-func mapTeamMemberModelPtrsToEntities(models []*TeamMemberModel) []*organization.TeamMember {
+func mapTeamMemberModelPtrsToEntities(models []*TeamMemberModel) []*org.TeamMember {
 	if len(models) == 0 {
 		return nil
 	}
 
-	members := make([]*organization.TeamMember, 0, len(models))
+	members := make([]*org.TeamMember, 0, len(models))
 	for _, m := range models {
 		if entity := m.ToEntity(); entity != nil {
 			members = append(members, entity)

@@ -22,17 +22,17 @@ import { DUMMY_BASE_URL, assertParamExists, setApiKeyToObject, setBasicAuthToObj
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS, type RequestArgs, BaseAPI, RequiredError, operationServerMap } from '../base';
 // @ts-ignore
-import type { OrganizationAddMemberDTO } from '../models';
+import type { OrgAddMemberDTO } from '../models';
 // @ts-ignore
-import type { OrganizationUpdateMemberRoleDTO } from '../models';
+import type { OrgUpdateMemberRoleDTO } from '../models';
 // @ts-ignore
-import type { ResponseDataResponseOrganizationMemberDTO } from '../models';
+import type { ResponseDataResponseOrgMemberDTO } from '../models';
 // @ts-ignore
 import type { ResponseErrorResponse } from '../models';
 // @ts-ignore
 import type { ResponseMessageResponse } from '../models';
 // @ts-ignore
-import type { ResponsePagedResponseOrganizationMemberDTO } from '../models';
+import type { ResponsePagedResponseOrgMemberDTO } from '../models';
 /**
  * OrganizationMemberManagementApi - axios parameter creator
  * @export
@@ -90,11 +90,11 @@ export const OrganizationMemberManagementApiAxiosParamCreator = function (config
          * 添加用户到组织
          * @summary 添加成员
          * @param {number} orgId 组织ID
-         * @param {OrganizationAddMemberDTO} request 成员信息
+         * @param {OrgAddMemberDTO} request 成员信息
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiOrgOrgIdMembersPost: async (orgId: number, request: OrganizationAddMemberDTO, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        apiOrgOrgIdMembersPost: async (orgId: number, request: OrgAddMemberDTO, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'orgId' is not null or undefined
             assertParamExists('apiOrgOrgIdMembersPost', 'orgId', orgId)
             // verify required parameter 'request' is not null or undefined
@@ -175,11 +175,11 @@ export const OrganizationMemberManagementApiAxiosParamCreator = function (config
          * @summary 更新成员角色
          * @param {number} orgId 组织ID
          * @param {number} userId 用户ID
-         * @param {OrganizationUpdateMemberRoleDTO} request 角色信息
+         * @param {OrgUpdateMemberRoleDTO} request 角色信息
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiOrgOrgIdMembersUserIdRolePut: async (orgId: number, userId: number, request: OrganizationUpdateMemberRoleDTO, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        apiOrgOrgIdMembersUserIdRolePut: async (orgId: number, userId: number, request: OrgUpdateMemberRoleDTO, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'orgId' is not null or undefined
             assertParamExists('apiOrgOrgIdMembersUserIdRolePut', 'orgId', orgId)
             // verify required parameter 'userId' is not null or undefined
@@ -236,7 +236,7 @@ export const OrganizationMemberManagementApiFp = function(configuration?: Config
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async apiOrgOrgIdMembersGet(orgId: number, limit?: number, page?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponsePagedResponseOrganizationMemberDTO>> {
+        async apiOrgOrgIdMembersGet(orgId: number, limit?: number, page?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponsePagedResponseOrgMemberDTO>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.apiOrgOrgIdMembersGet(orgId, limit, page, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['OrganizationMemberManagementApi.apiOrgOrgIdMembersGet']?.[localVarOperationServerIndex]?.url;
@@ -246,11 +246,11 @@ export const OrganizationMemberManagementApiFp = function(configuration?: Config
          * 添加用户到组织
          * @summary 添加成员
          * @param {number} orgId 组织ID
-         * @param {OrganizationAddMemberDTO} request 成员信息
+         * @param {OrgAddMemberDTO} request 成员信息
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async apiOrgOrgIdMembersPost(orgId: number, request: OrganizationAddMemberDTO, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseOrganizationMemberDTO>> {
+        async apiOrgOrgIdMembersPost(orgId: number, request: OrgAddMemberDTO, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseOrgMemberDTO>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.apiOrgOrgIdMembersPost(orgId, request, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['OrganizationMemberManagementApi.apiOrgOrgIdMembersPost']?.[localVarOperationServerIndex]?.url;
@@ -275,11 +275,11 @@ export const OrganizationMemberManagementApiFp = function(configuration?: Config
          * @summary 更新成员角色
          * @param {number} orgId 组织ID
          * @param {number} userId 用户ID
-         * @param {OrganizationUpdateMemberRoleDTO} request 角色信息
+         * @param {OrgUpdateMemberRoleDTO} request 角色信息
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async apiOrgOrgIdMembersUserIdRolePut(orgId: number, userId: number, request: OrganizationUpdateMemberRoleDTO, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseOrganizationMemberDTO>> {
+        async apiOrgOrgIdMembersUserIdRolePut(orgId: number, userId: number, request: OrgUpdateMemberRoleDTO, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseOrgMemberDTO>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.apiOrgOrgIdMembersUserIdRolePut(orgId, userId, request, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['OrganizationMemberManagementApi.apiOrgOrgIdMembersUserIdRolePut']?.[localVarOperationServerIndex]?.url;
@@ -304,18 +304,18 @@ export const OrganizationMemberManagementApiFactory = function (configuration?: 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiOrgOrgIdMembersGet(orgId: number, limit?: number, page?: number, options?: RawAxiosRequestConfig): AxiosPromise<ResponsePagedResponseOrganizationMemberDTO> {
+        apiOrgOrgIdMembersGet(orgId: number, limit?: number, page?: number, options?: RawAxiosRequestConfig): AxiosPromise<ResponsePagedResponseOrgMemberDTO> {
             return localVarFp.apiOrgOrgIdMembersGet(orgId, limit, page, options).then((request) => request(axios, basePath));
         },
         /**
          * 添加用户到组织
          * @summary 添加成员
          * @param {number} orgId 组织ID
-         * @param {OrganizationAddMemberDTO} request 成员信息
+         * @param {OrgAddMemberDTO} request 成员信息
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiOrgOrgIdMembersPost(orgId: number, request: OrganizationAddMemberDTO, options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseOrganizationMemberDTO> {
+        apiOrgOrgIdMembersPost(orgId: number, request: OrgAddMemberDTO, options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseOrgMemberDTO> {
             return localVarFp.apiOrgOrgIdMembersPost(orgId, request, options).then((request) => request(axios, basePath));
         },
         /**
@@ -334,11 +334,11 @@ export const OrganizationMemberManagementApiFactory = function (configuration?: 
          * @summary 更新成员角色
          * @param {number} orgId 组织ID
          * @param {number} userId 用户ID
-         * @param {OrganizationUpdateMemberRoleDTO} request 角色信息
+         * @param {OrgUpdateMemberRoleDTO} request 角色信息
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiOrgOrgIdMembersUserIdRolePut(orgId: number, userId: number, request: OrganizationUpdateMemberRoleDTO, options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseOrganizationMemberDTO> {
+        apiOrgOrgIdMembersUserIdRolePut(orgId: number, userId: number, request: OrgUpdateMemberRoleDTO, options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseOrgMemberDTO> {
             return localVarFp.apiOrgOrgIdMembersUserIdRolePut(orgId, userId, request, options).then((request) => request(axios, basePath));
         },
     };
@@ -369,12 +369,12 @@ export class OrganizationMemberManagementApi extends BaseAPI {
      * 添加用户到组织
      * @summary 添加成员
      * @param {number} orgId 组织ID
-     * @param {OrganizationAddMemberDTO} request 成员信息
+     * @param {OrgAddMemberDTO} request 成员信息
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof OrganizationMemberManagementApi
      */
-    public apiOrgOrgIdMembersPost(orgId: number, request: OrganizationAddMemberDTO, options?: RawAxiosRequestConfig) {
+    public apiOrgOrgIdMembersPost(orgId: number, request: OrgAddMemberDTO, options?: RawAxiosRequestConfig) {
         return OrganizationMemberManagementApiFp(this.configuration).apiOrgOrgIdMembersPost(orgId, request, options).then((request) => request(this.axios, this.basePath));
     }
 
@@ -396,12 +396,12 @@ export class OrganizationMemberManagementApi extends BaseAPI {
      * @summary 更新成员角色
      * @param {number} orgId 组织ID
      * @param {number} userId 用户ID
-     * @param {OrganizationUpdateMemberRoleDTO} request 角色信息
+     * @param {OrgUpdateMemberRoleDTO} request 角色信息
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof OrganizationMemberManagementApi
      */
-    public apiOrgOrgIdMembersUserIdRolePut(orgId: number, userId: number, request: OrganizationUpdateMemberRoleDTO, options?: RawAxiosRequestConfig) {
+    public apiOrgOrgIdMembersUserIdRolePut(orgId: number, userId: number, request: OrgUpdateMemberRoleDTO, options?: RawAxiosRequestConfig) {
         return OrganizationMemberManagementApiFp(this.configuration).apiOrgOrgIdMembersUserIdRolePut(orgId, userId, request, options).then((request) => request(this.axios, this.basePath));
     }
 }

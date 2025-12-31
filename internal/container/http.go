@@ -5,7 +5,7 @@ import (
 	"github.com/redis/go-redis/v9"
 	"go.uber.org/fx"
 
-	adapthttp "github.com/lwmacct/251117-go-ddd-template/internal/adapters/http"
+	"github.com/lwmacct/251117-go-ddd-template/internal/adapters/http"
 	"github.com/lwmacct/251117-go-ddd-template/internal/adapters/http/handler"
 	"github.com/lwmacct/251117-go-ddd-template/internal/application/cache"
 	"github.com/lwmacct/251117-go-ddd-template/internal/config"
@@ -32,11 +32,11 @@ type HandlersResult struct {
 	TwoFA            *handler.TwoFAHandler
 	Cache            *handler.CacheHandler
 	Operation        *handler.OperationHandler
-	Organization     *handler.OrganizationHandler
+	Organization     *handler.OrgHandler
 	OrgMember        *handler.OrgMemberHandler
 	Team             *handler.TeamHandler
 	TeamMember       *handler.TeamMemberHandler
-	UserOrganization *handler.UserOrganizationHandler
+	UserOrganization *handler.UserOrgHandler
 }
 
 // HTTPModule 提供 HTTP 处理器和路由。
@@ -151,7 +151,7 @@ func newAllHandlers(p handlersParams) HandlersResult {
 			cache.NewDeleteHandler(p.AdminCacheSvc),
 		),
 		Operation: handler.NewOperationHandler(),
-		Organization: handler.NewOrganizationHandler(
+		Organization: handler.NewOrgHandler(
 			p.Organization.Create,
 			p.Organization.Update,
 			p.Organization.Delete,
@@ -176,7 +176,7 @@ func newAllHandlers(p handlersParams) HandlersResult {
 			p.Organization.TeamMemberRemove,
 			p.Organization.TeamMemberList,
 		),
-		UserOrganization: handler.NewUserOrganizationHandler(
+		UserOrganization: handler.NewUserOrgHandler(
 			p.Organization.UserOrgs,
 			p.Organization.UserTeams,
 		),
@@ -204,29 +204,29 @@ type routerParams struct {
 	TeamMemberRepos persistence.TeamMemberRepositories
 
 	// Handlers
-	Health           *handler.HealthHandler
-	Auth             *handler.AuthHandler
-	Captcha          *handler.CaptchaHandler
-	AdminUser        *handler.AdminUserHandler
-	UserProfile      *handler.UserProfileHandler
-	Role             *handler.RoleHandler
-	Setting          *handler.SettingHandler
-	UserSetting      *handler.UserSettingHandler
-	PAT              *handler.PATHandler
-	AuditLogH        *handler.AuditLogHandler
-	Overview         *handler.OverviewHandler
-	TwoFA            *handler.TwoFAHandler
-	Cache            *handler.CacheHandler
-	Operation        *handler.OperationHandler
-	Organization     *handler.OrganizationHandler
-	OrgMember        *handler.OrgMemberHandler
-	Team             *handler.TeamHandler
-	TeamMember       *handler.TeamMemberHandler
-	UserOrganization *handler.UserOrganizationHandler
+	Health      *handler.HealthHandler
+	Auth        *handler.AuthHandler
+	Captcha     *handler.CaptchaHandler
+	AdminUser   *handler.AdminUserHandler
+	UserProfile *handler.UserProfileHandler
+	Role        *handler.RoleHandler
+	Setting     *handler.SettingHandler
+	UserSetting *handler.UserSettingHandler
+	PAT         *handler.PATHandler
+	AuditLogH   *handler.AuditLogHandler
+	Overview    *handler.OverviewHandler
+	TwoFA       *handler.TwoFAHandler
+	Cache       *handler.CacheHandler
+	Operation   *handler.OperationHandler
+	Org         *handler.OrgHandler
+	OrgMember   *handler.OrgMemberHandler
+	Team        *handler.TeamHandler
+	TeamMember  *handler.TeamMemberHandler
+	UserOrg     *handler.UserOrgHandler
 }
 
 func newRouter(p routerParams) *gin.Engine {
-	deps := &adapthttp.RouterDependencies{
+	deps := &http.RouterDependencies{
 		Config:                 p.Config,
 		RedisClient:            p.RedisClient,
 		CreateLogHandler:       p.AuditLog.CreateLog,
@@ -250,12 +250,12 @@ func newRouter(p routerParams) *gin.Engine {
 		TwoFAHandler:           p.TwoFA,
 		CacheHandler:           p.Cache,
 		OperationHandler:       p.Operation,
-		OrganizationHandler:    p.Organization,
+		OrgHandler:             p.Org,
 		OrgMemberHandler:       p.OrgMember,
 		TeamHandler:            p.Team,
 		TeamMemberHandler:      p.TeamMember,
-		UserOrgHandler:         p.UserOrganization,
+		UserOrgHandler:         p.UserOrg,
 	}
 
-	return adapthttp.SetupRouterWithDeps(deps)
+	return http.SetupRouterWithDeps(deps)
 }

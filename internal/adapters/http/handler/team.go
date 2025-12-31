@@ -5,7 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/lwmacct/251117-go-ddd-template/internal/adapters/http/response"
-	"github.com/lwmacct/251117-go-ddd-template/internal/application/organization"
+	"github.com/lwmacct/251117-go-ddd-template/internal/application/org"
 )
 
 // ListTeamsQuery 团队列表查询参数
@@ -14,8 +14,8 @@ type ListTeamsQuery struct {
 }
 
 // ToQuery 转换为 Application 层 Query 对象
-func (q *ListTeamsQuery) ToQuery(orgID uint) organization.ListTeamsQuery {
-	return organization.ListTeamsQuery{
+func (q *ListTeamsQuery) ToQuery(orgID uint) org.ListTeamsQuery {
+	return org.ListTeamsQuery{
 		OrgID:  orgID,
 		Offset: q.GetOffset(),
 		Limit:  q.GetLimit(),
@@ -25,22 +25,22 @@ func (q *ListTeamsQuery) ToQuery(orgID uint) organization.ListTeamsQuery {
 // TeamHandler 团队管理 Handler
 type TeamHandler struct {
 	// Command Handlers
-	createHandler *organization.TeamCreateHandler
-	updateHandler *organization.TeamUpdateHandler
-	deleteHandler *organization.TeamDeleteHandler
+	createHandler *org.TeamCreateHandler
+	updateHandler *org.TeamUpdateHandler
+	deleteHandler *org.TeamDeleteHandler
 
 	// Query Handlers
-	getHandler  *organization.TeamGetHandler
-	listHandler *organization.TeamListHandler
+	getHandler  *org.TeamGetHandler
+	listHandler *org.TeamListHandler
 }
 
 // NewTeamHandler 创建团队管理 Handler
 func NewTeamHandler(
-	createHandler *organization.TeamCreateHandler,
-	updateHandler *organization.TeamUpdateHandler,
-	deleteHandler *organization.TeamDeleteHandler,
-	getHandler *organization.TeamGetHandler,
-	listHandler *organization.TeamListHandler,
+	createHandler *org.TeamCreateHandler,
+	updateHandler *org.TeamUpdateHandler,
+	deleteHandler *org.TeamDeleteHandler,
+	getHandler *org.TeamGetHandler,
+	listHandler *org.TeamListHandler,
 ) *TeamHandler {
 	return &TeamHandler{
 		createHandler: createHandler,
@@ -60,8 +60,8 @@ func NewTeamHandler(
 //	@Produce		json
 //	@Security		BearerAuth
 //	@Param			org_id	path		int												true	"组织ID"	minimum(1)
-//	@Param			request	body		organization.CreateTeamDTO						true	"团队信息"
-//	@Success		201		{object}	response.DataResponse[organization.TeamDTO]		"团队创建成功"
+//	@Param			request	body		org.CreateTeamDTO						true	"团队信息"
+//	@Success		201		{object}	response.DataResponse[org.TeamDTO]		"团队创建成功"
 //	@Failure		400		{object}	response.ErrorResponse							"参数错误或团队名已存在"
 //	@Failure		401		{object}	response.ErrorResponse							"未授权"
 //	@Failure		403		{object}	response.ErrorResponse							"权限不足"
@@ -74,13 +74,13 @@ func (h *TeamHandler) Create(c *gin.Context) {
 		return
 	}
 
-	var req organization.CreateTeamDTO
+	var req org.CreateTeamDTO
 	if bindErr := c.ShouldBindJSON(&req); bindErr != nil {
 		response.ValidationError(c, bindErr.Error())
 		return
 	}
 
-	result, err := h.createHandler.Handle(c.Request.Context(), organization.CreateTeamCommand{
+	result, err := h.createHandler.Handle(c.Request.Context(), org.CreateTeamCommand{
 		OrgID:       uint(orgID),
 		Name:        req.Name,
 		DisplayName: req.DisplayName,
@@ -104,7 +104,7 @@ func (h *TeamHandler) Create(c *gin.Context) {
 //	@Security		BearerAuth
 //	@Param			org_id	path		int												true	"组织ID"	minimum(1)
 //	@Param			params	query		handler.ListTeamsQuery							false	"查询参数"
-//	@Success		200		{object}	response.PagedResponse[organization.TeamDTO]	"团队列表"
+//	@Success		200		{object}	response.PagedResponse[org.TeamDTO]	"团队列表"
 //	@Failure		401		{object}	response.ErrorResponse							"未授权"
 //	@Failure		403		{object}	response.ErrorResponse							"权限不足"
 //	@Failure		500		{object}	response.ErrorResponse							"服务器内部错误"
@@ -142,7 +142,7 @@ func (h *TeamHandler) List(c *gin.Context) {
 //	@Security		BearerAuth
 //	@Param			org_id	path		int											true	"组织ID"	minimum(1)
 //	@Param			team_id	path		int											true	"团队ID"	minimum(1)
-//	@Success		200		{object}	response.DataResponse[organization.TeamDTO]	"团队详情"
+//	@Success		200		{object}	response.DataResponse[org.TeamDTO]	"团队详情"
 //	@Failure		400		{object}	response.ErrorResponse						"无效的ID"
 //	@Failure		401		{object}	response.ErrorResponse						"未授权"
 //	@Failure		403		{object}	response.ErrorResponse						"权限不足"
@@ -161,7 +161,7 @@ func (h *TeamHandler) Get(c *gin.Context) {
 		return
 	}
 
-	result, err := h.getHandler.Handle(c.Request.Context(), organization.GetTeamQuery{
+	result, err := h.getHandler.Handle(c.Request.Context(), org.GetTeamQuery{
 		OrgID:  uint(orgID),
 		TeamID: uint(teamID),
 	})
@@ -183,8 +183,8 @@ func (h *TeamHandler) Get(c *gin.Context) {
 //	@Security		BearerAuth
 //	@Param			org_id	path		int											true	"组织ID"	minimum(1)
 //	@Param			team_id	path		int											true	"团队ID"	minimum(1)
-//	@Param			request	body		organization.UpdateTeamDTO					true	"更新信息"
-//	@Success		200		{object}	response.DataResponse[organization.TeamDTO]	"团队更新成功"
+//	@Param			request	body		org.UpdateTeamDTO					true	"更新信息"
+//	@Success		200		{object}	response.DataResponse[org.TeamDTO]	"团队更新成功"
 //	@Failure		400		{object}	response.ErrorResponse						"参数错误"
 //	@Failure		401		{object}	response.ErrorResponse						"未授权"
 //	@Failure		403		{object}	response.ErrorResponse						"权限不足"
@@ -206,13 +206,13 @@ func (h *TeamHandler) Update(c *gin.Context) {
 		return
 	}
 
-	var req organization.UpdateTeamDTO
+	var req org.UpdateTeamDTO
 	if bindErr := c.ShouldBindJSON(&req); bindErr != nil {
 		response.ValidationError(c, bindErr.Error())
 		return
 	}
 
-	result, err := h.updateHandler.Handle(c.Request.Context(), organization.UpdateTeamCommand{
+	result, err := h.updateHandler.Handle(c.Request.Context(), org.UpdateTeamCommand{
 		OrgID:       uint(orgID),
 		TeamID:      uint(teamID),
 		DisplayName: req.DisplayName,
@@ -256,7 +256,7 @@ func (h *TeamHandler) Delete(c *gin.Context) {
 		return
 	}
 
-	if err = h.deleteHandler.Handle(c.Request.Context(), organization.DeleteTeamCommand{
+	if err = h.deleteHandler.Handle(c.Request.Context(), org.DeleteTeamCommand{
 		OrgID:  uint(orgID),
 		TeamID: uint(teamID),
 	}); err != nil {

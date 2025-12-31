@@ -440,7 +440,7 @@ definitions:
       ui_config:
         type: string
     type: object
-  organization.AddMemberDTO:
+  org.AddMemberDTO:
     properties:
       role:
         enum:
@@ -454,7 +454,7 @@ definitions:
     - role
     - user_id
     type: object
-  organization.AddTeamMemberDTO:
+  org.AddTeamMemberDTO:
     properties:
       role:
         enum:
@@ -467,7 +467,7 @@ definitions:
     - role
     - user_id
     type: object
-  organization.CreateOrgDTO:
+  org.CreateOrgDTO:
     properties:
       avatar:
         maxLength: 255
@@ -487,7 +487,7 @@ definitions:
     - display_name
     - name
     type: object
-  organization.CreateTeamDTO:
+  org.CreateTeamDTO:
     properties:
       description:
         maxLength: 500
@@ -504,7 +504,7 @@ definitions:
     - display_name
     - name
     type: object
-  organization.MemberDTO:
+  org.MemberDTO:
     properties:
       avatar:
         type: string
@@ -516,7 +516,7 @@ definitions:
         type: integer
       joined_at:
         type: string
-      organization_id:
+      org_id:
         type: integer
       role:
         type: string
@@ -526,7 +526,7 @@ definitions:
         description: 关联的用户信息（可选加载）
         type: string
     type: object
-  organization.OrgDTO:
+  org.OrgDTO:
     properties:
       avatar:
         type: string
@@ -545,7 +545,7 @@ definitions:
       updated_at:
         type: string
     type: object
-  organization.TeamDTO:
+  org.TeamDTO:
     properties:
       created_at:
         type: string
@@ -557,12 +557,12 @@ definitions:
         type: integer
       name:
         type: string
-      organization_id:
+      org_id:
         type: integer
       updated_at:
         type: string
     type: object
-  organization.TeamMemberDTO:
+  org.TeamMemberDTO:
     properties:
       avatar:
         type: string
@@ -584,7 +584,7 @@ definitions:
         description: 关联的用户信息（可选加载）
         type: string
     type: object
-  organization.UpdateMemberRoleDTO:
+  org.UpdateMemberRoleDTO:
     properties:
       role:
         enum:
@@ -595,7 +595,7 @@ definitions:
     required:
     - role
     type: object
-  organization.UpdateOrgDTO:
+  org.UpdateOrgDTO:
     properties:
       avatar:
         maxLength: 255
@@ -613,7 +613,7 @@ definitions:
         - suspended
         type: string
     type: object
-  organization.UpdateTeamDTO:
+  org.UpdateTeamDTO:
     properties:
       description:
         maxLength: 500
@@ -623,7 +623,7 @@ definitions:
         minLength: 2
         type: string
     type: object
-  organization.UserOrgDTO:
+  org.UserOrgDTO:
     properties:
       avatar:
         type: string
@@ -648,7 +648,7 @@ definitions:
       updated_at:
         type: string
     type: object
-  organization.UserTeamDTO:
+  org.UserTeamDTO:
     properties:
       created_at:
         type: string
@@ -663,11 +663,11 @@ definitions:
         type: string
       name:
         type: string
+      org_id:
+        type: integer
       org_name:
         description: 所属组织名称
         type: string
-      organization_id:
-        type: integer
       role:
         description: 用户在该团队中的角色
         type: string
@@ -760,7 +760,7 @@ definitions:
         description: 消息描述
         type: string
     type: object
-  response.DataResponse-array_organization_UserOrgDTO:
+  response.DataResponse-array_org_UserOrgDTO:
     properties:
       code:
         description: HTTP 状态码
@@ -768,7 +768,7 @@ definitions:
       data:
         description: 响应数据
         items:
-          $ref: '#/definitions/organization.UserOrgDTO'
+          $ref: '#/definitions/org.UserOrgDTO'
         type: array
       error:
         description: 错误详情（仅失败时）
@@ -776,7 +776,7 @@ definitions:
         description: 消息描述
         type: string
     type: object
-  response.DataResponse-array_organization_UserTeamDTO:
+  response.DataResponse-array_org_UserTeamDTO:
     properties:
       code:
         description: HTTP 状态码
@@ -784,7 +784,7 @@ definitions:
       data:
         description: 响应数据
         items:
-          $ref: '#/definitions/organization.UserTeamDTO'
+          $ref: '#/definitions/org.UserTeamDTO'
         type: array
       error:
         description: 错误详情（仅失败时）
@@ -1053,14 +1053,14 @@ definitions:
         description: 消息描述
         type: string
     type: object
-  response.DataResponse-organization_MemberDTO:
+  response.DataResponse-org_MemberDTO:
     properties:
       code:
         description: HTTP 状态码
         type: integer
       data:
         allOf:
-        - $ref: '#/definitions/organization.MemberDTO'
+        - $ref: '#/definitions/org.MemberDTO'
         description: 响应数据
       error:
         description: 错误详情（仅失败时）
@@ -1068,14 +1068,14 @@ definitions:
         description: 消息描述
         type: string
     type: object
-  response.DataResponse-organization_OrgDTO:
+  response.DataResponse-org_OrgDTO:
     properties:
       code:
         description: HTTP 状态码
         type: integer
       data:
         allOf:
-        - $ref: '#/definitions/organization.OrgDTO'
+        - $ref: '#/definitions/org.OrgDTO'
         description: 响应数据
       error:
         description: 错误详情（仅失败时）
@@ -1083,14 +1083,14 @@ definitions:
         description: 消息描述
         type: string
     type: object
-  response.DataResponse-organization_TeamDTO:
+  response.DataResponse-org_TeamDTO:
     properties:
       code:
         description: HTTP 状态码
         type: integer
       data:
         allOf:
-        - $ref: '#/definitions/organization.TeamDTO'
+        - $ref: '#/definitions/org.TeamDTO'
         description: 响应数据
       error:
         description: 错误详情（仅失败时）
@@ -1098,14 +1098,14 @@ definitions:
         description: 消息描述
         type: string
     type: object
-  response.DataResponse-organization_TeamMemberDTO:
+  response.DataResponse-org_TeamMemberDTO:
     properties:
       code:
         description: HTTP 状态码
         type: integer
       data:
         allOf:
-        - $ref: '#/definitions/organization.TeamMemberDTO'
+        - $ref: '#/definitions/org.TeamMemberDTO'
         description: 响应数据
       error:
         description: 错误详情（仅失败时）
@@ -1352,7 +1352,7 @@ definitions:
         - $ref: '#/definitions/response.PaginationMeta'
         description: 分页信息
     type: object
-  response.PagedResponse-organization_MemberDTO:
+  response.PagedResponse-org_MemberDTO:
     properties:
       code:
         description: HTTP 状态码
@@ -1360,7 +1360,7 @@ definitions:
       data:
         description: 数据列表
         items:
-          $ref: '#/definitions/organization.MemberDTO'
+          $ref: '#/definitions/org.MemberDTO'
         type: array
       message:
         description: 消息描述
@@ -1370,7 +1370,7 @@ definitions:
         - $ref: '#/definitions/response.PaginationMeta'
         description: 分页信息
     type: object
-  response.PagedResponse-organization_OrgDTO:
+  response.PagedResponse-org_OrgDTO:
     properties:
       code:
         description: HTTP 状态码
@@ -1378,7 +1378,7 @@ definitions:
       data:
         description: 数据列表
         items:
-          $ref: '#/definitions/organization.OrgDTO'
+          $ref: '#/definitions/org.OrgDTO'
         type: array
       message:
         description: 消息描述
@@ -1388,7 +1388,7 @@ definitions:
         - $ref: '#/definitions/response.PaginationMeta'
         description: 分页信息
     type: object
-  response.PagedResponse-organization_TeamDTO:
+  response.PagedResponse-org_TeamDTO:
     properties:
       code:
         description: HTTP 状态码
@@ -1396,7 +1396,7 @@ definitions:
       data:
         description: 数据列表
         items:
-          $ref: '#/definitions/organization.TeamDTO'
+          $ref: '#/definitions/org.TeamDTO'
         type: array
       message:
         description: 消息描述
@@ -1406,7 +1406,7 @@ definitions:
         - $ref: '#/definitions/response.PaginationMeta'
         description: 分页信息
     type: object
-  response.PagedResponse-organization_TeamMemberDTO:
+  response.PagedResponse-org_TeamMemberDTO:
     properties:
       code:
         description: HTTP 状态码
@@ -1414,7 +1414,7 @@ definitions:
       data:
         description: 数据列表
         items:
-          $ref: '#/definitions/organization.TeamMemberDTO'
+          $ref: '#/definitions/org.TeamMemberDTO'
         type: array
       message:
         description: 消息描述
@@ -2311,7 +2311,7 @@ paths:
         "200":
           description: 成员列表
           schema:
-            $ref: '#/definitions/response.PagedResponse-organization_MemberDTO'
+            $ref: '#/definitions/response.PagedResponse-org_MemberDTO'
         "401":
           description: 未授权
           schema:
@@ -2345,14 +2345,14 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/organization.AddMemberDTO'
+          $ref: '#/definitions/org.AddMemberDTO'
       produces:
       - application/json
       responses:
         "201":
           description: 成员添加成功
           schema:
-            $ref: '#/definitions/response.DataResponse-organization_MemberDTO'
+            $ref: '#/definitions/response.DataResponse-org_MemberDTO'
         "400":
           description: 参数错误或成员已存在
           schema:
@@ -2447,14 +2447,14 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/organization.UpdateMemberRoleDTO'
+          $ref: '#/definitions/org.UpdateMemberRoleDTO'
       produces:
       - application/json
       responses:
         "200":
           description: 角色更新成功
           schema:
-            $ref: '#/definitions/response.DataResponse-organization_MemberDTO'
+            $ref: '#/definitions/response.DataResponse-org_MemberDTO'
         "400":
           description: 参数错误或无法降级最后的所有者
           schema:
@@ -2511,7 +2511,7 @@ paths:
         "200":
           description: 团队列表
           schema:
-            $ref: '#/definitions/response.PagedResponse-organization_TeamDTO'
+            $ref: '#/definitions/response.PagedResponse-org_TeamDTO'
         "401":
           description: 未授权
           schema:
@@ -2545,14 +2545,14 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/organization.CreateTeamDTO'
+          $ref: '#/definitions/org.CreateTeamDTO'
       produces:
       - application/json
       responses:
         "201":
           description: 团队创建成功
           schema:
-            $ref: '#/definitions/response.DataResponse-organization_TeamDTO'
+            $ref: '#/definitions/response.DataResponse-org_TeamDTO'
         "400":
           description: 参数错误或团队名已存在
           schema:
@@ -2647,7 +2647,7 @@ paths:
         "200":
           description: 团队详情
           schema:
-            $ref: '#/definitions/response.DataResponse-organization_TeamDTO'
+            $ref: '#/definitions/response.DataResponse-org_TeamDTO'
         "400":
           description: 无效的ID
           schema:
@@ -2691,14 +2691,14 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/organization.UpdateTeamDTO'
+          $ref: '#/definitions/org.UpdateTeamDTO'
       produces:
       - application/json
       responses:
         "200":
           description: 团队更新成功
           schema:
-            $ref: '#/definitions/response.DataResponse-organization_TeamDTO'
+            $ref: '#/definitions/response.DataResponse-org_TeamDTO'
         "400":
           description: 参数错误
           schema:
@@ -2761,7 +2761,7 @@ paths:
         "200":
           description: 成员列表
           schema:
-            $ref: '#/definitions/response.PagedResponse-organization_TeamMemberDTO'
+            $ref: '#/definitions/response.PagedResponse-org_TeamMemberDTO'
         "400":
           description: 无效的ID
           schema:
@@ -2805,14 +2805,14 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/organization.AddTeamMemberDTO'
+          $ref: '#/definitions/org.AddTeamMemberDTO'
       produces:
       - application/json
       responses:
         "201":
           description: 成员添加成功
           schema:
-            $ref: '#/definitions/response.DataResponse-organization_TeamMemberDTO'
+            $ref: '#/definitions/response.DataResponse-org_TeamMemberDTO'
         "400":
           description: 参数错误、成员已存在或用户非组织成员
           schema:
@@ -3210,7 +3210,7 @@ paths:
       summary: 操作列表
       tags:
       - System
-  /api/system/organizations:
+  /api/system/orgs:
     get:
       consumes:
       - application/json
@@ -3241,7 +3241,7 @@ paths:
         "200":
           description: 组织列表
           schema:
-            $ref: '#/definitions/response.PagedResponse-organization_OrgDTO'
+            $ref: '#/definitions/response.PagedResponse-org_OrgDTO'
         "401":
           description: 未授权
           schema:
@@ -3269,14 +3269,14 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/organization.CreateOrgDTO'
+          $ref: '#/definitions/org.CreateOrgDTO'
       produces:
       - application/json
       responses:
         "201":
           description: 组织创建成功
           schema:
-            $ref: '#/definitions/response.DataResponse-organization_OrgDTO'
+            $ref: '#/definitions/response.DataResponse-org_OrgDTO'
         "400":
           description: 参数错误或组织名已存在
           schema:
@@ -3298,7 +3298,7 @@ paths:
       summary: 创建组织
       tags:
       - Admin - Organization Management
-  /api/system/organizations/{id}:
+  /api/system/orgs/{id}:
     delete:
       consumes:
       - application/json
@@ -3359,7 +3359,7 @@ paths:
         "200":
           description: 组织详情
           schema:
-            $ref: '#/definitions/response.DataResponse-organization_OrgDTO'
+            $ref: '#/definitions/response.DataResponse-org_OrgDTO'
         "400":
           description: 无效的组织ID
           schema:
@@ -3397,14 +3397,14 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/organization.UpdateOrgDTO'
+          $ref: '#/definitions/org.UpdateOrgDTO'
       produces:
       - application/json
       responses:
         "200":
           description: 组织更新成功
           schema:
-            $ref: '#/definitions/response.DataResponse-organization_OrgDTO'
+            $ref: '#/definitions/response.DataResponse-org_OrgDTO'
         "400":
           description: 参数错误
           schema:
@@ -4483,7 +4483,7 @@ paths:
       summary: 注销账户
       tags:
       - User - Profile
-  /api/user/organizations:
+  /api/user/orgs:
     get:
       consumes:
       - application/json
@@ -4494,7 +4494,7 @@ paths:
         "200":
           description: 组织列表
           schema:
-            $ref: '#/definitions/response.DataResponse-array_organization_UserOrgDTO'
+            $ref: '#/definitions/response.DataResponse-array_org_UserOrgDTO'
         "401":
           description: 未授权
           schema:
@@ -4814,7 +4814,7 @@ paths:
         "200":
           description: 团队列表
           schema:
-            $ref: '#/definitions/response.DataResponse-array_organization_UserTeamDTO'
+            $ref: '#/definitions/response.DataResponse-array_org_UserTeamDTO'
         "401":
           description: 未授权
           schema:

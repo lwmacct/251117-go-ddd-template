@@ -22,15 +22,15 @@ import { DUMMY_BASE_URL, assertParamExists, setApiKeyToObject, setBasicAuthToObj
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS, type RequestArgs, BaseAPI, RequiredError, operationServerMap } from '../base';
 // @ts-ignore
-import type { OrganizationAddTeamMemberDTO } from '../models';
+import type { OrgAddTeamMemberDTO } from '../models';
 // @ts-ignore
-import type { ResponseDataResponseOrganizationTeamMemberDTO } from '../models';
+import type { ResponseDataResponseOrgTeamMemberDTO } from '../models';
 // @ts-ignore
 import type { ResponseErrorResponse } from '../models';
 // @ts-ignore
 import type { ResponseMessageResponse } from '../models';
 // @ts-ignore
-import type { ResponsePagedResponseOrganizationTeamMemberDTO } from '../models';
+import type { ResponsePagedResponseOrgTeamMemberDTO } from '../models';
 /**
  * OrganizationTeamMemberManagementApi - axios parameter creator
  * @export
@@ -93,11 +93,11 @@ export const OrganizationTeamMemberManagementApiAxiosParamCreator = function (co
          * @summary 添加团队成员
          * @param {number} orgId 组织ID
          * @param {number} teamId 团队ID
-         * @param {OrganizationAddTeamMemberDTO} request 成员信息
+         * @param {OrgAddTeamMemberDTO} request 成员信息
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiOrgOrgIdTeamsTeamIdMembersPost: async (orgId: number, teamId: number, request: OrganizationAddTeamMemberDTO, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        apiOrgOrgIdTeamsTeamIdMembersPost: async (orgId: number, teamId: number, request: OrgAddTeamMemberDTO, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'orgId' is not null or undefined
             assertParamExists('apiOrgOrgIdTeamsTeamIdMembersPost', 'orgId', orgId)
             // verify required parameter 'teamId' is not null or undefined
@@ -200,7 +200,7 @@ export const OrganizationTeamMemberManagementApiFp = function(configuration?: Co
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async apiOrgOrgIdTeamsTeamIdMembersGet(orgId: number, teamId: number, limit?: number, page?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponsePagedResponseOrganizationTeamMemberDTO>> {
+        async apiOrgOrgIdTeamsTeamIdMembersGet(orgId: number, teamId: number, limit?: number, page?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponsePagedResponseOrgTeamMemberDTO>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.apiOrgOrgIdTeamsTeamIdMembersGet(orgId, teamId, limit, page, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['OrganizationTeamMemberManagementApi.apiOrgOrgIdTeamsTeamIdMembersGet']?.[localVarOperationServerIndex]?.url;
@@ -211,11 +211,11 @@ export const OrganizationTeamMemberManagementApiFp = function(configuration?: Co
          * @summary 添加团队成员
          * @param {number} orgId 组织ID
          * @param {number} teamId 团队ID
-         * @param {OrganizationAddTeamMemberDTO} request 成员信息
+         * @param {OrgAddTeamMemberDTO} request 成员信息
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async apiOrgOrgIdTeamsTeamIdMembersPost(orgId: number, teamId: number, request: OrganizationAddTeamMemberDTO, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseOrganizationTeamMemberDTO>> {
+        async apiOrgOrgIdTeamsTeamIdMembersPost(orgId: number, teamId: number, request: OrgAddTeamMemberDTO, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseOrgTeamMemberDTO>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.apiOrgOrgIdTeamsTeamIdMembersPost(orgId, teamId, request, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['OrganizationTeamMemberManagementApi.apiOrgOrgIdTeamsTeamIdMembersPost']?.[localVarOperationServerIndex]?.url;
@@ -256,7 +256,7 @@ export const OrganizationTeamMemberManagementApiFactory = function (configuratio
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiOrgOrgIdTeamsTeamIdMembersGet(orgId: number, teamId: number, limit?: number, page?: number, options?: RawAxiosRequestConfig): AxiosPromise<ResponsePagedResponseOrganizationTeamMemberDTO> {
+        apiOrgOrgIdTeamsTeamIdMembersGet(orgId: number, teamId: number, limit?: number, page?: number, options?: RawAxiosRequestConfig): AxiosPromise<ResponsePagedResponseOrgTeamMemberDTO> {
             return localVarFp.apiOrgOrgIdTeamsTeamIdMembersGet(orgId, teamId, limit, page, options).then((request) => request(axios, basePath));
         },
         /**
@@ -264,11 +264,11 @@ export const OrganizationTeamMemberManagementApiFactory = function (configuratio
          * @summary 添加团队成员
          * @param {number} orgId 组织ID
          * @param {number} teamId 团队ID
-         * @param {OrganizationAddTeamMemberDTO} request 成员信息
+         * @param {OrgAddTeamMemberDTO} request 成员信息
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiOrgOrgIdTeamsTeamIdMembersPost(orgId: number, teamId: number, request: OrganizationAddTeamMemberDTO, options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseOrganizationTeamMemberDTO> {
+        apiOrgOrgIdTeamsTeamIdMembersPost(orgId: number, teamId: number, request: OrgAddTeamMemberDTO, options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseOrgTeamMemberDTO> {
             return localVarFp.apiOrgOrgIdTeamsTeamIdMembersPost(orgId, teamId, request, options).then((request) => request(axios, basePath));
         },
         /**
@@ -313,12 +313,12 @@ export class OrganizationTeamMemberManagementApi extends BaseAPI {
      * @summary 添加团队成员
      * @param {number} orgId 组织ID
      * @param {number} teamId 团队ID
-     * @param {OrganizationAddTeamMemberDTO} request 成员信息
+     * @param {OrgAddTeamMemberDTO} request 成员信息
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof OrganizationTeamMemberManagementApi
      */
-    public apiOrgOrgIdTeamsTeamIdMembersPost(orgId: number, teamId: number, request: OrganizationAddTeamMemberDTO, options?: RawAxiosRequestConfig) {
+    public apiOrgOrgIdTeamsTeamIdMembersPost(orgId: number, teamId: number, request: OrgAddTeamMemberDTO, options?: RawAxiosRequestConfig) {
         return OrganizationTeamMemberManagementApiFp(this.configuration).apiOrgOrgIdTeamsTeamIdMembersPost(orgId, teamId, request, options).then((request) => request(this.axios, this.basePath));
     }
 

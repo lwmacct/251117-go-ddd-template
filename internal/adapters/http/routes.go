@@ -110,11 +110,11 @@ func (deps *RouterDependencies) AllRouteBindings() []RouteBinding {
 		{permission.SelfTeamsList, deps.UserOrgHandler.ListMyTeams},
 
 		// ==================== Sys 域 - 组织管理 ====================
-		{permission.SysOrgsCreate, deps.OrganizationHandler.Create},
-		{permission.SysOrgsList, deps.OrganizationHandler.List},
-		{permission.SysOrgsGet, deps.OrganizationHandler.Get},
-		{permission.SysOrgsUpdate, deps.OrganizationHandler.Update},
-		{permission.SysOrgsDelete, deps.OrganizationHandler.Delete},
+		{permission.SysOrgsCreate, deps.OrgHandler.Create},
+		{permission.SysOrgsList, deps.OrgHandler.List},
+		{permission.SysOrgsGet, deps.OrgHandler.Get},
+		{permission.SysOrgsUpdate, deps.OrgHandler.Update},
+		{permission.SysOrgsDelete, deps.OrgHandler.Delete},
 
 		// ==================== Org 域 - 组织成员管理 ====================
 		{permission.OrgMembersList, deps.OrgMemberHandler.List},

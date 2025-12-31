@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/lwmacct/251117-go-ddd-template/internal/domain/organization"
+	"github.com/lwmacct/251117-go-ddd-template/internal/domain/org"
 	"gorm.io/gorm"
 )
 
@@ -15,18 +15,18 @@ type teamMemberQueryRepository struct {
 }
 
 // NewTeamMemberQueryRepository 创建团队成员查询仓储实例
-func NewTeamMemberQueryRepository(db *gorm.DB) organization.TeamMemberQueryRepository {
+func NewTeamMemberQueryRepository(db *gorm.DB) org.TeamMemberQueryRepository {
 	return &teamMemberQueryRepository{db: db}
 }
 
 // GetByTeamAndUser 获取指定团队的指定用户成员信息
-func (r *teamMemberQueryRepository) GetByTeamAndUser(ctx context.Context, teamID, userID uint) (*organization.TeamMember, error) {
+func (r *teamMemberQueryRepository) GetByTeamAndUser(ctx context.Context, teamID, userID uint) (*org.TeamMember, error) {
 	var model TeamMemberModel
 	if err := r.db.WithContext(ctx).
 		Where("team_id = ? AND user_id = ?", teamID, userID).
 		First(&model).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, organization.ErrNotTeamMember
+			return nil, org.ErrNotTeamMember
 		}
 		return nil, fmt.Errorf("failed to get team member: %w", err)
 	}
@@ -34,7 +34,7 @@ func (r *teamMemberQueryRepository) GetByTeamAndUser(ctx context.Context, teamID
 }
 
 // ListByTeam 获取团队的所有成员
-func (r *teamMemberQueryRepository) ListByTeam(ctx context.Context, teamID uint, offset, limit int) ([]*organization.TeamMember, error) {
+func (r *teamMemberQueryRepository) ListByTeam(ctx context.Context, teamID uint, offset, limit int) ([]*org.TeamMember, error) {
 	var models []*TeamMemberModel
 	if err := r.db.WithContext(ctx).
 		Where("team_id = ?", teamID).
@@ -57,7 +57,7 @@ func (r *teamMemberQueryRepository) CountByTeam(ctx context.Context, teamID uint
 }
 
 // ListByUser 获取用户加入的所有团队的成员记录
-func (r *teamMemberQueryRepository) ListByUser(ctx context.Context, userID uint) ([]*organization.TeamMember, error) {
+func (r *teamMemberQueryRepository) ListByUser(ctx context.Context, userID uint) ([]*org.TeamMember, error) {
 	var models []*TeamMemberModel
 	if err := r.db.WithContext(ctx).
 		Where("user_id = ?", userID).
@@ -68,11 +68,11 @@ func (r *teamMemberQueryRepository) ListByUser(ctx context.Context, userID uint)
 }
 
 // ListByUserInOrg 获取用户在指定组织内加入的所有团队的成员记录
-func (r *teamMemberQueryRepository) ListByUserInOrg(ctx context.Context, userID, orgID uint) ([]*organization.TeamMember, error) {
+func (r *teamMemberQueryRepository) ListByUserInOrg(ctx context.Context, userID, orgID uint) ([]*org.TeamMember, error) {
 	var models []*TeamMemberModel
 	if err := r.db.WithContext(ctx).
 		Joins("JOIN teams ON teams.id = team_members.team_id").
-		Where("team_members.user_id = ? AND teams.organization_id = ?", userID, orgID).
+		Where("team_members.user_id = ? AND teams.org_id = ?", userID, orgID).
 		Find(&models).Error; err != nil {
 		return nil, fmt.Errorf("failed to list user team memberships in org: %w", err)
 	}

@@ -1,14 +1,14 @@
 package persistence
 
 import (
-	"github.com/lwmacct/251117-go-ddd-template/internal/domain/organization"
+	"github.com/lwmacct/251117-go-ddd-template/internal/domain/org"
 	"gorm.io/gorm"
 )
 
 // TeamMemberRepositories 聚合团队成员读写仓储
 type TeamMemberRepositories struct {
-	Command organization.TeamMemberCommandRepository
-	Query   organization.TeamMemberQueryRepository
+	Command org.TeamMemberCommandRepository
+	Query   org.TeamMemberQueryRepository
 }
 
 // NewTeamMemberRepositories 创建团队成员仓储聚合实例

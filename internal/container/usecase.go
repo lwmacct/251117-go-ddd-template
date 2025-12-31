@@ -6,7 +6,7 @@ import (
 	"github.com/lwmacct/251117-go-ddd-template/internal/application/audit"
 	"github.com/lwmacct/251117-go-ddd-template/internal/application/auth"
 	app_captcha "github.com/lwmacct/251117-go-ddd-template/internal/application/captcha"
-	"github.com/lwmacct/251117-go-ddd-template/internal/application/organization"
+	"github.com/lwmacct/251117-go-ddd-template/internal/application/org"
 	"github.com/lwmacct/251117-go-ddd-template/internal/application/pat"
 	"github.com/lwmacct/251117-go-ddd-template/internal/application/role"
 	"github.com/lwmacct/251117-go-ddd-template/internal/application/setting"
@@ -112,33 +112,33 @@ type TwoFAUseCases struct {
 // OrganizationUseCases 组织相关用例处理器
 type OrganizationUseCases struct {
 	// Organization
-	Create *organization.CreateHandler
-	Update *organization.UpdateHandler
-	Delete *organization.DeleteHandler
-	Get    *organization.GetHandler
-	List   *organization.ListHandler
+	Create *org.CreateHandler
+	Update *org.UpdateHandler
+	Delete *org.DeleteHandler
+	Get    *org.GetHandler
+	List   *org.ListHandler
 
 	// Member
-	MemberAdd        *organization.MemberAddHandler
-	MemberRemove     *organization.MemberRemoveHandler
-	MemberUpdateRole *organization.MemberUpdateRoleHandler
-	MemberList       *organization.MemberListHandler
+	MemberAdd        *org.MemberAddHandler
+	MemberRemove     *org.MemberRemoveHandler
+	MemberUpdateRole *org.MemberUpdateRoleHandler
+	MemberList       *org.MemberListHandler
 
 	// Team
-	TeamCreate *organization.TeamCreateHandler
-	TeamUpdate *organization.TeamUpdateHandler
-	TeamDelete *organization.TeamDeleteHandler
-	TeamGet    *organization.TeamGetHandler
-	TeamList   *organization.TeamListHandler
+	TeamCreate *org.TeamCreateHandler
+	TeamUpdate *org.TeamUpdateHandler
+	TeamDelete *org.TeamDeleteHandler
+	TeamGet    *org.TeamGetHandler
+	TeamList   *org.TeamListHandler
 
 	// Team Member
-	TeamMemberAdd    *organization.TeamMemberAddHandler
-	TeamMemberRemove *organization.TeamMemberRemoveHandler
-	TeamMemberList   *organization.TeamMemberListHandler
+	TeamMemberAdd    *org.TeamMemberAddHandler
+	TeamMemberRemove *org.TeamMemberRemoveHandler
+	TeamMemberList   *org.TeamMemberListHandler
 
 	// User View
-	UserOrgs  *organization.UserOrgsHandler
-	UserTeams *organization.UserTeamsHandler
+	UserOrgs  *org.UserOrgsHandler
+	UserTeams *org.UserTeamsHandler
 }
 
 // --- Fx 模块 ---
@@ -341,32 +341,32 @@ type organizationUseCasesParams struct {
 func newOrganizationUseCases(p organizationUseCasesParams) *OrganizationUseCases {
 	return &OrganizationUseCases{
 		// Organization
-		Create: organization.NewCreateHandler(p.OrgRepos.Command, p.OrgRepos.Query, p.MemberRepos.Command),
-		Update: organization.NewUpdateHandler(p.OrgRepos.Command, p.OrgRepos.Query),
-		Delete: organization.NewDeleteHandler(p.OrgRepos.Command, p.OrgRepos.Query, p.MemberRepos.Query, p.TeamRepos.Query),
-		Get:    organization.NewGetHandler(p.OrgRepos.Query),
-		List:   organization.NewListHandler(p.OrgRepos.Query),
+		Create: org.NewCreateHandler(p.OrgRepos.Command, p.OrgRepos.Query, p.MemberRepos.Command),
+		Update: org.NewUpdateHandler(p.OrgRepos.Command, p.OrgRepos.Query),
+		Delete: org.NewDeleteHandler(p.OrgRepos.Command, p.OrgRepos.Query, p.MemberRepos.Query, p.TeamRepos.Query),
+		Get:    org.NewGetHandler(p.OrgRepos.Query),
+		List:   org.NewListHandler(p.OrgRepos.Query),
 
 		// Member
-		MemberAdd:        organization.NewMemberAddHandler(p.MemberRepos.Command, p.MemberRepos.Query, p.OrgRepos.Query),
-		MemberRemove:     organization.NewMemberRemoveHandler(p.MemberRepos.Command, p.MemberRepos.Query),
-		MemberUpdateRole: organization.NewMemberUpdateRoleHandler(p.MemberRepos.Command, p.MemberRepos.Query),
-		MemberList:       organization.NewMemberListHandler(p.MemberRepos.Query),
+		MemberAdd:        org.NewMemberAddHandler(p.MemberRepos.Command, p.MemberRepos.Query, p.OrgRepos.Query),
+		MemberRemove:     org.NewMemberRemoveHandler(p.MemberRepos.Command, p.MemberRepos.Query),
+		MemberUpdateRole: org.NewMemberUpdateRoleHandler(p.MemberRepos.Command, p.MemberRepos.Query),
+		MemberList:       org.NewMemberListHandler(p.MemberRepos.Query),
 
 		// Team
-		TeamCreate: organization.NewTeamCreateHandler(p.TeamRepos.Command, p.TeamRepos.Query, p.OrgRepos.Query, p.TeamMemberRepos.Command),
-		TeamUpdate: organization.NewTeamUpdateHandler(p.TeamRepos.Command, p.TeamRepos.Query),
-		TeamDelete: organization.NewTeamDeleteHandler(p.TeamRepos.Command, p.TeamRepos.Query, p.TeamMemberRepos.Query),
-		TeamGet:    organization.NewTeamGetHandler(p.TeamRepos.Query),
-		TeamList:   organization.NewTeamListHandler(p.TeamRepos.Query),
+		TeamCreate: org.NewTeamCreateHandler(p.TeamRepos.Command, p.TeamRepos.Query, p.OrgRepos.Query, p.TeamMemberRepos.Command),
+		TeamUpdate: org.NewTeamUpdateHandler(p.TeamRepos.Command, p.TeamRepos.Query),
+		TeamDelete: org.NewTeamDeleteHandler(p.TeamRepos.Command, p.TeamRepos.Query, p.TeamMemberRepos.Query),
+		TeamGet:    org.NewTeamGetHandler(p.TeamRepos.Query),
+		TeamList:   org.NewTeamListHandler(p.TeamRepos.Query),
 
 		// Team Member
-		TeamMemberAdd:    organization.NewTeamMemberAddHandler(p.TeamMemberRepos.Command, p.TeamMemberRepos.Query, p.TeamRepos.Query, p.MemberRepos.Query),
-		TeamMemberRemove: organization.NewTeamMemberRemoveHandler(p.TeamMemberRepos.Command, p.TeamRepos.Query),
-		TeamMemberList:   organization.NewTeamMemberListHandler(p.TeamMemberRepos.Query, p.TeamRepos.Query),
+		TeamMemberAdd:    org.NewTeamMemberAddHandler(p.TeamMemberRepos.Command, p.TeamMemberRepos.Query, p.TeamRepos.Query, p.MemberRepos.Query),
+		TeamMemberRemove: org.NewTeamMemberRemoveHandler(p.TeamMemberRepos.Command, p.TeamRepos.Query),
+		TeamMemberList:   org.NewTeamMemberListHandler(p.TeamMemberRepos.Query, p.TeamRepos.Query),
 
 		// User View
-		UserOrgs:  organization.NewUserOrgsHandler(p.MemberRepos.Query, p.OrgRepos.Query),
-		UserTeams: organization.NewUserTeamsHandler(p.TeamMemberRepos.Query, p.TeamRepos.Query, p.OrgRepos.Query),
+		UserOrgs:  org.NewUserOrgsHandler(p.MemberRepos.Query, p.OrgRepos.Query),
+		UserTeams: org.NewUserTeamsHandler(p.TeamMemberRepos.Query, p.TeamRepos.Query, p.OrgRepos.Query),
 	}
 }

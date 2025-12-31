@@ -490,7 +490,7 @@ var Registry = map[permission.Operation]routeMeta{
 	// ==================== Self 域 - 用户组织/团队 ====================
 	permission.SelfOrgsList: {
 		Method:      GET,
-		Path:        "/api/user/organizations",
+		Path:        "/api/user/orgs",
 		Tags:        "User - Organization",
 		Summary:     "我的组织",
 		Description: "获取当前用户加入的所有组织",
@@ -506,7 +506,7 @@ var Registry = map[permission.Operation]routeMeta{
 	// ==================== Sys 域 - 组织管理 ====================
 	permission.SysOrgsCreate: {
 		Method:      POST,
-		Path:        "/api/system/organizations",
+		Path:        "/api/system/orgs",
 		Tags:        "Admin - Organization Management",
 		Audit:       true,
 		Summary:     "创建组织",
@@ -514,21 +514,21 @@ var Registry = map[permission.Operation]routeMeta{
 	},
 	permission.SysOrgsList: {
 		Method:      GET,
-		Path:        "/api/system/organizations",
+		Path:        "/api/system/orgs",
 		Tags:        "Admin - Organization Management",
 		Summary:     "组织列表",
 		Description: "分页获取所有组织",
 	},
 	permission.SysOrgsGet: {
 		Method:      GET,
-		Path:        "/api/system/organizations/:id",
+		Path:        "/api/system/orgs/:id",
 		Tags:        "Admin - Organization Management",
 		Summary:     "组织详情",
 		Description: "根据 ID 获取组织详情",
 	},
 	permission.SysOrgsUpdate: {
 		Method:      PUT,
-		Path:        "/api/system/organizations/:id",
+		Path:        "/api/system/orgs/:id",
 		Tags:        "Admin - Organization Management",
 		Audit:       true,
 		Summary:     "更新组织",
@@ -536,7 +536,7 @@ var Registry = map[permission.Operation]routeMeta{
 	},
 	permission.SysOrgsDelete: {
 		Method:      DELETE,
-		Path:        "/api/system/organizations/:id",
+		Path:        "/api/system/orgs/:id",
 		Tags:        "Admin - Organization Management",
 		Audit:       true,
 		Summary:     "删除组织",

@@ -22,9 +22,9 @@ import { DUMMY_BASE_URL, assertParamExists, setApiKeyToObject, setBasicAuthToObj
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS, type RequestArgs, BaseAPI, RequiredError, operationServerMap } from '../base';
 // @ts-ignore
-import type { ResponseDataResponseArrayOrganizationUserOrgDTO } from '../models';
+import type { ResponseDataResponseArrayOrgUserOrgDTO } from '../models';
 // @ts-ignore
-import type { ResponseDataResponseArrayOrganizationUserTeamDTO } from '../models';
+import type { ResponseDataResponseArrayOrgUserTeamDTO } from '../models';
 // @ts-ignore
 import type { ResponseErrorResponse } from '../models';
 /**
@@ -39,8 +39,8 @@ export const UserOrganizationApiAxiosParamCreator = function (configuration?: Co
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiUserOrganizationsGet: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            const localVarPath = `/api/user/organizations`;
+        apiUserOrgsGet: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/user/orgs`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -120,10 +120,10 @@ export const UserOrganizationApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async apiUserOrganizationsGet(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseArrayOrganizationUserOrgDTO>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.apiUserOrganizationsGet(options);
+        async apiUserOrgsGet(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseArrayOrgUserOrgDTO>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.apiUserOrgsGet(options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['UserOrganizationApi.apiUserOrganizationsGet']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['UserOrganizationApi.apiUserOrgsGet']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -133,7 +133,7 @@ export const UserOrganizationApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async apiUserTeamsGet(orgId?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseArrayOrganizationUserTeamDTO>> {
+        async apiUserTeamsGet(orgId?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseArrayOrgUserTeamDTO>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.apiUserTeamsGet(orgId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['UserOrganizationApi.apiUserTeamsGet']?.[localVarOperationServerIndex]?.url;
@@ -155,8 +155,8 @@ export const UserOrganizationApiFactory = function (configuration?: Configuratio
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiUserOrganizationsGet(options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseArrayOrganizationUserOrgDTO> {
-            return localVarFp.apiUserOrganizationsGet(options).then((request) => request(axios, basePath));
+        apiUserOrgsGet(options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseArrayOrgUserOrgDTO> {
+            return localVarFp.apiUserOrgsGet(options).then((request) => request(axios, basePath));
         },
         /**
          * 获取当前用户加入的所有团队（可按组织筛选）
@@ -165,7 +165,7 @@ export const UserOrganizationApiFactory = function (configuration?: Configuratio
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiUserTeamsGet(orgId?: number, options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseArrayOrganizationUserTeamDTO> {
+        apiUserTeamsGet(orgId?: number, options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseArrayOrgUserTeamDTO> {
             return localVarFp.apiUserTeamsGet(orgId, options).then((request) => request(axios, basePath));
         },
     };
@@ -185,8 +185,8 @@ export class UserOrganizationApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof UserOrganizationApi
      */
-    public apiUserOrganizationsGet(options?: RawAxiosRequestConfig) {
-        return UserOrganizationApiFp(this.configuration).apiUserOrganizationsGet(options).then((request) => request(this.axios, this.basePath));
+    public apiUserOrgsGet(options?: RawAxiosRequestConfig) {
+        return UserOrganizationApiFp(this.configuration).apiUserOrgsGet(options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

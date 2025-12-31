@@ -65,7 +65,7 @@ import (
 	"github.com/lwmacct/251117-go-ddd-template/internal/application/audit"
 
 	// 引入领域层包
-	"github.com/lwmacct/251117-go-ddd-template/internal/domain/organization"
+	"github.com/lwmacct/251117-go-ddd-template/internal/domain/org"
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/permission"
 
 	// 引入基础设施包
@@ -88,30 +88,30 @@ type RouterDependencies struct {
 	PermissionCacheService *auth.PermissionCacheService
 
 	// Domain Repositories (for middleware)
-	OrgMemberQuery  organization.MemberQueryRepository
-	TeamQuery       organization.TeamQueryRepository
-	TeamMemberQuery organization.TeamMemberQueryRepository
+	OrgMemberQuery  org.MemberQueryRepository
+	TeamQuery       org.TeamQueryRepository
+	TeamMemberQuery org.TeamMemberQueryRepository
 
 	// HTTP Handlers
-	HealthHandler       *handler.HealthHandler
-	AuthHandler         *handler.AuthHandler
-	CaptchaHandler      *handler.CaptchaHandler
-	RoleHandler         *handler.RoleHandler
-	SettingHandler      *handler.SettingHandler
-	UserSettingHandler  *handler.UserSettingHandler
-	PATHandler          *handler.PATHandler
-	AuditLogHandler     *handler.AuditLogHandler
-	AdminUserHandler    *handler.AdminUserHandler
-	UserProfileHandler  *handler.UserProfileHandler
-	OverviewHandler     *handler.OverviewHandler
-	TwoFAHandler        *handler.TwoFAHandler
-	CacheHandler        *handler.CacheHandler
-	OperationHandler    *handler.OperationHandler
-	OrganizationHandler *handler.OrganizationHandler
-	OrgMemberHandler    *handler.OrgMemberHandler
-	TeamHandler         *handler.TeamHandler
-	TeamMemberHandler   *handler.TeamMemberHandler
-	UserOrgHandler      *handler.UserOrganizationHandler
+	HealthHandler      *handler.HealthHandler
+	AuthHandler        *handler.AuthHandler
+	CaptchaHandler     *handler.CaptchaHandler
+	RoleHandler        *handler.RoleHandler
+	SettingHandler     *handler.SettingHandler
+	UserSettingHandler *handler.UserSettingHandler
+	PATHandler         *handler.PATHandler
+	AuditLogHandler    *handler.AuditLogHandler
+	AdminUserHandler   *handler.AdminUserHandler
+	UserProfileHandler *handler.UserProfileHandler
+	OverviewHandler    *handler.OverviewHandler
+	TwoFAHandler       *handler.TwoFAHandler
+	CacheHandler       *handler.CacheHandler
+	OperationHandler   *handler.OperationHandler
+	OrgHandler         *handler.OrgHandler
+	OrgMemberHandler   *handler.OrgMemberHandler
+	TeamHandler        *handler.TeamHandler
+	TeamMemberHandler  *handler.TeamMemberHandler
+	UserOrgHandler     *handler.UserOrgHandler
 }
 
 // SetupRouterWithDeps 使用依赖对象配置路由（推荐方式）
