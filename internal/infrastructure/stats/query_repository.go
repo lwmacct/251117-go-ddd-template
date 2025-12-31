@@ -127,7 +127,7 @@ func (r *queryRepository) GetTotalPermissions() (int64, error) {
 // GetRecentAuditLogs 获取最近的审计日志
 func (r *queryRepository) GetRecentAuditLogs(limit int) ([]domain.AuditLogSummary, error) {
 	var logs []domain.AuditLogSummary
-	err := r.db.Table("audit_logs").
+	err := r.db.Table("audit").
 		Select("id, user_id, username, action, resource, status, created_at").
 		Where("deleted_at IS NULL").
 		Order("created_at DESC").
