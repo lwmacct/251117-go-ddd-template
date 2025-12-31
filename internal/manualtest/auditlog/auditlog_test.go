@@ -1,25 +1,26 @@
-package manualtest
+package auditlog_test
 
 import (
 	"fmt"
 	"testing"
 
-	"github.com/lwmacct/251117-go-ddd-template/internal/application/audit"
-	"github.com/lwmacct/251117-go-ddd-template/internal/manualtest/helper"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/lwmacct/251117-go-ddd-template/internal/application/audit"
+	"github.com/lwmacct/251117-go-ddd-template/internal/manualtest"
 )
 
 // TestListAuditLogs 测试获取审计日志列表。
 //
 // 手动运行:
 //
-//	MANUAL=1 go test -v -run TestListAuditLogs ./internal/manualtest/
+//	MANUAL=1 go test -v -run TestListAuditLogs ./internal/manualtest/auditlog/
 func TestListAuditLogs(t *testing.T) {
-	c := helper.LoginAsAdmin(t)
+	c := manualtest.LoginAsAdmin(t)
 
 	t.Log("\n获取审计日志列表...")
-	logs, meta, err := helper.GetList[audit.AuditLogDTO](c, "/api/system/auditlogs", map[string]string{
+	logs, meta, err := manualtest.GetList[audit.AuditLogDTO](c, "/api/system/auditlogs", map[string]string{
 		"page":  "1",
 		"limit": "10",
 	})
@@ -47,13 +48,13 @@ func TestListAuditLogs(t *testing.T) {
 //
 // 手动运行:
 //
-//	MANUAL=1 go test -v -run TestGetAuditLogDetail ./internal/manualtest/
+//	MANUAL=1 go test -v -run TestGetAuditLogDetail ./internal/manualtest/auditlog/
 func TestGetAuditLogDetail(t *testing.T) {
-	c := helper.LoginAsAdmin(t)
+	c := manualtest.LoginAsAdmin(t)
 
 	// 先获取日志列表，取第一条的 ID
 	t.Log("\n步骤 1: 获取日志列表")
-	logs, _, err := helper.GetList[audit.AuditLogDTO](c, "/api/system/auditlogs", map[string]string{
+	logs, _, err := manualtest.GetList[audit.AuditLogDTO](c, "/api/system/auditlogs", map[string]string{
 		"page":  "1",
 		"limit": "1",
 	})
@@ -69,7 +70,7 @@ func TestGetAuditLogDetail(t *testing.T) {
 
 	// 获取详情
 	t.Log("\n步骤 2: 获取日志详情")
-	detail, err := helper.Get[audit.AuditLogDTO](c, fmt.Sprintf("/api/system/auditlogs/%d", logID), nil)
+	detail, err := manualtest.Get[audit.AuditLogDTO](c, fmt.Sprintf("/api/system/auditlogs/%d", logID), nil)
 	require.NoError(t, err, "获取审计日志详情失败")
 
 	// 验证详情数据
@@ -100,13 +101,13 @@ func TestGetAuditLogDetail(t *testing.T) {
 //
 // 手动运行:
 //
-//	MANUAL=1 go test -v -run TestAuditLogFilters ./internal/manualtest/
+//	MANUAL=1 go test -v -run TestAuditLogFilters ./internal/manualtest/auditlog/
 func TestAuditLogFilters(t *testing.T) {
-	c := helper.LoginAsAdmin(t)
+	c := manualtest.LoginAsAdmin(t)
 
 	// 测试按操作类型筛选
 	t.Log("\n测试 1: 按操作类型筛选 (login)")
-	loginLogs, meta, err := helper.GetList[audit.AuditLogDTO](c, "/api/system/auditlogs", map[string]string{
+	loginLogs, meta, err := manualtest.GetList[audit.AuditLogDTO](c, "/api/system/auditlogs", map[string]string{
 		"action": "login",
 		"limit":  "5",
 	})
@@ -121,7 +122,7 @@ func TestAuditLogFilters(t *testing.T) {
 
 	// 测试按用户 ID 筛选
 	t.Log("\n测试 2: 按用户 ID 筛选 (user_id=1)")
-	userLogs, meta, err := helper.GetList[audit.AuditLogDTO](c, "/api/system/auditlogs", map[string]string{
+	userLogs, meta, err := manualtest.GetList[audit.AuditLogDTO](c, "/api/system/auditlogs", map[string]string{
 		"user_id": "1",
 		"limit":   "5",
 	})
@@ -141,14 +142,14 @@ func TestAuditLogFilters(t *testing.T) {
 //
 // 手动运行:
 //
-//	MANUAL=1 go test -v -run TestAuditLogNotFound ./internal/manualtest/
+//	MANUAL=1 go test -v -run TestAuditLogNotFound ./internal/manualtest/auditlog/
 func TestAuditLogNotFound(t *testing.T) {
-	c := helper.LoginAsAdmin(t)
+	c := manualtest.LoginAsAdmin(t)
 
 	// 尝试获取不存在的审计日志 (使用一个极大的 ID)
 	t.Log("\n测试: 获取不存在的审计日志")
 	invalidID := uint(999999999)
-	_, err := helper.Get[audit.AuditLogDTO](c, fmt.Sprintf("/api/system/auditlogs/%d", invalidID), nil)
+	_, err := manualtest.Get[audit.AuditLogDTO](c, fmt.Sprintf("/api/system/auditlogs/%d", invalidID), nil)
 	require.Error(t, err, "期望获取不存在的日志失败")
 	if err != nil {
 		t.Logf("  预期的错误: %v", err)

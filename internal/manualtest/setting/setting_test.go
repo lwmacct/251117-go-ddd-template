@@ -1,4 +1,4 @@
-package manualtest
+package setting_test
 
 import (
 	"fmt"
@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/lwmacct/251117-go-ddd-template/internal/application/setting"
-	"github.com/lwmacct/251117-go-ddd-template/internal/manualtest/helper"
+	"github.com/lwmacct/251117-go-ddd-template/internal/manualtest"
 )
 
 // 测试配置前缀，用于隔离测试数据
@@ -21,9 +21,9 @@ const settingTestPrefix = "test_setting_"
 //
 // 手动运行:
 //
-//	MANUAL=1 go test -v -run TestSettingsFlow ./internal/manualtest/
+//	MANUAL=1 go test -v -run TestSettingsFlow ./internal/manualtest/setting/
 func TestSettingsFlow(t *testing.T) {
-	c := helper.LoginAsAdmin(t)
+	c := manualtest.LoginAsAdmin(t)
 
 	// 测试 1: 创建配置
 	t.Log("\n测试 1: 创建配置")
@@ -37,7 +37,7 @@ func TestSettingsFlow(t *testing.T) {
 		"label":         "测试配置",
 	}
 
-	created, err := helper.Post[setting.SettingDTO](c, "/api/system/settings", createReq)
+	created, err := manualtest.Post[setting.SettingDTO](c, "/api/system/settings", createReq)
 	require.NoError(t, err, "创建配置失败")
 	require.NotZero(t, created.ID, "创建的配置 ID 为 0")
 	assert.Equal(t, settingKey, created.Key)
@@ -49,7 +49,7 @@ func TestSettingsFlow(t *testing.T) {
 
 	// 测试 2: 获取单个配置
 	t.Log("\n测试 2: 获取单个配置")
-	detail, err := helper.Get[setting.SettingDTO](c, "/api/system/settings/"+settingKey, nil)
+	detail, err := manualtest.Get[setting.SettingDTO](c, "/api/system/settings/"+settingKey, nil)
 	require.NoError(t, err, "获取配置失败")
 	assert.Equal(t, settingKey, detail.Key)
 	assert.Equal(t, "测试配置", detail.Label)
@@ -61,14 +61,14 @@ func TestSettingsFlow(t *testing.T) {
 		"default_value": "更新后的值",
 		"label":         "更新后的标签",
 	}
-	updated, err := helper.Put[setting.SettingDTO](c, "/api/system/settings/"+settingKey, updateReq)
+	updated, err := manualtest.Put[setting.SettingDTO](c, "/api/system/settings/"+settingKey, updateReq)
 	require.NoError(t, err, "更新配置失败")
 	assert.Equal(t, "更新后的标签", updated.Label)
 	t.Logf("  ✓ 更新成功: Label=%s, Value=%v", updated.Label, updated.DefaultValue)
 
 	// 测试 4: 验证 Schema 包含新创建的配置（缓存一致性验证）
 	t.Log("\n测试 4: 验证 Schema 缓存一致性")
-	schema, err := helper.Get[[]setting.SettingsCategoryDTO](c, "/api/system/settings", nil)
+	schema, err := manualtest.Get[[]setting.SettingsCategoryDTO](c, "/api/system/settings", nil)
 	require.NoError(t, err, "获取 Schema 失败")
 
 	found := false
@@ -94,9 +94,9 @@ func TestSettingsFlow(t *testing.T) {
 //
 // 手动运行:
 //
-//	MANUAL=1 go test -v -run TestGetSettingsWithFilters ./internal/manualtest/
+//	MANUAL=1 go test -v -run TestGetSettingsWithFilters ./internal/manualtest/setting/
 func TestGetSettingsWithFilters(t *testing.T) {
-	c := helper.LoginAsAdmin(t)
+	c := manualtest.LoginAsAdmin(t)
 
 	// 注意：GET /api/system/settings 返回 []SettingsCategoryDTO（层级结构）
 	// 使用 ?category=xxx 按分类 Key 筛选（不是 category_id）
@@ -148,7 +148,7 @@ func TestGetSettingsWithFilters(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			schema, err := helper.Get[[]setting.SettingsCategoryDTO](c, "/api/system/settings", tc.query)
+			schema, err := manualtest.Get[[]setting.SettingsCategoryDTO](c, "/api/system/settings", tc.query)
 			require.NoError(t, err, "获取配置失败")
 			tc.validate(t, *schema)
 		})
@@ -159,9 +159,9 @@ func TestGetSettingsWithFilters(t *testing.T) {
 //
 // 手动运行:
 //
-//	MANUAL=1 go test -v -run TestBatchUpdateSettings ./internal/manualtest/
+//	MANUAL=1 go test -v -run TestBatchUpdateSettings ./internal/manualtest/setting/
 func TestBatchUpdateSettings(t *testing.T) {
-	c := helper.LoginAsAdmin(t)
+	c := manualtest.LoginAsAdmin(t)
 
 	// 先创建两个测试配置
 	timestamp := time.Now().Unix()
@@ -178,7 +178,7 @@ func TestBatchUpdateSettings(t *testing.T) {
 			"value_type":    "string",
 			"label":         "批量测试",
 		}
-		_, createErr := helper.Post[setting.SettingDTO](c, "/api/system/settings", createReq)
+		_, createErr := manualtest.Post[setting.SettingDTO](c, "/api/system/settings", createReq)
 		require.NoError(t, createErr, "创建配置 %s 失败", key)
 		t.Logf("  创建配置: %s", key)
 	}
@@ -211,7 +211,7 @@ func TestBatchUpdateSettings(t *testing.T) {
 	// 验证更新结果
 	t.Log("\n验证更新结果...")
 	for i, key := range []string{key1, key2} {
-		detail, getErr := helper.Get[setting.SettingDTO](c, "/api/system/settings/"+key, nil)
+		detail, getErr := manualtest.Get[setting.SettingDTO](c, "/api/system/settings/"+key, nil)
 		require.NoError(t, getErr, "获取配置 %s 失败", key)
 		expected := fmt.Sprintf("批量更新值%d", i+1)
 		assert.Equal(t, expected, detail.DefaultValue, "配置 %s 值不匹配", key)
@@ -223,12 +223,12 @@ func TestBatchUpdateSettings(t *testing.T) {
 //
 // 手动运行:
 //
-//	MANUAL=1 go test -v -run TestDeleteSetting ./internal/manualtest/
+//	MANUAL=1 go test -v -run TestDeleteSetting ./internal/manualtest/setting/
 func TestDeleteSetting(t *testing.T) {
-	c := helper.LoginAsAdmin(t)
+	c := manualtest.LoginAsAdmin(t)
 
 	// 使用 helper 创建配置（带清理控制）
-	created, markDeleted := helper.CreateTestSettingWithCleanupControl(t, c, settingTestPrefix+"delete")
+	created, markDeleted := manualtest.CreateTestSettingWithCleanupControl(t, c, settingTestPrefix+"delete")
 	t.Logf("创建测试配置: %s", created.Key)
 
 	// 删除配置
@@ -238,7 +238,7 @@ func TestDeleteSetting(t *testing.T) {
 	t.Log("  ✓ 删除成功")
 
 	// 验证删除
-	_, err = helper.Get[setting.SettingDTO](c, "/api/system/settings/"+created.Key, nil)
+	_, err = manualtest.Get[setting.SettingDTO](c, "/api/system/settings/"+created.Key, nil)
 	require.Error(t, err, "配置应该已被删除")
 	t.Log("  ✓ 配置已确认删除")
 }

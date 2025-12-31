@@ -7,67 +7,65 @@ paths:
 
 本包提供针对 HTTP API 的集成测试，需要服务运行时手动执行。
 
-## 运行方式
+## 目录结构
 
-> **Note**: 服务端已使用 `air` 热重载运行，无需手动启动服务。
+```
+internal/manualtest/
+├── doc.go        # 包文档
+├── client.go     # Client, HTTP 方法
+├── factory.go    # 资源工厂函数
+├── assert.go     # 提取函数
+├── helper.go     # 测试辅助函数
+└── {module}/     # 测试子包，每个模块一个目录
+    └── {module}_test.go
+```
+
+**命名约定**：
+
+- 根目录包名 `manualtest`，子目录包名 `{module}_test`（外部测试包模式）
+- 每个 API 模块对应一个测试子包
+
+## 运行方式
 
 ```bash
 # 运行所有测试
-MANUAL=1 go test -v ./internal/manualtest/
+MANUAL=1 go test -v ./internal/manualtest/...
+
+# 串行执行（服务端压力大时）
+MANUAL=1 go test -v -p 1 ./internal/manualtest/...
 
 # 运行单个测试
-MANUAL=1 go test -v -run TestFunc ./internal/manualtest/
+MANUAL=1 go test -v -run TestLoginScenarios ./internal/manualtest/auth/
 ```
 
 ## DTO 使用原则
 
-**核心原则：manualtest 不定义任何 DTO，只消费 Application 层的类型。**
+- **类型来源**：`internal/application/*/dto.go`
+- **禁止定义任何 DTO，只消费 Application 层的类型。**
 
-### 正确做法
+### 示例
 
 ```go
 import (
     "github.com/lwmacct/251117-go-ddd-template/internal/application/auth"
     "github.com/lwmacct/251117-go-ddd-template/internal/application/user"
+    "github.com/lwmacct/251117-go-ddd-template/internal/manualtest"
 )
 
 // 使用 Application 层 DTO 解析响应
-result, err := helper.Post[auth.LoginResponseDTO](c, "/api/auth/login", req)
-profile, err := helper.Get[user.UserWithRolesDTO](c, "/api/user/profile", nil)
+result, err := manualtest.Post[auth.LoginResponseDTO](c, "/api/auth/login", req)
+profile, err := manualtest.Get[user.UserWithRolesDTO](c, "/api/user/profile", nil)
 
 // 创建用户后直接获取 DTO
-createResp, err := helper.Post[user.UserWithRolesDTO](c, "/api/admin/users", req)
+createResp, err := manualtest.Post[user.UserWithRolesDTO](c, "/api/admin/users", req)
 userID := createResp.ID  // 直接访问字段
 ```
-
-### 禁止做法
-
-```go
-// ❌ 禁止在 manualtest 或 helper 包中定义任何 DTO
-type LoginResponse struct { ... }  // 禁止
-type PATTokenDTO struct { ... }    // 禁止
-```
-
-### 类型来源
-
-| 用途          | 来源                                          |
-| ------------- | --------------------------------------------- |
-| HTTP 响应解析 | `internal/application/*/dto.go`               |
-| HTTP 请求构造 | `internal/application/*/dto.go`               |
-| 通用响应包装  | `internal/adapters/http/response/response.go` |
-
-### 设计原因
-
-1. **单一职责** - DTO 定义属于 Application 层，测试代码只负责验证行为
-2. **避免重复** - Application 层的 DTO 已有完整的 JSON tags，无需重复定义
-3. **保持同步** - 直接使用 Application DTO 确保测试与实际 API 响应格式一致
-4. **依赖方向** - `manualtest → application` 符合 DDD 依赖方向
 
 ## 设计反思原则
 
 **测试困难是设计问题的信号。**
 
-如果发现以下情况，说明 Application 层设计需要检视：
+如果发现以下情况，说明 Application 层设计需要检视:
 
 | 症状                     | 可能的设计问题                  |
 | ------------------------ | ------------------------------- |
@@ -90,7 +88,7 @@ type PATTokenDTO struct { ... }    // 禁止
 
 ```go
 // ✅ 正确：创建后立即注册清理
-createResp, _ := helper.Post[user.UserWithRolesDTO](c, "/api/admin/users", req)
+createResp, _ := manualtest.Post[user.UserWithRolesDTO](c, "/api/admin/users", req)
 t.Cleanup(func() {
     _ = c.Delete(fmt.Sprintf("/api/admin/users/%d", createResp.ID))
 })
@@ -129,7 +127,7 @@ for _, p := range perms { permIDMap[p.ID] = true }
 assert.True(t, permIDMap[expectedID], "未找到")
 
 // ✅ 正确：使用 assert.Contains
-ids := helper.ExtractIDs(perms, func(p role.PermissionDTO) uint { return p.ID })
+ids := manualtest.ExtractIDs(perms, func(p role.PermissionDTO) uint { return p.ID })
 assert.Contains(t, ids, expectedID, "未找到权限 ID")
 
 // ✅ 正确：批量验证使用 ElementsMatch
@@ -149,11 +147,11 @@ assert.Positive(t, total, "总数应为正数")
 ### 登录辅助
 
 ```go
-// ✅ 推荐：使用 helper 封装
-c := helper.LoginAsAdmin(t)
+// ✅ 推荐：使用 manualtest 封装
+c := manualtest.LoginAsAdmin(t)
 
 // ❌ 避免：重复的登录代码
-c := helper.NewClient()
+c := manualtest.NewClient()
 _, err := c.Login("admin", "admin123")
 require.NoError(t, err)
 ```
@@ -162,17 +160,21 @@ require.NoError(t, err)
 
 ```go
 // ✅ 推荐：使用工厂函数（自动清理）
-user := helper.CreateTestUser(t, c, "testprefix")
+user := manualtest.CreateTestUser(t, c, "testprefix")
 
 // ❌ 避免：手动创建 + 手动 Cleanup
 ```
 
 ### 可用的 Helper 函数
 
-| 函数                                    | 说明                           |
-| --------------------------------------- | ------------------------------ |
-| `LoginAsAdmin(t) *Client`               | 登录管理员，返回已认证客户端   |
-| `LoginAs(t, account, password) *Client` | 指定账户登录                   |
-| `CreateTestUser(t, c, prefix)`          | 创建测试用户，自动注册 Cleanup |
-| `CreateTestRole(t, c, prefix)`          | 创建测试角色，自动注册 Cleanup |
-| `ExtractIDs(items, getter) []uint`      | 从结构体切片提取 ID            |
+| 函数                                         | 说明                           |
+| -------------------------------------------- | ------------------------------ |
+| `LoginAsAdmin(t) *Client`                    | 登录管理员，返回已认证客户端   |
+| `LoginAs(t, account, password) *Client`      | 指定账户登录                   |
+| `CreateTestUser(t, c, prefix)`               | 创建测试用户，自动注册 Cleanup |
+| `CreateTestRole(t, c, prefix)`               | 创建测试角色，自动注册 Cleanup |
+| `ExtractIDs(items, getter) []uint`           | 从结构体切片提取 ID            |
+| `Get[T](c, path, query) (*T, error)`         | HTTP GET 请求                  |
+| `GetList[T](c, path, query) ([]T, *, error)` | HTTP GET 列表请求              |
+| `Post[T](c, path, body) (*T, error)`         | HTTP POST 请求                 |
+| `Put[T](c, path, body) (*T, error)`          | HTTP PUT 请求                  |

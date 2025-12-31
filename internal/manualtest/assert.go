@@ -1,4 +1,4 @@
-package helper
+package manualtest
 
 // ExtractIDs 从结构体切片中提取 ID。
 // 使用泛型实现，通过 getter 函数获取每个元素的 ID。

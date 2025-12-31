@@ -1,4 +1,4 @@
-package manualtest
+package pat_test
 
 import (
 	"fmt"
@@ -11,20 +11,20 @@ import (
 	"github.com/lwmacct/251117-go-ddd-template/internal/application/pat"
 	"github.com/lwmacct/251117-go-ddd-template/internal/application/role"
 	"github.com/lwmacct/251117-go-ddd-template/internal/application/user"
-	"github.com/lwmacct/251117-go-ddd-template/internal/manualtest/helper"
+	"github.com/lwmacct/251117-go-ddd-template/internal/manualtest"
 )
 
 // TestPATFlow PAT 令牌完整流程测试。
 //
 // 手动运行:
 //
-//	MANUAL=1 go test -v -run TestPATFlow ./internal/manualtest/
+//	MANUAL=1 go test -v -run TestPATFlow ./internal/manualtest/pat/
 func TestPATFlow(t *testing.T) {
-	c := helper.LoginAsAdmin(t)
+	c := manualtest.LoginAsAdmin(t)
 
 	// 测试 1: 获取 PAT 列表
 	t.Log("\n测试 1: 获取 PAT 列表")
-	tokens, _, err := helper.GetList[pat.TokenDTO](c, "/api/user/tokens", nil)
+	tokens, _, err := manualtest.GetList[pat.TokenDTO](c, "/api/user/tokens", nil)
 	require.NoError(t, err, "获取 PAT 列表失败")
 	t.Logf("  现有 PAT 数量: %d", len(tokens))
 
@@ -40,7 +40,7 @@ func TestPATFlow(t *testing.T) {
 	}
 	t.Logf("  创建 PAT: %s", tokenName)
 
-	created, err := helper.Post[pat.CreateResultDTO](c, "/api/user/tokens", createReq)
+	created, err := manualtest.Post[pat.CreateResultDTO](c, "/api/user/tokens", createReq)
 	require.NoError(t, err, "创建 PAT 失败")
 	require.NotZero(t, created.Token.ID, "创建的 PAT ID 为 0")
 	require.NotEmpty(t, created.PlainToken, "未返回明文令牌")
@@ -65,7 +65,7 @@ func TestPATFlow(t *testing.T) {
 
 	// 测试 3: 获取 PAT 详情
 	t.Log("\n测试 3: 获取 PAT 详情")
-	detail, err := helper.Get[pat.TokenDTO](c, fmt.Sprintf("/api/user/tokens/%d", tokenID), nil)
+	detail, err := manualtest.Get[pat.TokenDTO](c, fmt.Sprintf("/api/user/tokens/%d", tokenID), nil)
 	require.NoError(t, err, "获取 PAT 详情失败")
 	assert.Equal(t, tokenID, detail.ID, "Token ID 不匹配")
 	assert.Equal(t, tokenName, detail.Name, "Token 名称不匹配")
@@ -86,7 +86,7 @@ func TestPATFlow(t *testing.T) {
 	t.Log("  禁用成功!")
 
 	// 验证状态
-	disabled, err := helper.Get[pat.TokenDTO](c, fmt.Sprintf("/api/user/tokens/%d", tokenID), nil)
+	disabled, err := manualtest.Get[pat.TokenDTO](c, fmt.Sprintf("/api/user/tokens/%d", tokenID), nil)
 	require.NoError(t, err, "获取 PAT 详情失败")
 	assert.Equal(t, "disabled", disabled.Status, "期望状态为 disabled")
 	t.Logf("  当前状态: %s", disabled.Status)
@@ -99,7 +99,7 @@ func TestPATFlow(t *testing.T) {
 	t.Log("  启用成功!")
 
 	// 验证状态
-	enabled, err := helper.Get[pat.TokenDTO](c, fmt.Sprintf("/api/user/tokens/%d", tokenID), nil)
+	enabled, err := manualtest.Get[pat.TokenDTO](c, fmt.Sprintf("/api/user/tokens/%d", tokenID), nil)
 	require.NoError(t, err, "获取 PAT 详情失败")
 	assert.Equal(t, "active", enabled.Status, "期望状态为 active")
 	t.Logf("  当前状态: %s", enabled.Status)
@@ -118,12 +118,12 @@ func TestPATFlow(t *testing.T) {
 //
 // 手动运行:
 //
-//	MANUAL=1 go test -v -run TestListPATs ./internal/manualtest/
+//	MANUAL=1 go test -v -run TestListPATs ./internal/manualtest/pat/
 func TestListPATs(t *testing.T) {
-	c := helper.LoginAsAdmin(t)
+	c := manualtest.LoginAsAdmin(t)
 
 	t.Log("获取 PAT 列表...")
-	tokens, meta, err := helper.GetList[pat.TokenDTO](c, "/api/user/tokens", nil)
+	tokens, meta, err := manualtest.GetList[pat.TokenDTO](c, "/api/user/tokens", nil)
 	require.NoError(t, err, "获取 PAT 列表失败")
 
 	t.Logf("PAT 数量: %d", len(tokens))
@@ -144,9 +144,9 @@ func TestListPATs(t *testing.T) {
 //
 // 手动运行:
 //
-//	MANUAL=1 go test -v -run TestPATWithScopes ./internal/manualtest/
+//	MANUAL=1 go test -v -run TestPATWithScopes ./internal/manualtest/pat/
 func TestPATWithScopes(t *testing.T) {
-	c := helper.LoginAsAdmin(t)
+	c := manualtest.LoginAsAdmin(t)
 
 	// 创建带限制 Scope 的 PAT
 	t.Log("\n创建带限制 Scope 的 PAT...")
@@ -160,7 +160,7 @@ func TestPATWithScopes(t *testing.T) {
 		Description: "仅限 self 和 sys 域操作",
 	}
 
-	created, err := helper.Post[pat.CreateResultDTO](c, "/api/user/tokens", createReq)
+	created, err := manualtest.Post[pat.CreateResultDTO](c, "/api/user/tokens", createReq)
 	require.NoError(t, err, "创建 PAT 失败")
 	require.NotZero(t, created.Token.ID, "创建的 PAT ID 为 0")
 	assert.Len(t, created.Token.Scopes, 2, "期望 Scopes 数量为 2")
@@ -179,9 +179,9 @@ func TestPATWithScopes(t *testing.T) {
 //
 // 手动运行:
 //
-//	MANUAL=1 go test -v -run TestListPATScopes ./internal/manualtest/
+//	MANUAL=1 go test -v -run TestListPATScopes ./internal/manualtest/pat/
 func TestListPATScopes(t *testing.T) {
-	c := helper.LoginAsAdmin(t)
+	c := manualtest.LoginAsAdmin(t)
 
 	t.Log("获取 PAT Scope 列表...")
 
@@ -192,7 +192,7 @@ func TestListPATScopes(t *testing.T) {
 		Description string `json:"description"`
 	}
 
-	scopes, _, err := helper.GetList[ScopeInfo](c, "/api/user/tokens/scopes", nil)
+	scopes, _, err := manualtest.GetList[ScopeInfo](c, "/api/user/tokens/scopes", nil)
 	require.NoError(t, err, "获取 Scope 列表失败")
 	require.NotEmpty(t, scopes, "Scope 列表不应为空")
 
@@ -226,10 +226,10 @@ func TestListPATScopes(t *testing.T) {
 //
 // 手动运行:
 //
-//	MANUAL=1 go test -v -run TestPATScopeEnforcement ./internal/manualtest/
+//	MANUAL=1 go test -v -run TestPATScopeEnforcement ./internal/manualtest/pat/
 func TestPATScopeEnforcement(t *testing.T) {
 	// 1. 使用 JWT 登录创建 PAT
-	jwtClient := helper.LoginAsAdmin(t)
+	jwtClient := manualtest.LoginAsAdmin(t)
 
 	t.Log("\n===== PAT Scope 权限过滤测试 =====")
 	t.Log("注意: Admin 用户有隐性 'user' 角色，self scope PAT 保留 self:*:* 权限")
@@ -243,7 +243,7 @@ func TestPATScopeEnforcement(t *testing.T) {
 		Description: "Scope 过滤测试用 PAT",
 	}
 
-	created, err := helper.Post[pat.CreateResultDTO](jwtClient, "/api/user/tokens", createReq)
+	created, err := manualtest.Post[pat.CreateResultDTO](jwtClient, "/api/user/tokens", createReq)
 	require.NoError(t, err, "创建 PAT 失败")
 	require.NotEmpty(t, created.PlainToken, "未返回明文令牌")
 	t.Logf("  PAT ID: %d", created.Token.ID)
@@ -258,7 +258,7 @@ func TestPATScopeEnforcement(t *testing.T) {
 	})
 
 	// 3. 创建使用 PAT 的客户端
-	patClient := helper.NewClient()
+	patClient := manualtest.NewClient()
 	patClient.SetToken(created.PlainToken)
 
 	// 4. 测试 self 域 API（应成功，因为隐性 user 角色有 self:*:* 权限）
@@ -290,9 +290,9 @@ func TestPATScopeEnforcement(t *testing.T) {
 //
 // 手动运行:
 //
-//	MANUAL=1 go test -v -run TestPATFullScopeAccess ./internal/manualtest/
+//	MANUAL=1 go test -v -run TestPATFullScopeAccess ./internal/manualtest/pat/
 func TestPATFullScopeAccess(t *testing.T) {
-	jwtClient := helper.LoginAsAdmin(t)
+	jwtClient := manualtest.LoginAsAdmin(t)
 
 	t.Log("\n===== PAT Full Scope 测试 =====")
 
@@ -305,7 +305,7 @@ func TestPATFullScopeAccess(t *testing.T) {
 		Description: "Full scope 测试用 PAT",
 	}
 
-	created, err := helper.Post[pat.CreateResultDTO](jwtClient, "/api/user/tokens", createReq)
+	created, err := manualtest.Post[pat.CreateResultDTO](jwtClient, "/api/user/tokens", createReq)
 	require.NoError(t, err, "创建 PAT 失败")
 	t.Logf("  PAT ID: %d, Scopes: %v", created.Token.ID, created.Token.Scopes)
 
@@ -316,7 +316,7 @@ func TestPATFullScopeAccess(t *testing.T) {
 	})
 
 	// 使用 PAT 客户端
-	patClient := helper.NewClient()
+	patClient := manualtest.NewClient()
 	patClient.SetToken(created.PlainToken)
 
 	// 测试 self 域 API
@@ -343,9 +343,9 @@ func TestPATFullScopeAccess(t *testing.T) {
 //
 // 手动运行:
 //
-//	MANUAL=1 go test -v -run TestPATScopeWithRegularUser ./internal/manualtest/
+//	MANUAL=1 go test -v -run TestPATScopeWithRegularUser ./internal/manualtest/pat/
 func TestPATScopeWithRegularUser(t *testing.T) {
-	adminClient := helper.LoginAsAdmin(t)
+	adminClient := manualtest.LoginAsAdmin(t)
 
 	t.Log("\n===== 普通用户 PAT Scope 权限过滤测试 =====")
 	t.Log("目标: 验证有具体域权限的用户，PAT Scope 过滤是否正确工作")
@@ -360,7 +360,7 @@ func TestPATScopeWithRegularUser(t *testing.T) {
 		Description: "用于测试 PAT Scope 过滤的角色",
 	}
 
-	createdRole, err := helper.Post[role.CreateResultDTO](adminClient, "/api/system/roles", createRoleReq)
+	createdRole, err := manualtest.Post[role.CreateResultDTO](adminClient, "/api/system/roles", createRoleReq)
 	require.NoError(t, err, "创建测试角色失败")
 	t.Logf("  角色 ID: %d, 名称: %s", createdRole.RoleID, createdRole.Name)
 
@@ -401,7 +401,7 @@ func TestPATScopeWithRegularUser(t *testing.T) {
 		RoleIDs:  []uint{createdRole.RoleID},
 	}
 
-	createdUser, err := helper.Post[user.UserWithRolesDTO](adminClient, "/api/system/users", createUserReq)
+	createdUser, err := manualtest.Post[user.UserWithRolesDTO](adminClient, "/api/system/users", createUserReq)
 	require.NoError(t, err, "创建测试用户失败")
 	t.Logf("  用户 ID: %d, 用户名: %s", createdUser.ID, createdUser.Username)
 	t.Logf("  分配角色: %v", createdUser.Roles)
@@ -413,7 +413,7 @@ func TestPATScopeWithRegularUser(t *testing.T) {
 
 	// 步骤 4: 使用测试用户登录
 	t.Log("\n步骤 4: 测试用户登录")
-	userClient := helper.NewClient()
+	userClient := manualtest.NewClient()
 	_, err = userClient.Login(username, password)
 	require.NoError(t, err, "测试用户登录失败")
 	t.Log("  登录成功!")
@@ -427,7 +427,7 @@ func TestPATScopeWithRegularUser(t *testing.T) {
 		Description: "仅 self scope 的测试 PAT",
 	}
 
-	createdPAT, err := helper.Post[pat.CreateResultDTO](userClient, "/api/user/tokens", createPATReq)
+	createdPAT, err := manualtest.Post[pat.CreateResultDTO](userClient, "/api/user/tokens", createPATReq)
 	require.NoError(t, err, "创建 PAT 失败")
 	require.NotEmpty(t, createdPAT.PlainToken, "未返回明文令牌")
 	t.Logf("  PAT ID: %d, Scopes: %v", createdPAT.Token.ID, createdPAT.Token.Scopes)
@@ -439,7 +439,7 @@ func TestPATScopeWithRegularUser(t *testing.T) {
 
 	// 步骤 6: 使用 PAT 测试权限
 	t.Log("\n步骤 6: 使用 self scope PAT 测试 API 访问")
-	patClient := helper.NewClient()
+	patClient := manualtest.NewClient()
 	patClient.SetToken(createdPAT.PlainToken)
 
 	// 6a. 测试 self 域 API（应该成功）
@@ -465,7 +465,7 @@ func TestPATScopeWithRegularUser(t *testing.T) {
 		Description: "完整 scope 的测试 PAT",
 	}
 
-	createdFullPAT, err := helper.Post[pat.CreateResultDTO](userClient, "/api/user/tokens", createFullPATReq)
+	createdFullPAT, err := manualtest.Post[pat.CreateResultDTO](userClient, "/api/user/tokens", createFullPATReq)
 	require.NoError(t, err, "创建 full scope PAT 失败")
 	t.Logf("  Full PAT ID: %d, Scopes: %v", createdFullPAT.Token.ID, createdFullPAT.Token.Scopes)
 
@@ -473,7 +473,7 @@ func TestPATScopeWithRegularUser(t *testing.T) {
 		_ = userClient.Delete(fmt.Sprintf("/api/user/tokens/%d", createdFullPAT.Token.ID))
 	})
 
-	fullPatClient := helper.NewClient()
+	fullPatClient := manualtest.NewClient()
 	fullPatClient.SetToken(createdFullPAT.PlainToken)
 
 	// 7a. full scope 应能访问 self 域

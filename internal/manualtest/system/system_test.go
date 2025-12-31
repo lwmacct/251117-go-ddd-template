@@ -1,4 +1,4 @@
-package manualtest
+package system_test
 
 import (
 	"testing"
@@ -7,18 +7,18 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/lwmacct/251117-go-ddd-template/internal/application/stats"
-	"github.com/lwmacct/251117-go-ddd-template/internal/manualtest/helper"
+	"github.com/lwmacct/251117-go-ddd-template/internal/manualtest"
 )
 
 // TestHealthCheck 测试健康检查端点。
 //
 // 手动运行:
 //
-//	MANUAL=1 go test -v -run TestHealthCheck ./internal/manualtest/
+//	MANUAL=1 go test -v -run TestHealthCheck ./internal/manualtest/system/
 func TestHealthCheck(t *testing.T) {
-	helper.SkipIfNotManual(t)
+	manualtest.SkipIfNotManual(t)
 
-	c := helper.NewClient()
+	c := manualtest.NewClient()
 
 	t.Log("检查健康状态...")
 	resp, err := c.R().Get("/health")
@@ -34,12 +34,12 @@ func TestHealthCheck(t *testing.T) {
 //
 // 手动运行:
 //
-//	MANUAL=1 go test -v -run TestSystemStats ./internal/manualtest/
+//	MANUAL=1 go test -v -run TestSystemStats ./internal/manualtest/system/
 func TestSystemStats(t *testing.T) {
-	c := helper.LoginAsAdmin(t)
+	c := manualtest.LoginAsAdmin(t)
 
 	t.Log("\n获取系统统计...")
-	statsResult, err := helper.Get[stats.StatsDTO](c, "/api/system/overview/stats", nil)
+	statsResult, err := manualtest.Get[stats.StatsDTO](c, "/api/system/overview/stats", nil)
 	require.NoError(t, err, "获取系统统计失败")
 
 	// 验证返回的数据
@@ -63,11 +63,11 @@ func TestSystemStats(t *testing.T) {
 //
 // 手动运行:
 //
-//	MANUAL=1 go test -v -run TestSwaggerDocs ./internal/manualtest/
+//	MANUAL=1 go test -v -run TestSwaggerDocs ./internal/manualtest/system/
 func TestSwaggerDocs(t *testing.T) {
-	helper.SkipIfNotManual(t)
+	manualtest.SkipIfNotManual(t)
 
-	c := helper.NewClient()
+	c := manualtest.NewClient()
 
 	t.Log("检查 Swagger 文档...")
 	resp, err := c.R().Get("/swagger/index.html")

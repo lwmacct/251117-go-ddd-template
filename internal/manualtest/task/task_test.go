@@ -1,4 +1,4 @@
-package manualtest
+package task_test
 
 import (
 	"fmt"
@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/lwmacct/251117-go-ddd-template/internal/application/task"
-	"github.com/lwmacct/251117-go-ddd-template/internal/manualtest/helper"
+	"github.com/lwmacct/251117-go-ddd-template/internal/manualtest"
 )
 
 // 种子数据: acme org (ID=1), engineering team (ID=1), admin 是 owner 和 team lead
@@ -31,9 +31,9 @@ func taskPath(id uint) string {
 //
 // 手动运行:
 //
-//	MANUAL=1 go test -v -run TestTaskCRUD ./internal/manualtest/
+//	MANUAL=1 go test -v -run TestTaskCRUD ./internal/manualtest/task/
 func TestTaskCRUD(t *testing.T) {
-	c := helper.LoginAsAdmin(t)
+	c := manualtest.LoginAsAdmin(t)
 
 	// 测试 1: 创建任务
 	t.Log("\n测试 1: 创建任务")
@@ -41,7 +41,7 @@ func TestTaskCRUD(t *testing.T) {
 		Title:       "测试任务",
 		Description: "这是一个测试任务",
 	}
-	createdTask, err := helper.Post[task.TaskDTO](c, taskBasePath(), createReq)
+	createdTask, err := manualtest.Post[task.TaskDTO](c, taskBasePath(), createReq)
 	require.NoError(t, err, "创建任务失败")
 	t.Logf("  创建成功! 任务 ID: %d, 标题: %s", createdTask.ID, createdTask.Title)
 
@@ -61,7 +61,7 @@ func TestTaskCRUD(t *testing.T) {
 
 	// 测试 2: 获取任务详情
 	t.Log("\n测试 2: 获取任务详情")
-	taskDetail, err := helper.Get[task.TaskDTO](c, taskPath(taskID), nil)
+	taskDetail, err := manualtest.Get[task.TaskDTO](c, taskPath(taskID), nil)
 	require.NoError(t, err, "获取任务详情失败")
 	t.Logf("  标题: %s, 状态: %s", taskDetail.Title, taskDetail.Status)
 
@@ -74,7 +74,7 @@ func TestTaskCRUD(t *testing.T) {
 	updateReq := task.UpdateTaskDTO{
 		Title: &newTitle,
 	}
-	updatedTask, err := helper.Put[task.TaskDTO](c, taskPath(taskID), updateReq)
+	updatedTask, err := manualtest.Put[task.TaskDTO](c, taskPath(taskID), updateReq)
 	require.NoError(t, err, "更新任务失败")
 	t.Logf("  更新成功! 新标题: %s", updatedTask.Title)
 
@@ -82,7 +82,7 @@ func TestTaskCRUD(t *testing.T) {
 
 	// 测试 4: 获取任务列表
 	t.Log("\n测试 4: 获取任务列表")
-	tasks, meta, err := helper.GetList[task.TaskDTO](c, taskBasePath(), map[string]string{
+	tasks, meta, err := manualtest.GetList[task.TaskDTO](c, taskBasePath(), map[string]string{
 		"page":  "1",
 		"limit": "10",
 	})
@@ -115,9 +115,9 @@ func TestTaskCRUD(t *testing.T) {
 //
 // 手动运行:
 //
-//	MANUAL=1 go test -v -run TestTaskStatusTransition ./internal/manualtest/
+//	MANUAL=1 go test -v -run TestTaskStatusTransition ./internal/manualtest/task/
 func TestTaskStatusTransition(t *testing.T) {
-	c := helper.LoginAsAdmin(t)
+	c := manualtest.LoginAsAdmin(t)
 
 	// 创建测试任务
 	t.Log("\n步骤 1: 创建测试任务")
@@ -125,7 +125,7 @@ func TestTaskStatusTransition(t *testing.T) {
 		Title:       "状态测试任务",
 		Description: "用于测试状态流转",
 	}
-	createdTask, err := helper.Post[task.TaskDTO](c, taskBasePath(), createReq)
+	createdTask, err := manualtest.Post[task.TaskDTO](c, taskBasePath(), createReq)
 	require.NoError(t, err, "创建任务失败")
 	t.Logf("  任务 ID: %d, 初始状态: %s", createdTask.ID, createdTask.Status)
 
@@ -144,7 +144,7 @@ func TestTaskStatusTransition(t *testing.T) {
 	updateReq := task.UpdateTaskDTO{
 		Status: &inProgressStatus,
 	}
-	updatedTask, err := helper.Put[task.TaskDTO](c, taskPath(taskID), updateReq)
+	updatedTask, err := manualtest.Put[task.TaskDTO](c, taskPath(taskID), updateReq)
 	require.NoError(t, err, "更新状态失败")
 	t.Logf("  新状态: %s", updatedTask.Status)
 
@@ -156,7 +156,7 @@ func TestTaskStatusTransition(t *testing.T) {
 	updateReq = task.UpdateTaskDTO{
 		Status: &completedStatus,
 	}
-	updatedTask, err = helper.Put[task.TaskDTO](c, taskPath(taskID), updateReq)
+	updatedTask, err = manualtest.Put[task.TaskDTO](c, taskPath(taskID), updateReq)
 	require.NoError(t, err, "更新状态失败")
 	t.Logf("  新状态: %s", updatedTask.Status)
 
@@ -169,16 +169,16 @@ func TestTaskStatusTransition(t *testing.T) {
 //
 // 手动运行:
 //
-//	MANUAL=1 go test -v -run TestTaskInvalidStatusTransition ./internal/manualtest/
+//	MANUAL=1 go test -v -run TestTaskInvalidStatusTransition ./internal/manualtest/task/
 func TestTaskInvalidStatusTransition(t *testing.T) {
-	c := helper.LoginAsAdmin(t)
+	c := manualtest.LoginAsAdmin(t)
 
 	// 创建测试任务
 	t.Log("\n步骤 1: 创建测试任务")
 	createReq := task.CreateTaskDTO{
 		Title: "无效状态转换测试",
 	}
-	createdTask, err := helper.Post[task.TaskDTO](c, taskBasePath(), createReq)
+	createdTask, err := manualtest.Post[task.TaskDTO](c, taskBasePath(), createReq)
 	require.NoError(t, err, "创建任务失败")
 	t.Logf("  任务 ID: %d, 状态: %s", createdTask.ID, createdTask.Status)
 
@@ -195,7 +195,7 @@ func TestTaskInvalidStatusTransition(t *testing.T) {
 	updateReq := task.UpdateTaskDTO{
 		Status: &completedStatus,
 	}
-	updatedTask, err := helper.Put[task.TaskDTO](c, taskPath(taskID), updateReq)
+	updatedTask, err := manualtest.Put[task.TaskDTO](c, taskPath(taskID), updateReq)
 	require.NoError(t, err, "完成任务失败")
 	t.Logf("  新状态: %s", updatedTask.Status)
 	assert.Equal(t, "completed", updatedTask.Status)
@@ -206,7 +206,7 @@ func TestTaskInvalidStatusTransition(t *testing.T) {
 	updateReq = task.UpdateTaskDTO{
 		Status: &pendingStatus,
 	}
-	_, err = helper.Put[task.TaskDTO](c, taskPath(taskID), updateReq)
+	_, err = manualtest.Put[task.TaskDTO](c, taskPath(taskID), updateReq)
 	require.Error(t, err, "从 completed 到 pending 应该失败")
 	t.Logf("  预期失败: %v", err)
 
@@ -217,9 +217,9 @@ func TestTaskInvalidStatusTransition(t *testing.T) {
 //
 // 手动运行:
 //
-//	MANUAL=1 go test -v -run TestTaskWithAssignee ./internal/manualtest/
+//	MANUAL=1 go test -v -run TestTaskWithAssignee ./internal/manualtest/task/
 func TestTaskWithAssignee(t *testing.T) {
-	c := helper.LoginAsAdmin(t)
+	c := manualtest.LoginAsAdmin(t)
 
 	// 步骤 1: 创建带指派人的任务
 	t.Log("\n步骤 1: 创建带指派人的任务")
@@ -229,7 +229,7 @@ func TestTaskWithAssignee(t *testing.T) {
 		Description: "指派给 admin 用户",
 		AssigneeID:  &adminUserID,
 	}
-	createdTask, err := helper.Post[task.TaskDTO](c, taskBasePath(), createReq)
+	createdTask, err := manualtest.Post[task.TaskDTO](c, taskBasePath(), createReq)
 	require.NoError(t, err, "创建任务失败")
 	t.Logf("  任务 ID: %d, 指派给: %v", createdTask.ID, createdTask.AssigneeID)
 
@@ -249,7 +249,7 @@ func TestTaskWithAssignee(t *testing.T) {
 	updateReq := task.UpdateTaskDTO{
 		AssigneeID: nilAssignee,
 	}
-	updatedTask, err := helper.Put[task.TaskDTO](c, taskPath(taskID), updateReq)
+	updatedTask, err := manualtest.Put[task.TaskDTO](c, taskPath(taskID), updateReq)
 	require.NoError(t, err, "取消指派失败")
 	t.Logf("  更新后指派人: %v", updatedTask.AssigneeID)
 
@@ -263,16 +263,16 @@ func TestTaskWithAssignee(t *testing.T) {
 //
 // 手动运行:
 //
-//	MANUAL=1 go test -v -run TestTaskOrgTeamIsolation ./internal/manualtest/
+//	MANUAL=1 go test -v -run TestTaskOrgTeamIsolation ./internal/manualtest/task/
 func TestTaskOrgTeamIsolation(t *testing.T) {
-	c := helper.LoginAsAdmin(t)
+	c := manualtest.LoginAsAdmin(t)
 
 	// 创建一个任务
 	t.Log("\n步骤 1: 创建任务")
 	createReq := task.CreateTaskDTO{
 		Title: "隔离测试任务",
 	}
-	createdTask, err := helper.Post[task.TaskDTO](c, taskBasePath(), createReq)
+	createdTask, err := manualtest.Post[task.TaskDTO](c, taskBasePath(), createReq)
 	require.NoError(t, err, "创建任务失败")
 	t.Logf("  任务 ID: %d, OrgID: %d, TeamID: %d", createdTask.ID, createdTask.OrgID, createdTask.TeamID)
 
@@ -290,7 +290,7 @@ func TestTaskOrgTeamIsolation(t *testing.T) {
 	// 尝试用不存在的 org/team 访问（应该失败，因为用户不是成员）
 	t.Log("\n步骤 2: 尝试访问不存在的组织（应失败）")
 	invalidPath := fmt.Sprintf("/api/org/9999/teams/%d/tasks", testTeamID)
-	_, _, err = helper.GetList[task.TaskDTO](c, invalidPath, nil)
+	_, _, err = manualtest.GetList[task.TaskDTO](c, invalidPath, nil)
 	require.Error(t, err, "访问不存在的组织应失败")
 	t.Logf("  预期失败: %v", err)
 
@@ -301,12 +301,12 @@ func TestTaskOrgTeamIsolation(t *testing.T) {
 //
 // 手动运行:
 //
-//	MANUAL=1 go test -v -run TestListTasks ./internal/manualtest/
+//	MANUAL=1 go test -v -run TestListTasks ./internal/manualtest/task/
 func TestListTasks(t *testing.T) {
-	c := helper.LoginAsAdmin(t)
+	c := manualtest.LoginAsAdmin(t)
 
 	t.Log("获取任务列表...")
-	tasks, meta, err := helper.GetList[task.TaskDTO](c, taskBasePath(), map[string]string{
+	tasks, meta, err := manualtest.GetList[task.TaskDTO](c, taskBasePath(), map[string]string{
 		"page":  "1",
 		"limit": "10",
 	})

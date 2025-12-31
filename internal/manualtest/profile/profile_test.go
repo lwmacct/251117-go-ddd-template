@@ -1,4 +1,4 @@
-package manualtest
+package profile_test
 
 import (
 	"fmt"
@@ -9,19 +9,19 @@ import (
 
 	"github.com/lwmacct/251117-go-ddd-template/internal/application/auth"
 	"github.com/lwmacct/251117-go-ddd-template/internal/application/user"
-	"github.com/lwmacct/251117-go-ddd-template/internal/manualtest/helper"
+	"github.com/lwmacct/251117-go-ddd-template/internal/manualtest"
 )
 
 // TestGetProfile 测试获取个人资料。
 //
 // 手动运行:
 //
-//	MANUAL=1 go test -v -run TestGetProfile ./internal/manualtest/
+//	MANUAL=1 go test -v -run TestGetProfile ./internal/manualtest/profile/
 func TestGetProfile(t *testing.T) {
-	c := helper.LoginAsAdmin(t)
+	c := manualtest.LoginAsAdmin(t)
 
 	t.Log("获取个人资料")
-	profile, err := helper.Get[user.UserWithRolesDTO](c, "/api/user/profile", nil)
+	profile, err := manualtest.Get[user.UserWithRolesDTO](c, "/api/user/profile", nil)
 	require.NoError(t, err, "获取个人资料失败")
 
 	// 验证关键字段
@@ -43,12 +43,12 @@ func TestGetProfile(t *testing.T) {
 //
 // 手动运行:
 //
-//	MANUAL=1 go test -v -run TestUpdateProfile ./internal/manualtest/
+//	MANUAL=1 go test -v -run TestUpdateProfile ./internal/manualtest/profile/
 func TestUpdateProfile(t *testing.T) {
-	c := helper.LoginAsAdmin(t)
+	c := manualtest.LoginAsAdmin(t)
 
 	t.Log("步骤 1: 获取当前资料")
-	originalProfile, err := helper.Get[user.UserWithRolesDTO](c, "/api/user/profile", nil)
+	originalProfile, err := manualtest.Get[user.UserWithRolesDTO](c, "/api/user/profile", nil)
 	require.NoError(t, err, "获取原始资料失败")
 	t.Logf("  当前全名: %s", originalProfile.FullName)
 
@@ -57,7 +57,7 @@ func TestUpdateProfile(t *testing.T) {
 		restoreReq := user.UpdateDTO{
 			FullName: &originalProfile.FullName,
 		}
-		_, _ = helper.Put[user.UserWithRolesDTO](c, "/api/user/profile", restoreReq)
+		_, _ = manualtest.Put[user.UserWithRolesDTO](c, "/api/user/profile", restoreReq)
 	})
 
 	t.Log("步骤 2: 更新资料")
@@ -66,7 +66,7 @@ func TestUpdateProfile(t *testing.T) {
 		FullName: &newFullName,
 	}
 
-	updateResp, err := helper.Put[user.UserWithRolesDTO](c, "/api/user/profile", updateReq)
+	updateResp, err := manualtest.Put[user.UserWithRolesDTO](c, "/api/user/profile", updateReq)
 	require.NoError(t, err, "更新资料失败")
 	t.Logf("  更新后全名: %s", updateResp.FullName)
 
@@ -79,9 +79,9 @@ func TestUpdateProfile(t *testing.T) {
 //
 // 手动运行:
 //
-//	MANUAL=1 go test -v -run TestUpdateProfileInvalid ./internal/manualtest/
+//	MANUAL=1 go test -v -run TestUpdateProfileInvalid ./internal/manualtest/profile/
 func TestUpdateProfileInvalid(t *testing.T) {
-	c := helper.LoginAsAdmin(t)
+	c := manualtest.LoginAsAdmin(t)
 
 	t.Log("尝试使用无效数据更新资料（如空全名）")
 	emptyFullName := ""
@@ -107,9 +107,9 @@ func TestUpdateProfileInvalid(t *testing.T) {
 //
 // 手动运行:
 //
-//	MANUAL=1 go test -v -run TestChangePassword ./internal/manualtest/
+//	MANUAL=1 go test -v -run TestChangePassword ./internal/manualtest/profile/
 func TestChangePassword(t *testing.T) {
-	adminClient := helper.LoginAsAdmin(t)
+	adminClient := manualtest.LoginAsAdmin(t)
 
 	testUsername := fmt.Sprintf("pwdtest_%d", time.Now().Unix())
 	originalPassword := "original123"
@@ -124,7 +124,7 @@ func TestChangePassword(t *testing.T) {
 		RoleIDs:  []uint{2}, // user 角色 ID
 	}
 
-	createResp, err := helper.Post[user.UserWithRolesDTO](adminClient, "/api/system/users", createReq)
+	createResp, err := manualtest.Post[user.UserWithRolesDTO](adminClient, "/api/system/users", createReq)
 	require.NoError(t, err, "创建测试用户失败")
 	testUserID := createResp.ID
 	t.Logf("  创建成功，用户 ID: %d", testUserID)
@@ -136,7 +136,7 @@ func TestChangePassword(t *testing.T) {
 
 	// 用测试用户登录
 	t.Log("步骤 2: 测试用户登录")
-	testClient := helper.LoginAs(t, testUsername, originalPassword)
+	testClient := manualtest.LoginAs(t, testUsername, originalPassword)
 	t.Log("  登录成功")
 
 	t.Log("步骤 3: 修改密码")
@@ -153,12 +153,12 @@ func TestChangePassword(t *testing.T) {
 	t.Log("  密码修改成功")
 
 	t.Log("步骤 4: 使用新密码登录")
-	newClient := helper.LoginAs(t, testUsername, newPassword)
+	newClient := manualtest.LoginAs(t, testUsername, newPassword)
 	_ = newClient
 	t.Log("  新密码登录成功!")
 
 	t.Log("步骤 5: 验证旧密码已失效")
-	oldPwdClient := helper.NewClient()
+	oldPwdClient := manualtest.NewClient()
 	captcha, _ := oldPwdClient.GetCaptcha()
 	oldLoginReq := auth.LoginDTO{
 		Account:   testUsername,
@@ -177,9 +177,9 @@ func TestChangePassword(t *testing.T) {
 //
 // 手动运行:
 //
-//	MANUAL=1 go test -v -run TestChangePasswordWrongOld ./internal/manualtest/
+//	MANUAL=1 go test -v -run TestChangePasswordWrongOld ./internal/manualtest/profile/
 func TestChangePasswordWrongOld(t *testing.T) {
-	adminClient := helper.LoginAsAdmin(t)
+	adminClient := manualtest.LoginAsAdmin(t)
 
 	testUsername := fmt.Sprintf("wrongpwd_%d", time.Now().Unix())
 	testPassword := "original123"
@@ -193,7 +193,7 @@ func TestChangePasswordWrongOld(t *testing.T) {
 		RoleIDs:  []uint{2},
 	}
 
-	createResp, err := helper.Post[user.UserWithRolesDTO](adminClient, "/api/system/users", createReq)
+	createResp, err := manualtest.Post[user.UserWithRolesDTO](adminClient, "/api/system/users", createReq)
 	require.NoError(t, err, "创建测试用户失败")
 	testUserID := createResp.ID
 	t.Logf("  创建成功，用户 ID: %d", testUserID)
@@ -204,7 +204,7 @@ func TestChangePasswordWrongOld(t *testing.T) {
 	})
 
 	t.Log("步骤 2: 测试用户登录")
-	testClient := helper.LoginAs(t, testUsername, testPassword)
+	testClient := manualtest.LoginAs(t, testUsername, testPassword)
 	t.Log("  登录成功")
 
 	t.Log("步骤 3: 使用错误的旧密码尝试修改")
@@ -226,9 +226,9 @@ func TestChangePasswordWrongOld(t *testing.T) {
 //
 // 手动运行:
 //
-//	MANUAL=1 go test -v -run TestDeleteAccount ./internal/manualtest/
+//	MANUAL=1 go test -v -run TestDeleteAccount ./internal/manualtest/profile/
 func TestDeleteAccount(t *testing.T) {
-	adminClient := helper.LoginAsAdmin(t)
+	adminClient := manualtest.LoginAsAdmin(t)
 
 	testUsername := fmt.Sprintf("delacct_%d", time.Now().Unix())
 	testPassword := "test123456"
@@ -242,12 +242,12 @@ func TestDeleteAccount(t *testing.T) {
 		RoleIDs:  []uint{2}, // user 角色 ID
 	}
 
-	createResp, err := helper.Post[user.UserWithRolesDTO](adminClient, "/api/system/users", createReq)
+	createResp, err := manualtest.Post[user.UserWithRolesDTO](adminClient, "/api/system/users", createReq)
 	require.NoError(t, err, "创建测试用户失败")
 	t.Logf("  创建成功，用户 ID: %d", createResp.ID)
 
 	t.Log("步骤 2: 测试用户登录")
-	testClient := helper.LoginAs(t, testUsername, testPassword)
+	testClient := manualtest.LoginAs(t, testUsername, testPassword)
 	t.Log("  登录成功")
 
 	t.Log("步骤 3: 调用删除账户接口")
@@ -256,7 +256,7 @@ func TestDeleteAccount(t *testing.T) {
 	t.Log("  删除成功!")
 
 	t.Log("步骤 4: 验证账户已删除（尝试登录应失败）")
-	verifyClient := helper.NewClient()
+	verifyClient := manualtest.NewClient()
 	captcha, _ := verifyClient.GetCaptcha()
 	loginReq := auth.LoginDTO{
 		Account:   testUsername,

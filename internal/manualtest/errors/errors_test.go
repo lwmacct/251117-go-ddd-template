@@ -1,4 +1,4 @@
-package manualtest
+package errors_test
 
 import (
 	"testing"
@@ -6,7 +6,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/lwmacct/251117-go-ddd-template/internal/manualtest/helper"
+	"github.com/lwmacct/251117-go-ddd-template/internal/manualtest"
 )
 
 // TestNotFoundEndpoints 测试不存在资源的 404 响应（Table-Driven）。
@@ -15,11 +15,11 @@ import (
 //
 // 手动运行:
 //
-//	MANUAL=1 go test -v -run TestNotFoundEndpoints ./internal/manualtest/
+//	MANUAL=1 go test -v -run TestNotFoundEndpoints ./internal/manualtest/errors/
 func TestNotFoundEndpoints(t *testing.T) {
-	helper.SkipIfNotManual(t)
+	manualtest.SkipIfNotManual(t)
 
-	c := helper.NewClient()
+	c := manualtest.NewClient()
 	_, err := c.Login("admin", "admin123")
 	require.NoError(t, err, "登录失败")
 
@@ -71,12 +71,12 @@ func TestNotFoundEndpoints(t *testing.T) {
 //
 // 手动运行:
 //
-//	MANUAL=1 go test -v -run TestUnauthorizedEndpoints ./internal/manualtest/
+//	MANUAL=1 go test -v -run TestUnauthorizedEndpoints ./internal/manualtest/errors/
 func TestUnauthorizedEndpoints(t *testing.T) {
-	helper.SkipIfNotManual(t)
+	manualtest.SkipIfNotManual(t)
 
 	// 不登录，直接访问
-	c := helper.NewClient()
+	c := manualtest.NewClient()
 
 	cases := []struct {
 		name       string

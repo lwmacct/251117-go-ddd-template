@@ -1,4 +1,4 @@
-package manualtest
+package auth_test
 
 import (
 	"fmt"
@@ -9,7 +9,7 @@ import (
 
 	"github.com/lwmacct/251117-go-ddd-template/internal/application/auth"
 	"github.com/lwmacct/251117-go-ddd-template/internal/application/user"
-	"github.com/lwmacct/251117-go-ddd-template/internal/manualtest/helper"
+	"github.com/lwmacct/251117-go-ddd-template/internal/manualtest"
 )
 
 // TestLoginScenarios 测试各种登录场景（Table-Driven）。
@@ -18,9 +18,9 @@ import (
 //
 // 手动运行:
 //
-//	MANUAL=1 go test -v -run TestLoginScenarios ./internal/manualtest/
+//	MANUAL=1 go test -v -run TestLoginScenarios ./internal/manualtest/auth/
 func TestLoginScenarios(t *testing.T) {
-	helper.SkipIfNotManual(t)
+	manualtest.SkipIfNotManual(t)
 
 	cases := []struct {
 		name        string
@@ -61,7 +61,7 @@ func TestLoginScenarios(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			c := helper.NewClient()
+			c := manualtest.NewClient()
 
 			// 获取验证码
 			captcha, err := c.GetCaptcha()
@@ -101,11 +101,11 @@ func TestLoginScenarios(t *testing.T) {
 //
 // 手动运行:
 //
-//	MANUAL=1 go test -v -run TestGetCaptcha ./internal/manualtest/
+//	MANUAL=1 go test -v -run TestGetCaptcha ./internal/manualtest/auth/
 func TestGetCaptcha(t *testing.T) {
-	helper.SkipIfNotManual(t)
+	manualtest.SkipIfNotManual(t)
 
-	c := helper.NewClient()
+	c := manualtest.NewClient()
 
 	t.Log("获取验证码（开发模式）...")
 	captcha, err := c.GetCaptcha()
@@ -122,11 +122,11 @@ func TestGetCaptcha(t *testing.T) {
 //
 // 手动运行:
 //
-//	MANUAL=1 go test -v -run TestAuthFlow ./internal/manualtest/
+//	MANUAL=1 go test -v -run TestAuthFlow ./internal/manualtest/auth/
 func TestAuthFlow(t *testing.T) {
-	helper.SkipIfNotManual(t)
+	manualtest.SkipIfNotManual(t)
 
-	c := helper.NewClient()
+	c := manualtest.NewClient()
 
 	t.Log("步骤 1: 获取验证码")
 	captcha, err := c.GetCaptcha()
@@ -154,11 +154,11 @@ func TestAuthFlow(t *testing.T) {
 //
 // 手动运行:
 //
-//	MANUAL=1 go test -v -run TestRegister ./internal/manualtest/
+//	MANUAL=1 go test -v -run TestRegister ./internal/manualtest/auth/
 func TestRegister(t *testing.T) {
-	helper.SkipIfNotManual(t)
+	manualtest.SkipIfNotManual(t)
 
-	c := helper.NewClient()
+	c := manualtest.NewClient()
 
 	// 生成唯一用户名
 	testUsername := fmt.Sprintf("reguser_%d", time.Now().Unix())
@@ -175,7 +175,7 @@ func TestRegister(t *testing.T) {
 		FullName: "注册测试用户",
 	}
 
-	resp, err := helper.Post[auth.RegisterResultDTO](c, "/api/auth/register", registerReq)
+	resp, err := manualtest.Post[auth.RegisterResultDTO](c, "/api/auth/register", registerReq)
 	require.NoError(t, err, "注册失败")
 	require.NotZero(t, resp.UserID, "注册成功但未返回 user_id")
 	require.NotEmpty(t, resp.AccessToken, "注册成功但未返回 access_token")
@@ -186,7 +186,7 @@ func TestRegister(t *testing.T) {
 	t.Logf("  Access Token: %s...", resp.AccessToken[:50])
 
 	// 注册清理函数，确保即使后续操作失败也能删除测试用户
-	adminClient := helper.NewClient()
+	adminClient := manualtest.NewClient()
 	_, adminErr := adminClient.Login("admin", "admin123")
 	if adminErr == nil {
 		t.Cleanup(func() {
@@ -199,11 +199,11 @@ func TestRegister(t *testing.T) {
 //
 // 手动运行:
 //
-//	MANUAL=1 go test -v -run TestRegisterDuplicate ./internal/manualtest/
+//	MANUAL=1 go test -v -run TestRegisterDuplicate ./internal/manualtest/auth/
 func TestRegisterDuplicate(t *testing.T) {
-	helper.SkipIfNotManual(t)
+	manualtest.SkipIfNotManual(t)
 
-	c := helper.NewClient()
+	c := manualtest.NewClient()
 
 	// 生成唯一用户名
 	testUsername := fmt.Sprintf("dupuser_%d", time.Now().Unix())
@@ -217,12 +217,12 @@ func TestRegisterDuplicate(t *testing.T) {
 		FullName: "重复测试用户",
 	}
 
-	firstResp, err := helper.Post[auth.RegisterResultDTO](c, "/api/auth/register", registerReq)
+	firstResp, err := manualtest.Post[auth.RegisterResultDTO](c, "/api/auth/register", registerReq)
 	require.NoError(t, err, "首次注册失败")
 	t.Logf("  首次注册成功，用户 ID: %d", firstResp.UserID)
 
 	// 注册清理函数，确保即使后续操作失败也能删除测试用户
-	adminClient := helper.NewClient()
+	adminClient := manualtest.NewClient()
 	_, adminErr := adminClient.Login("admin", "admin123")
 	if adminErr == nil {
 		t.Cleanup(func() {
@@ -238,7 +238,7 @@ func TestRegisterDuplicate(t *testing.T) {
 		FullName: "重复测试用户2",
 	}
 
-	_, err = helper.Post[auth.RegisterResultDTO](c, "/api/auth/register", duplicateReq)
+	_, err = manualtest.Post[auth.RegisterResultDTO](c, "/api/auth/register", duplicateReq)
 	require.Error(t, err, "重复用户名应该返回错误")
 	t.Logf("  重复用户名被正确拒绝: %v", err)
 }
@@ -249,12 +249,12 @@ func TestRegisterDuplicate(t *testing.T) {
 //
 // 手动运行:
 //
-//	MANUAL=1 go test -v -run TestRefreshTokenScenarios ./internal/manualtest/
+//	MANUAL=1 go test -v -run TestRefreshTokenScenarios ./internal/manualtest/auth/
 func TestRefreshTokenScenarios(t *testing.T) {
-	helper.SkipIfNotManual(t)
+	manualtest.SkipIfNotManual(t)
 
 	// 先登录获取有效的 refresh_token
-	c := helper.NewClient()
+	c := manualtest.NewClient()
 	loginResp, err := c.Login("admin", "admin123")
 	require.NoError(t, err, "登录失败")
 
@@ -291,7 +291,7 @@ func TestRefreshTokenScenarios(t *testing.T) {
 				RefreshToken: tc.refreshToken,
 			}
 
-			resp, err := helper.Post[auth.RefreshTokenResultDTO](c, "/api/auth/refresh", refreshReq)
+			resp, err := manualtest.Post[auth.RefreshTokenResultDTO](c, "/api/auth/refresh", refreshReq)
 
 			if tc.wantSuccess {
 				require.NoError(t, err, "期望成功，但刷新失败")
@@ -309,11 +309,11 @@ func TestRefreshTokenScenarios(t *testing.T) {
 //
 // 手动运行:
 //
-//	MANUAL=1 go test -v -run TestGetCurrentUser ./internal/manualtest/
+//	MANUAL=1 go test -v -run TestGetCurrentUser ./internal/manualtest/auth/
 func TestGetCurrentUser(t *testing.T) {
-	helper.SkipIfNotManual(t)
+	manualtest.SkipIfNotManual(t)
 
-	c := helper.NewClient()
+	c := manualtest.NewClient()
 
 	t.Log("步骤 1: 登录")
 	_, err := c.Login("admin", "admin123")
@@ -321,7 +321,7 @@ func TestGetCurrentUser(t *testing.T) {
 	t.Log("  登录成功")
 
 	t.Log("步骤 2: 获取当前用户信息")
-	me, err := helper.Get[user.UserWithRolesDTO](c, "/api/user/profile", nil)
+	me, err := manualtest.Get[user.UserWithRolesDTO](c, "/api/user/profile", nil)
 	require.NoError(t, err, "获取当前用户失败")
 	require.NotZero(t, me.ID, "返回的用户 ID 为 0")
 	require.NotEmpty(t, me.Username, "返回的用户名为空")

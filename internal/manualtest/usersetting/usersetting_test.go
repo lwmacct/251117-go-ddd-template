@@ -1,4 +1,4 @@
-package manualtest
+package usersetting_test
 
 import (
 	"testing"
@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/lwmacct/251117-go-ddd-template/internal/application/setting"
-	"github.com/lwmacct/251117-go-ddd-template/internal/manualtest/helper"
+	"github.com/lwmacct/251117-go-ddd-template/internal/manualtest"
 )
 
 // extractSettingsFromSchema 从层级结构的 Schema 中提取扁平化的配置列表
@@ -65,13 +65,13 @@ func findTwoBooleanSettingsFromSchema(schema []setting.SettingsCategoryDTO) (*se
 //
 // 手动运行:
 //
-//	MANUAL=1 go test -v -run TestUserSettingsFlow ./internal/manualtest/
+//	MANUAL=1 go test -v -run TestUserSettingsFlow ./internal/manualtest/usersetting/
 func TestUserSettingsFlow(t *testing.T) {
-	c := helper.LoginAsAdmin(t)
+	c := manualtest.LoginAsAdmin(t)
 
 	// 测试 1: 获取用户配置 Schema（层级结构）
 	t.Log("\n测试 1: 获取用户配置 Schema")
-	schema, err := helper.Get[[]setting.SettingsCategoryDTO](c, "/api/user/settings", nil)
+	schema, err := manualtest.Get[[]setting.SettingsCategoryDTO](c, "/api/user/settings", nil)
 	require.NoError(t, err, "获取用户配置 Schema 失败")
 	t.Logf("  分类数: %d", len(*schema))
 
@@ -89,7 +89,7 @@ func TestUserSettingsFlow(t *testing.T) {
 
 	// 测试 2: 获取单个用户配置
 	t.Log("\n测试 2: 获取单个用户配置")
-	detail, err := helper.Get[setting.UserSettingDTO](c, "/api/user/settings/"+testKey, nil)
+	detail, err := manualtest.Get[setting.UserSettingDTO](c, "/api/user/settings/"+testKey, nil)
 	require.NoError(t, err, "获取用户配置失败")
 	t.Logf("  Key: %s", detail.Key)
 	t.Logf("  Value: %v", detail.Value)
@@ -120,7 +120,7 @@ func TestUserSettingsFlow(t *testing.T) {
 	setReq := map[string]any{
 		"value": newValue,
 	}
-	updated, err := helper.Put[setting.UserSettingDTO](c, "/api/user/settings/"+testKey, setReq)
+	updated, err := manualtest.Put[setting.UserSettingDTO](c, "/api/user/settings/"+testKey, setReq)
 	require.NoError(t, err, "设置用户配置失败")
 	t.Logf("  设置成功!")
 	t.Logf("  新 Value: %v", updated.Value)
@@ -141,7 +141,7 @@ func TestUserSettingsFlow(t *testing.T) {
 
 	// 测试 5: 验证重置结果
 	t.Log("\n测试 5: 验证重置结果")
-	resetDetail, err := helper.Get[setting.UserSettingDTO](c, "/api/user/settings/"+testKey, nil)
+	resetDetail, err := manualtest.Get[setting.UserSettingDTO](c, "/api/user/settings/"+testKey, nil)
 	require.NoError(t, err, "获取重置后配置失败")
 	t.Logf("  Value: %v", resetDetail.Value)
 	t.Logf("  DefaultValue: %v", resetDetail.DefaultValue)
@@ -157,7 +157,7 @@ func TestUserSettingsFlow(t *testing.T) {
 	if testSetting.IsCustomized {
 		t.Log("\n清理: 恢复原始自定义值...")
 		restoreReq := map[string]any{"value": originalValue}
-		_, err = helper.Put[setting.UserSettingDTO](c, "/api/user/settings/"+testKey, restoreReq)
+		_, err = manualtest.Put[setting.UserSettingDTO](c, "/api/user/settings/"+testKey, restoreReq)
 		if err != nil {
 			t.Logf("  恢复原始值失败: %v", err)
 		} else {
@@ -172,12 +172,12 @@ func TestUserSettingsFlow(t *testing.T) {
 //
 // 手动运行:
 //
-//	MANUAL=1 go test -v -run TestGetUserSettings ./internal/manualtest/
+//	MANUAL=1 go test -v -run TestGetUserSettings ./internal/manualtest/usersetting/
 func TestGetUserSettings(t *testing.T) {
-	c := helper.LoginAsAdmin(t)
+	c := manualtest.LoginAsAdmin(t)
 
 	t.Log("\n获取用户配置 Schema...")
-	schema, err := helper.Get[[]setting.SettingsCategoryDTO](c, "/api/user/settings", nil)
+	schema, err := manualtest.Get[[]setting.SettingsCategoryDTO](c, "/api/user/settings", nil)
 	require.NoError(t, err, "获取用户配置 Schema 失败")
 
 	t.Logf("Schema 层级结构 (分类数: %d):", len(*schema))
@@ -200,13 +200,13 @@ func TestGetUserSettings(t *testing.T) {
 //
 // 手动运行:
 //
-//	MANUAL=1 go test -v -run TestGetUserSetting ./internal/manualtest/
+//	MANUAL=1 go test -v -run TestGetUserSetting ./internal/manualtest/usersetting/
 func TestGetUserSetting(t *testing.T) {
-	c := helper.LoginAsAdmin(t)
+	c := manualtest.LoginAsAdmin(t)
 
 	// 先获取 Schema，取第一个配置 key
 	t.Log("\n获取配置 Schema...")
-	schema, err := helper.Get[[]setting.SettingsCategoryDTO](c, "/api/user/settings", nil)
+	schema, err := manualtest.Get[[]setting.SettingsCategoryDTO](c, "/api/user/settings", nil)
 	require.NoError(t, err, "获取用户配置 Schema 失败")
 
 	settings := extractSettingsFromSchema(*schema)
@@ -219,7 +219,7 @@ func TestGetUserSetting(t *testing.T) {
 
 	// 获取单个配置
 	t.Log("\n获取单个用户配置...")
-	detail, err := helper.Get[setting.UserSettingDTO](c, "/api/user/settings/"+testKey, nil)
+	detail, err := manualtest.Get[setting.UserSettingDTO](c, "/api/user/settings/"+testKey, nil)
 	require.NoError(t, err, "获取用户配置失败")
 
 	// 验证字段完整性
@@ -242,12 +242,12 @@ func TestGetUserSetting(t *testing.T) {
 //
 // 手动运行:
 //
-//	MANUAL=1 go test -v -run TestGetUserSettingsByCategory ./internal/manualtest/
+//	MANUAL=1 go test -v -run TestGetUserSettingsByCategory ./internal/manualtest/usersetting/
 func TestGetUserSettingsByCategory(t *testing.T) {
-	c := helper.LoginAsAdmin(t)
+	c := manualtest.LoginAsAdmin(t)
 
 	// 先获取全量 Schema 确定可用的分类
-	fullSchema, err := helper.Get[[]setting.SettingsCategoryDTO](c, "/api/user/settings", nil)
+	fullSchema, err := manualtest.Get[[]setting.SettingsCategoryDTO](c, "/api/user/settings", nil)
 	require.NoError(t, err, "获取全量 Schema 失败")
 	if len(*fullSchema) == 0 {
 		t.Skip("没有配置分类可供测试")
@@ -257,7 +257,7 @@ func TestGetUserSettingsByCategory(t *testing.T) {
 	testCategory := (*fullSchema)[0].Category
 	t.Logf("\n按类别筛选用户配置 (category=%s)...", testCategory)
 
-	schema, err := helper.Get[[]setting.SettingsCategoryDTO](c, "/api/user/settings", map[string]string{
+	schema, err := manualtest.Get[[]setting.SettingsCategoryDTO](c, "/api/user/settings", map[string]string{
 		"category": testCategory,
 	})
 	require.NoError(t, err, "获取用户配置失败")
@@ -277,13 +277,13 @@ func TestGetUserSettingsByCategory(t *testing.T) {
 //
 // 手动运行:
 //
-//	MANUAL=1 go test -v -run TestSetUserSetting ./internal/manualtest/
+//	MANUAL=1 go test -v -run TestSetUserSetting ./internal/manualtest/usersetting/
 func TestSetUserSetting(t *testing.T) {
-	c := helper.LoginAsAdmin(t)
+	c := manualtest.LoginAsAdmin(t)
 
 	// 获取 Schema 并找一个 boolean 类型配置（无复杂验证规则）
 	t.Log("\n获取可用配置...")
-	schema, err := helper.Get[[]setting.SettingsCategoryDTO](c, "/api/user/settings", nil)
+	schema, err := manualtest.Get[[]setting.SettingsCategoryDTO](c, "/api/user/settings", nil)
 	require.NoError(t, err, "获取用户配置 Schema 失败")
 
 	testSetting := findBooleanSettingFromSchema(*schema)
@@ -307,7 +307,7 @@ func TestSetUserSetting(t *testing.T) {
 	t.Log("\n设置用户配置...")
 	newValue := !origBool
 	setReq := map[string]any{"value": newValue}
-	updated, err := helper.Put[setting.UserSettingDTO](c, "/api/user/settings/"+testKey, setReq)
+	updated, err := manualtest.Put[setting.UserSettingDTO](c, "/api/user/settings/"+testKey, setReq)
 	require.NoError(t, err, "设置用户配置失败")
 
 	t.Logf("  新 Value: %v", updated.Value)
@@ -324,13 +324,13 @@ func TestSetUserSetting(t *testing.T) {
 //
 // 手动运行:
 //
-//	MANUAL=1 go test -v -run TestResetUserSetting ./internal/manualtest/
+//	MANUAL=1 go test -v -run TestResetUserSetting ./internal/manualtest/usersetting/
 func TestResetUserSetting(t *testing.T) {
-	c := helper.LoginAsAdmin(t)
+	c := manualtest.LoginAsAdmin(t)
 
 	// 获取 Schema 并找一个 boolean 类型配置（无复杂验证规则）
 	t.Log("\n获取可用配置...")
-	schema, err := helper.Get[[]setting.SettingsCategoryDTO](c, "/api/user/settings", nil)
+	schema, err := manualtest.Get[[]setting.SettingsCategoryDTO](c, "/api/user/settings", nil)
 	require.NoError(t, err, "获取用户配置 Schema 失败")
 
 	testSetting := findBooleanSettingFromSchema(*schema)
@@ -346,7 +346,7 @@ func TestResetUserSetting(t *testing.T) {
 	t.Log("\n先设置自定义值...")
 	origBool, _ := testSetting.Value.(bool)
 	setReq := map[string]any{"value": !origBool}
-	_, err = helper.Put[setting.UserSettingDTO](c, "/api/user/settings/"+testKey, setReq)
+	_, err = manualtest.Put[setting.UserSettingDTO](c, "/api/user/settings/"+testKey, setReq)
 	require.NoError(t, err, "设置用户配置失败")
 	t.Log("  设置成功")
 
@@ -359,7 +359,7 @@ func TestResetUserSetting(t *testing.T) {
 
 	// 验证重置结果
 	t.Log("\n验证重置结果...")
-	resetDetail, err := helper.Get[setting.UserSettingDTO](c, "/api/user/settings/"+testKey, nil)
+	resetDetail, err := manualtest.Get[setting.UserSettingDTO](c, "/api/user/settings/"+testKey, nil)
 	require.NoError(t, err, "获取重置后配置失败")
 
 	t.Logf("  Value: %v", resetDetail.Value)
@@ -376,13 +376,13 @@ func TestResetUserSetting(t *testing.T) {
 //
 // 手动运行:
 //
-//	MANUAL=1 go test -v -run TestBatchSetUserSettings ./internal/manualtest/
+//	MANUAL=1 go test -v -run TestBatchSetUserSettings ./internal/manualtest/usersetting/
 func TestBatchSetUserSettings(t *testing.T) {
-	c := helper.LoginAsAdmin(t)
+	c := manualtest.LoginAsAdmin(t)
 
 	// 获取 Schema 并找两个 boolean 类型配置（无复杂验证规则）
 	t.Log("\n获取可用配置...")
-	schema, err := helper.Get[[]setting.SettingsCategoryDTO](c, "/api/user/settings", nil)
+	schema, err := manualtest.Get[[]setting.SettingsCategoryDTO](c, "/api/user/settings", nil)
 	require.NoError(t, err, "获取用户配置 Schema 失败")
 
 	setting1, setting2 := findTwoBooleanSettingsFromSchema(*schema)
@@ -422,7 +422,7 @@ func TestBatchSetUserSettings(t *testing.T) {
 	// 验证设置结果
 	t.Log("\n验证设置结果...")
 	for _, key := range []string{setting1.Key, setting2.Key} {
-		detail, getErr := helper.Get[setting.UserSettingDTO](c, "/api/user/settings/"+key, nil)
+		detail, getErr := manualtest.Get[setting.UserSettingDTO](c, "/api/user/settings/"+key, nil)
 		require.NoError(t, getErr, "获取配置 %s 失败", key)
 		assert.True(t, detail.IsCustomized, "配置 %s 的 IsCustomized 应该为 true", key)
 		if detail.IsCustomized {
@@ -435,13 +435,13 @@ func TestBatchSetUserSettings(t *testing.T) {
 //
 // 手动运行:
 //
-//	MANUAL=1 go test -v -run TestUserSettingNotFound ./internal/manualtest/
+//	MANUAL=1 go test -v -run TestUserSettingNotFound ./internal/manualtest/usersetting/
 func TestUserSettingNotFound(t *testing.T) {
-	c := helper.LoginAsAdmin(t)
+	c := manualtest.LoginAsAdmin(t)
 
 	t.Log("\n获取不存在的用户配置...")
 	nonExistentKey := "non_existent_user_setting_key_12345"
-	_, err := helper.Get[setting.UserSettingDTO](c, "/api/user/settings/"+nonExistentKey, nil)
+	_, err := manualtest.Get[setting.UserSettingDTO](c, "/api/user/settings/"+nonExistentKey, nil)
 	require.Error(t, err, "期望获取不存在的配置返回错误，但成功了")
 	t.Logf("  ✓ 正确返回错误: %v", err)
 }

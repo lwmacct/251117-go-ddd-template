@@ -1,4 +1,4 @@
-package manualtest
+package role_test
 
 import (
 	"fmt"
@@ -8,20 +8,20 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/lwmacct/251117-go-ddd-template/internal/application/role"
-	"github.com/lwmacct/251117-go-ddd-template/internal/manualtest/helper"
+	"github.com/lwmacct/251117-go-ddd-template/internal/manualtest"
 )
 
 // TestRolesFlow 角色管理完整流程测试。
 //
 // 手动运行:
 //
-//	MANUAL=1 go test -v -run TestRolesFlow ./internal/manualtest/
+//	MANUAL=1 go test -v -run TestRolesFlow ./internal/manualtest/role/
 func TestRolesFlow(t *testing.T) {
-	c := helper.LoginAsAdmin(t)
+	c := manualtest.LoginAsAdmin(t)
 
 	// 测试 1: 获取角色列表
 	t.Log("\n测试 1: 获取角色列表")
-	roles, meta, err := helper.GetList[role.RoleDTO](c, "/api/system/roles", map[string]string{
+	roles, meta, err := manualtest.GetList[role.RoleDTO](c, "/api/system/roles", map[string]string{
 		"page":  "1",
 		"limit": "10",
 	})
@@ -36,7 +36,7 @@ func TestRolesFlow(t *testing.T) {
 
 	// 测试 2: 创建角色（使用工厂函数）
 	t.Log("\n测试 2: 创建角色")
-	testRole, markDeleted := helper.CreateTestRoleWithCleanupControl(t, c, "testrole")
+	testRole, markDeleted := manualtest.CreateTestRoleWithCleanupControl(t, c, "testrole")
 	t.Logf("  创建成功! 角色 ID: %d", testRole.RoleID)
 
 	// 验证角色 ID 有效
@@ -44,7 +44,7 @@ func TestRolesFlow(t *testing.T) {
 
 	// 测试 3: 获取角色详情
 	t.Log("\n测试 3: 获取角色详情")
-	roleDetail, err := helper.Get[role.RoleDTO](c, fmt.Sprintf("/api/system/roles/%d", testRole.RoleID), nil)
+	roleDetail, err := manualtest.Get[role.RoleDTO](c, fmt.Sprintf("/api/system/roles/%d", testRole.RoleID), nil)
 	require.NoError(t, err, "获取角色详情失败")
 	t.Logf("  角色名: %s, 显示名: %s", roleDetail.Name, roleDetail.DisplayName)
 	t.Logf("  描述: %s", roleDetail.Description)
@@ -61,7 +61,7 @@ func TestRolesFlow(t *testing.T) {
 		DisplayName: &newDisplayName,
 		Description: &newDescription,
 	}
-	updatedRole, err := helper.Put[role.RoleDTO](c, fmt.Sprintf("/api/system/roles/%d", testRole.RoleID), updateReq)
+	updatedRole, err := manualtest.Put[role.RoleDTO](c, fmt.Sprintf("/api/system/roles/%d", testRole.RoleID), updateReq)
 	require.NoError(t, err, "更新角色失败")
 	t.Logf("  更新成功! 显示名: %s", updatedRole.DisplayName)
 
@@ -89,12 +89,12 @@ func TestRolesFlow(t *testing.T) {
 //
 // 手动运行:
 //
-//	MANUAL=1 go test -v -run TestListRoles ./internal/manualtest/
+//	MANUAL=1 go test -v -run TestListRoles ./internal/manualtest/role/
 func TestListRoles(t *testing.T) {
-	c := helper.LoginAsAdmin(t)
+	c := manualtest.LoginAsAdmin(t)
 
 	t.Log("获取角色列表...")
-	roles, meta, err := helper.GetList[role.RoleDTO](c, "/api/system/roles", map[string]string{
+	roles, meta, err := manualtest.GetList[role.RoleDTO](c, "/api/system/roles", map[string]string{
 		"page":  "1",
 		"limit": "10",
 	})
@@ -116,7 +116,7 @@ func TestListRoles(t *testing.T) {
 
 // testSetRolePermissions 设置角色权限并验证（辅助函数）。
 // 新 RBAC 模型：使用 Operation Pattern + Resource Pattern
-func testSetRolePermissions(t *testing.T, c *helper.Client, roleID uint) {
+func testSetRolePermissions(t *testing.T, c *manualtest.Client, roleID uint) {
 	t.Helper()
 
 	// 新 RBAC 模型：使用 Operation Pattern + Resource Pattern
@@ -139,7 +139,7 @@ func testSetRolePermissions(t *testing.T, c *helper.Client, roleID uint) {
 	t.Log("  权限设置成功!")
 
 	// 验证权限已设置
-	roleWithPerms, err := helper.Get[role.RoleDTO](c, fmt.Sprintf("/api/system/roles/%d", roleID), nil)
+	roleWithPerms, err := manualtest.Get[role.RoleDTO](c, fmt.Sprintf("/api/system/roles/%d", roleID), nil)
 	require.NoError(t, err, "获取角色详情失败")
 	t.Logf("  验证：角色现有 %d 个权限", len(roleWithPerms.Permissions))
 
@@ -158,13 +158,13 @@ func testSetRolePermissions(t *testing.T, c *helper.Client, roleID uint) {
 //
 // 手动运行:
 //
-//	MANUAL=1 go test -v -run TestSystemRoleProtection ./internal/manualtest/
+//	MANUAL=1 go test -v -run TestSystemRoleProtection ./internal/manualtest/role/
 func TestSystemRoleProtection(t *testing.T) {
-	c := helper.LoginAsAdmin(t)
+	c := manualtest.LoginAsAdmin(t)
 
 	// 获取系统角色
 	t.Log("\n步骤 1: 获取系统角色")
-	roles, _, err := helper.GetList[role.RoleDTO](c, "/api/system/roles", nil)
+	roles, _, err := manualtest.GetList[role.RoleDTO](c, "/api/system/roles", nil)
 	require.NoError(t, err, "获取角色列表失败")
 
 	var adminRole, userRole *role.RoleDTO

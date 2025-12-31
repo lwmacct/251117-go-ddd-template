@@ -1,4 +1,4 @@
-package helper
+package manualtest
 
 import (
 	"fmt"
