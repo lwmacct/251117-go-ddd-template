@@ -113,6 +113,7 @@ type RouterDependencies struct {
 	TeamMemberHandler  *handler.TeamMemberHandler
 	UserOrgHandler     *handler.UserOrgHandler
 	ProductHandler     *handler.ProductHandler
+	TaskHandler        *handler.TaskHandler
 }
 
 // SetupRouterWithDeps 使用依赖对象配置路由（推荐方式）

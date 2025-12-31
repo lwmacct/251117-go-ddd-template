@@ -1303,6 +1303,21 @@ definitions:
         description: 消息描述
         type: string
     type: object
+  response.DataResponse-task_TaskDTO:
+    properties:
+      code:
+        description: HTTP 状态码
+        type: integer
+      data:
+        allOf:
+        - $ref: '#/definitions/task.TaskDTO'
+        description: 响应数据
+      error:
+        description: 错误详情（仅失败时）
+      message:
+        description: 消息描述
+        type: string
+    type: object
   response.DataResponse-twofa_EnableDTO:
     properties:
       code:
@@ -1521,6 +1536,24 @@ definitions:
         description: 数据列表
         items:
           $ref: '#/definitions/role.RoleDTO'
+        type: array
+      message:
+        description: 消息描述
+        type: string
+      meta:
+        allOf:
+        - $ref: '#/definitions/response.PaginationMeta'
+        description: 分页信息
+    type: object
+  response.PagedResponse-task_TaskDTO:
+    properties:
+      code:
+        description: HTTP 状态码
+        type: integer
+      data:
+        description: 数据列表
+        items:
+          $ref: '#/definitions/task.TaskDTO'
         type: array
       message:
         description: 消息描述
@@ -1897,6 +1930,61 @@ definitions:
         type: integer
       total_users:
         type: integer
+    type: object
+  task.CreateTaskDTO:
+    properties:
+      assignee_id:
+        type: integer
+      description:
+        maxLength: 2000
+        type: string
+      title:
+        maxLength: 200
+        minLength: 1
+        type: string
+    required:
+    - title
+    type: object
+  task.TaskDTO:
+    properties:
+      assignee_id:
+        type: integer
+      created_at:
+        type: string
+      created_by:
+        type: integer
+      description:
+        type: string
+      id:
+        type: integer
+      org_id:
+        type: integer
+      status:
+        type: string
+      team_id:
+        type: integer
+      title:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  task.UpdateTaskDTO:
+    properties:
+      assignee_id:
+        type: integer
+      description:
+        maxLength: 2000
+        type: string
+      status:
+        enum:
+        - pending
+        - in_progress
+        - completed
+        type: string
+      title:
+        maxLength: 200
+        minLength: 1
+        type: string
     type: object
   twofa.EnableDTO:
     properties:
@@ -3189,6 +3277,276 @@ paths:
       summary: 移除团队成员
       tags:
       - Organization - Team Member Management
+  /api/org/{org_id}/teams/{team_id}/tasks:
+    get:
+      consumes:
+      - application/json
+      description: 分页获取团队任务列表
+      parameters:
+      - description: 组织ID
+        in: path
+        minimum: 1
+        name: org_id
+        required: true
+        type: integer
+      - description: 团队ID
+        in: path
+        minimum: 1
+        name: team_id
+        required: true
+        type: integer
+      - default: 20
+        description: Limit 每页数量，默认 20，最大 1000
+        in: query
+        maximum: 1000
+        minimum: 1
+        name: limit
+        type: integer
+      - default: 1
+        description: Page 页码，从 1 开始
+        in: query
+        minimum: 1
+        name: page
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 任务列表
+          schema:
+            $ref: '#/definitions/response.PagedResponse-task_TaskDTO'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: 权限不足
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 任务列表
+      tags:
+      - Organization - Team Task Management
+    post:
+      consumes:
+      - application/json
+      description: 在团队中创建新任务
+      parameters:
+      - description: 组织ID
+        in: path
+        minimum: 1
+        name: org_id
+        required: true
+        type: integer
+      - description: 团队ID
+        in: path
+        minimum: 1
+        name: team_id
+        required: true
+        type: integer
+      - description: 任务信息
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/task.CreateTaskDTO'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: 任务创建成功
+          schema:
+            $ref: '#/definitions/response.DataResponse-task_TaskDTO'
+        "400":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: 权限不足
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 创建任务
+      tags:
+      - Organization - Team Task Management
+  /api/org/{org_id}/teams/{team_id}/tasks/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: 删除任务（软删除）
+      parameters:
+      - description: 组织ID
+        in: path
+        minimum: 1
+        name: org_id
+        required: true
+        type: integer
+      - description: 团队ID
+        in: path
+        minimum: 1
+        name: team_id
+        required: true
+        type: integer
+      - description: 任务ID
+        in: path
+        minimum: 1
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 删除成功
+          schema:
+            $ref: '#/definitions/response.MessageResponse'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: 权限不足
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: 任务不存在
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 删除任务
+      tags:
+      - Organization - Team Task Management
+    get:
+      consumes:
+      - application/json
+      description: 获取任务详细信息
+      parameters:
+      - description: 组织ID
+        in: path
+        minimum: 1
+        name: org_id
+        required: true
+        type: integer
+      - description: 团队ID
+        in: path
+        minimum: 1
+        name: team_id
+        required: true
+        type: integer
+      - description: 任务ID
+        in: path
+        minimum: 1
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 任务详情
+          schema:
+            $ref: '#/definitions/response.DataResponse-task_TaskDTO'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: 权限不足
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: 任务不存在
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 任务详情
+      tags:
+      - Organization - Team Task Management
+    put:
+      consumes:
+      - application/json
+      description: 更新任务信息或状态
+      parameters:
+      - description: 组织ID
+        in: path
+        minimum: 1
+        name: org_id
+        required: true
+        type: integer
+      - description: 团队ID
+        in: path
+        minimum: 1
+        name: team_id
+        required: true
+        type: integer
+      - description: 任务ID
+        in: path
+        minimum: 1
+        name: id
+        required: true
+        type: integer
+      - description: 更新信息
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/task.UpdateTaskDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 更新成功
+          schema:
+            $ref: '#/definitions/response.DataResponse-task_TaskDTO'
+        "400":
+          description: 参数错误或状态转换无效
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: 权限不足
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: 任务不存在
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 更新任务
+      tags:
+      - Organization - Team Task Management
   /api/system/auditlogs:
     get:
       consumes:

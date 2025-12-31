@@ -26,6 +26,7 @@ export * from './api/authentication2-faapi';
 export * from './api/organization-member-management-api';
 export * from './api/organization-team-management-api';
 export * from './api/organization-team-member-management-api';
+export * from './api/organization-team-task-management-api';
 export * from './api/overview-api';
 export * from './api/system-api';
 export * from './api/user-organization-api';

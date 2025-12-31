@@ -164,6 +164,15 @@ const (
 	OrgTeamMembersRemove Operation = "org:team-members:remove"
 )
 
+// Org 域 - 团队任务管理
+const (
+	OrgTasksCreate Operation = "org:tasks:create"
+	OrgTasksList   Operation = "org:tasks:list"
+	OrgTasksGet    Operation = "org:tasks:get"
+	OrgTasksUpdate Operation = "org:tasks:update"
+	OrgTasksDelete Operation = "org:tasks:delete"
+)
+
 // Sys 域 - 产品管理
 const (
 	SysProductsCreate Operation = "sys:products:create"

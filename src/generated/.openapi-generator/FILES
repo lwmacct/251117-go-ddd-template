@@ -14,6 +14,7 @@ api/authentication2-faapi.ts
 api/organization-member-management-api.ts
 api/organization-team-management-api.ts
 api/organization-team-member-management-api.ts
+api/organization-team-task-management-api.ts
 api/overview-api.ts
 api/system-api.ts
 api/user-organization-api.ts
@@ -111,6 +112,7 @@ models/response-data-response-setting-category-dto.ts
 models/response-data-response-setting-setting-dto.ts
 models/response-data-response-setting-user-setting-dto.ts
 models/response-data-response-stats-stats-dto.ts
+models/response-data-response-task-task-dto.ts
 models/response-data-response-twofa-enable-dto.ts
 models/response-data-response-twofa-setup-dto.ts
 models/response-data-response-twofa-status-dto.ts
@@ -126,6 +128,7 @@ models/response-paged-response-org-team-dto.ts
 models/response-paged-response-org-team-member-dto.ts
 models/response-paged-response-product-product-dto.ts
 models/response-paged-response-role-role-dto.ts
+models/response-paged-response-task-task-dto.ts
 models/response-paged-response-user-user-with-roles-dto.ts
 models/response-pagination-meta.ts
 models/role-create-dto.ts
@@ -148,6 +151,9 @@ models/setting-uiconfig-dto.ts
 models/setting-user-setting-dto.ts
 models/stats-audit-log-summary-dto.ts
 models/stats-stats-dto.ts
+models/task-create-task-dto.ts
+models/task-task-dto.ts
+models/task-update-task-dto.ts
 models/twofa-enable-dto.ts
 models/twofa-setup-dto.ts
 models/twofa-status-dto.ts
