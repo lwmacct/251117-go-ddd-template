@@ -16,6 +16,7 @@
 
 export * from './api/admin-audit-log-api';
 export * from './api/admin-organization-management-api';
+export * from './api/admin-product-management-api';
 export * from './api/admin-role-management-api';
 export * from './api/admin-setting-categories-api';
 export * from './api/admin-settings-api';

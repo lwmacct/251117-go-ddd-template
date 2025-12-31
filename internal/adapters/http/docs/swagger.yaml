@@ -747,6 +747,61 @@ definitions:
       user_id:
         type: integer
     type: object
+  product.CreateProductDTO:
+    properties:
+      description:
+        maxLength: 500
+        type: string
+      name:
+        maxLength: 100
+        minLength: 2
+        type: string
+      price:
+        minimum: 0
+        type: number
+      status:
+        enum:
+        - active
+        - inactive
+        type: string
+    required:
+    - name
+    type: object
+  product.ProductDTO:
+    properties:
+      created_at:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      price:
+        type: number
+      status:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  product.UpdateProductDTO:
+    properties:
+      description:
+        maxLength: 500
+        type: string
+      name:
+        maxLength: 100
+        minLength: 2
+        type: string
+      price:
+        minimum: 0
+        type: number
+      status:
+        enum:
+        - active
+        - inactive
+        type: string
+    type: object
   response.DataResponse-any:
     properties:
       code:
@@ -1143,6 +1198,21 @@ definitions:
         description: 消息描述
         type: string
     type: object
+  response.DataResponse-product_ProductDTO:
+    properties:
+      code:
+        description: HTTP 状态码
+        type: integer
+      data:
+        allOf:
+        - $ref: '#/definitions/product.ProductDTO'
+        description: 响应数据
+      error:
+        description: 错误详情（仅失败时）
+      message:
+        description: 消息描述
+        type: string
+    type: object
   response.DataResponse-role_CreateResultDTO:
     properties:
       code:
@@ -1415,6 +1485,24 @@ definitions:
         description: 数据列表
         items:
           $ref: '#/definitions/org.TeamMemberDTO'
+        type: array
+      message:
+        description: 消息描述
+        type: string
+      meta:
+        allOf:
+        - $ref: '#/definitions/response.PaginationMeta'
+        description: 分页信息
+    type: object
+  response.PagedResponse-product_ProductDTO:
+    properties:
+      code:
+        description: HTTP 状态码
+        type: integer
+      data:
+        description: 数据列表
+        items:
+          $ref: '#/definitions/product.ProductDTO'
         type: array
       message:
         description: 消息描述
@@ -2039,6 +2127,217 @@ info:
   title: Go DDD Template API
   version: 1.0.3
 paths:
+  /api/admin/products:
+    get:
+      consumes:
+      - application/json
+      description: 分页获取产品列表
+      parameters:
+      - default: 20
+        description: Limit 每页数量，默认 20，最大 1000
+        in: query
+        maximum: 1000
+        minimum: 1
+        name: limit
+        type: integer
+      - default: 1
+        description: Page 页码，从 1 开始
+        in: query
+        minimum: 1
+        name: page
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 产品列表
+          schema:
+            $ref: '#/definitions/response.PagedResponse-product_ProductDTO'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: 权限不足
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 产品列表
+      tags:
+      - Admin - Product Management
+    post:
+      consumes:
+      - application/json
+      description: 系统管理员创建可订阅的产品
+      parameters:
+      - description: 产品信息
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/product.CreateProductDTO'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: 产品创建成功
+          schema:
+            $ref: '#/definitions/response.DataResponse-product_ProductDTO'
+        "400":
+          description: 参数错误或产品名已存在
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: 权限不足
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 创建产品
+      tags:
+      - Admin - Product Management
+  /api/admin/products/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: 删除产品（软删除）
+      parameters:
+      - description: 产品ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 删除成功
+          schema:
+            $ref: '#/definitions/response.MessageResponse'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: 权限不足
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: 产品不存在
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 删除产品
+      tags:
+      - Admin - Product Management
+    get:
+      consumes:
+      - application/json
+      description: 获取产品详细信息
+      parameters:
+      - description: 产品ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 产品详情
+          schema:
+            $ref: '#/definitions/response.DataResponse-product_ProductDTO'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: 权限不足
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: 产品不存在
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 产品详情
+      tags:
+      - Admin - Product Management
+    put:
+      consumes:
+      - application/json
+      description: 更新产品信息
+      parameters:
+      - description: 产品ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 更新信息
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/product.UpdateProductDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 更新成功
+          schema:
+            $ref: '#/definitions/response.DataResponse-product_ProductDTO'
+        "400":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: 权限不足
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: 产品不存在
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "409":
+          description: 产品名称已存在
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 更新产品
+      tags:
+      - Admin - Product Management
   /api/auth/2fa/disable:
     post:
       consumes:

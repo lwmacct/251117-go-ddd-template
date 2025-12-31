@@ -8,6 +8,7 @@ import (
 	app_captcha "github.com/lwmacct/251117-go-ddd-template/internal/application/captcha"
 	"github.com/lwmacct/251117-go-ddd-template/internal/application/org"
 	"github.com/lwmacct/251117-go-ddd-template/internal/application/pat"
+	"github.com/lwmacct/251117-go-ddd-template/internal/application/product"
 	"github.com/lwmacct/251117-go-ddd-template/internal/application/role"
 	"github.com/lwmacct/251117-go-ddd-template/internal/application/setting"
 	"github.com/lwmacct/251117-go-ddd-template/internal/application/stats"
@@ -141,6 +142,15 @@ type OrganizationUseCases struct {
 	UserTeams *org.UserTeamsHandler
 }
 
+// ProductUseCases 产品相关用例处理器
+type ProductUseCases struct {
+	Create *product.CreateHandler
+	Update *product.UpdateHandler
+	Delete *product.DeleteHandler
+	Get    *product.GetHandler
+	List   *product.ListHandler
+}
+
 // --- Fx 模块 ---
 
 // UseCaseModule 提供按领域组织的所有用例处理器。
@@ -157,6 +167,7 @@ var UseCaseModule = fx.Module("usecase",
 		newCaptchaUseCases,
 		newTwoFAUseCases,
 		newOrganizationUseCases,
+		newProductUseCases,
 	),
 )
 
@@ -368,5 +379,15 @@ func newOrganizationUseCases(p organizationUseCasesParams) *OrganizationUseCases
 		// User View
 		UserOrgs:  org.NewUserOrgsHandler(p.MemberRepos.Query, p.OrgRepos.Query),
 		UserTeams: org.NewUserTeamsHandler(p.TeamMemberRepos.Query, p.TeamRepos.Query, p.OrgRepos.Query),
+	}
+}
+
+func newProductUseCases(repos persistence.ProductRepositories) *ProductUseCases {
+	return &ProductUseCases{
+		Create: product.NewCreateHandler(repos.Command, repos.Query),
+		Update: product.NewUpdateHandler(repos.Command, repos.Query),
+		Delete: product.NewDeleteHandler(repos.Command),
+		Get:    product.NewGetHandler(repos.Query),
+		List:   product.NewListHandler(repos.Query),
 	}
 }

@@ -640,4 +640,44 @@ var Registry = map[permission.Operation]routeMeta{
 		Summary:     "移除团队成员",
 		Description: "从团队中移除成员",
 	},
+
+	// ==================== Sys 域 - 产品管理 ====================
+	permission.SysProductsCreate: {
+		Method:      POST,
+		Path:        "/api/admin/products",
+		Tags:        "Admin - Product Management",
+		Audit:       true,
+		Summary:     "创建产品",
+		Description: "创建可订阅的产品",
+	},
+	permission.SysProductsList: {
+		Method:      GET,
+		Path:        "/api/admin/products",
+		Tags:        "Admin - Product Management",
+		Summary:     "产品列表",
+		Description: "分页获取产品列表",
+	},
+	permission.SysProductsGet: {
+		Method:      GET,
+		Path:        "/api/admin/products/:id",
+		Tags:        "Admin - Product Management",
+		Summary:     "产品详情",
+		Description: "获取产品详细信息",
+	},
+	permission.SysProductsUpdate: {
+		Method:      PUT,
+		Path:        "/api/admin/products/:id",
+		Tags:        "Admin - Product Management",
+		Audit:       true,
+		Summary:     "更新产品",
+		Description: "更新产品信息",
+	},
+	permission.SysProductsDelete: {
+		Method:      DELETE,
+		Path:        "/api/admin/products/:id",
+		Tags:        "Admin - Product Management",
+		Audit:       true,
+		Summary:     "删除产品",
+		Description: "删除产品（软删除）",
+	},
 }

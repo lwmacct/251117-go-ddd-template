@@ -133,5 +133,12 @@ func (deps *RouterDependencies) AllRouteBindings() []RouteBinding {
 		{permission.OrgTeamMembersList, deps.TeamMemberHandler.List},
 		{permission.OrgTeamMembersAdd, deps.TeamMemberHandler.Add},
 		{permission.OrgTeamMembersRemove, deps.TeamMemberHandler.Remove},
+
+		// ==================== Sys 域 - 产品管理 ====================
+		{permission.SysProductsCreate, deps.ProductHandler.Create},
+		{permission.SysProductsList, deps.ProductHandler.List},
+		{permission.SysProductsGet, deps.ProductHandler.Get},
+		{permission.SysProductsUpdate, deps.ProductHandler.Update},
+		{permission.SysProductsDelete, deps.ProductHandler.Delete},
 	}
 }

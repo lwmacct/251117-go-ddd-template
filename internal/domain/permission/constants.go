@@ -163,3 +163,12 @@ const (
 	OrgTeamMembersAdd    Operation = "org:team-members:add"
 	OrgTeamMembersRemove Operation = "org:team-members:remove"
 )
+
+// Sys 域 - 产品管理
+const (
+	SysProductsCreate Operation = "sys:products:create"
+	SysProductsList   Operation = "sys:products:list"
+	SysProductsGet    Operation = "sys:products:get"
+	SysProductsUpdate Operation = "sys:products:update"
+	SysProductsDelete Operation = "sys:products:delete"
+)

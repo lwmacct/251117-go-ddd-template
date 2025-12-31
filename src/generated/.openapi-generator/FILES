@@ -4,6 +4,7 @@
 api.ts
 api/admin-audit-log-api.ts
 api/admin-organization-management-api.ts
+api/admin-product-management-api.ts
 api/admin-role-management-api.ts
 api/admin-setting-categories-api.ts
 api/admin-settings-api.ts
@@ -74,6 +75,9 @@ models/pat-create-dto.ts
 models/pat-create-result-dto.ts
 models/pat-scope-info-dto.ts
 models/pat-token-dto.ts
+models/product-create-product-dto.ts
+models/product-product-dto.ts
+models/product-update-product-dto.ts
 models/response-data-response-any.ts
 models/response-data-response-array-org-user-org-dto.ts
 models/response-data-response-array-org-user-team-dto.ts
@@ -100,6 +104,7 @@ models/response-data-response-org-team-dto.ts
 models/response-data-response-org-team-member-dto.ts
 models/response-data-response-pat-create-result-dto.ts
 models/response-data-response-pat-token-dto.ts
+models/response-data-response-product-product-dto.ts
 models/response-data-response-role-create-result-dto.ts
 models/response-data-response-role-role-dto.ts
 models/response-data-response-setting-category-dto.ts
@@ -119,6 +124,7 @@ models/response-paged-response-org-member-dto.ts
 models/response-paged-response-org-org-dto.ts
 models/response-paged-response-org-team-dto.ts
 models/response-paged-response-org-team-member-dto.ts
+models/response-paged-response-product-product-dto.ts
 models/response-paged-response-role-role-dto.ts
 models/response-paged-response-user-user-with-roles-dto.ts
 models/response-pagination-meta.ts

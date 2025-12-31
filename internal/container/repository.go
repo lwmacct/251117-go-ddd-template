@@ -33,6 +33,9 @@ var RepositoryModule = fx.Module("repository",
 		persistence.NewOrgMemberRepositories,
 		persistence.NewTeamMemberRepositories,
 
+		// 产品仓储
+		persistence.NewProductRepositories,
+
 		// 带缓存装饰的仓储
 		newUserRepositoriesWithCache,
 		newSettingRepositoriesWithCache,

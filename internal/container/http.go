@@ -37,6 +37,7 @@ type HandlersResult struct {
 	Team             *handler.TeamHandler
 	TeamMember       *handler.TeamMemberHandler
 	UserOrganization *handler.UserOrgHandler
+	Product          *handler.ProductHandler
 }
 
 // HTTPModule 提供 HTTP 处理器和路由。
@@ -66,6 +67,7 @@ type handlersParams struct {
 	Captcha       *CaptchaUseCases
 	TwoFA         *TwoFAUseCases
 	Organization  *OrganizationUseCases
+	Product       *ProductUseCases
 }
 
 func newAllHandlers(p handlersParams) HandlersResult {
@@ -180,6 +182,13 @@ func newAllHandlers(p handlersParams) HandlersResult {
 			p.Organization.UserOrgs,
 			p.Organization.UserTeams,
 		),
+		Product: handler.NewProductHandler(
+			p.Product.Create,
+			p.Product.Update,
+			p.Product.Delete,
+			p.Product.Get,
+			p.Product.List,
+		),
 	}
 }
 
@@ -223,6 +232,7 @@ type routerParams struct {
 	Team        *handler.TeamHandler
 	TeamMember  *handler.TeamMemberHandler
 	UserOrg     *handler.UserOrgHandler
+	Product     *handler.ProductHandler
 }
 
 func newRouter(p routerParams) *gin.Engine {
@@ -255,6 +265,7 @@ func newRouter(p routerParams) *gin.Engine {
 		TeamHandler:            p.Team,
 		TeamMemberHandler:      p.TeamMember,
 		UserOrgHandler:         p.UserOrg,
+		ProductHandler:         p.Product,
 	}
 
 	return http.SetupRouterWithDeps(deps)
