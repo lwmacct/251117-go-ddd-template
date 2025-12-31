@@ -15,14 +15,19 @@
 
 
 export * from './api/admin-audit-log-api';
+export * from './api/admin-organization-management-api';
 export * from './api/admin-role-management-api';
 export * from './api/admin-setting-categories-api';
 export * from './api/admin-settings-api';
 export * from './api/admin-user-management-api';
 export * from './api/authentication-api';
 export * from './api/authentication2-faapi';
+export * from './api/organization-member-management-api';
+export * from './api/organization-team-management-api';
+export * from './api/organization-team-member-management-api';
 export * from './api/overview-api';
 export * from './api/system-api';
+export * from './api/user-organization-api';
 export * from './api/user-personal-access-token-api';
 export * from './api/user-profile-api';
 export * from './api/user-settings-api';

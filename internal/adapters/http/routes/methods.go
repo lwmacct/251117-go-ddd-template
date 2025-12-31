@@ -86,3 +86,28 @@ func Valid(o permission.Operation) bool {
 	_, ok := Registry[o]
 	return ok
 }
+
+// NeedsOrgContext 报告操作是否需要 OrgContext 中间件。
+// 当路由路径包含 :org_id 参数时返回 true。
+func NeedsOrgContext(o permission.Operation) bool {
+	path := Path(o)
+	return containsParam(path, ":org_id")
+}
+
+// NeedsTeamContext 报告操作是否需要 TeamContext 中间件。
+// 当路由路径包含 :team_id 参数时返回 true。
+func NeedsTeamContext(o permission.Operation) bool {
+	path := Path(o)
+	return containsParam(path, ":team_id")
+}
+
+// containsParam 检查路径是否包含指定的路由参数。
+func containsParam(path, param string) bool {
+	segments := splitPathSegments(path)
+	for _, seg := range segments {
+		if seg == param[1:] || seg == param { // 支持带冒号和不带冒号的匹配
+			return true
+		}
+	}
+	return false
+}

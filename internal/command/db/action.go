@@ -33,6 +33,12 @@ func getJoinTableIndexes() []database.JoinTableIndex {
 	return []database.JoinTableIndex{
 		{Table: "user_roles", Name: "idx_user_roles_user_id", Columns: "user_id"},
 		{Table: "user_roles", Name: "idx_user_roles_role_id", Columns: "role_id"},
+		// 组织和团队相关索引
+		{Table: "teams", Name: "idx_teams_org_id", Columns: "organization_id"},
+		{Table: "organization_members", Name: "idx_org_members_user_id", Columns: "user_id"},
+		{Table: "organization_members", Name: "idx_org_members_org_id", Columns: "organization_id"},
+		{Table: "team_members", Name: "idx_team_members_user_id", Columns: "user_id"},
+		{Table: "team_members", Name: "idx_team_members_team_id", Columns: "team_id"},
 	}
 }
 

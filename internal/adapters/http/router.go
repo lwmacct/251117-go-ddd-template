@@ -65,6 +65,7 @@ import (
 	"github.com/lwmacct/251117-go-ddd-template/internal/application/audit"
 
 	// 引入领域层包
+	"github.com/lwmacct/251117-go-ddd-template/internal/domain/organization"
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/permission"
 
 	// 引入基础设施包
@@ -86,21 +87,31 @@ type RouterDependencies struct {
 	PATService             *auth.PATService
 	PermissionCacheService *auth.PermissionCacheService
 
+	// Domain Repositories (for middleware)
+	OrgMemberQuery  organization.MemberQueryRepository
+	TeamQuery       organization.TeamQueryRepository
+	TeamMemberQuery organization.TeamMemberQueryRepository
+
 	// HTTP Handlers
-	HealthHandler      *handler.HealthHandler
-	AuthHandler        *handler.AuthHandler
-	CaptchaHandler     *handler.CaptchaHandler
-	RoleHandler        *handler.RoleHandler
-	SettingHandler     *handler.SettingHandler
-	UserSettingHandler *handler.UserSettingHandler
-	PATHandler         *handler.PATHandler
-	AuditLogHandler    *handler.AuditLogHandler
-	AdminUserHandler   *handler.AdminUserHandler
-	UserProfileHandler *handler.UserProfileHandler
-	OverviewHandler    *handler.OverviewHandler
-	TwoFAHandler       *handler.TwoFAHandler
-	CacheHandler       *handler.CacheHandler
-	OperationHandler   *handler.OperationHandler
+	HealthHandler       *handler.HealthHandler
+	AuthHandler         *handler.AuthHandler
+	CaptchaHandler      *handler.CaptchaHandler
+	RoleHandler         *handler.RoleHandler
+	SettingHandler      *handler.SettingHandler
+	UserSettingHandler  *handler.UserSettingHandler
+	PATHandler          *handler.PATHandler
+	AuditLogHandler     *handler.AuditLogHandler
+	AdminUserHandler    *handler.AdminUserHandler
+	UserProfileHandler  *handler.UserProfileHandler
+	OverviewHandler     *handler.OverviewHandler
+	TwoFAHandler        *handler.TwoFAHandler
+	CacheHandler        *handler.CacheHandler
+	OperationHandler    *handler.OperationHandler
+	OrganizationHandler *handler.OrganizationHandler
+	OrgMemberHandler    *handler.OrgMemberHandler
+	TeamHandler         *handler.TeamHandler
+	TeamMemberHandler   *handler.TeamMemberHandler
+	UserOrgHandler      *handler.UserOrganizationHandler
 }
 
 // SetupRouterWithDeps 使用依赖对象配置路由（推荐方式）
@@ -184,7 +195,7 @@ func registerRoutes(r *gin.Engine, deps *RouterDependencies) {
 }
 
 // buildMiddlewares 根据 Operation 自动构建中间件链
-// 中间件顺序：RequestID → OperationID → Auth → Permission → Audit
+// 中间件顺序：RequestID → OperationID → Auth → OrgContext → TeamContext → Permission → Audit
 func buildMiddlewares(deps *RouterDependencies, o permission.Operation) []gin.HandlerFunc {
 	var mws []gin.HandlerFunc
 
@@ -194,14 +205,25 @@ func buildMiddlewares(deps *RouterDependencies, o permission.Operation) []gin.Ha
 	// 2. Operation ID（所有请求）
 	mws = append(mws, middleware.SetOperationID(o.String()))
 
-	// 3. Auth + Permission（非公开操作需要认证和权限检查）
+	// 3. Auth + OrgContext/TeamContext + Permission（非公开操作需要认证和权限检查）
 	if !o.IsPublic() {
 		mws = append(mws, middleware.Auth(deps.JWTManager, deps.PATService, deps.PermissionCacheService))
-		// 新 RBAC 模型：使用 Operation 本身作为权限标识符
+
+		// 4. OrgContext（组织级操作，需验证用户是组织成员）
+		if routes.NeedsOrgContext(o) {
+			mws = append(mws, middleware.OrgContext(deps.OrgMemberQuery))
+		}
+
+		// 5. TeamContext（团队级操作，需验证用户是团队成员）
+		if routes.NeedsTeamContext(o) {
+			mws = append(mws, middleware.TeamContext(deps.TeamQuery, deps.TeamMemberQuery))
+		}
+
+		// 6. RBAC 权限检查：使用 Operation 本身作为权限标识符
 		mws = append(mws, middleware.RequireOperation(o))
 	}
 
-	// 4. Audit（需要审计的操作）
+	// 7. Audit（需要审计的操作）
 	if routes.NeedsAudit(o) {
 		mws = append(mws, middleware.AuditMiddleware(deps.CreateLogHandler))
 	}

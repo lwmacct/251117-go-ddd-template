@@ -1,0 +1,42 @@
+package organization
+
+import (
+	"context"
+	"fmt"
+
+	"github.com/lwmacct/251117-go-ddd-template/internal/domain/organization"
+)
+
+// MemberListHandler 成员列表查询处理器
+type MemberListHandler struct {
+	memberQuery organization.MemberQueryRepository
+}
+
+// NewMemberListHandler 创建成员列表查询处理器
+func NewMemberListHandler(memberQuery organization.MemberQueryRepository) *MemberListHandler {
+	return &MemberListHandler{memberQuery: memberQuery}
+}
+
+// MemberListResult 成员列表查询结果
+type MemberListResult struct {
+	Items []*MemberDTO
+	Total int64
+}
+
+// Handle 处理成员列表查询
+func (h *MemberListHandler) Handle(ctx context.Context, query ListMembersQuery) (*MemberListResult, error) {
+	members, err := h.memberQuery.ListByOrg(ctx, query.OrgID, query.Offset, query.Limit)
+	if err != nil {
+		return nil, fmt.Errorf("failed to list members: %w", err)
+	}
+
+	total, err := h.memberQuery.CountByOrg(ctx, query.OrgID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to count members: %w", err)
+	}
+
+	return &MemberListResult{
+		Items: ToMemberDTOs(members),
+		Total: total,
+	}, nil
+}

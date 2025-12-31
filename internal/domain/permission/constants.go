@@ -124,3 +124,42 @@ const (
 	SelfSettingsReset          Operation = "self:settings:reset"
 	SelfSettingsBatchSet       Operation = "self:settings:batch-set"
 )
+
+// Self 域 - 用户组织/团队
+const (
+	SelfOrgsList  Operation = "self:orgs:list"
+	SelfTeamsList Operation = "self:teams:list"
+)
+
+// Sys 域 - 组织管理
+const (
+	SysOrgsCreate Operation = "sys:orgs:create"
+	SysOrgsList   Operation = "sys:orgs:list"
+	SysOrgsGet    Operation = "sys:orgs:get"
+	SysOrgsUpdate Operation = "sys:orgs:update"
+	SysOrgsDelete Operation = "sys:orgs:delete"
+)
+
+// Org 域 - 组织成员管理
+const (
+	OrgMembersList       Operation = "org:members:list"
+	OrgMembersAdd        Operation = "org:members:add"
+	OrgMembersRemove     Operation = "org:members:remove"
+	OrgMembersUpdateRole Operation = "org:members:update-role"
+)
+
+// Org 域 - 团队管理
+const (
+	OrgTeamsCreate Operation = "org:teams:create"
+	OrgTeamsList   Operation = "org:teams:list"
+	OrgTeamsGet    Operation = "org:teams:get"
+	OrgTeamsUpdate Operation = "org:teams:update"
+	OrgTeamsDelete Operation = "org:teams:delete"
+)
+
+// Org 域 - 团队成员管理
+const (
+	OrgTeamMembersList   Operation = "org:team-members:list"
+	OrgTeamMembersAdd    Operation = "org:team-members:add"
+	OrgTeamMembersRemove Operation = "org:team-members:remove"
+)

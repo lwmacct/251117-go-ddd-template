@@ -11,26 +11,32 @@ import (
 	"github.com/lwmacct/251117-go-ddd-template/internal/config"
 	"github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/auth"
 	"github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/health"
+	"github.com/lwmacct/251117-go-ddd-template/internal/infrastructure/persistence"
 )
 
 // HandlersResult 使用 fx.Out 批量返回所有 HTTP 处理器。
 type HandlersResult struct {
 	fx.Out
 
-	Health      *handler.HealthHandler
-	Auth        *handler.AuthHandler
-	Captcha     *handler.CaptchaHandler
-	AdminUser   *handler.AdminUserHandler
-	UserProfile *handler.UserProfileHandler
-	Role        *handler.RoleHandler
-	Setting     *handler.SettingHandler
-	UserSetting *handler.UserSettingHandler
-	PAT         *handler.PATHandler
-	AuditLog    *handler.AuditLogHandler
-	Overview    *handler.OverviewHandler
-	TwoFA       *handler.TwoFAHandler
-	Cache       *handler.CacheHandler
-	Operation   *handler.OperationHandler
+	Health           *handler.HealthHandler
+	Auth             *handler.AuthHandler
+	Captcha          *handler.CaptchaHandler
+	AdminUser        *handler.AdminUserHandler
+	UserProfile      *handler.UserProfileHandler
+	Role             *handler.RoleHandler
+	Setting          *handler.SettingHandler
+	UserSetting      *handler.UserSettingHandler
+	PAT              *handler.PATHandler
+	AuditLog         *handler.AuditLogHandler
+	Overview         *handler.OverviewHandler
+	TwoFA            *handler.TwoFAHandler
+	Cache            *handler.CacheHandler
+	Operation        *handler.OperationHandler
+	Organization     *handler.OrganizationHandler
+	OrgMember        *handler.OrgMemberHandler
+	Team             *handler.TeamHandler
+	TeamMember       *handler.TeamMemberHandler
+	UserOrganization *handler.UserOrganizationHandler
 }
 
 // HTTPModule 提供 HTTP 处理器和路由。
@@ -59,6 +65,7 @@ type handlersParams struct {
 	Stats         *StatsUseCases
 	Captcha       *CaptchaUseCases
 	TwoFA         *TwoFAUseCases
+	Organization  *OrganizationUseCases
 }
 
 func newAllHandlers(p handlersParams) HandlersResult {
@@ -144,6 +151,35 @@ func newAllHandlers(p handlersParams) HandlersResult {
 			cache.NewDeleteHandler(p.AdminCacheSvc),
 		),
 		Operation: handler.NewOperationHandler(),
+		Organization: handler.NewOrganizationHandler(
+			p.Organization.Create,
+			p.Organization.Update,
+			p.Organization.Delete,
+			p.Organization.Get,
+			p.Organization.List,
+		),
+		OrgMember: handler.NewOrgMemberHandler(
+			p.Organization.MemberAdd,
+			p.Organization.MemberRemove,
+			p.Organization.MemberUpdateRole,
+			p.Organization.MemberList,
+		),
+		Team: handler.NewTeamHandler(
+			p.Organization.TeamCreate,
+			p.Organization.TeamUpdate,
+			p.Organization.TeamDelete,
+			p.Organization.TeamGet,
+			p.Organization.TeamList,
+		),
+		TeamMember: handler.NewTeamMemberHandler(
+			p.Organization.TeamMemberAdd,
+			p.Organization.TeamMemberRemove,
+			p.Organization.TeamMemberList,
+		),
+		UserOrganization: handler.NewUserOrganizationHandler(
+			p.Organization.UserOrgs,
+			p.Organization.UserTeams,
+		),
 	}
 }
 
@@ -162,21 +198,31 @@ type routerParams struct {
 	// UseCases
 	AuditLog *AuditLogUseCases
 
+	// Repositories (for middleware)
+	MemberRepos     persistence.OrgMemberRepositories
+	TeamRepos       persistence.TeamRepositories
+	TeamMemberRepos persistence.TeamMemberRepositories
+
 	// Handlers
-	Health      *handler.HealthHandler
-	Auth        *handler.AuthHandler
-	Captcha     *handler.CaptchaHandler
-	AdminUser   *handler.AdminUserHandler
-	UserProfile *handler.UserProfileHandler
-	Role        *handler.RoleHandler
-	Setting     *handler.SettingHandler
-	UserSetting *handler.UserSettingHandler
-	PAT         *handler.PATHandler
-	AuditLogH   *handler.AuditLogHandler
-	Overview    *handler.OverviewHandler
-	TwoFA       *handler.TwoFAHandler
-	Cache       *handler.CacheHandler
-	Operation   *handler.OperationHandler
+	Health           *handler.HealthHandler
+	Auth             *handler.AuthHandler
+	Captcha          *handler.CaptchaHandler
+	AdminUser        *handler.AdminUserHandler
+	UserProfile      *handler.UserProfileHandler
+	Role             *handler.RoleHandler
+	Setting          *handler.SettingHandler
+	UserSetting      *handler.UserSettingHandler
+	PAT              *handler.PATHandler
+	AuditLogH        *handler.AuditLogHandler
+	Overview         *handler.OverviewHandler
+	TwoFA            *handler.TwoFAHandler
+	Cache            *handler.CacheHandler
+	Operation        *handler.OperationHandler
+	Organization     *handler.OrganizationHandler
+	OrgMember        *handler.OrgMemberHandler
+	Team             *handler.TeamHandler
+	TeamMember       *handler.TeamMemberHandler
+	UserOrganization *handler.UserOrganizationHandler
 }
 
 func newRouter(p routerParams) *gin.Engine {
@@ -187,6 +233,9 @@ func newRouter(p routerParams) *gin.Engine {
 		JWTManager:             p.JWTManager,
 		PATService:             p.PATService,
 		PermissionCacheService: p.PermissionCache,
+		OrgMemberQuery:         p.MemberRepos.Query,
+		TeamQuery:              p.TeamRepos.Query,
+		TeamMemberQuery:        p.TeamMemberRepos.Query,
 		HealthHandler:          p.Health,
 		AuthHandler:            p.Auth,
 		CaptchaHandler:         p.Captcha,
@@ -201,6 +250,11 @@ func newRouter(p routerParams) *gin.Engine {
 		TwoFAHandler:           p.TwoFA,
 		CacheHandler:           p.Cache,
 		OperationHandler:       p.Operation,
+		OrganizationHandler:    p.Organization,
+		OrgMemberHandler:       p.OrgMember,
+		TeamHandler:            p.Team,
+		TeamMemberHandler:      p.TeamMember,
+		UserOrgHandler:         p.UserOrganization,
 	}
 
 	return adapthttp.SetupRouterWithDeps(deps)

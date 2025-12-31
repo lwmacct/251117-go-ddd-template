@@ -440,6 +440,240 @@ definitions:
       ui_config:
         type: string
     type: object
+  organization.AddMemberDTO:
+    properties:
+      role:
+        enum:
+        - owner
+        - admin
+        - member
+        type: string
+      user_id:
+        type: integer
+    required:
+    - role
+    - user_id
+    type: object
+  organization.AddTeamMemberDTO:
+    properties:
+      role:
+        enum:
+        - lead
+        - member
+        type: string
+      user_id:
+        type: integer
+    required:
+    - role
+    - user_id
+    type: object
+  organization.CreateOrgDTO:
+    properties:
+      avatar:
+        maxLength: 255
+        type: string
+      description:
+        maxLength: 500
+        type: string
+      display_name:
+        maxLength: 100
+        minLength: 2
+        type: string
+      name:
+        maxLength: 50
+        minLength: 2
+        type: string
+    required:
+    - display_name
+    - name
+    type: object
+  organization.CreateTeamDTO:
+    properties:
+      description:
+        maxLength: 500
+        type: string
+      display_name:
+        maxLength: 100
+        minLength: 2
+        type: string
+      name:
+        maxLength: 50
+        minLength: 2
+        type: string
+    required:
+    - display_name
+    - name
+    type: object
+  organization.MemberDTO:
+    properties:
+      avatar:
+        type: string
+      email:
+        type: string
+      full_name:
+        type: string
+      id:
+        type: integer
+      joined_at:
+        type: string
+      organization_id:
+        type: integer
+      role:
+        type: string
+      user_id:
+        type: integer
+      username:
+        description: 关联的用户信息（可选加载）
+        type: string
+    type: object
+  organization.OrgDTO:
+    properties:
+      avatar:
+        type: string
+      created_at:
+        type: string
+      description:
+        type: string
+      display_name:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      status:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  organization.TeamDTO:
+    properties:
+      created_at:
+        type: string
+      description:
+        type: string
+      display_name:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      organization_id:
+        type: integer
+      updated_at:
+        type: string
+    type: object
+  organization.TeamMemberDTO:
+    properties:
+      avatar:
+        type: string
+      email:
+        type: string
+      full_name:
+        type: string
+      id:
+        type: integer
+      joined_at:
+        type: string
+      role:
+        type: string
+      team_id:
+        type: integer
+      user_id:
+        type: integer
+      username:
+        description: 关联的用户信息（可选加载）
+        type: string
+    type: object
+  organization.UpdateMemberRoleDTO:
+    properties:
+      role:
+        enum:
+        - owner
+        - admin
+        - member
+        type: string
+    required:
+    - role
+    type: object
+  organization.UpdateOrgDTO:
+    properties:
+      avatar:
+        maxLength: 255
+        type: string
+      description:
+        maxLength: 500
+        type: string
+      display_name:
+        maxLength: 100
+        minLength: 2
+        type: string
+      status:
+        enum:
+        - active
+        - suspended
+        type: string
+    type: object
+  organization.UpdateTeamDTO:
+    properties:
+      description:
+        maxLength: 500
+        type: string
+      display_name:
+        maxLength: 100
+        minLength: 2
+        type: string
+    type: object
+  organization.UserOrgDTO:
+    properties:
+      avatar:
+        type: string
+      created_at:
+        type: string
+      description:
+        type: string
+      display_name:
+        type: string
+      id:
+        type: integer
+      joined_at:
+        description: 加入时间
+        type: string
+      name:
+        type: string
+      role:
+        description: 用户在该组织中的角色
+        type: string
+      status:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  organization.UserTeamDTO:
+    properties:
+      created_at:
+        type: string
+      description:
+        type: string
+      display_name:
+        type: string
+      id:
+        type: integer
+      joined_at:
+        description: 加入时间
+        type: string
+      name:
+        type: string
+      org_name:
+        description: 所属组织名称
+        type: string
+      organization_id:
+        type: integer
+      role:
+        description: 用户在该团队中的角色
+        type: string
+      updated_at:
+        type: string
+    type: object
   pat.CreateDTO:
     properties:
       description:
@@ -520,6 +754,38 @@ definitions:
         type: integer
       data:
         description: 响应数据
+      error:
+        description: 错误详情（仅失败时）
+      message:
+        description: 消息描述
+        type: string
+    type: object
+  response.DataResponse-array_organization_UserOrgDTO:
+    properties:
+      code:
+        description: HTTP 状态码
+        type: integer
+      data:
+        description: 响应数据
+        items:
+          $ref: '#/definitions/organization.UserOrgDTO'
+        type: array
+      error:
+        description: 错误详情（仅失败时）
+      message:
+        description: 消息描述
+        type: string
+    type: object
+  response.DataResponse-array_organization_UserTeamDTO:
+    properties:
+      code:
+        description: HTTP 状态码
+        type: integer
+      data:
+        description: 响应数据
+        items:
+          $ref: '#/definitions/organization.UserTeamDTO'
+        type: array
       error:
         description: 错误详情（仅失败时）
       message:
@@ -787,6 +1053,66 @@ definitions:
         description: 消息描述
         type: string
     type: object
+  response.DataResponse-organization_MemberDTO:
+    properties:
+      code:
+        description: HTTP 状态码
+        type: integer
+      data:
+        allOf:
+        - $ref: '#/definitions/organization.MemberDTO'
+        description: 响应数据
+      error:
+        description: 错误详情（仅失败时）
+      message:
+        description: 消息描述
+        type: string
+    type: object
+  response.DataResponse-organization_OrgDTO:
+    properties:
+      code:
+        description: HTTP 状态码
+        type: integer
+      data:
+        allOf:
+        - $ref: '#/definitions/organization.OrgDTO'
+        description: 响应数据
+      error:
+        description: 错误详情（仅失败时）
+      message:
+        description: 消息描述
+        type: string
+    type: object
+  response.DataResponse-organization_TeamDTO:
+    properties:
+      code:
+        description: HTTP 状态码
+        type: integer
+      data:
+        allOf:
+        - $ref: '#/definitions/organization.TeamDTO'
+        description: 响应数据
+      error:
+        description: 错误详情（仅失败时）
+      message:
+        description: 消息描述
+        type: string
+    type: object
+  response.DataResponse-organization_TeamMemberDTO:
+    properties:
+      code:
+        description: HTTP 状态码
+        type: integer
+      data:
+        allOf:
+        - $ref: '#/definitions/organization.TeamMemberDTO'
+        description: 响应数据
+      error:
+        description: 错误详情（仅失败时）
+      message:
+        description: 消息描述
+        type: string
+    type: object
   response.DataResponse-pat_CreateResultDTO:
     properties:
       code:
@@ -1017,6 +1343,78 @@ definitions:
         description: 数据列表
         items:
           $ref: '#/definitions/audit.AuditLogDTO'
+        type: array
+      message:
+        description: 消息描述
+        type: string
+      meta:
+        allOf:
+        - $ref: '#/definitions/response.PaginationMeta'
+        description: 分页信息
+    type: object
+  response.PagedResponse-organization_MemberDTO:
+    properties:
+      code:
+        description: HTTP 状态码
+        type: integer
+      data:
+        description: 数据列表
+        items:
+          $ref: '#/definitions/organization.MemberDTO'
+        type: array
+      message:
+        description: 消息描述
+        type: string
+      meta:
+        allOf:
+        - $ref: '#/definitions/response.PaginationMeta'
+        description: 分页信息
+    type: object
+  response.PagedResponse-organization_OrgDTO:
+    properties:
+      code:
+        description: HTTP 状态码
+        type: integer
+      data:
+        description: 数据列表
+        items:
+          $ref: '#/definitions/organization.OrgDTO'
+        type: array
+      message:
+        description: 消息描述
+        type: string
+      meta:
+        allOf:
+        - $ref: '#/definitions/response.PaginationMeta'
+        description: 分页信息
+    type: object
+  response.PagedResponse-organization_TeamDTO:
+    properties:
+      code:
+        description: HTTP 状态码
+        type: integer
+      data:
+        description: 数据列表
+        items:
+          $ref: '#/definitions/organization.TeamDTO'
+        type: array
+      message:
+        description: 消息描述
+        type: string
+      meta:
+        allOf:
+        - $ref: '#/definitions/response.PaginationMeta'
+        description: 分页信息
+    type: object
+  response.PagedResponse-organization_TeamMemberDTO:
+    properties:
+      code:
+        description: HTTP 状态码
+        type: integer
+      data:
+        description: 数据列表
+        items:
+          $ref: '#/definitions/organization.TeamMemberDTO'
         type: array
       message:
         description: 消息描述
@@ -1882,6 +2280,616 @@ paths:
       summary: 注册
       tags:
       - Authentication
+  /api/org/{org_id}/members:
+    get:
+      consumes:
+      - application/json
+      description: 分页获取组织成员列表
+      parameters:
+      - description: 组织ID
+        in: path
+        minimum: 1
+        name: org_id
+        required: true
+        type: integer
+      - default: 20
+        description: Limit 每页数量，默认 20，最大 1000
+        in: query
+        maximum: 1000
+        minimum: 1
+        name: limit
+        type: integer
+      - default: 1
+        description: Page 页码，从 1 开始
+        in: query
+        minimum: 1
+        name: page
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成员列表
+          schema:
+            $ref: '#/definitions/response.PagedResponse-organization_MemberDTO'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: 权限不足
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 成员列表
+      tags:
+      - Organization - Member Management
+    post:
+      consumes:
+      - application/json
+      description: 添加用户到组织
+      parameters:
+      - description: 组织ID
+        in: path
+        minimum: 1
+        name: org_id
+        required: true
+        type: integer
+      - description: 成员信息
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/organization.AddMemberDTO'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: 成员添加成功
+          schema:
+            $ref: '#/definitions/response.DataResponse-organization_MemberDTO'
+        "400":
+          description: 参数错误或成员已存在
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: 权限不足
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 添加成员
+      tags:
+      - Organization - Member Management
+  /api/org/{org_id}/members/{user_id}:
+    delete:
+      consumes:
+      - application/json
+      description: 从组织中移除成员
+      parameters:
+      - description: 组织ID
+        in: path
+        minimum: 1
+        name: org_id
+        required: true
+        type: integer
+      - description: 用户ID
+        in: path
+        minimum: 1
+        name: user_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成员移除成功
+          schema:
+            $ref: '#/definitions/response.MessageResponse'
+        "400":
+          description: 无效的ID或无法移除最后的所有者
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: 权限不足
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: 成员不存在
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 移除成员
+      tags:
+      - Organization - Member Management
+  /api/org/{org_id}/members/{user_id}/role:
+    put:
+      consumes:
+      - application/json
+      description: 更新组织成员的角色
+      parameters:
+      - description: 组织ID
+        in: path
+        minimum: 1
+        name: org_id
+        required: true
+        type: integer
+      - description: 用户ID
+        in: path
+        minimum: 1
+        name: user_id
+        required: true
+        type: integer
+      - description: 角色信息
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/organization.UpdateMemberRoleDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 角色更新成功
+          schema:
+            $ref: '#/definitions/response.DataResponse-organization_MemberDTO'
+        "400":
+          description: 参数错误或无法降级最后的所有者
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: 权限不足
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: 成员不存在
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 更新成员角色
+      tags:
+      - Organization - Member Management
+  /api/org/{org_id}/teams:
+    get:
+      consumes:
+      - application/json
+      description: 分页获取组织内的团队列表
+      parameters:
+      - description: 组织ID
+        in: path
+        minimum: 1
+        name: org_id
+        required: true
+        type: integer
+      - default: 20
+        description: Limit 每页数量，默认 20，最大 1000
+        in: query
+        maximum: 1000
+        minimum: 1
+        name: limit
+        type: integer
+      - default: 1
+        description: Page 页码，从 1 开始
+        in: query
+        minimum: 1
+        name: page
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 团队列表
+          schema:
+            $ref: '#/definitions/response.PagedResponse-organization_TeamDTO'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: 权限不足
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 团队列表
+      tags:
+      - Organization - Team Management
+    post:
+      consumes:
+      - application/json
+      description: 在组织内创建新团队
+      parameters:
+      - description: 组织ID
+        in: path
+        minimum: 1
+        name: org_id
+        required: true
+        type: integer
+      - description: 团队信息
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/organization.CreateTeamDTO'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: 团队创建成功
+          schema:
+            $ref: '#/definitions/response.DataResponse-organization_TeamDTO'
+        "400":
+          description: 参数错误或团队名已存在
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: 权限不足
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 创建团队
+      tags:
+      - Organization - Team Management
+  /api/org/{org_id}/teams/{team_id}:
+    delete:
+      consumes:
+      - application/json
+      description: 软删除团队
+      parameters:
+      - description: 组织ID
+        in: path
+        minimum: 1
+        name: org_id
+        required: true
+        type: integer
+      - description: 团队ID
+        in: path
+        minimum: 1
+        name: team_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 团队删除成功
+          schema:
+            $ref: '#/definitions/response.MessageResponse'
+        "400":
+          description: 无效的ID
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: 权限不足
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: 团队不存在
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 删除团队
+      tags:
+      - Organization - Team Management
+    get:
+      consumes:
+      - application/json
+      description: 获取团队详情
+      parameters:
+      - description: 组织ID
+        in: path
+        minimum: 1
+        name: org_id
+        required: true
+        type: integer
+      - description: 团队ID
+        in: path
+        minimum: 1
+        name: team_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 团队详情
+          schema:
+            $ref: '#/definitions/response.DataResponse-organization_TeamDTO'
+        "400":
+          description: 无效的ID
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: 权限不足
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: 团队不存在
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 团队详情
+      tags:
+      - Organization - Team Management
+    put:
+      consumes:
+      - application/json
+      description: 更新团队信息
+      parameters:
+      - description: 组织ID
+        in: path
+        minimum: 1
+        name: org_id
+        required: true
+        type: integer
+      - description: 团队ID
+        in: path
+        minimum: 1
+        name: team_id
+        required: true
+        type: integer
+      - description: 更新信息
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/organization.UpdateTeamDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 团队更新成功
+          schema:
+            $ref: '#/definitions/response.DataResponse-organization_TeamDTO'
+        "400":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: 权限不足
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: 团队不存在
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 更新团队
+      tags:
+      - Organization - Team Management
+  /api/org/{org_id}/teams/{team_id}/members:
+    get:
+      consumes:
+      - application/json
+      description: 分页获取团队成员列表
+      parameters:
+      - description: 组织ID
+        in: path
+        minimum: 1
+        name: org_id
+        required: true
+        type: integer
+      - description: 团队ID
+        in: path
+        minimum: 1
+        name: team_id
+        required: true
+        type: integer
+      - default: 20
+        description: Limit 每页数量，默认 20，最大 1000
+        in: query
+        maximum: 1000
+        minimum: 1
+        name: limit
+        type: integer
+      - default: 1
+        description: Page 页码，从 1 开始
+        in: query
+        minimum: 1
+        name: page
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成员列表
+          schema:
+            $ref: '#/definitions/response.PagedResponse-organization_TeamMemberDTO'
+        "400":
+          description: 无效的ID
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: 权限不足
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 团队成员列表
+      tags:
+      - Organization - Team Member Management
+    post:
+      consumes:
+      - application/json
+      description: 添加用户到团队（用户必须先是组织成员）
+      parameters:
+      - description: 组织ID
+        in: path
+        minimum: 1
+        name: org_id
+        required: true
+        type: integer
+      - description: 团队ID
+        in: path
+        minimum: 1
+        name: team_id
+        required: true
+        type: integer
+      - description: 成员信息
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/organization.AddTeamMemberDTO'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: 成员添加成功
+          schema:
+            $ref: '#/definitions/response.DataResponse-organization_TeamMemberDTO'
+        "400":
+          description: 参数错误、成员已存在或用户非组织成员
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: 权限不足
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 添加团队成员
+      tags:
+      - Organization - Team Member Management
+  /api/org/{org_id}/teams/{team_id}/members/{user_id}:
+    delete:
+      consumes:
+      - application/json
+      description: 从团队中移除成员
+      parameters:
+      - description: 组织ID
+        in: path
+        minimum: 1
+        name: org_id
+        required: true
+        type: integer
+      - description: 团队ID
+        in: path
+        minimum: 1
+        name: team_id
+        required: true
+        type: integer
+      - description: 用户ID
+        in: path
+        minimum: 1
+        name: user_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成员移除成功
+          schema:
+            $ref: '#/definitions/response.MessageResponse'
+        "400":
+          description: 无效的ID
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: 权限不足
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: 成员不存在
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 移除团队成员
+      tags:
+      - Organization - Team Member Management
   /api/system/auditlogs:
     get:
       consumes:
@@ -2202,6 +3210,226 @@ paths:
       summary: 操作列表
       tags:
       - System
+  /api/system/organizations:
+    get:
+      consumes:
+      - application/json
+      description: 分页获取所有组织
+      parameters:
+      - default: 20
+        description: Limit 每页数量，默认 20，最大 1000
+        in: query
+        maximum: 1000
+        minimum: 1
+        name: limit
+        type: integer
+      - default: 1
+        description: Page 页码，从 1 开始
+        in: query
+        minimum: 1
+        name: page
+        type: integer
+      - enum:
+        - active
+        - inactive
+        in: query
+        name: status
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 组织列表
+          schema:
+            $ref: '#/definitions/response.PagedResponse-organization_OrgDTO'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: 权限不足
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 组织列表
+      tags:
+      - Admin - Organization Management
+    post:
+      consumes:
+      - application/json
+      description: 系统管理员创建新组织
+      parameters:
+      - description: 组织信息
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/organization.CreateOrgDTO'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: 组织创建成功
+          schema:
+            $ref: '#/definitions/response.DataResponse-organization_OrgDTO'
+        "400":
+          description: 参数错误或组织名已存在
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: 权限不足
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 创建组织
+      tags:
+      - Admin - Organization Management
+  /api/system/organizations/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: 软删除组织
+      parameters:
+      - description: 组织ID
+        in: path
+        minimum: 1
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 组织删除成功
+          schema:
+            $ref: '#/definitions/response.MessageResponse'
+        "400":
+          description: 无效的组织ID
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: 权限不足
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: 组织不存在
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 删除组织
+      tags:
+      - Admin - Organization Management
+    get:
+      consumes:
+      - application/json
+      description: 根据 ID 获取组织详情
+      parameters:
+      - description: 组织ID
+        in: path
+        minimum: 1
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 组织详情
+          schema:
+            $ref: '#/definitions/response.DataResponse-organization_OrgDTO'
+        "400":
+          description: 无效的组织ID
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: 权限不足
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: 组织不存在
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 组织详情
+      tags:
+      - Admin - Organization Management
+    put:
+      consumes:
+      - application/json
+      description: 更新组织信息
+      parameters:
+      - description: 组织ID
+        in: path
+        minimum: 1
+        name: id
+        required: true
+        type: integer
+      - description: 更新信息
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/organization.UpdateOrgDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 组织更新成功
+          schema:
+            $ref: '#/definitions/response.DataResponse-organization_OrgDTO'
+        "400":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: 权限不足
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: 组织不存在
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 更新组织
+      tags:
+      - Admin - Organization Management
   /api/system/overview/stats:
     get:
       consumes:
@@ -3255,6 +4483,31 @@ paths:
       summary: 注销账户
       tags:
       - User - Profile
+  /api/user/organizations:
+    get:
+      consumes:
+      - application/json
+      description: 获取当前用户加入的所有组织
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 组织列表
+          schema:
+            $ref: '#/definitions/response.DataResponse-array_organization_UserOrgDTO'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 我的组织
+      tags:
+      - User - Organization
   /api/user/password:
     put:
       consumes:
@@ -3545,6 +4798,36 @@ paths:
       summary: 配置分类列表
       tags:
       - User - Settings
+  /api/user/teams:
+    get:
+      consumes:
+      - application/json
+      description: 获取当前用户加入的所有团队（可按组织筛选）
+      parameters:
+      - in: query
+        minimum: 1
+        name: org_id
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 团队列表
+          schema:
+            $ref: '#/definitions/response.DataResponse-array_organization_UserTeamDTO'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 我的团队
+      tags:
+      - User - Organization
   /api/user/tokens:
     get:
       consumes:

@@ -6,6 +6,7 @@ import (
 	"github.com/lwmacct/251117-go-ddd-template/internal/application/audit"
 	"github.com/lwmacct/251117-go-ddd-template/internal/application/auth"
 	app_captcha "github.com/lwmacct/251117-go-ddd-template/internal/application/captcha"
+	"github.com/lwmacct/251117-go-ddd-template/internal/application/organization"
 	"github.com/lwmacct/251117-go-ddd-template/internal/application/pat"
 	"github.com/lwmacct/251117-go-ddd-template/internal/application/role"
 	"github.com/lwmacct/251117-go-ddd-template/internal/application/setting"
@@ -108,6 +109,38 @@ type TwoFAUseCases struct {
 	GetStatus    *app_twofa.GetStatusHandler
 }
 
+// OrganizationUseCases 组织相关用例处理器
+type OrganizationUseCases struct {
+	// Organization
+	Create *organization.CreateHandler
+	Update *organization.UpdateHandler
+	Delete *organization.DeleteHandler
+	Get    *organization.GetHandler
+	List   *organization.ListHandler
+
+	// Member
+	MemberAdd        *organization.MemberAddHandler
+	MemberRemove     *organization.MemberRemoveHandler
+	MemberUpdateRole *organization.MemberUpdateRoleHandler
+	MemberList       *organization.MemberListHandler
+
+	// Team
+	TeamCreate *organization.TeamCreateHandler
+	TeamUpdate *organization.TeamUpdateHandler
+	TeamDelete *organization.TeamDeleteHandler
+	TeamGet    *organization.TeamGetHandler
+	TeamList   *organization.TeamListHandler
+
+	// Team Member
+	TeamMemberAdd    *organization.TeamMemberAddHandler
+	TeamMemberRemove *organization.TeamMemberRemoveHandler
+	TeamMemberList   *organization.TeamMemberListHandler
+
+	// User View
+	UserOrgs  *organization.UserOrgsHandler
+	UserTeams *organization.UserTeamsHandler
+}
+
 // --- Fx 模块 ---
 
 // UseCaseModule 提供按领域组织的所有用例处理器。
@@ -123,6 +156,7 @@ var UseCaseModule = fx.Module("usecase",
 		newStatsUseCases,
 		newCaptchaUseCases,
 		newTwoFAUseCases,
+		newOrganizationUseCases,
 	),
 )
 
@@ -291,5 +325,48 @@ func newTwoFAUseCases(twofaSvc domain_twofa.Service) *TwoFAUseCases {
 		VerifyEnable: app_twofa.NewVerifyEnableHandler(twofaSvc),
 		Disable:      app_twofa.NewDisableHandler(twofaSvc),
 		GetStatus:    app_twofa.NewGetStatusHandler(twofaSvc),
+	}
+}
+
+// organizationUseCasesParams 聚合 Organization 用例所需的依赖。
+type organizationUseCasesParams struct {
+	fx.In
+
+	OrgRepos        persistence.OrganizationRepositories
+	TeamRepos       persistence.TeamRepositories
+	MemberRepos     persistence.OrgMemberRepositories
+	TeamMemberRepos persistence.TeamMemberRepositories
+}
+
+func newOrganizationUseCases(p organizationUseCasesParams) *OrganizationUseCases {
+	return &OrganizationUseCases{
+		// Organization
+		Create: organization.NewCreateHandler(p.OrgRepos.Command, p.OrgRepos.Query, p.MemberRepos.Command),
+		Update: organization.NewUpdateHandler(p.OrgRepos.Command, p.OrgRepos.Query),
+		Delete: organization.NewDeleteHandler(p.OrgRepos.Command, p.OrgRepos.Query, p.MemberRepos.Query, p.TeamRepos.Query),
+		Get:    organization.NewGetHandler(p.OrgRepos.Query),
+		List:   organization.NewListHandler(p.OrgRepos.Query),
+
+		// Member
+		MemberAdd:        organization.NewMemberAddHandler(p.MemberRepos.Command, p.MemberRepos.Query, p.OrgRepos.Query),
+		MemberRemove:     organization.NewMemberRemoveHandler(p.MemberRepos.Command, p.MemberRepos.Query),
+		MemberUpdateRole: organization.NewMemberUpdateRoleHandler(p.MemberRepos.Command, p.MemberRepos.Query),
+		MemberList:       organization.NewMemberListHandler(p.MemberRepos.Query),
+
+		// Team
+		TeamCreate: organization.NewTeamCreateHandler(p.TeamRepos.Command, p.TeamRepos.Query, p.OrgRepos.Query, p.TeamMemberRepos.Command),
+		TeamUpdate: organization.NewTeamUpdateHandler(p.TeamRepos.Command, p.TeamRepos.Query),
+		TeamDelete: organization.NewTeamDeleteHandler(p.TeamRepos.Command, p.TeamRepos.Query, p.TeamMemberRepos.Query),
+		TeamGet:    organization.NewTeamGetHandler(p.TeamRepos.Query),
+		TeamList:   organization.NewTeamListHandler(p.TeamRepos.Query),
+
+		// Team Member
+		TeamMemberAdd:    organization.NewTeamMemberAddHandler(p.TeamMemberRepos.Command, p.TeamMemberRepos.Query, p.TeamRepos.Query, p.MemberRepos.Query),
+		TeamMemberRemove: organization.NewTeamMemberRemoveHandler(p.TeamMemberRepos.Command, p.TeamRepos.Query),
+		TeamMemberList:   organization.NewTeamMemberListHandler(p.TeamMemberRepos.Query, p.TeamRepos.Query),
+
+		// User View
+		UserOrgs:  organization.NewUserOrgsHandler(p.MemberRepos.Query, p.OrgRepos.Query),
+		UserTeams: organization.NewUserTeamsHandler(p.TeamMemberRepos.Query, p.TeamRepos.Query, p.OrgRepos.Query),
 	}
 }

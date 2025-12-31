@@ -486,4 +486,158 @@ var Registry = map[permission.Operation]routeMeta{
 		Summary:     "批量设置配置",
 		Description: "批量设置用户配置",
 	},
+
+	// ==================== Self 域 - 用户组织/团队 ====================
+	permission.SelfOrgsList: {
+		Method:      GET,
+		Path:        "/api/user/organizations",
+		Tags:        "User - Organization",
+		Summary:     "我的组织",
+		Description: "获取当前用户加入的所有组织",
+	},
+	permission.SelfTeamsList: {
+		Method:      GET,
+		Path:        "/api/user/teams",
+		Tags:        "User - Organization",
+		Summary:     "我的团队",
+		Description: "获取当前用户加入的所有团队",
+	},
+
+	// ==================== Sys 域 - 组织管理 ====================
+	permission.SysOrgsCreate: {
+		Method:      POST,
+		Path:        "/api/system/organizations",
+		Tags:        "Admin - Organization Management",
+		Audit:       true,
+		Summary:     "创建组织",
+		Description: "系统管理员创建新组织",
+	},
+	permission.SysOrgsList: {
+		Method:      GET,
+		Path:        "/api/system/organizations",
+		Tags:        "Admin - Organization Management",
+		Summary:     "组织列表",
+		Description: "分页获取所有组织",
+	},
+	permission.SysOrgsGet: {
+		Method:      GET,
+		Path:        "/api/system/organizations/:id",
+		Tags:        "Admin - Organization Management",
+		Summary:     "组织详情",
+		Description: "根据 ID 获取组织详情",
+	},
+	permission.SysOrgsUpdate: {
+		Method:      PUT,
+		Path:        "/api/system/organizations/:id",
+		Tags:        "Admin - Organization Management",
+		Audit:       true,
+		Summary:     "更新组织",
+		Description: "更新组织信息",
+	},
+	permission.SysOrgsDelete: {
+		Method:      DELETE,
+		Path:        "/api/system/organizations/:id",
+		Tags:        "Admin - Organization Management",
+		Audit:       true,
+		Summary:     "删除组织",
+		Description: "软删除组织",
+	},
+
+	// ==================== Org 域 - 组织成员管理 ====================
+	permission.OrgMembersList: {
+		Method:      GET,
+		Path:        "/api/org/:org_id/members",
+		Tags:        "Organization - Member Management",
+		Summary:     "成员列表",
+		Description: "分页获取组织成员列表",
+	},
+	permission.OrgMembersAdd: {
+		Method:      POST,
+		Path:        "/api/org/:org_id/members",
+		Tags:        "Organization - Member Management",
+		Audit:       true,
+		Summary:     "添加成员",
+		Description: "添加用户到组织",
+	},
+	permission.OrgMembersRemove: {
+		Method:      DELETE,
+		Path:        "/api/org/:org_id/members/:user_id",
+		Tags:        "Organization - Member Management",
+		Audit:       true,
+		Summary:     "移除成员",
+		Description: "从组织中移除成员",
+	},
+	permission.OrgMembersUpdateRole: {
+		Method:      PUT,
+		Path:        "/api/org/:org_id/members/:user_id/role",
+		Tags:        "Organization - Member Management",
+		Audit:       true,
+		Summary:     "更新成员角色",
+		Description: "更新组织成员的角色",
+	},
+
+	// ==================== Org 域 - 团队管理 ====================
+	permission.OrgTeamsCreate: {
+		Method:      POST,
+		Path:        "/api/org/:org_id/teams",
+		Tags:        "Organization - Team Management",
+		Audit:       true,
+		Summary:     "创建团队",
+		Description: "在组织内创建新团队",
+	},
+	permission.OrgTeamsList: {
+		Method:      GET,
+		Path:        "/api/org/:org_id/teams",
+		Tags:        "Organization - Team Management",
+		Summary:     "团队列表",
+		Description: "分页获取组织内的团队列表",
+	},
+	permission.OrgTeamsGet: {
+		Method:      GET,
+		Path:        "/api/org/:org_id/teams/:team_id",
+		Tags:        "Organization - Team Management",
+		Summary:     "团队详情",
+		Description: "获取团队详情",
+	},
+	permission.OrgTeamsUpdate: {
+		Method:      PUT,
+		Path:        "/api/org/:org_id/teams/:team_id",
+		Tags:        "Organization - Team Management",
+		Audit:       true,
+		Summary:     "更新团队",
+		Description: "更新团队信息",
+	},
+	permission.OrgTeamsDelete: {
+		Method:      DELETE,
+		Path:        "/api/org/:org_id/teams/:team_id",
+		Tags:        "Organization - Team Management",
+		Audit:       true,
+		Summary:     "删除团队",
+		Description: "软删除团队",
+	},
+
+	// ==================== Org 域 - 团队成员管理 ====================
+	permission.OrgTeamMembersList: {
+		Method:      GET,
+		Path:        "/api/org/:org_id/teams/:team_id/members",
+		Tags:        "Organization - Team Member Management",
+		Summary:     "团队成员列表",
+		Description: "分页获取团队成员列表",
+	},
+	permission.OrgTeamMembersAdd: {
+		Method:      POST,
+		Path:        "/api/org/:org_id/teams/:team_id/members",
+		Tags:        "Organization - Team Member Management",
+		Audit:       true,
+		Summary:     "添加团队成员",
+		Description: "添加用户到团队（用户必须先是组织成员）",
+	},
+	permission.OrgTeamMembersRemove: {
+		Method:      DELETE,
+		Path:        "/api/org/:org_id/teams/:team_id/members/:user_id",
+		Tags:        "Organization - Team Member Management",
+		Audit:       true,
+		Summary:     "移除团队成员",
+		Description: "从团队中移除成员",
+	},
 }

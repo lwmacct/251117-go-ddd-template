@@ -12,7 +12,9 @@ import (
 
 // RequireOperation 检查用户是否有执行指定 Operation 的权限。
 // URN 风格 RBAC：权限为 Operation Pattern + Resource Pattern 组合。
-// 对于 self: 域的操作，自动检查 self:user:@me 资源匹配。
+// 根据 Operation 的 Scope 自动检查对应资源：
+//   - self: 域 → 检查 self:user:@me
+//   - org: 域 → 检查 org.{org_id}:*:* 和 org.{org_id}.team.{team_id}:*:*
 func RequireOperation(op permission.Operation) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		permissions, exists := c.Get("permissions")
@@ -34,10 +36,13 @@ func RequireOperation(op permission.Operation) gin.HandlerFunc {
 		operationStr := string(op)
 
 		// 确定要检查的资源
-		// 对于 self: 域的操作，检查 self:user:@me 和 *:*:*
 		resourcesToCheck := []string{"*:*:*"}
-		if op.Scope() == "self" {
+		scope := op.Scope()
+		switch scope {
+		case "self":
 			resourcesToCheck = appendSelfResources(c, resourcesToCheck)
+		case "org":
+			resourcesToCheck = appendOrgResources(c, resourcesToCheck)
 		}
 
 		for _, p := range permList {
@@ -265,25 +270,76 @@ func isAdmin(c *gin.Context) bool {
 	return slices.Contains(rolesList, "admin")
 }
 
+// buildContextVars 从 Gin Context 构建变量映射。
+// 收集 @me, @org, @team 等运行时变量。
+func buildContextVars(c *gin.Context) map[string]string {
+	vars := make(map[string]string)
+
+	// @me - 当前用户 ID
+	if userID, exists := c.Get("user_id"); exists {
+		if uid, ok := userID.(uint); ok {
+			vars["@me"] = strconv.FormatUint(uint64(uid), 10)
+		}
+	}
+
+	// @org - 当前组织 ID（由 OrgContext 中间件注入）
+	if orgID, exists := c.Get("org_id"); exists {
+		if oid, ok := orgID.(uint); ok {
+			vars["@org"] = strconv.FormatUint(uint64(oid), 10)
+		}
+	}
+
+	// @team - 当前团队 ID（由 TeamContext 中间件注入）
+	if teamID, exists := c.Get("team_id"); exists {
+		if tid, ok := teamID.(uint); ok {
+			vars["@team"] = strconv.FormatUint(uint64(tid), 10)
+		}
+	}
+
+	return vars
+}
+
 // appendSelfResources 为 self: 域操作添加 self:user:@me 资源（解析后）
 func appendSelfResources(c *gin.Context, resources []string) []string {
-	userID, exists := c.Get("user_id")
-	if !exists {
-		return resources
-	}
-	uid, ok := userID.(uint)
-	if !ok {
+	vars := buildContextVars(c)
+	if vars["@me"] == "" {
 		return resources
 	}
 
-	// 创建 resolver 并解析 @me
-	resolver := permission.NewResolver(map[string]string{
-		"@me": strconv.FormatUint(uint64(uid), 10),
-	})
+	resolver := permission.NewResolver(vars)
 	selfUserResource := resolver.ResolveString("self:user:@me")
 
 	return append(resources,
 		"self:user:@me",  // 原始模式（用于匹配 self:user:@me 模式的权限）
 		selfUserResource, // 解析后的具体资源（如 self:user:123）
 	)
+}
+
+// appendOrgResources 为 org: 域操作添加组织级资源。
+// 返回 org.{org_id}:*:* 形式的资源标识符。
+func appendOrgResources(c *gin.Context, resources []string) []string {
+	vars := buildContextVars(c)
+	if vars["@org"] == "" {
+		return resources
+	}
+
+	resolver := permission.NewResolver(vars)
+
+	// 组织级资源：org.{org_id}:*:*
+	orgResource := resolver.ResolveString("org.@org:*:*")
+	resources = append(resources,
+		"org.@org:*:*", // 原始模式
+		orgResource,    // 解析后（如 org.123:*:*）
+	)
+
+	// 如果有团队上下文，添加团队级资源
+	if vars["@team"] != "" {
+		teamResource := resolver.ResolveString("org.@org.team.@team:*:*")
+		resources = append(resources,
+			"org.@org.team.@team:*:*", // 原始模式
+			teamResource,              // 解析后（如 org.123.team.456:*:*）
+		)
+	}
+
+	return resources
 }
