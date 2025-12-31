@@ -9,18 +9,18 @@ import (
 
 // ListHandler 获取审计日志列表查询处理器
 type ListHandler struct {
-	auditLogQueryRepo audit.QueryRepository
+	auditQueryRepo audit.QueryRepository
 }
 
 // NewListHandler 创建 ListHandler 实例
-func NewListHandler(auditLogQueryRepo audit.QueryRepository) *ListHandler {
+func NewListHandler(auditQueryRepo audit.QueryRepository) *ListHandler {
 	return &ListHandler{
-		auditLogQueryRepo: auditLogQueryRepo,
+		auditQueryRepo: auditQueryRepo,
 	}
 }
 
 // Handle 处理获取审计日志列表查询
-func (h *ListHandler) Handle(ctx context.Context, query ListQuery) (*ListLogsDTO, error) {
+func (h *ListHandler) Handle(ctx context.Context, query ListQuery) (*ListDTO, error) {
 	filter := audit.FilterOptions{
 		Page:      query.Page,
 		Limit:     query.Limit,
@@ -32,18 +32,18 @@ func (h *ListHandler) Handle(ctx context.Context, query ListQuery) (*ListLogsDTO
 		EndDate:   query.EndDate,
 	}
 
-	logs, total, err := h.auditLogQueryRepo.List(ctx, filter)
+	logs, total, err := h.auditQueryRepo.List(ctx, filter)
 	if err != nil {
 		return nil, fmt.Errorf("failed to list audit logs: %w", err)
 	}
 
 	// 转换为 DTO
-	logResponses := make([]*AuditLogDTO, 0, len(logs))
+	logResponses := make([]*AuditDTO, 0, len(logs))
 	for i := range logs {
-		logResponses = append(logResponses, ToAuditLogDTO(&logs[i]))
+		logResponses = append(logResponses, ToAuditDTO(&logs[i]))
 	}
 
-	return &ListLogsDTO{
+	return &ListDTO{
 		Logs:  logResponses,
 		Total: total,
 		Page:  query.Page,

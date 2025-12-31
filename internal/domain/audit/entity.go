@@ -2,8 +2,8 @@ package audit
 
 import "time"
 
-// AuditLog 审计日志实体，用于追踪用户操作
-type AuditLog struct {
+// Audit 审计日志实体，用于追踪用户操作
+type Audit struct {
 	ID          uint
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
@@ -41,22 +41,22 @@ const (
 )
 
 // IsSuccess 检查操作是否成功
-func (a *AuditLog) IsSuccess() bool {
+func (a *Audit) IsSuccess() bool {
 	return a.Status == StatusSuccess
 }
 
 // IsFailed 检查操作是否失败
-func (a *AuditLog) IsFailed() bool {
+func (a *Audit) IsFailed() bool {
 	return a.Status == StatusFailed
 }
 
 // IsPending 检查操作是否待定
-func (a *AuditLog) IsPending() bool {
+func (a *Audit) IsPending() bool {
 	return a.Status == StatusPending
 }
 
 // GetResourceIdentifier 获取完整资源标识符
-func (a *AuditLog) GetResourceIdentifier() string {
+func (a *Audit) GetResourceIdentifier() string {
 	if a.ResourceID == "" {
 		return a.Resource
 	}
@@ -64,27 +64,27 @@ func (a *AuditLog) GetResourceIdentifier() string {
 }
 
 // IsRecentlyCreated 检查是否在指定时间范围内创建
-func (a *AuditLog) IsRecentlyCreated(duration time.Duration) bool {
+func (a *Audit) IsRecentlyCreated(duration time.Duration) bool {
 	return time.Since(a.CreatedAt) <= duration
 }
 
 // HasDetails 检查是否有详情信息
-func (a *AuditLog) HasDetails() bool {
+func (a *Audit) HasDetails() bool {
 	return a.Details != ""
 }
 
 // IsUserAction 检查是否为用户操作（有用户 ID）
-func (a *AuditLog) IsUserAction() bool {
+func (a *Audit) IsUserAction() bool {
 	return a.UserID > 0
 }
 
 // IsSystemAction 检查是否为系统操作（无用户 ID）
-func (a *AuditLog) IsSystemAction() bool {
+func (a *Audit) IsSystemAction() bool {
 	return a.UserID == 0
 }
 
 // MatchesFilter 检查日志是否匹配过滤条件
-func (a *AuditLog) MatchesFilter(filter FilterOptions) bool {
+func (a *Audit) MatchesFilter(filter FilterOptions) bool {
 	if filter.UserID != nil && a.UserID != *filter.UserID {
 		return false
 	}

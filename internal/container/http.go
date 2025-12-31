@@ -27,7 +27,7 @@ type HandlersResult struct {
 	Setting          *handler.SettingHandler
 	UserSetting      *handler.UserSettingHandler
 	PAT              *handler.PATHandler
-	AuditLog         *handler.AuditLogHandler
+	Audit            *handler.AuditHandler
 	Overview         *handler.OverviewHandler
 	TwoFA            *handler.TwoFAHandler
 	Cache            *handler.CacheHandler
@@ -63,7 +63,7 @@ type handlersParams struct {
 	Setting       *SettingUseCases
 	UserSetting   *UserSettingUseCases
 	PAT           *PATUseCases
-	AuditLog      *AuditLogUseCases
+	Audit         *AuditUseCases
 	Stats         *StatsUseCases
 	Captcha       *CaptchaUseCases
 	TwoFA         *TwoFAUseCases
@@ -137,9 +137,9 @@ func newAllHandlers(p handlersParams) HandlersResult {
 			p.PAT.Get,
 			p.PAT.List,
 		),
-		AuditLog: handler.NewAuditLogHandler(
-			p.AuditLog.List,
-			p.AuditLog.Get,
+		Audit: handler.NewAuditHandler(
+			p.Audit.List,
+			p.Audit.Get,
 		),
 		Overview: handler.NewOverviewHandler(p.Stats.GetStats),
 		TwoFA: handler.NewTwoFAHandler(
@@ -214,7 +214,7 @@ type routerParams struct {
 	PermissionCache *auth.PermissionCacheService
 
 	// UseCases
-	AuditLog *AuditLogUseCases
+	Audit *AuditUseCases
 
 	// Repositories (for middleware)
 	MemberRepos     persistence.OrgMemberRepositories
@@ -231,7 +231,7 @@ type routerParams struct {
 	Setting     *handler.SettingHandler
 	UserSetting *handler.UserSettingHandler
 	PAT         *handler.PATHandler
-	AuditLogH   *handler.AuditLogHandler
+	AuditH      *handler.AuditHandler
 	Overview    *handler.OverviewHandler
 	TwoFA       *handler.TwoFAHandler
 	Cache       *handler.CacheHandler
@@ -249,7 +249,7 @@ func newRouter(p routerParams) *gin.Engine {
 	deps := &http.RouterDependencies{
 		Config:                 p.Config,
 		RedisClient:            p.RedisClient,
-		CreateLogHandler:       p.AuditLog.CreateLog,
+		CreateLogHandler:       p.Audit.CreateLog,
 		JWTManager:             p.JWTManager,
 		PATService:             p.PATService,
 		PermissionCacheService: p.PermissionCache,
@@ -263,7 +263,7 @@ func newRouter(p routerParams) *gin.Engine {
 		SettingHandler:         p.Setting,
 		UserSettingHandler:     p.UserSetting,
 		PATHandler:             p.PAT,
-		AuditLogHandler:        p.AuditLogH,
+		AuditHandler:           p.AuditH,
 		AdminUserHandler:       p.AdminUser,
 		UserProfileHandler:     p.UserProfile,
 		OverviewHandler:        p.Overview,

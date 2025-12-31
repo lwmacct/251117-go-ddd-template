@@ -2052,7 +2052,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/system/auditlogs": {
+        "/api/system/audit": {
             "get": {
                 "security": [
                     {
@@ -2133,7 +2133,7 @@ const docTemplate = `{
                     "200": {
                         "description": "审计日志列表",
                         "schema": {
-                            "$ref": "#/definitions/response.PagedResponse-audit_AuditLogDTO"
+                            "$ref": "#/definitions/response.PagedResponse-audit_AuditDTO"
                         }
                     },
                     "400": {
@@ -2163,7 +2163,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/system/auditlogs/actions": {
+        "/api/system/audit/actions": {
             "get": {
                 "security": [
                     {
@@ -2203,7 +2203,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/system/auditlogs/{id}": {
+        "/api/system/audit/{id}": {
             "get": {
                 "security": [
                     {
@@ -2235,7 +2235,7 @@ const docTemplate = `{
                     "200": {
                         "description": "日志详情",
                         "schema": {
-                            "$ref": "#/definitions/response.DataResponse-audit_AuditLogDTO"
+                            "$ref": "#/definitions/response.DataResponse-audit_AuditDTO"
                         }
                     },
                     "400": {
@@ -5529,7 +5529,7 @@ const docTemplate = `{
                 }
             }
         },
-        "audit.AuditLogDTO": {
+        "audit.AuditDTO": {
             "type": "object",
             "properties": {
                 "action": {
@@ -6862,7 +6862,7 @@ const docTemplate = `{
                 }
             }
         },
-        "response.DataResponse-audit_AuditLogDTO": {
+        "response.DataResponse-audit_AuditDTO": {
             "type": "object",
             "properties": {
                 "code": {
@@ -6873,7 +6873,7 @@ const docTemplate = `{
                     "description": "响应数据",
                     "allOf": [
                         {
-                            "$ref": "#/definitions/audit.AuditLogDTO"
+                            "$ref": "#/definitions/audit.AuditDTO"
                         }
                     ]
                 },
@@ -7596,7 +7596,7 @@ const docTemplate = `{
                 }
             }
         },
-        "response.PagedResponse-audit_AuditLogDTO": {
+        "response.PagedResponse-audit_AuditDTO": {
             "type": "object",
             "properties": {
                 "code": {
@@ -7607,7 +7607,7 @@ const docTemplate = `{
                     "description": "数据列表",
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/audit.AuditLogDTO"
+                        "$ref": "#/definitions/audit.AuditDTO"
                     }
                 },
                 "message": {

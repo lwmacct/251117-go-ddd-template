@@ -7,10 +7,10 @@ import (
 	"gorm.io/gorm"
 )
 
-// AuditLogModel 定义审计日志的 GORM 实体
+// AuditModel 定义审计日志的 GORM 实体
 //
 //nolint:recvcheck // TableName uses value receiver per GORM convention
-type AuditLogModel struct {
+type AuditModel struct {
 	ID          uint `gorm:"primaryKey"`
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
@@ -29,15 +29,15 @@ type AuditLogModel struct {
 }
 
 // TableName 指定审计日志表名
-func (AuditLogModel) TableName() string {
-	return "audit_logs"
+func (AuditModel) TableName() string {
+	return "audit"
 }
 
-func newAuditLogModelFromEntity(entity *audit.AuditLog) *AuditLogModel {
+func newAuditModelFromEntity(entity *audit.Audit) *AuditModel {
 	if entity == nil {
 		return nil
 	}
-	model := &AuditLogModel{
+	model := &AuditModel{
 		ID:          entity.ID,
 		CreatedAt:   entity.CreatedAt,
 		UpdatedAt:   entity.UpdatedAt,
@@ -60,11 +60,11 @@ func newAuditLogModelFromEntity(entity *audit.AuditLog) *AuditLogModel {
 }
 
 // ToEntity 将 GORM Model 转换为 Domain Entity（实现 Model[E] 接口）
-func (m *AuditLogModel) ToEntity() *audit.AuditLog {
+func (m *AuditModel) ToEntity() *audit.Audit {
 	if m == nil {
 		return nil
 	}
-	entity := &audit.AuditLog{
+	entity := &audit.Audit{
 		ID:          m.ID,
 		CreatedAt:   m.CreatedAt,
 		UpdatedAt:   m.UpdatedAt,

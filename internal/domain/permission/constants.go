@@ -56,9 +56,9 @@ const (
 
 // Sys 域 - 审计日志
 const (
-	SysAuditLogsList    Operation = "sys:auditlogs:list"
-	SysAuditLogsGet     Operation = "sys:auditlogs:get"
-	SysAuditLogsActions Operation = "sys:auditlogs:actions"
+	SysAuditList    Operation = "sys:audit:list"
+	SysAuditGet     Operation = "sys:audit:get"
+	SysAuditActions Operation = "sys:audit:actions"
 )
 
 // Sys 域 - 系统概览

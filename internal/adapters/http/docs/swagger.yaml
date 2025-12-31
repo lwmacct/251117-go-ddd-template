@@ -36,7 +36,7 @@ definitions:
           $ref: '#/definitions/audit.OperationTypeDTO'
         type: array
     type: object
-  audit.AuditLogDTO:
+  audit.AuditDTO:
     properties:
       action:
         type: string
@@ -958,14 +958,14 @@ definitions:
         description: 消息描述
         type: string
     type: object
-  response.DataResponse-audit_AuditLogDTO:
+  response.DataResponse-audit_AuditDTO:
     properties:
       code:
         description: HTTP 状态码
         type: integer
       data:
         allOf:
-        - $ref: '#/definitions/audit.AuditLogDTO'
+        - $ref: '#/definitions/audit.AuditDTO'
         description: 响应数据
       error:
         description: 错误详情（仅失败时）
@@ -1419,7 +1419,7 @@ definitions:
         description: 消息描述
         type: string
     type: object
-  response.PagedResponse-audit_AuditLogDTO:
+  response.PagedResponse-audit_AuditDTO:
     properties:
       code:
         description: HTTP 状态码
@@ -1427,7 +1427,7 @@ definitions:
       data:
         description: 数据列表
         items:
-          $ref: '#/definitions/audit.AuditLogDTO'
+          $ref: '#/definitions/audit.AuditDTO'
         type: array
       message:
         description: 消息描述
@@ -3547,7 +3547,7 @@ paths:
       summary: 更新任务
       tags:
       - Organization - Team Task Management
-  /api/system/auditlogs:
+  /api/system/audit:
     get:
       consumes:
       - application/json
@@ -3599,7 +3599,7 @@ paths:
         "200":
           description: 审计日志列表
           schema:
-            $ref: '#/definitions/response.PagedResponse-audit_AuditLogDTO'
+            $ref: '#/definitions/response.PagedResponse-audit_AuditDTO'
         "400":
           description: 参数错误
           schema:
@@ -3621,7 +3621,7 @@ paths:
       summary: 审计日志列表
       tags:
       - Admin - Audit Log
-  /api/system/auditlogs/{id}:
+  /api/system/audit/{id}:
     get:
       consumes:
       - application/json
@@ -3639,7 +3639,7 @@ paths:
         "200":
           description: 日志详情
           schema:
-            $ref: '#/definitions/response.DataResponse-audit_AuditLogDTO'
+            $ref: '#/definitions/response.DataResponse-audit_AuditDTO'
         "400":
           description: 无效的日志ID
           schema:
@@ -3661,7 +3661,7 @@ paths:
       summary: 审计日志详情
       tags:
       - Admin - Audit Log
-  /api/system/auditlogs/actions:
+  /api/system/audit/actions:
     get:
       consumes:
       - application/json

@@ -18,7 +18,7 @@ type eventHandlersParams struct {
 	EventBus        event.EventBus
 	PermissionCache *auth.PermissionCacheService
 	UserRepos       persistence.UserRepositories
-	AuditLogRepos   persistence.AuditLogRepositories
+	AuditRepos      persistence.AuditRepositories
 }
 
 // RegisterEventHandlers 设置缓存失效和审计日志的事件订阅。
@@ -33,7 +33,7 @@ func RegisterEventHandlers(p eventHandlersParams) {
 	)
 
 	// 审计日志处理器
-	auditHandler := eventhandler.NewAuditLogHandler(p.AuditLogRepos.Command)
+	auditHandler := eventhandler.NewAuditEventHandler(p.AuditRepos.Command)
 
 	// 订阅缓存失效事件
 	p.EventBus.Subscribe("user.role_assigned", cacheHandler)
@@ -44,7 +44,7 @@ func RegisterEventHandlers(p eventHandlersParams) {
 	p.EventBus.Subscribe("*", auditHandler)
 
 	slog.Info("Event handlers initialized",
-		"handlers", []string{"CacheInvalidationHandler", "AuditLogHandler"},
+		"handlers", []string{"CacheInvalidationHandler", "AuditEventHandler"},
 		"cache_subscriptions", []string{"user.role_assigned", "user.deleted", "role.permissions_changed"},
 		"audit_subscriptions", []string{"*"},
 	)

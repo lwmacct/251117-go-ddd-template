@@ -1,7 +1,7 @@
 // Package audit 定义审计领域模型和派生逻辑。
 //
 // 本包整合了审计日志实体、审计类型定义和 URN 派生逻辑：
-//   - [AuditLog]: 审计日志实体
+//   - [Audit]: 审计日志实体
 //   - [Operation]: 审计操作类型 (create, update, delete, access, authenticate)
 //   - [Category]: 审计分类 (auth, user, role, setting 等)
 //   - [DeriveCategory], [DeriveOperation], [DeriveAction]: 从 URN 派生审计信息

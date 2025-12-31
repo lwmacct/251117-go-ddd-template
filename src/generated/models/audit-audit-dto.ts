@@ -17,61 +17,61 @@
 /**
  * 
  * @export
- * @interface AuditAuditLogDTO
+ * @interface AuditAuditDTO
  */
-export interface AuditAuditLogDTO {
+export interface AuditAuditDTO {
     /**
      * 
      * @type {string}
-     * @memberof AuditAuditLogDTO
+     * @memberof AuditAuditDTO
      */
     'action'?: string;
     /**
      * 
      * @type {string}
-     * @memberof AuditAuditLogDTO
+     * @memberof AuditAuditDTO
      */
     'created_at'?: string;
     /**
      * 
      * @type {string}
-     * @memberof AuditAuditLogDTO
+     * @memberof AuditAuditDTO
      */
     'details'?: string;
     /**
      * 
      * @type {number}
-     * @memberof AuditAuditLogDTO
+     * @memberof AuditAuditDTO
      */
     'id'?: number;
     /**
      * 
      * @type {string}
-     * @memberof AuditAuditLogDTO
+     * @memberof AuditAuditDTO
      */
     'ip_address'?: string;
     /**
      * 
      * @type {string}
-     * @memberof AuditAuditLogDTO
+     * @memberof AuditAuditDTO
      */
     'resource'?: string;
     /**
      * 
      * @type {string}
-     * @memberof AuditAuditLogDTO
+     * @memberof AuditAuditDTO
      */
     'status'?: string;
     /**
      * 
      * @type {string}
-     * @memberof AuditAuditLogDTO
+     * @memberof AuditAuditDTO
      */
     'user_agent'?: string;
     /**
      * 
      * @type {number}
-     * @memberof AuditAuditLogDTO
+     * @memberof AuditAuditDTO
      */
     'user_id'?: number;
 }

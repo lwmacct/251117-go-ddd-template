@@ -50,9 +50,9 @@ func (deps *RouterDependencies) AllRouteBindings() []RouteBinding {
 
 		// ==================== Sys 域 - 审计日志 ====================
 		// 注意：actions 路由必须在 :id 路由之前
-		{permission.SysAuditLogsActions, deps.AuditLogHandler.GetActions},
-		{permission.SysAuditLogsList, deps.AuditLogHandler.ListLogs},
-		{permission.SysAuditLogsGet, deps.AuditLogHandler.GetLog},
+		{permission.SysAuditActions, deps.AuditHandler.GetActions},
+		{permission.SysAuditList, deps.AuditHandler.ListLogs},
+		{permission.SysAuditGet, deps.AuditHandler.GetLog},
 
 		// ==================== Sys 域 - 系统概览 ====================
 		{permission.SysOverviewStats, deps.OverviewHandler.GetStats},

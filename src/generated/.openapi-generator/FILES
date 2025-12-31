@@ -28,7 +28,7 @@ git_push.sh
 index.ts
 models/audit-audit-action-dto.ts
 models/audit-audit-actions-response-dto.ts
-models/audit-audit-log-dto.ts
+models/audit-audit-dto.ts
 models/audit-category-option-dto.ts
 models/audit-operation-type-dto.ts
 models/auth-login-dto.ts
@@ -89,7 +89,7 @@ models/response-data-response-array-setting-category-dto.ts
 models/response-data-response-array-setting-category-meta-dto.ts
 models/response-data-response-array-setting-settings-category-dto.ts
 models/response-data-response-audit-audit-actions-response-dto.ts
-models/response-data-response-audit-audit-log-dto.ts
+models/response-data-response-audit-audit-dto.ts
 models/response-data-response-auth-login-response-dto.ts
 models/response-data-response-auth-register-result-dto.ts
 models/response-data-response-auth-token-dto.ts
@@ -121,7 +121,7 @@ models/response-data-response-user-user-with-roles-dto.ts
 models/response-error-detail.ts
 models/response-error-response.ts
 models/response-message-response.ts
-models/response-paged-response-audit-audit-log-dto.ts
+models/response-paged-response-audit-audit-dto.ts
 models/response-paged-response-org-member-dto.ts
 models/response-paged-response-org-org-dto.ts
 models/response-paged-response-org-team-dto.ts

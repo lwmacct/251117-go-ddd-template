@@ -90,7 +90,7 @@ type PATUseCases struct {
 	List    *pat.ListHandler
 }
 
-type AuditLogUseCases struct {
+type AuditUseCases struct {
 	CreateLog *audit.CreateHandler
 	Get       *audit.GetHandler
 	List      *audit.ListHandler
@@ -166,7 +166,7 @@ type TaskUseCases struct {
 // UseCaseModule 提供按领域组织的所有用例处理器。
 var UseCaseModule = fx.Module("usecase",
 	fx.Provide(
-		newAuditLogUseCases,
+		newAuditUseCases,
 		newAuthUseCases,
 		newUserUseCases,
 		newRoleUseCases,
@@ -184,8 +184,8 @@ var UseCaseModule = fx.Module("usecase",
 
 // --- 构造函数 ---
 
-func newAuditLogUseCases(repos persistence.AuditLogRepositories) *AuditLogUseCases {
-	return &AuditLogUseCases{
+func newAuditUseCases(repos persistence.AuditRepositories) *AuditUseCases {
+	return &AuditUseCases{
 		CreateLog: audit.NewCreateHandler(repos.Command),
 		Get:       audit.NewGetHandler(repos.Query),
 		List:      audit.NewListHandler(repos.Query),
@@ -202,15 +202,15 @@ type authUseCasesParams struct {
 	AuthSvc        domain_auth.Service
 	LoginSession   domain_auth.SessionService
 	TwoFASvc       domain_twofa.Service
-	AuditLog       *AuditLogUseCases
+	Audit          *AuditUseCases
 }
 
 func newAuthUseCases(p authUseCasesParams) *AuthUseCases {
 	return &AuthUseCases{
-		Login:        auth.NewLoginHandler(p.UserRepos.Query, p.CaptchaCommand, p.TwoFARepos.Query, p.AuthSvc, p.LoginSession, p.AuditLog.CreateLog),
-		Login2FA:     auth.NewLogin2FAHandler(p.UserRepos.Query, p.AuthSvc, p.LoginSession, p.TwoFASvc, p.AuditLog.CreateLog),
+		Login:        auth.NewLoginHandler(p.UserRepos.Query, p.CaptchaCommand, p.TwoFARepos.Query, p.AuthSvc, p.LoginSession, p.Audit.CreateLog),
+		Login2FA:     auth.NewLogin2FAHandler(p.UserRepos.Query, p.AuthSvc, p.LoginSession, p.TwoFASvc, p.Audit.CreateLog),
 		Register:     auth.NewRegisterHandler(p.UserRepos.Command, p.UserRepos.Query, p.AuthSvc),
-		RefreshToken: auth.NewRefreshTokenHandler(p.UserRepos.Query, p.AuthSvc, p.AuditLog.CreateLog),
+		RefreshToken: auth.NewRefreshTokenHandler(p.UserRepos.Query, p.AuthSvc, p.Audit.CreateLog),
 	}
 }
 

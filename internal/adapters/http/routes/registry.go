@@ -194,23 +194,23 @@ var Registry = map[permission.Operation]routeMeta{
 	},
 
 	// ==================== Sys 域 - 审计日志 ====================
-	permission.SysAuditLogsList: {
+	permission.SysAuditList: {
 		Method:      GET,
-		Path:        "/api/system/auditlogs",
+		Path:        "/api/system/audit",
 		Tags:        "Admin - Audit Log",
 		Summary:     "审计日志列表",
 		Description: "获取审计日志列表",
 	},
-	permission.SysAuditLogsGet: {
+	permission.SysAuditGet: {
 		Method:      GET,
-		Path:        "/api/system/auditlogs/:id",
+		Path:        "/api/system/audit/:id",
 		Tags:        "Admin - Audit Log",
 		Summary:     "审计日志详情",
 		Description: "获取审计日志详情",
 	},
-	permission.SysAuditLogsActions: {
+	permission.SysAuditActions: {
 		Method:      GET,
-		Path:        "/api/system/auditlogs/actions",
+		Path:        "/api/system/audit/actions",
 		Tags:        "Admin - Audit Log",
 		Summary:     "审计操作定义",
 		Description: "获取审计操作定义",

@@ -22,7 +22,7 @@ import (
 var RepositoryModule = fx.Module("repository",
 	fx.Provide(
 		// 直接使用 persistence 构造函数（无需包装）
-		persistence.NewAuditLogRepositories,
+		persistence.NewAuditRepositories,
 		persistence.NewRoleRepositories,
 		persistence.NewPATRepositories,
 		persistence.NewTwoFARepositories,

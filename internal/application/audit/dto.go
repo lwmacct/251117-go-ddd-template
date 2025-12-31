@@ -2,8 +2,8 @@ package audit
 
 import "time"
 
-// AuditLogDTO 审计日志响应 DTO
-type AuditLogDTO struct {
+// AuditDTO 审计日志响应 DTO
+type AuditDTO struct {
 	ID        uint      `json:"id"`
 	UserID    uint      `json:"user_id"`
 	Action    string    `json:"action"`
@@ -15,12 +15,12 @@ type AuditLogDTO struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
-// ListLogsDTO 审计日志列表响应 DTO
-type ListLogsDTO struct {
-	Logs  []*AuditLogDTO `json:"logs"`
-	Total int64          `json:"total"`
-	Page  int            `json:"page"`
-	Limit int            `json:"limit"`
+// ListDTO 审计日志列表响应 DTO
+type ListDTO struct {
+	Logs  []*AuditDTO `json:"logs"`
+	Total int64       `json:"total"`
+	Page  int         `json:"page"`
+	Limit int         `json:"limit"`
 }
 
 // AuditActionsResponseDTO 审计操作定义响应 DTO

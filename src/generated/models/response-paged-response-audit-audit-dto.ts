@@ -15,7 +15,7 @@
 
 // May contain unused imports in some cases
 // @ts-ignore
-import type { AuditAuditLogDTO } from './audit-audit-log-dto';
+import type { AuditAuditDTO } from './audit-audit-dto';
 // May contain unused imports in some cases
 // @ts-ignore
 import type { ResponsePaginationMeta } from './response-pagination-meta';
@@ -23,31 +23,31 @@ import type { ResponsePaginationMeta } from './response-pagination-meta';
 /**
  * 
  * @export
- * @interface ResponsePagedResponseAuditAuditLogDTO
+ * @interface ResponsePagedResponseAuditAuditDTO
  */
-export interface ResponsePagedResponseAuditAuditLogDTO {
+export interface ResponsePagedResponseAuditAuditDTO {
     /**
      * HTTP 状态码
      * @type {number}
-     * @memberof ResponsePagedResponseAuditAuditLogDTO
+     * @memberof ResponsePagedResponseAuditAuditDTO
      */
     'code'?: number;
     /**
      * 数据列表
-     * @type {Array<AuditAuditLogDTO>}
-     * @memberof ResponsePagedResponseAuditAuditLogDTO
+     * @type {Array<AuditAuditDTO>}
+     * @memberof ResponsePagedResponseAuditAuditDTO
      */
-    'data'?: Array<AuditAuditLogDTO>;
+    'data'?: Array<AuditAuditDTO>;
     /**
      * 消息描述
      * @type {string}
-     * @memberof ResponsePagedResponseAuditAuditLogDTO
+     * @memberof ResponsePagedResponseAuditAuditDTO
      */
     'message'?: string;
     /**
      * 分页信息
      * @type {ResponsePaginationMeta}
-     * @memberof ResponsePagedResponseAuditAuditLogDTO
+     * @memberof ResponsePagedResponseAuditAuditDTO
      */
     'meta'?: ResponsePaginationMeta;
 }

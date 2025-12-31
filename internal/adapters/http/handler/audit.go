@@ -9,8 +9,8 @@ import (
 	"github.com/lwmacct/251117-go-ddd-template/internal/application/audit"
 )
 
-// ListAuditLogsQuery 审计日志列表查询参数
-type ListAuditLogsQuery struct {
+// ListAuditQuery 审计日志列表查询参数
+type ListAuditQuery struct {
 	response.PaginationQueryDTO
 
 	// UserID 按用户 ID 过滤
@@ -28,7 +28,7 @@ type ListAuditLogsQuery struct {
 }
 
 // ToQuery 转换为 Application 层 Query 对象
-func (q *ListAuditLogsQuery) ToQuery() audit.ListQuery {
+func (q *ListAuditQuery) ToQuery() audit.ListQuery {
 	result := audit.ListQuery{
 		Page:     q.GetPage(),
 		Limit:    q.GetLimit(),
@@ -53,19 +53,19 @@ func (q *ListAuditLogsQuery) ToQuery() audit.ListQuery {
 	return result
 }
 
-// AuditLogHandler handles audit log operations (DDD+CQRS Use Case Pattern)
-type AuditLogHandler struct {
+// AuditHandler handles audit log operations (DDD+CQRS Use Case Pattern)
+type AuditHandler struct {
 	// Query Handlers
 	listHandler *audit.ListHandler
 	getHandler  *audit.GetHandler
 }
 
-// NewAuditLogHandler creates a new AuditLogHandler instance
-func NewAuditLogHandler(
+// NewAuditHandler creates a new AuditHandler instance
+func NewAuditHandler(
 	listHandler *audit.ListHandler,
 	getHandler *audit.GetHandler,
-) *AuditLogHandler {
-	return &AuditLogHandler{
+) *AuditHandler {
+	return &AuditHandler{
 		listHandler: listHandler,
 		getHandler:  getHandler,
 	}
@@ -79,15 +79,15 @@ func NewAuditLogHandler(
 //	@Accept			json
 //	@Produce		json
 //	@Security		BearerAuth
-//	@Param			params	query		handler.ListAuditLogsQuery						false	"查询参数"
-//	@Success		200		{object}	response.PagedResponse[audit.AuditLogDTO]	"审计日志列表"
+//	@Param			params	query		handler.ListAuditQuery						false	"查询参数"
+//	@Success		200		{object}	response.PagedResponse[audit.AuditDTO]	"审计日志列表"
 //	@Failure		400		{object}	response.ErrorResponse							"参数错误"
 //	@Failure		401		{object}	response.ErrorResponse							"未授权"
 //	@Failure		403		{object}	response.ErrorResponse							"权限不足"
 //	@Failure		500		{object}	response.ErrorResponse							"服务器内部错误"
-//	@Router			/api/system/auditlogs [get]
-func (h *AuditLogHandler) ListLogs(c *gin.Context) {
-	var q ListAuditLogsQuery
+//	@Router			/api/system/audit [get]
+func (h *AuditHandler) ListLogs(c *gin.Context) {
+	var q ListAuditQuery
 	if err := c.ShouldBindQuery(&q); err != nil {
 		response.ValidationError(c, err.Error())
 		return
@@ -111,14 +111,14 @@ func (h *AuditLogHandler) ListLogs(c *gin.Context) {
 //	@Accept			json
 //	@Produce		json
 //	@Security		BearerAuth
-//	@Param			id	path		int											true	"日志ID"	minimum(1)
-//	@Success		200	{object}	response.DataResponse[audit.AuditLogDTO]	"日志详情"
-//	@Failure		400	{object}	response.ErrorResponse						"无效的日志ID"
-//	@Failure		401	{object}	response.ErrorResponse						"未授权"
-//	@Failure		403	{object}	response.ErrorResponse						"权限不足"
-//	@Failure		404	{object}	response.ErrorResponse						"日志不存在"
-//	@Router			/api/system/auditlogs/{id} [get]
-func (h *AuditLogHandler) GetLog(c *gin.Context) {
+//	@Param			id	path		int										true	"日志ID"	minimum(1)
+//	@Success		200	{object}	response.DataResponse[audit.AuditDTO]	"日志详情"
+//	@Failure		400	{object}	response.ErrorResponse					"无效的日志ID"
+//	@Failure		401	{object}	response.ErrorResponse					"未授权"
+//	@Failure		403	{object}	response.ErrorResponse					"权限不足"
+//	@Failure		404	{object}	response.ErrorResponse					"日志不存在"
+//	@Router			/api/system/audit/{id} [get]
+func (h *AuditHandler) GetLog(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
 		response.BadRequest(c, "invalid log ID")
@@ -148,8 +148,8 @@ func (h *AuditLogHandler) GetLog(c *gin.Context) {
 //	@Success		200	{object}	response.DataResponse[audit.AuditActionsResponseDTO]	"审计操作定义"
 //	@Failure		401	{object}	response.ErrorResponse									"未授权"
 //	@Failure		403	{object}	response.ErrorResponse									"权限不足"
-//	@Router			/api/system/auditlogs/actions [get]
-func (h *AuditLogHandler) GetActions(c *gin.Context) {
+//	@Router			/api/system/audit/actions [get]
+func (h *AuditHandler) GetActions(c *gin.Context) {
 	resp := audit.ToAuditActionsResponseDTO()
 	response.OK(c, "success", resp)
 }

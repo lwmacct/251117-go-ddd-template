@@ -100,7 +100,7 @@ type RouterDependencies struct {
 	SettingHandler     *handler.SettingHandler
 	UserSettingHandler *handler.UserSettingHandler
 	PATHandler         *handler.PATHandler
-	AuditLogHandler    *handler.AuditLogHandler
+	AuditHandler       *handler.AuditHandler
 	AdminUserHandler   *handler.AdminUserHandler
 	UserProfileHandler *handler.UserProfileHandler
 	OverviewHandler    *handler.OverviewHandler

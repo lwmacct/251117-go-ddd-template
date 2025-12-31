@@ -23,7 +23,7 @@ func TestAuditLog_StatusChecks(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			a := &AuditLog{Status: tt.status}
+			a := &Audit{Status: tt.status}
 			assert.Equal(t, tt.isSuccess, a.IsSuccess())
 			assert.Equal(t, tt.isFailed, a.IsFailed())
 			assert.Equal(t, tt.isPending, a.IsPending())
@@ -45,7 +45,7 @@ func TestAuditLog_GetResourceIdentifier(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			a := &AuditLog{Resource: tt.resource, ResourceID: tt.resourceID}
+			a := &Audit{Resource: tt.resource, ResourceID: tt.resourceID}
 			assert.Equal(t, tt.want, a.GetResourceIdentifier())
 		})
 	}
@@ -53,17 +53,17 @@ func TestAuditLog_GetResourceIdentifier(t *testing.T) {
 
 func TestAuditLog_IsRecentlyCreated(t *testing.T) {
 	t.Run("recently created", func(t *testing.T) {
-		a := &AuditLog{CreatedAt: time.Now().Add(-5 * time.Minute)}
+		a := &Audit{CreatedAt: time.Now().Add(-5 * time.Minute)}
 		assert.True(t, a.IsRecentlyCreated(10*time.Minute))
 	})
 
 	t.Run("not recently created", func(t *testing.T) {
-		a := &AuditLog{CreatedAt: time.Now().Add(-1 * time.Hour)}
+		a := &Audit{CreatedAt: time.Now().Add(-1 * time.Hour)}
 		assert.False(t, a.IsRecentlyCreated(10*time.Minute))
 	})
 
 	t.Run("exactly at boundary", func(t *testing.T) {
-		a := &AuditLog{CreatedAt: time.Now()}
+		a := &Audit{CreatedAt: time.Now()}
 		// With 1 second tolerance, recently created should pass
 		assert.True(t, a.IsRecentlyCreated(1*time.Second))
 	})
@@ -81,7 +81,7 @@ func TestAuditLog_HasDetails(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			a := &AuditLog{Details: tt.details}
+			a := &Audit{Details: tt.details}
 			assert.Equal(t, tt.want, a.HasDetails())
 		})
 	}
@@ -89,13 +89,13 @@ func TestAuditLog_HasDetails(t *testing.T) {
 
 func TestAuditLog_ActionTypes(t *testing.T) {
 	t.Run("user action", func(t *testing.T) {
-		a := &AuditLog{UserID: 1}
+		a := &Audit{UserID: 1}
 		assert.True(t, a.IsUserAction())
 		assert.False(t, a.IsSystemAction())
 	})
 
 	t.Run("system action", func(t *testing.T) {
-		a := &AuditLog{UserID: 0}
+		a := &Audit{UserID: 0}
 		assert.False(t, a.IsUserAction())
 		assert.True(t, a.IsSystemAction())
 	})
@@ -105,7 +105,7 @@ func TestAuditLog_MatchesFilter(t *testing.T) {
 	now := time.Now()
 	userID := uint(1)
 
-	baseLog := &AuditLog{
+	baseLog := &Audit{
 		UserID:    1,
 		Action:    "create",
 		Resource:  "user",

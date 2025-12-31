@@ -8,7 +8,7 @@ import {
   adminAuditLogApi,
   extractList,
   extractData,
-  type AuditAuditLogDTO,
+  type AuditAuditDTO,
   type AuditAuditActionDTO,
   type AuditCategoryOptionDTO,
   type AuditAuditActionsResponseDTO,
@@ -30,8 +30,8 @@ interface AuditLogQueryParams {
 
 export function useAuditLogs() {
   // 状态管理
-  const logs = ref<AuditAuditLogDTO[]>([]);
-  const selectedLog = ref<AuditAuditLogDTO | null>(null);
+  const logs = ref<AuditAuditDTO[]>([]);
+  const selectedLog = ref<AuditAuditDTO | null>(null);
   const exporting = ref(false);
 
   // 消息提示
@@ -66,7 +66,7 @@ export function useAuditLogs() {
    */
   const fetchFilterOptions = async () => {
     try {
-      const response = await adminAuditLogApi.apiSystemAuditlogsActionsGet();
+      const response = await adminAuditLogApi.apiSystemAuditActionsGet();
       const result = extractData<AuditAuditActionsResponseDTO>(response.data);
       actionOptions.value = result?.actions ?? [];
       categoryOptions.value = result?.categories ?? [];
@@ -84,7 +84,7 @@ export function useAuditLogs() {
     try {
       const { limit, page } = getParams();
       // 参数按字母顺序：action, endDate, limit, page, resource, startDate, status, userId
-      const response = await adminAuditLogApi.apiSystemAuditlogsGet(
+      const response = await adminAuditLogApi.apiSystemAuditGet(
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (filters.action || undefined) as any,
         filters.end_date || undefined,
@@ -97,7 +97,7 @@ export function useAuditLogs() {
         (filters.status || undefined) as any,
         filters.user_id,
       );
-      const result = extractList<AuditAuditLogDTO>(response.data);
+      const result = extractList<AuditAuditDTO>(response.data);
       logs.value = result.data;
       updateTotal(result.pagination.total, result.pagination.total_pages);
     } catch (err) {
@@ -115,8 +115,8 @@ export function useAuditLogs() {
     loading.value = true;
 
     try {
-      const response = await adminAuditLogApi.apiSystemAuditlogsIdGet(id);
-      selectedLog.value = extractData<AuditAuditLogDTO>(response.data) ?? null;
+      const response = await adminAuditLogApi.apiSystemAuditIdGet(id);
+      selectedLog.value = extractData<AuditAuditDTO>(response.data) ?? null;
     } catch (err) {
       error((err as Error).message || "获取日志详情失败");
       console.error("Failed to fetch log detail:", err);
@@ -162,7 +162,7 @@ export function useAuditLogs() {
 
     try {
       // 参数按字母顺序：action, endDate, limit, page, resource, startDate, status, userId
-      const response = await adminAuditLogApi.apiSystemAuditlogsGet(
+      const response = await adminAuditLogApi.apiSystemAuditGet(
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (filters.action || undefined) as any,
         filters.end_date || undefined,
@@ -175,7 +175,7 @@ export function useAuditLogs() {
         (filters.status || undefined) as any,
         filters.user_id,
       );
-      const result = extractList<AuditAuditLogDTO>(response.data);
+      const result = extractList<AuditAuditDTO>(response.data);
 
       if (result.data.length === 0) {
         error("没有数据可导出");
@@ -183,7 +183,7 @@ export function useAuditLogs() {
       }
 
       // 定义 CSV 列
-      const columns: CSVColumn<AuditAuditLogDTO>[] = [
+      const columns: CSVColumn<AuditAuditDTO>[] = [
         { header: "ID", key: "id" },
         { header: "用户ID", key: "user_id" },
         { header: "操作类型", key: "action" },

@@ -5,13 +5,13 @@ import (
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/audit"
 )
 
-// ToAuditLogDTO 将领域实体转换为 DTO
-func ToAuditLogDTO(log *audit.AuditLog) *AuditLogDTO {
+// ToAuditDTO 将领域实体转换为 DTO
+func ToAuditDTO(log *audit.Audit) *AuditDTO {
 	if log == nil {
 		return nil
 	}
 
-	return &AuditLogDTO{
+	return &AuditDTO{
 		ID:        log.ID,
 		UserID:    log.UserID,
 		Action:    log.Action,

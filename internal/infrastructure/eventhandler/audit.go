@@ -9,23 +9,23 @@ import (
 	"github.com/lwmacct/251117-go-ddd-template/internal/domain/event/events"
 )
 
-// AuditLogHandler 审计日志事件处理器
+// AuditEventHandler 审计日志事件处理器
 // 订阅业务事件并创建审计日志记录
-type AuditLogHandler struct {
-	auditLogRepo audit.CommandRepository
-	logger       *slog.Logger
+type AuditEventHandler struct {
+	auditRepo audit.CommandRepository
+	logger    *slog.Logger
 }
 
-// NewAuditLogHandler 创建审计日志处理器
-func NewAuditLogHandler(auditLogRepo audit.CommandRepository) *AuditLogHandler {
-	return &AuditLogHandler{
-		auditLogRepo: auditLogRepo,
-		logger:       slog.Default(),
+// NewAuditEventHandler 创建审计日志处理器
+func NewAuditEventHandler(auditRepo audit.CommandRepository) *AuditEventHandler {
+	return &AuditEventHandler{
+		auditRepo: auditRepo,
+		logger:    slog.Default(),
 	}
 }
 
 // Handle 处理事件
-func (h *AuditLogHandler) Handle(ctx context.Context, e event.Event) error {
+func (h *AuditEventHandler) Handle(ctx context.Context, e event.Event) error {
 	switch evt := e.(type) {
 	case *events.CommandExecutedEvent:
 		return h.handleCommandExecuted(ctx, evt)
@@ -48,13 +48,13 @@ func (h *AuditLogHandler) Handle(ctx context.Context, e event.Event) error {
 }
 
 // handleCommandExecuted 处理命令执行事件
-func (h *AuditLogHandler) handleCommandExecuted(ctx context.Context, evt *events.CommandExecutedEvent) error {
+func (h *AuditEventHandler) handleCommandExecuted(ctx context.Context, evt *events.CommandExecutedEvent) error {
 	status := "success"
 	if !evt.Success {
 		status = "failure"
 	}
 
-	log := &audit.AuditLog{
+	log := &audit.Audit{
 		UserID:     evt.UserID,
 		Username:   evt.Username,
 		Action:     string(evt.Action),
@@ -70,8 +70,8 @@ func (h *AuditLogHandler) handleCommandExecuted(ctx context.Context, evt *events
 }
 
 // handleLoginSucceeded 处理登录成功事件
-func (h *AuditLogHandler) handleLoginSucceeded(ctx context.Context, evt *events.LoginSucceededEvent) error {
-	log := &audit.AuditLog{
+func (h *AuditEventHandler) handleLoginSucceeded(ctx context.Context, evt *events.LoginSucceededEvent) error {
+	log := &audit.Audit{
 		UserID:    evt.UserID,
 		Username:  evt.Username,
 		Action:    "login",
@@ -85,8 +85,8 @@ func (h *AuditLogHandler) handleLoginSucceeded(ctx context.Context, evt *events.
 }
 
 // handleLoginFailed 处理登录失败事件
-func (h *AuditLogHandler) handleLoginFailed(ctx context.Context, evt *events.LoginFailedEvent) error {
-	log := &audit.AuditLog{
+func (h *AuditEventHandler) handleLoginFailed(ctx context.Context, evt *events.LoginFailedEvent) error {
+	log := &audit.Audit{
 		UserID:    0, // 登录失败时可能没有用户ID
 		Username:  evt.Username,
 		Action:    "login",
@@ -100,8 +100,8 @@ func (h *AuditLogHandler) handleLoginFailed(ctx context.Context, evt *events.Log
 }
 
 // handleUserCreated 处理用户创建事件
-func (h *AuditLogHandler) handleUserCreated(ctx context.Context, evt *events.UserCreatedEvent) error {
-	log := &audit.AuditLog{
+func (h *AuditEventHandler) handleUserCreated(ctx context.Context, evt *events.UserCreatedEvent) error {
+	log := &audit.Audit{
 		UserID:     evt.UserID,
 		Username:   evt.Username,
 		Action:     "create",
@@ -114,8 +114,8 @@ func (h *AuditLogHandler) handleUserCreated(ctx context.Context, evt *events.Use
 }
 
 // handleUserDeleted 处理用户删除事件
-func (h *AuditLogHandler) handleUserDeleted(ctx context.Context, evt *events.UserDeletedEvent) error {
-	log := &audit.AuditLog{
+func (h *AuditEventHandler) handleUserDeleted(ctx context.Context, evt *events.UserDeletedEvent) error {
+	log := &audit.Audit{
 		Action:     "delete",
 		Resource:   "user",
 		ResourceID: evt.AggregateID(),
@@ -126,8 +126,8 @@ func (h *AuditLogHandler) handleUserDeleted(ctx context.Context, evt *events.Use
 }
 
 // handleUserRoleAssigned 处理用户角色分配事件
-func (h *AuditLogHandler) handleUserRoleAssigned(ctx context.Context, evt *events.UserRoleAssignedEvent) error {
-	log := &audit.AuditLog{
+func (h *AuditEventHandler) handleUserRoleAssigned(ctx context.Context, evt *events.UserRoleAssignedEvent) error {
+	log := &audit.Audit{
 		Action:     "assign_roles",
 		Resource:   "user",
 		ResourceID: evt.AggregateID(),
@@ -138,8 +138,8 @@ func (h *AuditLogHandler) handleUserRoleAssigned(ctx context.Context, evt *event
 }
 
 // handleRolePermissionsChanged 处理角色权限变更事件
-func (h *AuditLogHandler) handleRolePermissionsChanged(ctx context.Context, evt *events.RolePermissionsChangedEvent) error {
-	log := &audit.AuditLog{
+func (h *AuditEventHandler) handleRolePermissionsChanged(ctx context.Context, evt *events.RolePermissionsChangedEvent) error {
+	log := &audit.Audit{
 		Action:     "set_permissions",
 		Resource:   "role",
 		ResourceID: evt.AggregateID(),
@@ -150,8 +150,8 @@ func (h *AuditLogHandler) handleRolePermissionsChanged(ctx context.Context, evt 
 }
 
 // createAuditLog 创建审计日志（带错误处理）
-func (h *AuditLogHandler) createAuditLog(ctx context.Context, log *audit.AuditLog, eventType string) error {
-	if err := h.auditLogRepo.Create(ctx, log); err != nil {
+func (h *AuditEventHandler) createAuditLog(ctx context.Context, log *audit.Audit, eventType string) error {
+	if err := h.auditRepo.Create(ctx, log); err != nil {
 		h.logger.Error("failed to create audit log",
 			"event_type", eventType,
 			"error", err,
@@ -170,4 +170,4 @@ func (h *AuditLogHandler) createAuditLog(ctx context.Context, log *audit.AuditLo
 }
 
 // Ensure interface is implemented
-var _ event.EventHandler = (*AuditLogHandler)(nil)
+var _ event.EventHandler = (*AuditEventHandler)(nil)

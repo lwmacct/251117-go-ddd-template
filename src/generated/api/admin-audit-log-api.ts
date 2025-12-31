@@ -24,11 +24,11 @@ import { BASE_PATH, COLLECTION_FORMATS, type RequestArgs, BaseAPI, RequiredError
 // @ts-ignore
 import type { ResponseDataResponseAuditAuditActionsResponseDTO } from '../models';
 // @ts-ignore
-import type { ResponseDataResponseAuditAuditLogDTO } from '../models';
+import type { ResponseDataResponseAuditAuditDTO } from '../models';
 // @ts-ignore
 import type { ResponseErrorResponse } from '../models';
 // @ts-ignore
-import type { ResponsePagedResponseAuditAuditLogDTO } from '../models';
+import type { ResponsePagedResponseAuditAuditDTO } from '../models';
 /**
  * AdminAuditLogApi - axios parameter creator
  * @export
@@ -41,8 +41,8 @@ export const AdminAuditLogApiAxiosParamCreator = function (configuration?: Confi
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiSystemAuditlogsActionsGet: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            const localVarPath = `/api/system/auditlogs/actions`;
+        apiSystemAuditActionsGet: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/system/audit/actions`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -77,13 +77,13 @@ export const AdminAuditLogApiAxiosParamCreator = function (configuration?: Confi
          * @param {number} [page] Page 页码，从 1 开始
          * @param {string} [resource] Resource 资源分类过滤（如 setting, user）
          * @param {string} [startDate] StartDate 开始时间（RFC3339 格式）
-         * @param {ApiSystemAuditlogsGetStatusEnum} [status] Status 状态过滤
+         * @param {ApiSystemAuditGetStatusEnum} [status] Status 状态过滤
          * @param {number} [userId] UserID 按用户 ID 过滤
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiSystemAuditlogsGet: async (action?: string, endDate?: string, limit?: number, page?: number, resource?: string, startDate?: string, status?: ApiSystemAuditlogsGetStatusEnum, userId?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            const localVarPath = `/api/system/auditlogs`;
+        apiSystemAuditGet: async (action?: string, endDate?: string, limit?: number, page?: number, resource?: string, startDate?: string, status?: ApiSystemAuditGetStatusEnum, userId?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/system/audit`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -148,10 +148,10 @@ export const AdminAuditLogApiAxiosParamCreator = function (configuration?: Confi
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiSystemAuditlogsIdGet: async (id: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        apiSystemAuditIdGet: async (id: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'id' is not null or undefined
-            assertParamExists('apiSystemAuditlogsIdGet', 'id', id)
-            const localVarPath = `/api/system/auditlogs/{id}`
+            assertParamExists('apiSystemAuditIdGet', 'id', id)
+            const localVarPath = `/api/system/audit/{id}`
                 .replace(`{${"id"}}`, encodeURIComponent(String(id)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -194,10 +194,10 @@ export const AdminAuditLogApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async apiSystemAuditlogsActionsGet(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseAuditAuditActionsResponseDTO>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.apiSystemAuditlogsActionsGet(options);
+        async apiSystemAuditActionsGet(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseAuditAuditActionsResponseDTO>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.apiSystemAuditActionsGet(options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['AdminAuditLogApi.apiSystemAuditlogsActionsGet']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['AdminAuditLogApi.apiSystemAuditActionsGet']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -209,15 +209,15 @@ export const AdminAuditLogApiFp = function(configuration?: Configuration) {
          * @param {number} [page] Page 页码，从 1 开始
          * @param {string} [resource] Resource 资源分类过滤（如 setting, user）
          * @param {string} [startDate] StartDate 开始时间（RFC3339 格式）
-         * @param {ApiSystemAuditlogsGetStatusEnum} [status] Status 状态过滤
+         * @param {ApiSystemAuditGetStatusEnum} [status] Status 状态过滤
          * @param {number} [userId] UserID 按用户 ID 过滤
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async apiSystemAuditlogsGet(action?: string, endDate?: string, limit?: number, page?: number, resource?: string, startDate?: string, status?: ApiSystemAuditlogsGetStatusEnum, userId?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponsePagedResponseAuditAuditLogDTO>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.apiSystemAuditlogsGet(action, endDate, limit, page, resource, startDate, status, userId, options);
+        async apiSystemAuditGet(action?: string, endDate?: string, limit?: number, page?: number, resource?: string, startDate?: string, status?: ApiSystemAuditGetStatusEnum, userId?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponsePagedResponseAuditAuditDTO>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.apiSystemAuditGet(action, endDate, limit, page, resource, startDate, status, userId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['AdminAuditLogApi.apiSystemAuditlogsGet']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['AdminAuditLogApi.apiSystemAuditGet']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -227,10 +227,10 @@ export const AdminAuditLogApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async apiSystemAuditlogsIdGet(id: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseAuditAuditLogDTO>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.apiSystemAuditlogsIdGet(id, options);
+        async apiSystemAuditIdGet(id: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseDataResponseAuditAuditDTO>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.apiSystemAuditIdGet(id, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['AdminAuditLogApi.apiSystemAuditlogsIdGet']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['AdminAuditLogApi.apiSystemAuditIdGet']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
     }
@@ -249,8 +249,8 @@ export const AdminAuditLogApiFactory = function (configuration?: Configuration, 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiSystemAuditlogsActionsGet(options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseAuditAuditActionsResponseDTO> {
-            return localVarFp.apiSystemAuditlogsActionsGet(options).then((request) => request(axios, basePath));
+        apiSystemAuditActionsGet(options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseAuditAuditActionsResponseDTO> {
+            return localVarFp.apiSystemAuditActionsGet(options).then((request) => request(axios, basePath));
         },
         /**
          * 分页获取审计日志，支持按用户、操作、资源、状态、时间范围筛选
@@ -261,13 +261,13 @@ export const AdminAuditLogApiFactory = function (configuration?: Configuration, 
          * @param {number} [page] Page 页码，从 1 开始
          * @param {string} [resource] Resource 资源分类过滤（如 setting, user）
          * @param {string} [startDate] StartDate 开始时间（RFC3339 格式）
-         * @param {ApiSystemAuditlogsGetStatusEnum} [status] Status 状态过滤
+         * @param {ApiSystemAuditGetStatusEnum} [status] Status 状态过滤
          * @param {number} [userId] UserID 按用户 ID 过滤
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiSystemAuditlogsGet(action?: string, endDate?: string, limit?: number, page?: number, resource?: string, startDate?: string, status?: ApiSystemAuditlogsGetStatusEnum, userId?: number, options?: RawAxiosRequestConfig): AxiosPromise<ResponsePagedResponseAuditAuditLogDTO> {
-            return localVarFp.apiSystemAuditlogsGet(action, endDate, limit, page, resource, startDate, status, userId, options).then((request) => request(axios, basePath));
+        apiSystemAuditGet(action?: string, endDate?: string, limit?: number, page?: number, resource?: string, startDate?: string, status?: ApiSystemAuditGetStatusEnum, userId?: number, options?: RawAxiosRequestConfig): AxiosPromise<ResponsePagedResponseAuditAuditDTO> {
+            return localVarFp.apiSystemAuditGet(action, endDate, limit, page, resource, startDate, status, userId, options).then((request) => request(axios, basePath));
         },
         /**
          * 根据日志ID获取审计日志详细信息
@@ -276,8 +276,8 @@ export const AdminAuditLogApiFactory = function (configuration?: Configuration, 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiSystemAuditlogsIdGet(id: number, options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseAuditAuditLogDTO> {
-            return localVarFp.apiSystemAuditlogsIdGet(id, options).then((request) => request(axios, basePath));
+        apiSystemAuditIdGet(id: number, options?: RawAxiosRequestConfig): AxiosPromise<ResponseDataResponseAuditAuditDTO> {
+            return localVarFp.apiSystemAuditIdGet(id, options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -296,8 +296,8 @@ export class AdminAuditLogApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof AdminAuditLogApi
      */
-    public apiSystemAuditlogsActionsGet(options?: RawAxiosRequestConfig) {
-        return AdminAuditLogApiFp(this.configuration).apiSystemAuditlogsActionsGet(options).then((request) => request(this.axios, this.basePath));
+    public apiSystemAuditActionsGet(options?: RawAxiosRequestConfig) {
+        return AdminAuditLogApiFp(this.configuration).apiSystemAuditActionsGet(options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -309,14 +309,14 @@ export class AdminAuditLogApi extends BaseAPI {
      * @param {number} [page] Page 页码，从 1 开始
      * @param {string} [resource] Resource 资源分类过滤（如 setting, user）
      * @param {string} [startDate] StartDate 开始时间（RFC3339 格式）
-     * @param {ApiSystemAuditlogsGetStatusEnum} [status] Status 状态过滤
+     * @param {ApiSystemAuditGetStatusEnum} [status] Status 状态过滤
      * @param {number} [userId] UserID 按用户 ID 过滤
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof AdminAuditLogApi
      */
-    public apiSystemAuditlogsGet(action?: string, endDate?: string, limit?: number, page?: number, resource?: string, startDate?: string, status?: ApiSystemAuditlogsGetStatusEnum, userId?: number, options?: RawAxiosRequestConfig) {
-        return AdminAuditLogApiFp(this.configuration).apiSystemAuditlogsGet(action, endDate, limit, page, resource, startDate, status, userId, options).then((request) => request(this.axios, this.basePath));
+    public apiSystemAuditGet(action?: string, endDate?: string, limit?: number, page?: number, resource?: string, startDate?: string, status?: ApiSystemAuditGetStatusEnum, userId?: number, options?: RawAxiosRequestConfig) {
+        return AdminAuditLogApiFp(this.configuration).apiSystemAuditGet(action, endDate, limit, page, resource, startDate, status, userId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -327,16 +327,16 @@ export class AdminAuditLogApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof AdminAuditLogApi
      */
-    public apiSystemAuditlogsIdGet(id: number, options?: RawAxiosRequestConfig) {
-        return AdminAuditLogApiFp(this.configuration).apiSystemAuditlogsIdGet(id, options).then((request) => request(this.axios, this.basePath));
+    public apiSystemAuditIdGet(id: number, options?: RawAxiosRequestConfig) {
+        return AdminAuditLogApiFp(this.configuration).apiSystemAuditIdGet(id, options).then((request) => request(this.axios, this.basePath));
     }
 }
 
 /**
  * @export
  */
-export const ApiSystemAuditlogsGetStatusEnum = {
+export const ApiSystemAuditGetStatusEnum = {
     Success: 'success',
     Failure: 'failure'
 } as const;
-export type ApiSystemAuditlogsGetStatusEnum = typeof ApiSystemAuditlogsGetStatusEnum[keyof typeof ApiSystemAuditlogsGetStatusEnum];
+export type ApiSystemAuditGetStatusEnum = typeof ApiSystemAuditGetStatusEnum[keyof typeof ApiSystemAuditGetStatusEnum];

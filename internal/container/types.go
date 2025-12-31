@@ -23,7 +23,7 @@ func GetAllModels() []any {
 		&persistence.UserModel{},
 		&persistence.RoleModel{},
 		&persistence.PersonalAccessTokenModel{},
-		&persistence.AuditLogModel{},
+		&persistence.AuditModel{},
 		&persistence.TwoFAModel{},
 		&persistence.SettingModel{},
 		&persistence.SettingCategoryModel{},

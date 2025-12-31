@@ -9,17 +9,17 @@ import (
 	"gorm.io/gorm"
 )
 
-// auditLogCommandRepository 审计日志命令仓储的 GORM 实现
+// auditCommandRepository 审计日志命令仓储的 GORM 实现
 // 嵌入 GenericCommandRepository 以复用 Create/Delete 操作
-type auditLogCommandRepository struct {
-	*GenericCommandRepository[audit.AuditLog, *AuditLogModel]
+type auditCommandRepository struct {
+	*GenericCommandRepository[audit.Audit, *AuditModel]
 }
 
-// NewAuditLogCommandRepository 创建审计日志命令仓储实例
-func NewAuditLogCommandRepository(db *gorm.DB) audit.CommandRepository {
-	return &auditLogCommandRepository{
+// NewAuditCommandRepository 创建审计日志命令仓储实例
+func NewAuditCommandRepository(db *gorm.DB) audit.CommandRepository {
+	return &auditCommandRepository{
 		GenericCommandRepository: NewGenericCommandRepository(
-			db, newAuditLogModelFromEntity,
+			db, newAuditModelFromEntity,
 		),
 	}
 }
@@ -27,24 +27,24 @@ func NewAuditLogCommandRepository(db *gorm.DB) audit.CommandRepository {
 // Create、Delete 方法由 GenericCommandRepository 提供
 
 // DeleteOlderThan deletes audit logs older than the specified date
-func (r *auditLogCommandRepository) DeleteOlderThan(ctx context.Context, days int) error {
+func (r *auditCommandRepository) DeleteOlderThan(ctx context.Context, days int) error {
 	cutoffDate := time.Now().AddDate(0, 0, -days)
 	if err := r.DB().WithContext(ctx).
 		Where("created_at < ?", cutoffDate).
-		Delete(&AuditLogModel{}).Error; err != nil {
+		Delete(&AuditModel{}).Error; err != nil {
 		return fmt.Errorf("failed to delete old audit logs: %w", err)
 	}
 	return nil
 }
 
 // BatchCreate creates multiple audit log entries
-func (r *auditLogCommandRepository) BatchCreate(ctx context.Context, logs []*audit.AuditLog) error {
+func (r *auditCommandRepository) BatchCreate(ctx context.Context, logs []*audit.Audit) error {
 	if len(logs) == 0 {
 		return nil
 	}
-	models := make([]*AuditLogModel, 0, len(logs))
+	models := make([]*AuditModel, 0, len(logs))
 	for _, log := range logs {
-		if model := newAuditLogModelFromEntity(log); model != nil {
+		if model := newAuditModelFromEntity(log); model != nil {
 			models = append(models, model)
 		}
 	}
