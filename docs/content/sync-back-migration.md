@@ -22,13 +22,22 @@
 ### Phase 1: 对比分析
 
 ```bash
-# 1. 确认两个项目的最新提交
-cd /path/to/template && git log -1 --oneline
-cd /path/to/fork && git log -1 --oneline
+# 1. 确定回迁范围（以模板基准提交为起点）
+cd /path/to/template && git log -1 --oneline   # 模板基准: abc1234
 
-# 2. 对比差异
-git diff --stat template-path fork-path
-git diff template-path fork-path -- internal/
+# 2. 查看副本项目在基准之后的提交
+cd /path/to/fork
+git log --oneline abc1234..HEAD          # 基准之后的所有提交
+git log --oneline abc1234..HEAD --graph  # 树形结构展示
+
+# 3. 对比两个项目的差异
+# 方法一：直接对比目录（跨项目）
+git diff --stat /path/to/template /path/to/fork -- internal/
+git diff /path/to/template /path/to/fork -- internal/application/org/
+
+# 方法二：在同一目录对比（推荐）
+cd /path/to/fork
+git diff-template -- internal/  # 假设有 template 作为 remote
 ```
 
 ### Phase 2: 分类改动
@@ -188,27 +197,3 @@ find template/manualtest -name "*.go" -exec sed -i 's/fork/template/g' {} +
 - [ ] 更新 CHANGELOG
 
 ---
-
-## 工具命令速查
-
-```bash
-# 对比目录
-diff -rq dir1/ dir2/
-
-# 对比文件
-git diff --no-index file1 file2
-
-# 批量替换
-find . -name "*.go" -exec sed -i 's/old/new/g' {} \;
-
-# 编译检查
-go build -o /dev/null ./...
-
-# 测试编译
-go test ./... -run=^$
-
-# 格式化
-go fmt ./...
-
-
-```
