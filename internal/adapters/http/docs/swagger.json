@@ -4476,6 +4476,298 @@
                 }
             }
         },
+        "/api/public/products": {
+            "get": {
+                "description": "获取所有激活的产品目录（公开接口）",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Public - Products"
+                ],
+                "summary": "产品目录",
+                "responses": {
+                    "200": {
+                        "description": "产品列表",
+                        "schema": {
+                            "$ref": "#/definitions/response.DataResponse-array_product_ProductCatalogDTO"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器内部错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/public/products/{code}": {
+            "get": {
+                "description": "根据产品代码获取产品详情（公开接口）",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Public - Products"
+                ],
+                "summary": "产品详情",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "产品代码",
+                        "name": "code",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "产品详情",
+                        "schema": {
+                            "$ref": "#/definitions/response.DataResponse-product_ProductCatalogDTO"
+                        }
+                    },
+                    "404": {
+                        "description": "产品不存在",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器内部错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/public/products/{code}/plans": {
+            "get": {
+                "description": "获取指定产品的套餐列表",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Public - Products"
+                ],
+                "summary": "产品套餐",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "产品代码",
+                        "name": "code",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "套餐列表",
+                        "schema": {
+                            "$ref": "#/definitions/response.DataResponse-array_subscription_PlanDTO"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器内部错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/self/subscriptions": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "获取当前用户的所有订阅",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Self - Subscriptions"
+                ],
+                "summary": "我的订阅",
+                "responses": {
+                    "200": {
+                        "description": "订阅列表",
+                        "schema": {
+                            "$ref": "#/definitions/response.DataResponse-array_subscription_SubscriptionDTO"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器内部错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "为用户或组织创建订阅",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Self - Subscriptions"
+                ],
+                "summary": "创建订阅",
+                "parameters": [
+                    {
+                        "description": "创建订阅请求",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/subscription.CreateSubscriptionDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "订阅创建成功",
+                        "schema": {
+                            "$ref": "#/definitions/response.DataResponse-subscription_SubscriptionDTO"
+                        }
+                    },
+                    "400": {
+                        "description": "参数错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器内部错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/self/subscriptions/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "根据订阅 ID 获取订阅详情",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Self - Subscriptions"
+                ],
+                "summary": "订阅详情",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "订阅 ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "订阅详情",
+                        "schema": {
+                            "$ref": "#/definitions/response.DataResponse-subscription_SubscriptionDTO"
+                        }
+                    },
+                    "404": {
+                        "description": "订阅不存在",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器内部错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/self/subscriptions/{id}/cancel": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "取消指定的订阅",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Self - Subscriptions"
+                ],
+                "summary": "取消订阅",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "订阅 ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "取消成功",
+                        "schema": {
+                            "$ref": "#/definitions/response.MessageResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "订阅不存在",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器内部错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/user/account": {
             "delete": {
                 "security": [
@@ -6595,12 +6887,27 @@
         "product.CreateProductDTO": {
             "type": "object",
             "required": [
-                "name"
+                "code",
+                "name",
+                "type"
             ],
             "properties": {
+                "code": {
+                    "type": "string",
+                    "maxLength": 50,
+                    "minLength": 2
+                },
                 "description": {
                     "type": "string",
                     "maxLength": 500
+                },
+                "layout_ref": {
+                    "type": "string",
+                    "maxLength": 100
+                },
+                "max_seats": {
+                    "type": "integer",
+                    "minimum": 0
                 },
                 "name": {
                     "type": "string",
@@ -6617,12 +6924,55 @@
                         "active",
                         "inactive"
                     ]
+                },
+                "trial_days": {
+                    "type": "integer",
+                    "minimum": 0
+                },
+                "type": {
+                    "type": "string",
+                    "enum": [
+                        "personal",
+                        "team"
+                    ]
+                }
+            }
+        },
+        "product.ProductCatalogDTO": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "layout_ref": {
+                    "type": "string"
+                },
+                "max_seats": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "price": {
+                    "type": "number"
+                },
+                "trial_days": {
+                    "type": "integer"
+                },
+                "type": {
+                    "type": "string"
                 }
             }
         },
         "product.ProductDTO": {
             "type": "object",
             "properties": {
+                "code": {
+                    "type": "string"
+                },
                 "created_at": {
                     "type": "string"
                 },
@@ -6630,6 +6980,12 @@
                     "type": "string"
                 },
                 "id": {
+                    "type": "integer"
+                },
+                "layout_ref": {
+                    "type": "string"
+                },
+                "max_seats": {
                     "type": "integer"
                 },
                 "name": {
@@ -6641,6 +6997,12 @@
                 "status": {
                     "type": "string"
                 },
+                "trial_days": {
+                    "type": "integer"
+                },
+                "type": {
+                    "type": "string"
+                },
                 "updated_at": {
                     "type": "string"
                 }
@@ -6649,9 +7011,22 @@
         "product.UpdateProductDTO": {
             "type": "object",
             "properties": {
+                "code": {
+                    "type": "string",
+                    "maxLength": 50,
+                    "minLength": 2
+                },
                 "description": {
                     "type": "string",
                     "maxLength": 500
+                },
+                "layout_ref": {
+                    "type": "string",
+                    "maxLength": 100
+                },
+                "max_seats": {
+                    "type": "integer",
+                    "minimum": 0
                 },
                 "name": {
                     "type": "string",
@@ -6667,6 +7042,17 @@
                     "enum": [
                         "active",
                         "inactive"
+                    ]
+                },
+                "trial_days": {
+                    "type": "integer",
+                    "minimum": 0
+                },
+                "type": {
+                    "type": "string",
+                    "enum": [
+                        "personal",
+                        "team"
                     ]
                 }
             }
@@ -6782,6 +7168,29 @@
                 }
             }
         },
+        "response.DataResponse-array_product_ProductCatalogDTO": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "description": "HTTP 状态码",
+                    "type": "integer"
+                },
+                "data": {
+                    "description": "响应数据",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/product.ProductCatalogDTO"
+                    }
+                },
+                "error": {
+                    "description": "错误详情（仅失败时）"
+                },
+                "message": {
+                    "description": "消息描述",
+                    "type": "string"
+                }
+            }
+        },
         "response.DataResponse-array_routes_OperationDefinition": {
             "type": "object",
             "properties": {
@@ -6863,6 +7272,52 @@
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/setting.SettingsCategoryDTO"
+                    }
+                },
+                "error": {
+                    "description": "错误详情（仅失败时）"
+                },
+                "message": {
+                    "description": "消息描述",
+                    "type": "string"
+                }
+            }
+        },
+        "response.DataResponse-array_subscription_PlanDTO": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "description": "HTTP 状态码",
+                    "type": "integer"
+                },
+                "data": {
+                    "description": "响应数据",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/subscription.PlanDTO"
+                    }
+                },
+                "error": {
+                    "description": "错误详情（仅失败时）"
+                },
+                "message": {
+                    "description": "消息描述",
+                    "type": "string"
+                }
+            }
+        },
+        "response.DataResponse-array_subscription_SubscriptionDTO": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "description": "HTTP 状态码",
+                    "type": "integer"
+                },
+                "data": {
+                    "description": "响应数据",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/subscription.SubscriptionDTO"
                     }
                 },
                 "error": {
@@ -7282,6 +7737,30 @@
                 }
             }
         },
+        "response.DataResponse-product_ProductCatalogDTO": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "description": "HTTP 状态码",
+                    "type": "integer"
+                },
+                "data": {
+                    "description": "响应数据",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/product.ProductCatalogDTO"
+                        }
+                    ]
+                },
+                "error": {
+                    "description": "错误详情（仅失败时）"
+                },
+                "message": {
+                    "description": "消息描述",
+                    "type": "string"
+                }
+            }
+        },
         "response.DataResponse-product_ProductDTO": {
             "type": "object",
             "properties": {
@@ -7438,6 +7917,30 @@
                     "allOf": [
                         {
                             "$ref": "#/definitions/stats.StatsDTO"
+                        }
+                    ]
+                },
+                "error": {
+                    "description": "错误详情（仅失败时）"
+                },
+                "message": {
+                    "description": "消息描述",
+                    "type": "string"
+                }
+            }
+        },
+        "response.DataResponse-subscription_SubscriptionDTO": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "description": "HTTP 状态码",
+                    "type": "integer"
+                },
+                "data": {
+                    "description": "响应数据",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/subscription.SubscriptionDTO"
                         }
                     ]
                 },
@@ -8403,6 +8906,168 @@
                     "type": "integer"
                 },
                 "total_users": {
+                    "type": "integer"
+                }
+            }
+        },
+        "subscription.CreateSubscriptionDTO": {
+            "type": "object",
+            "required": [
+                "product_code"
+            ],
+            "properties": {
+                "billing_cycle": {
+                    "type": "string",
+                    "enum": [
+                        "monthly",
+                        "yearly"
+                    ]
+                },
+                "max_seats": {
+                    "type": "integer",
+                    "minimum": 0
+                },
+                "org_id": {
+                    "description": "组织订阅时提供",
+                    "type": "integer"
+                },
+                "plan_id": {
+                    "type": "integer"
+                },
+                "product_code": {
+                    "type": "string"
+                }
+            }
+        },
+        "subscription.FeatureDTO": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "enabled": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "subscription.PlanDTO": {
+            "type": "object",
+            "properties": {
+                "currency": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "features": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/subscription.FeatureDTO"
+                    }
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "max_seats": {
+                    "type": "integer"
+                },
+                "monthly_price": {
+                    "type": "number"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "price": {
+                    "type": "number"
+                },
+                "product_id": {
+                    "type": "integer"
+                },
+                "sort_order": {
+                    "type": "integer"
+                },
+                "trial_days": {
+                    "type": "integer"
+                },
+                "yearly_discount": {
+                    "description": "计算得出的年付折扣",
+                    "type": "number"
+                },
+                "yearly_price": {
+                    "type": "number"
+                }
+            }
+        },
+        "subscription.SubscriptionDTO": {
+            "type": "object",
+            "properties": {
+                "billing_cycle": {
+                    "type": "string"
+                },
+                "canceled_at": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "current_period_end": {
+                    "type": "string"
+                },
+                "current_period_start": {
+                    "type": "string"
+                },
+                "expires_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "max_seats": {
+                    "type": "integer"
+                },
+                "org_id": {
+                    "type": "integer"
+                },
+                "plan_features": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/subscription.FeatureDTO"
+                    }
+                },
+                "plan_id": {
+                    "type": "integer"
+                },
+                "plan_name": {
+                    "type": "string"
+                },
+                "plan_price": {
+                    "type": "number"
+                },
+                "product_code": {
+                    "type": "string"
+                },
+                "product_id": {
+                    "type": "integer"
+                },
+                "product_name": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "trial_ends_at": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "used_seats": {
+                    "type": "integer"
+                },
+                "user_id": {
                     "type": "integer"
                 }
             }

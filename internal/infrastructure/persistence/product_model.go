@@ -12,10 +12,15 @@ import (
 //nolint:recvcheck // TableName uses value receiver per GORM convention
 type ProductModel struct {
 	ID          uint    `gorm:"primaryKey"`
-	Name        string  `gorm:"uniqueIndex;size:100;not null"`
+	Code        string  `gorm:"uniqueIndex;size:50;not null"` // 产品代码
+	Name        string  `gorm:"size:100;not null"`
+	Type        string  `gorm:"size:20;default:'personal';not null"` // personal/team
 	Description string  `gorm:"type:text"`
 	Price       float64 `gorm:"type:decimal(10,2);not null;default:0"`
 	Status      string  `gorm:"size:20;default:'active';not null"`
+	LayoutRef   string  `gorm:"size:100;default:''"` // 前端 Layout 组件引用
+	MaxSeats    int     `gorm:"default:0;not null"`  // 最大席位数量，0=无限制
+	TrialDays   int     `gorm:"default:0;not null"`  // 试用天数
 
 	CreatedAt time.Time
 	UpdatedAt time.Time
@@ -34,10 +39,15 @@ func newProductModelFromEntity(entity *product.Product) *ProductModel {
 
 	return &ProductModel{
 		ID:          entity.ID,
+		Code:        entity.Code,
 		Name:        entity.Name,
+		Type:        string(entity.Type),
 		Description: entity.Description,
 		Price:       entity.Price,
 		Status:      string(entity.Status),
+		LayoutRef:   entity.LayoutRef,
+		MaxSeats:    entity.MaxSeats,
+		TrialDays:   entity.TrialDays,
 		CreatedAt:   entity.CreatedAt,
 		UpdatedAt:   entity.UpdatedAt,
 	}
@@ -51,10 +61,15 @@ func (m *ProductModel) ToEntity() *product.Product {
 
 	return &product.Product{
 		ID:          m.ID,
+		Code:        m.Code,
 		Name:        m.Name,
+		Type:        product.Type(m.Type),
 		Description: m.Description,
 		Price:       m.Price,
 		Status:      product.Status(m.Status),
+		LayoutRef:   m.LayoutRef,
+		MaxSeats:    m.MaxSeats,
+		TrialDays:   m.TrialDays,
 		CreatedAt:   m.CreatedAt,
 		UpdatedAt:   m.UpdatedAt,
 	}

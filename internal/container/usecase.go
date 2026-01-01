@@ -12,7 +12,6 @@ import (
 	"github.com/lwmacct/251117-go-ddd-template/internal/application/role"
 	"github.com/lwmacct/251117-go-ddd-template/internal/application/setting"
 	"github.com/lwmacct/251117-go-ddd-template/internal/application/stats"
-	"github.com/lwmacct/251117-go-ddd-template/internal/application/task"
 	app_twofa "github.com/lwmacct/251117-go-ddd-template/internal/application/twofa"
 	"github.com/lwmacct/251117-go-ddd-template/internal/application/user"
 	domain_auth "github.com/lwmacct/251117-go-ddd-template/internal/domain/auth"
@@ -152,15 +151,6 @@ type ProductUseCases struct {
 	List   *product.ListHandler
 }
 
-// TaskUseCases 团队任务相关用例处理器
-type TaskUseCases struct {
-	Create *task.CreateHandler
-	Update *task.UpdateHandler
-	Delete *task.DeleteHandler
-	Get    *task.GetHandler
-	List   *task.ListHandler
-}
-
 // --- Fx 模块 ---
 
 // UseCaseModule 提供按领域组织的所有用例处理器。
@@ -178,7 +168,6 @@ var UseCaseModule = fx.Module("usecase",
 		newTwoFAUseCases,
 		newOrganizationUseCases,
 		newProductUseCases,
-		newTaskUseCases,
 	),
 )
 
@@ -411,15 +400,5 @@ func newProductUseCases(repos persistence.ProductRepositories) *ProductUseCases 
 		Delete: product.NewDeleteHandler(repos.Command),
 		Get:    product.NewGetHandler(repos.Query),
 		List:   product.NewListHandler(repos.Query),
-	}
-}
-
-func newTaskUseCases(repos persistence.TaskRepositories) *TaskUseCases {
-	return &TaskUseCases{
-		Create: task.NewCreateHandler(repos.Command),
-		Update: task.NewUpdateHandler(repos.Command, repos.Query),
-		Delete: task.NewDeleteHandler(repos.Command, repos.Query),
-		Get:    task.NewGetHandler(repos.Query),
-		List:   task.NewListHandler(repos.Query),
 	}
 }

@@ -1,5 +1,5 @@
 /* tslint:disable */
-/* eslint-disable */
+ 
 /**
  * Go DDD Template API
  * 基于 DDD+CQRS 架构的 Go Web 应用 API 文档
@@ -25,7 +25,25 @@ export interface ProductCreateProductDTO {
      * @type {string}
      * @memberof ProductCreateProductDTO
      */
+    'code': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof ProductCreateProductDTO
+     */
     'description'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof ProductCreateProductDTO
+     */
+    'layout_ref'?: string;
+    /**
+     * 
+     * @type {number}
+     * @memberof ProductCreateProductDTO
+     */
+    'max_seats'?: number;
     /**
      * 
      * @type {string}
@@ -44,6 +62,18 @@ export interface ProductCreateProductDTO {
      * @memberof ProductCreateProductDTO
      */
     'status'?: ProductCreateProductDTOStatusEnum;
+    /**
+     * 
+     * @type {number}
+     * @memberof ProductCreateProductDTO
+     */
+    'trial_days'?: number;
+    /**
+     * 
+     * @type {string}
+     * @memberof ProductCreateProductDTO
+     */
+    'type': ProductCreateProductDTOTypeEnum;
 }
 
 export const ProductCreateProductDTOStatusEnum = {
@@ -52,5 +82,11 @@ export const ProductCreateProductDTOStatusEnum = {
 } as const;
 
 export type ProductCreateProductDTOStatusEnum = typeof ProductCreateProductDTOStatusEnum[keyof typeof ProductCreateProductDTOStatusEnum];
+export const ProductCreateProductDTOTypeEnum = {
+    Personal: 'personal',
+    Team: 'team'
+} as const;
+
+export type ProductCreateProductDTOTypeEnum = typeof ProductCreateProductDTOTypeEnum[keyof typeof ProductCreateProductDTOTypeEnum];
 
 

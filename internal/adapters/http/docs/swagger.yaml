@@ -781,9 +781,19 @@ definitions:
     type: object
   product.CreateProductDTO:
     properties:
+      code:
+        maxLength: 50
+        minLength: 2
+        type: string
       description:
         maxLength: 500
         type: string
+      layout_ref:
+        maxLength: 100
+        type: string
+      max_seats:
+        minimum: 0
+        type: integer
       name:
         maxLength: 100
         minLength: 2
@@ -796,16 +806,51 @@ definitions:
         - active
         - inactive
         type: string
+      trial_days:
+        minimum: 0
+        type: integer
+      type:
+        enum:
+        - personal
+        - team
+        type: string
     required:
+    - code
     - name
+    - type
+    type: object
+  product.ProductCatalogDTO:
+    properties:
+      code:
+        type: string
+      description:
+        type: string
+      layout_ref:
+        type: string
+      max_seats:
+        type: integer
+      name:
+        type: string
+      price:
+        type: number
+      trial_days:
+        type: integer
+      type:
+        type: string
     type: object
   product.ProductDTO:
     properties:
+      code:
+        type: string
       created_at:
         type: string
       description:
         type: string
       id:
+        type: integer
+      layout_ref:
+        type: string
+      max_seats:
         type: integer
       name:
         type: string
@@ -813,14 +858,28 @@ definitions:
         type: number
       status:
         type: string
+      trial_days:
+        type: integer
+      type:
+        type: string
       updated_at:
         type: string
     type: object
   product.UpdateProductDTO:
     properties:
+      code:
+        maxLength: 50
+        minLength: 2
+        type: string
       description:
         maxLength: 500
         type: string
+      layout_ref:
+        maxLength: 100
+        type: string
+      max_seats:
+        minimum: 0
+        type: integer
       name:
         maxLength: 100
         minLength: 2
@@ -832,6 +891,14 @@ definitions:
         enum:
         - active
         - inactive
+        type: string
+      trial_days:
+        minimum: 0
+        type: integer
+      type:
+        enum:
+        - personal
+        - team
         type: string
     type: object
   response.DataResponse-any:
@@ -911,6 +978,22 @@ definitions:
         description: 消息描述
         type: string
     type: object
+  response.DataResponse-array_product_ProductCatalogDTO:
+    properties:
+      code:
+        description: HTTP 状态码
+        type: integer
+      data:
+        description: 响应数据
+        items:
+          $ref: '#/definitions/product.ProductCatalogDTO'
+        type: array
+      error:
+        description: 错误详情（仅失败时）
+      message:
+        description: 消息描述
+        type: string
+    type: object
   response.DataResponse-array_routes_OperationDefinition:
     properties:
       code:
@@ -968,6 +1051,38 @@ definitions:
         description: 响应数据
         items:
           $ref: '#/definitions/setting.SettingsCategoryDTO'
+        type: array
+      error:
+        description: 错误详情（仅失败时）
+      message:
+        description: 消息描述
+        type: string
+    type: object
+  response.DataResponse-array_subscription_PlanDTO:
+    properties:
+      code:
+        description: HTTP 状态码
+        type: integer
+      data:
+        description: 响应数据
+        items:
+          $ref: '#/definitions/subscription.PlanDTO'
+        type: array
+      error:
+        description: 错误详情（仅失败时）
+      message:
+        description: 消息描述
+        type: string
+    type: object
+  response.DataResponse-array_subscription_SubscriptionDTO:
+    properties:
+      code:
+        description: HTTP 状态码
+        type: integer
+      data:
+        description: 响应数据
+        items:
+          $ref: '#/definitions/subscription.SubscriptionDTO'
         type: array
       error:
         description: 错误详情（仅失败时）
@@ -1230,6 +1345,21 @@ definitions:
         description: 消息描述
         type: string
     type: object
+  response.DataResponse-product_ProductCatalogDTO:
+    properties:
+      code:
+        description: HTTP 状态码
+        type: integer
+      data:
+        allOf:
+        - $ref: '#/definitions/product.ProductCatalogDTO'
+        description: 响应数据
+      error:
+        description: 错误详情（仅失败时）
+      message:
+        description: 消息描述
+        type: string
+    type: object
   response.DataResponse-product_ProductDTO:
     properties:
       code:
@@ -1328,6 +1458,21 @@ definitions:
       data:
         allOf:
         - $ref: '#/definitions/stats.StatsDTO'
+        description: 响应数据
+      error:
+        description: 错误详情（仅失败时）
+      message:
+        description: 消息描述
+        type: string
+    type: object
+  response.DataResponse-subscription_SubscriptionDTO:
+    properties:
+      code:
+        description: HTTP 状态码
+        type: integer
+      data:
+        allOf:
+        - $ref: '#/definitions/subscription.SubscriptionDTO'
         description: 响应数据
       error:
         description: 错误详情（仅失败时）
@@ -1961,6 +2106,114 @@ definitions:
       total_roles:
         type: integer
       total_users:
+        type: integer
+    type: object
+  subscription.CreateSubscriptionDTO:
+    properties:
+      billing_cycle:
+        enum:
+        - monthly
+        - yearly
+        type: string
+      max_seats:
+        minimum: 0
+        type: integer
+      org_id:
+        description: 组织订阅时提供
+        type: integer
+      plan_id:
+        type: integer
+      product_code:
+        type: string
+    required:
+    - product_code
+    type: object
+  subscription.FeatureDTO:
+    properties:
+      description:
+        type: string
+      enabled:
+        type: boolean
+      name:
+        type: string
+    type: object
+  subscription.PlanDTO:
+    properties:
+      currency:
+        type: string
+      description:
+        type: string
+      features:
+        items:
+          $ref: '#/definitions/subscription.FeatureDTO'
+        type: array
+      id:
+        type: integer
+      max_seats:
+        type: integer
+      monthly_price:
+        type: number
+      name:
+        type: string
+      price:
+        type: number
+      product_id:
+        type: integer
+      sort_order:
+        type: integer
+      trial_days:
+        type: integer
+      yearly_discount:
+        description: 计算得出的年付折扣
+        type: number
+      yearly_price:
+        type: number
+    type: object
+  subscription.SubscriptionDTO:
+    properties:
+      billing_cycle:
+        type: string
+      canceled_at:
+        type: string
+      created_at:
+        type: string
+      current_period_end:
+        type: string
+      current_period_start:
+        type: string
+      expires_at:
+        type: string
+      id:
+        type: integer
+      max_seats:
+        type: integer
+      org_id:
+        type: integer
+      plan_features:
+        items:
+          $ref: '#/definitions/subscription.FeatureDTO'
+        type: array
+      plan_id:
+        type: integer
+      plan_name:
+        type: string
+      plan_price:
+        type: number
+      product_code:
+        type: string
+      product_id:
+        type: integer
+      product_name:
+        type: string
+      status:
+        type: string
+      trial_ends_at:
+        type: string
+      updated_at:
+        type: string
+      used_seats:
+        type: integer
+      user_id:
         type: integer
     type: object
   task.CreateTaskDTO:
@@ -5176,6 +5429,193 @@ paths:
       summary: 更新任务
       tags:
       - Organization - Team Task Management
+  /api/public/products:
+    get:
+      consumes:
+      - application/json
+      description: 获取所有激活的产品目录（公开接口）
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 产品列表
+          schema:
+            $ref: '#/definitions/response.DataResponse-array_product_ProductCatalogDTO'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: 产品目录
+      tags:
+      - Public - Products
+  /api/public/products/{code}:
+    get:
+      consumes:
+      - application/json
+      description: 根据产品代码获取产品详情（公开接口）
+      parameters:
+      - description: 产品代码
+        in: path
+        name: code
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 产品详情
+          schema:
+            $ref: '#/definitions/response.DataResponse-product_ProductCatalogDTO'
+        "404":
+          description: 产品不存在
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: 产品详情
+      tags:
+      - Public - Products
+  /api/public/products/{code}/plans:
+    get:
+      consumes:
+      - application/json
+      description: 获取指定产品的套餐列表
+      parameters:
+      - description: 产品代码
+        in: path
+        name: code
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 套餐列表
+          schema:
+            $ref: '#/definitions/response.DataResponse-array_subscription_PlanDTO'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: 产品套餐
+      tags:
+      - Public - Products
+  /api/self/subscriptions:
+    get:
+      consumes:
+      - application/json
+      description: 获取当前用户的所有订阅
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 订阅列表
+          schema:
+            $ref: '#/definitions/response.DataResponse-array_subscription_SubscriptionDTO'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 我的订阅
+      tags:
+      - Self - Subscriptions
+    post:
+      consumes:
+      - application/json
+      description: 为用户或组织创建订阅
+      parameters:
+      - description: 创建订阅请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/subscription.CreateSubscriptionDTO'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: 订阅创建成功
+          schema:
+            $ref: '#/definitions/response.DataResponse-subscription_SubscriptionDTO'
+        "400":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 创建订阅
+      tags:
+      - Self - Subscriptions
+  /api/self/subscriptions/{id}:
+    get:
+      consumes:
+      - application/json
+      description: 根据订阅 ID 获取订阅详情
+      parameters:
+      - description: 订阅 ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 订阅详情
+          schema:
+            $ref: '#/definitions/response.DataResponse-subscription_SubscriptionDTO'
+        "404":
+          description: 订阅不存在
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 订阅详情
+      tags:
+      - Self - Subscriptions
+  /api/self/subscriptions/{id}/cancel:
+    post:
+      consumes:
+      - application/json
+      description: 取消指定的订阅
+      parameters:
+      - description: 订阅 ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 取消成功
+          schema:
+            $ref: '#/definitions/response.MessageResponse'
+        "404":
+          description: 订阅不存在
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 取消订阅
+      tags:
+      - Self - Subscriptions
   /api/user/account:
     delete:
       consumes:

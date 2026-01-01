@@ -31,6 +31,18 @@ func (h *UpdateHandler) Handle(ctx context.Context, cmd UpdateProductCommand) (*
 		return nil, err
 	}
 
+	// 如果要更新代码，检查是否与其他产品冲突
+	if cmd.Code != nil && *cmd.Code != p.Code {
+		exists, err := h.queryRepo.ExistsByCode(ctx, *cmd.Code)
+		if err != nil {
+			return nil, err
+		}
+		if exists {
+			return nil, product.ErrProductCodeExists
+		}
+		p.Code = *cmd.Code
+	}
+
 	// 如果要更新名称，检查是否与其他产品冲突
 	if cmd.Name != nil && *cmd.Name != p.Name {
 		exists, err := h.queryRepo.ExistsByName(ctx, *cmd.Name)
@@ -44,6 +56,9 @@ func (h *UpdateHandler) Handle(ctx context.Context, cmd UpdateProductCommand) (*
 	}
 
 	// 更新其他字段
+	if cmd.Type != nil {
+		p.Type = product.Type(*cmd.Type)
+	}
 	if cmd.Description != nil {
 		p.Description = *cmd.Description
 	}
@@ -52,6 +67,15 @@ func (h *UpdateHandler) Handle(ctx context.Context, cmd UpdateProductCommand) (*
 	}
 	if cmd.Status != nil {
 		p.Status = product.Status(*cmd.Status)
+	}
+	if cmd.LayoutRef != nil {
+		p.LayoutRef = *cmd.LayoutRef
+	}
+	if cmd.MaxSeats != nil {
+		p.MaxSeats = *cmd.MaxSeats
+	}
+	if cmd.TrialDays != nil {
+		p.TrialDays = *cmd.TrialDays
 	}
 
 	// 持久化

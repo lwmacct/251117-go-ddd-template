@@ -1,5 +1,5 @@
 /* tslint:disable */
-/* eslint-disable */
+ 
 /**
  * Go DDD Template API
  * 基于 DDD+CQRS 架构的 Go Web 应用 API 文档
@@ -25,7 +25,25 @@ export interface ProductUpdateProductDTO {
      * @type {string}
      * @memberof ProductUpdateProductDTO
      */
+    'code'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof ProductUpdateProductDTO
+     */
     'description'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof ProductUpdateProductDTO
+     */
+    'layout_ref'?: string;
+    /**
+     * 
+     * @type {number}
+     * @memberof ProductUpdateProductDTO
+     */
+    'max_seats'?: number;
     /**
      * 
      * @type {string}
@@ -44,6 +62,18 @@ export interface ProductUpdateProductDTO {
      * @memberof ProductUpdateProductDTO
      */
     'status'?: ProductUpdateProductDTOStatusEnum;
+    /**
+     * 
+     * @type {number}
+     * @memberof ProductUpdateProductDTO
+     */
+    'trial_days'?: number;
+    /**
+     * 
+     * @type {string}
+     * @memberof ProductUpdateProductDTO
+     */
+    'type'?: ProductUpdateProductDTOTypeEnum;
 }
 
 export const ProductUpdateProductDTOStatusEnum = {
@@ -52,5 +82,11 @@ export const ProductUpdateProductDTOStatusEnum = {
 } as const;
 
 export type ProductUpdateProductDTOStatusEnum = typeof ProductUpdateProductDTOStatusEnum[keyof typeof ProductUpdateProductDTOStatusEnum];
+export const ProductUpdateProductDTOTypeEnum = {
+    Personal: 'personal',
+    Team: 'team'
+} as const;
+
+export type ProductUpdateProductDTOTypeEnum = typeof ProductUpdateProductDTOTypeEnum[keyof typeof ProductUpdateProductDTOTypeEnum];
 
 

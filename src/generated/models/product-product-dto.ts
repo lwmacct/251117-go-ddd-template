@@ -1,5 +1,5 @@
 /* tslint:disable */
-/* eslint-disable */
+ 
 /**
  * Go DDD Template API
  * 基于 DDD+CQRS 架构的 Go Web 应用 API 文档
@@ -25,6 +25,12 @@ export interface ProductProductDTO {
      * @type {string}
      * @memberof ProductProductDTO
      */
+    'code'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof ProductProductDTO
+     */
     'created_at'?: string;
     /**
      * 
@@ -43,6 +49,18 @@ export interface ProductProductDTO {
      * @type {string}
      * @memberof ProductProductDTO
      */
+    'layout_ref'?: string;
+    /**
+     * 
+     * @type {number}
+     * @memberof ProductProductDTO
+     */
+    'max_seats'?: number;
+    /**
+     * 
+     * @type {string}
+     * @memberof ProductProductDTO
+     */
     'name'?: string;
     /**
      * 
@@ -56,6 +74,18 @@ export interface ProductProductDTO {
      * @memberof ProductProductDTO
      */
     'status'?: string;
+    /**
+     * 
+     * @type {number}
+     * @memberof ProductProductDTO
+     */
+    'trial_days'?: number;
+    /**
+     * 
+     * @type {string}
+     * @memberof ProductProductDTO
+     */
+    'type'?: string;
     /**
      * 
      * @type {string}

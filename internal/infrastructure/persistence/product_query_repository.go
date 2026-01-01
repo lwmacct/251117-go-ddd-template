@@ -28,6 +28,17 @@ func (r *productQueryRepository) GetByID(ctx context.Context, id uint) (*product
 	return model.ToEntity(), nil
 }
 
+func (r *productQueryRepository) GetByCode(ctx context.Context, code string) (*product.Product, error) {
+	var model ProductModel
+	if err := r.db.WithContext(ctx).Where("code = ?", code).First(&model).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, product.ErrProductNotFound
+		}
+		return nil, err
+	}
+	return model.ToEntity(), nil
+}
+
 func (r *productQueryRepository) GetByName(ctx context.Context, name string) (*product.Product, error) {
 	var model ProductModel
 	if err := r.db.WithContext(ctx).Where("name = ?", name).First(&model).Error; err != nil {
@@ -65,6 +76,25 @@ func (r *productQueryRepository) ExistsByName(ctx context.Context, name string) 
 		return false, err
 	}
 	return count > 0, nil
+}
+
+func (r *productQueryRepository) ExistsByCode(ctx context.Context, code string) (bool, error) {
+	var count int64
+	if err := r.db.WithContext(ctx).Model(&ProductModel{}).Where("code = ?", code).Count(&count).Error; err != nil {
+		return false, err
+	}
+	return count > 0, nil
+}
+
+func (r *productQueryRepository) ListActive(ctx context.Context) ([]*product.Product, error) {
+	var models []ProductModel
+	if err := r.db.WithContext(ctx).
+		Where("status = ?", string(product.StatusActive)).
+		Order("id ASC").
+		Find(&models).Error; err != nil {
+		return nil, err
+	}
+	return mapProductModelsToEntities(models), nil
 }
 
 // ListByStatus 按状态分页获取产品列表

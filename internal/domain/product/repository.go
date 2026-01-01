@@ -16,6 +16,8 @@ type CommandRepository interface {
 type QueryRepository interface {
 	// GetByID 根据 ID 获取产品。
 	GetByID(ctx context.Context, id uint) (*Product, error)
+	// GetByCode 根据产品代码获取产品。
+	GetByCode(ctx context.Context, code string) (*Product, error)
 	// GetByName 根据名称获取产品。
 	GetByName(ctx context.Context, name string) (*Product, error)
 	// List 分页获取产品列表。
@@ -28,4 +30,8 @@ type QueryRepository interface {
 	CountByStatus(ctx context.Context, status string) (int64, error)
 	// ExistsByName 检查产品名称是否存在。
 	ExistsByName(ctx context.Context, name string) (bool, error)
+	// ExistsByCode 检查产品代码是否存在。
+	ExistsByCode(ctx context.Context, code string) (bool, error)
+	// ListActive 获取所有激活的产品（用于产品目录）。
+	ListActive(ctx context.Context) ([]*Product, error)
 }

@@ -33,10 +33,15 @@ func (r *productCommandRepository) Update(ctx context.Context, p *product.Produc
 	result := r.db.WithContext(ctx).Model(&ProductModel{}).
 		Where("id = ?", p.ID).
 		Updates(map[string]any{
+			"code":        model.Code,
 			"name":        model.Name,
+			"type":        model.Type,
 			"description": model.Description,
 			"price":       model.Price,
 			"status":      model.Status,
+			"layout_ref":  model.LayoutRef,
+			"max_seats":   model.MaxSeats,
+			"trial_days":  model.TrialDays,
 		})
 	if result.Error != nil {
 		return result.Error

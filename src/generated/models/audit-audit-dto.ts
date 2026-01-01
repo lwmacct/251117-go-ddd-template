@@ -1,5 +1,5 @@
 /* tslint:disable */
-/* eslint-disable */
+ 
 /**
  * Go DDD Template API
  * 基于 DDD+CQRS 架构的 Go Web 应用 API 文档

@@ -9,10 +9,15 @@ func ToProductDTO(p *product.Product) *ProductDTO {
 	}
 	return &ProductDTO{
 		ID:          p.ID,
+		Code:        p.Code,
 		Name:        p.Name,
+		Type:        string(p.Type),
 		Description: p.Description,
 		Price:       p.Price,
 		Status:      string(p.Status),
+		LayoutRef:   p.LayoutRef,
+		MaxSeats:    p.MaxSeats,
+		TrialDays:   p.TrialDays,
 		CreatedAt:   p.CreatedAt,
 		UpdatedAt:   p.UpdatedAt,
 	}
@@ -30,4 +35,35 @@ func ToProductDTOs(products []*product.Product) []*ProductDTO {
 		}
 	}
 	return dtos
+}
+
+// ToProductCatalogDTOs 将产品实体列表转换为目录 DTO 列表（公开信息）
+func ToProductCatalogDTOs(products []*product.Product) []*ProductCatalogDTO {
+	if len(products) == 0 {
+		return nil
+	}
+	dtos := make([]*ProductCatalogDTO, 0, len(products))
+	for _, p := range products {
+		if dto := ToProductCatalogDTO(p); dto != nil {
+			dtos = append(dtos, dto)
+		}
+	}
+	return dtos
+}
+
+// ToProductCatalogDTO 将产品实体转换为目录 DTO
+func ToProductCatalogDTO(p *product.Product) *ProductCatalogDTO {
+	if p == nil {
+		return nil
+	}
+	return &ProductCatalogDTO{
+		Code:        p.Code,
+		Name:        p.Name,
+		Type:        string(p.Type),
+		Description: p.Description,
+		Price:       p.Price,
+		LayoutRef:   p.LayoutRef,
+		MaxSeats:    p.MaxSeats,
+		TrialDays:   p.TrialDays,
+	}
 }
