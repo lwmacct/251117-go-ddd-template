@@ -34,7 +34,6 @@ export {
   orgMemberApi,
   orgTeamApi,
   orgTeamMemberApi,
-  orgTeamTaskApi,
   overviewApi,
   systemApi,
   userOrgApi,

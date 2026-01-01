@@ -44,7 +44,7 @@ function saveFavorites(paths: string[]): void {
 export const useNavbarStore = defineStore("navbar", () => {
   // ==================== 动态菜单（基于角色） ====================
 
-  const { adminMenus, userMenus, orgMenus } = useMenus();
+  const { adminMenus, userMenus } = useMenus();
 
   // ==================== 访问历史（委托给 composable）====================
 
@@ -93,18 +93,6 @@ export const useNavbarStore = defineStore("navbar", () => {
         icon: item.icon || "mdi-file",
         path: item.path,
         category: "用户中心",
-        isFavorite: favoritePaths.value.includes(item.path),
-      });
-    });
-
-    // 转换组织菜单（已经按角色过滤）
-    orgMenus.value.forEach((item, index) => {
-      items.push({
-        id: `org-${index}`,
-        title: item.title,
-        icon: item.icon || "mdi-file",
-        path: item.path,
-        category: "组织工作台",
         isFavorite: favoritePaths.value.includes(item.path),
       });
     });

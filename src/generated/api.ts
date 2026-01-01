@@ -1,5 +1,5 @@
 /* tslint:disable */
- 
+/* eslint-disable */
 /**
  * Go DDD Template API
  * 基于 DDD+CQRS 架构的 Go Web 应用 API 文档
@@ -26,7 +26,6 @@ export * from './api/authentication2-faapi';
 export * from './api/organization-member-management-api';
 export * from './api/organization-team-management-api';
 export * from './api/organization-team-member-management-api';
-export * from './api/organization-team-task-management-api';
 export * from './api/overview-api';
 export * from './api/system-api';
 export * from './api/user-organization-api';

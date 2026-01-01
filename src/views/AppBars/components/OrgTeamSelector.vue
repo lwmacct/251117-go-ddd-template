@@ -26,7 +26,7 @@ const teams = ref<OrgUserTeamDTO[]>([]);
  * 判断是否处于组织上下文中
  */
 const isInOrgContext = computed(() => {
-  return /^\/org\/\d+\/teams\/\d+/.test(route.path);
+  return /^\/org\/\d+\/team\/\d+/.test(route.path);
 });
 
 /**
@@ -112,7 +112,7 @@ async function selectOrg(orgId: number) {
   const existingTeams = teams.value.filter((t) => t.org_id === orgId);
   if (existingTeams.length > 0) {
     const firstTeam = existingTeams[0]!;
-    router.push(`/org/${orgId}/teams/${firstTeam.id}/tasks`);
+    router.push(`/org/${orgId}/team/${firstTeam.id}`);
     return;
   }
 
@@ -131,7 +131,7 @@ async function selectOrg(orgId: number) {
 
     if (fetchedTeams.length > 0) {
       const firstTeam = fetchedTeams[0]!;
-      router.push(`/org/${orgId}/teams/${firstTeam.id}/tasks`);
+      router.push(`/org/${orgId}/team/${firstTeam.id}`);
     }
   } finally {
     loading.value = false;
@@ -143,7 +143,7 @@ async function selectOrg(orgId: number) {
  */
 function selectTeam(teamId: number) {
   if (currentOrgId.value) {
-    router.push(`/org/${currentOrgId.value}/teams/${teamId}/tasks`);
+    router.push(`/org/${currentOrgId.value}/team/${teamId}`);
   }
 }
 
