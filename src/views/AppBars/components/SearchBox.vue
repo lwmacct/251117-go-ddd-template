@@ -8,9 +8,10 @@
  * - 键盘导航（↑↓ Enter ESC）
  * - 响应式设计（移动端仅显示图标）
  */
-import { ref, computed, watch, onMounted, onUnmounted } from "vue";
+import { ref, computed, watch } from "vue";
 import { useRouter } from "vue-router";
 import { useNavbarStore } from "@/stores";
+import { useEventListener } from "@vueuse/core";
 
 const router = useRouter();
 const navbarStore = useNavbarStore();
@@ -18,15 +19,11 @@ const searchQuery = ref("");
 const searchDialog = ref(false);
 const selectedIndex = ref(0);
 
-/** 检测操作系统 */
-const isMac = computed(() => {
-  return navigator.platform.toUpperCase().includes("MAC");
-});
+/** 检测是否为 Mac (保留原生检测 - VueUse 无 usePlatform) */
+const isMac = computed(() => navigator.platform.toUpperCase().includes("MAC"));
 
 /** 快捷键显示文本 */
-const shortcutText = computed(() => {
-  return isMac.value ? "⌘K" : "Ctrl+K";
-});
+const shortcutText = computed(() => (isMac.value ? "⌘K" : "Ctrl+K"));
 
 /** 搜索结果 */
 const searchResults = computed(() => {
@@ -96,13 +93,14 @@ function handleKeydown(event: KeyboardEvent) {
       event.preventDefault();
       selectedIndex.value = Math.max(selectedIndex.value - 1, 0);
       break;
-    case "Enter":
+    case "Enter": {
       event.preventDefault();
       const selectedItem = items[selectedIndex.value];
       if (selectedItem) {
         navigateTo(selectedItem.path);
       }
       break;
+    }
     case "Escape":
       event.preventDefault();
       closeSearch();
@@ -115,21 +113,16 @@ watch(searchQuery, () => {
   selectedIndex.value = 0;
 });
 
-/** 全局快捷键监听 */
-function handleGlobalKeydown(event: KeyboardEvent) {
-  // Cmd+K (Mac) 或 Ctrl+K (Windows/Linux)
-  if ((event.metaKey || event.ctrlKey) && event.key === "k") {
-    event.preventDefault();
+/** 全局快捷键监听 (VueUse - 自动管理生命周期) */
+useEventListener(window, "keydown", (e: KeyboardEvent) => {
+  // 对话框打开时不处理快捷键
+  if (searchDialog.value) return;
+
+  // Ctrl+K 或 Cmd+K 打开搜索框
+  if ((e.ctrlKey || e.metaKey) && e.key === "k") {
+    e.preventDefault();
     openSearch();
   }
-}
-
-onMounted(() => {
-  window.addEventListener("keydown", handleGlobalKeydown);
-});
-
-onUnmounted(() => {
-  window.removeEventListener("keydown", handleGlobalKeydown);
 });
 </script>
 

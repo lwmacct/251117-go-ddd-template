@@ -6,12 +6,14 @@
  * - 顶部导航栏（搜索、主题切换、用户菜单）
  * - 抽屉菜单（最近访问、所有页面、收藏夹）
  * - 悬停面板（HoverPanel）
+ * - 插槽模式
  *
  * 优化点（相对 SaaS 模板）：
  * - 悬停面板增加延迟防抖，避免意外关闭
  * - 移动端使用点击模式
+ * - 插槽模式，支持自定义导航栏内容
  */
-import { ref, watch, onMounted } from "vue";
+import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { useNavbarStore } from "@/stores";
 import type { AppBarProps, HoverPanelType } from "./types";
@@ -24,6 +26,7 @@ import MenuListSection from "./components/MenuListSection.vue";
 import RecentPagesPanel from "./components/RecentPagesPanel.vue";
 import ProductsPanel from "./components/ProductsPanel.vue";
 import DrawerMenuItem from "./components/DrawerMenuItem.vue";
+import OrgTeamSelector from "./components/OrgTeamSelector.vue";
 
 // Props
 const props = withDefaults(defineProps<AppBarProps>(), {
@@ -52,18 +55,9 @@ const drawer = ref(false);
 const hoveredItem = ref<HoverPanelType>(null);
 const hoverTimeout = ref<ReturnType<typeof setTimeout> | null>(null);
 
-// 初始化
+// 组件挂载时同步抽屉状态
 onMounted(() => {
-  // 同步抽屉状态
   navbarStore.drawerOpen = drawer.value;
-});
-
-// 监听抽屉关闭时隐藏面板
-watch(drawer, (newValue) => {
-  if (!newValue) {
-    hoveredItem.value = null;
-  }
-  navbarStore.drawerOpen = newValue;
 });
 
 /** 导航 */
@@ -120,26 +114,40 @@ function handleToggleFavorite(path: string) {
 <template>
   <!-- 头部导航栏 -->
   <v-app-bar app :elevation="elevation" :color="color" :height="height" class="app-bar">
-    <!-- 导航图标 -->
-    <v-app-bar-nav-icon v-if="showNavIcon" class="nav-icon" @click="handleNavIconClick">
-      <v-icon>{{ drawer ? "mdi-close" : navIcon }}</v-icon>
-    </v-app-bar-nav-icon>
+    <!-- Start 区域（左侧） -->
+    <div class="navbar-start">
+      <slot name="start">
+        <!-- 导航图标 -->
+        <v-app-bar-nav-icon v-if="showNavIcon" class="nav-icon" @click="handleNavIconClick">
+          <v-icon>{{ drawer ? "mdi-close" : navIcon }}</v-icon>
+        </v-app-bar-nav-icon>
 
-    <!-- 分割线 -->
-    <v-divider v-if="showNavIcon" vertical class="mr-3" />
+        <!-- 分割线 -->
+        <v-divider v-if="showNavIcon" vertical class="mr-3" />
 
-    <!-- Logo 区域 -->
-    <div class="logo-area" @click="navigateToHome">
-      <img v-if="logo" :src="logo" alt="Logo" class="logo-image" />
-      <v-icon v-else size="28">{{ logoIcon }}</v-icon>
-      <span v-if="appName" class="app-name">{{ appName }}</span>
+        <!-- Logo 区域 -->
+        <div class="logo-area" @click="navigateToHome">
+          <img v-if="logo" :src="logo" alt="Logo" class="logo-image" />
+          <v-icon v-else size="28">{{ logoIcon }}</v-icon>
+          <span v-if="appName" class="app-name">{{ appName }}</span>
+        </div>
+
+        <!-- 组织/团队选择器 -->
+        <OrgTeamSelector />
+      </slot>
     </div>
 
-    <!-- 右侧区域 -->
+    <!-- 弹性空间 -->
     <v-spacer />
-    <SearchBox />
-    <ThemeToggle />
-    <UserMenu />
+
+    <!-- End 区域（右侧） -->
+    <div class="navbar-end">
+      <slot name="end">
+        <SearchBox />
+        <ThemeToggle />
+        <UserMenu />
+      </slot>
+    </div>
   </v-app-bar>
 
   <!-- 抽屉菜单 -->
@@ -192,6 +200,24 @@ function handleToggleFavorite(path: string) {
 <style scoped>
 .app-bar {
   z-index: 1000;
+}
+
+/* 左侧区域容器 */
+.navbar-start {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
+}
+
+/* 右侧区域容器 */
+.navbar-end {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 0 0 auto;
 }
 
 .nav-icon {

@@ -44,7 +44,7 @@ function saveFavorites(paths: string[]): void {
 export const useNavbarStore = defineStore("navbar", () => {
   // ==================== 动态菜单（基于角色） ====================
 
-  const { adminMenus, userMenus } = useMenus();
+  const { adminMenus, userMenus, orgMenus } = useMenus();
 
   // ==================== 访问历史（委托给 composable）====================
 
@@ -68,7 +68,7 @@ export const useNavbarStore = defineStore("navbar", () => {
   const accessHistory = historyManager.recentPages;
 
   /**
-   * 所有菜单项（合并管理员和用户菜单，基于角色动态过滤）
+   * 所有菜单项（合并管理员、用户和组织菜单，基于角色动态过滤）
    */
   const allMenuItems = computed<MenuItem[]>(() => {
     const items: MenuItem[] = [];
@@ -93,6 +93,18 @@ export const useNavbarStore = defineStore("navbar", () => {
         icon: item.icon || "mdi-file",
         path: item.path,
         category: "用户中心",
+        isFavorite: favoritePaths.value.includes(item.path),
+      });
+    });
+
+    // 转换组织菜单（已经按角色过滤）
+    orgMenus.value.forEach((item, index) => {
+      items.push({
+        id: `org-${index}`,
+        title: item.title,
+        icon: item.icon || "mdi-file",
+        path: item.path,
+        category: "组织工作台",
         isFavorite: favoritePaths.value.includes(item.path),
       });
     });

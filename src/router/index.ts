@@ -2,6 +2,7 @@ import { createRouter, createWebHashHistory } from "vue-router";
 import type { RouteLocationNormalized, NavigationGuardNext } from "vue-router";
 import { adminRoutes } from "./admin";
 import { authRoutes } from "./auth";
+import { orgRoutes } from "./org";
 import { userRoutes } from "./user";
 import { accessToken } from "@/utils/auth";
 import { useAuthStore } from "@/stores/auth";
@@ -16,6 +17,7 @@ const router = createRouter({
     authRoutes,
     adminRoutes,
     userRoutes,
+    orgRoutes,
     // 403 无权限页面
     {
       path: "/403",

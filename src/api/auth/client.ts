@@ -24,6 +24,7 @@ import {
   OrganizationMemberManagementApi,
   OrganizationTeamManagementApi,
   OrganizationTeamMemberManagementApi,
+  OrganizationTeamTaskManagementApi,
   OverviewApi,
   SystemApi,
   UserOrganizationApi,
@@ -115,6 +116,7 @@ export const auth2faApi = new Authentication2FAApi(configuration, "", apiClient)
 export const orgMemberApi = new OrganizationMemberManagementApi(configuration, "", apiClient);
 export const orgTeamApi = new OrganizationTeamManagementApi(configuration, "", apiClient);
 export const orgTeamMemberApi = new OrganizationTeamMemberManagementApi(configuration, "", apiClient);
+export const orgTeamTaskApi = new OrganizationTeamTaskManagementApi(configuration, "", apiClient);
 export const overviewApi = new OverviewApi(configuration, "", apiClient);
 export const systemApi = new SystemApi(configuration, "", apiClient);
 export const userOrgApi = new UserOrganizationApi(configuration, "", apiClient);
