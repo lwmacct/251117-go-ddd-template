@@ -10,7 +10,7 @@
 
 import { ref, computed } from "vue";
 import { useTimeoutFn } from "@vueuse/core";
-import { AuthAPI } from "@/api";
+import { AuthService } from "@/api";
 import type { CaptchaGenerateResultDTO } from "@models";
 
 /**
@@ -110,7 +110,7 @@ export function useRegister() {
   const fetchCaptcha = async () => {
     try {
       loadingCaptcha.value = true;
-      const response = await AuthAPI.getCaptcha();
+      const response = await AuthService.getCaptcha();
       if (response.data) {
         captchaData.value = response.data;
         captchaCode.value = "";
@@ -162,7 +162,7 @@ export function useRegister() {
         captcha: captchaCode.value,
       };
 
-      const response = await AuthAPI.register(requestData);
+      const response = await AuthService.register(requestData);
 
       if (response.code === 200) {
         // 保存session token (用于邮箱验证)

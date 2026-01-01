@@ -2,7 +2,7 @@
 import { ref, computed, watch } from "vue";
 import { useLogin } from "../composables";
 import { useAuthStore } from "@/stores/auth";
-import { AuthAPI } from "@/api";
+import { AuthService } from "@/api";
 import { accessToken, refreshToken } from "@/utils/auth";
 
 const loginStore = useLogin();
@@ -51,7 +51,7 @@ async function handleVerify() {
 
   try {
     // 调用2FA验证API（实际上是第二次登录）
-    const response = await AuthAPI.verify2FA({
+    const response = await AuthService.verify2FA({
       session_token: loginStore.sessionToken.value,
       code: twoFactorCode.value,
     });

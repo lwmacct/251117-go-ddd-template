@@ -5,13 +5,13 @@
 
 import { apiClient } from "./client";
 import type { AuthLoginDTO, AuthRegisterDTO, CaptchaGenerateResultDTO, AuthLoginResponseDTO } from "@models";
-import type { ApiResponse } from "../types";
+import type { ApiResponse } from "./types";
 
 /**
- * 认证 API
+ * 认证服务
  * 提供完整的认证功能：登录、注册、验证码、2FA 等
  */
-export class AuthAPI {
+export class AuthService {
   /**
    * 获取验证码
    */

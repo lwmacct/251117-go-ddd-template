@@ -3,7 +3,7 @@
  */
 import { defineStore } from "pinia";
 import { ref, computed } from "vue";
-import { AuthAPI } from "@/api";
+import { AuthService } from "@/api";
 import { accessToken, refreshToken, clearAuthTokens, storedUser } from "@/utils/auth";
 import type { AuthLoginDTO, AuthUserBriefDTO } from "@models";
 import type { LoginResult } from "@/api";
@@ -44,7 +44,7 @@ export const useAuthStore = defineStore("auth", () => {
       isLoading.value = true;
       error.value = null;
 
-      const response = await AuthAPI.login(credentials);
+      const response = await AuthService.login(credentials);
 
       if (response.code === 200) {
         // 检查是否需要 2FA

@@ -8,7 +8,7 @@ import { ref, computed, watch, onMounted } from "vue";
 import { useTimeoutFn } from "@vueuse/core";
 import { useRoute, useRouter } from "vue-router";
 import { useRegister } from "../composables";
-import { AuthAPI } from "@/api";
+import { AuthService } from "@/api";
 
 const route = useRoute();
 const router = useRouter();
@@ -96,13 +96,13 @@ async function handleVerify() {
     // 优先使用 session token (注册流程) ，如果没有则使用邮箱 (独立访问)
     if (registerStore.sessionToken.value) {
       // 注册流程：使用 session token
-      await AuthAPI.verifyEmail({
+      await AuthService.verifyEmail({
         session_token: registerStore.sessionToken.value,
         code: verificationCode.value,
       });
     } else if (registerStore.email.value) {
       // 独立访问：使用邮箱
-      await AuthAPI.verifyEmail({
+      await AuthService.verifyEmail({
         email: registerStore.email.value,
         code: verificationCode.value,
       });

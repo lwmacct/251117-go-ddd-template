@@ -8,8 +8,8 @@
 import axios, { type AxiosError } from "axios";
 import { accessToken, refreshToken, clearAuthTokens, storedUser } from "@/utils/auth";
 import type { AuthLoginResponseDTO } from "@models";
-import type { ApiResponse, ErrorResponse } from "../types";
-import { extractErrorFromAxios } from "../errors";
+import type { ApiResponse, ErrorResponse } from "./types";
+import { extractErrorFromAxios } from "./errors";
 import { Configuration } from "@generated";
 import {
   AdminAuditLogApi,

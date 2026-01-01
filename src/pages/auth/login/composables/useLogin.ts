@@ -11,7 +11,7 @@
 import { ref, computed } from "vue";
 import { useTimeoutFn } from "@vueuse/core";
 import { useAuthStore } from "@/stores/auth";
-import { AuthAPI, type LoginResult } from "@/api";
+import { AuthService, type LoginResult } from "@/api";
 import type { CaptchaGenerateResultDTO } from "@models";
 
 /**
@@ -81,7 +81,7 @@ export function useLogin() {
   const fetchCaptcha = async () => {
     try {
       loadingCaptcha.value = true;
-      const response = await AuthAPI.getCaptcha();
+      const response = await AuthService.getCaptcha();
       if (response.data) {
         captchaData.value = response.data;
         captchaCode.value = ""; // 清空验证码输入

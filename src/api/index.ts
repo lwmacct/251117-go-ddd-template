@@ -4,8 +4,8 @@
  * 本项目 API 层结构：
  * - types.ts: 前端专用类型（状态、扩展、枚举）
  * - helpers.ts: 响应提取辅助函数
- * - auth/client.ts: axios 实例 + API 实例
- * - generated/: OpenAPI Generator 自动生成的代码（勿手动修改）
+ * - client.ts: axios 实例 + API 实例
+ * - auth.ts: 认证业务封装
  *
  * 业务 DTO 直接从 generated/models 导出，无别名层
  */
@@ -41,10 +41,10 @@ export {
   userSettingsApi,
   userTokensApi,
   userProfileApi,
-} from "./auth/client";
+} from "./client";
 
-// ============== 认证相关 ==============
-export * from "./auth/platformAuth";
+// ============== 认证服务 ==============
+export { AuthService } from "./auth";
 
 // ============== 错误处理 ==============
 export * from "./errors";

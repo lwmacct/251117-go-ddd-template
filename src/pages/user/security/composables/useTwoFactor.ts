@@ -1,6 +1,6 @@
 import { ref } from "vue";
 import { useClipboard } from "@vueuse/core";
-import { AuthAPI } from "@/api";
+import { AuthService } from "@/api";
 import { useSnackbar } from "@/composables";
 
 /**
@@ -39,7 +39,7 @@ export function useTwoFactor() {
   async function fetchStatus() {
     try {
       loading.value = true;
-      const response = await AuthAPI.get2FAStatus();
+      const response = await AuthService.get2FAStatus();
       if (response.code === 200 && response.data) {
         enabled.value = response.data.enabled;
         recoveryCodesCount.value = response.data.recovery_codes_count;
@@ -64,7 +64,7 @@ export function useTwoFactor() {
       recoveryCodes.value = [];
       setupStep.value = "setup";
 
-      const response = await AuthAPI.setup2FA();
+      const response = await AuthService.setup2FA();
       if (response.code === 200 && response.data) {
         qrcodeImage.value = response.data.qrcode_img;
         secret.value = response.data.secret;
@@ -92,7 +92,7 @@ export function useTwoFactor() {
     try {
       loading.value = true;
 
-      const response = await AuthAPI.enable2FA(verifyCode.value);
+      const response = await AuthService.enable2FA(verifyCode.value);
       if (response.code === 200 && response.data) {
         recoveryCodes.value = response.data.recovery_codes || [];
         setupStep.value = "codes";
@@ -117,7 +117,7 @@ export function useTwoFactor() {
     try {
       loading.value = true;
 
-      const response = await AuthAPI.disable2FA();
+      const response = await AuthService.disable2FA();
       if (response.code === 200) {
         success(response.message || "2FA 已成功禁用");
         showDisableDialog.value = false;
